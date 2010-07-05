@@ -385,7 +385,7 @@ sub getFacets {
             {
                 idx   => 'su-to',
                 label => 'Topics',
-                tags  => [ qw/ 650a / ],
+                tags  => [ qw/ 650a 690a / ],
                 sep   => '--',
             },
             #        {
