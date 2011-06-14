@@ -704,6 +704,32 @@ body#advsearch #listsmenulink {
 	text-align : center;
 }
 
+/* PTFS Footer */
+#ft-ptfs {
+        position: fixed;
+	width: 100%;
+        bottom: 0px;
+        height: 26px;
+        background: #EEE;
+}
+
+#ptfs-credit {
+	float: right;
+        padding-right: 5px;
+        padding-top: 2px;
+        padding-bottom: 2px;
+        margin-top: 0px;
+        margin-bottom: 0px;
+}
+
+#kohaftr {
+	height: 16px;
+}
+
+#ptfsftr {
+	height: 16px;
+}
+
 /* facets bloc */
 /* the USER information block */
 #librarian_information {
