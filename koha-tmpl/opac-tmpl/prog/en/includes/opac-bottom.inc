@@ -1,4 +1,3 @@
-
 [% IF ( opaccredits ) %]
 	<div class="ft">
         [% opaccredits %]
@@ -48,7 +47,7 @@
 <script type="text/javascript" src="http://www.babeltheque.com/bw_30.js"></script>
 [% END %]
 <div id="ft-ptfs">
-   <p id="ptfs-credit"><a href="http://koha-community.org/"><img id=kohaftr src="/opac-tmpl/prog/images/koha-logo.png"/></a> implimented by <a href="http://www.ptfs-europe.com"><img id=ptfsftr src="/opac-tmpl/prog/images/ptfs-logo.png"/></a></p>
+   <p id="ptfs-credit"><a href="http://koha-community.org/"><img id=kohaftr src="/opac-tmpl/prog/images/koha-logo.png"/></a> implemented by <a href="http://www.ptfs-europe.com"><img id=ptfsftr src="/opac-tmpl/prog/images/ptfs-logo.png"/></a></p>
 </div>
 </body>
 </html>
