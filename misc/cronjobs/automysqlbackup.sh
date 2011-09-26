@@ -327,6 +327,8 @@ LOGFILE=$BACKUPDIR/$DBHOST-`date +%N`.log               # Logfile Name
 LOGERR=$BACKUPDIR/ERRORS_$DBHOST-`date +%N`.log         # Logfile Name
 BACKUPFILES=""
 OPT="--quote-names --opt"                       # OPT string for use with mysqldump ( see man mysqldump )
+crontab -l > $BACKUPDIR/daily/crontab.$DOW
+
 # Add --compress mysqldump option to $OPT
 if [ "$COMMCOMP" = "yes" ];
         then
