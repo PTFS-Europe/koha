@@ -704,6 +704,46 @@ body#advsearch #listsmenulink {
 	text-align : center;
 }
 
+/* PTFS Footer */
+
+#wrapper-ft{
+        position: absolute;
+        width: 100%;
+        bottom: 0px;
+        min-height: 26px;
+        background: #EEE;
+}
+
+#relativewrap{
+        position: relative;
+}
+
+/*#ft-ptfs {
+        position: fixed;
+	width: 100%;
+        bottom: 0px;
+        height: 26px;
+        background: #EEE;
+}*/
+
+#ptfs-credit {
+	position: absolute;
+        right: 0px;
+        padding-right: 5px;
+        padding-top: 2px;
+        padding-bottom: 2px;
+        margin-top: 0px;
+        margin-bottom: 0px;
+}
+
+#kohaftr {
+	height: 16px;
+}
+
+#ptfsftr {
+	height: 16px;
+}
+
 /* facets bloc */
 /* the USER information block */
 #librarian_information {
@@ -1417,12 +1457,14 @@ div.message {
 }
 
 div#changelanguage{
-	background-color: #fff;
-	border-top: 1px solid #CCC;
+	/*background-color: #fff;*/
+	/*border-top: 1px solid #CCC;*/
+	float: left;
 	color : #666;
 	font-size : 85%;
-	padding : 1em;
-	margin-top : 2em;
+	padding-left : 1em;
+        padding-right: 1em;
+	/*margin-top : 2em;*/
  }
  
 div#changelanguage a {

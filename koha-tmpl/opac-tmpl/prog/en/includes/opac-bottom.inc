@@ -1,13 +1,14 @@
 [% IF ( opaccredits ) %]
 	<div class="ft">
         [% opaccredits %]
-    </div>
+     </div>
 [% END %]
 </div>
 
 [% IF ( opaclanguagesdisplay || OpacKohaUrl ) %]
-<div id="changelanguage" class="ft">
+<div id="wrapper-ft" class="ft">
 [% IF ( languages_loop && opaclanguagesdisplay ) %]
+    <div id="changelanguage">
     [% UNLESS ( one_language_enabled ) %]
         <strong>Languages: </strong>
         [% FOREACH languages_loo IN languages_loop %]
@@ -40,12 +41,13 @@
             [% END %][% UNLESS ( loop.last ) %] | [% END %]
         [% END %]
     [% END %]
+    </div>
 [% END %]
 
 [% IF ( OpacKohaUrl ) %]
-    <span class="koha_url">
-        <a class="koha_url" href="http://koha-community.org">Powered by <strong>Koha</strong></a>&nbsp;&nbsp;
-    </span>
+   <div id="ft-ptfs">
+      <p id="ptfs-credit"><a href="http://koha-community.org/"><img id=kohaftr src="/opac-tmpl/prog/images/koha-logo.png"/></a> implemented by <a href="http://www.ptfs-europe.com"><img id=ptfsftr src="/opac-tmpl/prog/images/ptfs-logo.png"/></a></p>
+   </div>
 [% END %]
 
 </div>
