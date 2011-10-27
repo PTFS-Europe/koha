@@ -10,11 +10,12 @@
 [% IF ( languages_loop && opaclanguagesdisplay ) %]
     <div id="changelanguage">
     [% UNLESS ( one_language_enabled ) %]
-        <strong>Languages: </strong>
+        <div class="lang"><strong>Languages: </strong></div>
         [% FOREACH languages_loo IN languages_loop %]
+	    <div class="lang">
             [% IF ( languages_loo.group_enabled ) %]
             [% IF ( languages_loo.plural ) %]
-            <a id="show[% languages_loo.rfc4646_subtag %]" class="sublangs more" href="#">[% IF ( languages_loo.native_description ) %][% languages_loo.native_description %][% ELSE %][% languages_loo.rfc4646_subtag %][% END %]</a>
+            <a id="show[% languages_loo.rfc4646_subtag %]" class="sublangs more" href="#">[% IF ( languages_loo.native_description ) %][% languages_loo.native_description %][% ELSE %][% languages_loo.rfc4646_subtag %][% END %]</a>[% UNLESS ( loop.last ) %] | [% END %]
 			<div id="sub[% languages_loo.rfc4646_subtag %]">
             <div class="bd"><ul>
             [% FOREACH sublanguages_loo IN languages_loo.sublanguages_loop %]
@@ -38,7 +39,8 @@
                 [% END %]
 		[% END %]
             [% END %]
-            [% END %][% UNLESS ( loop.last ) %] | [% END %]
+            [% END %][% UNLESS ( loop.last || languages_loo.plural ) %] | [% END %]
+            </div>
         [% END %]
     [% END %]
     </div>
