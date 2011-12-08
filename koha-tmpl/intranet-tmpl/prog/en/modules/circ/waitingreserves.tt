@@ -102,7 +102,7 @@ $.tablesorter.addParser({
                             <input type="hidden" name="fbr" value="[% reserveloo.holdingbranch %]" />
                             <input type="hidden" name="tbr" value="[% reserveloo.homebranch %]" />
                             [% IF ( reserveloo.dotransfer ) %]
-                            <input type="submit" value="Cancel hold and return to : [% reserveloo.homebranch %]" /> 
+                            <input type="submit" value="Cancel hold and return to : [% reserveloo.branchname %]" /> 
                             [% ELSE %]
                             <input type="submit" value="Cancel hold" />
                             [% END %]
@@ -145,7 +145,7 @@ $.tablesorter.addParser({
                             <input type="hidden" name="fbr" value="[% overloo.holdingbranch %]" />
                             <input type="hidden" name="tbr" value="[% overloo.homebranch %]" />
                             [% IF ( overloo.dotransfer ) %]
-                            <input type="submit" value="Cancel hold and return to : [% overloo.homebranch %]" />
+                            <input type="submit" value="Cancel hold and return to : [% overloo.branchname %]" />
                             [% ELSE %]
                             <input type="submit" value="Cancel hold" />
                             [% END %]

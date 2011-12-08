@@ -24,7 +24,7 @@ $(document).ready(function(){
 
 	function confirmDelete(message){
 		if (window.confirm(message)) {
-			location.href="/cgi-bin/koha/virtualshelves/shelves.pl?[% IF ( showprivateshelves ) %]display=privateshelves&[% END %]shelves=1&DEL-[% shelfnumber %]=1";
+		    location.href="/cgi-bin/koha/virtualshelves/shelves.pl?[% IF ( showprivateshelves ) %] display=privateshelves&[% END %]shelves=1&DEL-[% shelfnumber %]=1&shelfoff=[% shelfoff %]";
 		} else { 
 			return false;
 		}
@@ -115,7 +115,8 @@ function placeHold () {
 [% INCLUDE 'header.inc' %]
 [% INCLUDE 'cat-search.inc' %]
 
-<div id="breadcrumbs"><a href="/cgi-bin/koha/mainpage.pl">Home</a> &rsaquo; <a href="/cgi-bin/koha/virtualshelves/shelves.pl">Lists</a>
+<div id="breadcrumbs"><a href="/cgi-bin/koha/mainpage.pl">Home</a> &rsaquo; <a href="/cgi-bin/koha/virtualshelves/shelves.pl">Lists</a> [% IF ( category1 ) %] &rsaquo; [% IF ( viewshelf || edit ) %] <a href="/cgi-bin/koha/virtualshelves/shelves.pl?display=privateshelves">Your Lists</a> [% ELSE %] Your Lists [% END %] [% ELSIF ( category2 ) %] &rsaquo; [% IF ( viewshelf ) %] <a href="/cgi-bin/koha/virtualshelves/shelves.pl?display=publicshelves">Public Lists</a> [% ELSE %] Public Lists [% END %] [% ELSIF ( showprivateshelves ) %] &rsaquo; [% IF ( viewshelf || edit ) %] <a href="/cgi-bin/koha/virtualshelves/shelves.pl?display=privateshelves">Your Lists</a> [% ELSE %] Your Lists [% END %] [% ELSIF ( showpublicshelves ) %] &rsaquo; [% IF ( viewshelf || edit ) %] <a href="/cgi-bin/koha/virtualshelves/shelves.pl?display=publicshelves">Public Lists</a> [% ELSE %] Public Lists [% END %] [% END %]
+
 [% IF ( viewshelf ) %]&rsaquo; Contents of <i>[% shelfname | html %]</i>[% END %][% IF ( shelves ) %] &rsaquo; Create New List[% END %][% IF ( edit ) %] &rsaquo; Edit List <i>[% shelfname | html %]</i>[% END %]</div>
 
 <div id="doc" class="yui-t7">
@@ -278,7 +279,7 @@ function placeHold () {
 		<input type="hidden" name="shelfnumber" value="[% shelfnumber %]" />
 		<legend>Edit List <i>[% shelfname | html %]</i></legend>
 		<ol>
-		<li><label for="shelfname">Name: </label><input type="text" id="shelfname" name="shelfname" size="25" value='[% shelfname |html %]' /></li>
+		<li><label for="shelfname">Name: </label><input type="text" id="shelfname" name="shelfname" size="25" value="[% shelfname |html %]" /></li>
 		<li><label for="owner">Owner: </label><input type="hidden" id="owner" name="owner" value="[% IF ( owner ) %][% ownername %][% ELSE %][% loggedinusername %][% END %]" />[% IF ( owner ) %][% ownername %][% ELSE %][% loggedinusername %][% END %]</li>
 		<li><label for="sortfield" >Sort this list by: </label>
 		<select name="sortfield">
@@ -343,12 +344,12 @@ function placeHold () {
 		<div id="privateshelves" class="ui-tabs-panel" style="display:none;">
 		[% END %]
             [% IF ( shelveslooppriv ) %]
-			[% pagination_bar %]
+			<div class="pages">[% pagination_bar %]</div>
         		<table>
         		<tr><th>List Name</th><th>Contents</th><th>Sort by</th><th>Type</th><th>Options</th></tr>
                 [% FOREACH shelveslooppri IN shelveslooppriv %]
                     [% IF ( shelveslooppri.toggle ) %]<tr class="highlight">[% ELSE %]<tr>[% END %]
-        <td><a href="shelves.pl?[% IF ( shelveslooppri.showprivateshelves ) %]display=privateshelves&amp;[% END %]viewshelf=[% shelveslooppri.shelf %]">[% shelveslooppri.shelfname |html %]</a></td>
+        <td><a href="shelves.pl?[% IF ( shelveslooppri.showprivateshelves ) %]display=privateshelves&amp;[% END %]viewshelf=[% shelveslooppri.shelf %]&shelfoff=[% shelfoff %]">[% shelveslooppri.shelfname |html %]</a></td>
         <td>[% shelveslooppri.count %] item(s)</td>
         <td>[% IF ( shelveslooppri.authorsort ) %]Author[% ELSIF ( shelveslooppri.yearsort ) %]Year[% ELSE %]Title[% END %]</td>
         <td>[% IF ( shelveslooppri.viewcategory1 ) %]Private[% END %]
@@ -367,6 +368,7 @@ function placeHold () {
 					<input type="submit" class="editshelf" value="Edit" />
 				</form>
 				<form action="shelves.pl" method="post">
+				    <input type="hidden" name="shelfoff" value="[% shelfoff %]" />
 					<input type="hidden" name="shelves" value="1" />
                     <input type="hidden" name="display" value="privateshelves" />
 					<input type="hidden" name="DEL-[% shelveslooppri.shelf %]" value="1" />
@@ -395,7 +397,7 @@ function placeHold () {
 		<div id="publicshelves" class="ui-tabs-panel" style="display:none;">
 		[% END %]
         [% IF ( shelvesloop ) %]
-		[% pagination_bar %]
+		<div class="pages">[% pagination_bar %]</div>
         <table>
         <tr><th>List Name</th><th>Contents</th><th>Sort By</th><th>Type</th><th>Options</th></tr>
             [% FOREACH shelvesloo IN shelvesloop %]
@@ -415,6 +417,7 @@ function placeHold () {
 					<input type="submit" class="editshelf" value="Edit" />
 				</form>
 				<form action="shelves.pl" method="post">
+				        <input type="hidden" name="shelfoff" value="[% shelfoff %]" />
 					<input type="hidden" name="shelves" value="1" />
 					<input type="hidden" name="DEL-[% shelvesloo.shelf %]" value="1" />
 					[% IF ( shelvesloo.confirm ) %]

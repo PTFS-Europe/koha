@@ -62,6 +62,7 @@ sub shelfpage ($$$$$) {
     my @paramsloop;
     my $totitems;
     my $shelfoff    = ( $query->param('shelfoff') ? $query->param('shelfoff') : 1 );
+    $template->{VARS}->{'shelfoff'} = $shelfoff;
     my $itemoff     = ( $query->param('itemoff')  ? $query->param('itemoff')  : 1 );
     my $displaymode = ( $query->param('display')  ? $query->param('display')  : 'publicshelves' );
     my ( $shelflimit, $shelfoffset, $shelveslimit, $shelvesoffset );
@@ -88,7 +89,6 @@ sub shelfpage ($$$$$) {
 
     # the format of this is unindented for ease of diff comparison to the old script
     # Note: do not mistake the assignment statements below for comparisons!
-
     if ( $query->param('modifyshelfcontents') ) {
         my ( $shelfnumber, $barcode, $item, $biblio );
         if ( $shelfnumber = $query->param('viewshelf') ) {
@@ -241,13 +241,15 @@ sub shelfpage ($$$$$) {
                 my $i = 0;
                 my $manageshelf = ShelfPossibleAction( $loggedinuser, $shelfnumber, 'manage' );
                 $template->param(
-                    shelfname   => $shelfname,
-                    shelfnumber => $shelfnumber,
-                    viewshelf   => $shelfnumber,
-                    authorsort  => $authorsort,
-                    yearsort    => $yearsort,
-                    manageshelf => $manageshelf,
-                    itemsloop   => $items,
+                    shelfname           => $shelfname,
+                    shelfnumber         => $shelfnumber,
+                    viewshelf           => $shelfnumber,
+                    authorsort          => $authorsort,
+                    yearsort            => $yearsort,
+                    manageshelf         => $manageshelf,
+                    "category$category" => 1,
+                    category            => $category,
+                    itemsloop           => $items,
                 );
             } else {
                 push @paramsloop, { nopermission => $shelfnumber };

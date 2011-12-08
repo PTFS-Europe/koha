@@ -322,6 +322,7 @@ sub _export_table_csv
         my $data;
         while (my $hashRef = $sth->fetchrow_hashref) {
             for (@fields) {
+                $hashRef->{$_} =~ s/[\r\n]//g;
                 $$strCSV .= '"' . $hashRef->{$_} . '",';
             }
             chop $$strCSV;
@@ -761,7 +762,7 @@ sub _parseSQLLine
     my $line;
     my $numLines = 0;
     while (<$dom>) {
-        chomp $_;
+        s/[\r\n]+$//;
         $line = $_;
         # we don't want to execute any sql statement, only the ones dealing with frameworks
         next unless ($line =~ /^\s*(?i:DELETE\s+FROM|INSERT\s+INTO)\s+(?:marc_tag_structure|marc_subfield_structure)/);
@@ -1133,6 +1134,7 @@ sub _import_table_csv
     my ($dbh, $table, $frameworkcode, $dom, $PKArray, $fields2Delete, $fields) = @_;
 
     my $row = '';
+    my $partialRow = '';
     my $numFields = @$fields;
     my $fieldsNameRead = 0;
     my @arrData;
@@ -1145,10 +1147,21 @@ sub _import_table_csv
     my $pos = 0;
     while (<$dom>) {
         $row = $_;
+        # Check whether the line has an unfinished field, i.e., a field with CR/LF in its data
+        if ($row =~ /,"[^"]*[\r\n]+$/ || $row =~ /^[^"]+[\r\n]+$/) {
+            $row =~ s/[\r\n]+$//;
+            $partialRow .= $row;
+            next;
+        }
+        if ($partialRow) {
+            $row = $partialRow . $row;
+            $partialRow = '';
+        }
+        # Line OK, process it
         if ($row =~ /(?:".*?",?)+/) {
             @arrData = split('","', $row);
             $arrData[0] = substr($arrData[0], 1) if ($arrData[0] =~ /^"/);
-            chomp $arrData[$#arrData];
+            $arrData[$#arrData] =~ s/[\r\n]+$//;
             chop $arrData[$#arrData] if ($arrData[$#arrData] =~ /"$/);
             if (@arrData) {
                 if ($arrData[0] eq '#-#' && $arrData[$#arrData] eq '#-#') {

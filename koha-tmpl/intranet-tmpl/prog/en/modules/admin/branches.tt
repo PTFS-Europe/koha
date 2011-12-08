@@ -99,7 +99,12 @@
         <ol>
 		[% FOREACH categoryloo IN categoryloop %]
             <li><label for="[% categoryloo.categorycode %]">[% categoryloo.categoryname %]</label>
-                <input type="checkbox" id="[% categoryloo.categorycode %]" name="[% categoryloo.categorycode %]" [% categoryloo.checked %] /> <span class="hint">[% categoryloo.codedescription %]</span>
+                [% IF ( categoryloo.checked ) %]
+                    <input type="checkbox" id="[% categoryloo.categorycode %]" name="[% categoryloo.categorycode %]" checked="checked" />
+                [% ELSE %]
+                    <input type="checkbox" id="[% categoryloo.categorycode %]" name="[% categoryloo.categorycode %]" />
+                [% END %]
+                <span class="hint">[% categoryloo.codedescription %]</span>
             </li>
         [% END %]
 		</ol>
@@ -209,11 +214,11 @@
                             <br />[% branche.branchaddress2 |html %][% END %]
                         [% IF ( branche.branchaddress3 ) %]
                             <br />[% branche.branchaddress3 |html %][% END %]
-                        [% IF ( branche.branchzip ) %]
-                            <br />[% branche.branchzip |html %][% END %]
                         [% IF ( branche.branchcity ) %]
-                            <br />[% branche.branchcity |html %][% END %][% IF ( branche.branchstate ) %], 
+                            <br />[% branche.branchcity |html %][% END %][% IF ( branche.branchstate ) %],
                             [% branche.branchstate |html %][% END %]
+                        [% IF ( branche.branchzip ) %]
+                            [% branche.branchzip |html %][% END %]
                         [% IF ( branche.branchcountry ) %]
                             <br />[% branche.branchcountry |html %][% END %]
                         [% IF ( branche.branchphone ) %]
@@ -221,9 +226,9 @@
                         [% IF ( branche.branchfax ) %]
                             <br />Fax: [% branche.branchfax |html %][% END %]
                         [% IF ( branche.branchemail ) %]
-                            <br />Email: [% branche.branchemail |html %][% END %]
+                            <br /><a href="mailto:[% branche.branchemail %]">[% branche.branchemail |html %]</a>[% END %]
                         [% IF ( branche.branchurl ) %]
-                            <br />url: [% branche.branchurl |html %][% END %]
+                            <br /><a href="[% branche.branchurl %]">[% branche.branchurl |html %]</a>[% END %]
                         [% IF ( branche.branchnotes ) %]
                             <br />Notes: [% branche.branchnotes |html %][% END %]
                     [% END %]

@@ -1199,6 +1199,24 @@ div.dialog {
   text-align : center;
 }
 
+a.document {
+	background-position : left middle;
+	background-repeat : no-repeat;
+	padding-left : 20px;
+}
+
+a.pdf {
+	background-image : url("../../img/famfamfam/silk/page_white_acrobat.png");
+}
+
+a.csv {
+	background-image : url("../../img/famfamfam/silk/page_white_excel.png");
+}
+
+a.xml {
+	background-image : url("../../img/famfamfam/silk/page_white_code.png");
+}
+
 div.message {
 	background : white url("../../img/message-bg.gif") repeat-x left 0;
   	border : 1px solid #bcbcbc;
@@ -1831,63 +1849,6 @@ span.permissiondesc {
     color: green;
     text-decoration: underline;
     cursor: pointer;
-}
-
-h1#pdf {
-        background:transparent url(../../img/pdficon_large.gif) no-repeat scroll 0%;
-        border: 0;
-        margin:0.75em .3em 0.75em .7em;
-        padding:0;
-}
-
-h1#pdf a {
-	border:0;
-	cursor:pointer;
-	display:block;
-	height:0px !important;
-	margin:0;
-	overflow:hidden;
-	padding:44px 0 0;
-	text-decoration:none;
-	width:35px;
-}
-
-h1#csv {
-        background:transparent url(../../img/csv_icon.gif) no-repeat scroll 0%;
-        border: 0;
-        margin:0.75em .3em 0.75em .7em;
-        padding:0;
-}
-
-h1#csv a {
-	border:0;
-	cursor:pointer;
-	display:block;
-	height:0px !important;
-	margin:0;
-	overflow:hidden;
-	padding:44px 0 0;
-	text-decoration:none;
-	width:35px;
-}
-
-h1#xml {
-        background:transparent url(../../img/icon_xml.gif) no-repeat scroll 0%;
-        border: 0;
-        margin:0.75em .3em 0.75em .7em;
-        padding:0;
-}
-
-h1#xml a {
-	border:0;
-	cursor:pointer;
-	display:block;
-	height:0px !important;
-	margin:0;
-	overflow:hidden;
-	padding:44px 0 0;
-	text-decoration:none;
-	width:35px;
 }
 
 #cartDetails {

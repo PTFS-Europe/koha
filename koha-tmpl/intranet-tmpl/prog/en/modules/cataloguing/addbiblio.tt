@@ -778,8 +778,12 @@ function unHideSubfield(index,labelindex) { // FIXME :: is it used ?
 			<li id="changeframework"><label for="Frameworks">Change framework: </label>
 			<select name="Frameworks" id="Frameworks" onchange="Changefwk(this);">
 			                <option value="Default">Default</option>
-							[% FOREACH frameworkcodeloo IN frameworkcodeloop %]                                             
-                                <option value="[% frameworkcodeloo.value %]" [% frameworkcodeloo.selected %]>
+							[% FOREACH frameworkcodeloo IN frameworkcodeloop %]
+                                [% IF ( frameworkcodeloo.selected ) %]
+                                    <option value="[% frameworkcodeloo.value %]" selected="selected">
+                                [% ELSE %]
+                                    <option value="[% frameworkcodeloo.value %]">
+                                [% END %]
 					             [% frameworkcodeloo.frameworktext %]                                      
                                  </option>                          
 					        [% END %]
@@ -817,8 +821,8 @@ function unHideSubfield(index,labelindex) { // FIXME :: is it used ?
         [% IF ( innerloo.tag ) %]
 	<div class="tag" id="tag_[% innerloo.tag %]_[% innerloo.index %][% innerloo.random %]">
         <div class="tag_title" id="div_indicator_tag_[% innerloo.tag %]_[% innerloo.index %][% innerloo.random %]">
-            [% UNLESS ( innerloo.hide_marc ) %]
-            	[% IF ( innerloo.advancedMARCEditor ) %]
+            [% UNLESS hide_marc %]
+            	[% IF advancedMARCEditor %]
 		<a href="#" tabindex="1" class="tagnum" title="[% innerloo.tag_lib %] - Click to Expand this Tag" onclick="ExpandField('tag_[% innerloo.tag %]_[% innerloo.index %][% innerloo.random %]'); return false;">[% innerloo.tag %]</a>
 		[% ELSE %]
                         <span class="tagnum" title="[% innerloo.tag_lib %]">[% innerloo.tag %]<a class="marcdocs"
@@ -841,13 +845,14 @@ function unHideSubfield(index,labelindex) { // FIXME :: is it used ?
                 [% END %]
             [% END %]
 
-            [% UNLESS ( innerloo.advancedMARCEditor ) %]
+            [% UNLESS advancedMARCEditor %]
 	            <a href="#" tabindex="1" class="expandfield" onclick="ExpandField('tag_[% innerloo.tag %]_[% innerloo.index %][% innerloo.random %]'); return false;" title="Click to Expand this Tag">[% innerloo.tag_lib %]</a>
             [% END %]
             [% IF ( innerloo.repeatable ) %]
-                <a href="#" tabindex="1" class="buttonPlus" onclick="CloneField('tag_[% innerloo.tag %]_[% innerloo.index %][% innerloo.random %]'); return false;" title="Repeat this Tag">+</a>
+                <span class="subfield_controls"><a href="#" tabindex="1" class="buttonPlus" onclick="CloneField('tag_[% innerloo.tag %]_[% innerloo.index %][% innerloo.random %]'); return false;" title="Repeat this Tag"><img src="/intranet-tmpl/prog/img/repeat-tag.png" alt="Repeat this Tag" /></a>
             [% END %]
-                <a href="#" tabindex="1" class="buttonMinus" onclick="UnCloneField('tag_[% innerloo.tag %]_[% innerloo.index %][% innerloo.random %]'); return false;" title="Delete this Tag">&#8722;</a>
+                <a href="#" tabindex="1" class="buttonMinus" onclick="UnCloneField('tag_[% innerloo.tag %]_[% innerloo.index %][% innerloo.random %]'); return false;" title="Delete this Tag"><img src="/intranet-tmpl/prog/img/delete-tag.png" alt="Delete this Tag" /></a></span>
+
             
         </div>
 	
@@ -855,11 +860,12 @@ function unHideSubfield(index,labelindex) { // FIXME :: is it used ?
             <!--  One line on the marc editor -->
             <div class="subfield_line" style="[% subfield_loo.visibility %]; float: left; clear: left; width: 100%;" id="subfield[% subfield_loo.tag %][% subfield_loo.subfield %][% subfield_loo.random %]">
             
-                [% UNLESS ( subfield_loo.advancedMARCEditor ) %]
-                    <label for="tag_[% subfield_loo.tag %]_subfield_[% subfield_loo.subfield %]_[% subfield_loo.index %]_[% subfield_loo.index_subfield %]" [% IF ( subfield_loo.fixedfield ) %] style="display:none;" [% END %] class="labelsubfield">
+                [% UNLESS advancedMARCEditor %]
+                    [% IF ( subfield_loo.fixedfield ) %]<label for="tag_[% subfield_loo.tag %]_subfield_[% subfield_loo.subfield %]_[% subfield_loo.index %]_[% subfield_loo.index_subfield %]" style="display:none;" class="labelsubfield">
+                    [% ELSE %]<label for="tag_[% subfield_loo.tag %]_subfield_[% subfield_loo.subfield %]_[% subfield_loo.index %]_[% subfield_loo.index_subfield %]" class="labelsubfield">[% END %]
                 [% END %] 
                 
-                [% UNLESS ( subfield_loo.hide_marc ) %]
+                [% UNLESS hide_marc %]
                 <span class="subfieldcode">[% IF ( subfield_loo.fixedfield ) %] 
                         <img class="buttonUp" style="display:none;" src="[% themelang %]/../img/up.png" onclick="upSubfield('subfield[% subfield_loo.tag %][% subfield_loo.subfield %][% subfield_loo.random %]')" alt="Move Up" title="Move Up" />
                     [% ELSE %]
@@ -872,7 +878,7 @@ function unHideSubfield(index,labelindex) { // FIXME :: is it used ?
  </span>
                 [% END %]
             
-                [% UNLESS ( subfield_loo.advancedMARCEditor ) %]
+                [% UNLESS advancedMARCEditor %]
                     [% IF ( subfield_loo.mandatory ) %]<span class="subfield subfield_mandatory">[% ELSE %]<span class="subfield">[% END %]
                         [% subfield_loo.marc_lib_plain %]
                         [% IF ( subfield_loo.mandatory ) %]<span class="mandatory_marker" title="This field is mandatory">*</span>[% END %]
