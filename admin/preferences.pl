@@ -28,6 +28,7 @@ use C4::Languages qw(getTranslatedLanguages);
 use C4::ClassSource;
 use C4::Log;
 use C4::Output;
+use C4::Templates;
 use C4::Budgets qw(GetCurrency);
 use File::Spec;
 use IO::File;
@@ -41,7 +42,7 @@ our $lang;
 sub GetTab {
     my ( $input, $tab ) = @_;
 
-    my $tab_template = C4::Output::gettemplate( 'admin/preferences/' . $tab . '.pref', 'intranet', $input );
+    my $tab_template = C4::Templates::gettemplate( 'admin/preferences/' . $tab . '.pref', 'intranet', $input );
 
     my $active_currency = GetCurrency();
     my $local_currency;
@@ -174,7 +175,7 @@ sub TransformPrefsToHTML {
 sub _get_pref_files {
     my ( $input, $open_files ) = @_;
 
-    my ( $htdocs, $theme, $lang, undef ) = C4::Output::_get_template_file( 'admin/preferences/admin.pref', 'intranet', $input );
+    my ( $htdocs, $theme, $lang, undef ) = C4::Templates::_get_template_file( 'admin/preferences/admin.pref', 'intranet', $input );
 
     my %results;
 
@@ -194,12 +195,6 @@ sub SearchPrefs {
     my %tab_files = _get_pref_files( $input );
     our @terms = split( /\s+/, $searchfield );
 
-    sub matches {
-        my ( $text ) = @_;
-
-        return !grep( { $text !~ /$_/i } @terms );
-    }
-
     foreach my $tab_name ( keys %tab_files ) {
         my $data = GetTab( $input, $tab_name );
         my $title = ( keys( %$data ) )[0];
@@ -209,7 +204,7 @@ sub SearchPrefs {
         my $matched_groups;
 
         while ( my ( $group_title, $contents ) = each %$tab ) {
-            if ( matches( $group_title ) ) {
+            if ( matches( $group_title, \@terms ) ) {
                 $matched_groups->{$group_title} = $contents;
                 next;
             }
@@ -225,12 +220,12 @@ sub SearchPrefs {
                             my ( undef, $LINES ) = TransformPrefsToHTML( $data, $searchfield );
 
                             return { search_jumped => 1, tab => $tab_name, tab_title => $title, LINES => $LINES };
-                        } elsif ( matches( $piece->{'pref'} ) ) {
+                        } elsif ( matches( $piece->{'pref'}, \@terms) ) {
                             $matched = 1;
-                        } elsif ( ref( $piece->{'choices'} ) eq 'HASH' && grep( { $_ && matches( $_ ) } values( %{ $piece->{'choices'} } ) ) ) {
+                        } elsif ( ref( $piece->{'choices'} ) eq 'HASH' && grep( { $_ && matches( $_, \@terms ) } values( %{ $piece->{'choices'} } ) ) ) {
                             $matched = 1;
                         }
-                    } elsif ( matches( $piece ) ) {
+                    } elsif ( matches( $piece, \@terms ) ) {
                         $matched = 1;
                     }
                     last if ( $matched );
@@ -250,6 +245,11 @@ sub SearchPrefs {
     }
 
     return @tabs;
+}
+
+sub matches {
+    my ( $text, $terms ) = @_;
+    return !grep( { $text !~ /$_/i } @$terms );
 }
 
 my $dbh = C4::Context->dbh;

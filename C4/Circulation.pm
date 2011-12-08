@@ -24,7 +24,6 @@ use strict;
 use C4::Context;
 use C4::Stats;
 use C4::Reserves;
-use C4::Koha;
 use C4::Biblio;
 use C4::Items;
 use C4::Members;
@@ -59,8 +58,9 @@ BEGIN {
 
 	# FIXME subs that should probably be elsewhere
 	push @EXPORT, qw(
-		&FixOverduesOnReturn
 		&barcodedecode
+        &LostItem
+        &ReturnLostItem
 	);
 
 	# subs to deal with issuing a book
@@ -578,7 +578,7 @@ C<$issuingimpossible> and C<$needsconfirmation> are some hashref.
 
 =over 4
 
-=item C<$borrower> hash with borrower informations (from GetMemberDetails)
+=item C<$borrower> hash with borrower informations (from GetMember or GetMemberDetails)
 
 =item C<$barcode> is the bar code of the book being issued.
 
@@ -858,7 +858,7 @@ sub CanBookBeIssued {
     elsif ($issue->{borrowernumber}) {
 
         # issued to someone else
-        my $currborinfo =    C4::Members::GetMemberDetails( $issue->{borrowernumber} );
+        my $currborinfo =    C4::Members::GetMember( borrowernumber => $issue->{borrowernumber} );
 
 #        warn "=>.$currborinfo->{'firstname'} $currborinfo->{'surname'} ($currborinfo->{'cardnumber'})";
         $needsconfirmation{ISSUED_TO_ANOTHER} = 1;
@@ -872,7 +872,7 @@ sub CanBookBeIssued {
     my ( $restype, $res ) = C4::Reserves::CheckReserves( $item->{'itemnumber'} );
     if ($restype) {
 		my $resbor = $res->{'borrowernumber'};
-		my ( $resborrower ) = C4::Members::GetMemberDetails( $resbor, 0 );
+		my ( $resborrower ) = C4::Members::GetMember( borrowernumber => $resbor );
 		my $branches  = GetBranches();
 		my $branchname = $branches->{ $res->{'branchcode'} }->{'branchname'};
         if ( $resbor ne $borrower->{'borrowernumber'} && $restype eq "Waiting" )
@@ -909,7 +909,7 @@ Issue a book. Does no check, they are done in CanBookBeIssued. If we reach this 
 
 =over 4
 
-=item C<$borrower> is a hash with borrower informations (from GetMemberDetails).
+=item C<$borrower> is a hash with borrower informations (from GetMember or GetMemberDetails).
 
 =item C<$barcode> is the barcode of the item being issued.
 
@@ -2255,7 +2255,7 @@ sub AddRenewal {
     # based on the value of the RenewalPeriodBase syspref.
     unless ($datedue) {
 
-        my $borrower = C4::Members::GetMemberDetails( $borrowernumber, 0 ) or return undef;
+        my $borrower = C4::Members::GetMember( borrowernumber => $borrowernumber ) or return undef;
         my $itemtype = (C4::Context->preference('item-level_itypes')) ? $biblio->{'itype'} : $biblio->{'itemtype'};
 
         $datedue = (C4::Context->preference('RenewalPeriodBase') eq 'date_due') ?
@@ -2309,7 +2309,7 @@ sub GetRenewCount {
     my $renewsallowed = 0;
     my $renewsleft    = 0;
 
-    my $borrower = C4::Members::GetMemberDetails($bornum);
+    my $borrower = C4::Members::GetMember( borrowernumber => $bornum);
     my $item     = GetItem($itemno); 
 
     # Look in the issues table for this item, lent to this borrower,
@@ -2943,8 +2943,43 @@ sub DeleteBranchTransferLimits {
    $sth->execute();
 }
 
+sub ReturnLostItem{
+    my ( $borrowernumber, $itemnum ) = @_;
 
-  1;
+    MarkIssueReturned( $borrowernumber, $itemnum );
+    my $borrower = C4::Members::GetMember( 'borrowernumber'=>$borrowernumber );
+    my @datearr = localtime(time);
+    my $date = ( 1900 + $datearr[5] ) . "-" . ( $datearr[4] + 1 ) . "-" . $datearr[3];
+    my $bor = "$borrower->{'firstname'} $borrower->{'surname'} $borrower->{'cardnumber'}";
+    ModItem({ paidfor =>  "Paid for by $bor $date" }, undef, $itemnum);
+}
+
+
+sub LostItem{
+    my ($itemnumber, $mark_returned) = @_;
+
+    my $dbh = C4::Context->dbh();
+    my $sth=$dbh->prepare("SELECT issues.*,items.*,biblio.title 
+                           FROM issues 
+                           JOIN items USING (itemnumber) 
+                           JOIN biblio USING (biblionumber)
+                           WHERE issues.itemnumber=?");
+    $sth->execute($itemnumber);
+    my $issues=$sth->fetchrow_hashref();
+    $sth->finish;
+
+    # if a borrower lost the item, add a replacement cost to the their record
+    if ( my $borrowernumber = $issues->{borrowernumber} ){
+
+        C4::Accounts::chargelostitem($borrowernumber, $itemnumber, $issues->{'replacementprice'}, "Lost Item $issues->{'title'} $issues->{'barcode'}");
+        #FIXME : Should probably have a way to distinguish this from an item that really was returned.
+        #warn " $issues->{'borrowernumber'}  /  $itemnumber ";
+        MarkIssueReturned($borrowernumber,$itemnumber) if $mark_returned;
+    }
+}
+
+
+1;
 
 __END__
 

@@ -103,7 +103,7 @@ InstallAuth - Authenticates Koha users for Install process
     authenticated page.
 
     More information on the C<gettemplate> sub can be found in the
-    Output.pm module.
+    Templates.pm module.
 
 =cut
 
@@ -163,13 +163,7 @@ sub _get_template_language {
   my ($opaclang)= @_;
   return 'en' unless $opaclang;
   my $path= C4::Context->config('intrahtdocs')."/prog/$opaclang";
-  my $pref= ','.C4::Context->preference('language').',';
-  if(-d $path) {
-    if($pref =~ /,$opaclang,/ ) {
-      return $opaclang;
-    }
-  }
-  return 'en';
+  -d $path ? $opaclang : 'en';
 }
 
 =item checkauth

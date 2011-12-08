@@ -918,7 +918,7 @@ if ( $op eq "addbiblio" ) {
     );
     # getting html input
     my @params = $input->param();
-    $record = TransformHtmlToMarc( \@params , $input );
+    $record = TransformHtmlToMarc( $input );
     # check for a duplicate
     my ($duplicatebiblionumber,$duplicatetitle) = FindDuplicate($record) if (!$is_a_modif);
     my $confirm_not_duplicate = $input->param('confirm_not_duplicate');
@@ -1007,14 +1007,16 @@ elsif ( $op eq "delete" ) {
         $biblionumber = "";
     }
 
+    if ( $record ne -1 ) {
 #FIXME: it's kind of silly to go from MARC::Record to MARC::File::XML and then back again just to fix the encoding
-    eval {
-        my $uxml = $record->as_xml;
-        MARC::Record::default_record_format("UNIMARC")
-          if ( C4::Context->preference("marcflavour") eq "UNIMARC" );
-        my $urecord = MARC::Record::new_from_xml( $uxml, 'UTF-8' );
-        $record = $urecord;
-    };
+        eval {
+            my $uxml = $record->as_xml;
+            MARC::Record::default_record_format("UNIMARC")
+            if ( C4::Context->preference("marcflavour") eq "UNIMARC" );
+            my $urecord = MARC::Record::new_from_xml( $uxml, 'UTF-8' );
+            $record = $urecord;
+        };
+    }
     build_tabs( $template, $record, $dbh, $encoding,$input );
     $template->param(
         biblionumber             => $biblionumber,
@@ -1027,16 +1029,12 @@ elsif ( $op eq "delete" ) {
 }
 
 $template->param( title => $record->title() ) if ( $record ne "-1" );
-if (C4::Context->preference("marcflavour") eq "MARC21"){
-    $template->param(MARC21 => 1);
-}
-
-
 $template->param(
     popup => $mode,
     frameworkcode => $frameworkcode,
     itemtype => $frameworkcode,
-    borrowernumber => $loggedinuser
+    borrowernumber => $loggedinuser, 
+    marcflavour => C4::Context->preference("marcflavour"),
 );
 
 output_html_with_http_headers $input, $cookie, $template->output;

@@ -186,7 +186,7 @@ if ( $print eq 'yes' && $borrowernumber ne '' ) {
 my $borrowerslist;
 my $message;
 if ($findborrower) {
-    my ($count, $borrowers) = SearchMember($findborrower, 'cardnumber', 'web');
+    my $borrowers = Search($findborrower, 'cardnumber');
     my @borrowers = @$borrowers;
     if (C4::Context->preference("AddPatronLists")) {
         $template->param(
@@ -418,19 +418,15 @@ sub build_issue_data {
     foreach my $it ( @$issueslist ) {
         my $itemtypeinfo = getitemtypeinfo( (C4::Context->preference('item-level_itypes')) ? $it->{'itype'} : $it->{'itemtype'} );
 
-        # Getting borrower details
-        my $memberdetails = GetMemberDetails($it->{'borrowernumber'});
-        $it->{'borrowername'} = $memberdetails->{'firstname'} . " " . $memberdetails->{'surname'};
-        $it->{'cardnumber'} = $memberdetails->{'cardnumber'};
         # set itemtype per item-level_itype syspref - FIXME this is an ugly hack
         $it->{'itemtype'} = ( C4::Context->preference( 'item-level_itypes' ) ) ? $it->{'itype'} : $it->{'itemtype'};
 
         ($it->{'charge'}, $it->{'itemtype_charge'}) = GetIssuingCharges(
-            $it->{'itemnumber'}, $borrower->{'borrowernumber'}
+            $it->{'itemnumber'}, $it->{'borrowernumber'}
         );
         $it->{'charge'} = sprintf("%.2f", $it->{'charge'});
         my ($can_renew, $can_renew_error) = CanBookBeRenewed( 
-            $borrower->{'borrowernumber'},$it->{'itemnumber'}
+            $it->{'borrowernumber'},$it->{'itemnumber'}
         );
         $it->{"renew_error_${can_renew_error}"} = 1 if defined $can_renew_error;
         my ( $restype, $reserves ) = CheckReserves( $it->{'itemnumber'} );

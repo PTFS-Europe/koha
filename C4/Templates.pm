@@ -31,16 +31,20 @@ use CGI;
 use base qw(Class::Accessor);
 use Template;
 use Template::Constants qw( :debug );
+use C4::Languages qw(getTranslatedLanguages get_bidi regex_lang_subtags language_get_description accept_language );
 
 use C4::Context;
 
 __PACKAGE__->mk_accessors(qw( theme lang filename htdocs interface vars));
+
+
 
 sub new {
     my $class     = shift;
     my $interface = shift;
     my $filename  = shift;
     my $tmplbase  = shift;
+    my $query     = @_? shift: undef;
     my $htdocs;
     if ( $interface ne "intranet" ) {
         $htdocs = C4::Context->config('opachtdocs');
@@ -49,14 +53,15 @@ sub new {
         $htdocs = C4::Context->config('intrahtdocs');
     }
 
-    my ( $theme, $lang ) = themelanguage( $htdocs, $tmplbase, $interface );
+    my ($theme, $lang)= themelanguage( $htdocs, $tmplbase, $interface, $query);
     my $template = Template->new(
-        {
-            EVAL_PERL    => 1,
+        {   EVAL_PERL    => 1,
             ABSOLUTE     => 1,
-            INCLUDE_PATH => "$htdocs/$theme/$lang/includes",
-            FILTERS      => {},
-
+            INCLUDE_PATH => [
+                "$htdocs/$theme/$lang/includes",
+                "$htdocs/$theme/en/includes"
+            ],
+            FILTERS => {},
         }
     ) or die Template->error();
     my $self = {
@@ -164,7 +169,7 @@ sub _current_language {
     return $_current_language;
 }
 
-sub themelanguage {
+sub themelanguage_lite {
     my ( $htdocs, $tmpl, $interface ) = @_;
     my $query = new CGI;
 
@@ -224,8 +229,175 @@ sub param {
         my $val = shift;
         if    ( ref($val) eq 'ARRAY' && !scalar @$val ) { $val = undef; }
         elsif ( ref($val) eq 'HASH'  && !scalar %$val ) { $val = undef; }
-        $self->{VARS}->{$key} = $val;
+        if ( $key ) {
+            $self->{VARS}->{$key} = $val;
+        } else {
+            warn "Problem = a value of $val has been passed to param without key";
+        }
     }
+}
+
+
+=head1 NAME
+
+C4::Templates - Functions for managing templates
+
+=head1 FUNCTIONS
+
+=cut
+
+# FIXME: this is a quick fix to stop rc1 installing broken
+# Still trying to figure out the correct fix.
+my $path = C4::Context->config('intrahtdocs') . "/prog/en/includes/";
+
+#---------------------------------------------------------------------------------------------------------
+# FIXME - POD
+
+sub _get_template_file {
+    my ( $tmplbase, $interface, $query ) = @_;
+    my $htdocs = C4::Context->config( $interface ne 'intranet' ? 'opachtdocs' : 'intrahtdocs' );
+    my ( $theme, $lang ) = themelanguage( $htdocs, $tmplbase, $interface, $query );
+    my $opacstylesheet = C4::Context->preference('opacstylesheet');
+
+    # if the template doesn't exist, load the English one as a last resort
+    my $filename = "$htdocs/$theme/$lang/modules/$tmplbase";
+    unless (-f $filename) {
+        $lang = 'en';
+        $filename = "$htdocs/$theme/$lang/modules/$tmplbase";
+    }
+
+    return ( $htdocs, $theme, $lang, $filename );
+}
+
+sub gettemplate {
+    my ( $tmplbase, $interface, $query ) = @_;
+    ($query) or warn "no query in gettemplate";
+    my $path = C4::Context->preference('intranet_includes') || 'includes';
+    my $opacstylesheet = C4::Context->preference('opacstylesheet');
+    $tmplbase =~ s/\.tmpl$/.tt/;
+    my ( $htdocs, $theme, $lang, $filename ) = _get_template_file( $tmplbase, $interface, $query );
+    my $template = C4::Templates->new($interface, $filename, $tmplbase, $query);
+    my $themelang=( $interface ne 'intranet' ? '/opac-tmpl' : '/intranet-tmpl' )
+          . "/$theme/$lang";
+    $template->param(
+        themelang => $themelang,
+        yuipath   => (C4::Context->preference("yuipath") eq "local"?"$themelang/lib/yui":C4::Context->preference("yuipath")),
+        interface => ( $interface ne 'intranet' ? '/opac-tmpl' : '/intranet-tmpl' ),
+        theme     => $theme,
+        lang      => $lang
+    );
+
+    # Bidirectionality
+    my $current_lang = regex_lang_subtags($lang);
+    my $bidi;
+    $bidi = get_bidi($current_lang->{script}) if $current_lang->{script};
+    # Languages
+    my $languages_loop = getTranslatedLanguages($interface,$theme,$lang);
+    my $num_languages_enabled = 0;
+    foreach my $lang (@$languages_loop) {
+        foreach my $sublang (@{ $lang->{'sublanguages_loop'} }) {
+            $num_languages_enabled++ if $sublang->{enabled};
+         }
+    }
+    $template->param(
+            languages_loop       => $languages_loop,
+            bidi                 => $bidi,
+            one_language_enabled => ($num_languages_enabled <= 1) ? 1 : 0, # deal with zero enabled langs as well
+    ) unless @$languages_loop<2;
+
+    return $template;
+}
+
+
+#---------------------------------------------------------------------------------------------------------
+# FIXME - POD
+sub themelanguage {
+    my ( $htdocs, $tmpl, $interface, $query ) = @_;
+    ($query) or warn "no query in themelanguage";
+
+    # Set some defaults for language and theme
+    # First, check the user's preferences
+    my $lang;
+    my $http_accept_language = $ENV{ HTTP_ACCEPT_LANGUAGE };
+    $lang = accept_language( $http_accept_language, 
+              getTranslatedLanguages($interface,'prog') )
+      if $http_accept_language;
+    # But, if there's a cookie set, obey it
+    $lang = $query->cookie('KohaOpacLanguage') if (defined $query and $query->cookie('KohaOpacLanguage'));
+    # Fall back to English
+    my @languages;
+    if ($interface eq 'intranet') {
+        @languages = split ",", C4::Context->preference("language");
+    } else {
+        @languages = split ",", C4::Context->preference("opaclanguages");
+    }
+    if ($lang){  
+        @languages=($lang,@languages);
+    } else {
+        $lang = $languages[0];
+    }      
+    my $theme = 'prog';	# in the event of theme failure default to 'prog' -fbcit
+    my $dbh = C4::Context->dbh;
+    my @themes;
+    if ( $interface eq "intranet" ) {
+        @themes    = split " ", C4::Context->preference("template");
+    }
+    else {
+      # we are in the opac here, what im trying to do is let the individual user
+      # set the theme they want to use.
+      # and perhaps the them as well.
+        #my $lang = $query->cookie('KohaOpacLanguage');
+        @themes = split " ", C4::Context->preference("opacthemes");
+    }
+
+ # searches through the themes and languages. First template it find it returns.
+ # Priority is for getting the theme right.
+    THEME:
+    foreach my $th (@themes) {
+        foreach my $la (@languages) {
+            #for ( my $pass = 1 ; $pass <= 2 ; $pass += 1 ) {
+                # warn "$htdocs/$th/$la/modules/$interface-"."tmpl";
+                #$la =~ s/([-_])/ $1 eq '-'? '_': '-' /eg if $pass == 2;
+				if ( -e "$htdocs/$th/$la/modules/$tmpl") {
+                #".($interface eq 'intranet'?"modules":"")."/$tmpl" ) {
+                    $theme = $th;
+                    $lang  = $la;
+                    last THEME;
+                }
+                last unless $la =~ /[-_]/;
+            #}
+        }
+    }
+
+    $_current_language = $lang; # FIXME part of bad hack to paper over bug 4403
+    return ( $theme, $lang );
+}
+
+sub setlanguagecookie {
+    my ( $query, $language, $uri ) = @_;
+    my $cookie = $query->cookie(
+        -name    => 'KohaOpacLanguage',
+        -value   => $language,
+        -expires => ''
+    );
+    print $query->redirect(
+        -uri    => $uri,
+        -cookie => $cookie
+    );
+}
+
+sub getlanguagecookie {
+    my ($query) = @_;
+    my $lang;
+    if ($query->cookie('KohaOpacLanguage')){
+        $lang = $query->cookie('KohaOpacLanguage') ;
+    }else{
+        $lang = $ENV{HTTP_ACCEPT_LANGUAGE};
+        
+    }
+    $lang = substr($lang, 0, 2);
+
+    return $lang;
 }
 
 1;

@@ -397,6 +397,8 @@ Note that only columns that can be directly
 changed from the cataloging and serials
 item editors are included in this hash.
 
+Returns item record
+
 =cut
 
 my %default_values_for_mod_from_marc = (
@@ -446,7 +448,8 @@ sub ModItemFromMarc {
     }
     my $unlinked_item_subfields = _get_unlinked_item_subfields( $localitemmarc, $frameworkcode );
 
-    return ModItem($item, $biblionumber, $itemnumber, $dbh, $frameworkcode, $unlinked_item_subfields); 
+    ModItem($item, $biblionumber, $itemnumber, $dbh, $frameworkcode, $unlinked_item_subfields); 
+    return $item;
 }
 
 =head2 ModItem
@@ -495,6 +498,9 @@ sub ModItem {
     };
 
     $item->{'itemnumber'} = $itemnumber or return undef;
+
+    $item->{onloan} = undef if $item->{itemlost};
+
     _set_derived_columns_for_mod($item);
     _do_column_fixes_for_mod($item);
     # FIXME add checks
@@ -1176,7 +1182,7 @@ sub GetItemsInfo {
            itemtypes.notforloan as notforloan_per_itemtype,
            branchurl
      FROM items
-     LEFT JOIN branches ON items.homebranch = branches.branchcode
+     LEFT JOIN branches ON items.holdingbranch = branches.branchcode
      LEFT JOIN biblio      ON      biblio.biblionumber     = items.biblionumber
      LEFT JOIN biblioitems ON biblioitems.biblioitemnumber = items.biblioitemnumber
      LEFT JOIN itemtypes   ON   itemtypes.itemtype         = "
@@ -1971,9 +1977,9 @@ sub _koha_new_item {
             homebranch          = ?,
             price               = ?,
             replacementprice    = ?,
-            replacementpricedate = NOW(),
+            replacementpricedate = ?,
             datelastborrowed    = ?,
-            datelastseen        = NOW(),
+            datelastseen        = ?,
             stack               = ?,
             notforloan          = ?,
             damaged             = ?,
@@ -2002,6 +2008,7 @@ sub _koha_new_item {
             stocknumber         = ?
           ";
     my $sth = $dbh->prepare($query);
+    my $today = C4::Dates->today('iso');
    $sth->execute(
             $item->{'biblionumber'},
             $item->{'biblioitemnumber'},
@@ -2011,7 +2018,9 @@ sub _koha_new_item {
             $item->{'homebranch'},
             $item->{'price'},
             $item->{'replacementprice'},
+            $item->{'replacementpricedate'} || $today,
             $item->{datelastborrowed},
+            $item->{datelastseen} || $today,
             $item->{stack},
             $item->{'notforloan'},
             $item->{'damaged'},
@@ -2100,7 +2109,11 @@ sub DelItemCheck {
     if ($onloan) {
         $error = "book_on_loan";
     }
-    elsif (C4::Context->preference("IndependantBranches") and (C4::Context->userenv->{branch} ne $item->{C4::Context->preference("HomeOrHoldingBranch")||'homebranch'})){
+    elsif ( C4::Context->userenv->{flags} & 1 and
+            C4::Context->preference("IndependantBranches") and
+           (C4::Context->userenv->{branch} ne
+             $item->{C4::Context->preference("HomeOrHoldingBranch")||'homebranch'}) )
+    {
         $error = "not_same_branch";
     } 
     else {
