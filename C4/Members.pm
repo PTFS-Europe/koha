@@ -772,17 +772,17 @@ sub ModMember {
         }
     }
 	my $execute_success=UpdateInTable("borrowers",\%data);
-# ok if its an adult (type) it may have borrowers that depend on it as a guarantor
-# so when we update information for an adult we should check for guarantees and update the relevant part
-# of their records, ie addresses and phone numbers
-    my $borrowercategory= GetBorrowercategory( $data{'category_type'} );
-    if ( exists  $borrowercategory->{'category_type'} && $borrowercategory->{'category_type'} eq ('A' || 'S') ) {
-        # is adult check guarantees;
-        UpdateGuarantees(%data);
+    if ($execute_success) { # only proceed if the update was a success
+        # ok if its an adult (type) it may have borrowers that depend on it as a guarantor
+        # so when we update information for an adult we should check for guarantees and update the relevant part
+        # of their records, ie addresses and phone numbers
+        my $borrowercategory= GetBorrowercategory( $data{'category_type'} );
+        if ( exists  $borrowercategory->{'category_type'} && $borrowercategory->{'category_type'} eq ('A' || 'S') ) {
+            # is adult check guarantees;
+            UpdateGuarantees(%data);
+        }
+        logaction("MEMBERS", "MODIFY", $data{'borrowernumber'}, "UPDATE (executed w/ arg: $data{'borrowernumber'})") if C4::Context->preference("BorrowersLog");
     }
-    logaction("MEMBERS", "MODIFY", $data{'borrowernumber'}, "UPDATE (executed w/ arg: $data{'borrowernumber'})") 
-        if C4::Context->preference("BorrowersLog");
-
     return $execute_success;
 }
 
@@ -792,7 +792,9 @@ sub ModMember {
   $borrowernumber = &AddMember(%borrower);
 
 insert new borrower into table
-Returns the borrowernumber
+Returns the borrowernumber upon success
+
+Returns as undef upon any db error without further processing
 
 =cut
 
@@ -800,8 +802,10 @@ Returns the borrowernumber
 sub AddMember {
     my (%data) = @_;
     my $dbh = C4::Context->dbh;
-    $data{'userid'} = '' unless $data{'password'};
-    $data{'password'} = md5_base64( $data{'password'} ) if $data{'password'};
+	# generate a proper login if none provided
+	$data{'userid'} = Generate_Userid($data{'borrowernumber'}, $data{'firstname'}, $data{'surname'}) if $data{'userid'} eq '';
+	# create a disabled account if no password provided
+	$data{'password'} = ($data{'password'})? md5_base64($data{'password'}) : '!';
 	$data{'borrowernumber'}=InsertInTable("borrowers",\%data);	
     # mysql_insertid is probably bad.  not necessarily accurate and mysql-specific at best.
     logaction("MEMBERS", "CREATE", $data{'borrowernumber'}, "") if C4::Context->preference("BorrowersLog");
@@ -810,10 +814,15 @@ sub AddMember {
     my $sth = $dbh->prepare("SELECT enrolmentfee FROM categories WHERE categorycode=?");
     $sth->execute($data{'categorycode'});
     my ($enrolmentfee) = $sth->fetchrow;
+    if ($sth->err) {
+        warn sprintf('Database returned the following error: %s', $sth->errstr);
+        return;
+    }
     if ($enrolmentfee && $enrolmentfee > 0) {
         # insert fee in patron debts
         manualinvoice($data{'borrowernumber'}, '', '', 'A', $enrolmentfee);
     }
+
     return $data{'borrowernumber'};
 }
 
@@ -1116,7 +1125,7 @@ sub GetAllIssues {
   LEFT JOIN items on items.itemnumber=old_issues.itemnumber
   LEFT JOIN biblio ON items.biblionumber=biblio.biblionumber
   LEFT JOIN biblioitems ON items.biblioitemnumber=biblioitems.biblioitemnumber
-  WHERE borrowernumber=? 
+  WHERE borrowernumber=? AND old_issues.itemnumber IS NOT NULL
   order by $order";
     if ( $limit != 0 ) {
         $query .= " limit $limit";
