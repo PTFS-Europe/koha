@@ -207,13 +207,14 @@ if (($op eq 'insert') and !$nodouble){
 if ( $guarantorid and ( $category_type eq 'C' || $category_type eq 'P' )) {
     if (my $guarantordata=GetMember(borrowernumber => $guarantorid)) {
         $guarantorinfo=$guarantordata->{'surname'}." , ".$guarantordata->{'firstname'};
-        if ( !defined($data{'contactname'}) or $data{'contactname'} eq '' or
-             $data{'contactname'} ne $guarantordata->{'surname'} ) {
-            $newdata{'contactfirstname'}= $guarantordata->{'firstname'};
-            $newdata{'contactname'}     = $guarantordata->{'surname'};
-            $newdata{'contacttitle'}    = $guarantordata->{'title'};
+        $newdata{'contactfirstname'}= $guarantordata->{'firstname'};
+        $newdata{'contactname'}     = $guarantordata->{'surname'};
+        $newdata{'contacttitle'}    = $guarantordata->{'title'};
+        if ( $op eq 'add' ) {
 	        foreach (qw(streetnumber address streettype address2
-                        zipcode country city phone phonepro mobile fax email emailpro branchcode)) {
+                        zipcode country city state phone phonepro mobile fax email emailpro branchcode
+                        B_streetnumber B_streettype B_address B_address2
+                        B_city B_state B_zipcode B_country B_email B_phone)) {
 		        $newdata{$_} = $guarantordata->{$_};
 	        }
         }
@@ -221,12 +222,10 @@ if ( $guarantorid and ( $category_type eq 'C' || $category_type eq 'P' )) {
 }
 
 ###############test to take the right zipcode, country and city name ##############
-if (!defined($guarantorid) or $guarantorid eq '' or $guarantorid eq '0') {
-    # set only if parameter was passed from the form
-    $newdata{'city'}    = $input->param('city')    if defined($input->param('city'));
-    $newdata{'zipcode'} = $input->param('zipcode') if defined($input->param('zipcode'));
-    $newdata{'country'} = $input->param('country') if defined($input->param('country'));
-}
+# set only if parameter was passed from the form
+$newdata{'city'}    = $input->param('city')    if defined($input->param('city'));
+$newdata{'zipcode'} = $input->param('zipcode') if defined($input->param('zipcode'));
+$newdata{'country'} = $input->param('country') if defined($input->param('country'));
 
 #builds default userid
 if ( (defined $newdata{'userid'}) && ($newdata{'userid'} eq '')){
@@ -380,7 +379,7 @@ if ($nok or !$nodouble){
 } 
 if (C4::Context->preference("IndependantBranches")) {
     my $userenv = C4::Context->userenv;
-    if ($userenv->{flags} % 2 != 1 && $data{branchcode}){
+    if ($userenv->{flags} % 2 != 1 && $data{'branchcode'}){
         unless ($userenv->{branch} eq $data{'branchcode'}){
             print $input->redirect("/cgi-bin/koha/members/members-home.pl");
             exit;
@@ -498,7 +497,7 @@ my $borrotitlepopup = CGI::popup_menu(-name=>'title',
         -default=>$default_borrowertitle
         );    
 
-my @relationships = split /,|\|/, C4::Context->preference('BorrowerRelationship');
+my @relationships = split /,|\|/, C4::Context->preference('borrowerRelationship');
 my @relshipdata;
 while (@relationships) {
   my $relship = shift @relationships || '';
@@ -554,7 +553,9 @@ if(scalar(@select_branch) > 0){
 # --------------------------------------------------------------------------------------------------------
   #in modify mod :default value from $CGIbranch comes from borrowers table
   #in add mod: default value come from branches table (ip correspendence)
-$default=$data{'branchcode'}  if ($op eq 'modify' || ($op eq 'add' && $category_type eq 'C' && $data{'branchcode'}));
+if (defined ($data{'branchcode'}) and ( $op eq 'modify' || ( $op eq 'add' && $category_type eq 'C' ) )) {
+    $default = $data{'branchcode'};
+}
 $CGIbranch = CGI::scrolling_list(-id    => 'branchcode',
             -name   => 'branchcode',
             -values => \@select_branch,
@@ -673,7 +674,7 @@ $template->param(CGIbranch=>$CGIbranch) if ($CGIbranch);
 $template->param(
   nodouble  => $nodouble,
   borrowernumber  => $borrowernumber, #register number
-  guarantorid => (($borrower_data->{'guarantorid'})) ? $borrower_data->{'guarantorid'} : $guarantorid,
+  guarantorid => ($borrower_data->{'guarantorid'} || $guarantorid),
   ethcatpopup => $ethcatpopup,
   relshiploop => \@relshipdata,
   city_loop => $city_arrayref,

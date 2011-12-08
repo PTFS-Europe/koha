@@ -207,7 +207,7 @@ function refocus(calendar) {
                 <select name="type" id="type" onchange="this.form.borrower_message.value=this.options[this.selectedIndex].value;">
                     <option value="">Select Note</option>
                     [% FOREACH canned_bor_notes_loo IN canned_bor_notes_loop %]
-                    <option value="[% canned_bor_notes_loo.lib %]">[% canned_bor_notes_loo.authorised_value %]</option>
+                    <option value="[% canned_bor_notes_loo.lib %]">[% canned_bor_notes_loo.lib %]</option>
                     [% END %]
                 </select>
         </li>
@@ -630,7 +630,7 @@ No patron matched <span class="ex">[% message %]</span>
 					[% IF ( lib_messages_loo.can_delete ) %]
 						<a href="/cgi-bin/koha/circ/del_message.pl?message_id=[% lib_messages_loo.message_id %]&amp;borrowernumber=[% lib_messages_loo.borrowernumber %]">[Delete]</a>
 					[% ELSE %]
-						[% IF ( lib_messages_loo.all_messages_del ) %]
+						[% IF ( all_messages_del ) %]
 							<a href="/cgi-bin/koha/circ/del_message.pl?message_id=[% lib_messages_loo.message_id %]&amp;borrowernumber=[% lib_messages_loo.borrowernumber %]">[Delete]</a>
 						[% END %]
 					[% END %]

@@ -158,6 +158,8 @@ sub makepayment {
     # from their card, and put a note on the item record
     my ( $borrowernumber, $accountno, $amount, $user, $branch ) = @_;
     my $dbh = C4::Context->dbh;
+    my $manager_id = 0;
+    $manager_id = C4::Context->userenv->{'number'} if C4::Context->userenv; 
 
     # begin transaction
     my $nextaccntno = getnextacctno($borrowernumber);
@@ -169,27 +171,41 @@ sub makepayment {
     my $data = $sth->fetchrow_hashref;
     $sth->finish;
 
-    my $sth = $dbh->prepare("UPDATE accountlines
-			        SET amountoutstanding = 0
-			      WHERE borrowernumber = ?
-				AND accountno = ?");
-    $sth->execute($borrowernumber, $accountno);
+    if($data->{'accounttype'} eq "Pay"){
+        my $udp = 		
+            $dbh->prepare(
+                "UPDATE accountlines
+                    SET amountoutstanding = 0, description = 'Payment,thanks'
+                    WHERE borrowernumber = ?
+                    AND accountno = ?
+                "
+            );
+        $udp->execute($borrowernumber, $accountno );
+        $udp->finish;
+    }else{
+        my $udp = 		
+            $dbh->prepare(
+                "UPDATE accountlines
+                    SET amountoutstanding = 0
+                    WHERE borrowernumber = ?
+                    AND accountno = ?
+                "
+            );
+        $udp->execute($borrowernumber, $accountno );
+        $udp->finish;
 
-    #  print $updquery;
-#    $dbh->do( "
-#        INSERT INTO     accountoffsets
-#                        (borrowernumber, accountno, offsetaccount,
-#                         offsetamount)
-#        VALUES          ($borrowernumber, $accountno, $nextaccntno, $newamtos)
-#        " );
-
-    # create new line
-    my $payment = 0 - $amount;
-    my $sth = $dbh->prepare("INSERT INTO accountlines
-					 (borrowernumber, accountno, date, amount,
-					  description, accounttype, amountoutstanding)
-				  VALUES (?,?,now(),?,?,'Pay',0)");
-    $sth->execute($borrowernumber, $nextaccntno, $payment, "Payment,thanks - $user");
+         # create new line
+        my $payment = 0 - $amount;
+        
+        my $ins = 
+            $dbh->prepare( 
+                "INSERT 
+                    INTO accountlines (borrowernumber, accountno, date, amount, description, accounttype, amountoutstanding)
+                    VALUES ( ?, ?, now(), ?, 'Payment,thanks', 'Pay', 0)"
+            );
+        $ins->execute($borrowernumber, $nextaccntno, $payment);
+        $ins->finish;
+    }
 
     # FIXME - The second argument to &UpdateStats is supposed to be the
     # branch code.

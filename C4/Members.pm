@@ -909,7 +909,6 @@ sub fixup_cardnumber ($) {
 
     #     if ($cardnumber !~ /\S/ && $autonumber_members) {
     ($autonumber_members) or return $cardnumber;
-    defined($cardnumber) or return $cardnumber;
     my $checkdigit = C4::Context->preference('checkdigit');
     my $dbh = C4::Context->dbh;
     if ( $checkdigit and $checkdigit eq 'katipo' ) {
@@ -1033,13 +1032,19 @@ The keys include C<biblioitems> fields except marc and marcxml.
 
 #'
 sub GetPendingIssues {
-    my (@borrowernumbers) = @_;
+    my @borrowernumbers = @_;
+
+    unless (@borrowernumbers ) { # return a ref_to_array
+        return \@borrowernumbers; # to not cause surprise to caller
+    }
 
     # Borrowers part of the query
     my $bquery = '';
     for (my $i = 0; $i < @borrowernumbers; $i++) {
-        $bquery .= " borrowernumber = ?";
-        $bquery .= " OR" if ($i < (scalar(@borrowernumbers) - 1));
+        $bquery .= ' borrowernumber = ?';
+        if ($i < $#borrowernumbers ) {
+            $bquery .= ' OR';
+        }
     }
 
     # must avoid biblioitems.* to prevent large marc and marcxml fields from killing performance
@@ -1080,9 +1085,10 @@ sub GetPendingIssues {
     $sth->execute(@borrowernumbers);
     my $data = $sth->fetchall_arrayref({});
     my $today = C4::Dates->new->output('iso');
-    foreach (@$data) {
-        $_->{date_due} or next;
-        ($_->{date_due} lt $today) and $_->{overdue} = 1;
+    foreach (@{$data}) {
+        if ($_->{date_due}  and $_->{date_due} lt $today) {
+            $_->{overdue} = 1;
+        }
     }
     return $data;
 }

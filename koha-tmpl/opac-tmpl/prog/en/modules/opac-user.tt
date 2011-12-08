@@ -4,8 +4,9 @@
     [% BORROWER_INF.firstname %] [% BORROWER_INF.surname %]
 [% END %]
 [% INCLUDE 'doc-head-close.inc' %]
+<script type="text/javascript" src="[% themelang %]/lib/jquery/plugins/jquery.metadata.min.js"></script>
 <script type="text/javascript" src="[% themelang %]/lib/jquery/plugins/jquery.tablesorter.min.js"></script>
-<script type="text/JavaScript" language="JavaScript">
+<script type="text/JavaScript">
 //<![CDATA[
 var MSG_CONFIRM_DELETE_HOLD = _("Are you sure you want to cancel this hold?");
 $.tablesorter.addParser({
@@ -16,54 +17,35 @@ $.tablesorter.addParser({
 });
             $(function() {
             $('#opac-user-views > ul').tabs();
-			$("#holdst").tablesorter({[% IF ( dateformat == 'metric' ) %]
-		dateFormat: 'uk',[% END %]
-				widgets : ['zebra'],
-				sortList: [[0,0]],
-		        headers: { 0: { sorter: 'articles' },5: { sorter: false }
-				}
+            $.tablesorter.defaults.widgets = ['zebra'];
+            [% IF ( dateformat == 'metric' ) %]$.tablesorter.defaults.dateFormat = ['uk'];[% END %]
+			$("#holdst").tablesorter({
+				sortList: [[0,0]]
 			}); 
-			$("#checkoutst").tablesorter({[% IF ( dateformat == 'metric' ) %]
-		dateFormat: 'uk',[% END %]
-				widgets : ['zebra'],
-				[% IF ( JacketImages ) %]
-					sortList: [[3,0]],
-						[% IF ( item_level_itypes ) %]
-							headers: { 0: { sorter: false }, 1: { sorter: 'articles' },4: { sorter: false },5: { sorter: false },6: { sorter: false }}
-						[% ELSE %]
-							headers: { 0: { sorter: false }, 1: { sorter: 'articles' },5: { sorter: false },6: { sorter: false },7: { sorter: false }}
-						[% END %]
-				[% ELSE %]
-						[% IF ( item_level_itypes ) %]
-							sortList: [[2,0]],
-							headers: { 0: { sorter: 'articles' },3: { sorter: false },4: { sorter: false },5: { sorter: false }}
-						[% ELSE %]
-							sortList: [[3,0]],
-							headers: { 0: { sorter: 'articles' },4: { sorter: false },5: { sorter: false },6: { sorter: false }}
-					[% END %]
-				[% END %]
-			}); 
-			$("#overduest").tablesorter({[% IF ( dateformat == 'metric' ) %]
-		dateFormat: 'uk',[% END %]
-				widgets : ['zebra'],
-				[% IF ( JacketImages ) %]
-					sortList: [[1,0]],
-						[% IF ( item_level_itypes ) %]
-							headers: { 0: { sorter: false }, 1: { sorter: 'articles' },4: { sorter: false },5: { sorter: false }}
-						[% ELSE %]
-							headers: { 0: { sorter: false }, 1: { sorter: 'articles' },5: { sorter: false },6: { sorter: false }}
-						[% END %]
-				[% ELSE %]
-						[% IF ( item_level_itypes ) %]
-							sortList: [[0,0]],
-							headers: { 0: { sorter: 'articles' },3: { sorter: false }}
-						[% ELSE %]
-							sortList: [[0,0]],
-							headers: { 0: { sorter: 'articles' },1: { sorter: false },3: { sorter: false }}
-					[% END %]
-				[% END %]
-			});
+			$("#checkoutst").tablesorter({
+                [% IF ( JacketImages ) %]sortList: [[2,0]][% ELSE %]sortList: [[1,0]][% END %]
+            }); 
+			$("#overduest").tablesorter();
 [% IF ( GoogleJackets ) %]KOHA.Google.GetCoverFromIsbn();[% END %]
+        [% IF ( OpacRenewalAllowed ) %][% IF ( canrenew ) %]$("#renewselected").submit(function(){
+            valid = false;
+            $("input[type=checkbox]").each(function(){
+                if($(this).is(':checked')){
+                    valid = true;
+                }
+            });
+            if(!valid){
+                alert(_("Nothing has been selected. Check the box for each item you want to renew"));
+            }
+            return valid;
+        });
+        $("#renewselected_link").live('click',function(){
+            $("#renewselected").submit();
+        });
+        $("#renewall_link").live('click',function(){
+            $("#renewall").submit();
+        });
+        $("#checkoutst caption").append("<div id=\"renewcontrols\"><a id=\"renewselected_link\" href=\"#\">"+_("Renew selected")+"</a> <a id=\"renewall_link\" href=\"#\">"+_("Renew all")+"</a></div>");[% END %][% END %]
             });
 //]]>
 </script>
@@ -110,8 +92,8 @@ $.tablesorter.addParser({
             [% IF ( BORROWER_INF.lost ) %]
                 <li><strong>Please note: </strong> Your library card has been marked as lost or stolen. If this is an error, please contact the library.</li>
             [% END %]
-            [% IF ( BORROWER_INF.renewal_blocked_fines ) %]
-                <li><strong>Please note: </strong> Since you have <a href="/cgi-bin/koha/opac-account.pl">more than [% BORROWER_INF.renewal_blocked_fines %]</a> in fines, you cannot renew your books online. Please pay your fines if you wish to renew your books.</li>
+            [% IF renewal_blocked_fines %]
+                <li><strong>Please note: </strong> Since you have <a href="/cgi-bin/koha/opac-account.pl">more than [% renewal_blocked_fines %]</a> in fines, you cannot renew your books online. Please pay your fines if you wish to renew your books.</li>
             [% END %]
         </ul></div>
         [% END %]
@@ -168,7 +150,7 @@ $.tablesorter.addParser({
         <table id="waitingt">
             <caption>Holds Waiting</caption>
            <thead> <tr>
-                <th colspan="2">Title</th>
+                <th colspan="2" class="{sorter:'articles'}">Title</th>
                 <th>Hold date</th>
                 <th>Pick Up Library</th>
             </tr></thead>
@@ -192,26 +174,26 @@ $.tablesorter.addParser({
     [% END %]
 
     <div id="opac-user-checkouts">[% IF ( issues_count ) %]
-        <form action="/cgi-bin/koha/opac-renew.pl" method="post">
+        <form id="renewselected" action="/cgi-bin/koha/opac-renew.pl" method="post">
 	<input type="hidden" name="borrowernumber" value="[% borrowernumber %]">
 	<input type="hidden" name="from" value="opac_user" />
         <table id="checkoutst">
         <caption>[% issues_count %] Item(s) Checked Out</caption>
        <thead><tr>
-		[% IF ( JacketImages ) %]<th>&nbsp;</th>[% END %]
-        <th>Title</th>
+		[% IF ( JacketImages ) %]<th class="{sorter: false}">&nbsp;</th>[% END %]
+        <th class="{sorter:'articles'}">Title</th>
+        <th>Due</th>
 		[% UNLESS ( item_level_itypes ) %]<th>Item Type</th> [% END %]
         [% IF ( show_barcode ) %]<th>Barcode</th>[% END %]
         <th>Call No.</th>
-        <th>Due</th>
         [% IF ( OpacRenewalAllowed ) %]
-        [% UNLESS ( patron_flagged ) %]<th>Renew</th>[% END %]
+        [% UNLESS  patron_flagged %]<th class="{sorter: false}">Renew</th>[% END %]
         [% END %]
 [% IF ( OPACFinesTab ) %]
         <th>Fines</th>
 [% END %]
         [% IF ( OPACMySummaryHTML ) %]
-        <th>Links</th>
+        <th class="{sorter: false}">Links</th>
         [% END %]
         </tr></thead>
         <tbody>
@@ -232,7 +214,7 @@ $.tablesorter.addParser({
 
 [% IF ( GoogleJackets ) %][% IF ( ISSUE.normalized_isbn ) %]<div style="display:block;" title="Click to view in Google Books" class="[% ISSUE.normalized_isbn %]" id="gbs-thumbnail[% loop.count %]"></div>[% ELSE %]<a href="http://books.google.com/books?q=[% ISSUE.title |url %]"><span class="no-image">No cover image available</span></a>[% END %][% END %]
 
-[% IF ( BakerTaylorEnabled ) %][% IF ( ISSUE.normalized_isbn ) %]<a href="https://[% ISSUE.BakerTaylorBookstoreurl |html %][% ISSUE.normalized_isbn %]"><img alt="See Baker &amp; Taylor" src="[% ISSUE.BakerTaylorImageurl |html %][% ISSUE.normalized_isbn %]" /></a>[% ELSE %]<span class="no-image">No cover image available</span><!-- BakerTaylor needs normalized_isbn! -->[% END %][% END %]
+[% IF ( BakerTaylorEnabled ) %][% IF ( ISSUE.normalized_isbn ) %]<a href="https://[% BakerTaylorBookstoreURL |html %][% ISSUE.normalized_isbn %]"><img alt="See Baker &amp; Taylor" src="[% BakerTaylorImageURL |html %][% ISSUE.normalized_isbn %]" /></a>[% ELSE %]<span class="no-image">No cover image available</span><!-- BakerTaylor needs normalized_isbn! -->[% END %][% END %]
 
 [% IF ( SyndeticsEnabled ) %][% IF ( SyndeticsCoverImages ) %][% IF ( using_https ) %]
 <img src="https://secure.syndetics.com/index.aspx?isbn=[% ISSUE.normalized_isbn %]/SC.GIF&amp;client=[% ISSUE.SyndeticsClientCode %]&amp;type=xw10&amp;upc=[% ISSUE.normalized_upc %]&amp;oclc=[% ISSUE.normalized_oclc %]" alt="" class="thumbnail" />
@@ -244,17 +226,17 @@ $.tablesorter.addParser({
                 <td><a href="/cgi-bin/koha/opac-detail.pl?biblionumber=[% ISSUE.biblionumber %]">[% ISSUE.title |html %]</a><span class="item-details">
                         [% ISSUE.author %]
                     </span></td>
-                [% UNLESS ( item_level_itypes ) %]<td>[% IF ( ISSUE.imageurl ) %]<img src="[% ISSUE.imageurl %]" title="[% ISSUE.description %]" alt="[% ISSUE.description %]" />[% END %] [% ISSUE.description %]</td>[% END %]
-                [% IF ( show_barcode ) %]<td>[% ISSUE.barcode %]</td>[% END %]
-                <td>[% ISSUE.itemcallnumber %]</td>
                 [% IF ( ISSUE.overdue ) %]
                     <td class="overdue">[% ISSUE.date_due %]</td>
                 [% ELSE %]
                     <td>[% ISSUE.date_due %]</td>
                 [% END %]
+                [% UNLESS ( item_level_itypes ) %]<td>[% IF ( ISSUE.imageurl ) %]<img src="[% ISSUE.imageurl %]" title="[% ISSUE.description %]" alt="[% ISSUE.description %]" />[% END %] [% ISSUE.description %]</td>[% END %]
+                [% IF ( show_barcode ) %]<td>[% ISSUE.barcode %]</td>[% END %]
+                <td>[% ISSUE.itemcallnumber %]</td>
                 [% IF ( OpacRenewalAllowed ) %]
-                    [% UNLESS ( ISSUE.patron_flagged ) %]
-                    <td>[% IF ( ISSUE.status ) %]<input type="checkbox" name="item" value="[% ISSUE.itemnumber %]"/><a href="/cgi-bin/koha/opac-renew.pl?from=opac_user&amp;item=[% ISSUE.itemnumber %]&amp;borrowernumber=[% ISSUE.borrowernumber %]">Renew</a> <span class="renewals">([% ISSUE.renewsleft %] of [% ISSUE.renewsallowed %] renewals remaining)</span>
+                    [% UNLESS patron_flagged %]
+                    <td>[% IF ( ISSUE.status ) %]<input type="checkbox" name="item" value="[% ISSUE.itemnumber %]"/> <a href="/cgi-bin/koha/opac-renew.pl?from=opac_user&amp;item=[% ISSUE.itemnumber %]&amp;borrowernumber=[% ISSUE.borrowernumber %]">Renew</a> <span class="renewals">([% ISSUE.renewsleft %] of [% ISSUE.renewsallowed %] renewals remaining)</span>
                         [% ELSE %]
                         Not renewable[% IF ( ISSUE.too_many ) %] <span class="renewals">([% ISSUE.renewsleft %] of [% ISSUE.renewsallowed %] renewals remaining)</span>[% ELSE %][% IF ( ISSUE.on_reserve ) %] <span class="renewals">(On hold)</span>[% END %][% END %] 
                         [% END %]</td>
@@ -269,22 +251,24 @@ $.tablesorter.addParser({
             </tr>
         [% END %]</tbody>
         </table>
-	
+	   [% IF ( canrenew ) %]
 		[% IF ( OpacRenewalAllowed ) %]
 		<input type="submit" value="Renew Selected" />
 		[% END %]
+        [% END %]
 		</form>
 		[% IF ( OpacRenewalAllowed ) %]
-		
-		<form action="/cgi-bin/koha/opac-renew.pl" method="post">
+        [% IF ( canrenew ) %]
+		<form id="renewall" action="/cgi-bin/koha/opac-renew.pl" method="post">
 			<input type="hidden" name="from" value="opac_user" />
 			<input type="hidden" name="borrowernumber" value="[% borrowernumber %]" />
 			[% FOREACH ISSUE IN ISSUES %]
 			<input type="hidden" name="item" value="[% ISSUE.itemnumber %]" />
 			[% END %]
-			[% UNLESS ( patron_flagged ) %]<input type="submit" value="Renew All" />[% END %]
+			[% UNLESS patron_flagged %]<input type="submit" value="Renew All" />[% END %]
 		</form>
 		[% END %]
+        [% END %]
     [% ELSE %]
         <table>
             <tr><td>You have nothing checked out</td></tr>
@@ -297,14 +281,14 @@ $.tablesorter.addParser({
 <caption>Overdues <span class="count">([% overdues_count %] total)</span></caption>
 <!-- OVERDUES TABLE ROWS -->
 <thead><tr>
-[% IF ( JacketImages ) %]<th>&nbsp;</th>[% END %]
-<th>Title</th>
+[% IF ( JacketImages ) %]<th class="{sorter: false}">&nbsp;</th>[% END %]
+<th class="{sorter:'articles'}">Title</th>
 [% UNLESS ( item_level_itypes ) %]<th>Item Type</th> [% END %]
 [% IF ( show_barcode ) %]<th>Barcode</th>[% END %]
 <th>Call No.</th>
 <th>Due</th>
 [% IF ( OpacRenewalAllowed ) %]
-                    [% UNLESS ( patron_flagged ) %]<th>Renew</th>[% END %][% END %]
+                    [% UNLESS patron_flagged %]<th class="{sorter: false}">Renew</th>[% END %][% END %]
 [% IF ( OPACFinesTab ) %]
 <th>Fines</th>
 [% END %]
@@ -318,7 +302,7 @@ $.tablesorter.addParser({
 
 [% IF ( GoogleJackets ) %][% IF ( OVERDUE.normalized_isbn ) %]<div style="display:block;" title="Click to view in Google Books" class="[% OVERDUE.normalized_isbn %]" id="gbs-thumbnail[% loop.count %]"></div>[% ELSE %]<a href="http://books.google.com/books?q=[% OVERDUE.title |url %]"><span class="no-image">No cover image available</span></a>[% END %][% END %]
 
-[% IF ( BakerTaylorEnabled ) %][% IF ( OVERDUE.normalized_isbn ) %]<a href="https://[% OVERDUE.BakerTaylorBookstoreurl |html %][% OVERDUE.normalized_isbn %]"><img alt="See Baker &amp; Taylor" src="[% OVERDUE.BakerTaylorImageurl |html %][% OVERDUE.normalized_isbn %]" /></a>[% ELSE %]<!-- BakerTaylor needs normalized_isbn! --><span class="no-image">No cover image available</span>[% END %][% END %]
+[% IF ( BakerTaylorEnabled ) %][% IF ( OVERDUE.normalized_isbn ) %]<a href="https://[% BakerTaylorBookstoreURL |html %][% OVERDUE.normalized_isbn %]"><img alt="See Baker &amp; Taylor" src="[% BakerTaylorImageURL |html %][% OVERDUE.normalized_isbn %]" /></a>[% ELSE %]<!-- BakerTaylor needs normalized_isbn! --><span class="no-image">No cover image available</span>[% END %][% END %]
 
 [% IF ( SyndeticsCoverImages ) %]
 [% IF ( using_https ) %]
@@ -336,7 +320,7 @@ $.tablesorter.addParser({
 <td>[% OVERDUE.itemcallnumber %]</td>
 <td>[% OVERDUE.date_due %]</td>
                 [% IF ( OpacRenewalAllowed ) %]
-                    [% UNLESS ( OVERDUE.patron_flagged ) %]
+                    [% UNLESS patron_flagged %]
 <td>
 [% IF ( OVERDUE.debarred ) %]Account Frozen
 [% ELSIF ( OVERDUE.status ) %]
@@ -360,7 +344,7 @@ $.tablesorter.addParser({
         <caption>Holds <span class="count">([% reserves_count %] total)</span></caption>
             <!-- RESERVES TABLE ROWS -->
             <thead><tr>
-                <th>Title</th>
+                <th class="{sorter:'articles'}">Title</th>
                 <th>Placed On</th>
 		<th>Expires On</th>
                 <th>Pick Up Location</th>
@@ -368,7 +352,7 @@ $.tablesorter.addParser({
 			<th>Priority</th>
 		[% END %]
                 <th>Status</th>
-		<th>Modify</th>
+		<th class="{sorter: false}">Modify</th>
             </tr></thead>
 			<tbody>
             [% FOREACH RESERVE IN RESERVES %]

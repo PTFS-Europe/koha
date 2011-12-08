@@ -19,12 +19,16 @@
 
 set -e
 
+usage="Usage: $0 [--create-db|--request-db|--populate-db] \
+    [--marcflavor marc21|normarc|unimarc] \
+    [--zebralang en|nb|fr] \
+    [--defaultsql /path/to/some.sql] \
+    [--configfile /path/to/config] instancename"
 
 die() {
     echo "$@" 1>&2
     exit 1
 }
-
 
 generate_config_file() {
     touch "$2"
@@ -36,6 +40,8 @@ generate_config_file() {
         -e "s/__OPACSERVER__/$domain/g" \
         -e "s/__INTRASERVER__/$intradomain/g" \
         -e "s/__ZEBRA_PASS__/$zebrapwd/g" \
+        -e "s/__ZEBRA_MARC_FORMAT__/$ZEBRA_MARC_FORMAT/g" \
+        -e "s/__ZEBRA_LANGUAGE__/$ZEBRA_LANGUAGE/g" \
         -e "s/__DB_NAME__/$mysqldb/g" \
         -e "s/__DB_HOST__/$mysqlhost/g" \
         -e "s/__DB_USER__/$mysqluser/g" \
@@ -54,10 +60,16 @@ getmysqlhost() {
 }
 
 getinstancemysqlpassword() {
-    sed -n '/<pass>/s:.*>\(.*\)</pass>.*:\1:p' \
-        "/etc/koha/sites/$1/koha-conf.xml"
+    xmlstarlet sel -t -v 'yazgfs/config/pass' "/etc/koha/sites/$1/koha-conf.xml"
 }
 
+getinstancemysqluser() {
+    xmlstarlet sel -t -v 'yazgfs/config/user' "/etc/koha/sites/$1/koha-conf.xml"
+}
+
+getinstancemysqldatabase() {
+    xmlstarlet sel -t -v 'yazgfs/config/database' "/etc/koha/sites/$1/koha-conf.xml"
+}
 
 # Set defaults and read config file, if it exists.
 DOMAIN=""
@@ -65,23 +77,64 @@ INTRAPORT="8080"
 INTRAPREFIX=""
 INTRASUFFIX=""
 DEFAULTSQL=""
+ZEBRA_MARC_FORMAT="marc21"
+ZEBRA_LANGUAGE="en"
 if [ -e /etc/koha/koha-sites.conf ]
 then
     . /etc/koha/koha-sites.conf
 fi
 
+[ $# -ge 2 ] && [ $# -le 10 ] || die $usage
 
-# Parse command line.
-[ "$#" = 2 ] || 
-    die "Usage: $0 [--create-db|--request-db|--populate-db] instancename"
-case "$1" in
-  --create-db) op=create ;;
-  --request-db) op=request ;;
-  --populate-db) op=populate ;;
-  *) die "Usage: $0 [--create-db|--request-db|--populate-db] instancename" ;;
-esac
+TEMP=`getopt -o crpm:l:d:f: -l create-db,request-db,populate-db,marcflavor:,zebralang:,defaultsql:,configfile: \
+     -n "$0" -- "$@"`
 
-name="$2"
+# Note the quotes around `$TEMP': they are essential!
+eval set -- "$TEMP"
+
+# Temporary variables for the command line options
+CLO_ZEBRA_MARC_FORMAT=""
+CLO_ZEBRA_LANGUAGE=""
+CLO_DEFAULTSQL=""
+
+while true ; do
+	case "$1" in
+		-c|--create-db) op=create ; shift ;;
+		-r|--request-db) op=request ; shift ;;
+		-p|--populate-db) op=populate ; shift ;;
+		-m|--marcflavor) CLO_ZEBRA_MARC_FORMAT="$2" ; shift 2 ;;
+		-l|--zebralang) CLO_ZEBRA_LANGUAGE="$2" ; shift 2 ;;
+		-d|--defaultsql) CLO_DEFAULTSQL="$2" ; shift 2 ;;
+		-f|--configfile) configfile="$2" ; shift 2 ;;
+		--) shift ; break ;;
+		*) die "Internal error processing command line arguments" ;;
+	esac
+done
+
+# Load the configfile given on the command line
+if [ -e "$configfile" ]
+then
+    . "$configfile"
+else
+    die "$configfile does not exist.";
+fi
+
+# Make sure options from the command line get the highest precedence
+if [ "$CLO_ZEBRA_MARC_FORMAT" != "" ]
+then
+    ZEBRA_MARC_FORMAT="$CLO_ZEBRA_MARC_FORMAT"
+fi
+if [ "$CLO_ZEBRA_LANGUAGE" != "" ]
+then
+    ZEBRA_LANGUAGE="$CLO_ZEBRA_LANGUAGE"
+fi
+if [ "$CLO_DEFAULTSQL" != "" ]
+then
+    DEFAULTSQL="$CLO_DEFAULTSQL"
+fi
+
+name="$1"
+
 domain="$name$DOMAIN"
 if [ "$INTRAPORT" = 80 ] || [ "$INTRAPORT" = "" ]
 then
@@ -124,7 +177,7 @@ then
     koha-create-dirs "$name"
 
     # Generate Zebra database password.
-    zebrapwd="$(pwgen -1)"
+    zebrapwd="$(pwgen -s 12 1)"
     # Set up MySQL database for this instance.
     if [ "$op" = create ]
     then
@@ -134,7 +187,7 @@ CREATE USER \`$mysqluser\`@'%' IDENTIFIED BY '$mysqlpwd';
 GRANT ALL PRIVILEGES ON \`$mysqldb\`.* TO \`$mysqluser\`;
 FLUSH PRIVILEGES;
 eof
-    fi
+    fi #`
 
     # Generate and install Apache site-available file and log dir.
     generate_config_file apache-site.conf.in \
@@ -183,6 +236,11 @@ fi
 
 if [ "$op" = create ] || [ "$op" = populate ]
 then
+    # Re-fetch the passwords from the config we've generated, allows it
+    # to be different from what we set, in case the user had to change
+    # something.
+    mysqluser=$(getinstancemysqluser $name)
+    mysqldb=$(getinstancemysqldatabase $name)
     # Use the default database content if that exists.
     if [ -e "$DEFAULTSQL" ]
     then
@@ -205,7 +263,7 @@ UPDATE borrowers
 SET password = '$staffdigest' 
 WHERE borrowernumber = 3;
 eof
-
+        #`
         echo "staff user password is '$staffpass' but keep that secret"
 
         # Upgrade the database schema, just in case the dump was from an 

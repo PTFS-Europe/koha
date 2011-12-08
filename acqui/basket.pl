@@ -90,6 +90,9 @@ if (!defined $op) {
     $op = q{};
 }
 
+my $confirm_pref= C4::Context->preference("BasketConfirmations") || '1';
+$template->param( skip_confirm_reopen => 1) if $confirm_pref eq '2';
+
 if ( $op eq 'delete_confirm' ) {
     my $basketno = $query->param('basketno');
     DelBasket($basketno);
@@ -144,7 +147,7 @@ if ( $op eq 'delete_confirm' ) {
     print GetBasketAsCSV($query->param('basketno'));
     exit;
 } elsif ($op eq 'close') {
-    my $confirm = $query->param('confirm');
+    my $confirm = $query->param('confirm') || $confirm_pref eq '2';
     if ($confirm) {
         my $basketno = $query->param('basketno');
         my $booksellerid = $query->param('booksellerid');
@@ -197,7 +200,7 @@ if ( $op eq 'delete_confirm' ) {
     if ($basket->{closedate} && haspermission({ flagsrequired   => { acquisition => 'group_manage'} })) {
         $basketgroups = GetBasketgroups($basket->{booksellerid});
         for my $bg ( @{$basketgroups} ) {
-            if ($basket->{basketgroupid} == $bg->{id}){
+            if ($basket->{basketgroupid} && $basket->{basketgroupid} == $bg->{id}){
                 $bg->{default} = 1;
             }
         }
@@ -291,6 +294,18 @@ if ( $op eq 'delete_confirm' ) {
 
     my $contract = &GetContract($basket->{contractnumber});
     my @orders = GetOrders($basketno);
+
+    my $borrower= GetMember('borrowernumber' => $loggedinuser);
+    my $budgets = GetBudgetHierarchy(q{},$borrower->{branchcode},$borrower->{borrowernumber});
+    my $has_budgets = 0;
+    foreach my $r (@{$budgets}) {
+        if (!defined $r->{budget_amount} || $r->{budget_amount} == 0) {
+            next;
+        }
+        $has_budgets = 1;
+        last;
+    }
+
     $template->param(
         basketno             => $basketno,
         basketname           => $basket->{'basketname'},
@@ -321,6 +336,7 @@ if ( $op eq 'delete_confirm' ) {
         basketgroups         => $basketgroups,
         grouped              => $basket->{basketgroupid},
         unclosable           => @orders ? 0 : 1, 
+        has_budgets          => $has_budgets,
     );
 }
 

@@ -4357,6 +4357,58 @@ if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
     SetVersion ($DBversion);
 }
 
+$DBversion = "3.04.03.000";
+if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
+    print "Upgrade to $DBversion done (Incrementing version for 3.4.3 release. See release notes for details.)\n";
+    SetVersion ($DBversion);
+}
+
+$DBversion = "3.04.03.001";
+if ( C4::Context->preference("Version") < TransformToNum($DBversion) ) {
+    $dbh->do("INSERT INTO `systempreferences` (variable,value,explanation,options,type) VALUES ('BasketConfirmations', '1', 'When closing or reopening a basket,', 'always ask for confirmation.|do not ask for confirmation.', 'Choice');");
+    print "Upgrade to $DBversion done (Adds pref BasketConfirmations)\n";
+    SetVersion($DBversion);
+}
+
+$DBversion = "3.04.03.002";
+if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
+    $dbh->do("INSERT INTO old_issues (borrowernumber, itemnumber, date_due, branchcode, issuingbranch, returndate, lastreneweddate, `return`, renewals, timestamp, issuedate)
+              SELECT borrowernumber, itemnumber, date_due, branchcode, issuingbranch, returndate, lastreneweddate, `return`, renewals, timestamp, issuedate FROM issues WHERE borrowernumber IS NULL");
+    $dbh->do("DELETE FROM issues WHERE borrowernumber IS NULL");
+
+    $dbh->do("INSERT INTO old_issues (borrowernumber, itemnumber, date_due, branchcode, issuingbranch, returndate, lastreneweddate, `return`, renewals, timestamp, issuedate)
+              SELECT borrowernumber, itemnumber, date_due, branchcode, issuingbranch, returndate, lastreneweddate, `return`, renewals, timestamp, issuedate FROM issues WHERE itemnumber IS NULL");
+    $dbh->do("DELETE FROM issues WHERE itemnumber IS NULL");
+
+    $dbh->do("INSERT INTO old_issues (borrowernumber, itemnumber, date_due, branchcode, issuingbranch, returndate, lastreneweddate, `return`, renewals, timestamp, issuedate)
+              SELECT borrowernumber, itemnumber, date_due, branchcode, issuingbranch, returndate, lastreneweddate, `return`, renewals, timestamp, issuedate FROM issues WHERE NOT EXISTS (SELECT * FROM borrowers WHERE borrowernumber = issues.borrowernumber)");
+    $dbh->do("DELETE FROM issues WHERE NOT EXISTS (SELECT * FROM borrowers WHERE borrowernumber = issues.borrowernumber)");
+
+    $dbh->do("INSERT INTO old_issues (borrowernumber, itemnumber, date_due, branchcode, issuingbranch, returndate, lastreneweddate, `return`, renewals, timestamp, issuedate)
+              SELECT borrowernumber, itemnumber, date_due, branchcode, issuingbranch, returndate, lastreneweddate, `return`, renewals, timestamp, issuedate FROM issues WHERE NOT EXISTS (SELECT * FROM items WHERE itemnumber = issues.itemnumber)");
+    $dbh->do("DELETE FROM issues WHERE NOT EXISTS (SELECT * FROM items WHERE itemnumber = issues.itemnumber)");
+
+    $dbh->do("ALTER TABLE issues DROP FOREIGN KEY `issues_ibfk_1`");
+    $dbh->do("ALTER TABLE issues DROP FOREIGN KEY `issues_ibfk_2`");
+    $dbh->do("ALTER TABLE issues ALTER COLUMN borrowernumber DROP DEFAULT");
+    $dbh->do("ALTER TABLE issues ALTER COLUMN itemnumber DROP DEFAULT");
+    $dbh->do("ALTER TABLE issues MODIFY COLUMN borrowernumber int(11) NOT NULL");
+    $dbh->do("ALTER TABLE issues MODIFY COLUMN itemnumber int(11) NOT NULL");
+    $dbh->do("ALTER TABLE issues DROP KEY `issuesitemidx`");
+    $dbh->do("ALTER TABLE issues ADD PRIMARY KEY (`itemnumber`)");
+    $dbh->do("ALTER TABLE issues ADD CONSTRAINT `issues_ibfk_1` FOREIGN KEY (`borrowernumber`) REFERENCES `borrowers` (`borrowernumber`) ON DELETE RESTRICT ON UPDATE CASCADE");
+    $dbh->do("ALTER TABLE issues ADD CONSTRAINT `issues_ibfk_2` FOREIGN KEY (`itemnumber`) REFERENCES `items` (`itemnumber`) ON DELETE RESTRICT ON UPDATE CASCADE");
+
+    print "Upgrade to $DBversion done (issues referential integrity)\n";
+    SetVersion ($DBversion);
+}
+
+$DBversion = "3.04.04.000";
+if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
+    print "Upgrade to $DBversion done (Incrementing version for 3.4.4 release. See release notes for details.)\n";
+    SetVersion ($DBversion);
+}
+
 =head1 FUNCTIONS
 
 =head2 DropAllForeignKeys($table)
