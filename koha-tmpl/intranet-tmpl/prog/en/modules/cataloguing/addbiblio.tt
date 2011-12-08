@@ -142,7 +142,7 @@ function AreMandatoriesNotOk(){
         	[% END %]
     		[% FOREACH subfield_loo IN innerloo.subfield_loop %]
     			[% IF ( subfield_loo.mandatory ) %]mandatories.push("[% subfield_loo.id %]");
-                   	tab.push("[% subfield_loo.number %]");
+                   	tab.push("[% BIG_LOO.number %]");
                    	label.push("[% subfield_loo.marc_lib %]");
                 [% END %]
             [% END %]
@@ -255,7 +255,7 @@ function GetZ3950Terms(){
 
 function Changefwk(FwkList) {
 	var fwk = FwkList.options[FwkList.selectedIndex].value;
- 	window.location = "/cgi-bin/koha/cataloguing/addbiblio.pl?biblionumber=[% biblionumber %]&breedingid=[% breedingid %]&frameworkcode="+fwk;
+	window.location = "/cgi-bin/koha/cataloguing/addbiblio.pl?biblionumber=[% biblionumberdata %]&op=[% op %]&breedingid=[% breedingid %]&mode=[% popup %]&frameworkcode="+fwk;
 
 }
 

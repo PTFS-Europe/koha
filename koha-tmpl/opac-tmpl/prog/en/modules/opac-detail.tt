@@ -182,14 +182,14 @@ YAHOO.util.Event.onContentReady("furtherm", function () {
         [% END %]
     </span>[% END %]
 
-    [% IF ( MARCurlS ) %]
+    [% IF ( MARCURLS ) %]
     <div class="results_summary"><span class="label">Online Resources:</span>
-    <ul>    [% FOREACH MARCurl IN MARCurlS %]
+    <ul>    [% FOREACH MARCurl IN MARCURLS %]
         <li>[% IF ( MARCurl.part ) %][% MARCurl.part %]
             <br />[% END %] 
         <!-- here you might do a tmpl_if name="toc" and use greybox or equivalent for table of contents -->
         
-        [% IF ( MARCurl.OPACurlOpenInNewWindow ) %]<a href="[% MARCurl.MARCurl %]" title="[% MARCurl.MARCurl %]" target="_blank">[% ELSE %]<a href="[% MARCurl.MARCurl %]" title="[% MARCurl.MARCurl %]">[% END %]
+        [% IF ( MARCurl.OPACurlOpenInNewWindow ) %]<a href="[% MARCurl.MARCURL %]" title="[% MARCurl.MARCURL %]" target="_blank">[% ELSE %]<a href="[% MARCurl.MARCURL %]" title="[% MARCurl.MARCURL %]">[% END %]
         
         [% MARCurl.linktext %]</a>
             [% IF ( MARCurl.notes ) %]<ul>[% FOREACH note IN MARCurl.notes %]<li>[% note.note %]</li>[% END %]</ul>[% END %]</li>
@@ -407,7 +407,7 @@ YAHOO.util.Event.onContentReady("furtherm", function () {
 		[% IF ( itemdata_enumchron ) %]<td>[% ITEM_RESULT.enumchron %]</td>[% END %]
 		[% IF ( itemdata_uri ) %]<td><a href="[% ITEM_RESULT.uri %]">[% ITEM_RESULT.uri %]</a></td>[% END %]
 		[% IF ( itemdata_copynumber ) %]<td>[% ITEM_RESULT.copynumber %]</td>[% END %]
-		<td>[% INCLUDE 'item-status.inc' %]</td>
+		<td>[% INCLUDE 'item-status.inc' item = ITEM_RESULT %]</td>
 		[% IF ( itemdata_itemnotes ) %]<td>[% ITEM_RESULT.itemnotes %]</td>[% END %]
 		<td>[% ITEM_RESULT.datedue %]</td>
 		[% IF ( ITEM_RESULT.type ) %]

@@ -1352,8 +1352,9 @@ sub GetParcels {
                 sum(quantity) AS itemsexpected,
                 sum(quantityreceived) AS itemsreceived
         FROM   aqorders LEFT JOIN aqbasket ON aqbasket.basketno = aqorders.basketno
-        WHERE aqbasket.booksellerid = $bookseller and datereceived IS NOT NULL
+        WHERE aqbasket.booksellerid = ? and datereceived IS NOT NULL
     ";
+    push @query_params, $bookseller;
 
     if ( defined $code ) {
         $strsth .= ' and aqorders.booksellerinvoicenumber like ? ';
@@ -1434,6 +1435,7 @@ sub GetLateOrders {
             OR datereceived IS NULL
             OR aqorders.quantityreceived < aqorders.quantity
         )
+        AND (aqorders.datecancellationprinted IS NULL OR aqorders.datecancellationprinted='0000-00-00')
     ";
     my $having = "";
     if ($dbdriver eq "mysql") {

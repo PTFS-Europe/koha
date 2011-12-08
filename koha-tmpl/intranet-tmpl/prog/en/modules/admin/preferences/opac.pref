@@ -138,7 +138,7 @@ OPAC:
               type: textarea
               class: code
         -
-            - "Show the following HTML on the left hand column of all pages on the OPAC (generally navigation links):"
+            - "Show the following HTML on the left hand column of the main page and patron account on the OPAC (generally navigation links):"
             - pref: OpacNav
               type: textarea
               class: code
@@ -154,7 +154,7 @@ OPAC:
               class: code
         -
             - 'Include a "More Searches" box on the detail pages of items on the OPAC, with the following HTML (leave blank to disable):'
-            - '<br />Note: The placeholders {CONTROLNUMBER}, {TITLE}, {ISBN} and {AUTHOR} will be replaced with information from the displayed record.'
+            - '<br />Note: The placeholders {BIBLIONUMBER}, {CONTROLNUMBER}, {TITLE}, {ISBN} and {AUTHOR} will be replaced with information from the displayed record.'
             - pref: OPACSearchForTitleIn
               type: textarea
               class: code

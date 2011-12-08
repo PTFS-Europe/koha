@@ -85,7 +85,7 @@ if (C4::Context->preference("OPACXSLTDetailsDisplay") ) {
 
 $template->param('OPACShowCheckoutName' => C4::Context->preference("OPACShowCheckoutName") ); 
 # change back when ive fixed request.pl
-my @all_items = &GetItemsInfo( $biblionumber, 'opac' );
+my @all_items = GetItemsInfo( $biblionumber );
 my @items;
 
 # Getting items to be hidden
@@ -562,6 +562,7 @@ if (my $search_for_title = C4::Context->preference('OPACSearchForTitleIn')){
     $dat->{title} ? $search_for_title =~ s/{TITLE}/$dat->{title}/g : $search_for_title =~ s/{TITLE}//g;
     $isbn ? $search_for_title =~ s/{ISBN}/$isbn/g : $search_for_title =~ s/{ISBN}//g;
     $marccontrolnumber ? $search_for_title =~ s/{CONTROLNUMBER}/$marccontrolnumber/g : $search_for_title =~ s/{CONTROLNUMBER}//g;
+    $search_for_title =~ s/{BIBLIONUMBER}/$biblionumber/g;
  $template->param('OPACSearchForTitleIn' => $search_for_title);
 }
 

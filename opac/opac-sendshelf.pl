@@ -51,6 +51,8 @@ my $email   = $query->param('email');
 
 my $dbh          = C4::Context->dbh;
 
+if ( ShelfPossibleAction( (defined($borrowernumber) ? $borrowernumber : -1), $shelfid, 'view' ) ) {
+
 if ( $email ) {
     my $email_from = C4::Context->preference('KohaAdminEmailAddress');
     my $comment    = $query->param('comment');
@@ -86,7 +88,7 @@ if ( $email ) {
         my $marcauthorsarray = GetMarcAuthors( $record, $marcflavour );
         my $marcsubjctsarray = GetMarcSubjects( $record, $marcflavour );
 
-        my @items = &GetItemsInfo( $biblionumber, 'opac' );
+        my @items = GetItemsInfo( $biblionumber );
 
         $dat->{MARCNOTES}      = $marcnotesarray;
         $dat->{MARCSUBJCTS}    = $marcsubjctsarray;
@@ -175,5 +177,12 @@ END_OF_BODY
     $template->param( shelfid => $shelfid,
                       url     => "/cgi-bin/koha/opac-sendshelf.pl",
                     );
+    output_html_with_http_headers $query, $cookie, $template->output;
+}
+
+} else {
+    $template->param( invalidlist => 1,
+                      url     => "/cgi-bin/koha/opac-sendshelf.pl",
+    );
     output_html_with_http_headers $query, $cookie, $template->output;
 }

@@ -82,11 +82,6 @@ sub search_method {
     my $userid = shift or return;
 	my $uid_field = $mapping{userid}->{is} or die ldapserver_error("mapping for 'userid'");
 	my $filter = Net::LDAP::Filter->new("$uid_field=$userid") or die "Failed to create new Net::LDAP::Filter";
-    my $res = ($config{anonymous}) ? $db->bind : $db->bind($ldapname, password=>$ldappassword);
-    if ($res->code) {		# connection refused
-        warn "LDAP bind failed as ldapuser " . ($ldapname || '[ANONYMOUS]') . ": " . description($res);
-        return 0;
-    }
 	my $search = $db->search(
 		  base => $base,
 	 	filter => $filter,
@@ -124,10 +119,21 @@ sub checkpw_ldap {
         }
 
 	# FIXME dpavlin -- we really need $userldapentry leater on even if using auth_by_bind!
-	my $search = search_method($db, $userid) or return 0;   # warnings are in the sub
-	$userldapentry = $search->shift_entry;
+
+	# BUG #5094
+	# 2010-08-04 JeremyC
+	# a $userldapentry is only needed if either updating or replicating are enabled
+	if($config{update} or $config{replicate}) {
+	    my $search = search_method($db, $userid) or return 0;   # warnings are in the sub
+	    $userldapentry = $search->shift_entry;
+	}
 
 	} else {
+		my $res = ($config{anonymous}) ? $db->bind : $db->bind($ldapname, password=>$ldappassword);
+		if ($res->code) {		# connection refused
+			warn "LDAP bind failed as ldapuser " . ($ldapname || '[ANONYMOUS]') . ": " . description($res);
+			return 0;
+		}
         my $search = search_method($db, $userid) or return 0;   # warnings are in the sub
         $userldapentry = $search->shift_entry;
 		my $cmpmesg = $db->compare( $userldapentry, attr=>'userpassword', value => $password );

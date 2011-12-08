@@ -21,6 +21,7 @@ package C4::Biblio;
 
 use strict;
 use warnings;
+use Carp;
 
 # use utf8;
 use MARC::Record;
@@ -294,9 +295,21 @@ and biblionumber data for indexing.
 
 sub ModBiblio {
     my ( $record, $biblionumber, $frameworkcode ) = @_;
+    croak "No record" unless $record;
+
     if ( C4::Context->preference("CataloguingLog") ) {
         my $newrecord = GetMarcBiblio($biblionumber);
         logaction( "CATALOGUING", "MODIFY", $biblionumber, "BEFORE=>" . $newrecord->as_formatted );
+    }
+
+    # Cleaning up invalid fields must be done early or SetUTF8Flag is liable to
+    # throw an exception which probably won't be handled.
+    foreach my $field ($record->fields()) {
+        if (! $field->is_control_field()) {
+            if (scalar($field->subfields()) == 0 || (scalar($field->subfields()) == 1 && $field->subfield('9'))) {
+                $record->delete_field($field);
+            }
+        }
     }
 
     SetUTF8Flag($record);
@@ -305,14 +318,6 @@ sub ModBiblio {
     $frameworkcode = "" unless $frameworkcode;
 
     _strip_item_fields($record, $frameworkcode);
-
-    foreach my $field ($record->fields()) {
-        if (! $field->is_control_field()) {
-            if (scalar($field->subfields()) == 0) {
-                $record->delete_fields($field);
-            }
-        }
-    }
 
     # update biblionumber and biblioitemnumber in MARC
     # FIXME - this is assuming a 1 to 1 relationship between
@@ -2665,6 +2670,7 @@ per the bib's MARC framework.
 
 sub EmbedItemsInMarcBiblio {
     my ($marc, $biblionumber) = @_;
+    croak "No MARC record" unless $marc;
 
     my $frameworkcode = GetFrameworkCode($biblionumber);
     _strip_item_fields($marc, $frameworkcode);
