@@ -4546,7 +4546,13 @@ if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
 
 $DBversion = "3.06.00.000";
 if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
-    print "Upgrade to $DBversion done Koha 3.4.0 release \n";
+    print "Upgrade to $DBversion done Koha 3.6.0 release \n";
+    SetVersion ($DBversion);
+}
+
+$DBversion = "3.06.01.000";
+if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
+    print "Upgrade to $DBversion done (Incrementing version for 3.6.1 release. See release notes for details.) \n";
     SetVersion ($DBversion);
 }
 
