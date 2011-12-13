@@ -138,6 +138,11 @@
             <option value="callnum">&nbsp;&nbsp;&nbsp;&nbsp; Call number</option>
         [% END %]
     [% END %]
+    [% IF ms_kwcommaControldashnumber %]
+         <option selecte3d="selected" value="kw,Control-number">Accession Number</option>
+    [% ELSE %]
+         <option value="kw,Control-number">Accession Number</option>
+    [% END %]	 
     [% IF ms_lncommartrn %]
         <option selected="selected" value="ln,rtrn">Language</option>
     [% ELSE %]
