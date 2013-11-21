@@ -21,7 +21,14 @@
                             <a class="koha_url" href="http://koha-community.org">Koha</a>
                         [% ELSE %]
                             <a class="koha_url" rel="nofollow" href="http://koha-community.org">Koha</a>
-                        [% END %]</p>
+                        [% END %]
+                        , Supported by
+                        [% IF template.name.match('opac-main.tt') %]
+                            <a class="ptfs_url" href="http://ptfs-europe.com">PTFS-Europe</a>
+                        [% ELSE %]
+                            <a class="ptfs_url" rel="nofollow" href="http://ptfs-europe.com">PTFS-Europe</a>
+                        [% END %]
+			</p>
                     </div>
                 </div> <!-- /.span12 -->
             </div> <!-- /.row-fluid -->
