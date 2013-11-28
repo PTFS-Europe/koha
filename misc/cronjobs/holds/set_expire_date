@@ -1,0 +1,24 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+use C4::Context;
+
+my $sql =
+q{update reserves set expirationdate = reservedate + interval 100 day where expirationdate is null};
+
+my $dbh = C4::Context->dbh;
+
+my $rows_affected = $dbh->do($sql);
+
+print "set expiration date for $rows_affected reserves\n";
+
+if ($dbh->err()) {
+    print 'Error reported: ', $dbh->errstr(), "\n";
+}
+__END__
+=pod
+
+Set explit expiry dates in holds created with a null expiry
+
+=cut
