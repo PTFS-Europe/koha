@@ -461,6 +461,20 @@ See CanItemBeReserved() for possible return values.
 sub CanBookBeReserved{
     my ($borrowernumber, $biblionumber) = @_;
 
+    # Check if borrower already has reserved the same biblio.
+    my @reserves = GetReservesFromBorrowernumber($borrowernumber);
+    foreach my $reserve (@reserves) {
+        if ($reserve->{biblionumber} == $biblionumber) {
+            return 'alreadyReserved';
+        }
+    }
+
+    # Check if borrower has reached the maximum number of holds allowed
+    my $maxreserves = C4::Context->preference('maxreserves');
+    if ($maxreserves && scalar(@reserves) >= $maxreserves) {
+        return 'tooManyReserves';
+    }
+
     my $items = GetItemnumbersForBiblio($biblionumber);
     #get items linked via host records
     my @hostitems = get_hostitemnumbers_of($biblionumber);
@@ -473,7 +487,8 @@ sub CanBookBeReserved{
         $canReserve = CanItemBeReserved( $borrowernumber, $item );
         return 'OK' if $canReserve eq 'OK';
     }
-    return $canReserve;
+
+    return 'none_available';
 }
 
 =head2 CanItemBeReserved
@@ -486,6 +501,7 @@ sub CanBookBeReserved{
          damaged,         if the Item is damaged.
          cannotReserveFromOtherBranches, if syspref 'canreservefromotherbranches' is OK.
          tooManyReserves, if the borrower has exceeded his maximum reserve amount.
+         alreadyReserved, if the borrower has already reserved this item.
 
 =cut
 
@@ -495,7 +511,7 @@ sub CanItemBeReserved{
     my $dbh             = C4::Context->dbh;
     my $ruleitemtype; # itemtype of the matching issuing rule
     my $allowedreserves = 0;
-            
+
     # we retrieve borrowers and items informations #
     # item->{itype} will come for biblioitems if necessery
     my $item = GetItem($itemnumber);
@@ -508,6 +524,22 @@ sub CanItemBeReserved{
     #Check for the age restriction
     my ($ageRestriction, $daysToAgeRestriction) = C4::Circulation::GetAgeRestriction( $biblioData->{agerestriction}, $borrower );
     return 'ageRestricted' if $daysToAgeRestriction && $daysToAgeRestriction > 0;
+
+    # Check if borrower already has reserved the same item or biblio.
+    my @reserves = GetReservesFromBorrowernumber($borrowernumber);
+    foreach my $reserve (@reserves) {
+        if (   $reserve->{itemnumber} == $itemnumber
+            or $reserve->{biblionumber} == $item->{biblionumber} )
+        {
+            return 'alreadyReserved';
+        }
+    }
+
+    # Check if borrower has reached the maximum number of holds allowed
+    my $maxreserves = C4::Context->preference('maxreserves');
+    if ($maxreserves && scalar(@reserves) >= $maxreserves) {
+        return 'tooManyReserves';
+    }
 
     my $controlbranch = C4::Context->preference('ReservesControlBranch');
     my $itemtypefield = C4::Context->preference('item-level_itypes') ? "itype" : "itemtype";

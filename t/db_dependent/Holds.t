@@ -6,7 +6,7 @@ use t::lib::Mocks;
 use C4::Context;
 use C4::Branch;
 
-use Test::More tests => 38;
+use Test::More tests => 41;
 use MARC::Record;
 use C4::Biblio;
 use C4::Items;
@@ -56,8 +56,8 @@ foreach (1..$borrowers_count) {
 
 my $biblionumber   = $bibnum;
 
-my @branches = GetBranchesLoop();
-my $branch = $branches[0][0]{value};
+my $branches = GetBranchesLoop();
+my $branch = $branches->[0]{value};
 
 # Create five item level holds
 foreach my $borrowernumber ( @borrowernumbers ) {
@@ -205,7 +205,7 @@ $dbh->do(
 );
 
 # make sure some basic sysprefs are set
-t::lib::Mocks::mock_preference('ReservesControlBranch', 'homebranch');
+t::lib::Mocks::mock_preference('ReservesControlBranch', 'ItemHomeLibrary');
 t::lib::Mocks::mock_preference('item-level_itypes', 1);
 
 # if IndependentBranches is OFF, a CPL patron can reserve an MPL item
@@ -293,10 +293,12 @@ ModReserve({ reserve_id => $reserveid2, rank => 'del' });
 $reserve3 = GetReserve( $reserveid3 );
 is( $reserve3->{priority}, 1, "After ModReserve, the 3rd reserve becomes the first on the waiting list" );
 
+ok( defined( ( CheckReserves($itemnumber) )[1] ), "Hold can be trapped for damaged item with AllowHoldsOnDamagedItems enabled" );
+
 ModItem({ damaged => 1 }, $item_bibnum, $itemnumber);
+CancelReserve({reserve_id => $reserveid3});
 C4::Context->set_preference( 'AllowHoldsOnDamagedItems', 1 );
 ok( CanItemBeReserved( $borrowernumbers[0], $itemnumber) eq 'OK', "Patron can reserve damaged item with AllowHoldsOnDamagedItems enabled" );
-ok( defined( ( CheckReserves($itemnumber) )[1] ), "Hold can be trapped for damaged item with AllowHoldsOnDamagedItems enabled" );
 C4::Context->set_preference( 'AllowHoldsOnDamagedItems', 0 );
 ok( CanItemBeReserved( $borrowernumbers[0], $itemnumber) eq 'damaged', "Patron cannot reserve damaged item with AllowHoldsOnDamagedItems disabled" );
 ok( !defined( ( CheckReserves($itemnumber) )[1] ), "Hold cannot be trapped for damaged item with AllowHoldsOnDamagedItems disabled" );
@@ -312,22 +314,34 @@ AddReserve(
     '',
     1,
 );
+my ($bibnum2, $title2, $bibitemnum2) = create_helper_biblio('CANNOT');
+my ($item_bibnum2, $item_bibitemnum2, $itemnumber2) = AddItem({ homebranch => $branch, holdingbranch => $branch, itype => 'CANNOT' } , $bibnum2);
 ok(
-    CanItemBeReserved( $borrowernumbers[0], $itemnumber) eq 'tooManyReserves',
+    CanItemBeReserved( $borrowernumbers[0], $itemnumber2) eq 'tooManyReserves',
     "cannot request item if policy that matches on item-level item type forbids it"
 );
-ModItem({ itype => 'CAN' }, $item_bibnum, $itemnumber);
+ModItem({ itype => 'CAN' }, $item_bibnum2, $itemnumber2);
 ok(
-    CanItemBeReserved( $borrowernumbers[0], $itemnumber) eq 'OK',
+    CanItemBeReserved( $borrowernumbers[0], $itemnumber2) eq 'OK',
     "can request item if policy that matches on item type allows it"
 );
 
 t::lib::Mocks::mock_preference('item-level_itypes', 0);
-ModItem({ itype => undef }, $item_bibnum, $itemnumber);
+ModItem({ itype => undef }, $item_bibnum2, $itemnumber2);
 ok(
-    CanItemBeReserved( $borrowernumbers[0], $itemnumber) eq 'tooManyReserves',
+    CanItemBeReserved( $borrowernumbers[0], $itemnumber2) eq 'tooManyReserves',
     "cannot request item if policy that matches on bib-level item type forbids it (bug 9532)"
 );
+
+is(CanBookBeReserved($borrowernumbers[0], $bibnum), 'alreadyReserved');
+
+C4::Context->set_preference('maxreserves', 1);
+ok(CanBookBeReserved($borrowernumbers[0], $biblionumber) eq 'tooManyReserves');
+
+C4::Context->set_preference('maxreserves', 0);
+t::lib::Mocks::mock_preference('IndependentBranches', 1);
+t::lib::Mocks::mock_preference('canreservefromotherbranches', 0);
+ok(CanBookBeReserved($borrowernumbers[0], $foreign_bibnum) eq 'none_available');
 
 # Test CancelExpiredReserves
 C4::Context->set_preference('ExpireReservesMaxPickUpDelay', 1);
@@ -370,10 +384,19 @@ sub create_helper_biblio {
     my $itemtype = shift;
     my $bib = MARC::Record->new();
     my $title = 'Silence in the library';
-    $bib->append_fields(
-        MARC::Field->new('100', ' ', ' ', a => 'Moffat, Steven'),
-        MARC::Field->new('245', ' ', ' ', a => $title),
-        MARC::Field->new('942', ' ', ' ', c => $itemtype),
-    );
-    return ($bibnum, $title, $bibitemnum) = AddBiblio($bib, '');
+    if (C4::Context->preference('marcflavour') eq 'UNIMARC') {
+        $bib->append_fields(
+            MARC::Field->new('700', ' ', '0', a => 'Moffat, Steven'),
+            MARC::Field->new('200', ' ', ' ', a => $title),
+            MARC::Field->new('099', ' ', ' ', t => $itemtype),
+        );
+    } else {
+        $bib->append_fields(
+            MARC::Field->new('100', ' ', ' ', a => 'Moffat, Steven'),
+            MARC::Field->new('245', ' ', ' ', a => $title),
+            MARC::Field->new('942', ' ', ' ', c => $itemtype),
+        );
+    }
+
+    return AddBiblio($bib, '');
 }

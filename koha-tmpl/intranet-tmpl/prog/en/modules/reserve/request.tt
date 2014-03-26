@@ -247,7 +247,7 @@ function checkMultiHold() {
     </form>
   [% ELSE %]
 
-[% IF ( maxreserves || alreadyreserved || none_available || alreadypossession || ageRestricted ) %]
+[% IF ( maxreserves || alreadyReserved || none_available || alreadypossession || ageRestricted ) %]
     <div class="dialog alert">
 
     [% UNLESS ( multi_hold ) %]
@@ -259,7 +259,7 @@ function checkMultiHold() {
         [% IF ( ageRestricted ) %]
           <li><strong>Age restricted</strong></li>
         [% END %]
-        [% IF ( alreadyreserved ) %]
+        [% IF ( alreadyReserved ) %]
           <li><a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% borrowernumber %]">[% borrowerfirstname %] [% borrowersurname %]</a> <strong>already has a hold</strong> on this item </li>
         [% END %]
         [% IF ( none_available ) %]

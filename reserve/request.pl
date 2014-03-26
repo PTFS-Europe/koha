@@ -199,7 +199,9 @@ foreach my $biblionumber (@biblionumbers) {
     elsif ( $canReserve eq 'tooManyReserves' ) {
         $maxreserves = 1;
     }
-    elsif ( $canReserve eq 'ageRestricted' ) {
+    elsif ( grep { $canReserve eq $_ }
+        (qw(ageRestricted alreadyReserved none_available)) )
+    {
         $template->param( $canReserve => 1 );
         $biblioloopiter{$canReserve} = 1;
     }
@@ -216,27 +218,14 @@ foreach my $biblionumber (@biblionumbers) {
     my $reserves = GetReservesFromBiblionumber({ biblionumber => $biblionumber, all_dates => 1 });
     my $count = scalar( @$reserves );
     my $totalcount = $count;
-    my $holds_count = 0;
-    my $alreadyreserved = 0;
 
     foreach my $res (@$reserves) {
         if ( defined $res->{found} ) { # found can be 'W' or 'T'
             $count--;
         }
-
-        if ( defined $borrowerinfo && defined($borrowerinfo->{borrowernumber}) && ($borrowerinfo->{borrowernumber} eq $res->{borrowernumber}) ) {
-            $holds_count++;
-        }
-    }
-
-    if ( $holds_count ) {
-            $alreadyreserved = 1;
-            $biblioloopiter{warn} = 1;
-            $biblioloopiter{alreadyres} = 1;
     }
 
     $template->param(
-        alreadyreserved => $alreadyreserved,
         alreadypossession => $alreadypossession,
     );
 
@@ -420,7 +409,7 @@ foreach my $biblionumber (@biblionumbers) {
                      $borrowerinfo->{'branchcode'} ne $item->{'homebranch'} ) ) {
                 $policy_holdallowed = 0;
             }
-            
+
             if (
                    $policy_holdallowed
                 && !$item->{cantreserve}
