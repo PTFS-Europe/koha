@@ -1,0 +1,93 @@
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Koha &rsaquo; ILL requests  &rsaquo;</title>
+[% INCLUDE 'doc-head-close.inc' %]
+<script type="text/javascript" src="[% themelang %]/lib/jquery/plugins/jquery.tablesorter.min.js"></script>
+<script type="text/javascript" src="[% themelang %]/lib/jquery/plugins/jquery.checkboxes.min.js"></script>
+
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'cat-search.inc' %]
+<div id="breadcrumbs">
+    <a href="/cgi-bin/koha/mainpage.pl">Home</a> &rsaquo; ILL Requests
+</div>
+
+
+<body id="acq_suggestion" class="acq">
+<div id="doc3" class="yui-t2">
+<div id="bd">
+    <div id="yui-main">
+        <div class="yui-b">
+
+            <h1>ILL Request management</h1>
+
+            <div id="illtabs" class="toptabs ui-tabs ui-widget ui-widget-content ui-corner-all">
+                <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
+                    [% IF request_type == "ALL" %]
+                    <li class="ui-tabs-selected ui-corner-top">
+                    [% ELSE %]
+                    <li class="ui-corner-top">
+                    [% END %]
+                      <a href="ill-requests.pl?request_type=ALL">All requests</a>
+                    </li>
+                    [% IF request_type == "NEW" %]
+                    <li class="ui-tabs-selected ui-corner-top">
+                    [% ELSE %]
+                    <li class="ui-corner-top">
+                    [% END %]
+                    <a href="ill-requests.pl?request_type=NEW">New</a></li>
+                    [% IF request_type == "COMPLETED" %]
+                    <li class="ui-tabs-selected ui-corner-top">
+                    [% ELSE %]
+                    <li class="ui-corner-top">
+                    [% END %]
+                    <a href="ill-requests.pl?request_type=COMPLETED">Completed</a>
+                    </li>
+                    [% IF request_type == "OPENNOTNEW" %]
+                     <li class="ui-tabs-selected ui-corner-top">
+                   [% ELSE %]
+                   <li class="ui-corner-top">
+                    [% END %]
+                    <a href="ill-requests.pl?request_type=OPENNOTNEW">In progress</a>
+                    </li>
+                </ul>
+                <div id="ill-request-content" class="ui-tabs-panel" style="display: block;">
+                    [% IF allillrequests %]
+                    <table class="historyt">
+                    <thead>
+                        <tr><th>Request No.</th><th>Request type</th><th>Date placed</th><th>Date completed</th><th>Patron</th><th>Item</th><th>Branch</th><th>Status</th></tr>
+                    </thead>
+                    <tbody>
+                        [% FOREACH req IN allillrequests %]
+                        <tr>
+                        <td>[% req.requestnumber %]</td>
+                        <td>[% req.request_type_label %]</td>
+                        <td>[% req.date_placed %]</td>
+                        <td>[% req.completed_date %]</td>
+                        <td><a href="/cgi-bin/koha/members/illrequests.pl?borrowernumber=[% req.borrowernumber %]">[% req.borrower_showname -%] [% req.borrower_surname %]</a></td>
+                        [% IF req.biblionumber %]
+                        <td><a href="/cgi-bin/koha/catalogue/detail.pl?biblionumber=[% req.biblionumber %]" target="_blank">[% req.ref %]</a></td>
+                        [% ELSE %]
+                        <td>[% req.ref %]</td>
+                        [% END %]
+                        <td>[% req.branchname %]</td>
+                        [% IF req.status_code == new_status %]
+                        <td><a href="/cgi-bin/koha/ill/illrequest-details.pl?requestid=[% req.requestid %]">[% req.status %]</a></td>
+                        [% ELSE %]
+                        <td>[% req.status %]</td>
+                        [% END %]
+                        </tr>
+                        [% END %]
+                    </tbody>
+                    </table>
+                    [% ELSE %]
+                    There are no ILL requests for this selection
+                    [% END %]
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+[% INCLUDE 'intranet-bottom.inc' %]

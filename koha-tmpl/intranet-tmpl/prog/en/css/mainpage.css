@@ -139,6 +139,7 @@ ul.biglinks-list li a:hover.icon_administration {background-position:5px -871px;
 ul.biglinks-list li a:hover.icon_tools {background-position:5px -963px;}
 ul.biglinks-list li a:hover.icon_koha {background-position:5px -1054px;}
 ul.biglinks-list li a:hover.icon_course_reserves {background-position:5px -1146px;}
+ul.biglinks-list li a.icon_ill {background-image:url('/intranet-tmpl/prog/img/icon_ill.png')}
 /* ==== MODULE LINKS - End ==== */
 
 

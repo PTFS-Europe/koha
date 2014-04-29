@@ -1,0 +1,77 @@
+[% INCLUDE 'doc-head-open.inc' %]
+[% IF ( LibraryNameTitle ) %][% LibraryNameTitle %][% ELSE %]Koha online[% END %] catalog &rsaquo; Your ILL Requests
+[% INCLUDE 'doc-head-close.inc' %]
+<script type="text/javascript" src="[% themelang %]/lib/jquery/plugins/jquery.tablesorter.min.js"></script>
+</head>
+<body id="opac-ill">
+[% IF ( OpacNav ) %]
+<div id="doc3" class="yui-t1">
+[% ELSIF ( loggedinusername ) %]
+<div id="doc3" class="yui-t1">
+[% ELSE %]
+<div id="doc3" class="yui-t7">
+[% END %]
+   <div id="bd">
+[% INCLUDE 'masthead.inc' %]
+
+    <div id="yui-main">
+<div class="yui-b"><div class="yui-g">
+        <div id="searchhistory" class="container">
+    <h1>ILL Requests</h1>
+    [% IF recentSearches %]
+    <form action="/cgi-bin/koha/opac-search-history.pl" method="get"><input type="hidden" name="action" value="delete" /><input type="submit" class="deleteshelf" value="Delete your search history" onclick="return confirm(MSG_CONFIRM_DELETE_HISTORY);" /></form>
+    [% ELSE %]
+        [% IF previousSearches %]
+        <form action="/cgi-bin/koha/opac-search-history.pl" method="get">
+        <input type="hidden" name="action" value="delete" />
+        <input type="submit" class="deleteshelf" value="Delete your search history" onclick="return confirm(MSG_CONFIRM_DELETE_HISTORY);" />
+        </form>
+        [% END %]
+    [% END %]
+
+    [% IF ILLRequests %]
+    <table class="historyt">
+    <thead>
+        <tr><th>Request No.</th><th>Date</th><th>Item</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+        [% FOREACH req IN ILLRequests %]
+        <tr>
+        <td>[% req.requestnumber %]</td>
+        <td>[% req.date_placed %]</td>
+        [% IF req.biblionumber %]
+        <td><a href="/cgi-bin/koha/opac-detail.pl?biblionumber=[% req.biblionumber %]" target="_blank">[% req.ref %]</a></td>
+        [% ELSE %]
+        <td>[% req.ref %]</td>
+        [% END %]
+        <td>[% req.status %]</td>
+        </tr>
+        [% END %]
+    </tbody>
+    </table>
+    [% ELSE %]
+      <p>You have no ILL requests.</p>
+    [% END %]
+
+     </div>
+    </div>
+  </div>
+</div>
+
+[% IF OpacNav %]
+    <div class="yui-b">
+    <div id="leftmenus" class="container">
+    [% INCLUDE 'navigation.inc' IsPatronPage=1 %]
+    </div>
+    </div>
+[% ELSIF loggedinusername %]
+    <div class="yui-b">
+       <div id="leftmenus" class="container">
+         [% INCLUDE 'navigation.inc' IsPatronPage=1 %]
+       </div>
+     </div>
+[% END %]
+
+
+</div>
+[% INCLUDE 'opac-bottom.inc' %]

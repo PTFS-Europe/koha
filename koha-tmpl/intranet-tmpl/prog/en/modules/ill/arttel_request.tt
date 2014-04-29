@@ -1,0 +1,102 @@
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Koha &rsaquo; ILL requests  &rsaquo;</title>
+[% INCLUDE 'doc-head-close.inc' %]
+<script type="text/javascript" src="[% themelang %]/lib/jquery/plugins/jquery.tablesorter.min.js"></script>
+<script type="text/javascript" src="[% themelang %]/lib/jquery/plugins/jquery.checkboxes.min.js"></script>
+<script type="text/javascript">
+// <![CDATA[
+function yuiToolbar() {
+    new YAHOO.widget.Button("sendemail");
+    new YAHOO.widget.Button("postpone");
+}
+function CheckForm() {
+// Validation goes here
+    $('#artelform').submit();
+}
+
+$(document).ready(function() {
+    yuiToolbar();
+});
+// ]]>
+</script>
+
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'cat-search.inc' %]
+<div id="breadcrumbs">
+    <a href="/cgi-bin/koha/mainpage.pl">Home</a> &rsaquo; ILL ArtTel Request for [% ill_prefix %][% req.requestnumber %]
+</div>
+
+<body id="arttel_params" class="acq">
+<div id="doc3" class="yui-t2">
+<div id="bd">
+    <div id="yui-main">
+	    <div class="yui-b">
+
+        <h1>ARTTEL Email request ([% ill_prefix %][% req.requestnumber %])</h1>
+        <!--<p>Request to be sent for [% req.display_title %]</p> -->
+<form action="/cgi-bin/koha/ill/sendartelreq.pl" method="post" id="artelform">
+<fieldset class="rows">
+<h3>Message Keyword Codes:</h3>
+<p>Service Codes:<br />
+<select name="service_code">
+   <option value="">Default</option>
+   <option value="S">S - BL Only Search </option>
+   <option value="SL">SL - BL and Locations Search</option>
+<!--   <option value="BACKUP">BL and Backup Libraries Search</option> -->
+   <option value="SW">SW - BL Locations and Worldwide Search</option>
+   <option value="WWS">WWS - Worldwide Search only</option>
+</select>
+</p>
+<p>Delivery Format and Speed Codes:<br />
+<select name="format_speed_code">
+   <option value="">Default</option>
+   <option value="PHOTO">PHOTO: Paper - Within 4 Days</option>
+   <option value="PHOTO*24*">PHOTO*24: Paper - 24 Hours</option>
+   <option value="PHOTO*2*">PHOTO*2: Paper - Within 2 Hours</option>
+   <option value="LOAN">LOAN: Loan - Within 4 Days</option>
+   <option value="LOAN*24*">LOAN*24: Loan - 24 Hours</option>
+   <option value="FXBK99">FXBK99: Ariel File Transfer - Within 4 Days</option>
+   <option value="FXBK99*24*">FXBK99*24: Ariel File Transfer - Within 24 Hours</option>
+   <option value="FXBK99*2*">FXBK99*2: Ariel File Transfer - Within 2 Hours</option>
+   <option value="SED99">SED99: Download - Within 4 Days</option>
+   <option value="SED99*24*">SED99*24: Download - Within 24 Hours</option>
+   <option value="SED99*2*">SED99*2: Download - Within 2 Hours</option>
+   <option value="PTW99">PTW99: Download (Unencrypted) - Within 4 Days</option>
+<!--
+   <option value="PTW99*24*">PTW99*24: Download (Unencrypted) - Within 24 Hours</option>
+   <option value="PTW99*2*">PTW99*2: Download (Unencrypted) - Within 2 Hours</option>
+-->
+</select>
+</select>
+</p>
+<p>Option flags for request:<br />
+    <input type="checkbox" name="codes" value="COPYRT"> Copyright Fee Paid Service Required (COPYRT)<br />
+    <input type="checkbox" name="codes" value="WLX"> Do not place on a waiting list (WLX)<br />
+    <input type="checkbox" name="codes" value="HOME"> Item must be available for reading at home (HOME)<br />
+    <input type="checkbox" name="codes" value="TRANSON">English language version essential (TRANSON)<br />
+
+</p>
+<input type="hidden" name="cmd" id="cmd" value="send" />
+<input type="hidden" name="requestid" id="requestid" value="[% req.requestid %]" />
+</fieldset>
+<div id="artel_toolbar">
+<ul class="toolbar">
+<li>
+  <a id="sendemail" href="javascript:CheckForm();">
+     Send
+  </a>
+</li>
+<li>
+  <a id="postpone" href="/cgi-bin/koha/ill/illrequest-details.pl?requestid=[% req.requestid %]">Do Not Send</a>
+</li
+</ul>
+</div>
+</form>
+
+
+</div>
+</div>
+
+</div>
+
+[% INCLUDE 'intranet-bottom.inc' %]

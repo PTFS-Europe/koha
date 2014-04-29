@@ -1,0 +1,416 @@
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Koha &rsaquo; ILL requests  &rsaquo;</title>
+[% INCLUDE 'doc-head-close.inc' %]
+<script type="text/javascript" src="[% themelang %]/lib/jquery/plugins/jquery.tablesorter.min.js"></script>
+<script type="text/javascript" src="[% themelang %]/lib/jquery/plugins/jquery.checkboxes.min.js"></script>
+<script type="text/javascript">
+// <![CDATA[
+
+    function yuiToolbar() {
+        new YAHOO.widget.Button("saveillrequest");
+        new YAHOO.widget.Button("cancelillrequest");
+        new YAHOO.widget.Button("deleteillrequest");
+        new YAHOO.widget.Button("arttel");
+        new YAHOO.widget.Button("emailillrequest");
+        new YAHOO.widget.Button("intray");
+        [% IF op == 'delete' %]
+        new YAHOO.widget.Button("delyes");
+        new YAHOO.widget.Button("delno");
+        [% END %]
+    }
+
+    function Check() {
+        var _alertString="";
+        var alertString2;
+
+        if ($('#op').val()=='request_book') {
+            if ($('#title').val().length ==0) {
+                _alertString += _("- You must enter a Title") + "\n";
+            }
+            if ($('#author').val().length ==0) {
+                _alertString += _("- You must enter an Author") + "\n";
+            }
+
+            if (_alertString.length==0) {
+                $('#illform').submit();
+            }
+            else {
+                alertString2 = _("Form not submitted because of the following problem(s)");
+                alertString2 += "\n------------------------------------------------------------------------------------\n\n";
+                alertString2 += _alertString;
+                alert(alertString2);
+            }
+        }
+
+        if ($('#op').val()=='request_journal') {
+            if ($('#title').val().length ==0) {
+                _alertString += _("- You must enter a Title") + "\n";
+            }
+            if ($('#article_title').val().length ==0) {
+                _alertString += _("- You must enter an Article title") + "\n";
+            }
+            if ($('#author_names').val().length ==0) {
+                _alertString += _("- You must enter an Author") + "\n";
+            }
+
+            if (_alertString.length==0) {
+                $('#illform').submit();
+            }
+            else {
+                alertString2 = _("Form not submitted because of the following problem(s)");
+                alertString2 += "\n------------------------------------------------------------------------------------\n\n";
+                alertString2 += _alertString;
+                alert(alertString2);
+            }
+        }
+
+        if ($('#op').val()=='request_thesis') {
+            if ($('#title').val().length ==0) {
+                _alertString += _("- You must enter a Title") + "\n";
+            }
+            if ($('#author').val().length ==0) {
+                _alertString += _("- You must enter an Author") + "\n";
+            }
+            if ($('#university').val().length ==0) {
+                _alertString += _("- You must enter a University") + "\n";
+            }
+            if ($('#dissertation').val().length ==0) {
+                _alertString += _("- You must enter a Dissertation") + "\n";
+            }
+
+            if (_alertString.length==0) {
+                $('#illform').submit();
+            }
+            else {
+                alertString2 = _("Form not submitted because of the following problem(s)");
+                alertString2 += "\n------------------------------------------------------------------------------------\n\n";
+                alertString2 += _alertString;
+                alert(alertString2);
+            }
+        }
+
+        if ($('#op').val()=='request_other') {
+            if ($('#title').val().length ==0) {
+                _alertString += _("- You must enter a Title") + "\n";
+            }
+            if ($('#author').val().length ==0) {
+                _alertString += _("- You must enter an Author") + "\n";
+            }
+
+            if (_alertString.length==0) {
+                $('#illform').submit();
+            }
+            else {
+                alertString2 = _("Form not submitted because of the following problem(s)");
+                alertString2 += "\n------------------------------------------------------------------------------------\n\n";
+                alertString2 += _alertString;
+                alert(alertString2);
+            }
+        }
+
+    }
+
+
+$(document).ready(function() {
+    yuiToolbar();
+});
+// ]]>
+</script>
+
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'cat-search.inc' %]
+<div id="breadcrumbs">
+    <a href="/cgi-bin/koha/mainpage.pl">Home</a> &rsaquo; ILL Request details for [% ill_prefix %][% ILLRequest.requestnumber %]
+</div>
+
+
+<body id="acq_suggestion" class="acq">
+<div id="doc3" class="yui-t2">
+<div id="bd">
+    <div id="yui-main">
+        <div class="yui-b">
+
+            <h1>ILL Request Details ([% ill_prefix %][% ILLRequest.requestnumber %])</h1>
+
+            [% IF op == 'delete' %]
+            <p>&nbsp;</p>
+            <p class="required">Are you sure you want to delete this request?&nbsp;&nbsp;&nbsp;<a href="/cgi-bin/koha/ill/illrequest-details.pl?requestid=[% ILLRequest.requestid %]&op=delconfirmed" id="delyes">YES</a> <a href="/cgi-bin/koha/ill/illrequest-details.pl?requestid=[% ILLRequest.requestid %]" id="delno">NO</a></p>
+            [% END %]
+
+            [% IF deleted == 1 %]
+            <p> </p>
+            <p>The request was successfully deleted. <a href="/cgi-bin/koha/ill/ill-requests.pl">Click here to view ILL requests</a></p>
+            [% END %]
+
+            [% IF updated == 1 %]
+            <p>&nbsp;</p>
+            <p>The request was successfully updated. <a href="/cgi-bin/koha/ill/ill-requests.pl">Click here to view ILL requests</a></p>
+            [% END %]
+
+            [% IF (!deleted AND !updated AND ILLRequest.request_type) %]
+            [% IF (ILLRequest.request_type) == "ILLBOOK" %]
+            <form action="/cgi-bin/koha/ill/illrequest-details.pl" method="post" id="illform">
+                <fieldset class="rows">
+                    <ol>
+                        <li>
+                        <label for="patron">Patron:</label>
+                        <a href="/cgi-bin/koha/members/illrequests.pl?borrowernumber=[% ILLRequest.borrowernumber %]">[% borrowername %]</a>
+                        </li>
+                        <li>
+                        <label for="patron">Status:</label><select id="status" name="status">
+                            [% FOREACH status IN illstatuses %]
+                                <option
+                                [% IF status.authorised_value == ILLRequest.status %] selected[% END %]
+                                 value="[% status.authorised_value %]">[% status.lib %]</option>
+                            [% END %]
+                        </select></li>
+                        <li>
+                        <label class="required" for="title">Title:</label><input type="text" id="title" name="title" size="50" maxlength="80" value="[% ILLRequest.title %]" />
+                        </li>
+                        <li>
+                         <label class="required" for="author">Author/Editor:</label><input type="text" id="author" name="author" size="50" maxlength="80" value="[% ILLRequest.author_editor %]" />
+                         </li>
+                        <li>
+<label for="publisher">Publisher:</label><input type="text" id="publisher" name="publisher" size="50" maxlength="80" value="[% ILLRequest.publisher %]" /></li>
+                        <li>
+<label for="isbn">ISBN:</label><input type="text" id="isbn" name="isbn" size="50" maxlength="80" value="[% ILLRequest.isbn %]" /></li>
+                        <li>
+<label for="edition">Edition:</label><input type="text" id="edition" name="edition" size="50" maxlength="80" value="[% ILLRequest.edition %]" /></li>
+                        <li>
+<label for="year">Year:</label><input type="text" id="year" name="year" size="50" maxlength="80" value="[% ILLRequest.year %]" /></li>
+                        <li>
+<label for="chapter_title">Chapter title:</label><input type="text" id="chapter_title" name="chapter_title" size="50" maxlength="80" value="[% ILLRequest.chapter_title %]" /></li>
+                        <li>
+<label for="author_names">Author name(s):</label><input type="text" id="author_names" name="author_names" size="50" maxlength="80" value="[% ILLRequest.author_names %]" /></li>
+                        <li>
+<label for="pages">Pages:</label><input type="text" id="pages" name="pages" size="50" maxlength="80" value="[% ILLRequest.pages %]" /></li>
+                        <li>
+<label for="biblionumber">Biblionumber:</label><input type="text" id="biblionumber" name="biblionumber" size="50" maxlength="80" value="[% ILLRequest.biblionumber %]" /></li>
+                        <li>
+<label for="shelfmark">Shelfmark:</label><input type="text" id="shelfmark" name="shelfmark" size="50" maxlength="80" value="[% ILLRequest.shelfmark %]" /></li>
+                        <li>
+<label for="notes">Additional information:</label><textarea id="notes" name="notes" cols="71" rows="4">[% ILLRequest.notes %]</textarea></li>
+                        <input type="hidden" id="borrowernumber" name="borrowernumber" value="[% ILLRequest.borrowernumber %]" /></li>
+                        <input type="hidden" id="request_type" name="request_type" value="[% ILLRequest.request_type %]" /></li>
+                        <input type="hidden" id="requestid" name="requestid" value="[% ILLRequest.requestid %]" /></li>
+                    </ol>
+                    <input type="hidden" name="op" id="op" value="request_book" />
+                </fieldset>
+                    <div id="toolbar">
+                        <ul class="toolbar">
+                            <li>
+<a id="saveillrequest" href="javascript:Check();">Save Request Data</a></li>
+                            <li>
+<a id="cancelillrequest" href="/cgi-bin/koha/ill/ill-requests.pl">Cancel</a></li>
+                            <li>
+<a id="deleteillrequest" href="/cgi-bin/koha/ill/illrequest-details.pl?requestid=[% ILLRequest.requestid %]&op=delete">Delete Request</a></li>
+                            <li>
+<a id="arttel" href="/cgi-bin/koha/ill/sendartelreq.pl?requestid=[% ILLRequest.requestid %]">Send to ARTTel</a></li>
+                            <li>
+<a id="emailillrequest" href="/cgi-bin/koha/ill/sendgeneric.pl?requestid=[% ILLRequest.requestid %]">Create Generic Email</a></li>
+                        </ul>
+                    </div>
+            </form>
+                [% END %]
+            [% IF (ILLRequest.request_type) == "ILLJOURNAL" %]
+            <form action="/cgi-bin/koha/ill/illrequest-details.pl" method="post" id="illform">
+                    <fieldset class="rows">
+                        <ol>
+                        <li>
+<label for="patron">Patron:</label><a href="/cgi-bin/koha/members/illrequests.pl?borrowernumber=[% ILLRequest.borrowernumber %]">[% borrowername %]</a></li>
+                        <li>
+<label for="patron">Status:</label><select id="status" name="status">
+                            [% FOREACH status IN illstatuses %]
+                                <option
+                                [% IF status.authorised_value == ILLRequest.status %] selected[% END %]
+                                 value="[% status.authorised_value %]">[% status.lib %]</option>
+                            [% END %]
+                        </select></li>
+                        <li>
+<label class="required" for="title">Title:</label><input type="text" id="title" name="title" size="50" maxlength="80" value="[% ILLRequest.title %]" /></li>
+                        <li>
+<label for="publisher">Publisher:</label><input type="text" id="publisher" name="publisher" size="50" maxlength="80" value="[% ILLRequest.publisher %]" /></li>
+                        <li>
+<label for="isbn">ISSN:</label><input type="text" id="issn" name="issn" size="50" maxlength="80" value="[% ILLRequest.issn %]" /></li>
+                        <li>
+<label for="year">Year:</label><input type="text" id="year" name="year" size="50" maxlength="80" value="[% ILLRequest.year %]" /></li>
+                        <li>
+<label for="season">Season:</label><input type="text" id="season" name="season" size="50" maxlength="80" value="[% ILLRequest.season %]" /></li>
+                        <li>
+<label for="month">Month:</label><input type="text" id="month" name="month" size="50" maxlength="80" value="[% ILLRequest.month %]" /></li>
+                        <li>
+<label for="day">Day:</label><input type="text" id="day" name="day" size="50" maxlength="80" value="[% ILLRequest.day %]" /></li>
+                        <li>
+<label for="part">Part:</label><input type="text" id="part" name="part" size="50" maxlength="80" value="[% ILLRequest.part %]" /></li>
+                        <li>
+<label for="issue">Issue:</label><input type="text" id="issue" name="issue" size="50" maxlength="80" value="[% ILLRequest.issue %]" /></li>
+                        <li>
+<label for="special_issue">Special Issue:</label><input type="text" id="special_issue" name="special_issue" size="50" maxlength="80" value="[% ILLRequest.special_issue %]" /></li>
+                        <li class="required"><label for="article_title">Article Title:</label><input type="text" id="article_title" name="article_title" size="50" maxlength="80" value="[% ILLRequest.article_title %]" /></li>
+                        <li class="required"><label for="author_names">Author Names:</label><input type="text" id="author_names" name="author_names" size="50" maxlength="80" value="[% ILLRequest.author_names %]" /></li>
+                        <li>
+<label for="pages">Pages:</label><input type="text" id="pages" name="pages" size="50" maxlength="80" value="[% ILLRequest.pages %]" /></li>
+                        <li>
+<label for="notes">Additional information:</label><textarea id="notes" name="notes" cols="71" rows="4">[% ILLRequest.notes %]</textarea></li>
+                        <li>
+<label for="conference_title">Conference Title:</label><input type="text" id="conference_title" name="conference_title" size="50" maxlength="80" value="[% ILLRequest.conference_title %]" /></li>
+                        <li>
+<label for="conference_author">Conference Author:</label><input type="text" id="conference_author" name="conference_author" size="50" maxlength="80" value="[% ILLRequest.conference_author %]" /></li>
+                        <li>
+<label for="conference_venue">Conference Venue:</label><input type="text" id="conference_venue" name="conference_venue" size="50" maxlength="80" value="[% ILLRequest.conference_venue %]" /></li>
+                        <li>
+<label for="conference_date">Conference Date:</label><input type="text" id="conference_date" name="conference_date" size="50" maxlength="80" value="[% ILLRequest.conference_date %]" /></li>
+                        <li>
+<label for="isbn">ISBN:</label><input type="text" id="isbn" name="isbn" size="50" maxlength="80" value="[% ILLRequest.isbn %]" /></li>
+                        <input type="hidden" id="borrowernumber" name="borrowernumber" value="[% ILLRequest.borrowernumber %]" /></li>
+                        <input type="hidden" id="request_type" name="reques_ttype" value="[% ILLRequest.request_type %]" /></li>
+                        <input type="hidden" id="requestid" name="requestid" value="[% ILLRequest.requestid %]" /></li>
+                    </ol>
+                    <input type="hidden" name="op" id="op" value="request_journal" />
+                    </fieldset>
+                    <div id="toolbar">
+                        <ul class="toolbar">
+                            <li>
+<a id="saveillrequest" href="javascript:Check();">Save Request Data</a></li>
+                            <li>
+<a id="cancelillrequest" href="/cgi-bin/koha/ill/ill-requests.pl">Cancel</a></li>
+                            <li>
+<a id="deleteillrequest" href="/cgi-bin/koha/ill/illrequest-details.pl?requestid=[% ILLRequest.requestid %]&op=delete">Delete Request</a></li>
+                            <li>
+<a id="arttel" href="/cgi-bin/koha/ill/sendartelreq.pl?requestid=[% ILLRequest.requestid %]">Send to ARTTel</a></li>
+                            <li>
+<a id="emailillrequest" href="/cgi-bin/koha/ill/sendgeneric.pl?requestid=[% ILLRequest.requestid %]">Create Generic Email</a></li>
+                        </ul>
+                    </div>
+            </form>
+                [% END %]
+            [% IF (ILLRequest.request_type) == "ILLTHESIS" %]
+            <form action="/cgi-bin/koha/ill/illrequest-details.pl" method="post" id="illform">
+                    <fieldset class="rows">
+                        <ol>
+                        <li>
+<label for="patron">Patron:</label><a href="/cgi-bin/koha/members/illrequests.pl?borrowernumber=[% ILLRequest.borrowernumber %]">[% borrowername %]</a></li>
+                        <li>
+<label for="patron">Status:</label><select id="status" name="status">
+                            [% FOREACH status IN illstatuses %]
+                                <option
+                                [% IF status.authorised_value == ILLRequest.status %] selected[% END %]
+                                 value="[% status.authorised_value %]">[% status.lib %]</option>
+                            [% END %]
+                        </select></li>
+                        <li>
+<label class="required" for="title">Title:</label><input type="text" id="title" name="title" size="50" maxlength="80" value="[% ILLRequest.title %]" /></li>
+                        <li>
+<label class="required" for="author">Author:</label><input type="text" id="author" name="author" size="50" maxlength="80" value="[% ILLRequest.author_editor %]" /></li>
+                        <li>
+<label class="required" for="university">University:</label><input type="text" id="university" name="university" size="50" maxlength="80" value="[% ILLRequest.university %]" /></li>
+                        <li>
+<label class="required" for="dissertation">Dissertation:</label><input type="text" id="dissertation" name="dissertation" size="50" maxlength="80" value="[% ILLRequest.dissertation %]" /></li>
+                        <li>
+<label for="year">Year:</label><input type="text" id="year" name="year" size="50" maxlength="80" value="[% ILLRequest.year %]" /></li>
+                        <li>
+<label for="chapter_title">Chapter title:</label><input type="text" id="chapter_title" name="chapter_title" size="50" maxlength="80" value="[% ILLRequest.chapter_title %]" /></li>
+                        <li>
+<label for="pages">Pages:</label><input type="text" id="pages" name="pages" size="50" maxlength="80" value="[% ILLRequest.pages %]" /></li>
+                        <li>
+<label for="notes">Additional information:</label><textarea id="notes" name="notes" cols="71" rows="4">[% ILLRequest.notes %]</textarea></li>
+                        <input type="hidden" id="borrowernumber" name="borrowernumber" value="[% ILLRequest.borrowernumber %]" /></li>
+                        <input type="hidden" id="request_type" name="request_type" value="[% ILLRequest.request_type %]" /></li>
+                        <input type="hidden" id="requestid" name="requestid" value="[% ILLRequest.requestid %]" /></li>
+                    </ol>
+                    <input type="hidden" name="op" id="op" value="request_thesis" />
+                    </fieldset>
+                    <div id="toolbar">
+                        <ul class="toolbar">
+                            <li>
+<a id="saveillrequest" href="javascript:Check();">Save Request Data</a></li>
+                            <li>
+<a id="cancelillrequest" href="/cgi-bin/koha/ill/ill-requests.pl">Cancel</a></li>
+                            <li>
+<a id="deleteillrequest" href="/cgi-bin/koha/ill/illrequest-details.pl?requestid=[% ILLRequest.requestid %]&op=delete">Delete Request</a></li>
+                            <li>
+<a id="arttel" href="/cgi-bin/koha/ill/sendartelreq.pl?requestid=[% ILLRequest.requestid %]">Send to ARTTel</a></li>
+                            <li>
+<a id="emailillrequest" href="/cgi-bin/koha/ill/sendgeneric.pl?requestid=[% ILLRequest.requestid %]">Create Generic Email</a></li>
+                        </ul>
+                    </div>
+            </form>
+                [% END %]
+            [% IF (ILLRequest.request_type) == "ILLOTHER" %]
+            <form action="/cgi-bin/koha/ill/illrequest-details.pl" method="post" id="illform">
+                    <fieldset class="rows">
+                        <ol>
+                        <li>
+<label for="patron">Patron:</label><a href="/cgi-bin/koha/members/illrequests.pl?borrowernumber=[% ILLRequest.borrowernumber %]">[% borrowername %]</a></li>
+                        <li>
+<label for="patron">Status:</label><select id="status" name="status">
+                            [% FOREACH status IN illstatuses %]
+                                <option
+                                [% IF status.authorised_value == ILLRequest.status %] selected[% END %]
+                                 value="[% status.authorised_value %]">[% status.lib %]</option>
+                            [% END %]
+                        </select></li>
+                        <li>
+<label class="required" for="title">Title:</label><input type="text" id="title" name="title" size="50" maxlength="80" value="[% ILLRequest.title %]" />
+                   </li>
+                        <li>
+<label class="required" for="author">Author:</label><input type="text" id="author" name="author" size="50" maxlength="80" value="[% ILLRequest.author_editor %]" />
+                   </li>
+                        <li>
+<label for="composer">composer:</label><input type="text" id="composer" name="composer" size="50" maxlength="80" value="[% ILLRequest.composer %]" />
+                   </li>
+                        <li>
+<label for="ismn">ISMN:</label><input type="text" id="ismn" name="ismn" size="50" maxlength="80" value="[% ILLRequest.ismn %]" />
+                   </li>
+                        <li>
+<label for="isbn">ISBN:</label><input type="text" id="isbn" name="isbn" size="50" maxlength="80" value="[% ILLRequest.isbn %]" />
+                   </li>
+                        <li>
+<label for="edition">Edition:</label><input type="text" id="edition" name="edition" size="50" maxlength="80" value="[% ILLRequest.edition %]" />
+                   </li>
+                        <li>
+<label for="year">Year:</label><input type="text" id="year" name="year" size="50" maxlength="80" value="[% ILLRequest.year %]" />
+                   </li>
+                        <li>
+<label for="scale">Scale:</label><input type="text" id="scale" name="scale" size="50" maxlength="80" value="[% ILLRequest.scale %]" />
+                   </li>
+                        <li>
+<label for="notes">Additional information:</label><textarea id="notes" name="notes" cols="71" rows="4">[% ILLRequest.notes %]</textarea>
+                   </li>
+                        <input type="hidden" id="borrowernumber" name="borrowernumber" value="[% ILLRequest.borrowernumber %]" />
+                   </li>
+                        <input type="hidden" id="request_type" name="request_type" value="[% ILLRequest.request_type %]" />
+                   </li>
+                        <input type="hidden" id="requestid" name="requestid" value="[% ILLRequest.requestid %]" />
+                   </li>
+                    </ol>
+                    <input type="hidden" name="op" id="op" value="request_other" />
+                    </fieldset>
+                    <div id="toolbar">
+                        <ul class="toolbar">
+                            <li>
+<a id="saveillrequest" href="javascript:Check();">Save Request Data</a>
+                   </li>
+                            <li>
+<a id="cancelillrequest" href="/cgi-bin/koha/ill/ill-requests.pl">Cancel</a>
+                   </li>
+                            <li>
+<a id="deleteillrequest" href="/cgi-bin/koha/ill/illrequest-details.pl?requestid=[% ILLRequest.requestid %]&op=delete">Delete Request</a>
+                   </li>
+                            <li>
+<a id="arttel" href="/cgi-bin/koha/ill/sendartelreq.pl?requestid=[% ILLRequest.requestid %]">Send to ARTTel</a>
+                   </li>
+                            <li>
+<a id="emailillrequest" href=:"/cgi-bin/koha/ill/sendgeneric.pl?requestid=[% ILLRequest.requestid %]">Create Generic Email</a>
+                   </li>
+                        </ul>
+                    </div>
+            </form>
+                [% END %]
+            [% END %]
+        </div>
+    </div>
+
+</div>
+
+[% INCLUDE 'intranet-bottom.inc' %]

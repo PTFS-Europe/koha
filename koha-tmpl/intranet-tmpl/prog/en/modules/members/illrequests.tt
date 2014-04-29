@@ -1,0 +1,70 @@
+[% INCLUDE 'doc-head-open.inc' %]
+<title>ILL Requests for [% INCLUDE 'patron-title.inc' %]</title>
+[% INCLUDE 'doc-head-close.inc' %]
+<script type="text/javascript" src="[% themelang %]/lib/jquery/plugins/jquery.tablesorter.min.js"></script>
+<script type="text/javascript" language="javascript">
+//<![CDATA[
+
+    function illButton() {
+        new YAHOO.widget.Button("newillrequest");
+    }
+
+    $(document).ready(function() {
+    $("#noticestable").tablesorter({
+        [% IF ( dateformat == 'metric' ) %]
+        dateFormat: 'uk'
+        [% END %]
+    });
+    illButton();
+
+    });
+//]]>
+</script>
+</head>
+<body id="pat_notices" class="pat">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'patron-search.inc' %]
+
+<div id="breadcrumbs"><a href="/cgi-bin/koha/mainpage.pl">Home</a> &rsaquo; <a href="/cgi-bin/koha/members/members-home.pl">Patrons</a>  &rsaquo; ILL Requests for [% INCLUDE 'patron-title.inc' %]</div>
+
+<div id="doc3" class="yui-t2">
+    <div id="bd">
+    <div id="yui-main">
+    <div class="yui-b">
+[% INCLUDE 'circ-toolbar.inc' %]
+<p><a id="newillrequest" href="/cgi-bin/koha/ill/illrequest-new.pl?borrowernumber=[% borrowernumber %]">New ILL Request for this patron</a></p><br />
+<h1>ILL Requests for [% INCLUDE 'patron-title.inc' %]</h1>
+
+        [% IF ILLRequests %]
+        <table class="historyt">
+        <thead>
+            <tr><th>Request No.</th><th>Date</th><th>Item</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+            [% FOREACH req IN ILLRequests %]
+            <tr>
+            <td>[% req.requestnumber %]</td>
+            <td>[% req.date_placed %]</td>
+            [% IF req.biblionumber %]
+            <td><a href="/cgi-bin/koha/opac-detail.pl?biblionumber=[% req.biblionumber %]" target="_blank">[% req.ref %]</a></td>
+            [% ELSE %]
+            <td>[% req.ref %]</td>
+            [% END %]
+            <td>[% req.status %]</td>
+            </tr>
+            [% END %]
+        </tbody>
+        </table>
+        [% END %]
+
+
+[% IF ( ILLRequests ) %][% ELSE %]<p>You have no ILL requests.</p>[% END %]
+
+</div>
+</div>
+
+<div class="yui-b">
+[% INCLUDE 'circ-menu.inc' %]
+</div>
+</div>
+[% INCLUDE 'intranet-bottom.inc' %]

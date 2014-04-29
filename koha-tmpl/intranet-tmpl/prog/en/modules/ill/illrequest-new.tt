@@ -1,0 +1,349 @@
+[% INCLUDE 'doc-head-open.inc' %]
+<title>ILL Requests for [% INCLUDE 'patron-title.inc' %]</title>
+[% INCLUDE 'doc-head-close.inc' %]
+<script type="text/javascript" src="[% themelang %]/lib/jquery/plugins/jquery.tablesorter.min.js"></script>
+<script type="text/javascript" language="javascript">
+//<![CDATA[
+
+    function Check(f) {
+        var _alertString="";
+        var alertString2;
+
+        if (f.op.value=='request_book') {
+            if (f.title.value.length ==0) {
+                _alertString += _("- You must enter a Title") + "\n";
+            }
+            if (f.author.value.length ==0) {
+                _alertString += _("- You must enter an Author") + "\n";
+            }
+
+            if (_alertString.length==0) {
+                f.submit();
+            }
+            else {
+                alertString2 = _("Form not submitted because of the following problem(s)");
+                alertString2 += "\n------------------------------------------------------------------------------------\n\n";
+                alertString2 += _alertString;
+                alert(alertString2);
+            }
+        }
+
+        if (f.op.value=='request_journal') {
+            if (f.title.value.length ==0) {
+                _alertString += _("- You must enter a Title") + "\n";
+            }
+            if (f.article_title.value.length ==0) {
+                _alertString += _("- You must enter an Article title") + "\n";
+            }
+            if (f.author_names.value.length ==0) {
+                _alertString += _("- You must enter an Author") + "\n";
+            }
+
+            if (_alertString.length==0) {
+                f.submit();
+            }
+            else {
+                alertString2 = _("Form not submitted because of the following problem(s)");
+                alertString2 += "\n------------------------------------------------------------------------------------\n\n";
+                alertString2 += _alertString;
+                alert(alertString2);
+            }
+        }
+
+        if (f.op.value=='request_thesis') {
+            if (f.title.value.length ==0) {
+                _alertString += _("- You must enter a Title") + "\n";
+            }
+            if (f.author.value.length ==0) {
+                _alertString += _("- You must enter an Author") + "\n";
+            }
+            if (f.university.value.length ==0) {
+                _alertString += _("- You must enter a University") + "\n";
+            }
+            if (f.dissertation.value.length ==0) {
+                _alertString += _("- You must enter a Dissertation") + "\n";
+            }
+
+            if (_alertString.length==0) {
+                f.submit();
+            }
+            else {
+                alertString2 = _("Form not submitted because of the following problem(s)");
+                alertString2 += "\n------------------------------------------------------------------------------------\n\n";
+                alertString2 += _alertString;
+                alert(alertString2);
+            }
+        }
+
+        if (f.op.value=='request_other') {
+            if (f.title.value.length ==0) {
+                _alertString += _("- You must enter a Title") + "\n";
+            }
+            if (f.author.value.length ==0) {
+                _alertString += _("- You must enter an Author") + "\n";
+            }
+
+            if (_alertString.length==0) {
+                f.submit();
+            }
+            else {
+                alertString2 = _("Form not submitted because of the following problem(s)");
+                alertString2 += "\n------------------------------------------------------------------------------------\n\n";
+                alertString2 += _alertString;
+                alert(alertString2);
+            }
+        }
+
+    }
+//]]>
+</script>
+</head>
+<body id="pat_notices" class="pat">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'patron-search.inc' %]
+
+<div id="breadcrumbs">
+  <a href="/cgi-bin/koha/mainpage.pl">Home</a> &rsaquo;
+  <a href="/cgi-bin/koha/members/members-home.pl">Patrons</a>  &rsaquo; New ILL Request for [% INCLUDE 'patron-title.inc' %]
+</div>
+
+<div id="doc3" class="yui-t2">
+    <div id="bd">
+    <div id="yui-main">
+    <div class="yui-b">
+    [% INCLUDE 'circ-toolbar.inc' %]
+    <h1>New ILL Request for [% INCLUDE 'patron-title.inc' %]</h1>
+
+    [% IF RemainingRequests < 1 AND !RequestNumber %]
+        <p>This patron has exceeded their Inter-Library Loan request limit. To view current requests, <a href="/cgi-bin/koha/members/illrequests.pl?borrowernumber=[% borrowernumber %]">click here</a></p>
+    [% ELSE %]
+
+        [% IF illtype %]
+
+            [% IF illtype == "ILLBOOK" %]
+                <form action="/cgi-bin/koha/ill/illrequest-new.pl?borrowernumber=[% borrowernumber %]" method="post">
+                    <fieldset class="rows">
+                        <ol>
+                            <li>
+<label class="required" for="title">Title:</label><input type="text" id="title" name="title" size="50" maxlength="80" />
+                   </li>
+                            <li>
+<label class="required" for="author">Author/Editor:</label><input type="text" id="author" name="author" size="50" maxlength="80" />
+                   </li>
+                            <li>
+<label for="publisher">Publisher:</label><input type="text" id="publisher" name="publisher" size="50" maxlength="80" />
+                   </li>
+                            <li>
+<label for="isbn">ISBN:</label><input type="text" id="isbn" name="isbn" size="50" maxlength="80" />
+                   </li>
+                            <li>
+<label for="edition">Edition:</label><input type="text" id="edition" name="edition" size="50" maxlength="80" />
+                   </li>
+                            <li>
+<label for="year">Year:</label><input type="text" id="year" name="year" size="50" maxlength="80" />
+                   </li>
+                            <li>
+<label for="chapter_title">Chapter title:</label><input type="text" id="chapter_title" name="chapter_title" size="50" maxlength="80" />
+                   </li>
+                            <li>
+<label for="author_names">Author name(s):</label><input type="text" id="author_names" name="author_names" size="50" maxlength="80" />
+                   </li>
+                            <li>
+<label for="pages">Pages:</label><input type="text" id="pages" name="pages" size="50" maxlength="80" />
+                   </li>
+                            <li>
+<label for="notes">Additional information:</label><textarea id="notes" name="notes" cols="71" rows="4"></textarea>
+                   </li>
+                            <input type="hidden" id="borrowernumber" name="borrowernumber" value="[% borrowernumber %]" />
+                   </li>
+                            <input type="hidden" id="request_type" name="request_type" value="[% illtype %]" />
+                   </li>
+                        </ol>
+                    </fieldset>
+                    <fieldset class="action">
+                        <input type="hidden" name="op" value="request_book" />
+                        &nbsp;<input type="submit" onclick="Check(this.form); return false;" value="Submit Your Request" />
+                        <a class="action" href="/cgi-bin/koha/members/illrequests.pl?borrowernumber=[% borrowernumber %]">Cancel</a></fieldset>
+                </form>
+            [% END %]
+
+            [% IF (illtype) == "ILLJOURNAL" %]
+                <form action="/cgi-bin/koha/ill/illrequest-new.pl?borrowernumber=[% borrowernumber %]" method="post">
+                    <fieldset class="rows">
+                        <ol>
+                            <li>
+<label class="required" for="title">Title:</label><input type="text" id="title" name="title" size="50" maxlength="80" />
+                   </li>
+                            <li>
+<label for="publisher">Publisher:</label><input type="text" id="publisher" name="publisher" size="50" maxlength="80" />
+                   </li>
+                            <li>
+<label for="issn">ISSN:</label><input type="text" id="issn" name="issn" size="50" maxlength="80" />
+                   </li>
+                            <li>
+<label for="year">Year:</label><input type="text" id="year" name="year" size="50" maxlength="80" />
+                   </li>
+                            <li>
+<label for="season">Season:</label><input type="text" id="season" name="season" size="50" maxlength="80" />
+                   </li>
+                            <li>
+<label for="month">Month:</label><input type="text" id="month" name="month" size="50" maxlength="80" />
+                   </li>
+                            <li>
+<label for="day">Day:</label><input type="text" id="day" name="day" size="50" maxlength="80" />
+                   </li>
+                            <li>
+<label for="part">Part:</label><input type="text" id="part" name="part" size="50" maxlength="80" />
+                   </li>
+                            <li>
+<label for="issue">Issue:</label><input type="text" id="issue" name="issue" size="50" maxlength="80" />
+                   </li>
+                            <li>
+<label for="special_issue">Special Issue:</label><input type="text" id="special_issue" name="special_issue" size="50" maxlength="80" />
+                   </li>
+                            <li>
+<label class="required" for="article_title">Article title:</label><input type="text" id="article_title" name="article_title" size="50" maxlength="80" />
+                   </li>
+                            <li>
+<label class="required" for="author_names">Author name(s):</label><input type="text" id="author_names" name="author_names" size="50" maxlength="80" />
+                   </li>
+                            <li>
+<label for="pages">Pages:</label><input type="text" id="pages" name="pages" size="50" maxlength="80" />
+                   </li>
+                            <li>
+<label for="notes">Additional information:</label><textarea id="notes" name="notes" cols="71" rows="4"></textarea>
+                   </li>
+                            <li>
+<label for="conference_title">Conference title:</label><input type="text" id="conference_title" name="conference_title" size="50" maxlength="80" />
+                   </li>
+                            <li>
+<label for="conference_author">Conference author:</label><input type="text" id="conference_author" name="conference_author" size="50" maxlength="80" />
+                   </li>
+                            <li>
+<label for="conference_venue">Conference venue:</label><input type="text" id="conference_venue" name="conference_venue" size="50" maxlength="80" />
+                   </li>
+                            <li>
+<label for="conference_date">Conference date:</label><input type="text" id="conference_date" name="conference_date" size="50" maxlength="80" />
+                   </li>
+                            <li>
+<label for="isbn">ISBN:</label><input type="text" id="isbn" name="isbn" size="50" maxlength="80" />
+                   </li>
+                            <input type="hidden" id="borrowernumber" name="borrowernumber" value="[% borrowernumber %]" />
+                   </li>
+                            <input type="hidden" id="request_type" name="request_type" value="[% illtype %]" />
+                   </li>
+                        </ol>
+                    </fieldset>
+                    <fieldset class="action">
+                        <input type="hidden" name="op" value="request_journal" />
+                        &nbsp;<input type="submit" onclick="Check(this.form); return false;" value="Submit Your Request" />
+                        <a class="action" href="/cgi-bin/koha/members/illrequests.pl?borrowernumber=[% borrowernumber %]">Cancel</a></fieldset>
+                </form>
+            [% END %]
+
+            [% IF illtype == "ILLTHESIS" %]
+                <form action="/cgi-bin/koha/ill/illrequest-new.pl?borrowernumber=[% borrowernumber %]" method="post">
+                    <fieldset class="rows">
+                        <ol>
+                            <li>
+<label class="required" for="title">Title:</label><input type="text" id="title" name="title" size="50" maxlength="80" />
+                   </li>
+                            <li>
+<label class="required" for="author">Author:</label><input type="text" id="author" name="author" size="50" maxlength="80" />
+                   </li>
+                            <li>
+<label class="required" for="university">University:</label><input type="text" id="university" name="university" size="50" maxlength="80" />
+                   </li>
+                            <li>
+<label class="required" for="dissertation">Dissertation:</label><input type="text" id="dissertation" name="dissertation" size="50" maxlength="80" />
+                   </li>
+                            <li>
+<label for="year">Year:</label><input type="text" id="year" name="year" size="50" maxlength="80" />
+                   </li>
+                            <li>
+<label for="chapter_title">Chapter title:</label><input type="text" id="chapter_title" name="chapter_title" size="50" maxlength="80" />
+                   </li>
+                            <li>
+<label for="pages">Pages:</label><input type="text" id="pages" name="pages" size="50" maxlength="80" />
+                   </li>
+                            <li>
+<label for="notes">Additional information:</label><textarea id="notes" name="notes" cols="71" rows="4"></textarea>
+                   </li>
+                            <input type="hidden" id="borrowernumber" name="borrowernumber" value="[% borrowernumber %]" />
+                   </li>
+                            <input type="hidden" id="request_type" name="request_type" value="[% illtype %]" />
+                   </li>
+                        </ol>
+                    </fieldset>
+                    <fieldset class="action">
+                        <input type="hidden" name="op" value="request_thesis" />
+                        &nbsp;<input type="submit" onclick="Check(this.form); return false;" value="Submit Your Request" />
+                        <a class="action" href="/cgi-bin/koha/members/illrequests.pl?borrowernumber=[% borrowernumber %]">Cancel</a></fieldset>
+                </form>
+            [% END %]
+
+            [% IF illtype == "ILLOTHER" %]
+                <form action="/cgi-bin/koha/ill/illrequest-new.pl?borrowernumber=[% borrowernumber %]" method="post">
+                    <fieldset class="rows">
+                        <ol>
+                            <li>
+<label class="required" for="title">Title:</label><input type="text" id="title" name="title" size="50" maxlength="80" />
+                   </li>
+                            <li>
+<label class="required" for="author">Author:</label><input type="text" id="author" name="author" size="50" maxlength="80" />
+                   </li>
+                            <li>
+<label for="composer">Composer:</label><input type="text" id="composer" name="composer" size="50" maxlength="80" />
+                   </li>
+                            <li>
+<label for="ismn">ISMN:</label><input type="text" id="ismn" name="ismn" size="50" maxlength="80" />
+                   </li>
+                            <li>
+<label for="isbn">ISBN:</label><input type="text" id="isbn" name="isbn" size="50" maxlength="80" />
+                   </li>
+                            <li>
+<label for="edition">Edition:</label><input type="text" id="edition" name="edition" size="50" maxlength="80" />
+                   </li>
+                            <li>
+<label for="year">Year:</label><input type="text" id="year" name="year" size="50" maxlength="80" />
+                   </li>
+                            <li>
+<label for="scale">Scale:</label><input type="text" id="scale" name="scale" size="50" maxlength="80" />
+                   </li>
+                            <li>
+<label for="notes">Additional information:</label><textarea id="notes" name="notes" cols="71" rows="4"></textarea>
+                   </li>
+                            <input type="hidden" id="borrowernumber" name="borrowernumber" value="[% borrowernumber %]" />
+                   </li>
+                            <input type="hidden" id="request_type" name="request_type" value="[% illtype %]" />
+                   </li>
+                        </ol>
+                    </fieldset>
+                    <fieldset class="action">
+                        <input type="hidden" name="op" value="request_other" />
+                        &nbsp;<input type="submit" onclick="Check(this.form); return false;" value="Submit Your Request" />
+                        <a class="action" href="/cgi-bin/koha/members/illrequests.pl?borrowernumber=[% borrowernumber %]">Cancel</a></fieldset>
+                </form>
+            [% END %]
+
+        [% ELSE %]
+        [% IF RequestNumber %]
+        <p>The request was placed successfully. The request number is <strong>[% RequestNumber %]</strong></p>
+        <p>To view requests, <a href="/cgi-bin/koha/members/illrequests.pl?borrowernumber=[% borrowernumber %]">click here</a></p>
+        [% ELSE %]
+        <p>&nbsp;</p><h3>Select a request type to continue</h3>
+        [% FOREACH illoption IN illoptions %]
+        <p><a href="/cgi-bin/koha/ill/illrequest-new.pl?borrowernumber=[% borrowernumber %]&illtype=[% illoption.authorised_value %]">[% illoption.lib %]</a></p>
+        [% END %]
+        [% END %]
+        [% END %]
+        [% END %]
+
+</div>
+</div>
+
+<div class="yui-b">
+[% INCLUDE 'circ-menu.inc' %]
+</div>
+</div>
+[% INCLUDE 'intranet-bottom.inc' %]

@@ -1,0 +1,73 @@
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Koha &rsaquo; ILL requests  &rsaquo;</title>
+[% INCLUDE 'doc-head-close.inc' %]
+<script type="text/javascript" src="[% themelang %]/lib/jquery/plugins/jquery.tablesorter.min.js"></script>
+<script type="text/javascript" src="[% themelang %]/lib/jquery/plugins/jquery.checkboxes.min.js"></script>
+<script type="text/javascript">
+// <![CDATA[
+function yuiToolbar() {
+    new YAHOO.widget.Button("sendemail");
+    new YAHOO.widget.Button("postpone");
+}
+function CheckForm() {
+// Validation goes here
+    $('#artelform').submit();
+}
+
+$(document).ready(function() {
+    yuiToolbar();
+});
+// ]]>
+</script>
+
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'cat-search.inc' %]
+<div id="breadcrumbs">
+    <a href="/cgi-bin/koha/mainpage.pl">Home</a> &rsaquo; ILL Generic Request for [% ill_prefix %][% req.requestnumber %]
+</div>
+
+<body id="arttel_params" class="acq">
+<div id="doc3" class="yui-t2">
+<div id="bd">
+    <div id="yui-main">
+	    <div class="yui-b">
+
+        <h1>Generic Email request ([% ill_prefix %][% req.requestnumber %])</h1>
+        <!--<p>Request to be sent for [% req.display_title %]</p> -->
+<form action="/cgi-bin/koha/ill/sendgeneric.pl" method="post" id="genericform">
+<fieldset class="rows">
+    <ol>
+        <li><label class="required" for="email_address">Email Address:</label>
+            <input type="text" id="email_address" name="email_address" size="50" maxlength="100" />
+        </li>
+        <li><br /></li>
+        <li><label class="required" for="msg_text">Text:</label>
+            <input type="text" id="msg_text" name="msg_text" size="80" maxlength="200" value="Please supply a copy of [% req.display_title %]" />
+        </li>
+        <li><label for="notes">Notes:</label>
+            <input type="text" id="notes" name="notes" size="60" maxlength="200" />
+        </li>
+     </ol>
+      <input type="hidden" name="cmd" id="cmd" value="send" />
+      <input type="hidden" name="requestid" id="requestid" value="[% req.requestid %]" />
+</fieldset>
+<div id="genemail_toolbar">
+<ul class="toolbar">
+<li>
+  <a id="sendemail" href="javascript:CheckForm();">
+     Send
+  </a>
+</li>
+<li>
+  <a id="postpone" href="/cgi-bin/koha/ill/illrequest-details.pl?requestid=[% req.requestid %]">Do Not Send</a>
+</li
+</ul>
+</div>
+</form>
+
+</div>
+</div>
+
+</div>
+
+[% INCLUDE 'intranet-bottom.inc' %]
