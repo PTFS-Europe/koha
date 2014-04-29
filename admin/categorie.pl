@@ -193,7 +193,7 @@ elsif ( $op eq 'add_validate' ) {
                     overduenoticerequired=?,
                     category_type=?,
                     BlockExpiredPatronOpacActions=?,
-                    default_privacy=?
+                    default_privacy=?,
                 WHERE categorycode=?"
         );
         $sth->execute(
@@ -240,7 +240,7 @@ elsif ( $op eq 'add_validate' ) {
                 overduenoticerequired,
                 category_type,
                 BlockExpiredPatronOpacActions,
-                default_privacy
+                default_privacy,
             )
             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)" );
         my $inserted = $sth->execute(

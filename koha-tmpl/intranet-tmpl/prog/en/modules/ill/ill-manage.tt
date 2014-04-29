@@ -1,0 +1,396 @@
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Koha &rsaquo; ILL requests  &rsaquo;</title>
+[% INCLUDE 'doc-head-close.inc' %]
+<script type="text/javascript" src="[% themelang %]/lib/jquery/plugins/jquery.tablesorter.min.js"></script>
+<script type="text/javascript" src="[% themelang %]/lib/jquery/plugins/jquery.checkboxes.min.js"></script>
+<script type="text/javascript">
+ $(document).ready(function(){
+     del = "#action_delete_tab";
+     delURL = $(del + ' a').attr('href');
+     $(del + ' a').attr('href', '#');
+     $(del).click(function(){
+         if (confirm("Are you sure you want to delete this request?")) {
+             window.location = delURL;
+         }
+     });
+     can = "#action_cancel_can";
+     canURL = $(can + ' a').attr('href');
+     $(can + ' a').attr('href', '#');
+     $(can).click(function(){
+         if (confirm("Are you sure you want to revert this request?")) {
+             window.location = canURL;
+         }
+     });
+ });
+</script>
+</head>
+
+<body id="acq_suggestion" class="acq">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'cat-search.inc' %]
+
+<div id="breadcrumbs">
+    <a href="/cgi-bin/koha/mainpage.pl">Home</a> &rsaquo; ILL Requests
+</div>
+
+<div id="doc3" class="yui-t2">
+<div id="bd">
+    <div id="yui-main">
+        <div class="yui-b">
+            [% INCLUDE 'ill-toolbar.inc' %]
+
+            <h1>Manage interlibrary loan number [% ill.prefix_id.1 %]</h1>
+            <div class="statictabs">
+            <ul>
+                [% FOREACH tab IN tabs %]
+                    [% IF op == tab.key %]
+                        <li id=[% tab.key _ "_tab" %] class="active">
+                            <a href=[% tab_url _ tab.key %]>[% tab.value %]</a>
+                        </li>
+                    [% ELSE %]
+                        <li id=[% tab.key _ "_tab" %]>
+                            <a href=[% tab_url _ tab.key %]>[% tab.value %]</a>
+                        </li>
+                    [% END %]
+                [% END %]
+            </ul>
+ 
+            <div class="tabs-container">
+                <h2>[% title %]</h2>
+                [% IF op == 'view' or op == 'update' %]
+                    <fieldset class="rows" style="float: none;">
+                        <ol>
+                            [% FOREACH field IN ill %]
+                                [% IF field.value.1 and field.key != 'id' %]
+                                    <li>
+                                        <label id=[% field.key %]>[% field.value.0 _ ":" %]</label>
+                                        [% IF field.key == 'borrower' %]
+                                            [% brw = field.value.1 %]
+                                            <a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% brw.borrowernumber %]"
+                                               title="View borrower details">
+                                                [% brw.firstname _ " " _ brw.surname _ ", " _ brw.cardnumber %]
+                                            </a>
+                                        [% ELSIF field.key == 'primary_notes_staff' or field.key == 'primary_notes_opac' %]
+                                            <span id="[% field.key %]"><pre>[% field.value.1 %]</pre></span>
+                                        [% ELSE %]
+                                            <span id=[% field.key %]>[% field.value.1 %]</span>
+                                        [% END %]
+                                    </li>
+                                [% END %]
+                            [% END %]
+                        </ol>
+                    </fieldset>
+                [% ELSIF op == 'message' %]
+                    [% IF    message == 'cancel_success' %]
+                        <p>We have been able to undo the request at the API level.</p>
+                    [% ELSIF message == 'cancel_fail' %]
+                        <p>We were unable to undo the request at the API level.</p>
+                        <p>It is probably already too far along in the process.</p>
+                    [% ELSIF message == 'deleted' %]
+                        <p>The request has been deleted.</p>
+                    [% ELSIF message == 'invalid_partner' %]
+                        <p>The partner details you entered are invalid.</p>
+                    [% ELSIF message == 'unknown_request' %]
+                        <p>The request you referred to does not exist.</p>
+                    [% ELSIF message == 'api' %]
+                        <p>There was a problem communicating with the remote service.</p>
+                    [% ELSIF message == 'email_success' OR message == 'email_failure' %]
+                        [% IF message == 'email_success' %]
+                            <p>We have now submitted your email.</p>
+                        [% ELSE %]
+                            <p>We were unable to send your email.</p>
+                        [% END %]
+                        <h3>Summary</h3>
+                        <dl>
+                            <dt>To</dt><dd>[% email.to %]</dd>
+                            <dt>from</dt><dd>[% email.from %]</dd>
+                            <dt>replyto</dt><dd>[% email.replyto %]</dd>
+                            <dt>sender</dt><dd>[% email.sender %]</dd>
+                            <dt>subject</dt><dd>[% email.subject %]</dd>
+                            <dt>body</dt><dd><pre>[% email.message %]</pre></dd>
+                        </dl>
+                    [% ELSIF message == 'invalid_request' %]
+                        <p>There was a problem communicating with the remote service.</p>
+                        <p>They report: [% whole.message %]</p>
+                    [% ELSIF message == 'invalid_branch' %]
+                        <p>The branch you chose ([% whole %]) is invalid.</p>
+                    [% ELSIF message == 'invalid_borrower' %]
+                        <p>The borrower cardnumber you entered ([% whole %]) is invalid.</p>
+                    [% ELSIF message == 'not_implemented' %]
+                        <p>We have not implemented this functionality yet.</p>
+                    [% ELSIF message == 'request_success' %]
+                        <p>We have now placed your request.</p>
+                    [% ELSIF message == 'request_failure' %]
+                        <p>We were not able to place your request.</p>
+                    [% ELSIF message == 'failure' %]
+                        <p>Something went wrong.</p>
+                    [% ELSIF message == 'authentication' %]
+                        <p>Something went wrong whilst authenticating with your
+                interlibrary loans service.</p>
+                    [% ELSIF message == 'unavailable' %]
+                        <p>This item is currently unavailable at your interlibrary
+                loans service.</p>
+                    [% ELSIF message == 'branch_address_incomplete' %]
+                        <p>The delivery address for this ILL is incomplete.  Please
+                check the service branch's address.</p>
+                    [% ELSIF message == 'status_success' %]
+                            <dl>
+                                [% FOREACH field IN whole.values %]
+                                    [% IF field.value.1 %]
+                                        <dt>[% field.value.0 %]</dt>
+                                        <dd>
+                                            [% IF field.value.1.0 %]
+                                                <dl>
+                                                    [% FOREACH entry IN field.value.1 %]
+                                                        [% FOREACH subfield IN entry %]
+                                                            [% IF subfield.value.1 %]
+                                                                <dt>[% subfield.value.0 %]</dt>
+                                                                <dd>[% subfield.value.1 %]</dd>
+                                                            [% END %]
+                                                        [% END %]
+                                                    [% END %]
+                                                </dl>
+                                            [% ELSE %]
+                                                [% field.value.1 %]
+                                            [% END %]
+                                        </dd>
+                                    [% END %]
+                                [% END %]
+                            </dl>
+                    [% ELSE %]
+                        <p>[% message %]</p>
+                    [% END %]
+                    <p><a href=[% forward %] title="View all requests">View requests.</a></p>
+                [% ELSIF op == 'edit' %]
+                    <form method="POST" action=[% here %]>
+                        <fieldset class="rows" style="float: none;">
+                            <legend>Bibliographic details</legend>
+                            <ol>
+                                [% FOREACH field IN ill.0 %]
+                                    [% IF field.key == 'primary_notes_staff' %]
+                                        <li>
+                                            <label id=[% field.key %]>[% field.value.0 _ ":" %]</label>
+                                            <textarea name="[% field.key %]" id="[% field.key %]" rows="5">[% field.value.1 %]</textarea>
+                                        </li>
+                                    [% ELSIF field.value.1 %]
+                                        <li>
+                                            <label id=[% field.key %]>[% field.value.0 _ ":" %]</label>
+                                            <span id=[% field.key %]>[% field.value.1 %]</span>
+                                        </li>
+                                    [% END %]
+                                [% END %]
+                            </ol>
+                        </fieldset>
+                        <fieldset class="rows" style="float: none;">
+                            <legend>Request details</legend>
+                                <ol>
+                                    [% FOREACH field IN ill.1 %]
+                                        [% IF field.key != 'id' %]
+                                            <li>
+                                                <label for=[% field.key %]
+                                                    id=[% field.key _ "_label" %]>
+                                                    [% field.value.0 _ ":" %]
+                                                </label>
+                                                [% IF field.key == 'branch' %]
+                                                    <select name="branch" id="branch">
+                                                        <option value=""></option>
+                                                        [% FOREACH branch IN branches %]
+                                                            [% IF ( branch.selected ) %]
+                                                                <option value="[% branch.value %]"
+                                                                        selected="selected">
+                                                                    [% branch.branchname %]
+                                                                </option>
+                                                            [% ELSE %]
+                                                                <option value="[% branch.value %]">
+                                                                    [% branch.branchname %]
+                                                                </option>
+                                                            [% END %]
+                                                        [% END %]
+                                                    </select>
+                                                [% ELSIF field.key == 'completion_date' or
+                                                field.key == 'placement_date' or
+                                                field.key == 'reply_date' or
+                                                field.key == 'ts' or
+                                                field.key == 'prefix_id' or
+                                                field.key == 'reqtype' %]
+                                                    <input name=[% field.key %]
+                                                        id=[% field.key %]
+                                                        disabled="true"
+                                                        type="text"
+                                                        value=[% field.value.1 %] />
+                                                [% ELSIF field.key == 'borrower' %]
+                                                    [% brw = field.value.1 %]
+                                                    <input name=[% field.key %]
+                                                    id=[% field.key %]
+                                                    type="text"
+                                                    value="[% brw.cardnumber %]" />
+                                                [% ELSE %]
+                                                    <input name=[% field.key %]
+                                                    id=[% field.key %]
+                                                    type="text"
+                                                    value="[% field.value.1 %]" />
+                                                [% END %]
+                                            </li>
+                                        [% END %]
+                                    [% END %]
+                                </ol>
+                        </fieldset>
+                        <input type="hidden" value=[% forward %] name="op"/>
+                        <input type="hidden" value=[% rq %] name="rq"/>
+                        <input type="submit" value="submit"/>
+                    </form>
+                [% ELSIF op == 'moderate' %]
+                    <form method="POST"  action=[% here %]>
+                        <fieldset class="rows" style="float: none;">
+                            <p>The patron requested this interlibrary loan request be
+                cancelled.</p>
+                            <p>Accept cancellation request?</p>
+                            <input name="op" id="op" value=[% forward %] type="hidden"/>
+                            <input name="rq" id="rq" value=[% rq %] type="hidden"/>
+                        </fieldset>
+                        <input type="submit" value="Accept"/>
+                        <a href=[% back %] title="Deny request">Deny</a>
+                    </form>
+                [% ELSIF op == 'progress' %]
+                    <dl>
+                        <dt id="availableImmediately">[% ill.availableImmediately.0 %]</dt>
+                        <dd>[% ill.availableImmediately.1 %]</dd>
+                        <dt id="copyrightFee">[% ill.copyrightFee.0 %]</dt>
+                        <dd>[% ill.copyrightFee.1 %]</dd>
+                    </dl>
+                    <h3>[% ill.formats.0 %]</h3>
+                    [% FOREACH format IN ill.formats.1 %]
+                        <form method="POST" action=[% here %]>
+                            <fieldset id="format">
+                                <input type="hidden" name="format" value=[% format.key.1 %] />
+                                <input type="hidden" name="rq" value=[% rq %] />
+                                <input type="hidden" name="op" value=[% forward %] />
+                                <h4>[% format.format.0 %]: [% format.format.1 %]</h4>
+                                <h5>[% format.speeds.0 %]</h5>
+                                [% FOREACH speed IN format.speeds.1 %]
+                                    <span id="speed">
+                                        [% speed.speed.0 %]: [% speed.speed.1 %]
+                                    </span>
+                                    <input name="speed" id="speed" type="radio"
+                                           value=[% speed.key.1 %] />
+                                [% END %]
+                                <h5>[% format.qualities.0 %]</h5>
+                                [% FOREACH quality IN format.qualities.1 %]
+                                    <span id="quality">
+                                        [% quality.quality.0 %]: [% quality.quality.1 %]
+                                    </span>
+                                    <input name="quality" id="quality" type="radio"
+                                           value=[% quality.key.1 %] />
+                                [% END %]
+                                <br/>
+                                <input type="submit" value="Check this price" />
+                            </fieldset>
+                        </form>
+                    [% END %]
+                [% ELSIF op == 'price' %]
+                    <form method="POST" action=[% here %]>
+                        <p>[% ill.price.0 %]: [% ill.currency.1 %] [% ill.price.1 %]</p>
+                        <p>[% ill.copyrightVat.0 %]: [% 100 * ill.copyrightVat.1 %]%</p>
+                        <p>[% ill.loanRenewalCost.0 %]: [% ill.currency.1 %] [% ill.loanRenewalCost.1 %]</p>
+                        <input name="format" id="format"
+                               value="[% coordinates.format %]" type="hidden"/>
+                        <input name="speed" id="speed"
+                               value="[% coordinates.speed %]" type="hidden"/>
+                        <input name="quality" id="quality"
+                               value="[% coordinates.quality %]" type="hidden"/>
+                        <input name="service" id="service"
+                               value="[% ill.service.1 %]" type="hidden"/>
+
+                        <input type="hidden" name="op" value=[% forward %] />
+                        <input type="hidden" name="rq" value=[% rq %] />
+                        <input type="submit" value="Place request" />
+                    </form>
+
+                [% ELSIF op == 'generic_ill' OR op == 'select_partner' %]
+                    <!-- Start of GENERIC_EMAIL case -->
+                    [% IF partners OR select %]
+                        <form method="POST" action=[% here %]>
+                            <fieldset class="rows" style="float: none;">
+                                <legend>Interlibrary loan request details</legend>
+                                    <ol>
+                                        [% IF partners %]
+                                        <li>
+                                            <label for="partner_search">Search partner libraries</label>
+                                            <input type="text" name="partner_search" id="partner_search" type="text"/>
+                                        </li>
+                                        <li>
+                                            <label for="partners">Partner libraries:</label>
+                                            <select size="5" multiple="true" id="partners"
+                                                    name="partners">
+                                                [% FOREACH partner = partners %]
+                                                    <option value=[% partner.email %]
+                                                            selected="selected">
+                                                        [% partner.branchcode _ " - " _ partner.surname %]
+                                                    </option>
+                                                [% END %]
+                                            </select>
+                                        </li>
+                                        <li>
+                                            <label for="subject">Subject Line</label>
+                                            <input type="text" name="subject"
+                                                   id="subject" type="text"
+                                                   value="[% draft.subject %]"/>
+                                        </li>
+                                        <li>
+                                            <label for="body">Email text:</label>
+                                            <textarea name="body" id="body" rows="20"
+                                                      cols="80">[% draft.body %]</textarea>
+                                        </li>
+                                        [% ELSIF select %]
+                                        <li>
+                                            <label class="required" for="partners">Partner library</label>
+                                            <select name="partners" id="partners">
+                                                <option value=""></option>
+                                                [% FOREACH partner IN select %]
+                                                    <option value="[% partner.email %]">[% partner.branchcode _ " - " _ partner.surname %]</option>
+                                                [% END %]
+                                            </select>
+                                        </li>
+                                        <li>
+                                            <label for="subject">Subject Line</label>
+                                            <input type="text" name="subject"
+                                                   id="subject" type="text"
+                                                   value="[% draft.subject %]"/>
+                                        </li>
+                                        <li>
+                                            <label for="body">Email text:</label>
+                                            <textarea name="body" id="body" rows="20"
+                                                      cols="80">[% draft.body %]</textarea>
+                                        </li>
+                                        [% END %]
+                                </ol>
+                            </fieldset>
+                            <input name="op" id="op" value="[% forward %]" type="hidden"/>
+                            <input name="rq" id="rq" value="[% rq %]" type="hidden"/>
+                            <input type="submit" value="Send email"/>
+                            <input type="reset" value="Reset"/>
+                            <span>
+                                <a href="[% back %]" title="Return to request details">
+                                    Cancel
+                                </a>
+                            </span>
+                        </form>
+                    [% ELSE %]
+                        <fieldset class="rows" style="float: none;">
+                            <legend>Interlibrary loan request details</legend>
+                            <p>No partners have been defined yet.
+        Please create appropriate patron records (by default ILLLIBS
+                    category).</p>
+                            <p>Be sure to provide email addresses for these
+                    patrons.</p>
+                        </fieldset>
+                    [% END %]
+
+                [% END %]
+            </div>
+
+        </div>
+    </div>
+</div>
+
+[% INCLUDE 'intranet-bottom.inc' %]

@@ -1,0 +1,206 @@
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Koha &rsaquo; ILL requests  &rsaquo;</title>
+[% INCLUDE 'doc-head-close.inc' %]
+<script type="text/javascript" src="[% themelang %]/lib/jquery/plugins/jquery.tablesorter.min.js"></script>
+<script type="text/javascript" src="[% themelang %]/lib/jquery/plugins/jquery.checkboxes.min.js"></script>
+<link rel="stylesheet" type="text/css" href="[% themelang %]/css/datatables.css" />
+[% INCLUDE 'datatables.inc' %]
+[% INCLUDE 'calendar.inc' %]
+<script type="text/javascript">
+  $(document).ready(function() {
+  var my_table = $("#ill-requests").dataTable($.extend(true, {}, dataTablesDefaults, {
+    // dataTablesDefaults contain default options and strings defined in datables-strings.inc
+    // You can put your specific datatables options here
+  }));
+});
+</script>
+</head>
+
+<body id="acq_suggestion" class="acq">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'cat-search.inc' %]
+
+<div id="breadcrumbs">
+    <a href="/cgi-bin/koha/mainpage.pl">Home</a> &rsaquo; ILL Requests
+</div>
+
+<div id="doc3" class="yui-t2">
+<div id="bd">
+    <div id="yui-main">
+        <div class="yui-b">
+            [% INCLUDE 'ill-toolbar.inc' %]
+
+            <h1>ILL Request management</h1>
+            <div id="results">
+                [% IF reply and query_value and
+                   (query_type == "request" or query_type == "requests") %]
+                    [% IF query_type == "request" %]
+                        <h2>Request created for “[% query_value %]“</h2>
+                    [% ELSE %]
+                        <h2>Details for request “[% query_value %]“</h2>
+                    [% END %]
+                    [% FOREACH summary IN reply %]
+                        <p>
+                            [% FOREACH field IN summary %]
+                                [% IF field.value.1 and field.key != 'id' %]
+                                    <span id="[% field.key %]">
+                                        [% IF field.key == 'borrower' %]
+                                            [% brw = field.value.1 %]
+                                            [% field.value.0 _ ": " %]
+                                            <a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% brw.borrowernumber %]"
+                                            title="View borrower details">
+                                                [% brw.firstname _ " " _ brw.surname _ ", " _ brw.cardnumber %]
+                                            </a>
+                                        [% ELSE %]
+                                            [% field.value.0 _ ": " _ field.value.1 %]
+                                        [% END %]
+                                    </span>
+                                    <br/>
+                                [% END %]
+                            [% END %]
+                        </p>
+                    [% END %]
+
+                [% ELSIF reply %]
+                    [% rq_url = "/cgi-bin/koha/ill/ill-requests.pl" %]
+                    [% rq_params = "?query_type=edit&query_value=" %]
+                    [% IF query_type == "api" and query_value %]
+                        [% rq_params = "?query_type=request&query_value=" %]
+                        <h2>Search results for ”[% query_value %]”</h2>
+                    [% ELSIF query_type == "borrowers" and query_value %]
+                        <h2>Borrower ”[% query_value %]“ their requests</h2>
+                    [% ELSE %]
+                        <h2>Details for all requests</h2>
+                    [% END %]
+                    [% rq = rq_url _ rq_params %]
+                    <table id="ill-requests">
+                        <thead>
+                            <tr>
+                                [% FOREACH field IN reply.0 %]
+                                    [% IF field.key != 'id' %]
+                                        <th id=[% field.key %]>[% field.value.0 %]</th>
+                                    [% END %]
+                                [% END %]
+                                [% IF ILLModule and CAN_user_ill_manage %]
+                                    <th id="id">Manage ILL</th>
+                                [% END %]
+                            </tr>
+                        </thead>
+                        <tbody>
+                            [% FOREACH summary IN reply %]
+                                <tr>
+                                    [% FOREACH field IN summary %]
+                                        [% IF field.key != 'id' %]
+                                            <td>
+                                                [% IF field.key == 'borrower' %]
+                                                    [% brw = field.value.1 %]
+                                                    <a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% brw.borrowernumber %]"
+                                                        title="View borrower details">
+                                                        [% brw.firstname _ " " _ brw.surname _ ", " _ brw.cardnumber %]
+                                                    </a>
+                                                [% ELSIF field.key == './uin' and query_type == "api" %]
+                                                    [% rqc = rq _ field.value.1 %]
+                                                    <a href=[% rqc %]>
+                                                        Request [% value %]
+                                                    </a>
+                                                [% ELSE %]
+                                                    [% field.value.1 %]
+                                                [% END %]
+                                            </td>
+                                        [% END %]
+                                    [% END %]
+                                    [% IF ILLModule and CAN_user_ill_manage %]
+                                        <td>
+                                            <a href=[% manage_url _ summary.id.1 %]
+                                               title="Edit and progress this ILL">
+                                                Manage ILL
+                                            </a>
+                                        </td>
+                                    [% END %]
+                                </tr>
+                            [% END %]
+                        </tbody>
+                    </table>
+                [% ELSE %]
+                    <h2>No results</h2>
+                    <p>No requests matching your criteria were found.</p>
+                [% END %]
+            </div>
+
+
+        </div>
+    </div>
+    <div class="yui-b">
+        <form action="ill-requests.pl" method="GET">
+            <fieldset class="brief">
+                <h4>Filter requests:</h4>
+                <ol>
+                    <li>
+                        <label for="status_filter">Status:</label>
+                        <select id="status_filter" name="status_filter">
+                            <option value="" />
+                            [% FOREACH status IN statuses %]
+                                <option value="[% status %]">[% status %]</option>
+                            [% END %]
+                        </select>
+                    </li>
+                    <li>
+                        <label for="placed_filter">Date placed:</label>
+                        <input type="text" name="placed_filter" size="10"
+                               id="placed_filter" class="datepicker"/>
+                        <div class="hint">[% INCLUDE 'date-format.inc' %]</div>
+                    </li>
+                    <li>
+                        <label for="modified_filter">Date modified:</label>
+                        <input type="text" name="modified_filter" size="10"
+                               id="modified_filter" class="datepicker"/>
+                        <div class="hint">[% INCLUDE 'date-format.inc' %]</div>
+                    </li>
+                    <li>
+                        <label for="completed_filter">Date completed:</label>
+                        <input type="text" name="completed_filter" size="10"
+                               id="completed_filter" class="datepicker"/>
+                        <div class="hint">[% INCLUDE 'date-format.inc' %]</div>
+                    </li>
+                    <li>
+                        <label for="required_by_filter">Date required by (dummy):</label>
+                        <input type="text" name="required_by_filter" size="10"
+                               id="required_by_filter" class="datepicker"/>
+                        <div class="hint">[% INCLUDE 'date-format.inc' %]</div>
+                    </li>
+                    <li>
+                        <label for="type_filter">Type:</label>
+                        <select id="type_filter" name="type_filter">
+                            <option value="" />
+                            [% FOREACH type IN types %]
+                                <option value="[% type %]">[% type %]</option>
+                            [% END %]
+                        </select>
+                    </li>
+                    <li>
+                        <label for="branch_filter">Pickup branch:</label>
+                        <select id="branch_filter" name="branch_filter">
+                            <option value="" />
+                            [% FOREACH branch IN branches %]
+                                <option value="[% branch.value %]">
+                                    [% branch.branchname %]
+                                </option>
+                            [% END %]
+                        </select>
+                    </li>
+                    <li>
+                        <label for="borrower_filter">Borrower cardnumber:</label>
+                        <input type="text" name="borrower_filter" id="borrower_filter"/>
+                    </li>
+                </ol>
+                <fieldset class="action">
+                    <input name="query_type" id="query_type" value="filter" type="hidden"/>
+                    <input type="submit" value="Filter"/>
+                    <input type="reset" value="Reset"/>
+                </fieldset>
+            </fieldset>
+        </form>
+    </div>
+</div>
+
+[% INCLUDE 'intranet-bottom.inc' %]

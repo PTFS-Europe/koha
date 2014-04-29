@@ -1,0 +1,77 @@
+[% INCLUDE 'doc-head-open.inc' %]
+<title>ILL Requests for [% INCLUDE 'patron-title.inc' %]</title>
+[% INCLUDE 'doc-head-close.inc' %]
+<script src="[% interface %]/lib/angular/angular.min.js"></script>
+<script src="[% interface %]/prog/[% lang %]/js/pages/ill.js"></script>
+<script>
+  angular.module('preloaded', [])
+    .constant('preloaded', { borrowernumber: [% borrowernumber %] })
+</script>
+</head>
+<body id="pat_notices" class="pat">
+    [% INCLUDE 'header.inc' %]
+    [% INCLUDE 'patron-search.inc' %]
+
+    <div id="breadcrumbs"><a href="/cgi-bin/koha/mainpage.pl">Home</a> &rsaquo; <a href="/cgi-bin/koha/members/members-home.pl">Patrons</a>  &rsaquo; ILL Requests for [% INCLUDE 'patron-title.inc' %]</div>
+
+    <div id="doc3" class="yui-t2" ng-app="ill">
+        <div id="bd">
+            <div id="yui-main">
+                <div class="yui-b">
+                    [% INCLUDE 'members-toolbar.inc' tab='ill'  %]
+                    <div id="illcontainer" ng-controller="requestController" ng-init="borrowernumber='[% borrowernumber %]'">
+                        <h1>ILL Requests for [% INCLUDE 'patron-title.inc' %]</h1>
+
+                        <!-- Existing ILL Requests -->
+                        <table class="historyt" ng-show="requests.length > 0">
+                            <thead>
+                                <tr>
+                                    <th ng-repeat="(id, values) in requests[0]">
+                                        {{ values[0] }}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="request in requests" ng-class-odd="'odd'" ng-class-even="'even'">
+                                    <td ng-repeat="(id, values) in request">
+                                        {{ values[1] }}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div ng-show="requests.length <= 0">
+                            <p>You have no ILL requests.</p>
+                        </div>
+                        <p><a href="/cgi-bin/koha/ill/ill-requests.pl?borrower_filter=[% cardnumber %]&query_type=filter">Click here</a> to administer or create new ILL Requests for this borrower.</p>
+
+                        <!-- New ILL Request -->
+                        <!-- <h2>New ILL Request</h2> -->
+                        <!-- <form ng-submit="search()"> -->
+                        <!--     <fieldset> -->
+                        <!--         <div class="form-group"> -->
+                        <!--             <input class="form-control" type="text" placeholder="Search ILL service providers..." name="illsearch" ng-model="query" autocomplete="off"> -->
+                        <!--             <input type="submit" id="submit" value="Search" class="btn"> -->
+                        <!--         </div> -->
+                        <!--     </fieldset> -->
+                        <!-- </form> -->
+
+                        <!-- <\!-- Search Results Table -\-> -->
+                        <!-- <div ng-show="results"> -->
+                        <!--     <h1>Results of search</h1> -->
+                        <!--     <div ng-repeat="result in results" ng-class-odd="'odd'" ng-class-even="'even'" class="results ill_result"> -->
+                        <!--         <span ng-repeat="(id, values) in result"> -->
+                        <!--             <span class="result_summary">{{values[0]}}: {{values[1]}}</span></br> -->
+                        <!--         </span> -->
+                        <!--         <button ng-click="submit(result.uin[1])">Request</button> -->
+                        <!--     </div> -->
+                        <!-- </div> -->
+                        <!-- <\!-- /results -\-> -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="yui-b">
+                [% INCLUDE 'circ-menu.inc' %]
+            </div>
+        </div>
+        [% INCLUDE 'intranet-bottom.inc' %]

@@ -102,18 +102,18 @@ __PACKAGE__->table("categories");
   is_nullable: 0
   size: 1
 
-=head2 BlockExpiredPatronOpacActions
-
-  accessor: 'block_expired_patron_opac_actions'
-  data_type: 'tinyint'
-  default_value: -1
-  is_nullable: 0
-
 =head2 default_privacy
 
   data_type: 'enum'
   default_value: 'default'
   extra: {list => ["default","never","forever"]}
+  is_nullable: 0
+
+=head2 BlockExpiredPatronOpacActions
+
+  accessor: 'block_expired_patron_opac_actions'
+  data_type: 'tinyint'
+  default_value: -1
   is_nullable: 0
 
 =cut
@@ -147,19 +147,19 @@ __PACKAGE__->add_columns(
   { data_type => "tinyint", default_value => 0, is_nullable => 0 },
   "category_type",
   { data_type => "varchar", default_value => "A", is_nullable => 0, size => 1 },
-  "BlockExpiredPatronOpacActions",
-  {
-    accessor      => "block_expired_patron_opac_actions",
-    data_type     => "tinyint",
-    default_value => -1,
-    is_nullable   => 0,
-  },
   "default_privacy",
   {
     data_type => "enum",
     default_value => "default",
     extra => { list => ["default", "never", "forever"] },
     is_nullable => 0,
+  },
+  "BlockExpiredPatronOpacActions",
+  {
+    accessor      => "block_expired_patron_opac_actions",
+    data_type     => "tinyint",
+    default_value => -1,
+    is_nullable   => 0,
   },
 );
 
@@ -253,8 +253,8 @@ __PACKAGE__->might_have(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07039 @ 2014-08-18 13:01:05
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:T4i7vp1kAZFXy6DiV1dqyw
+# Created by DBIx::Class::Schema::Loader v0.07042 @ 2014-10-08 13:58:40
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:+ojkAowUxbHelitMPztLUg
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

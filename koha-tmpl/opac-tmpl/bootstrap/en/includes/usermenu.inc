@@ -95,6 +95,16 @@
                 [% END %]
                 <a href="/cgi-bin/koha/opac-shelves.pl?display=privateshelves">your lists</a></li>
             [% END %]
+
+            [% IF ILLModule and Koha.Preference('OpacILLRequests') and CAN_user_ill %]
+                [% IF illview %]
+                    <li class="active">
+                [% ELSE %]
+                    <li>
+                [% END %]
+                <a href="/cgi-bin/koha/opac-ill.pl">your interlibrary loans</a></li>
+            [% END %]
+
         </ul>
     </div>
 [% END %]

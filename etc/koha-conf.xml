@@ -95,6 +95,72 @@ __PAZPAR2_TOGGLE_XML_POST__
  <includes>__INTRANET_TMPL_DIR__/prog/en/includes/</includes>
  <logdir>__LOG_DIR__</logdir>
  <docdir>__DOC_DIR__</docdir>
+ <interlibrary_loans>
+  <!-- Path to API YAML specification. -->
+  <api_specification>__KOHA_CONF_DIR__/ill/spec.yaml</api_specification>
+  <!-- URL for API provider -->
+  <api_url>http://apitest.bldss.bl.uk</api_url>
+  <!-- Definition of our application credentials -->
+  <application>
+   <!--
+    <key>app_key</key>
+    <auth>app_auth</auth>
+   -->
+  </application>
+  <!-- Other configuration
+       Either:
+       - insert values as direct child of this element (default values)
+       - or insert a branch element, with <code> as child, and values
+         as child elements.  These are per branch overrides. -->
+  <configuration>
+   <!--
+    <api_key>example_default_key</api_key>
+    <api_auth>example_default_auth</api_auth>
+    <request_limit>
+     <mode>active</mode>
+     <count>-1</count>
+    </request_limit>
+    <prefix>ILL</prefix>
+    <default_formats>
+     <format>1</format>
+     <quality>1</quality>
+     <quantity>1</quantity>
+     <service>1</service>
+     <speed>1</speed>
+    </default_formats>
+    <branch>
+     <code>example_branch1_code</code>
+     <prefix>Branch1ILL</prefix>
+     <api_key>branch1_key</api_key>
+     <api_auth>branch1_auth</api_auth>
+     <request_limit>
+      <method>annual</method>
+      <count>10</count>
+     </request_limit>
+     <default_formats>
+      <format>1</format>
+      <quality>1</quality>
+      <quantity>1</quantity>
+      <service>1</service>
+      <speed>1</speed>
+     </default_formats>
+    </branch>
+    <borrower_category>
+     <prefix>BrwILL</prefix>
+     <code>example_brw_cat_code</code>
+     <request_limit>
+      <method>active</method>
+      <count>10</count>
+     </request_limit>
+    </borrower_category>
+   -->
+  </configuration>
+  <!-- Plugins -->
+  <!-- How should we treat staff comments?
+       - hide: don't show in OPAC
+       - show: show in OPAC -->
+  <staff_request_comments>hide</staff_request_comments>
+ </interlibrary_loans>
  <backupdir>__BACKUP_DIR__</backupdir>
  <!-- Enable the two following to allow superlibrarians to download
       database and configuration dumps (respectively) from the Export

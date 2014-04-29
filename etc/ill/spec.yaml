@@ -1,0 +1,230 @@
+# Copyright 2013,2014 PTFS Europe Ltd
+#
+# This file is part of Koha.
+#
+# Koha is free software; you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 3 of the License, or (at your option) any later
+# version.
+#
+# Koha is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+# A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with Koha; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+# INTRODUCTION:
+#
+# This file creates a data structures defining what fields of the XML
+# responses from the ILL API we want to use, and how we use them.  The
+# API currently developed against is the British Library's DSS
+# Interlibrary Loan API.
+#
+# The 'record' data structure is concerned with defining the way we
+# want to handle bibliographic and item information resulting from API
+# searches.
+#
+# The 'availability' data structure has similar concerns, but for
+# availability information regarding a specific 'record'.
+#
+# The 'prices' data structure is concerned with responses providing
+# pricing information for the API's services.
+
+# SEMANTICS:
+#
+# The semantics of our abstract representation are as follows:
+# - The top level identifies the response type (e.g. 'record').
+# - Each element or attribute we want to refer to in the API's
+#   response should be a key at the next level of indentation.
+#
+# Keywords (markup):
+#   + name: a human readable value for the field. This is used, for
+#     instance, for rendering the field's value on webpages. Any
+#     fields that have a 'name' keyword are returned as part of the
+#     'getFullDetails' method of ILL Records.
+#
+#   + inSummary: if used for a field, then this field will be one of
+#     the fields returned by the 'getSummary' method of ILL Records.
+#
+#   + accessor: if defined, this is the id that can be used in the
+#     'getProperty' method of ILL Records.
+#
+#   + many: use many to indicate that the element in question is one
+#     that recurs.  E.g. if the xml response provides an "isbns"
+#     element which may contain any number of "isbn" elements, then
+#     the "isbn" element in the spec here should use the many keyword.
+#
+# Remember: to simply not work with given fields returned by the API's
+# response it suffices to not define those fields in the abstract
+# representation at all.
+#
+# Attributes vs. Elements:
+#
+# You can specify an attribute you wish to retrieve by prepending its
+# id with an "@" symbol, like in xpath.  In order for this to be valid
+# YAML, you'll need to enclose the id in quotation marks, e.g. "@key".
+
+record:
+  uin:
+    name: British Library Identifier
+    inSummary: yes
+    accessor: id
+  type:
+    name: Material Type
+    inSummary: yes
+    accessor: type
+  isAvailableImmediateley:
+    name: Available now?
+  metadata:
+    titleLevel:
+      title:
+        name: Title
+        inSummary: yes
+        accessor: title
+      author:
+        name: Author
+        inSummary: yes
+      identifier:
+        name: Identifier
+      publisher:
+        name: Publisher
+        inSummary: yes
+      issn:
+        name: ISSN
+        inSummary: yes
+      isbn:
+        name: ISBN
+        inSummary: yes
+      ismn:
+        name: ISMN
+      shelfmark:
+        name: Shelfmark
+      conferenceVenue:
+        name: Conference Venue
+      conferenceDate:
+        name: Conference Date
+      thesisUniversity:
+        name: Thesis University
+      thesisDissertation:
+        name: Thesis Dissertation
+      mapScale:
+        name: Map Scale
+    itemLevel:
+      year:
+        name: Year
+        inSummary: yes
+      volume:
+        name: Volume Number
+      issue:
+        name: Issue Number
+      part:
+        name: Part Number
+      edition:
+        name: Edition
+        inSummary: yes
+      season:
+        name: Season
+      month:
+        name: Month
+      day:
+        name: Day
+      specialIssue:
+        name: Special Issue
+    itemOfInterestLevel:
+      title:
+        name: Title
+      author:
+        name: Author
+      pages:
+        name: Pages
+
+availability:
+  loanAvailabilityDate:
+    name: Loan availability date
+    inSummary: yes
+  copyAvailabilityDate:
+    name: Copy availability date
+    inSummary: yes
+  copyrightFee:
+    name: Copyright fee
+    inSummary: yes
+    "@currency":
+      name: Currency
+      inSummary: yes
+  availableImmediately:
+    name: Available immediately?
+    inSummary: yes
+  matchedToSpecificItem:
+    name: Matched to specific item?
+    inSummary: yes
+  isOnOrder:
+    name: On order?
+    inSummary: yes
+  availableFormats:
+    availableFormat:
+      many: yes
+      "@availabilityDate":
+        name: Availability date
+        inSummary: yes
+      deliveryFormat:
+        name: Delivery format
+        inSummary: yes
+        "@key":
+          name: Key
+      deliveryModifiers:
+        name: Delivery modifiers
+        inSummary: yes
+      availableSpeeds:
+        speed:
+          many: yes
+          name: Speed
+          inSummary: yes
+          "@key":
+            name: Key
+      availableQuality:
+        quality:
+          many: yes
+          name: Quality
+          inSummary: yes
+          "@key":
+            name: Key
+
+prices:
+  currency:
+    accessor: money
+    name: Currency
+    inSummary: no
+  region:
+    name: Region
+  copyrightVat:
+    name: Copyright VAT
+    inSummary: yes
+  loanRenewalCost:
+    name: Loan Renewal Cost
+    inSummary: yes
+  services:
+    service:
+      many: yes
+      "@id":
+        name: Service
+        inSummary: yes
+      format:
+        many: yes
+        "@vat":
+          name: VAT
+          inSummary: yes
+        "@id":
+          name: Format
+          inSummary: yes
+        price:
+          many: yes
+          name: Price
+          inSummary: yes
+          "@speed":
+            name: Delivery
+            inSummary: yes
+          "@quality":
+            name: Quality
+            inSummary: yes

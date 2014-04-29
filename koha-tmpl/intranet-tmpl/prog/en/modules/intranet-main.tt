@@ -53,7 +53,6 @@
                             <a class="icon_general icon_course_reserves" href="/cgi-bin/koha/course_reserves/course-reserves.pl">Course reserves</a>
                         </li>
                     [% END %]
-
                     [% IF ( CAN_user_editcatalogue_edit_catalogue || CAN_user_editcatalogue_edit_items ) %]
                     <li>
                         <a class="icon_general icon_cataloging" href="/cgi-bin/koha/cataloguing/addbooks.pl">Cataloging</a>
@@ -62,6 +61,11 @@
                     <li>
                         <a class="icon_general icon_authorities" href="/cgi-bin/koha/authorities/authorities-home.pl">Authorities</a>
                     </li>
+                    [% IF ILLModule and CAN_user_ill %]
+                    <li>
+                        <a class="icon_general icon_ill" href="/cgi-bin/koha/ill/ill-requests.pl">ILL Requests</a>
+                    </li>
+                    [% END %]
                 </ul>
             </div><!-- /area-list-left -->
         </div><!-- /yui-u first -->
