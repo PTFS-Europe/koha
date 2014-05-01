@@ -1,0 +1,85 @@
+#!/bin/sh
+#
+# koha-create-custom -- Create custom dirs for a Koha instance.
+# Copyright 2010  Catalyst IT, Ltd
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+set -e
+
+userdir() {
+    local username="$1-koha"
+    local directory="$2"
+    if [ ! -d "$directory" ]
+    then
+        install -d -o "$username" -g "$username" "$directory"
+    fi
+}
+
+initdir() {
+    local username="$1"
+    local directory="$2"
+    cd $directory
+    git init
+}
+
+prepdir() {
+    local newfile="$1"
+    local default="$2"
+    cp "$default" "$newfile"
+}
+
+fixdir() {
+    local dir="$1"
+    local default="$2"
+
+    for file in "$dir/*.xsl"
+    do
+	sed_exp="s:MARC21slimUtils.xsl:$default:"
+        sed -i -e $sed_exp $file
+    done
+}
+
+commitdir() {
+    local username="$1"
+
+    cd "/var/lib/koha/$username/www"
+    git add .
+    git commit -m "Initial commit - fix paths to MARC21slimUtils.xsl"
+    chown -R "$name-koha":"$name-koha" "/var/lib/koha/$username/www"
+    sed -i "/apache-shared-opac.conf/a\ \ \ Alias \/custom \"\/var\/lib\/koha\/$username\/www\/opac\"" "/etc/apache2/sites-available/$username"
+    sed -i "/apache-shared-intranet.conf/a\ \ \ Alias \/custom \"\/var\/lib\/koha\/$username\/www\/intranet\"" "/etc/apache2/sites-available/$username"
+    service apache2 reload
+}
+
+for name in "$@"
+do
+    userdir "$name" "/var/lib/koha/$name/www"
+    initdir "$name" "/var/lib/koha/$name/www"
+    userdir "$name" "/var/lib/koha/$name/www/opac"
+    userdir "$name" "/var/lib/koha/$name/www/opac/en"
+    userdir "$name" "/var/lib/koha/$name/www/opac/en/xslt"
+    userdir "$name" "/var/lib/koha/$name/www/intranet"
+    userdir "$name" "/var/lib/koha/$name/www/intranet/en"
+    userdir "$name" "/var/lib/koha/$name/www/intranet/en/xslt"
+    prepdir "/var/lib/koha/$name/www/intranet/en/xslt/MARC21slim2intranetDetail.xsl" "/usr/share/koha/intranet/htdocs/intranet-tmpl/prog/en/xslt/MARC21slim2intranetDetail.xsl"
+    prepdir "/var/lib/koha/$name/www/intranet/en/xslt/MARC21slim2intranetResults.xsl" "/usr/share/koha/intranet/htdocs/intranet-tmpl/prog/en/xslt/MARC21slim2intranetResults.xsl"
+    prepdir "/var/lib/koha/$name/www/opac/en/xslt/MARC21slim2OPACDetail.xsl" "/usr/share/koha/opac/htdocs/opac-tmpl/bootstrap/en/xslt/MARC21slim2OPACDetail.xsl"
+    prepdir "/var/lib/koha/$name/www/opac/en/xslt/MARC21slim2OPACResults.xsl" "/usr/share/koha/opac/htdocs/opac-tmpl/bootstrap/en/xslt/MARC21slim2OPACResults.xsl"
+    prepdir "/var/lib/koha/$name/www/opac/en/xslt/MARC21slim2OPACMARCdetail.xsl" "/usr/share/koha/opac/htdocs/opac-tmpl/bootstrap/en/xslt/MARC21slim2OPACMARCdetail.xsl"
+    fixdir  "/var/lib/koha/$name/www/intranet/en/xslt" "/usr/share/koha/intranet/htdocs/intranet-tmpl/prog/en/xslt/MARC21slimUtils.xsl"
+    fixdir  "/var/lib/koha/$name/www/opac/en/xslt" "/usr/share/koha/opac/htdocs/opac-tmpl/bootstrap/en/xslt/MARC21slimUtils.xsl"
+    commitdir "$name"
+done

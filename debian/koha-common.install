@@ -9,6 +9,7 @@ debian/unavailable.html                     usr/share/koha/opac/htdocs
 debian/templates/*                          etc/koha
 debian/scripts/koha-functions.sh            usr/share/koha/bin
 debian/scripts/koha-create                  usr/sbin
+debian/scripts/koha-create-custom           usr/sbin
 debian/scripts/koha-create-dirs             usr/sbin
 debian/scripts/koha-disable                 usr/sbin
 debian/scripts/koha-dump                    usr/sbin
