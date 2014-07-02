@@ -806,7 +806,8 @@ sub CanBookBeIssued {
                      itemnumber => $item_object->itemnumber,
                      itemtype => $effective_itemtype,
                      borrowernumber => $patron->borrowernumber,
-                     ccode => $item_object->ccode}
+                     ccode => $item_object->ccode},
+                     usercode => $patron->categorycode,
                     );
         ModDateLastSeen( $item_object->itemnumber ); # FIXME Move to Koha::Item
         return( { STATS => 1 }, {});
@@ -1652,6 +1653,7 @@ sub AddIssue {
                     location       => $item_object->location,
                     borrowernumber => $borrower->{'borrowernumber'},
                     ccode          => $item_object->ccode,
+                    usercode       => $borrower->{'categorycode'}
                 }
             );
 
@@ -3093,6 +3095,7 @@ sub AddRenewal {
                 location       => $item_object->location,
                 borrowernumber => $borrowernumber,
                 ccode          => $item_object->ccode,
+                usercode       => $patron->categorycode,
             }
         );
 
