@@ -59,8 +59,8 @@ commitdir() {
     git add .
     git commit -m "Initial commit - fix paths to MARC21slimUtils.xsl"
     chown -R "$name-koha":"$name-koha" "/var/lib/koha/$username/www"
-    sed -i "/apache-shared-opac.conf/a\ \ \ Alias \/custom \"\/var\/lib\/koha\/$username\/www\/opac\"" "/etc/apache2/sites-available/$username"
-    sed -i "/apache-shared-intranet.conf/a\ \ \ Alias \/custom \"\/var\/lib\/koha\/$username\/www\/intranet\"" "/etc/apache2/sites-available/$username"
+    sed -i "/apache-shared-opac.conf/a\ \ \ Alias \/custom \"\/var\/lib\/koha\/$username\/www\/opac\"" "/etc/apache2/sites-available/$username.conf"
+    sed -i "/apache-shared-intranet.conf/a\ \ \ Alias \/custom \"\/var\/lib\/koha\/$username\/www\/intranet\"" "/etc/apache2/sites-available/$username.conf"
     service apache2 reload
 }
 
@@ -78,7 +78,6 @@ do
     prepdir "/var/lib/koha/$name/www/intranet/en/xslt/MARC21slim2intranetResults.xsl" "/usr/share/koha/intranet/htdocs/intranet-tmpl/prog/en/xslt/MARC21slim2intranetResults.xsl"
     prepdir "/var/lib/koha/$name/www/opac/en/xslt/MARC21slim2OPACDetail.xsl" "/usr/share/koha/opac/htdocs/opac-tmpl/bootstrap/en/xslt/MARC21slim2OPACDetail.xsl"
     prepdir "/var/lib/koha/$name/www/opac/en/xslt/MARC21slim2OPACResults.xsl" "/usr/share/koha/opac/htdocs/opac-tmpl/bootstrap/en/xslt/MARC21slim2OPACResults.xsl"
-    prepdir "/var/lib/koha/$name/www/opac/en/xslt/MARC21slim2OPACMARCdetail.xsl" "/usr/share/koha/opac/htdocs/opac-tmpl/bootstrap/en/xslt/MARC21slim2OPACMARCdetail.xsl"
     fixdir  "/var/lib/koha/$name/www/intranet/en/xslt" "/usr/share/koha/intranet/htdocs/intranet-tmpl/prog/en/xslt/MARC21slimUtils.xsl"
     fixdir  "/var/lib/koha/$name/www/opac/en/xslt" "/usr/share/koha/opac/htdocs/opac-tmpl/bootstrap/en/xslt/MARC21slimUtils.xsl"
     commitdir "$name"
