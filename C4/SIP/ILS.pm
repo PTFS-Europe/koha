@@ -126,13 +126,15 @@ sub offline_ok {
 # the response.
 #
 sub checkout {
-    my ($self, $patron_id, $item_id, $sc_renew) = @_;
+    my ( $self, $patron_id, $item_id, $sc_renew, $sc_fee_acknowledged ) = @_;
     my ($patron, $item, $circ);
 
     $circ = new ILS::Transaction::Checkout;
     # BEGIN TRANSACTION
     $circ->patron($patron = new ILS::Patron $patron_id);
     $circ->item($item = new ILS::Item $item_id);
+
+    my $charge = $circ->fee();
 
     if (!$patron) {
 		$circ->screen_msg("Invalid Patron");
@@ -146,6 +148,8 @@ sub checkout {
     } elsif ($item->{patron} && ($item->{patron} ne $patron_id)) {
 	# I can't deal with this right now
 		$circ->screen_msg("Item checked out to another patron");
+    } elsif ( !$sc_fee_acknowledged && $charge ) {
+        $circ->screen_msg( sprintf("There is a charge of %.2f to check out this item. Please confirm.", $charge ) );
     } else {
 		$circ->do_checkout();
 		if ($circ->ok){

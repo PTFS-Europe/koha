@@ -68,6 +68,7 @@ sub new {
     %ilspatron = (
         getmemberdetails_object => $kp,
         name => $kp->{firstname} . " " . $kp->{surname},
+        ils_id => $kp->{borrowernumber},
         id   => $kp->{cardnumber},    # to SIP, the id is the BARCODE, not userid
         password        => $pw,
         ptype           => $kp->{categorycode},     # 'A'dult.  Whatever.
@@ -133,6 +134,7 @@ sub new {
 # 1 means read/write
 
 my %fields = (
+    ils_id                  => 0,
     id                      => 0,
     name                    => 0,
     address                 => 0,
