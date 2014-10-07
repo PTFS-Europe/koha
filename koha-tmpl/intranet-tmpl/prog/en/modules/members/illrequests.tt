@@ -31,8 +31,7 @@
     <div id="bd">
     <div id="yui-main">
     <div class="yui-b">
-[% INCLUDE 'members-toolbar.inc' %]
-<p><a id="newillrequest" href="/cgi-bin/koha/ill/illrequest-new.pl?borrowernumber=[% borrowernumber %]">New ILL Request for this patron</a></p><br />
+[% INCLUDE 'members-toolbar.inc' tab='ill'  %]
 <h1>ILL Requests for [% INCLUDE 'patron-title.inc' %]</h1>
 
         [% IF ILLRequests %]

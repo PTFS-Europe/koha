@@ -129,6 +129,10 @@ function searchToHold(){
 </script>
 
 <div id="toolbar" class="btn-toolbar">
+    [% SWITCH ( tab ) %]
+        [% CASE 'ill' %]
+            <a class="btn btn-small" id="newillrequest" href="/cgi-bin/koha/ill/illrequest-new.pl?borrowernumber=[% borrowernumber %]"><i class="icon-plus"></i> New ILL Request</a>
+    [% END %]
     [% IF ( CAN_user_borrowers ) %]
         [% IF ( category_type ) %]
             [% IF ( guarantor ) %]
