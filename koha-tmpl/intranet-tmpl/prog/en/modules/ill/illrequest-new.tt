@@ -111,7 +111,7 @@
     <div id="bd">
     <div id="yui-main">
     <div class="yui-b">
-    [% INCLUDE 'circ-toolbar.inc' %]
+    [% INCLUDE 'members-toolbar.inc' %]
     <h1>New ILL Request for [% INCLUDE 'patron-title.inc' %]</h1>
 
     [% IF RemainingRequests < 1 AND !RequestNumber %]
