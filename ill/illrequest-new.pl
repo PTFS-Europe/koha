@@ -26,6 +26,7 @@ use CGI;
 use Koha::Borrowers;
 use C4::Members qw( GetMemberDetails GetPatronImage);
 use C4::ILL qw( GetILLAuthValues LogILLRequest );
+use C4::ILL::Config;
 
 my $query = CGI->new();
 
@@ -60,10 +61,13 @@ if ( !$query->param('illtype') ) {
 my $borrower    = Koha::Borrowers->new()->Find( { borrowernumber => $borrowernumber });
 my $remainingrequests = $borrower->Category()->illlimit - $borrower->ILLRequests()->Count();
 
+my $config = C4::ILL::Config->new();
+
 $template->param(
     RemainingRequests => $remainingrequests,
     RequestNumber     => $requestnumber,
-    illtype           => $query->param('illtype'),
+    illtype           => $config->get_type_details($query->param('illtype')),
+    illtypes          => $config->get_types(),
     illoptions        => $illoptions,
     borrowernumber    => $borrowernumber,
     local1            => C4::Context->preference('ILLLocalField1'),
