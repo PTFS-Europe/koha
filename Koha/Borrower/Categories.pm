@@ -1,6 +1,6 @@
-package Koha::Borrower;
+package Koha::Borrower::Categories;
 
-# Copyright ByWater Solutions 2014
+# Copyright PTFS Europe 2014
 #
 # This file is part of Koha.
 #
@@ -23,14 +23,13 @@ use Carp;
 
 use Koha::Database;
 
-use base qw(Koha::Object);
+use Koha::Borrower::Category;
 
-use Koha::Borrower::Categories;
-use Koha::Borrower::ILLRequests;
+use base qw(Koha::Objects);
 
 =head1 NAME
 
-Koha::Borrower - Koha Borrower Object class
+Koha::Borrower::Categories - Koha Borrower Categories Object class
 
 =head1 API
 
@@ -42,42 +41,21 @@ Koha::Borrower - Koha Borrower Object class
 
 =cut
 
-sub type {
-    return 'Borrower';
+sub Type {
+    return 'Category';
 }
 
-=head3 Category
-
-Returns the related Koha::Borrower::Category object for this Borrower
+=head3 ObjectClass
 
 =cut
 
-sub Category {
-    my ($self) = @_;
-
-    $self->{Category} ||= Koha::Borrower::Categories->new()->Find( $self->categorycode() );
-
-    return $self->{Category};
-}
-
-=head3 ILLRequests
-
-Returns the related Koha::Borrower::ILLRequests object for this Borrower
-
-=cut
-
-sub ILLRequests {
-    my ($self) = @_;
-
-    $self->{ILLRequests} ||= Koha::Borrower::ILLRequests->new()->Search( $self->borrowernumber() );
-
-    return $self->{ILLRequests};
+sub ObjectClass {
+    return 'Koha::Borrower::Category';
 }
 
 =head1 AUTHOR
 
-Kyle M Hall <kyle@bywatersolutions.com>
-Martin Renvoize <martin.renvoize@ptfs-europe.com>
+Martin Renvoize <martin.renovize@ptfs-europe.com>
 
 =cut
 

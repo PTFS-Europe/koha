@@ -23,6 +23,7 @@ use warnings;
 use C4::Auth;
 use C4::Output;
 use CGI;
+use Koha::Borrowers;
 use C4::Members qw( GetMemberDetails GetPatronImage);
 use C4::ILL qw( GetILLAuthValues LogILLRequest ILLBorrowerRequests );
 
@@ -56,12 +57,10 @@ if ( !$query->param('illtype') ) {
     $illoptions = GetILLAuthValues('ILLTYPE');
 }
 
-my ( $illlimit, $currentrequests ) = ILLBorrowerRequests($borrowernumber);
-my $remainingrequests = $illlimit - $currentrequests;
+my $borrower    = Koha::Borrowers->new()->Find( { borrowernumber => $borrowernumber });
+my $remainingrequests = $borrower->Category()->illlimit - $borrower->ILLRequests()->Count();
 
 $template->param(
-    CurrentRequests   => $currentrequests,
-    ILLLimit          => $illlimit,
     RemainingRequests => $remainingrequests,
     RequestNumber     => $requestnumber,
     illtype           => $query->param('illtype'),
