@@ -1,4 +1,68 @@
-CREATE TABLE illrequest (
+-- System preferences
+INSERT INTO systempreferences (variable,value,explanation,options,type)
+VALUES ('ILLModule','0','If ON, enables the Inter-Library Loan module','','YesNo');
+INSERT INTO systempreferences (variable,value,explanation,options,type)
+VALUES (
+    'BookILLRequest',
+    '0',
+    'If ON, enables the requesting of books in the Inter-Library Loan module',
+    '',
+    'YesNo'
+);
+INSERT INTO systempreferences (variable,value,explanation,options,type)
+VALUES (
+    'JournalILLRequest',
+    '0',
+    'If ON, enables the requesting of journals in the Inter-Library Loan module',
+    '',
+    'YesNo'
+);
+INSERT INTO systempreferences (variable,value,explanation,options,type)
+VALUES ('ThesisILLRequest','0','If ON, enables the requesting of theses in the Inter-Library Loan module','','YesNo');
+INSERT INTO systempreferences (variable,value,explanation,options,type)
+VALUES ('OtherILLRequest','0','If ON, enables the requesting of generic items in the Inter-Library Loan module','','YesNo');
+INSERT INTO systempreferences (variable,value,explanation,options,type)
+VALUES ('ILLRequestPrefix','ILLREQ-','Prefix for the ILL request ID','','free');
+INSERT INTO systempreferences (variable,value,explanation,options,type)
+VALUES ('OpacILLRequests','0','If ON, allows patrons to view their ILL requests in the OPAC','','YesNo');
+INSERT INTO systempreferences (variable,value,explanation,options,type)
+VALUES ('ILLEmailNotify','0','If ON, patrons receive an email notification of a placed request','','YesNo');
+INSERT INTO systempreferences (variable,value,explanation,options,type)
+VALUES ('ILLNewRequestStatus','NEW',' Default status for new ILL requests','NEW','Choice');
+
+INSERT INTO systempreferences (variable, explanation, type)
+VALUES ('ILLLocalField1', 'Custom field for ILL submission forms', 'free');
+INSERT INTO systempreferences (variable, explanation, type)
+VALUES ('ILLLocalField2', 'Custom field for ILL submission forms', 'free');
+INSERT INTO systempreferences (variable, explanation, type)
+VALUES ('ILLLocalField3', 'Custom field for ILL submission forms', 'free');
+-- Permissions
+INSERT INTO permissions (variable,value,explanation,options,type)
+VALUES ('ILLEmailNotify',
+    '0',
+    'If ON, patrons receive an email notification of a placed request',
+    '',
+    'YesNo'
+);
+-- Userflags
+INSERT INTO userflags (bit,flag,flagdesc,defaulton)
+VALUES ('20','ill','Manage ILL requests','0');
+-- Authorised Values
+INSERT INTO authorised_values (category,authorised_value,lib)
+VALUES ('ILLTYPE','ILLBOOK','Book request');
+INSERT INTO authorised_values (category,authorised_value,lib)
+VALUES ('ILLTYPE','ILLJOURNAL','Journal/Conference request');
+UPDATE authorised_values set lib='Journal request' where authorised_value='ILLJOURNAL';
+INSERT INTO authorised_values (category,authorised_value,lib)
+VALUES ('ILLTYPE','ILLTHESIS','Thesis request');
+INSERT INTO authorised_values (category,authorised_value,lib)
+VALUES ('ILLTYPE','ILLOTHER','Other request');
+INSERT INTO authorised_values (category,authorised_value,lib)
+VALUES ('ILLTYPE','ILLCONFERENCE','Conference paper request');
+INSERT INTO authorised_values (category,authorised_value,lib)
+VALUES ('ILLSTATUS','NEW','New request');
+
+CREATE TABLE ill_requests (
     id serial primary key,
     borrowernumber integer references borrowers (borrowernumber),
     biblionumber integer references biblio (biblionumber),
@@ -11,7 +75,7 @@ CREATE TABLE illrequest (
     branch varchar(50)
 );
 
-CREATE TABLE illreq_attribute (
+CREATE TABLE ill_request_attributes (
     req_id bigint references illrequest ( id ),
     type varchar(30) not null,
     value text not null
