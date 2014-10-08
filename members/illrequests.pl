@@ -25,6 +25,7 @@ use CGI;
 use Koha::Borrowers;
 use C4::Members qw( GetPatronImage );
 use C4::Members::Attributes qw(GetBorrowerAttributes);
+use C4::ILL::Config;
 
 my $input = CGI->new();
 
@@ -42,7 +43,10 @@ my ( $template, $loggedinuser, $cookie ) = get_template_and_user(
 );
 
 # Get borrower Object
-my $borrower    = Koha::Borrowers->new()->Find( { borrowernumber => $borrowernumber } );
+my $borrower    = Koha::Borrowers->new()->Find( $borrowernumber );
+
+# Get ILL Config object
+my $config = C4::ILL::Config->new();
 
 # Setup normal template params for members pages - This really should be factored out somewhere!
 $template->param( borrower => $borrower );
@@ -68,6 +72,7 @@ my @requests = $borrower->ILLRequests();
 $template->param(
     illrequests    => \@requests,
     borrowernumber => $borrowernumber,
+    illtypes       => $config->get_types(),
     ill            => 1,
 );
 output_html_with_http_headers( $input, $cookie, $template->output );

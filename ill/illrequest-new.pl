@@ -25,7 +25,7 @@ use C4::Output;
 use CGI;
 use Koha::Borrowers;
 use C4::Members qw( GetMemberDetails GetPatronImage);
-use C4::ILL qw( GetILLAuthValues LogILLRequest );
+use C4::ILL qw( LogILLRequest );
 use C4::ILL::Config;
 
 my $query = CGI->new();
@@ -41,24 +41,19 @@ my ( $template, $loggedinuser, $cookie ) = get_template_and_user(
 );
 
 my $borrowernumber = $query->param('borrowernumber');
-my $borrower       = GetMemberDetails($borrowernumber);
-$template->param($borrower);
-#my ( $picture, $dberror ) = GetPatronImage( $borrower->{cardnumber} );
-#if ($picture) {
-#    $template->param( picture => 1 );
-#}
+my $borrower    = Koha::Borrowers->new()->Find( { borrowernumber => $borrowernumber });
+$template->param( borrower => $borrower);
+
+my ( $picture, $dberror ) = GetPatronImage( $borrower->cardnumber );
+if ($picture) {
+    $template->param( picture => 1 );
+}
 
 my $requestnumber;
 if ( $query->param('request_type') ) {
     $requestnumber = LogILLRequest( $borrowernumber, $query );
 }
 
-my $illoptions;
-if ( !$query->param('illtype') ) {
-    $illoptions = GetILLAuthValues('ILLTYPE');
-}
-
-my $borrower    = Koha::Borrowers->new()->Find( { borrowernumber => $borrowernumber });
 my $remainingrequests = $borrower->Category()->illlimit - $borrower->ILLRequests()->Count();
 
 my $config = C4::ILL::Config->new();
@@ -68,7 +63,6 @@ $template->param(
     RequestNumber     => $requestnumber,
     illtype           => $config->get_type_details($query->param('illtype')),
     illtypes          => $config->get_types(),
-    illoptions        => $illoptions,
     borrowernumber    => $borrowernumber,
     local1            => C4::Context->preference('ILLLocalField1'),
     local2            => C4::Context->preference('ILLLocalField2'),

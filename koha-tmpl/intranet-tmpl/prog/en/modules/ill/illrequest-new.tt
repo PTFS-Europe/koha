@@ -150,6 +150,7 @@
             <h2>The request was placed successfully</h2>
             <p>The request number is <strong>[% RequestNumber %]</strong></p>
             <p>To view all requests, <a href="[% current %][% brw_arg %]">click here</a></p>
+    <!-- This Block can be Nuked -> Moved select to 'New Request' menu dropdown -->
         [% ELSE %]
             <h2>Select a request type to continue</h2>
             <ul>
@@ -161,6 +162,8 @@
             </ul>
 
         [% END %]
+    <!-- End of Block to Nuke -->
+
 
     [% END %]
 

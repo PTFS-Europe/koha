@@ -131,7 +131,14 @@ function searchToHold(){
 <div id="toolbar" class="btn-toolbar">
     [% SWITCH ( tab ) %]
         [% CASE 'ill' %]
-            <a class="btn btn-small" id="newillrequest" href="/cgi-bin/koha/ill/illrequest-new.pl?borrowernumber=[% borrowernumber %]"><i class="icon-plus"></i> New ILL Request</a>
+            <div class="btn-group">
+            <button class="btn btn-small dropdown-toggle" data-toggle="dropdown"><i class="icon-plus"></i> New ILL Request <span class="caret"></span></button>
+            <ul class="dropdown-menu">
+                [% FOREACH illtype IN illtypes %]
+                <li><a href="/cgi-bin/koha/ill/illrequest-new.pl?borrowernumber=[% borrowernumber %]&illtype=[% illtype.key %]">[% illtype.value %]</a></li>
+                [% END %]
+            </ul>
+            </div>
     [% END %]
     [% IF ( CAN_user_borrowers ) %]
         [% IF ( category_type ) %]
