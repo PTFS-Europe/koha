@@ -33,7 +33,6 @@ our $VERSION = 3.10.02.000;
 our @EXPORT  = ();
 
 our @EXPORT_OK = qw(
-  ILLBorrowerRequests
   UpdateILLRequest
   ILLRequests_by_borrower
   GetILLAuthValues
@@ -342,20 +341,6 @@ sub FormatILLReference {
         }
     }
     return $ref;
-}
-
-sub ILLBorrowerRequests {
-    my $borrowernumber = shift;
-    my $dbh            = C4::Context->dbh;
-    my ($illlimit)     = $dbh->selectrow_array(
-'select categories.illlimit from categories inner join borrowers on borrowers.categorycode=categories.categorycode where borrowers.borrowernumber=?',
-        {}, $borrowernumber
-    );
-    my ($currentrequests) = $dbh->selectrow_array(
-'select count(illrequest.requestid) as illrequests from illrequest where illrequest.borrowernumber=? and illrequest.completed_date IS NULL',
-        {}, $borrowernumber
-    );
-    return ( $illlimit, $currentrequests );
 }
 
 1;
