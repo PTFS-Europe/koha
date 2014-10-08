@@ -62,6 +62,11 @@ VALUES ('ILLTYPE','ILLCONFERENCE','Conference paper request');
 INSERT INTO authorised_values (category,authorised_value,lib)
 VALUES ('ILLSTATUS','NEW','New request');
 
+-- Borrower Categories
+ALTER TABLE categories ADD illlimit VARCHAR(60) AFTER issuelimit;
+
+-- ILL Requests
+
 CREATE TABLE ill_requests (
     id serial primary key,
     borrowernumber integer references borrowers (borrowernumber),
