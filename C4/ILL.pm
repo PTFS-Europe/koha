@@ -34,7 +34,6 @@ our @EXPORT  = ();
 
 our @EXPORT_OK = qw(
   UpdateILLRequest
-  ILLRequests_by_borrower
   GetILLAuthValues
   LogILLRequest
   GetAllILL
@@ -109,21 +108,6 @@ sub GetILLRequest {
             'select * from illrequest where requestid=?',
             { Slice => {} }, $requestid );
         return shift @{$tuples};
-    }
-    return;
-}
-
-sub ILLRequests_by_borrower {
-    my $borrowernumber = shift;
-    if ($borrowernumber) {
-        my $dbh          = C4::Context->dbh;
-        my $ill_requests = $dbh->selectall_arrayref(
-'select * from illrequest where borrowernumber=? order by date_placed asc',
-            { Slice => {} },
-            $borrowernumber
-        );
-        my @formatted_reqs = map { _opac_fmt_req($_); } @{$ill_requests};
-        return \@formatted_reqs;
     }
     return;
 }

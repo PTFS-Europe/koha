@@ -50,13 +50,13 @@
                     </li>
                 </ul>
                 <div id="ill-request-content" class="ui-tabs-panel" style="display: block;">
-                    [% IF allillrequests %]
+                    [% IF illrequests %]
                     <table class="historyt">
                     <thead>
                         <tr><th>Request No.</th><th>Request type</th><th>Date placed</th><th>Date completed</th><th>Patron</th><th>Item</th><th>Branch</th><th>Status</th></tr>
                     </thead>
                     <tbody>
-                        [% FOREACH req IN allillrequests %]
+                        [% FOREACH req IN illrequests %]
                         <tr>
                         <td>[% req.requestnumber %]</td>
                         <td>[% req.request_type_label %]</td>

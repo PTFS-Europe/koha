@@ -1,7 +1,6 @@
 #!/usr/bin/perl
 
 # Copyright (c) 2014 PTFS Europe Ltd
-# Copyright (c) 2013 Mark Gavillet & PTFS Europe
 #
 # This file is part of Koha.
 #
@@ -23,16 +22,13 @@ use warnings;
 use C4::Auth;
 use C4::Output;
 use CGI;
-use C4::Members qw( GetPatronImage GetMember);
+use Koha::Borrowers;
+use C4::Members qw( GetPatronImage );
 use C4::Members::Attributes qw(GetBorrowerAttributes);
-use C4::ILL qw(ILLRequests_by_borrower);
 
 my $input = CGI->new();
 
 my $borrowernumber = $input->param('borrowernumber');
-
-#get borrower details
-my $borrower = GetMember( borrowernumber => $borrowernumber );
 
 my ( $template, $loggedinuser, $cookie ) = get_template_and_user(
     {
@@ -45,16 +41,16 @@ my ( $template, $loggedinuser, $cookie ) = get_template_and_user(
     }
 );
 
-$template->param($borrower);
-my ( $picture, $dberror ) = GetPatronImage( $borrower->{'cardnumber'} );
+# Get borrower Object
+my $borrower    = Koha::Borrowers->new()->Find( { borrowernumber => $borrowernumber } );
+
+# Setup normal template params for members pages - This really should be factored out somewhere!
+$template->param( borrower => $borrower );
+
+my ( $picture, $dberror ) = GetPatronImage( $borrower->cardnumber );
 if ($picture) {
     $template->param( picture => 1 );
 }
-
-# Getting the requests
-#my @illrequests = GetMyILL($borrowernumber);
-my $illrequests = ILLRequests_by_borrower($borrowernumber);
-$template->param( %{$borrower} );
 
 if ( C4::Context->preference('ExtendedPatronAttributes') ) {
     my $attributes = GetBorrowerAttributes($borrowernumber);
@@ -64,8 +60,13 @@ if ( C4::Context->preference('ExtendedPatronAttributes') ) {
     );
 }
 
+# ILL Requests Tab specifics
+
+# Get all request objects for user
+my @requests = $borrower->ILLRequests();
+
 $template->param(
-    ILLRequests    => $illrequests,
+    illrequests    => \@requests,
     borrowernumber => $borrowernumber,
     ill            => 1,
 );

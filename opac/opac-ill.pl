@@ -27,7 +27,7 @@ use C4::Auth;
 use C4::Context;
 use C4::Koha;
 use C4::Output;
-use C4::ILL qw(ILLRequests_by_borrower);
+use Koha::Borrowers;
 
 my $query = CGI->new();
 
@@ -41,6 +41,9 @@ my ( $template, $borrowernumber, $cookie ) = get_template_and_user(
         debug           => 1,
     }
 );
-$template->param( ILLRequests => ILLRequests_by_borrower($borrowernumber) );
+
+my $borrower = Koha::Borrower->new()->Find( { borrowernumber => $borrowernumber } );
+my @requests = $borrower->ILLRequests();
+$template->param( ILLRequests => \@requests );
 
 output_html_with_http_headers( $query, $cookie, $template->output );
