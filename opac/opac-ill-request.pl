@@ -52,15 +52,14 @@ if ( !$query->param('illtype') ) {
     $illoptions = GetILLAuthValues('ILLTYPE');
 }
 
-my ( $illlimit, $currentrequests ) = ILLBorrowerRequests($borrowernumber);
-my $remainingrequests = $illlimit - $currentrequests;
+my $borrower    = Koha::Borrowers->new()->Find( { borrowernumber => $borrowernumber });
+my $remainingrequests = $borrower->Category()->illlimit - $borrower->ILLRequests()->Count();
 
-$template->param( CurrentRequests   => $currentrequests );
-$template->param( ILLLimit          => $illlimit );
-$template->param( RemainingRequests => $remainingrequests );
-$template->param( RequestNumber     => $requestnumber );
-
-$template->param( illtype    => $query->param('illtype') );
-$template->param( illoptions => $illoptions );
+$template->param(
+    RemainingRequests => $remainingrequests,
+    RequestNumber     => $requestnumber,
+    illtype    => $query->param('illtype'),
+    illoptions => $illoptions
+);
 
 output_html_with_http_headers( $query, $cookie, $template->output );

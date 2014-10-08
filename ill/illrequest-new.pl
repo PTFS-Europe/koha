@@ -25,7 +25,7 @@ use C4::Output;
 use CGI;
 use Koha::Borrowers;
 use C4::Members qw( GetMemberDetails GetPatronImage);
-use C4::ILL qw( GetILLAuthValues LogILLRequest ILLBorrowerRequests );
+use C4::ILL qw( GetILLAuthValues LogILLRequest );
 
 my $query = CGI->new();
 
