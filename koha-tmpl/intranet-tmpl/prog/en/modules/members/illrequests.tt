@@ -20,6 +20,7 @@
     });
 //]]>
 </script>
+<script src="[% interface %]/lib/angular/angular.min.js"></script>
 </head>
 <body id="pat_notices" class="pat">
 [% INCLUDE 'header.inc' %]
@@ -27,7 +28,7 @@
 
 <div id="breadcrumbs"><a href="/cgi-bin/koha/mainpage.pl">Home</a> &rsaquo; <a href="/cgi-bin/koha/members/members-home.pl">Patrons</a>  &rsaquo; ILL Requests for [% INCLUDE 'patron-title.inc' %]</div>
 
-<div id="doc3" class="yui-t2">
+<div id="doc3" class="yui-t2" ng-app="ill">
     <div id="bd">
     <div id="yui-main">
     <div class="yui-b">
