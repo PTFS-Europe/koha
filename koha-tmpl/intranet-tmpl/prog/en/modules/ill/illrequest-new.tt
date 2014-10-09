@@ -117,54 +117,79 @@
     [% new = base_url _ "illrequest-new.pl" %]
     [% current = base_url _ "illrequests.pl" %]
     [% brw_arg = "?borrowernumber=" _ borrowernumber %]
-    [% IF RemainingRequests < 1 AND !RequestNumber %]
-        <p>This patron has exceeded their Inter-Library Loan request limit. To view current requests, <a href="[% current %][% brw_arg %]">click here</a></p>
 
+    [% IF RemainingRequests < 1 AND !RequestNumber %]
+    <div class="dialog alert">
+        <h4>ILL Request Limit Reached</h4>
+        <p>This patron has reached their Inter-Library Loan Request limit.</p>
+        <p>To view their current requests, <a href="[% current %][% brw_arg %]">click here</a></p>
+    </div>
     [% ELSE %]
 
         [% IF illtype %]
             <h2>New ILL [% illtype.name %] Request</h2>
             <form>
-                <h3>Fields relating to the <em>Title</em> level</h3>
-                [% FOREACH field IN illtype.title %]
-                    <label for="[% field.key %]">[% field.value.name %]</label>
-                    <input type="text" name="[% field.key %]"/>
-                    <br/>
-                [% END %]
-                <h3>Fields relating to the <em>Item</em> level</h3>
-                [% FOREACH field IN illtype.item %]
-                    <label for="[% field.key %]">[% field.value.name %]</label>
-                    <input type="text" name="[% field.key %]"/>
-                    <br/>
-                [% END %]
-                <h3>Fields relating to the <em>Item Of Interest</em> level</h3>
-                [% FOREACH field IN illtype.interest %]
-                    <label for="[% field.key %]">[% field.value.name %]</label>
-                    <input type="text" name="[% field.key %]"/>
-                    <br/>
-                [% END %]
-                <input action="" type="submit"/>
+                <fieldset class="rows">
+                    <h3>Fields relating to the <em>Title</em> level</h3>
+                    <ol>
+                        [% FOREACH field IN illtype.title %]
+                        <li>
+                            <label for="[% field.key %]">[% field.value.name %]: </label>
+                            <input type="text" id="[% field.key %]" name="[% field.key %]"/>
+                        </li>
+                        [% END %]
+                    </ol>
+                    <h3>Fields relating to the <em>Item</em> level</h3>
+                    <ol>
+                        [% FOREACH field IN illtype.item %]
+                        <li>
+                            <label for="[% field.key %]">[% field.value.name %]</label>
+                            <input type="text" name="[% field.key %]"/>
+                        </li>
+                        [% END %]
+                    </ol>
+                    <h3>Fields relating to the <em>Item Of Interest</em> level</h3>
+                    <ol>
+                        [% FOREACH field IN illtype.interest %]
+                        <li>
+                            <label for="[% field.key %]">[% field.value.name %]</label>
+                            <input type="text" name="[% field.key %]"/>
+                        </li>
+                        [% END %]
+                    </ol>
+                </fieldset>
+                <button class="btn btn-small">Search</button>
             </form>
+
+            [% IF illresults %]
+            <div>
+                <h1>Results of search</h1>
+                <div class="dataTables_wrapper">
+                    <table id="ill-results" class="databtable">
+                        <thead>
+                            <tr>
+                                [% FOREACH x IN xs %]
+                                <th>[% x %]</th>
+                                [% END %]
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                [% FOREACH xb IN xbs %]
+                                <td>[% xb %]</td>
+                                [% END %]
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            [% END %]
 
         [% ELSIF RequestNumber %]
             <h2>The request was placed successfully</h2>
             <p>The request number is <strong>[% RequestNumber %]</strong></p>
             <p>To view all requests, <a href="[% current %][% brw_arg %]">click here</a></p>
-    <!-- This Block can be Nuked -> Moved select to 'New Request' menu dropdown -->
-        [% ELSE %]
-            <h2>Select a request type to continue</h2>
-            <ul>
-                [% FOREACH type IN illtypes %]
-                    [% type_arg = "&illtype=" _ type.key %]
-                    <li><a href="[% new %][% brw_arg %][% type_arg %]">
-                        [% type.value %]</a></li>
-                [% END %]
-            </ul>
-
         [% END %]
-    <!-- End of Block to Nuke -->
-
-
     [% END %]
 
 </div>
