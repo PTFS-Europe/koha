@@ -47,20 +47,6 @@ VALUES ('ILLEmailNotify',
 -- Userflags
 INSERT INTO userflags (bit,flag,flagdesc,defaulton)
 VALUES ('20','ill','Manage ILL requests','0');
--- Authorised Values
-INSERT INTO authorised_values (category,authorised_value,lib)
-VALUES ('ILLTYPE','ILLBOOK','Book request');
-INSERT INTO authorised_values (category,authorised_value,lib)
-VALUES ('ILLTYPE','ILLJOURNAL','Journal/Conference request');
-UPDATE authorised_values set lib='Journal request' where authorised_value='ILLJOURNAL';
-INSERT INTO authorised_values (category,authorised_value,lib)
-VALUES ('ILLTYPE','ILLTHESIS','Thesis request');
-INSERT INTO authorised_values (category,authorised_value,lib)
-VALUES ('ILLTYPE','ILLOTHER','Other request');
-INSERT INTO authorised_values (category,authorised_value,lib)
-VALUES ('ILLTYPE','ILLCONFERENCE','Conference paper request');
-INSERT INTO authorised_values (category,authorised_value,lib)
-VALUES ('ILLSTATUS','NEW','New request');
 
 -- Borrower Categories
 ALTER TABLE categories ADD illlimit VARCHAR(60) AFTER issuelimit;
