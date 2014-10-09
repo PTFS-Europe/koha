@@ -1,6 +1,5 @@
 #!/usr/bin/perl
 
-# Copyright 2012 Mark Gavillet & PTFS Europe
 # Copyright 2014 PTFS Europe Ltd
 #
 # This file is part of Koha.
@@ -27,7 +26,10 @@ use C4::Auth;
 use C4::Context;
 use C4::Koha;
 use C4::Output;
-use C4::ILL qw( GetILLAuthValues LogILLRequest ILLBorrowerRequests );
+use C4::ILL qw( LogILLRequest ILLBorrowerRequests );
+use C4::ILL::Config;
+
+use Koha::Borrowers;
 
 my $query = CGI->new();
 
@@ -47,19 +49,19 @@ if ( $query->param('request_type') ) {
     $requestnumber = LogILLRequest( $borrowernumber, $query );
 }
 
-my $illoptions;
-if ( !$query->param('illtype') ) {
-    $illoptions = GetILLAuthValues('ILLTYPE');
-}
+# Get borrower Object
+my $borrower    = Koha::Borrowers->new()->Find( $borrowernumber );
 
-my $borrower    = Koha::Borrowers->new()->Find( { borrowernumber => $borrowernumber });
+# Get ILL Config object
+my $config = C4::ILL::Config->new();
+
 my $remainingrequests = $borrower->Category()->illlimit - $borrower->ILLRequests()->Count();
 
 $template->param(
     RemainingRequests => $remainingrequests,
     RequestNumber     => $requestnumber,
     illtype    => $query->param('illtype'),
-    illoptions => $illoptions
+    illtypes   => $config->get_types()
 );
 
 output_html_with_http_headers( $query, $cookie, $template->output );
