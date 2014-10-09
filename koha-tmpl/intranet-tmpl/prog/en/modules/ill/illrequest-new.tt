@@ -132,7 +132,7 @@
                 <fieldset class="rows">
                     <h3>Fields relating to the <em>Title</em> level</h3>
                     <ol>
-                        [% FOREACH field IN illtype.title %]
+                        [% FOREACH field IN illtype.levels.title_fields %]
                         <li>
                             <label for="[% field.key %]">[% field.value.name %]: </label>
                             <input type="text" id="[% field.key %]" name="[% field.key %]"/>
@@ -141,7 +141,7 @@
                     </ol>
                     <h3>Fields relating to the <em>Item</em> level</h3>
                     <ol>
-                        [% FOREACH field IN illtype.item %]
+                        [% FOREACH field IN illtype.levels.item_fields %]
                         <li>
                             <label for="[% field.key %]">[% field.value.name %]</label>
                             <input type="text" name="[% field.key %]"/>
@@ -150,7 +150,7 @@
                     </ol>
                     <h3>Fields relating to the <em>Item Of Interest</em> level</h3>
                     <ol>
-                        [% FOREACH field IN illtype.interest %]
+                        [% FOREACH field IN illtype.levels.item_of_interest_fields %]
                         <li>
                             <label for="[% field.key %]">[% field.value.name %]</label>
                             <input type="text" name="[% field.key %]"/>

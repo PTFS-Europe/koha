@@ -95,6 +95,7 @@ __PAZPAR2_TOGGLE_XML_POST__
  <includes>__INTRANET_TMPL_DIR__/prog/en/includes/</includes>
  <logdir>__LOG_DIR__</logdir>
  <docdir>__DOC_DIR__</docdir>
+ <illconfig>__KOHA_CONF_DIR__/ill/config.yaml</illconfig>
  <backupdir>__BACKUP_DIR__</backupdir>
  <!-- Enable the two following to allow superlibrarians to download
       database and configuration dumps (respectively) from the Export

@@ -1,6 +1,4 @@
 package C4::ILL::Config;
-use strict;
-use warnings;
 
 # Copyright 2013,2014 PTFS Europe Ltd
 #
@@ -19,163 +17,142 @@ use warnings;
 # with Koha; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-use C4::Context;
-our $VERSION = '1.00';
+use Modern::Perl;
+use YAML;
 
-my $_title_fields = {
-                     title => { name => "Title" },
-                     publisher => { name => "Publisher" },
-                     identifier => { name => "ISBN/ISSN/ISMN/Identifier" },
-                     author => { name => "Author" },
-                     editor => { name => "Editor" },
-                     venue => { name => "Venue" },
-                     date => { name => "Date" },
-                     edition => { name => "Edition" },
-                     year => { name => "Year of Publication" },
-                     volume => { name => "Volume" },
-                    };
-my $_item_fields = {
-                    year => { name => "Year" },
-                    season => { name => "Season" },
-                    month => { name => "Month" },
-                    day => { name => "Day" },
-                    volume => { name => "Volume Number" },
-                    part => { name => "Part Number" },
-                    issue => { name => "Issue Number" },
-                    special => { name => "Special Issue" },
-                   };
-my $_item_of_interest_fields = {
-                                title => { name => "Title" },
-                                author => { name => "Author" },
-                                pages => { name => "Pages" },
-                               };
+=head1 NAME
 
-my $_types =
-  {
-   journal_article_copy   => {
-                              name     => "Journal Article",
-                              title    => _tiflds(qw/title publisher identifier/),
-                              item     => _itflds(qw/year season month day volume
-                                                     part issue special/),
-                              interest => _inflds(qw/title author pages/),
-                             },
-   journal_part_loan      => {
-                              name     => "Journal Loan",
-                              title    => _tiflds(qw/title publisher identifier/),
-                              item     => _itflds(qw/year season month day volume
-                                                     part issue special/),
-                              interest => _inflds(),
-                             },
-   newspaper_article_copy => {
-                              name     => "Newspaper Article",
-                              title    => _tiflds(qw/title publisher identifier/),
-                              item     => _itflds(qw/year season month day volume
-                                                     part issue special/),
-                              interest => _inflds(qw/title author pages/),
-                             },
-   conference_paper_copy  => {
-                              name     => "Conference Paper Copy",
-                              title    => _tiflds(qw/title publisher identifier
-                                                     editor venue date/),
-                              item     => _itflds(qw/year season month day volume
-                                                     part issue special/),
-                              interest => _inflds(qw/title author pages/),
-                             },
-   conference_part_loan   => {
-                              name     => "Conference Part Loan",
-                              title    => _tiflds(qw/title publisher identifier
-                                                     editor venue date/),
-                              item     => _itflds(qw/year season month day volume
-                                                     part issue special/),
-                              interest => _inflds(),
-                             },
-   book_copy              => {
-                              name     => "Book",
-                              title    => _tiflds(qw/title publisher identifier
-                                                     author edition year volume/),
-                              item     => _itflds(),
-                              interest => _inflds(qw/title author pages/),
-                             },
-   book_loan              => {
-                              name     => "Book Loan",
-                              title    => _tiflds(qw/title publisher identifier
-                                                     author edition year volume/),
-                              item     => _itflds(),
-                              interest => _inflds(qw/title author pages/),
-                             },
-   musical_score          => {
-                              name     => "Musical Score",
-                              title    => _tiflds(qw/title publisher identifier
-                                                     author edition year/),
-                              item     => _itflds(),
-                              interest => _inflds(),
-                             },
-   default                => {
-                              name     => "Default",
-                              title    => _tiflds(qw/title publisher identifier year
-                                                     volume/),
-                              item     => _itflds(qw/year season month day volume
-                                                     part issue special/),
-                              interest => _inflds(qw/title author pages/),
-                             },
-  };
+C4::ILL::Config - Koha ILL Configuration Object
+
+=head1 SYNOPSIS
+
+Object-oriented class that giving access to the illconfig data derived
+from ill/config.yaml.
+
+=head1 DESCRIPTION
+
+This config object can be used for dynamic form generation, as a data
+structure mapper between external data sourced by API calls or
+alternatively as the source of data when composing API calls.
+
+In particular the config object uses a YAML file, whose path is
+defined by <illconfig> in koha-conf.xml. That YAML file provides the
+data structure exposed in this object.
+
+At present the data structure complies with fields used by the British
+Library Interlibrary Loan DSS API.
+
+=head1 API
+
+=head2 Class Methods
+
+=head3 new
+
+    my $config = C4::ILL::Config->new();
+
+Create a new C4::ILL::Config object, with mapping data loaded from the
+ILL configuration file.
+
+=cut
 
 sub new {
     my $class = shift;
-    my $self  = { };
+    my $self  = _load_config_file(C4::Context->config("illconfig"));
 
     bless $self, $class;
     return $self;
 }
 
+=head3 get_types
+
+    $types = $config->get_types()
+
+Return a reference to a hash mapping ILL map type ids to their human
+friendly name, which can be used in, for instance HTML forms.
+
+=cut
+
 sub get_types {
     my $self = shift;
-    my %_types = %{$_types};
-    my %types;
-    for my $id ( keys %_types ) {
-        $types{$id} = $_types{$id}{name};
+    my $types;
+    for my $id ( keys ${$self}{request_types} ) {
+        ${$types}{$id} = ${$self}{request_types}{$id}{name};
     }
-    return \%types;
+    return $types;
 }
+
+=head3 get_type_details
+
+    $type = $config->get_type_details($type_id)
+
+Return a reference to a hash containing the full contents of the ILL
+map type identified by the string $TYPE_ID.
+
+The hash will contain at least a name -> human-friendly string and a
+levels hash, which maps ids to names for defined fields at the given
+levels.
+
+This mapping is provided by the illconfig file.
+
+If no type of id $TYPE_ID can be found, return undef.
+
+=cut
 
 sub get_type_details {
-    my ($self, $type) = @_;
-    return ($type) ? ${$_types}{$type} : 0;
+    my ($self, $type_id) = @_;
+    return $self->_expand_fields($type_id);
 }
 
-sub new_request_status {
-    my $self = shift;
 
-    return 'NEW';
-}
+=head3 _expand_fields
 
-sub auth_values {
-    return get_type_details(@_);
-}
+    $type = $self->_expand_fields($type_id)
 
-# Internal config helpers
+This is an internal method that should not normally be used outside of
+this file.
 
-sub _select_general_fields {
-    my ( $fields, @ids ) = @_;
-    my %field_set = %{$fields};
-    my %selected_fields;
-    for my $id ( @ids ) {
-        $selected_fields{$id} = $field_set{$id}
-          if ( $field_set{$id} );
+Return a reference to a type hash. The primary logic in this method is
+to expand the fields, which are stored as mere field ids in the Config
+object to their actual field contents, as defined by the respective
+fields in illconfig.
+
+Returns undef if $TYPE_ID does not identify a known ILL type.
+
+=cut
+
+
+sub _expand_fields {
+    my ($self, $type_id) = @_;
+    my $type = ${$self}{request_types}{$type_id};
+
+    if ( $type ) {
+        my $levels = ${$type}{levels};
+        for my $level ( keys $levels ) {
+            my $fields = ${$self}{$level};
+            my $selected_fields = { };
+
+            for my $id ( @{${$levels}{$level}} ) {
+                ${$selected_fields}{$id} = ${$fields}{$id}
+                  if ( ${$fields}{$id} );
+            }
+
+            ${$type}{levels}{$level} = $selected_fields;
+        }
     }
-    return \%selected_fields;
+    return $type;
 }
 
-sub _tiflds {
-    return _select_general_fields($_title_fields, @_);
+sub _load_config_file {
+    my ($config_file) = @_;
+    die "The ill config file (" . $config_file . ") does not exist"
+      if not -e $config_file;
+    return YAML::LoadFile($config_file);
 }
 
-sub _itflds {
-    return _select_general_fields($_item_fields, @_);
-}
+=head1 AUTHOR
 
-sub _inflds {
-    return _select_general_fields($_item_of_interest_fields, @_);
-}
+Alex Sassmannshausen <alex.sassmannshausen@ptfs-europe.com>
+
+=cut
 
 1;

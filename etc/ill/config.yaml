@@ -1,0 +1,263 @@
+# Copyright 2013,2014 PTFS Europe Ltd
+#
+# This file is part of Koha.
+#
+# Koha is free software; you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 3 of the License, or (at your option) any later
+# version.
+#
+# Koha is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+# A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with Koha; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+# This file creates a data structure defining valid item types and
+# their fields for the British Library DSS InterLibrary Loan API.
+#
+# The first section defines fields for the various request field
+# levels. For the BL API, each request can have information at the
+# title, Item and Item of Interest levels.
+#
+# The second section defines the BL DSS API item types, and defines
+# which of the fields defined in the first section are relevant for
+# this item type.
+
+
+# Section 1: Level and Field Definitions
+#
+# The name key provides human-friendly names for the named fields.
+
+title_fields:
+  title:
+    name: Title
+  publisher:
+    name: Publisher
+  identifier:
+    name: ISBN/ISSN/ISMN/Identifier
+  author:
+    name: Author
+  editor:
+    name: Editor
+  venue:
+    name: Venue
+  date:
+    name: Date
+  edition:
+    name: Edition
+  year:
+    name: Year of Publication
+  volume:
+    name: Volume
+
+item_fields:
+  year:
+    name: Year
+  season:
+    name: Season
+  month:
+    name: Month
+  day:
+    name: Day
+  volume:
+    name: Volume Number
+  part:
+    name: Part Number
+  issue:
+    name: Issue Number
+  special:
+    name: Special Issue
+
+item_of_interest_fields:
+  title:
+    name: Title
+  author:
+    name: Author
+  pages:
+    name: Pages
+
+# Section 2: Item Request Type Definitions
+#
+# The name key provides human-friendly names for the item request
+# types.
+# the *_fields hashes identify the fields defined in section 1 to be
+# used in this item request type.
+
+request_types:
+  journal_article_copy:
+    name: Journal Article
+    levels:
+      title_fields:
+        - title
+        - publisher
+        - identifier
+      item_fields:
+        - year
+        - season
+        - month
+        - day
+        - volume
+        - part
+        - issue
+        - special
+      item_of_interest_fields:
+        - title
+        - author
+        - pages
+
+  journal_part_loan:
+    name: Journal Loan
+    levels:
+      title_fields:
+        - title
+        - publisher
+        - identifier
+      item_fields:
+        - year
+        - season
+        - month
+        - day
+        - volume
+        - part
+        - issue
+        - special
+      item_of_interest_fields:
+
+  newspaper_article_copy:
+    name: Newspaper Article
+    levels:
+      title_fields:
+        - title
+        - publisher
+        - identifier
+      item_fields:
+        - year
+        - season
+        - month
+        - day
+        - volume
+        - part
+        - issue
+        - special
+      item_of_interest_fields:
+        - title
+        - author
+        - pages
+
+  conference_paper_copy:
+    name: Conference Paper Copy
+    levels:
+      title_fields:
+        - title
+        - publisher
+        - identifier
+        - editor
+        - venue
+        - date
+      item_fields:
+        - year
+        - season
+        - month
+        - day
+        - volume
+        - part
+        - issue
+        - special
+      item_of_interest_fields:
+        - title
+        - author
+        - pages
+
+  conference_part_loan:
+    name: Conference Part Loan
+    levels:
+      title_fields:
+        - title
+        - publisher
+        - identifier
+        - editor
+        - venue
+        - date
+      item_fields:
+        - year
+        - season
+        - month
+        - day
+        - volume
+        - part
+        - issue
+        - special
+      item_of_interest_fields:
+
+  book_copy:
+    name: Book Copy
+    levels:
+      title_fields:
+        - title
+        - publisher
+        - identifier
+        - author
+        - edition
+        - year
+        - volume
+      item_fields:
+      item_of_interest_fields:
+        - title
+        - author
+        - pages
+
+  book_loan:
+    name: Book Loan
+    levels:
+      title_fields:
+        - title
+        - publisher
+        - identifier
+        - author
+        - edition
+        - year
+        - volume
+      item_fields:
+      item_of_interest_fields:
+        - title
+        - author
+        - pages
+
+  musical_score:
+    name: Musical Score
+    levels:
+      title_fields:
+        - title
+        - publisher
+        - identifier
+        - author
+        - edition
+        - year
+      item_fields:
+      item_of_interest_fields:
+
+  default:
+    name: Default
+    levels:
+      title_fields:
+        - title
+        - publisher
+        - identifier
+        - year
+        - volume
+      item_fields:
+        - year
+        - season
+        - month
+        - day
+        - volume
+        - part
+        - issue
+        - special
+      item_of_interest_fields:
+        - title
+        - author
+        - pages
