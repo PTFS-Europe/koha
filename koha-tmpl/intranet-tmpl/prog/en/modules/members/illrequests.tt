@@ -54,10 +54,48 @@
             [% END %]
         </tbody>
         </table>
+        [% ELSE %]
+        <p>You have no ILL requests.</p>
         [% END %]
 
+        <h2>New ILL Request</h2>
+        <form method="post" action="" id="" name="" autocomplete="off" class="form-horizontal">
+            <fieldset id="illsearchset">
+                <div class="form-group">
+                    <label for="illsearch" class="col-md-2 control-label">Search ILL service providers</label>
+                    <div class="col-md-8">
+                        <input type="text" name="illsearch">
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn">Search</button>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
 
-[% IF ( ILLRequests ) %][% ELSE %]<p>You have no ILL requests.</p>[% END %]
+        [% IF illresults %]
+        <div>
+            <h1>Results of search</h1>
+            <div class="dataTables_wrapper">
+                <table id="ill-results" class="databtable">
+                    <thead>
+                        <tr>
+                            [% FOREACH x IN xs %]
+                            <th>[% x %]</th>
+                            [% END %]
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            [% FOREACH xb IN xbs %]
+                            <td>[% xb %]</td>
+                            [% END %]
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        [% END %]
 
 </div>
 </div>
