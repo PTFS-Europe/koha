@@ -57,7 +57,7 @@
             <!-- Search Results Table -->
             <div ng-show="results">
                 <h1>Results of search</h1>
-                <div class="row" ng-repeat="record in results.apiResponse.result.records">
+                <div class="row" ng-repeat="record in results">
                     {{record.isAvailableImmediateley.text}}
                 </div>
             </div>

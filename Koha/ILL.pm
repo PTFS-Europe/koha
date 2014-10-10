@@ -71,18 +71,21 @@ sub search {
     my $parser = XML::LibXML->new();
     my $doc = $parser->load_xml( { string => $reply } );
 
-    my $response = {};
+    my @return;
     foreach my $record ( $doc->findnodes('/apiResponse/result/records/record') ) {
-        for my $property ( $record->findnodes('./*') ) {
+       my $response = {};
+       for my $property ( $record->findnodes('./*') ) {
             if ( $property->findnodes('*')->size < 1 ) {
-                $response->{"$property->nodeName()"} = $property->textContent();
-            } else {
-                $response->{"metadata"}->{"$property->nodeName()"} = $property->textContent();
+                $response->{$property->nodeName()} = $property->textContent();
             }
-        }
+       }
+       for my $metadata ( $record->findnodes('./metadata/*') ) {
+           $response->{"metadata"}->{$metadata->nodeName()} = $metadata->textContent();
+       }
+       push (@return, $response);
     }
 
-    return $response;
+    return \@return;
 }
 
 #
