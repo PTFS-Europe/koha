@@ -48,12 +48,22 @@ my $bldss = Koha::ILL->new($service);
 sub new {
     my ( $class, $service ) = @_;
     my $self = {};
+    $self->config = {}; #
 
     bless( $self, $class );
     return $self;
 }
-#
+
 # Config, returns config hashref (and allows manipulation of config if passed)
+=head3 config
+
+=cut
+
+sub config {
+    my ( $self ) = @_;
+
+    return $self->config;
+}
 
 # Search, Searches using API
 =head3 search
@@ -88,9 +98,27 @@ sub search {
     return \@return;
 }
 
-#
 # Request, Submits request using API
-#
+=head3 request
+
+=cut
+
+sub request {
+    my ($self, $request) = @_;
+
+    return 1;
+}
+
 # Status, Get status update using API
+=head3 status
+
+=cut
+
+sub status {
+    my $self = shift;
+    my $status;
+
+    return $status;
+}
 
 1;
