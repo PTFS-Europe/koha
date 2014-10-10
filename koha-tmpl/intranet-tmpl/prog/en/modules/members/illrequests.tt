@@ -1,26 +1,10 @@
 [% INCLUDE 'doc-head-open.inc' %]
 <title>ILL Requests for [% INCLUDE 'patron-title.inc' %]</title>
 [% INCLUDE 'doc-head-close.inc' %]
-<script type="text/javascript" src="[% themelang %]/lib/jquery/plugins/jquery.tablesorter.min.js"></script>
-<script type="text/javascript" language="javascript">
-//<![CDATA[
-
-    function illButton() {
-        new YAHOO.widget.Button("newillrequest");
-    }
-
-    $(document).ready(function() {
-    $("#noticestable").tablesorter({
-        [% IF ( dateformat == 'metric' ) %]
-        dateFormat: 'uk'
-        [% END %]
-    });
-    illButton();
-
-    });
-//]]>
-</script>
 <script src="[% interface %]/lib/angular/angular.min.js"></script>
+<script src="[% interface %]/lib/angular/angular-datatables.min.js"></script>
+<script src="[% interface %]/prog/[% lang %]/js/pages/ill.js"></script>
+<link rel="[% interface %]/prog/[% lang %]/css/datatables.bootstrap.min.css" rel="stylesheet">
 </head>
 <body id="pat_notices" class="pat">
 [% INCLUDE 'header.inc' %]
@@ -59,44 +43,26 @@
         <p>You have no ILL requests.</p>
         [% END %]
 
-        <h2>New ILL Request</h2>
-        <form method="post" action="" id="" name="" autocomplete="off" class="form-horizontal">
-            <fieldset id="illsearchset">
-                <div class="form-group">
-                    <label for="illsearch" class="col-md-2 control-label">Search ILL service providers</label>
-                    <div class="col-md-8">
-                        <input type="text" name="illsearch">
+        <div id="add_illrequest" ng-controller="searchController">
+            <h2>New ILL Request</h2>
+            <form ng-submit="submit()">
+                <fieldset>
+                    <div class="form-group">
+                        <input class="form-control" type="text" placeholder="Search ILL service providers..." name="illsearch" ng-model="query" autocomplete="off">
+                        <input type="submit" id="submit" value="Search" class="btn">
                     </div>
-                    <div class="col-md-2">
-                        <button type="submit" class="btn">Search</button>
-                    </div>
-                </div>
-            </fieldset>
-        </form>
+                </fieldset>
+            </form>
 
-        [% IF illresults %]
-        <div>
-            <h1>Results of search</h1>
-            <div class="dataTables_wrapper">
-                <table id="ill-results" class="databtable">
-                    <thead>
-                        <tr>
-                            [% FOREACH x IN xs %]
-                            <th>[% x %]</th>
-                            [% END %]
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            [% FOREACH xb IN xbs %]
-                            <td>[% xb %]</td>
-                            [% END %]
-                        </tr>
-                    </tbody>
-                </table>
+            <!-- Search Results Table -->
+            <div ng-show="results">
+                <h1>Results of search</h1>
+                <div class="row" ng-repeat="record in results.apiResponse.result.records">
+                    {{record.isAvailableImmediateley.text}}
+                </div>
             </div>
+            <!-- /results -->
         </div>
-        [% END %]
 
 </div>
 </div>

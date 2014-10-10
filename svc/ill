@@ -1,0 +1,49 @@
+#!/usr/bin/perl
+
+# Copyright 2014 PTFS Europe
+#
+# This file is part of Koha.
+#
+# Koha is free software; you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 3 of the License, or (at your option) any later
+# version.
+#
+# Koha is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+# A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with Koha; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+use Modern::Perl;
+
+use CGI;
+use JSON qw(to_json);
+
+use Koha::ILL;
+use C4::Auth qw(check_cookie_auth);
+
+my $input = new CGI;
+
+my ( $auth_status, $sessionID ) =
+  check_cookie_auth( $input->cookie('CGISESSID'),
+    { circulate => 'circulate_remaining_permissions' } );
+
+if ( $auth_status ne "ok" ) {
+    exit 0;
+}
+
+binmode STDOUT, ":encoding(UTF-8)";
+print $input->header( -type => 'text/plain', -charset => 'UTF-8' );
+
+my $reply;
+
+my $query          = $input->param('query');
+if ( $query ) {
+    my $bldss = Koha::ILL->new();
+    $reply = $bldss->search($query);
+}
+
+print to_json($reply);
