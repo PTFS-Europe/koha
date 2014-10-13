@@ -22,6 +22,8 @@ use Carp;
 
 use BLDSS;
 use XML::LibXML;
+use Koha::ILL::Config;
+use Koha::ILL::Record;
 use Data::Dumper;
 
 =head1 NAME
@@ -48,9 +50,10 @@ my $bldss = Koha::ILL->new($service);
 sub new {
     my ( $class, $service ) = @_;
     my $self = {};
-    $self->config = {}; #
+    ${$self}{config} = Koha::ILL::Config->new();
 
     bless( $self, $class );
+
     return $self;
 }
 
@@ -62,7 +65,7 @@ sub new {
 sub config {
     my ( $self ) = @_;
 
-    return $self->config;
+    return ${$self}{config};
 }
 
 # Search, Searches using API
@@ -82,17 +85,9 @@ sub search {
     my $doc = $parser->load_xml( { string => $reply } );
 
     my @return;
-    foreach my $record ( $doc->findnodes('/apiResponse/result/records/record') ) {
-       my $response = {};
-       for my $property ( $record->findnodes('./*') ) {
-            if ( $property->findnodes('*')->size < 1 ) {
-                $response->{$property->nodeName()} = $property->textContent();
-            }
-       }
-       for my $metadata ( $record->findnodes('./metadata/*') ) {
-           $response->{"metadata"}->{$metadata->nodeName()} = $metadata->textContent();
-       }
-       push (@return, $response);
+    foreach my $record_data ( $doc->findnodes('/apiResponse/result/records/record') ) {
+        my $record = Koha::ILL::Record->new($self->config, $record_data);
+        push (@return, $record);
     }
 
     return \@return;

@@ -25,7 +25,7 @@ use CGI;
 use Koha::Borrowers;
 use C4::Members qw( GetPatronImage );
 use C4::Members::Attributes qw(GetBorrowerAttributes);
-use C4::ILL::Config;
+use Koha::ILL;
 
 my $input = CGI->new();
 
@@ -45,9 +45,6 @@ my ( $template, $loggedinuser, $cookie ) = get_template_and_user(
 # Get borrower Object
 my $borrower    = Koha::Borrowers->new()->Find( $borrowernumber );
 
-# Get ILL Config object
-my $config = C4::ILL::Config->new();
-
 # Setup normal template params for members pages - This really should be factored out somewhere!
 $template->param( borrower => $borrower );
 
@@ -64,6 +61,19 @@ if ( C4::Context->preference('ExtendedPatronAttributes') ) {
     );
 }
 
+# For now, to test functionality of the Config/Record modules.
+#
+# You can uncomment this and simply dump the results of the method
+# calls in the foreach loop to play with the Config/Record
+# configuration in $koha-env/etc/ill/config.yaml.
+#
+# my $ill = Koha::ILL->new();
+# my $results = $ill->search("james joyce");
+# foreach my $rec ( @{$results} ) {
+#     $rec->getTitle();
+#     $rec->getSummary();
+# }
+
 # ILL Requests Tab specifics
 
 # Get all request objects for user
@@ -72,7 +82,6 @@ my @requests = $borrower->ILLRequests();
 $template->param(
     illrequests    => \@requests,
     borrowernumber => $borrowernumber,
-    illtypes       => $config->get_types(),
     ill            => 1,
 );
 output_html_with_http_headers( $input, $cookie, $template->output );

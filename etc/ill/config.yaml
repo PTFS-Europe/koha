@@ -26,238 +26,126 @@
 # which of the fields defined in the first section are relevant for
 # this item type.
 
-
-# Section 1: Level and Field Definitions
+# The 'record' data structure provides an overview of the xml records
+# we are interested in receiving.  This structure is an abstract
+# representation of the XML we receive from the API at the individual
+# record level of the search results.
 #
-# The name key provides human-friendly names for the named fields.
+# Each indentation followed by the keywords 'go: true' reflect a level
+# of nesting in the XML.  Each indentation followed by any other
+# keywords is a value we're interested in storing in the database.
 
-title_fields:
-  title:
-    name: Title
-  publisher:
-    name: Publisher
-  identifier:
-    name: ISBN/ISSN/ISMN/Identifier
-  author:
-    name: Author
-  editor:
-    name: Editor
-  venue:
-    name: Venue
-  date:
-    name: Date
-  edition:
-    name: Edition
-  year:
-    name: Year of Publication
-  volume:
-    name: Volume
+# FIXME: Name: Human-readable name: currently not used. Perhaps remove
+# the property?
+record:
+  uin:
+    name: British Library Identifier
+  type:
+    name: Material Type
+  isAvailableImmediateley:
+    name: Available now?
+  metadata:
+    go: true
+    titleLevel:
+      go: true
+      title:
+        name: Title
+      author:
+        name: Author
+      identifier:
+        name: Identifier
+      publisher:
+        name: Publisher
+      issn:
+        name: ISSN
+      isbn:
+        name: ISBN
+      ismn:
+        name: ISMN
+      shelfmark:
+        name: Shelfmark
+      conferenceVenue:
+        name: Conference Venue
+      conferenceDate:
+        name: Conference Date
+      thesisUniversity:
+        name: Thesis University
+      thesisDissertation:
+        name: Thesis Dissertation
+      mapScale:
+        name: Map Scale
+    itemLevel:
+      go: true
+      year:
+        name: Year
+      volume:
+        name: Volume Number
+      issue:
+        name: Issue Number
+      part:
+        name: Part Number
+      edition:
+        name: Edition
+      season:
+        name: Season
+      month:
+        name: Month
+      day:
+        name: Day
+      specialIssue:
+        name: Special Issue
+    itemOfInterestLevel:
+      go: true
+      title:
+        name: Title
+      author:
+        name: Author
+      pages:
+        name: Pages
 
-item_fields:
-  year:
-    name: Year
-  season:
-    name: Season
-  month:
-    name: Month
-  day:
-    name: Day
-  volume:
-    name: Volume Number
-  part:
-    name: Part Number
-  issue:
-    name: Issue Number
-  special:
-    name: Special Issue
-
-item_of_interest_fields:
-  title:
-    name: Title
-  author:
-    name: Author
-  pages:
-    name: Pages
-
-# Section 2: Item Request Type Definitions
+# Method_maps defines what fields should be returned for each record
+# received from the ILL API.  For each method name (e.g. getTitle),
+# each word in the list specifies a level in the XML document to be
+# traversed. For instance,
+# getTitle:
+#   - metadata
+#   - titleLevel
+#   - title
+# tells the ILL module to look in 'record/metadata/titleLevel/title'
+# for the title value in this record.
 #
-# The name key provides human-friendly names for the item request
-# types.
-# the *_fields hashes identify the fields defined in section 1 to be
-# used in this item request type.
+# getSummary is an exception. It's a 'meta-method' as such, you can
+# specify names of other methods that you would like to use to build
+# your result object (an array, with values within in the order of the
+# methods specified).
+#
+# FIXME: problematic: no guarantee we have n values returned, or
+# consistency in returns vis-a-vis OPAC implementation.
+method_maps:
+  getTitle:
+    - metadata
+    - titleLevel
+    - title
 
-request_types:
-  journal_article_copy:
-    name: Journal Article
-    levels:
-      title_fields:
-        - title
-        - publisher
-        - identifier
-      item_fields:
-        - year
-        - season
-        - month
-        - day
-        - volume
-        - part
-        - issue
-        - special
-      item_of_interest_fields:
-        - title
-        - author
-        - pages
+  getAuthor:
+    - metadata
+    - titleLevel
+    - author
 
-  journal_part_loan:
-    name: Journal Loan
-    levels:
-      title_fields:
-        - title
-        - publisher
-        - identifier
-      item_fields:
-        - year
-        - season
-        - month
-        - day
-        - volume
-        - part
-        - issue
-        - special
-      item_of_interest_fields:
+  getIdentifier:
+    - metadata
+    - titleLevel
+    - identifier
 
-  newspaper_article_copy:
-    name: Newspaper Article
-    levels:
-      title_fields:
-        - title
-        - publisher
-        - identifier
-      item_fields:
-        - year
-        - season
-        - month
-        - day
-        - volume
-        - part
-        - issue
-        - special
-      item_of_interest_fields:
-        - title
-        - author
-        - pages
+  getID:
+    - uin
 
-  conference_paper_copy:
-    name: Conference Paper Copy
-    levels:
-      title_fields:
-        - title
-        - publisher
-        - identifier
-        - editor
-        - venue
-        - date
-      item_fields:
-        - year
-        - season
-        - month
-        - day
-        - volume
-        - part
-        - issue
-        - special
-      item_of_interest_fields:
-        - title
-        - author
-        - pages
+  getType:
+    - type
 
-  conference_part_loan:
-    name: Conference Part Loan
-    levels:
-      title_fields:
-        - title
-        - publisher
-        - identifier
-        - editor
-        - venue
-        - date
-      item_fields:
-        - year
-        - season
-        - month
-        - day
-        - volume
-        - part
-        - issue
-        - special
-      item_of_interest_fields:
-
-  book_copy:
-    name: Book Copy
-    levels:
-      title_fields:
-        - title
-        - publisher
-        - identifier
-        - author
-        - edition
-        - year
-        - volume
-      item_fields:
-      item_of_interest_fields:
-        - title
-        - author
-        - pages
-
-  book_loan:
-    name: Book Loan
-    levels:
-      title_fields:
-        - title
-        - publisher
-        - identifier
-        - author
-        - edition
-        - year
-        - volume
-      item_fields:
-      item_of_interest_fields:
-        - title
-        - author
-        - pages
-
-  musical_score:
-    name: Musical Score
-    levels:
-      title_fields:
-        - title
-        - publisher
-        - identifier
-        - author
-        - edition
-        - year
-      item_fields:
-      item_of_interest_fields:
-
-  default:
-    name: Default
-    levels:
-      title_fields:
-        - title
-        - publisher
-        - identifier
-        - year
-        - volume
-      item_fields:
-        - year
-        - season
-        - month
-        - day
-        - volume
-        - part
-        - issue
-        - special
-      item_of_interest_fields:
-        - title
-        - author
-        - pages
+  getSummary:
+    - getID
+    - getTitle
+    - getAuthor
+    - getType
+    - getIdentifier

@@ -25,7 +25,6 @@ use C4::Output;
 use C4::Search qw(GetDistinctValues);
 use C4::ILL qw( GetAllILL);
 use C4::Context;
-use C4::ILL::Config;
 
 my $input = CGI->new;
 my $request_type;
@@ -44,10 +43,6 @@ my ( $template, $borrowernumber, $cookie ) = get_template_and_user(
         flagsrequired => { ill => 1 },
     }
 );
-
-my $config = C4::ILL::Config->new();
-
-#my $fullstatus = $config->auth_values('ILLSTATUS');
 
 #my $currentstatusloop = GetDistinctValues('illrequest.status');
 $template->param( allillrequests => GetAllILL($request_type) );

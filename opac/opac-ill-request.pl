@@ -27,7 +27,6 @@ use C4::Context;
 use C4::Koha;
 use C4::Output;
 use C4::ILL qw( LogILLRequest ILLBorrowerRequests );
-use C4::ILL::Config;
 
 use Koha::Borrowers;
 
@@ -52,16 +51,13 @@ if ( $query->param('request_type') ) {
 # Get borrower Object
 my $borrower    = Koha::Borrowers->new()->Find( $borrowernumber );
 
-# Get ILL Config object
-my $config = C4::ILL::Config->new();
-
 my $remainingrequests = $borrower->Category()->illlimit - $borrower->ILLRequests()->Count();
 
 $template->param(
     RemainingRequests => $remainingrequests,
     RequestNumber     => $requestnumber,
     illtype    => $query->param('illtype'),
-    illtypes   => $config->get_types()
+    illtypes   => 'no longer used?'
 );
 
 output_html_with_http_headers( $query, $cookie, $template->output );
