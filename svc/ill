@@ -43,7 +43,10 @@ my $reply;
 my $query          = $input->param('query');
 if ( $query ) {
     my $bldss = Koha::ILL->new();
-    $reply = $bldss->search($query);
+    my $results = $bldss->search($query);
+    foreach my $rec ( @{$results} ) {
+        push @{$reply}, { title => $rec->getTitle(), author => $rec->getAuthor(), id => $rec->getID() };
+    }
 }
 
 print to_json($reply);

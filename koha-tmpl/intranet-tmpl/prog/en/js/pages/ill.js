@@ -9,6 +9,12 @@
                 console.log(reply);
             });
         };
+
+        $scope.request = function(requestID) {
+            console.log(requestID);
+
+        };
+
     } ]);
 
 })();
