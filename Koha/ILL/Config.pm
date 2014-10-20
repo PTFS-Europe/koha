@@ -60,7 +60,7 @@ sub new {
     my $class = shift;
     my $self  = _load_config_file(C4::Context->config("illconfig"));
     bless $self, $class;
-    $self->derive_record_properties();
+    $self->_derive_record_properties();
     return $self;
 }
 
@@ -69,19 +69,37 @@ sub get_types {
     return { no_longer_used => "Ignore" };
 }
 
-# Translate config file data structure into ILL module friendly
-# hashref, without losing data required to traverse XML response.
-sub derive_record_properties {
+=head3 _derive_record_properties
+
+    $self->_derive_record_properties();
+
+Translate config file data structure into ILL module friendly hashref,
+without losing data required to traverse XML response.
+
+=cut
+
+sub _derive_record_properties {
     my ($self) = @_;
-    return $self->next_level(${$self}{record});
+    return $self->_next_level(${$self}{record});
 }
 
-sub next_level {
+=head3 _next_level
+
+    $self->_next_level(TODO, PREFIX);
+
+Provide means for _derive_record_properties to recursively process the
+config data structure.  TODO is the next level of the recursive
+structure; PREFIX the next part of the name to prepend for the key in
+the final hash.
+
+=cut
+
+sub _next_level {
     my ($self, $todo, @prefix) = @_;
     foreach my $id ( keys $todo ) {
         if ( $id eq 'go') {
         } elsif ( ${$todo}{$id}{go} ) {
-            $self->next_level(${$todo}{$id}, @prefix , $id);
+            $self->_next_level(${$todo}{$id}, @prefix , $id);
         } else {
             ${$self}{record_properties}{join("_", @prefix , $id)}
               = ${$todo}{$id};
@@ -91,19 +109,29 @@ sub next_level {
 }
 # End translation.
 
-# Accessor for our record_properties translation.
+=head3 record_properties
+
+    $properties = $config->record_properties();
+
+Return the record_properties, a data structure derived from parsing
+the ILL yaml config.
+
+=cut
+
 sub record_properties {
     my $self = shift;
     return ${$self}{record_properties};
 }
 
-# Accessor for our Record Method mappings.
-sub method_maps {
-    my $self = shift;
-    return ${$self}{method_maps};
-}
+=head3 _load_config_file
 
-# Load the yaml config file.
+    _load_config_file(FILENAME);
+
+Return a hashref, the result of loading FILENAME using the YAML
+loader, or raise an error.
+
+=cut
+
 sub _load_config_file {
     my ($config_file) = @_;
     die "The ill config file (" . $config_file . ") does not exist"

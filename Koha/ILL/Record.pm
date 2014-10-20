@@ -18,7 +18,6 @@ package Koha::ILL::Record;
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 use Modern::Perl;
-use YAML;
 
 =head1 NAME
 
@@ -46,91 +45,123 @@ ill/config.yaml.
 
 Create a new Koha::ILL::Record object, with mapping data loaded from
 the ILL configuration file loaded as $CONFIG, and data content derived
-from $XML.
+from the API's $XML response.
 
 =cut
 
-# Constructor.
 sub new {
     my ($class, $config, $xml) = @_;
     my $self = {
                 properties  => $config->record_properties(),
-                method_maps => $config->method_maps(),
                 xml         => $xml,
+                data        => {},
+                accessors   => {},
                };
 
     bless $self, $class;
-    $self->_make();             # transform XML to data structure.
+    $self->_make();             # populate data, accessors.
     return $self;
 }
 
-# Traverse xml, storing each data point defined in config's
-# properties' structure.
+=head3 _make
+
+    $self->_make();
+
+Internal helper: traverse xml, storing each data point defined in
+config's properties' structure; build list of accessors -> data point
+mappings.
+
+=cut
+
 sub _make {
     my $self = shift;
+    # for each property defined in the API's config...
     foreach my $field ( keys ${$self}{properties} ) {
-        ${$self}{data}{$field}
-          = ${$self}{xml}->findvalue('./' . join("/",split(/_/, $field)));
+        # populate data if desired.
+        my $xpath = './' . join("/",split(/_/, $field));
+        ${$self}{data}{$field} =
+          {
+           value      => ${$self}{xml}->findvalue($xpath),
+           name       => ${$self}{properties}{$field}{name},
+           inSummary  => ${$self}{properties}{$field}{inSummary},
+          };
+        # populate accessor if desired.
+        my $accessor = ${$self}{properties}{$field}{accessor};
+        if ($accessor) {
+            ${$self}{accessors}{$accessor} = ${$self}{data}{$field}{value};
+        }
     }
 }
 
-# Helper to retrieve externally configured xml values.
-sub _getterMaker {
-    my ($self, $id) = @_;
-    my $path = join("_", @{${$self}{method_maps}{$id}});
+=head3 getSummary
+
+    $rec->getSummary();
+
+Return a hashref mapping config human names for fields to their
+values, if the fields have been defined as 'inSummary' by the yaml
+config.
+
+=cut
+
+sub getSummary {
+    my $self = shift;
+    my %summary;
+    foreach my $datum ( keys ${$self}{data} ) {
+        my $summarize = ${$self}{data}{$datum}{inSummary};
+        my $name = ${$self}{data}{$datum}{name};
+        if ($summarize and $name) {
+            $summary{$name} = ${$self}{data}{$datum}{value};
+        }
+    }
+    return \%summary;
+}
+
+=head3 getFullDetails
+
+    $rec->getFullDetails();
+
+Return a hashref mapping config human names for fields to their
+values, if the fields have been defined by the yaml config.
+
+=cut
+
+sub getFullDetails {
+    my $self = shift;
+    my %details;
+    foreach my $datum ( keys ${$self}{data} ) {
+        my $name = ${$self}{data}{$datum}{name};
+        if ($name) {
+            $details{$name} = ${$self}{data}{$datum}{value};
+        }
+    }
+    return \%details;
+}
+
+=head3 getProperty
+
+    $rec->getPoperty(ID);
+
+Return the value of the field identified by the `accessor id' ID,
+defined in config.yaml.  If ID does not map to a field, return a
+warning message.
+
+=cut
+
+sub getProperty {
+    my ($self, $accessor) = @_;
     my $result;
-    if (defined ${$self}{data}{$path}) {
-        $result = ${$self}{data}{$path};
+    if (defined ${$self}{accessors}{$accessor}) {
+        $result = ${$self}{accessors}{$accessor};
     } else {
-        $result = "Path defined by " . $id . " in config unknown.";
+        $result = "Accessor '" . $accessor . "' not defined in config.";
     }
     return $result;
 }
 
-# Accessors / Getters
-sub getTitle {
-    my $self = shift;
-    return $self->_getterMaker('getTitle');
-}
+=head1 AUTHOR
 
-sub getAuthor {
-    my $self = shift;
-    return $self->_getterMaker('getAuthor');
-}
+Alex Sassmannshausen <alex.sassmannshausen@ptfs-europe.com>
 
-sub getType {
-    my $self = shift;
-    return $self->_getterMaker('getType');
-}
-
-sub getIdentifier {
-    my $self = shift;
-    return $self->_getterMaker('getIdentifier');
-}
-
-sub getID {
-    my $self = shift;
-    return $self->_getterMaker('getID');
-}
-
-# meta-getter. $allowed defines the procedures which are allowed to be
-# specified in the config file.
-sub getSummary {
-    my $self = shift;
-    my @subs = @{${$self}{method_maps}{getSummary}};
-    my $allowed = {
-                   getID         => 1,
-                   getTitle      => 1,
-                   getAuthor     => 1,
-                   getType       => 1,
-                   getIdentifier => 1,
-                  };
-    my @results;
-    foreach my $sub ( @subs ) {
-        push(@results, $self->$sub())
-          if (exists ${$allowed}{$sub});
-    }
-    return @results;
-}
+=cut
 
 1;

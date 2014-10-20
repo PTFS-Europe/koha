@@ -30,36 +30,59 @@
 # we are interested in receiving.  This structure is an abstract
 # representation of the XML we receive from the API at the individual
 # record level of the search results.
-#
-# Each indentation followed by the keywords 'go: true' reflect a level
-# of nesting in the XML.  Each indentation followed by any other
-# keywords is a value we're interested in storing in the database.
 
-# FIXME: Name: Human-readable name: currently not used. Perhaps remove
-# the property?
+# The semantics of our abstract representation are as follows:
+# - The top level is always called 'record' — we are working at the
+#   record level in a set of results returned by an API.
+# - Each element we want to refer to in the API's record response
+#   should be a key at record's next level of indentation.
+# - We recognise 4 keywords to 'mark-up' our representation;
+#   + name: a human readable value for the field. This is used, for
+#     instance, for rendering the field's value on webpages. Any
+#     fields that have a 'name' keyword are returned as part of the
+#     'getFullDetails' method of ILL Records.
+#   + inSummary: if used for a field, then this field will be one of
+#     the fields returned by the 'getSummary' method of ILL Records.
+#   + accessor: if defined, this is the id that can be used in the
+#     'getProperty' method of ILL Records.
+#   + go: if go is defined then our ILL parser will ignore this field
+#     level, and instead process each child of this level.
+#
+# Remember: to simply not work with given fields returned by the API's
+# response it suffices to not define those fields in the abstract
+# representation at all.
+
 record:
   uin:
     name: British Library Identifier
+    inSummary: True
+    accessor: title
   type:
     name: Material Type
+    inSummary: True
   isAvailableImmediateley:
     name: Available now?
   metadata:
-    go: true
+    go: True
     titleLevel:
-      go: true
+      go: True
       title:
         name: Title
+        inSummary: True
       author:
         name: Author
+        inSummary: True
       identifier:
         name: Identifier
       publisher:
         name: Publisher
+        inSummary: True
       issn:
         name: ISSN
+        inSummary: True
       isbn:
         name: ISBN
+        inSummary: True
       ismn:
         name: ISMN
       shelfmark:
@@ -75,9 +98,10 @@ record:
       mapScale:
         name: Map Scale
     itemLevel:
-      go: true
+      go: True
       year:
         name: Year
+        inSummary: True
       volume:
         name: Volume Number
       issue:
@@ -86,6 +110,7 @@ record:
         name: Part Number
       edition:
         name: Edition
+        inSummary: True
       season:
         name: Season
       month:
@@ -95,57 +120,10 @@ record:
       specialIssue:
         name: Special Issue
     itemOfInterestLevel:
-      go: true
+      go: True
       title:
         name: Title
       author:
         name: Author
       pages:
         name: Pages
-
-# Method_maps defines what fields should be returned for each record
-# received from the ILL API.  For each method name (e.g. getTitle),
-# each word in the list specifies a level in the XML document to be
-# traversed. For instance,
-# getTitle:
-#   - metadata
-#   - titleLevel
-#   - title
-# tells the ILL module to look in 'record/metadata/titleLevel/title'
-# for the title value in this record.
-#
-# getSummary is an exception. It's a 'meta-method' as such, you can
-# specify names of other methods that you would like to use to build
-# your result object (an array, with values within in the order of the
-# methods specified).
-#
-# FIXME: problematic: no guarantee we have n values returned, or
-# consistency in returns vis-a-vis OPAC implementation.
-method_maps:
-  getTitle:
-    - metadata
-    - titleLevel
-    - title
-
-  getAuthor:
-    - metadata
-    - titleLevel
-    - author
-
-  getIdentifier:
-    - metadata
-    - titleLevel
-    - identifier
-
-  getID:
-    - uin
-
-  getType:
-    - type
-
-  getSummary:
-    - getID
-    - getTitle
-    - getAuthor
-    - getType
-    - getIdentifier
