@@ -19,34 +19,5 @@
 
 use Modern::Perl;
 
-use CGI;
-use JSON qw(to_json);
-
-use Koha::ILL;
-use C4::Auth qw(check_cookie_auth);
-
-my $input = new CGI;
-
-my ( $auth_status, $sessionID ) =
-  check_cookie_auth( $input->cookie('CGISESSID'),
-    { circulate => 'circulate_remaining_permissions' } );
-
-if ( $auth_status ne "ok" ) {
-    exit 0;
-}
-
-binmode STDOUT, ":encoding(UTF-8)";
-print $input->header( -type => 'text/plain', -charset => 'UTF-8' );
-
-my $reply;
-
-my $query          = $input->param('query');
-if ( $query ) {
-    my $bldss = Koha::ILL->new();
-    my $results = $bldss->search($query);
-    foreach my $rec ( @{$results} ) {
-        push @{$reply}, { title => $rec->getTitle(), author => $rec->getAuthor(), id => $rec->getID() };
-    }
-}
-
-print to_json($reply);
+use Koha::Service::ILL;
+Koha::Service::ILL->new->run;
