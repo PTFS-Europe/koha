@@ -220,7 +220,7 @@ sub output {
     };
 
     if ( $options->{type} eq 'json' ) {
-        $response = JSON->new->convert_blessed->encode($response);
+        $response = JSON->new->allow_blessed(1)->convert_blessed(1)->encode($response);
 
         if ( $self->query->param( 'callback' ) ) {
             $response = $self->query->param( 'callback' ) . '(' . $response . ');';

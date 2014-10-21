@@ -23,7 +23,11 @@ use Modern::Perl;
 
 use base 'Koha::Service';
 
+use Koha::Borrowers;
+use Koha::Borrower::ILLRequest;
 use Koha::ILL;
+
+use JSON;
 
 sub new {
     my ( $class ) = @_;
@@ -32,7 +36,8 @@ sub new {
         needed_flags => { },
         routes => [
             [ qr'GET /', 'search' ],
-            [ qr'POST /', 'request' ],
+            [ qr'POST /', 'record' ],
+            [ qr'PUT /(\d+)', 'update' ],
         ]
     } );
 }
@@ -40,24 +45,62 @@ sub new {
 sub search {
     my ( $self ) = @_;
 
-    my $query = $self->query->param('query');
-    my $reply = [];
+    if ( $self->query->param('query') ) {
+        my $query = $self->query->param('query');
+        my $reply = [];
 
-    my $bldss = Koha::ILL->new();
-    my $results = $bldss->search($query);
-    foreach my $rec ( @{$results} ) {
-        push @{$reply}, { "title" => $rec->getTitle(), "author" => $rec->getAuthor(), "id" => $rec->getID() };
+        my $bldss = Koha::ILL->new();
+        my $results = $bldss->search($query);
+        foreach my $rec ( @{$results} ) {
+            push @{$reply}, { "title" => $rec->getTitle(), "author" => $rec->getAuthor(), "id" => $rec->getID() };
+        }
+
+        $self->output( $reply, { status => '200 OK', type => 'json' } );
     }
+    elsif ( $self->query->param('borrowernumber') ) {
+        my $borrowernumber = $self->query->param('borrowernumber');
+        my $borrower    = Koha::Borrowers->new()->Find( $borrowernumber );
 
-    $self->output( $reply, { status => '200 OK', type => 'json' } );
+        my $requests = $borrower->ILLRequests();
+        if ( $requests ) {
+            $self->output( $requests, { status => '200 OK', type => 'json' } );
+        } else {
+            $self->output( { data => 'None found' }, { status => '200 OK', type => 'json' } );
+        }
+    }
+    else {
+        $self->output();
+    }
     return;
 }
 
-sub request {
+sub record {
     my ( $self ) = @_;
 
     my $result = {};
     my $postdata = $self->query->param('POSTDATA');
+    $postdata =
+
+    my $illrequest = Koha::Borrower::ILLRequest->new('');
+    return;
+}
+
+sub retrieve {
+    my ( $self ) = @_;
+
+    return;
+}
+
+sub update {
+    my ( $self ) = @_;
+
+    return;
+}
+
+sub delete {
+    my ( $self ) = @_;
+
+    return;
 }
 
 1;

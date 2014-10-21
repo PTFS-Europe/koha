@@ -5,71 +5,71 @@
 <script src="[% interface %]/prog/[% lang %]/js/pages/ill.js"></script>
 </head>
 <body id="pat_notices" class="pat">
-[% INCLUDE 'header.inc' %]
-[% INCLUDE 'patron-search.inc' %]
+    [% INCLUDE 'header.inc' %]
+    [% INCLUDE 'patron-search.inc' %]
 
-<div id="breadcrumbs"><a href="/cgi-bin/koha/mainpage.pl">Home</a> &rsaquo; <a href="/cgi-bin/koha/members/members-home.pl">Patrons</a>  &rsaquo; ILL Requests for [% INCLUDE 'patron-title.inc' %]</div>
+    <div id="breadcrumbs"><a href="/cgi-bin/koha/mainpage.pl">Home</a> &rsaquo; <a href="/cgi-bin/koha/members/members-home.pl">Patrons</a>  &rsaquo; ILL Requests for [% INCLUDE 'patron-title.inc' %]</div>
 
-<div id="doc3" class="yui-t2" ng-app="ill">
-    <div id="bd">
-    <div id="yui-main">
-    <div class="yui-b">
-[% INCLUDE 'members-toolbar.inc' tab='ill'  %]
-<h1>ILL Requests for [% INCLUDE 'patron-title.inc' %]</h1>
+    <div id="doc3" class="yui-t2" ng-app="ill">
+        <div id="bd">
+            <div id="yui-main">
+                <div class="yui-b">
+                    [% INCLUDE 'members-toolbar.inc' tab='ill'  %]
+                    <div id="illcontainer" ng-controller="requestController">
+                        <h1>ILL Requests for [% INCLUDE 'patron-title.inc' %]</h1>
 
-        [% IF ILLRequests %]
-        <table class="historyt">
-        <thead>
-            <tr><th>Request No.</th><th>Date</th><th>Item</th><th>Status</th></tr>
-        </thead>
-        <tbody>
-            [% FOREACH req IN ILLRequests %]
-            <tr>
-            <td>[% req.requestnumber %]</td>
-            <td>[% req.date_placed %]</td>
-            [% IF req.biblionumber %]
-            <td><a href="/cgi-bin/koha/opac-detail.pl?biblionumber=[% req.biblionumber %]" target="_blank">[% req.ref %]</a></td>
-            [% ELSE %]
-            <td>[% req.ref %]</td>
-            [% END %]
-            <td>[% req.status %]</td>
-            </tr>
-            [% END %]
-        </tbody>
-        </table>
-        [% ELSE %]
-        <p>You have no ILL requests.</p>
-        [% END %]
+                        <!-- Existing ILL Requests -->
+                        <table class="historyt" ng-show="requests.length > 0">
+                            <thead>
+                                <tr><th>Request No.</th><th>Date</th><th>Title</th><th>Status</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="request in requests" ng-class-odd="'odd'" ng-class-even="'even'">
+                                    <td>{{ request.requestnumber }}</td>
+                                    <td>{{ request.date_placed }}</td>
+                                    <!--
+                                    <td>
+                                        <a href="/cgi-bin/koha/opac-detail.pl?biblionumber=[% req.biblionumber %]" target="_blank">[% req.ref %]</a>
+                                    </td>
+                                    -->
+                                    <td>{{ request.title }}</td>
+                                    <td>{{ request.status }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div ng-show="requests.length <= 0">
+                            <p>You have no ILL requests.</p>
+                        </div>
 
-        <div id="add_illrequest" ng-controller="searchController">
-            <h2>New ILL Request</h2>
-            <form ng-submit="submit()">
-                <fieldset>
-                    <div class="form-group">
-                        <input class="form-control" type="text" placeholder="Search ILL service providers..." name="illsearch" ng-model="query" autocomplete="off">
-                        <input type="submit" id="submit" value="Search" class="btn">
+                        <!-- New ILL Request -->
+                        <h2>New ILL Request</h2>
+                        <form ng-submit="search()">
+                            <fieldset>
+                                <div class="form-group">
+                                    <input class="form-control" type="text" placeholder="Search ILL service providers..." name="illsearch" ng-model="query" autocomplete="off">
+                                    <input type="submit" id="submit" value="Search" class="btn">
+                                </div>
+                            </fieldset>
+                        </form>
+
+                        <!-- Search Results Table -->
+                        <div ng-show="results">
+                            <h1>Results of search</h1>
+                            <div ng-repeat="result in results" ng-class-odd="'odd'" ng-class-even="'even'" class="results ill_result">
+                                <span class="result_summary">Title: {{result.title}}</span></br>
+                                <span class="result_summary">Author: {{result.author}}</span></br>
+                                <span class="result_summary">ID: {{result.id}}</span></br>
+                                <button ng-click="submit(result.id)">Request</button>
+                            </div>
+                        </div>
+                        <!-- /results -->
+
                     </div>
-                </fieldset>
-            </form>
-
-            <!-- Search Results Table -->
-            <div ng-show="results">
-                <h1>Results of search</h1>
-                <div ng-repeat="record in results" ng-class-odd="'odd'" ng-class-even="'even'" class="results ill_result">
-                    <span class="result_summary">Title: {{record.title}}</span></br>
-                    <span class="result_summary">Author: {{record.author}}</span></br>
-                    <span class="result_summary">ID: {{record.id}}</span></br>
-                    <button ng-click="request(record.id)">Request</button>
                 </div>
             </div>
-            <!-- /results -->
+
+            <div class="yui-b">
+                [% INCLUDE 'circ-menu.inc' %]
+            </div>
         </div>
-
-</div>
-</div>
-
-<div class="yui-b">
-[% INCLUDE 'circ-menu.inc' %]
-</div>
-</div>
-[% INCLUDE 'intranet-bottom.inc' %]
+        [% INCLUDE 'intranet-bottom.inc' %]
