@@ -110,7 +110,7 @@ sub getSummary {
         my $summarize = ${$self}{data}{$datum}{inSummary};
         my $name = ${$self}{data}{$datum}{name};
         if ($summarize and $name) {
-            $summary{$name} = ${$self}{data}{$datum}{value};
+            $summary{$datum} = [ $name, ${$self}{data}{$datum}{value} ];
         }
     }
     return \%summary;
@@ -131,7 +131,7 @@ sub getFullDetails {
     foreach my $datum ( keys ${$self}{data} ) {
         my $name = ${$self}{data}{$datum}{name};
         if ($name) {
-            $details{$name} = ${$self}{data}{$datum}{value};
+            $details{$datum} = [ $name, ${$self}{data}{$datum}{value} ];
         }
     }
     return \%details;
