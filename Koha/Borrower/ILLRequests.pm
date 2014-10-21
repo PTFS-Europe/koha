@@ -41,15 +41,15 @@ Koha::Borrower::ILLRequests - Koha ILLRequests Object class
 
 =cut
 
-sub Type {
+sub type {
     return 'IllRequest';
 }
 
-=head3 ObjectClass
+=head3 object_class
 
 =cut
 
-sub ObjectClass {
+sub object_class {
     return 'Koha::Borrower::ILLRequest';
 }
 

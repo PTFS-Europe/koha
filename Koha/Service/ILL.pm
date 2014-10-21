@@ -59,7 +59,7 @@ sub search {
     }
     elsif ( $self->query->param('borrowernumber') ) {
         my $borrowernumber = $self->query->param('borrowernumber');
-        my $borrower    = Koha::Borrowers->new()->Find( $borrowernumber );
+        my $borrower    = Koha::Borrowers->new()->find( $borrowernumber );
 
         my $requests = $borrower->ILLRequests();
         if ( $requests ) {

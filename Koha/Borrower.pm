@@ -55,7 +55,7 @@ Returns the related Koha::Borrower::Category object for this Borrower
 sub Category {
     my ($self) = @_;
 
-    $self->{Category} ||= Koha::Borrower::Categories->new()->Find( $self->categorycode() );
+    $self->{Category} ||= Koha::Borrower::Categories->new()->find( $self->categorycode() );
 
     return $self->{Category};
 }
@@ -69,7 +69,7 @@ Returns the related Koha::Borrower::ILLRequests object for this Borrower
 sub ILLRequests {
     my ($self) = @_;
 
-    $self->{ILLRequests} ||= Koha::Borrower::ILLRequests->new()->Search( $self->borrowernumber() );
+    $self->{ILLRequests} ||= Koha::Borrower::ILLRequests->new()->search( { 'borrowernumber' => $self->borrowernumber() } );
 
     return $self->{ILLRequests};
 }

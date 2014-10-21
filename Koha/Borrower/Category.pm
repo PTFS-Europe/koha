@@ -39,7 +39,7 @@ Koha::Borrower::Category - Koha Borrower Category Object class
 
 =cut
 
-sub Type {
+sub type {
     return 'Category';
 }
 

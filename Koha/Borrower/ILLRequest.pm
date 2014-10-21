@@ -39,7 +39,7 @@ Koha::Borrower::ILLRequest - Koha ILLRequest Object class
 
 =cut
 
-sub Type {
+sub type {
     return 'IllRequest';
 }
 

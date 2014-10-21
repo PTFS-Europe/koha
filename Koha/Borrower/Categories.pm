@@ -41,15 +41,15 @@ Koha::Borrower::Categories - Koha Borrower Categories Object class
 
 =cut
 
-sub Type {
+sub type {
     return 'Category';
 }
 
-=head3 ObjectClass
+=head3 object_class
 
 =cut
 
-sub ObjectClass {
+sub object_class {
     return 'Koha::Borrower::Category';
 }
 

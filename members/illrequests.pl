@@ -43,7 +43,7 @@ my ( $template, $loggedinuser, $cookie ) = get_template_and_user(
 );
 
 # Get borrower Object
-my $borrower = Koha::Borrowers->new()->Find($borrowernumber);
+my $borrower = Koha::Borrowers->new()->find($borrowernumber);
 
 # Setup normal template params for members pages - This really should be factored out somewhere!
 $template->param( borrower => $borrower );
