@@ -52,7 +52,7 @@ sub search {
         my $bldss = Koha::ILL->new();
         my $results = $bldss->search($query);
         foreach my $rec ( @{$results} ) {
-            push @{$reply}, { "title" => $rec->getTitle(), "author" => $rec->getAuthor(), "id" => $rec->getID() };
+            push @{$reply}, $rec->getSummary();
         }
 
         $self->output( $reply, { status => '200 OK', type => 'json' } );

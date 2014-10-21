@@ -21,19 +21,17 @@
                         <!-- Existing ILL Requests -->
                         <table class="historyt" ng-show="requests.length > 0">
                             <thead>
-                                <tr><th>Request No.</th><th>Date</th><th>Title</th><th>Status</th></tr>
+                                <tr>
+                                    [% FOREACH sum IN illsummary %]
+                                    <th>[% sum %]</th>
+                                    [% END %]
+                                </tr>
                             </thead>
                             <tbody>
                                 <tr ng-repeat="request in requests" ng-class-odd="'odd'" ng-class-even="'even'">
-                                    <td>{{ request.requestnumber }}</td>
-                                    <td>{{ request.date_placed }}</td>
-                                    <!--
-                                    <td>
-                                        <a href="/cgi-bin/koha/opac-detail.pl?biblionumber=[% req.biblionumber %]" target="_blank">[% req.ref %]</a>
-                                    </td>
-                                    -->
-                                    <td>{{ request.title }}</td>
-                                    <td>{{ request.status }}</td>
+                                    [% FOREACH sum IN illsummary %]
+                                    <td>{{ request.[% sum %][1] }}</td>
+                                    [% END %]
                                 </tr>
                             </tbody>
                         </table>
@@ -56,14 +54,13 @@
                         <div ng-show="results">
                             <h1>Results of search</h1>
                             <div ng-repeat="result in results" ng-class-odd="'odd'" ng-class-even="'even'" class="results ill_result">
-                                <span class="result_summary">Title: {{result.title}}</span></br>
-                                <span class="result_summary">Author: {{result.author}}</span></br>
-                                <span class="result_summary">ID: {{result.id}}</span></br>
-                                <button ng-click="submit(result.id)">Request</button>
+                                [% FOREACH sum IN illsummary %]
+                                <span class="result_summary">{{result.[% sum %][0]}}: {{result.[% sum %][1]}}</span></br>
+                                [% END %]
+                                <button ng-click="submit(result.uin[1])">Request</button>
                             </div>
                         </div>
                         <!-- /results -->
-
                     </div>
                 </div>
             </div>

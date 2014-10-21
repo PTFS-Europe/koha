@@ -42,6 +42,7 @@
         getRequests();
 
         function getRequests() {
+            console.log("getRequests");
             requestFactory.getRequests()
             .success(function (requests) {
                 console.log(requests);
@@ -54,6 +55,7 @@
         }
 
         $scope.search = function() {
+            console.log("search");
             console.log($scope.query);
             requestFactory.searchProvider($scope.query).success( function(reply) {
                 $scope.results = reply;
@@ -62,12 +64,13 @@
         };
 
         $scope.submit = function(requestID) {
+            console.log("submit");
             console.log(requestID);
 
             var request;
             for (var i = 0; i < $scope.results.length; i++) {
                 var currResult = $scope.results[i];
-                if (currResult.id === requestID) {
+                if (currResult.uin[1] === requestID) {
                     request = currResult;
                     // remove once api is working
                     $scope.requests.push(request);

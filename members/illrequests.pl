@@ -43,7 +43,7 @@ my ( $template, $loggedinuser, $cookie ) = get_template_and_user(
 );
 
 # Get borrower Object
-my $borrower    = Koha::Borrowers->new()->Find( $borrowernumber );
+my $borrower = Koha::Borrowers->new()->Find($borrowernumber);
 
 # Setup normal template params for members pages - This really should be factored out somewhere!
 $template->param( borrower => $borrower );
@@ -61,26 +61,26 @@ if ( C4::Context->preference('ExtendedPatronAttributes') ) {
     );
 }
 
-# For now, to test functionality of the Config/Record modules.
-#
-# You can uncomment this and simply dump the results of the method
-# calls in the foreach loop to play with the Config/Record
-# configuration in $koha-env/etc/ill/config.yaml.
-#
-# my $ill = Koha::ILL->new();
-# my $results = $ill->search("james joyce");
-# foreach my $rec ( @{$results} ) {
-#     $rec->getTitle();
-#     $rec->getSummary();
-# }
-
 # ILL Requests Tab specifics
 
-# Get all request objects for user
-my @requests = $borrower->ILLRequests();
+# Get ILL configuration, request display is handled via ajax
+my $illconfig = Koha::ILL->new()->config;
+my @illsummary;
+
+my $properties = $illconfig->record_properties();
+foreach my $property ( keys $properties ) {
+    if ( defined( $properties->{$property}{'inSummary'} )
+        and $properties->{$property}{'inSummary'} eq 'True' )
+    {
+        push @illsummary, $property;
+    }
+    else {
+        next;
+    }
+}
 
 $template->param(
-    illrequests    => \@requests,
+    illsummary     => \@illsummary,
     borrowernumber => $borrowernumber,
     ill            => 1,
 );
