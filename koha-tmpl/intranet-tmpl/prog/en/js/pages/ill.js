@@ -1,12 +1,12 @@
 (function() {
-    var app = angular.module('ill', [ ]);
+    var app = angular.module('ill', [ 'preloaded' ]);
 
     app.factory( 'requestFactory', [ '$http', function($http){
         var requestFactory = {};
         var urlBase = '/cgi-bin/koha/svc/ill';
 
-        requestFactory.getRequests = function(){
-            return $http.get(urlBase);
+        requestFactory.getRequests = function(borrowernumber){
+            return $http.get(urlBase, { params: { 'borrowernumber': borrowernumber } });
         };
 
         requestFactory.getRequest = function(id){
@@ -35,15 +35,18 @@
 
     } ]);
 
-    app.controller( 'requestController', [ '$scope', 'requestFactory', function($scope, requestFactory){
+    app.controller( 'requestController', [ '$scope', 'requestFactory', 'preloaded', function($scope, requestFactory, preloaded){
+        $scope.borrowernumber = preloaded.borrowernumber;
         $scope.requests = [];
         $scope.status;
+
+        console.log($scope.borrowernumber);
 
         getRequests();
 
         function getRequests() {
             console.log("getRequests");
-            requestFactory.getRequests()
+            requestFactory.getRequests($scope.borrowernumber)
             .success(function (requests) {
                 console.log(requests);
                 $scope.requests = requests;

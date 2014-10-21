@@ -30,26 +30,28 @@ use Koha::ILL;
 use JSON;
 
 sub new {
-    my ( $class ) = @_;
+    my ($class) = @_;
 
-    return $class->SUPER::new( {
-        needed_flags => { },
-        routes => [
-            [ qr'GET /', 'search' ],
-            [ qr'POST /', 'record' ],
-            [ qr'PUT /(\d+)', 'update' ],
-        ]
-    } );
+    return $class->SUPER::new(
+        {
+            needed_flags => {},
+            routes       => [
+                [ qr'GET /',      'search' ],
+                [ qr'POST /',     'record' ],
+                [ qr'PUT /(\d+)', 'update' ],
+            ]
+        }
+    );
 }
 
 sub search {
-    my ( $self ) = @_;
+    my ($self) = @_;
+    my $reply = [];
 
     if ( $self->query->param('query') ) {
         my $query = $self->query->param('query');
-        my $reply = [];
 
-        my $bldss = Koha::ILL->new();
+        my $bldss   = Koha::ILL->new();
         my $results = $bldss->search($query);
         foreach my $rec ( @{$results} ) {
             push @{$reply}, $rec->getSummary();
@@ -59,13 +61,30 @@ sub search {
     }
     elsif ( $self->query->param('borrowernumber') ) {
         my $borrowernumber = $self->query->param('borrowernumber');
-        my $borrower    = Koha::Borrowers->new()->find( $borrowernumber );
+        my $borrower       = Koha::Borrowers->new()->find($borrowernumber);
 
         my $requests = $borrower->ILLRequests();
-        if ( $requests ) {
-            $self->output( $requests, { status => '200 OK', type => 'json' } );
-        } else {
-            $self->output( { data => 'None found' }, { status => '200 OK', type => 'json' } );
+        if ($requests) {
+            while ( my $request = $requests->next ) {
+                my $data = {
+                    id               => $request->id,
+                    type             => $request->reqtype,
+                    completion_date  => $request->completion_date,
+                    ts               => $request->ts,
+                    status           => $request->status,
+                    branch           => $request->branch,
+                    reply_date       => $request->reply_date,
+                    placement_date   => $request->placement_date,
+                    biblionumber     => $request->biblionumber
+                };
+                push @{$reply}, $data;
+            }
+
+            $self->output( $reply, { status => '200 OK', type => 'json' } );
+        }
+        else {
+            $self->output( { data => 'None found' },
+                { status => '200 OK', type => 'json' } );
         }
     }
     else {
@@ -75,30 +94,30 @@ sub search {
 }
 
 sub record {
-    my ( $self ) = @_;
+    my ($self) = @_;
 
-    my $result = {};
+    my $result   = {};
     my $postdata = $self->query->param('POSTDATA');
     $postdata =
 
-    my $illrequest = Koha::Borrower::ILLRequest->new('');
+      my $illrequest = Koha::Borrower::ILLRequest->new('');
     return;
 }
 
 sub retrieve {
-    my ( $self ) = @_;
+    my ($self) = @_;
 
     return;
 }
 
 sub update {
-    my ( $self ) = @_;
+    my ($self) = @_;
 
     return;
 }
 
 sub delete {
-    my ( $self ) = @_;
+    my ($self) = @_;
 
     return;
 }

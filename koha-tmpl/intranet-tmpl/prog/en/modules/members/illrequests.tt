@@ -3,6 +3,10 @@
 [% INCLUDE 'doc-head-close.inc' %]
 <script src="[% interface %]/lib/angular/angular.min.js"></script>
 <script src="[% interface %]/prog/[% lang %]/js/pages/ill.js"></script>
+<script>
+  angular.module('preloaded', [])
+    .constant('preloaded', { borrowernumber: [% borrowernumber %] })
+</script>
 </head>
 <body id="pat_notices" class="pat">
     [% INCLUDE 'header.inc' %]
@@ -15,7 +19,7 @@
             <div id="yui-main">
                 <div class="yui-b">
                     [% INCLUDE 'members-toolbar.inc' tab='ill'  %]
-                    <div id="illcontainer" ng-controller="requestController">
+                    <div id="illcontainer" ng-controller="requestController" ng-init="borrowernumber='[% borrowernumber %]'">
                         <h1>ILL Requests for [% INCLUDE 'patron-title.inc' %]</h1>
 
                         <!-- Existing ILL Requests -->
