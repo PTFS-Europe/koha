@@ -52,7 +52,7 @@ sub search {
         my $query = $self->query->param('query');
 
         my $bldss   = Koha::ILL->new();
-        my $results = $bldss->search($query);
+        my $results = $bldss->Service()->search($query);
         foreach my $rec ( @{$results} ) {
             push @{$reply}, $rec->getSummary();
         }

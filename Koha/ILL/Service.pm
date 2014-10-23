@@ -1,4 +1,4 @@
-package Koha::ILL;
+package Koha::ILL::Service;
 
 # Copyright PTFS Europe 2014
 #
@@ -20,19 +20,19 @@ package Koha::ILL;
 use Modern::Perl;
 use Carp;
 
-use Koha::ILL::Config;
-use Koha::ILL::Service;
+use BLDSS;
+use XML::LibXML;
 use Koha::ILL::Record;
 
 =head1 NAME
 
-Koha::ILL - Koha ILL Object Class
+Koha::ILL::Service - Koha ILL Service Class
 
 =head1 SYNOPSIS
 
 use Koha::ILL;
 
-my $bldss = Koha::ILL->new($service);
+my $service = Koha::ILL::Service->new($config);
 
 =head1 API
 
@@ -40,44 +40,70 @@ my $bldss = Koha::ILL->new($service);
 
 =cut
 
-# New, Initialises object (with config if given)
 =head3 new
 
 =cut
 
 sub new {
-    my ( $class, $service ) = @_;
+    my ( $class, $config ) = @_;
     my $self = {};
-    ${$self}{config} = Koha::ILL::Config->new();
+    ${$self}{config} = $config;
 
     bless( $self, $class );
 
     return $self;
 }
 
-# Config, returns config hashref (and allows manipulation of config if passed)
-=head3 config
+=head3 search
+
+my $results = $bldss->search($query);
 
 =cut
 
-sub config {
-    my ( $self ) = @_;
+sub search {
+    my ( $self, $query ) = @_;
 
-    return ${$self}{config};
+    my $api = BLDSS->new();
+    my $reply = $api->search($query);
+
+    my $parser = XML::LibXML->new();
+    my $doc = $parser->load_xml( { string => $reply } );
+
+    my @return;
+    foreach my $record_data ( $doc->findnodes('/apiResponse/result/records/record') ) {
+        my $record = Koha::ILL::Record->new(${$self}{config}, $record_data);
+        push (@return, $record);
+    }
+
+    return \@return;
 }
 
-=head3 Service
+=head3 submit
 
-my $service = $blds->Service();
+my $results = $bldss->submit($request);
 
 =cut
 
-sub Service {
-    my ( $self ) = @_;
+sub submit {
+    my ( $self, $request ) = @_;
 
-    $self->{Service} ||= Koha::ILL::Service->new( ${$self}{config} );
+    my $api = BLDSS->new();
 
-    return $self->{Service};
+    return;
+}
+
+=head3 update
+
+my $results = $bldss->update($request);
+
+=cut
+
+sub update {
+    my ( $self, $request ) = @_;
+
+    my $api = BLDSS->new();
+
+    return;
 }
 
 1;
