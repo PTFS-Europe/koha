@@ -22,7 +22,7 @@ use Carp;
 
 use Koha::ILL::Config;
 use Koha::ILL::Service;
-use Koha::ILL::Record;
+use Koha::ILL::Requests;
 
 =head1 NAME
 
@@ -64,6 +64,20 @@ sub config {
     my ( $self ) = @_;
 
     return ${$self}{config};
+}
+
+=head3 Requests
+
+my $request = $bldss->Requests( { id => $id } );
+
+=cut
+
+sub Requests {
+    my ( $self, $filter ) = @_;
+
+    $self->{Requests} ||= Koha::ILL::Requests->new()->search( $filter );
+
+    return $self->{Requests};
 }
 
 =head3 Service

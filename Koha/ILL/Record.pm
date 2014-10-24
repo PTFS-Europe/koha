@@ -18,6 +18,7 @@ package Koha::ILL::Record;
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 use Modern::Perl;
+use Koha::Database;
 
 =head1 NAME
 
@@ -41,7 +42,7 @@ ill/config.yaml.
 
 =head3 new
 
-    my $record = Koha::ILL::Record->new($config, $xml);
+    my $record = Koha::ILL::Record->new($config);
 
 Create a new Koha::ILL::Record object, with mapping data loaded from
 the ILL configuration file loaded as $CONFIG, and data content derived
@@ -50,38 +51,40 @@ from the API's $XML response.
 =cut
 
 sub new {
-    my ($class, $config, $xml) = @_;
+    my ($class, $config) = @_;
     my $self = {
                 properties  => $config->record_properties(),
-                xml         => $xml,
                 data        => {},
                 accessors   => {},
                };
 
     bless $self, $class;
-    $self->_make();             # populate data, accessors.
     return $self;
 }
 
-=head3 _make
+=head3 create_from_xml
 
-    $self->_make();
+    $rec->create_from_xml($xml);
 
-Internal helper: traverse xml, storing each data point defined in
-config's properties' structure; build list of accessors -> data point
-mappings.
+Populates a record object with data from a service xml reply: traverse xml,
+storing each data point defined in config's properties' structure; build 
+list of accessors -> data point mappings.
 
 =cut
 
-sub _make {
-    my $self = shift;
-    # for each property defined in the API's config...
+sub create_from_xml {
+    my ( $self, $xml ) = @_;
+
+    # populate defaults
+    $self->_populate_defaults;
+
+    # for each property defined in the API config...
     foreach my $field ( keys ${$self}{properties} ) {
         # populate data if desired.
         my $xpath = './' . join("/",split(/_/, $field));
         ${$self}{data}{$field} =
           {
-           value      => ${$self}{xml}->findvalue($xpath),
+           value      => $xml->findvalue($xpath),
            name       => ${$self}{properties}{$field}{name},
            inSummary  => ${$self}{properties}{$field}{inSummary},
           };
@@ -91,6 +94,59 @@ sub _make {
             ${$self}{accessors}{$accessor} = ${$self}{data}{$field}{value};
         }
     }
+
+    return $self;
+}
+
+=head3 _populate_defaults
+
+=cut
+
+sub _populate_defaults {
+    my ( $self ) = @_;
+
+    ${$self}{data} = {
+        'status' => {
+            value     => 'new',
+            name      => 'Status',
+            inSummary => 'true'
+        }
+    };
+}
+
+=head3 retrieve_from_store
+
+=cut
+
+sub retrieve_from_store {
+    my ( $self, $id ) = @_;
+
+    my $result =
+      Koha::Database->new()->schema()->resultset('IllRequest')
+      ->find( { id => $id }, { prefetch => 'ill_request_attributes' } );
+
+    my $attributes = $result->get_columns;
+    while ( my $attribute = $result->ill_request_attributes->next ) {
+        $attributes->{$attribute->get_column('type')} = $attribute->get_column('value');
+    }
+    
+    foreach my $field ( keys ${$self}{properties} ) {
+        # populate data from database
+        ${$self}{data}{$field} = {
+            value => $attributes->{$field},
+            name => ${$self}{properties}{$field}{name},
+            inSummary => ${$self}{properties}{$field}{inSummary},
+        };
+        
+        # populate accessor if desired
+        my $accessor = ${$self}{properties}{$field}{accessor};
+        if ( $accessor ) {
+            ${$self}{accessors}{$accessor} = ${$self}{data}{$field}{value};
+        }
+
+    }
+
+    return $self;
 }
 
 =head3 getSummary

@@ -48,10 +48,11 @@ sub search {
     my ($self) = @_;
     my $reply = [];
 
+    my $bldss = Koha::ILL->new();
+
     if ( $self->query->param('query') ) {
         my $query = $self->query->param('query');
 
-        my $bldss   = Koha::ILL->new();
         my $results = $bldss->Service()->search($query);
         foreach my $rec ( @{$results} ) {
             push @{$reply}, $rec->getSummary();
@@ -61,9 +62,8 @@ sub search {
     }
     elsif ( $self->query->param('borrowernumber') ) {
         my $borrowernumber = $self->query->param('borrowernumber');
-        my $borrower       = Koha::Borrowers->new()->find($borrowernumber);
 
-        my $requests = $borrower->ILLRequests();
+        my $requests = $bldss->Requests()->search( { borrowernumber => $borrowernumber } );
         if ($requests) {
             while ( my $request = $requests->next ) {
                 my $data = {

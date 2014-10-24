@@ -71,7 +71,7 @@ sub search {
 
     my @return;
     foreach my $record_data ( $doc->findnodes('/apiResponse/result/records/record') ) {
-        my $record = Koha::ILL::Record->new(${$self}{config}, $record_data);
+        my $record = Koha::ILL::Record->new(${$self}{config})->create_from_xml($record_data);
         push (@return, $record);
     }
 
