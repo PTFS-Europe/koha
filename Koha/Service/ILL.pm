@@ -26,6 +26,7 @@ use base 'Koha::Service';
 use Koha::Borrowers;
 use Koha::Borrower::ILLRequest;
 use Koha::ILL;
+use Koha::ILL::Record;
 
 use JSON;
 
@@ -66,18 +67,8 @@ sub search {
         my $requests = $bldss->Requests()->search( { borrowernumber => $borrowernumber } );
         if ($requests) {
             while ( my $request = $requests->next ) {
-                my $data = {
-                    id               => $request->id,
-                    type             => $request->reqtype,
-                    completion_date  => $request->completion_date,
-                    ts               => $request->ts,
-                    status           => $request->status,
-                    branch           => $request->branch,
-                    reply_date       => $request->reply_date,
-                    placement_date   => $request->placement_date,
-                    biblionumber     => $request->biblionumber
-                };
-                push @{$reply}, $data;
+                my $record = Koha::ILL->new()->Record()->retrieve_from_store( $request->id );
+                push @{$reply}, $record->getSummary;
             }
 
             $self->output( $reply, { status => '200 OK', type => 'json' } );

@@ -80,6 +80,20 @@ sub Requests {
     return $self->{Requests};
 }
 
+=head3 Recoed
+
+my $record = $bldss->Record();
+
+=cut
+
+sub Record {
+    my ( $self, $filter ) = @_;
+
+    $self->{Record} ||= Koha::ILL::Record->new(${$self}{config});
+
+    return $self->{Record};
+}
+
 =head3 Service
 
 my $service = $blds->Service();

@@ -122,28 +122,28 @@ sub retrieve_from_store {
     my ( $self, $id ) = @_;
 
     my $result =
-      Koha::Database->new()->schema()->resultset('IllRequest')
-      ->find( { id => $id }, { prefetch => 'ill_request_attributes' } );
+      Koha::Database->new()->schema()->resultset('IllRequest')->find( { id => $id }, { join => 'ill_request_attributes', order_by => 'id' } );
 
-    my $attributes = $result->get_columns;
-    while ( my $attribute = $result->ill_request_attributes->next ) {
-        $attributes->{$attribute->get_column('type')} = $attribute->get_column('value');
+    my $attributes = { $result->get_columns };
+    my $linked = $result->ill_request_attributes;
+    while ( my $attribute = $linked->next ) {
+        $attributes->{ $attribute->get_column('type') } = $attribute->get_column('value');
     }
-    
+
     foreach my $field ( keys ${$self}{properties} ) {
+
         # populate data from database
         ${$self}{data}{$field} = {
-            value => $attributes->{$field},
-            name => ${$self}{properties}{$field}{name},
+            value     => $attributes->{$field},
+            name      => ${$self}{properties}{$field}{name},
             inSummary => ${$self}{properties}{$field}{inSummary},
         };
-        
+
         # populate accessor if desired
         my $accessor = ${$self}{properties}{$field}{accessor};
-        if ( $accessor ) {
+        if ($accessor) {
             ${$self}{accessors}{$accessor} = ${$self}{data}{$field}{value};
         }
-
     }
 
     return $self;
