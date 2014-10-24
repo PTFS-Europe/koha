@@ -130,9 +130,26 @@ __PACKAGE__->add_columns(
 
 __PACKAGE__->set_primary_key("id");
 
+=head1 RELATIONS
 
-# Created by DBIx::Class::Schema::Loader v0.07042 @ 2014-10-07 15:51:27
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:zaYkDhiGH75nXSEUWs0bEg
+=head2 ill_request_attributes
+
+Type: has_many
+
+Related object: L<Koha::Schema::Result::IllRequestAttribute>
+
+=cut
+
+__PACKAGE__->has_many(
+  "ill_request_attributes",
+  "Koha::Schema::Result::IllRequestAttribute",
+  { "foreign.req_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+
+# Created by DBIx::Class::Schema::Loader v0.07042 @ 2014-10-24 12:47:03
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:An5uvtJxUTSXioQAgtBLlQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

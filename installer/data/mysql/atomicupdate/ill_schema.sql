@@ -66,8 +66,10 @@ CREATE TABLE ill_requests (
     branch varchar(50)
 );
 
-CREATE TABLE ill_request_attributes (
-    req_id bigint references illrequest ( id ),
-    type varchar(30) not null,
-    value text not null
-);
+CREATE TABLE `ill_request_attributes` (
+    req_id bigint(20) unsigned NOT NULL DEFAULT '0',
+    type varchar(30) COLLATE NOT NULL,
+    value text COLLATE NOT NULL,
+    KEY `fk_illrequest_id` (`req_id`),
+    CONSTRAINT `fk_illrequest_id` FOREIGN KEY (`req_id`) REFERENCES `ill_requests` (`id`)
+); 

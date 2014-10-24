@@ -26,7 +26,10 @@ __PACKAGE__->table("ill_request_attributes");
 =head2 req_id
 
   data_type: 'bigint'
-  is_nullable: 1
+  default_value: 0
+  extra: {unsigned => 1}
+  is_foreign_key: 1
+  is_nullable: 0
 
 =head2 type
 
@@ -43,16 +46,39 @@ __PACKAGE__->table("ill_request_attributes");
 
 __PACKAGE__->add_columns(
   "req_id",
-  { data_type => "bigint", is_nullable => 1 },
+  {
+    data_type => "bigint",
+    default_value => 0,
+    extra => { unsigned => 1 },
+    is_foreign_key => 1,
+    is_nullable => 0,
+  },
   "type",
   { data_type => "varchar", is_nullable => 0, size => 30 },
   "value",
   { data_type => "text", is_nullable => 0 },
 );
 
+=head1 RELATIONS
 
-# Created by DBIx::Class::Schema::Loader v0.07042 @ 2014-10-07 15:51:27
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ZbzWtdvcdqZe+9eZzMPQwQ
+=head2 req
+
+Type: belongs_to
+
+Related object: L<Koha::Schema::Result::IllRequest>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "req",
+  "Koha::Schema::Result::IllRequest",
+  { id => "req_id" },
+  { is_deferrable => 1, on_delete => "RESTRICT", on_update => "RESTRICT" },
+);
+
+
+# Created by DBIx::Class::Schema::Loader v0.07042 @ 2014-10-24 12:47:03
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:AK/udoYUDFUNcgg7r5gpYw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
