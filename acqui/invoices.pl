@@ -61,6 +61,7 @@ my $author           = $input->param('author');
 my $publisher        = $input->param('publisher');
 my $publicationyear  = $input->param('publicationyear');
 my $branch           = $input->param('branch');
+my $message_id       = $input->param('message_id');
 my $op               = $input->param('op');
 
 my $invoices = [];
@@ -81,7 +82,8 @@ if ( $op and $op eq 'do_search' ) {
         author           => $author,
         publisher        => $publisher,
         publicationyear  => $publicationyear,
-        branchcode       => $branch
+        branchcode       => $branch,
+        message_id       => $message_id,
     );
 }
 

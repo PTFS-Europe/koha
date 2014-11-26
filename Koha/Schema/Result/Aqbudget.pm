@@ -254,6 +254,20 @@ __PACKAGE__->has_many(
   "suggestions",
   "Koha::Schema::Result::Suggestion",
   { "foreign.budgetid" => "self.budget_id" },
+);
+
+=head2 vendor_edi_accounts
+
+Type: has_many
+
+Related object: L<Koha::Schema::Result::VendorEdiAccount>
+
+=cut
+
+__PACKAGE__->has_many(
+  "vendor_edi_accounts",
+  "Koha::Schema::Result::VendorEdiAccount",
+  { "foreign.shipment_budget" => "self.budget_id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
