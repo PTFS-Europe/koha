@@ -9590,6 +9590,85 @@ if ( CheckVersion($DBversion) ) {
     $dbh->do("INSERT INTO `systempreferences` (variable,value,explanation,options,type) VALUES('SessionRestrictionByIP','1','Check for Change in  Remote IP address for Session Security. Disable when remote ip address changes frequently.','','YesNo')");
     print "Upgrade to $DBversion done (Bug 5511 - SessionRestrictionByIP)";
     SetVersion ($DBversion);
+
+$DBversion = "3.18.01.XXX";
+if( CheckVersion($DBversion) ){
+
+    my $sql=<<'VEA_END';
+CREATE TABLE IF NOT EXISTS vendor_edi_accounts (
+  id int(11) NOT NULL auto_increment,
+  description text NOT NULL,
+  host varchar(40),
+  username varchar(40),
+  password varchar(40),
+  last_activity date,
+  vendor_id int(11) references aqbooksellers( id ),
+  download_directory text,
+  upload_directory text,
+  san varchar(20),
+  id_code_qualifier varchar(3) default '14',
+  transport varchar(6) default 'FTP',
+  quotes_enabled tinyint(1) not null default 0,
+  invoices_enabled tinyint(1) not null default 0,
+  orders_enabled tinyint(1) not null default 0,
+  shipment_budget integer(11) references aqbudgets( budget_id ),
+  PRIMARY KEY  (id),
+  KEY vendorid (vendor_id),
+  KEY shipmentbudget (shipment_budget),
+  CONSTRAINT vfk_vendor_id FOREIGN KEY ( vendor_id ) REFERENCES aqbooksellers ( id ),
+  CONSTRAINT vfk_shipment_budget FOREIGN KEY ( shipment_budget ) REFERENCES aqbudgets ( budget_id )
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+VEA_END
+
+    $dbh->do($sql);
+
+    $sql=<<'EM_END';
+CREATE TABLE IF NOT EXISTS edifact_messages (
+  id int(11) NOT NULL auto_increment,
+  message_type varchar(10) NOT NULL,
+  transfer_date date,
+  vendor_id int(11) references aqbooksellers( id ),
+  edi_acct  integer references vendor_edi_accounts( id ),
+  status text,
+  basketno int(11) REFERENCES aqbasket( basketno),
+  raw_msg text,
+  filename text,
+  deleted boolean not null default 0,
+  PRIMARY KEY  (id),
+  KEY vendorid ( vendor_id),
+  KEY ediacct (edi_acct),
+  KEY basketno ( basketno),
+  CONSTRAINT emfk_vendor FOREIGN KEY ( vendor_id ) REFERENCES aqbooksellers ( id ),
+  CONSTRAINT emfk_edi_acct FOREIGN KEY ( edi_acct ) REFERENCES vendor_edi_accounts ( id ),
+  CONSTRAINT emfk_basketno FOREIGN KEY ( basketno ) REFERENCES aqbasket ( basketno )
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+EM_END
+
+    $dbh->do($sql);
+
+    $dbh->do('ALTER TABLE aqinvoices ADD COLUMN message_id INT(11) REFERENCES edifact_messages( id )');
+
+    $dbh->do(
+        'ALTER TABLE aqinvoices ADD CONSTRAINT edifact_msg_fk FOREIGN KEY ( message_id ) REFERENCES edifact_messages ( id ) ON DELETE SET NULL'
+    );
+
+    $sql=<<'EAN_END';
+CREATE TABLE IF NOT EXISTS edifact_ean (
+  branchcode VARCHAR(10) NOT NULL REFERENCES branches (branchcode),
+  ean varchar(15) NOT NULL,
+  id_code_qualifier VARCHAR(3) NOT NULL DEFAULT '14',
+  CONSTRAINT efk_branchcode FOREIGN KEY ( branchcode ) REFERENCES branches ( branchcode )
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+EAN_END
+
+    $dbh->do($sql);
+    $dbh->do(
+        q{INSERT INTO permissions (module_bit, code, description) values (11, 'edi_manage', 'Manage EDIFACT transmissions')}
+    );
+    $dbh->do("INSERT INTO `systempreferences` (variable,value,explanation,,type) VALUES('EDIInvoicesShippingBudget','The budget code used to allocate shippoing charges when processing EDI Invoice messages','free')");
+
+    print "Upgrade to $DBversion done (Bug 7736 DB Changes for Edifact Processing ( Quote, Order and Invoice))\n";
+    SetVersion($DBversion);
 }
 
 $DBversion = "3.18.02.000";

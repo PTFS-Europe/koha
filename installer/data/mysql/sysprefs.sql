@@ -474,4 +474,5 @@ INSERT INTO systempreferences ( `variable`, `value`, `options`, `explanation`, `
 ('z3950AuthorAuthFields','701,702,700',NULL,'Define the MARC biblio fields for Personal Name Authorities to fill biblio.author','free'),
 ('z3950NormalizeAuthor','0','','If ON, Personal Name Authorities will replace authors in biblio.author','YesNo'),
 ('SessionRestrictionByIP','1','Check for Change in Remote IP address for Session Security . Disable when remote ip address changes frequently.','','YesNo');
+('EDIInvoicesShippingBudget',NULL,NULL,'The budget code used to allocate shipping charges to when processing EDI Invoice messages','free')
 ;
