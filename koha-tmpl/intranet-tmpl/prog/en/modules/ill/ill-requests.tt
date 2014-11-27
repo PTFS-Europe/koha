@@ -18,73 +18,79 @@
         <div class="yui-b">
 
             <h1>ILL Request management</h1>
-
-            <div id="illtabs" class="toptabs ui-tabs ui-widget ui-widget-content ui-corner-all">
-                <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
-                    [% IF request_type == "ALL" %]
-                    <li class="ui-tabs-selected ui-corner-top">
-                    [% ELSE %]
-                    <li class="ui-corner-top">
-                    [% END %]
-                      <a href="ill-requests.pl?request_type=ALL">All requests</a>
-                    </li>
-                    [% IF request_type == "NEW" %]
-                    <li class="ui-tabs-selected ui-corner-top">
-                    [% ELSE %]
-                    <li class="ui-corner-top">
-                    [% END %]
-                    <a href="ill-requests.pl?request_type=NEW">New</a></li>
-                    [% IF request_type == "COMPLETED" %]
-                    <li class="ui-tabs-selected ui-corner-top">
-                    [% ELSE %]
-                    <li class="ui-corner-top">
-                    [% END %]
-                    <a href="ill-requests.pl?request_type=COMPLETED">Completed</a>
-                    </li>
-                    [% IF request_type == "OPENNOTNEW" %]
-                     <li class="ui-tabs-selected ui-corner-top">
-                   [% ELSE %]
-                   <li class="ui-corner-top">
-                    [% END %]
-                    <a href="ill-requests.pl?request_type=OPENNOTNEW">In progress</a>
-                    </li>
-                </ul>
-                <div id="ill-request-content" class="ui-tabs-panel" style="display: block;">
-                    [% IF illrequests %]
-                    <table class="historyt">
-                    <thead>
-                        <tr><th>Request No.</th><th>Request type</th><th>Date placed</th><th>Date completed</th><th>Patron</th><th>Item</th><th>Branch</th><th>Status</th></tr>
-                    </thead>
-                    <tbody>
-                        [% FOREACH req IN illrequests %]
-                        <tr>
-                        <td>[% req.requestnumber %]</td>
-                        <td>[% req.request_type_label %]</td>
-                        <td>[% req.date_placed %]</td>
-                        <td>[% req.completed_date %]</td>
-                        <td><a href="/cgi-bin/koha/members/illrequests.pl?borrowernumber=[% req.borrowernumber %]">[% req.borrower_showname -%] [% req.borrower_surname %]</a></td>
-                        [% IF req.biblionumber %]
-                        <td><a href="/cgi-bin/koha/catalogue/detail.pl?biblionumber=[% req.biblionumber %]" target="_blank">[% req.ref %]</a></td>
-                        [% ELSE %]
-                        <td>[% req.ref %]</td>
-                        [% END %]
-                        <td>[% req.branchname %]</td>
-                        [% IF req.status_code == new_status %]
-                        <td><a href="/cgi-bin/koha/ill/illrequest-details.pl?requestid=[% req.requestid %]">[% req.status %]</a></td>
-                        [% ELSE %]
-                        <td>[% req.status %]</td>
-                        [% END %]
-                        </tr>
-                        [% END %]
-                    </tbody>
+            <h2>Search the API</h2>
+            <form method="POST" action="/cgi-bin/koha/ill/ill-requests.pl">
+                <label for="query_type">Search type:</label>
+                <span>Specific Request</span>
+                <input name="query_type" type="radio" value="requests" checked="checked"/>
+                <span>Requests by Borrower</span>
+                <input name="query_type" type="radio" value="borrowers"/>
+                <span>Search the API</span>
+                <input name="query_type" type="radio" value="api">
+                <br/>
+                <label for="query_value">Search for:</label>
+                <input name="query_value" type="text"/>
+                <input type="submit" value="submit"/>
+            </form>
+            <div id="results">
+                [% IF query_type == "api" and query_value and reply %]
+                    [% rq_url = "/cgi-bin/koha/ill/ill-requests.pl" %]
+                    [% rq_params = "?query_type=request&query_value=" %]
+                    [% rq = rq_url _ rq_params %]
+                    <h2>Search results for ”[% query_value %]”</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                [% FOREACH line IN reply.0 %]
+                                    <th id=[% line.key %]>[% line.value.0 %]</th>
+                                [% END %]
+                            </tr>
+                        </thead>
+                        <tbody>
+                            [% FOREACH summary IN reply %]
+                                <tr>
+                                    [% FOREACH line IN summary %]
+                                        [% value = line.value.1 %]
+                                        <td>
+                                            [% IF line.key == 'uin' %]
+                                                [% rqc = rq _ value %]
+                                                <a href=[% rqc %]>
+                                                    Request [% value %]
+                                                </a>
+                                            [% ELSE %]
+                                                [% value %]
+                                            [% END %]
+                                    [% END %]
+                                </tr>
+                            [% END %]
+                        </tbody>
                     </table>
+                [% ELSIF reply %]
+                    [% IF query_type == "request" %]
+                        <h2>Request created for “[% query_value %]“</h2>
+                    [% ELSIF query_type == "requests" and query_value %]
+                        <h2>Details for request “[% query_value %]“</h2>
+                    [% ELSIF query_type == "borrowers" and query_value %]
+                        <h2>Borrower ”[% query_value %]“ their requests</h2>
                     [% ELSE %]
-                    There are no ILL requests for this selection
+                        <h2>Details for all requests</h2>
                     [% END %]
-
-                </div>
-
+                    [% FOREACH summary IN reply %]
+                        <p>
+                            [% FOREACH line IN summary %]
+                                <span id=[% line.key %]>
+                                    [% line.value.0 _ ": " _ line.value.1 %]
+                                </span>
+                                <br/>
+                            [% END %]
+                        </p>
+                    [% END %]
+                [% ELSE %]
+                    <h2>No results</h2>
+                    <p>No requests matching your criteria were found.</p>
+                [% END %]
             </div>
+
 
         </div>
     </div>

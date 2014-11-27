@@ -25,8 +25,7 @@ use base 'Koha::Service';
 
 use Koha::Borrowers;
 use Koha::Borrower::ILLRequest;
-use Koha::ILL;
-use Koha::ILL::Record;
+use Koha::ILL::Requests;
 
 use JSON;
 
@@ -49,26 +48,18 @@ sub search {
     my ($self) = @_;
     my $reply = [];
 
-    my $bldss = Koha::ILL->new();
-
     if ( $self->query->param('query') ) {
         my $query = $self->query->param('query');
-
-        my $results = $bldss->Service()->search($query);
-        foreach my $rec ( @{$results} ) {
-            push @{$reply}, $rec->getSummary();
-        }
-
+        my $reply = Koha::ILL::Requests->new()->search_api($query);
         $self->output( $reply, { status => '200 OK', type => 'json' } );
     }
     elsif ( $self->query->param('borrowernumber') ) {
         my $borrowernumber = $self->query->param('borrowernumber');
-
-        my $requests = $bldss->Requests()->search( { borrowernumber => $borrowernumber } );
+        my $requests = Koha::ILL::Requests->new()
+          ->retrieve_ill_requests($borrowernumber);
         if ($requests) {
-            while ( my $request = $requests->next ) {
-                my $record = Koha::ILL->new()->Record()->retrieve_from_store( $request->id );
-                push @{$reply}, $record->getSummary;
+            foreach my $rq ( @{$requests} ) {
+                push @{$reply}, $rq->getSummary();
             }
 
             $self->output( $reply, { status => '200 OK', type => 'json' } );

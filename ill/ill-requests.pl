@@ -23,34 +23,69 @@ use CGI;
 use C4::Auth;
 use C4::Output;
 use C4::Search qw(GetDistinctValues);
-use C4::ILL qw( GetAllILL);
 use C4::Context;
+use Koha::ILL::Requests;
+
+use Data::Dump qw( dump );
+sub msg {
+    open my $log_fh, '>>', '/home/alex/koha-dev/var/log/dump.log'
+      or die "Could not open log: $!";
+    print $log_fh @_;
+    close $log_fh;
+}
 
 my $input = CGI->new;
-my $request_type;
-if ( !$input->param('request_type') ) {
-    $request_type = 'ALL';
-}
-else {
-    $request_type = $input->param('request_type');
-}
+my $reply = [];
+my $type = $input->param('query_type');
+my $query = $input->param('query_value');
 
-my ( $template, $borrowernumber, $cookie ) = get_template_and_user(
-    {
-        template_name => 'ill/ill-requests.tt',
-        query         => $input,
-        type          => 'intranet',
-        flagsrequired => { ill => 1 },
+msg( $query . "\n" );
+msg( $type . "\n" );
+
+my ( $template, $borrowernumber, $cookie )
+  = get_template_and_user(
+                          {
+                           template_name => 'ill/ill-requests.tt',
+                           query         => $input,
+                           type          => 'intranet',
+                           flagsrequired => { ill => 1 },
+                          }
+                         );
+
+$template->param( query_value => $query );
+$template->param( query_type => $type );
+
+if ( $type eq 'api' and $query ) {
+    $reply = Koha::ILL::Requests->new()->search_api($query);
+
+} elsif ( $type eq 'request' and $query ) {
+    my $request = Koha::ILL::Requests->new()->request($query);
+    push @{$reply}, $request->getSummary();
+
+} elsif ( ( $query eq "*" ) or
+          ( not $query and
+            ( $type eq 'requests' or $type eq 'borrowers' ) ) ) {
+    my $requests = Koha::ILL::Requests->new()->retrieve_ill_requests();
+    foreach my $rq ( @{$requests} ) {
+        push @{$reply}, $rq->getSummary();
     }
-);
 
-#my $currentstatusloop = GetDistinctValues('illrequest.status');
-$template->param( allillrequests => GetAllILL($request_type) );
+} elsif ( $type eq 'requests' ) {
+    my $requests = Koha::ILL::Requests->new()->retrieve_ill_request($query);
+    foreach my $rq ( @{$requests} ) {
+        push @{$reply}, $rq->getSummary();
+    }
 
-#$template->param( fullstatusloop    => $fullstatus );
-#$template->param( currentstatusloop => $currentstatusloop );
-$template->param( request_type => $request_type );
-$template->param(
-    new_status => C4::Context->preference('ILLNewRequestStatus') );
+} elsif ( $type eq 'borrowers' ) {
+    my $requests = Koha::ILL::Requests->new()->retrieve_ill_requests($query);
+    foreach my $rq ( @{$requests} ) {
+        push @{$reply}, $rq->getSummary();
+    }
+
+} else {
+    msg ("no match\n");
+}
+
+$template->param( reply => $reply );
 
 output_html_with_http_headers( $input, $cookie, $template->output );

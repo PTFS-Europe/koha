@@ -18,12 +18,12 @@ package Koha::ILL::Requests;
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 use Modern::Perl;
-
 use Carp;
 
 use Koha::Database;
-
 use Koha::ILL::Request;
+use Koha::ILL::AbstractILL;
+use Koha::ILL::Status;
 
 use base qw(Koha::Objects);
 
@@ -51,6 +51,122 @@ sub type {
 
 sub object_class {
     return 'Koha::ILL::Request';
+}
+
+=head3 new
+
+    my $illRequests = Koha::ILL::Requests->new();
+
+Create an ILLREQUESTS object, a singleton through which we can interact with
+ILLREQUEST objects stored in the database or search for ILL candidates at API
+backends.
+
+=cut
+
+sub new {
+    my ( $class ) = @_;
+    my $self = {};
+
+    bless $self, $class;
+
+    return $self;
+}
+
+=head3 search_api
+
+    my $Records = $illRequests->search_api($query);
+
+Perform a search against the defined API, returning an array of RECORDs, which
+can be used for output to the end-user.  For placing the request, the
+`$illRequests->request($uin)' method should be used.
+
+=cut
+
+sub search_api {
+    my ( $self, $query ) = @_;
+    my $summaries;
+
+    my $records = Koha::ILL::AbstractILL->new()->search($query);
+    foreach my $recs ( @{$records} ) {
+        push @{$summaries}, $recs->getSummary();
+    }
+    return $summaries;
+}
+
+=head3 request
+
+    my $illRequest = $illRequests->request($uin)
+
+Place a request on the item identified in the API by $UIN.  Whether an actual
+request is placed, or whether we add the request to the 'pending for review'
+queue depends on various sysprefs and configuration.
+
+Either way we will return an ILLREQUEST object containing a Record with
+details for that item in the API and a Status, which details the status of
+this request.
+
+=cut
+
+sub request {
+    my ( $self, $uin ) = @_;
+
+    my $illRequest = Koha::ILL::Request->new()->seed_from_api($uin);
+
+    return $illRequest;
+}
+
+=head3 retrieve_ill_requests
+
+    my $illRequest = $illRequests->retrieve_ill_requests();
+    -OR-
+    my $illRequest = $illRequests->retrieve_ill_requests($borrowernumber);
+
+Retrieve either all ILLREQUESTs currently stored in the db, or only
+those attached to $BORROWERNUMBER.
+
+Returns a reference to an array of ILLREQUESTs.
+
+=cut
+
+sub retrieve_ill_requests {
+    my ( $self, $borrowernumber ) = @_;
+    my $result;
+
+    if ($borrowernumber) {
+        $result = Koha::Database->new()->schema()->resultset('IllRequest')
+          ->search( { borrowernumber => $borrowernumber } );
+    } else {
+        $result = Koha::Database->new()->schema()->resultset('IllRequest')
+          ->search( { id => { 'like', '%' } } );
+    }
+
+    my $illRequests = [];
+    while ( my $row = $result->next ) {
+        msg( 'Borrower ' . $borrowernumber . ' owns ' . $row->id . "\n");
+        push @{$illRequests},
+          Koha::ILL::Request->new()->seed_from_store($row->id);
+    }
+
+    return $illRequests;
+}
+
+=head3 retrieve_ill_request
+
+    my $illRequest = $illRequests->retrieve_ill_request($illRequestId);
+
+Retrieve the ILLREQUEST identified by $ILLREQUESTID.
+
+=cut
+
+sub retrieve_ill_request {
+    my ( $self, $illRequestId ) = @_;
+
+    my $request = Koha::ILL::Request->new()->seed_from_store($illRequestId);
+    if ( $request ) {
+        return [ $request ];
+    } else {
+        return [];
+    }
 }
 
 =head1 AUTHOR

@@ -75,9 +75,6 @@ list of accessors -> data point mappings.
 sub create_from_xml {
     my ( $self, $xml ) = @_;
 
-    # populate defaults
-    $self->_populate_defaults;
-
     # for each property defined in the API config...
     foreach my $field ( keys ${$self}{properties} ) {
         # populate data if desired.
@@ -98,37 +95,13 @@ sub create_from_xml {
     return $self;
 }
 
-=head3 _populate_defaults
+=head3 create_from_store
+
 
 =cut
 
-sub _populate_defaults {
-    my ( $self ) = @_;
-
-    ${$self}{data} = {
-        'status' => {
-            value     => 'new',
-            name      => 'Status',
-            inSummary => 'true'
-        }
-    };
-}
-
-=head3 retrieve_from_store
-
-=cut
-
-sub retrieve_from_store {
-    my ( $self, $id ) = @_;
-
-    my $result =
-      Koha::Database->new()->schema()->resultset('IllRequest')->find( { id => $id }, { join => 'ill_request_attributes', order_by => 'id' } );
-
-    my $attributes = { $result->get_columns };
-    my $linked = $result->ill_request_attributes;
-    while ( my $attribute = $linked->next ) {
-        $attributes->{ $attribute->get_column('type') } = $attribute->get_column('value');
-    }
+sub create_from_store {
+    my ( $self, $attributes ) = @_;
 
     foreach my $field ( keys ${$self}{properties} ) {
 
@@ -145,7 +118,6 @@ sub retrieve_from_store {
             ${$self}{accessors}{$accessor} = ${$self}{data}{$field}{value};
         }
     }
-
     return $self;
 }
 
