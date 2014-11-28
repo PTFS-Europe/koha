@@ -142,7 +142,6 @@ sub retrieve_ill_requests {
 
     my $illRequests = [];
     while ( my $row = $result->next ) {
-        msg( 'Borrower ' . $borrowernumber . ' owns ' . $row->id . "\n");
         push @{$illRequests},
           Koha::ILL::Request->new()->seed_from_store($row->id);
     }
