@@ -36,9 +36,9 @@ sub new {
         {
             needed_flags => {},
             routes       => [
-                [ qr'GET /',      'search' ],
-                [ qr'POST /',     'record' ],
-                [ qr'PUT /(\d+)', 'update' ],
+                [ qr'GET /',      'search'  ],
+                [ qr'POST /',     'request' ],
+                [ qr'PUT /(\d+)', 'update'  ],
             ]
         }
     );
@@ -73,6 +73,22 @@ sub search {
         $self->output();
     }
     return;
+}
+
+sub request {
+    my ($self) = @_;
+    my $reply = [];
+
+    my $query = $self->query->param('query');
+    my $borrowernumber = $self->query->param('borrowernumber');
+    if ( $query and $borrowernumber ) {
+        my $rq = Koha::ILLRequests->new()->request($query, $borrowernumber);
+        push @{$reply}, $rq->getSummary();
+        $self->output( $reply, { status => '200 OK', type => 'json' } );
+    } else {
+        $self->output( { data => 'None found' },
+                       { status => '200 OK', type => 'json' } );
+    }
 }
 
 sub record {

@@ -108,9 +108,10 @@ this request.
 =cut
 
 sub request {
-    my ( $self, $uin ) = @_;
+    my ( $self, $uin, $borrowernumber ) = @_;
 
-    my $illRequest = Koha::ILLRequest->new()->seed_from_api($uin);
+    my $illRequest = Koha::ILLRequest->new()
+      ->seed_from_api($uin, $borrowernumber);
 
     return $illRequest;
 }
