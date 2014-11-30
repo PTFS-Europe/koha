@@ -26,16 +26,16 @@
                         <table class="historyt" ng-show="requests.length > 0">
                             <thead>
                                 <tr>
-                                    [% FOREACH sum IN illsummary %]
-                                    <th>[% sum %]</th>
-                                    [% END %]
+                                    <th ng-repeat="(id, values) in requests[0]">
+                                        {{ values[0] }}
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr ng-repeat="request in requests" ng-class-odd="'odd'" ng-class-even="'even'">
-                                    [% FOREACH sum IN illsummary %]
-                                    <td>{{ request.[% sum %][1] }}</td>
-                                    [% END %]
+                                    <td ng-repeat="(id, values) in request">
+                                        {{ values[1] }}
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -58,9 +58,9 @@
                         <div ng-show="results">
                             <h1>Results of search</h1>
                             <div ng-repeat="result in results" ng-class-odd="'odd'" ng-class-even="'even'" class="results ill_result">
-                                [% FOREACH sum IN illsummary %]
-                                <span class="result_summary">{{result.[% sum %][0]}}: {{result.[% sum %][1]}}</span></br>
-                                [% END %]
+                                <span ng-repeat="(id, values) in result">
+                                    <span class="result_summary">{{values[0]}}: {{values[1]}}</span></br>
+                                </span>
                                 <button ng-click="submit(result.uin[1])">Request</button>
                             </div>
                         </div>

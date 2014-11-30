@@ -75,7 +75,12 @@
                 var currResult = $scope.results[i];
                 if (currResult.uin[1] === requestID) {
                     request = currResult;
+                    // This is currently part of an elaborate mock up.
                     // remove once api is working
+                    request['biblionumber'] = [ "Item Number", "" ];
+                    request['borrowernumber'] = [ "Borrower Number", "" ];
+                    request['status'] = [ "Status", "new" ];
+                    request['reqtype'] = [ "Request Type", "book" ];
                     $scope.requests.push(request);
                     console.log($scope.requests);
                     // end remove
