@@ -1,4 +1,4 @@
-package Koha::ILL::AbstractILL;
+package Koha::ILLRequest::Abstract;
 
 # Copyright PTFS Europe 2014
 #
@@ -22,13 +22,13 @@ use Carp;
 
 use BLDSS;
 use XML::LibXML;
-use Koha::ILL::Record;
-use Koha::ILL::Status;
-use Koha::ILL::Config;
+use Koha::ILLRequest::Record;
+use Koha::ILLRequest::Status;
+use Koha::ILLRequest::Config;
 
 =head1 NAME
 
-Koha::ILL::AbstractILL - Koha ILL AbstractILL Object class
+Koha::ILLRequest::Abstract - Koha ILL AbstractILL Object class
 
 =head1 SYNOPSIS
 
@@ -53,7 +53,7 @@ sub new {
 
     # This is where we may want to introduce the possibility to choose amongst
     # backends.
-    ${$self}{config} = Koha::ILL::Config->new();
+    ${$self}{config} = Koha::ILLRequest::Config->new();
     ${$self}{api} = BLDSS->new();
 
     bless( $self, $class );
@@ -63,9 +63,9 @@ sub new {
 sub build {
     my ( $self, $attributes ) = @_;
 
-    my $record = Koha::ILL::Record->new(${$self}{config})
+    my $record = Koha::ILLRequest::Record->new(${$self}{config})
       ->create_from_store($attributes);
-    my $status = Koha::ILL::Status->new()->create_from_store($attributes);
+    my $status = Koha::ILLRequest::Status->new()->create_from_store($attributes);
 
     return { record => $record, status => $status };
 }
@@ -90,7 +90,8 @@ sub search {
     my @return;
     foreach my $datum ( $doc->findnodes('/apiResponse/result/records/record') ) {
         my $record =
-          Koha::ILL::Record->new(${$self}{config})->create_from_xml($datum);
+          Koha::ILLRequest::Record->new(${$self}{config})
+            ->create_from_xml($datum);
         push (@return, $record);
     }
 

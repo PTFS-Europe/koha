@@ -24,7 +24,7 @@ use C4::Auth;
 use C4::Output;
 use C4::Search qw(GetDistinctValues);
 use C4::Context;
-use Koha::ILL::Requests;
+use Koha::ILLRequests;
 
 use Data::Dump qw( dump );
 sub msg {
@@ -56,28 +56,28 @@ $template->param( query_value => $query );
 $template->param( query_type => $type );
 
 if ( $type eq 'api' and $query ) {
-    $reply = Koha::ILL::Requests->new()->search_api($query);
+    $reply = Koha::ILLRequests->new()->search_api($query);
 
 } elsif ( $type eq 'request' and $query ) {
-    my $request = Koha::ILL::Requests->new()->request($query);
+    my $request = Koha::ILLRequests->new()->request($query);
     push @{$reply}, $request->getSummary();
 
 } elsif ( ( $query eq "*" ) or
           ( not $query and
             ( $type eq 'requests' or $type eq 'borrowers' ) ) ) {
-    my $requests = Koha::ILL::Requests->new()->retrieve_ill_requests();
+    my $requests = Koha::ILLRequests->new()->retrieve_ill_requests();
     foreach my $rq ( @{$requests} ) {
         push @{$reply}, $rq->getSummary();
     }
 
 } elsif ( $type eq 'requests' ) {
-    my $requests = Koha::ILL::Requests->new()->retrieve_ill_request($query);
+    my $requests = Koha::ILLRequests->new()->retrieve_ill_request($query);
     foreach my $rq ( @{$requests} ) {
         push @{$reply}, $rq->getSummary();
     }
 
 } elsif ( $type eq 'borrowers' ) {
-    my $requests = Koha::ILL::Requests->new()->retrieve_ill_requests($query);
+    my $requests = Koha::ILLRequests->new()->retrieve_ill_requests($query);
     foreach my $rq ( @{$requests} ) {
         push @{$reply}, $rq->getSummary();
     }

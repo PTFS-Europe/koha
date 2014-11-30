@@ -1,4 +1,4 @@
-package Koha::ILL::Requests;
+package Koha::ILLRequests;
 
 # Copyright PTFS Europe 2014
 #
@@ -21,15 +21,15 @@ use Modern::Perl;
 use Carp;
 
 use Koha::Database;
-use Koha::ILL::Request;
-use Koha::ILL::AbstractILL;
-use Koha::ILL::Status;
+use Koha::ILLRequest;
+use Koha::ILLRequest::Abstract;
+use Koha::ILLRequest::Status;
 
 use base qw(Koha::Objects);
 
 =head1 NAME
 
-Koha::ILL::Requests - Koha ILL Requests Object class
+Koha::ILLRequests - Koha ILL Requests Object class
 
 =head1 API
 
@@ -50,12 +50,12 @@ sub type {
 =cut
 
 sub object_class {
-    return 'Koha::ILL::Request';
+    return 'Koha::ILLRequest';
 }
 
 =head3 new
 
-    my $illRequests = Koha::ILL::Requests->new();
+    my $illRequests = Koha::ILLRequests->new();
 
 Create an ILLREQUESTS object, a singleton through which we can interact with
 ILLREQUEST objects stored in the database or search for ILL candidates at API
@@ -86,7 +86,7 @@ sub search_api {
     my ( $self, $query ) = @_;
     my $summaries;
 
-    my $records = Koha::ILL::AbstractILL->new()->search($query);
+    my $records = Koha::ILLRequest::Abstract->new()->search($query);
     foreach my $recs ( @{$records} ) {
         push @{$summaries}, $recs->getSummary();
     }
@@ -110,7 +110,7 @@ this request.
 sub request {
     my ( $self, $uin ) = @_;
 
-    my $illRequest = Koha::ILL::Request->new()->seed_from_api($uin);
+    my $illRequest = Koha::ILLRequest->new()->seed_from_api($uin);
 
     return $illRequest;
 }
@@ -142,8 +142,9 @@ sub retrieve_ill_requests {
 
     my $illRequests = [];
     while ( my $row = $result->next ) {
+        msg( 'Borrower ' . $borrowernumber . ' owns ' . $row->id . "\n");
         push @{$illRequests},
-          Koha::ILL::Request->new()->seed_from_store($row->id);
+          Koha::ILLRequest->new()->seed_from_store($row->id);
     }
 
     return $illRequests;
@@ -160,7 +161,7 @@ Retrieve the ILLREQUEST identified by $ILLREQUESTID.
 sub retrieve_ill_request {
     my ( $self, $illRequestId ) = @_;
 
-    my $request = Koha::ILL::Request->new()->seed_from_store($illRequestId);
+    my $request = Koha::ILLRequest->new()->seed_from_store($illRequestId);
     if ( $request ) {
         return [ $request ];
     } else {

@@ -25,7 +25,7 @@ use base 'Koha::Service';
 
 use Koha::Borrowers;
 use Koha::Borrower::ILLRequest;
-use Koha::ILL::Requests;
+use Koha::ILLRequests;
 
 use JSON;
 
@@ -50,12 +50,12 @@ sub search {
 
     if ( $self->query->param('query') ) {
         my $query = $self->query->param('query');
-        my $reply = Koha::ILL::Requests->new()->search_api($query);
+        my $reply = Koha::ILLRequests->new()->search_api($query);
         $self->output( $reply, { status => '200 OK', type => 'json' } );
     }
     elsif ( $self->query->param('borrowernumber') ) {
         my $borrowernumber = $self->query->param('borrowernumber');
-        my $requests = Koha::ILL::Requests->new()
+        my $requests = Koha::ILLRequests->new()
           ->retrieve_ill_requests($borrowernumber);
         if ($requests) {
             foreach my $rq ( @{$requests} ) {

@@ -1,4 +1,4 @@
-package Koha::ILL::Request;
+package Koha::ILLRequest;
 
 # Copyright PTFS Europe 2014
 #
@@ -20,11 +20,13 @@ package Koha::ILL::Request;
 use Modern::Perl;
 use Carp;
 use Koha::Database;
+use Koha::ILLRequest::Status;
+use Koha::ILLRequest::Abstract;
 use base qw(Koha::Object);
 
 =head1 NAME
 
-Koha::ILL::Request - Koha ILL Request Object class
+Koha::ILLRequest - Koha ILL Request Object class
 
 =head1 API
 
@@ -42,7 +44,7 @@ sub type {
 
 =head3 new
 
-    my $illRequest = Koha::ILL::Request->new();
+    my $illRequest = Koha::ILLRequest->new();
 
 Create a new $illRequest.
 
@@ -136,8 +138,8 @@ sub update {
 sub seed_from_api {
     my ( $self, $uin ) = @_;
 
-    ${$self}{record} = ${Koha::ILL::AbstractILL->new()->search($uin)}[0];
-    ${$self}{status} = Koha::ILL::Status->new();
+    ${$self}{record} = ${Koha::ILLRequest::Abstract->new()->search($uin)}[0];
+    ${$self}{status} = Koha::ILLRequest::Status->new();
     $self->save();        # save to DB.
 
     return $self;
@@ -167,7 +169,7 @@ sub seed_from_store {
               $attribute->get_column('value');
         }
         # XXX: A bit Kludgy.
-        my $tmp = Koha::ILL::AbstractILL->new()->build($attributes);
+        my $tmp = Koha::ILLRequest::Abstract->new()->build($attributes);
         ${$self}{record} = ${$tmp}{record};
         ${$self}{status} = ${$tmp}{status};
         return $self;

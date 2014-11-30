@@ -1,4 +1,4 @@
-package Koha::ILL::Service;
+package Koha::ILLRequest::Service;
 
 # Copyright PTFS Europe 2014
 #
@@ -22,17 +22,17 @@ use Carp;
 
 use BLDSS;
 use XML::LibXML;
-use Koha::ILL::Record;
+use Koha::ILLRequest::Record;
 
 =head1 NAME
 
-Koha::ILL::Service - Koha ILL Service Class
+Koha::ILLRequest::Service - Koha ILL Service Class
 
 =head1 SYNOPSIS
 
 use Koha::ILL;
 
-my $service = Koha::ILL::Service->new($config);
+my $service = Koha::ILLRequest::Service->new($config);
 
 =head1 API
 
@@ -71,7 +71,8 @@ sub search {
 
     my @return;
     foreach my $record_data ( $doc->findnodes('/apiResponse/result/records/record') ) {
-        my $record = Koha::ILL::Record->new(${$self}{config})->create_from_xml($record_data);
+        my $record = Koha::ILLRequest::Record->new(${$self}{config})
+          ->create_from_xml($record_data);
         push (@return, $record);
     }
 

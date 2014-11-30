@@ -1,4 +1,4 @@
-package Koha::ILL::Config;
+package Koha::ILLRequest::Config;
 
 # Copyright 2013,2014 PTFS Europe Ltd
 #
@@ -22,7 +22,7 @@ use YAML;
 
 =head1 NAME
 
-Koha::ILL::Config - Koha ILL Configuration Object
+Koha::ILLRequest::Config - Koha ILL Configuration Object
 
 =head1 SYNOPSIS
 
@@ -49,9 +49,9 @@ The config file also provides mappings for Record Object accessors.
 
 =head3 new
 
-    my $config = Koha::ILL::Config->new();
+    my $config = Koha::ILLRequest::Config->new();
 
-Create a new Koha::ILL::Config object, with mapping data loaded from the
+Create a new Koha::ILLRequest::Config object, with mapping data loaded from the
 ILL configuration file.
 
 =cut

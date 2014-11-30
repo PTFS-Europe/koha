@@ -1,4 +1,4 @@
-package Koha::ILL::Record;
+package Koha::ILLRequest::Record;
 
 # Copyright 2013,2014 PTFS Europe Ltd
 #
@@ -22,7 +22,7 @@ use Koha::Database;
 
 =head1 NAME
 
-Koha::ILL::Record - Koha ILL Record Object
+Koha::ILLRequest::Record - Koha ILL Record Object
 
 =head1 SYNOPSIS
 
@@ -42,11 +42,11 @@ ill/config.yaml.
 
 =head3 new
 
-    my $record = Koha::ILL::Record->new($config);
+    my $record = Koha::ILLRequest::Record->new($config);
 
-Create a new Koha::ILL::Record object, with mapping data loaded from
-the ILL configuration file loaded as $CONFIG, and data content derived
-from the API's $XML response.
+Create a new Koha::ILLRequest::Record object, with mapping data loaded from
+the ILL configuration file loaded as $CONFIG, and data content derived from
+the API's $XML response.
 
 =cut
 

@@ -25,7 +25,6 @@ use CGI;
 use Koha::Borrowers;
 use C4::Members qw( GetPatronImage );
 use C4::Members::Attributes qw(GetBorrowerAttributes);
-use Koha::ILL;
 
 my $input = CGI->new();
 
@@ -63,25 +62,9 @@ if ( C4::Context->preference('ExtendedPatronAttributes') ) {
 
 # ILL Requests Tab specifics
 
-# Get ILL configuration, request display is handled via ajax
-my $illconfig = Koha::ILL->new()->config;
-my @illsummary;
-
-my $properties = $illconfig->record_properties();
-foreach my $property ( keys $properties ) {
-    if ( defined( $properties->{$property}{'inSummary'} )
-        and $properties->{$property}{'inSummary'} eq 'True' )
-    {
-        push @illsummary, $property;
-    }
-    else {
-        next;
-    }
-}
-
 $template->param(
-    illsummary     => \@illsummary,
     borrowernumber => $borrowernumber,
     ill            => 1,
 );
+
 output_html_with_http_headers( $input, $cookie, $template->output );

@@ -1,4 +1,4 @@
-package Koha::ILL::Status;
+package Koha::ILLRequest::Status;
 
 # Copyright PTFS Europe 2014
 #
@@ -22,7 +22,7 @@ use Carp;
 
 =head1 NAME
 
-Koha::ILL::Status - Koha ILL Status Object class
+Koha::ILLRequest::Status - Koha ILL Status Object class
 
 =head1 SYNOPSIS
 
