@@ -70,11 +70,18 @@ ill_request_attributes tables.
 
 sub save {
     my ( $self ) = @_;
+    my $full_rec = ${$self}{record}->getFullDetails();
+    my $attrs = [];
+    foreach my $type ( keys $full_rec ) {
+        push( @{$attrs}, { type => $type, value => ${$full_rec}{$type}[1] } );
+    }
+    my $save_obj = ${$self}{status}->getFullStatus();
+    ${$save_obj}{'ill_request_attributes'} = $attrs;
 
     my $save = Koha::Database->new()->schema()->resultset('IllRequest')
-      ->create( ${$self}{status}->getFullStatus() );
+      ->create( $save_obj );
 
-    return $self;
+    return $save;
 }
 
 =head3 status
