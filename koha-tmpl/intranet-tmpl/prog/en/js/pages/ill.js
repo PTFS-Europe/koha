@@ -9,14 +9,6 @@
             return $http.get(urlBase, { params: { 'borrowernumber': borrowernumber } });
         };
 
-        requestFactory.request = function(uin, borrowernumber){
-            console.log("UIN: " + uin + "; borrowernumber: " + borrowernumber);
-            return $http.post(urlBase, { params: {
-                'borrowernumber': borrowernumber,
-                'query': uin
-            } })
-        };
-
         requestFactory.getRequest = function(id){
             return $http.get(urlBase + '/' + id);
         };
@@ -46,7 +38,6 @@
     app.controller( 'requestController', [ '$scope', 'requestFactory', 'preloaded', function($scope, requestFactory, preloaded){
         $scope.borrowernumber = preloaded.borrowernumber;
         $scope.requests = [];
-        $scope.request;
         $scope.status;
 
         console.log($scope.borrowernumber);
@@ -56,29 +47,14 @@
         function getRequests() {
             console.log("getRequests");
             requestFactory.getRequests($scope.borrowernumber)
-                .success(function (requests) {
-                    console.log(requests);
-                    $scope.requests = requests;
-                })
-                .error(function (error) {
-                    console.log("error")
-                    $scope.status = 'Unable to load request data: ' + error.message;
-                });
-        }
-
-        $scope.request = function(requestID) {
-            console.log("Request");
-            console.log("ID: " + requestID);
-            console.log("borrower: " + $scope.borrowernumber);
-            requestFactory.request(requestID, $scope.borrowernumber)
-                .success(function (request) {
-                    console.log(request);
-                    $scope.request = request;
-                })
-                .error(function (error) {
-                    console.log("error")
-                    $scope.status = 'Unable to load request data: ' + error.message;
-                });
+            .success(function (requests) {
+                console.log(requests);
+                $scope.requests = requests;
+            })
+            .error(function (error) {
+                console.log("error")
+                $scope.status = 'Unable to load request data: ' + error.message;
+            });
         }
 
         $scope.search = function() {
@@ -94,10 +70,23 @@
             console.log("submit");
             console.log(requestID);
 
-            var request = $scope.request(requestID);
-
-            $scope.requests.push(request);
-            console.log($scope.requests);
+            var request;
+            for (var i = 0; i < $scope.results.length; i++) {
+                var currResult = $scope.results[i];
+                if (currResult.uin[1] === requestID) {
+                    request = currResult;
+                    // This is currently part of an elaborate mock up.
+                    // remove once api is working
+                    request['biblionumber'] = [ "Item Number", "" ];
+                    request['borrowernumber'] = [ "Borrower Number", "" ];
+                    request['status'] = [ "Status", "new" ];
+                    request['reqtype'] = [ "Request Type", "book" ];
+                    $scope.requests.push(request);
+                    console.log($scope.requests);
+                    // end remove
+                    break;
+                }
+            }
 
             requestFactory.insertRequest(request)
                 .success(function () {

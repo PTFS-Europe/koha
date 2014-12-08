@@ -143,10 +143,10 @@ sub update {
 =cut
 
 sub seed_from_api {
-    my ( $self, $uin, $borrowernumber ) = @_;
+    my ( $self, $uin ) = @_;
 
     ${$self}{record} = ${Koha::ILLRequest::Abstract->new()->search($uin)}[0];
-    ${$self}{status} = Koha::ILLRequest::Status->new($borrowernumber);
+    ${$self}{status} = Koha::ILLRequest::Status->new();
     $self->save();        # save to DB.
 
     return $self;

@@ -43,9 +43,9 @@ is hard-coded to use BLDSS API.
 =cut
 
 sub new {
-    my ( $class, $borrowernumber ) = @_;
+    my ( $class ) = @_;
     my $self = {
-                borrowernumber  => $borrowernumber,
+                borrowernumber  => '',
                 biblionumber    => '',
                 status          => 'new',
                 placement_date  => 'today',
