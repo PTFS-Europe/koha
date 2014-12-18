@@ -45,6 +45,7 @@ is hard-coded to use BLDSS API.
 sub new {
     my ( $class ) = @_;
     my $self = {
+                id              => '',
                 borrowernumber  => '',
                 biblionumber    => '',
                 status          => 'new',
@@ -65,15 +66,22 @@ sub getFullStatus {
     my ( $self ) = @_;
 
     my $return = {
-                  borrowernumber  => ${$self}{borrowernumber},
-                  biblionumber    => ${$self}{biblionumber},
-                  status          => ${$self}{status},
-                  placement_date  => ${$self}{placement_date},
-                  reply_date      => ${$self}{reply_date},
-                  ts              => ${$self}{ts},
-                  completion_date => ${$self}{completion_date},
-                  reqtype         => ${$self}{reqtype},
-                  branch          => ${$self}{branch},
+                  id              => [ "Request Number", ${$self}{id} ],
+                  borrowernumber  => [ "Borrower Number",
+                                       ${$self}{borrowernumber} ],
+                  biblionumber    => [ "Item Number",
+                                       ${$self}{biblionumber} ],
+                  status          => [ "Status", ${$self}{status} ],
+                  placement_date  => [ "Placement Date",
+                                       ${$self}{placement_date} ],
+                  reply_date      => [ "Response Date",
+                                       ${$self}{reply_date} ],
+                  ts              => [ "Timestamp",
+                                       ${$self}{ts} ],
+                  completion_date => [ "Completion Date",
+                                       ${$self}{completion_date} ],
+                  reqtype         => [ "Request Type", ${$self}{reqtype} ],
+                  branch          => [ "Branch", ${$self}{branch} ],
                  };
 
     return $return;
@@ -82,6 +90,7 @@ sub getFullStatus {
 sub getSummary {
     my ( $self ) = @_;
     my $summary = {
+                   id             => [ "Request Number", ${$self}{id} ],
                    borrowernumber => [ "Borrower Number",
                                        ${$self}{borrowernumber} ],
                    biblionumber   => [ "Item Number",

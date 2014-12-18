@@ -82,6 +82,12 @@ if ( $type eq 'api' and $query ) {
         push @{$reply}, $rq->getSummary();
     }
 
+} elsif ( $type eq 'edit' ) {
+    my $requests = Koha::ILLRequests->new()->retrieve_ill_request($query);
+    foreach my $rq ( @{$requests} ) {
+        push @{$reply}, $rq->getFullDetails();
+    }
+
 } else {
     msg ("no match\n");
 }

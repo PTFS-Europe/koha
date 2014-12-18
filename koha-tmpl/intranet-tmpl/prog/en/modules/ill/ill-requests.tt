@@ -32,7 +32,23 @@
                 <input type="submit" value="submit"/>
             </form>
             <div id="results">
-                [% IF reply and query_value and
+                [% IF reply and query_type == "edit" %]
+                    <h2>Edit request “[% query_value %]”</h2>
+                    [% FOREACH summary IN reply %]
+                        <p>
+                            [% FOREACH line IN summary %]
+                                <span id=[% line.key %]>
+                                    <label for=[% line.key %]>
+                                        [% line.value.0 _ ": " %]
+                                    </label>
+                                    <input name=[% line.key %] type="text"
+                                           value=[% line.value.1 %] />
+                                </span>
+                                <br/>
+                            [% END %]
+                        </p>
+                    [% END %]
+                [% ELSIF reply and query_value and
                    (query_type == "request" or query_type == "requests") %]
                     [% IF query_type == "request" %]
                         <h2>Request created for “[% query_value %]“</h2>
@@ -50,16 +66,18 @@
                         </p>
                     [% END %]
                 [% ELSIF reply %]
+                    [% rq_url = "/cgi-bin/koha/ill/ill-requests.pl" %]
+                    [% rq_params = "?query_type=edit&query_value=" %]
                     [% IF query_type == "api" and query_value %]
-                        [% rq_url = "/cgi-bin/koha/ill/ill-requests.pl" %]
                         [% rq_params = "?query_type=request&query_value=" %]
-                        [% rq = rq_url _ rq_params %]
+                        [% api == true %]
                         <h2>Search results for ”[% query_value %]”</h2>
                     [% ELSIF query_type == "borrowers" and query_value %]
                         <h2>Borrower ”[% query_value %]“ their requests</h2>
                     [% ELSE %]
                         <h2>Details for all requests</h2>
                     [% END %]
+                    [% rq = rq_url _ rq_params %]
                     <table>
                         <thead>
                             <tr>
@@ -74,10 +92,15 @@
                                     [% FOREACH line IN summary %]
                                         [% value = line.value.1 %]
                                         <td>
-                                            [% IF line.key == 'uin' and rq %]
+                                            [% IF line.key == 'uin' and api %]
                                                 [% rqc = rq _ value %]
                                                 <a href=[% rqc %]>
                                                     Request [% value %]
+                                                </a>
+                                            [% ELSIF line.key == 'id' %]
+                                                [% rqc = rq _ value %]
+                                                <a href=[% rqc %]>
+                                                    Edit [% value %]
                                                 </a>
                                             [% ELSE %]
                                                 [% value %]

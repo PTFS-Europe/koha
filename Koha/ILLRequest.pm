@@ -118,6 +118,25 @@ sub getSummary {
     return \%summary;
 }
 
+=head3 fullRequest
+
+    my $fullRequest = $illRequest->getFullRequest();
+
+Return a data-structure ready for JSON or other format based processing and
+display to the end-user.  It returns a composit of $self's Record and Status
+`fullDetails' methods.
+
+=cut
+
+sub getFullDetails {
+    my ( $self ) = @_;
+    my $record = ${$self}{record}->getFullDetails();
+    my $status = ${$self}{status}->getFullStatus();
+    my %summary = (%{$record}, %{$status});
+
+    return \%summary;
+}
+
 =head3 update
 
     my $status = $illRequest->update($operation);
