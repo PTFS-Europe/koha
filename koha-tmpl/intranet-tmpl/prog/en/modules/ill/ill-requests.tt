@@ -21,14 +21,17 @@
             <form method="POST" action="/cgi-bin/koha/ill/ill-requests.pl">
                 <label for="query_type">Search type:</label>
                 <span>Specific Request</span>
-                <input name="query_type" type="radio" value="requests" checked="checked"/>
+                <input name="query_type" id="query_type"
+                       type="radio" value="requests" checked="checked"/>
                 <span>Requests by Borrower</span>
-                <input name="query_type" type="radio" value="borrowers"/>
+                <input name="query_type" id="query_type"
+                       type="radio" value="borrowers"/>
                 <span>Search the API</span>
-                <input name="query_type" type="radio" value="api">
+                <input name="query_type" id="query_type"
+                       type="radio" value="api">
                 <br/>
                 <label for="query_value">Search for:</label>
-                <input name="query_value" type="text"/>
+                <input name="query_value" id="query_value" type="text"/>
                 <input type="submit" value="submit"/>
             </form>
             <div id="results">
