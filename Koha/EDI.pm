@@ -27,8 +27,8 @@ use DateTime;
 use C4::Context;
 use Koha::Database;
 use C4::Acquisition qw( NewBasket AddInvoice ModReceiveOrder );
-use C4::Items qw(AddItemFromMarc AddItem);
-use C4::Biblio qw( AddBiblio TransformKohaToMarc );
+use C4::Items qw(AddItem);
+use C4::Biblio qw( AddBiblio TransformKohaToMarc GetMarcBiblio );
 use Koha::Edifact::Order;
 use Koha::Edifact;
 use Log::Log4perl;
@@ -242,6 +242,11 @@ sub quote_item {
         'items.notforloan'      => -1,
         'items.cn_sort'         => q{},
     };
+    my $item_hash = {
+        cn_source  => 'ddc',
+        notforloan => -1,
+        cn_sort    => q{},
+    };
     $bib_hash->{'biblio.seriestitle'} = $item->series;
 
     $bib_hash->{'biblioitems.publishercode'} = $item->publisher;
@@ -252,11 +257,10 @@ sub quote_item {
     $bib_hash->{'biblio.author'}        = $item->author;
     $bib_hash->{'biblioitems.isbn'}     = $item->item_number_id;
     $bib_hash->{'biblioitems.itemtype'} = $item->girfield('stock_category');
-    $bib_hash->{'items.booksellerid'}   = $quote->vendor_id;
-    $bib_hash->{'items.price'} = $bib_hash->{'items.replacementprice'} =
-      $item->price;
-    $bib_hash->{'items.itype'}    = $item->girfield('stock_category');
-    $bib_hash->{'items.location'} = $item->girfield('collection_code');
+    $item_hash->{booksellerid}          = $quote->vendor_id;
+    $item_hash->{price} = $item_hash->{replacementprice} = $item->price;
+    $item_hash->{itype} = $item->girfield('stock_category');
+    $item_hash->{location} = $item->girfield('collection_code');
 
     my $budget = _get_budget( $schema, $item->girfield('fund_allocation') );
 
@@ -270,10 +274,9 @@ sub quote_item {
 
     my $shelfmark =
       $item->girfield('shelfmark') || $item->girfield('classification') || q{};
-    $bib_hash->{'items.itemcallnumber'} = $shelfmark;
+    $item_hash->{itemcallnumber} = $shelfmark;
     my $branch = $item->girfield('branch');
-    $bib_hash->{'items.holdingbranch'} = $bib_hash->{'items.homebranch'} =
-      $branch;
+    $item_hash->{holdingbranch} = $item_hash->{homebranch} = $branch;
     for my $key ( keys %{$bib_hash} ) {
         if ( !defined $bib_hash->{$key} ) {
             delete $bib_hash->{$key};
@@ -333,8 +336,10 @@ sub quote_item {
         $order_hash->{order_internalnote} .= $item->internal_notes;
     }
 
+
     my $new_order = $schema->resultset('Aqorder')->create($order_hash);
-    $logger->trace("Order created :$new_order->ordernumber");
+    my $o         = $new_order->ordernumber();
+    $logger->trace("Order created :$o");
 
     # should be done by database settings
     $new_order->parent_ordernumber( $new_order->ordernumber() );
@@ -343,7 +348,7 @@ sub quote_item {
     if ( C4::Context->preference('AcqCreateItem') eq 'ordering' ) {
         my $itemnumber;
         ( $bib->{biblionumber}, $bib->{biblioitemnumber}, $itemnumber ) =
-          AddItemFromMarc( $bib_record, $bib->{biblionumber} );
+          AddItem( $item_hash, $bib->{biblionumber} );
         $logger->trace("Added item:$itemnumber");
         $schema->resultset('AqordersItem')->create(
             {
