@@ -88,6 +88,14 @@ if ( $type eq 'api' and $query ) {
         push @{$reply}, $rq->getForEditing();
     }
 
+} elsif ( $type eq 'post-edit' ) {
+    # We should have a complete set of Request properties / attributes, so we
+    # should just be able to push to DB?
+    my $requests = Koha::ILLRequests->new()->retrieve_ill_request($query);
+    foreach my $rq ( @{$requests} ) {
+        push @{$reply}, $rq->getSummary();
+    }
+
 } else {
     msg ("no match\n");
 }

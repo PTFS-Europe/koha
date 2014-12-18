@@ -45,16 +45,26 @@
                                 </span>
                                 <br/>
                             [% END %]
-                            [% FOREACH line IN request.1 %]
-                                <span id=[% line.key %]>
-                                    <label for=[% line.key %]>
-                                        [% line.value.0 _ ": " %]
-                                    </label>
-                                    <input name=[% line.key %] type="text"
-                                           value=[% line.value.1 %] />
-                                </span>
-                                <br/>
-                            [% END %]
+                            <form method="POST"
+                                  action="/cgi-bin/koha/ill/ill-requests.pl">
+                                [% FOREACH line IN request.1 %]
+                                    <span id=[% line.key %]>
+                                        <label for=[% line.key %]>
+                                            [% line.value.0 _ ": " %]
+                                        </label>
+                                        <input name=[% line.key %]
+                                               id=[% line.key %]
+                                               type="text"
+                                               value=[% line.value.1 %] />
+                                    </span>
+                                    <br/>
+                                [% END %]
+                                <input type="hidden" value="post-edit"
+                                       name="query_type"/>
+                                <input type="hidden" value=[% query_value %]
+                                       name="query_value"/>
+                                <input type="submit" value="submit"/>
+                            </form>
                         </p>
                     [% END %]
                 [% ELSIF reply and query_value and
