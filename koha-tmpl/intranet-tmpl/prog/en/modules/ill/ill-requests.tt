@@ -37,9 +37,15 @@
             <div id="results">
                 [% IF reply and query_type == "edit" %]
                     <h2>Edit request “[% query_value %]”</h2>
-                    [% FOREACH summary IN reply %]
+                    [% FOREACH request IN reply %]
                         <p>
-                            [% FOREACH line IN summary %]
+                            [% FOREACH line IN request.0 %]
+                                <span id=[% line.key %]>
+                                    [% line.value.0 _ ": " _ line.value.1 %]
+                                </span>
+                                <br/>
+                            [% END %]
+                            [% FOREACH line IN request.1 %]
                                 <span id=[% line.key %]>
                                     <label for=[% line.key %]>
                                         [% line.value.0 _ ": " %]

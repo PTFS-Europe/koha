@@ -137,6 +137,27 @@ sub getFullDetails {
     return \%summary;
 }
 
+=head3 getForEditing
+
+    my $partialRequest = $illRequest->getForEditing();
+
+Return a data-structure ready-for-JSON-or-other-format conversion and
+display. The data-structure will be a hashref of 2, with the first entry
+consisting of a summary of the Record, and the second entry consisting of the
+full Status details.
+
+The former is for display and should not be edited by hand.  The latter can be edited.
+
+=cut
+
+sub getForEditing {
+    my ( $self ) = @_;
+    my $record = ${$self}{record}->getSummary();
+    my $status = ${$self}{status}->getFullStatus();
+
+    return [ $record, $status ];
+}
+
 =head3 update
 
     my $status = $illRequest->update($operation);

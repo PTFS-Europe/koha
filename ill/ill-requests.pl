@@ -85,7 +85,7 @@ if ( $type eq 'api' and $query ) {
 } elsif ( $type eq 'edit' ) {
     my $requests = Koha::ILLRequests->new()->retrieve_ill_request($query);
     foreach my $rq ( @{$requests} ) {
-        push @{$reply}, $rq->getFullDetails();
+        push @{$reply}, $rq->getForEditing();
     }
 
 } else {
