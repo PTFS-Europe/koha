@@ -18,7 +18,6 @@
         <div class="yui-b">
 
             <h1>ILL Request management</h1>
-            <h2>Search the API</h2>
             <form method="POST" action="/cgi-bin/koha/ill/ill-requests.pl">
                 <label for="query_type">Search type:</label>
                 <span>Specific Request</span>
@@ -33,11 +32,34 @@
                 <input type="submit" value="submit"/>
             </form>
             <div id="results">
-                [% IF query_type == "api" and query_value and reply %]
-                    [% rq_url = "/cgi-bin/koha/ill/ill-requests.pl" %]
-                    [% rq_params = "?query_type=request&query_value=" %]
-                    [% rq = rq_url _ rq_params %]
-                    <h2>Search results for ”[% query_value %]”</h2>
+                [% IF reply and query_value and
+                   (query_type == "request" or query_type == "requests") %]
+                    [% IF query_type == "request" %]
+                        <h2>Request created for “[% query_value %]“</h2>
+                    [% ELSE %]
+                        <h2>Details for request “[% query_value %]“</h2>
+                    [% END %]
+                    [% FOREACH summary IN reply %]
+                        <p>
+                            [% FOREACH line IN summary %]
+                                <span id=[% line.key %]>
+                                    [% line.value.0 _ ": " _ line.value.1 %]
+                                </span>
+                                <br/>
+                            [% END %]
+                        </p>
+                    [% END %]
+                [% ELSIF reply %]
+                    [% IF query_type == "api" and query_value %]
+                        [% rq_url = "/cgi-bin/koha/ill/ill-requests.pl" %]
+                        [% rq_params = "?query_type=request&query_value=" %]
+                        [% rq = rq_url _ rq_params %]
+                        <h2>Search results for ”[% query_value %]”</h2>
+                    [% ELSIF query_type == "borrowers" and query_value %]
+                        <h2>Borrower ”[% query_value %]“ their requests</h2>
+                    [% ELSE %]
+                        <h2>Details for all requests</h2>
+                    [% END %]
                     <table>
                         <thead>
                             <tr>
@@ -52,7 +74,7 @@
                                     [% FOREACH line IN summary %]
                                         [% value = line.value.1 %]
                                         <td>
-                                            [% IF line.key == 'uin' %]
+                                            [% IF line.key == 'uin' and rq %]
                                                 [% rqc = rq _ value %]
                                                 <a href=[% rqc %]>
                                                     Request [% value %]
@@ -65,26 +87,6 @@
                             [% END %]
                         </tbody>
                     </table>
-                [% ELSIF reply %]
-                    [% IF query_type == "request" %]
-                        <h2>Request created for “[% query_value %]“</h2>
-                    [% ELSIF query_type == "requests" and query_value %]
-                        <h2>Details for request “[% query_value %]“</h2>
-                    [% ELSIF query_type == "borrowers" and query_value %]
-                        <h2>Borrower ”[% query_value %]“ their requests</h2>
-                    [% ELSE %]
-                        <h2>Details for all requests</h2>
-                    [% END %]
-                    [% FOREACH summary IN reply %]
-                        <p>
-                            [% FOREACH line IN summary %]
-                                <span id=[% line.key %]>
-                                    [% line.value.0 _ ": " _ line.value.1 %]
-                                </span>
-                                <br/>
-                            [% END %]
-                        </p>
-                    [% END %]
                 [% ELSE %]
                     <h2>No results</h2>
                     <p>No requests matching your criteria were found.</p>
