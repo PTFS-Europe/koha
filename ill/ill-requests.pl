@@ -39,8 +39,12 @@ my $reply = [];
 my $type = $input->param('query_type');
 my $query = $input->param('query_value');
 
-msg( $query . "\n" );
-msg( $type . "\n" );
+# msg( $query . "\n" );
+# msg( $type . "\n" );
+
+if ( !$query and !$type ) {
+    $type = 'requests';
+}
 
 my ( $template, $borrowernumber, $cookie )
   = get_template_and_user(
