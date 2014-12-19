@@ -35,6 +35,8 @@
                 <input type="submit" value="submit"/>
             </form>
             <div id="results">
+                [% USE Dumper %]
+                [% Dumper.dump(recv) %]
                 [% IF reply and query_type == "edit" %]
                     <h2>Edit request “[% query_value %]”</h2>
                     [% FOREACH request IN reply %]
@@ -89,7 +91,6 @@
                     [% rq_params = "?query_type=edit&query_value=" %]
                     [% IF query_type == "api" and query_value %]
                         [% rq_params = "?query_type=request&query_value=" %]
-                        [% api == true %]
                         <h2>Search results for ”[% query_value %]”</h2>
                     [% ELSIF query_type == "borrowers" and query_value %]
                         <h2>Borrower ”[% query_value %]“ their requests</h2>
@@ -111,7 +112,8 @@
                                     [% FOREACH line IN summary %]
                                         [% value = line.value.1 %]
                                         <td>
-                                            [% IF line.key == 'uin' and api %]
+                                            [% IF line.key == 'uin' and
+                                               query_type == "api" %]
                                                 [% rqc = rq _ value %]
                                                 <a href=[% rqc %]>
                                                     Request [% value %]

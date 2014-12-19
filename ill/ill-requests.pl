@@ -58,6 +58,7 @@ my ( $template, $borrowernumber, $cookie )
 
 $template->param( query_value => $query );
 $template->param( query_type => $type );
+$template->param( recv => $input );
 
 if ( $type eq 'api' and $query ) {
     $reply = Koha::ILLRequests->new()->search_api($query);
@@ -95,10 +96,9 @@ if ( $type eq 'api' and $query ) {
 } elsif ( $type eq 'post-edit' ) {
     # We should have a complete set of Request properties / attributes, so we
     # should just be able to push to DB?
-    my $requests = Koha::ILLRequests->new()->retrieve_ill_request($query);
-    foreach my $rq ( @{$requests} ) {
-        push @{$reply}, $rq->getSummary();
-    }
+    my $request = @{Koha::ILLRequests->new()->retrieve_ill_request($query)}[0];
+
+    push @{$reply}, $request->editStatus(\%{$input->Vars});
 
 } else {
     msg ("no match\n");

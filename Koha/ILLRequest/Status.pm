@@ -62,6 +62,22 @@ sub new {
     return $self;
 }
 
+sub getFields {
+    my ( $self ) = @_;
+    return {
+            #id              => ${$self}{id},
+            borrowernumber  => ${$self}{borrowernumber},
+            biblionumber    => ${$self}{biblionumber},
+            status          => ${$self}{status},
+            placement_date  => ${$self}{placement_date},
+            reply_date      => ${$self}{reply_date},
+            ts              => ${$self}{ts},
+            completion_date => ${$self}{completion_date},
+            reqtype         => ${$self}{reqtype},
+            branch          => ${$self}{branch},
+           };
+}
+
 sub getFullStatus {
     my ( $self ) = @_;
 
@@ -100,6 +116,34 @@ sub getSummary {
                   };
     return $summary;
 }
+
+=head3 update
+
+    my $modified_status = $illRequest->update($new_values);
+
+Modify our properties with the values of the corresponding properties passed
+as the hashref $NEW_VALUES.
+
+=cut
+use Data::Dump qw( dump );
+sub msg {
+    open my $log_fh, '>>', '/home/alex/koha-dev/var/log/dump.log'
+      or die "Could not open log: $!";
+    print $log_fh @_;
+    close $log_fh;
+}
+
+sub update {
+    my ( $self, $new_values ) = @_;
+
+    foreach my $field ( keys %{$self} ) {
+        ${$self}{$field} = ${$new_values}{$field};
+    }
+
+    msg(dump($self));
+    return $self;
+}
+
 
 =head3 create_from_store
 

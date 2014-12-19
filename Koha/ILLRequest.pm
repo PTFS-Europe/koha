@@ -68,20 +68,55 @@ ill_request_attributes tables.
 
 =cut
 
+use Data::Dump qw( dump );
+sub msg {
+    open my $log_fh, '>>', '/home/alex/koha-dev/var/log/dump.log'
+      or die "Could not open log: $!";
+    print $log_fh @_;
+    close $log_fh;
+}
+
 sub save {
     my ( $self ) = @_;
+    # Build combined object as expected by dbic.
+    # Retrieve Record
     my $full_rec = ${$self}{record}->getFullDetails();
+    # create DBIC friendly attribute list
     my $attrs = [];
     foreach my $type ( keys $full_rec ) {
+        #my $val = ( ${$full_rec}{$type}[1] or "" );
         push( @{$attrs}, { type => $type, value => ${$full_rec}{$type}[1] } );
     }
-    my $save_obj = ${$self}{status}->getFullStatus();
+    # Get ill_request DBIC data
+    my $save_obj = ${$self}{status}->getFields();
+    # add attrs into ill_request
     ${$save_obj}{'ill_request_attributes'} = $attrs;
+    msg(dump($save_obj), "\n");
 
+    #save.
     my $save = Koha::Database->new()->schema()->resultset('IllRequest')
       ->create( $save_obj );
 
     return $save;
+}
+
+=head3 editStatus
+
+    my $updatedRequest = $illRequest->editStatus($new_values);
+
+Update $ILLREQUEST's Status with the hashref passed to EDITSTATUS.
+
+=cut
+
+
+sub editStatus {
+    my ( $self, $new_values ) = @_;
+
+    ${$self}{status}->update($new_values);
+
+    msg(dump($self));
+
+    return $self->save;
 }
 
 =head3 status
