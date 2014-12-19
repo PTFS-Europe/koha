@@ -1676,6 +1676,9 @@ sub NormalizeISBN {
 
         if ( $format eq 'ISBN-10' ) {
             $isbn = $isbn->as_isbn10();
+            if (!$isbn) {
+               return;
+            }
         }
         elsif ( $format eq 'ISBN-13' ) {
             $isbn = $isbn->as_isbn13();
