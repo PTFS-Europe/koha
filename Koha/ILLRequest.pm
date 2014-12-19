@@ -79,23 +79,25 @@ sub msg {
 sub save {
     my ( $self ) = @_;
     # Build combined object as expected by dbic.
-    # Retrieve Record
-    my $full_rec = ${$self}{record}->getFullDetails();
-    # create DBIC friendly attribute list
-    my $attrs = [];
-    foreach my $type ( keys $full_rec ) {
-        #my $val = ( ${$full_rec}{$type}[1] or "" );
-        push( @{$attrs}, { type => $type, value => ${$full_rec}{$type}[1] } );
-    }
     # Get ill_request DBIC data
     my $save_obj = ${$self}{status}->getFields();
-    # add attrs into ill_request
-    ${$save_obj}{'ill_request_attributes'} = $attrs;
-    msg(dump($save_obj), "\n");
+    # If this is the first save, we must merge in the Record.
+    if ( !${$save_obj}{id} ) {
+        # Retrieve Record
+        my $full_rec = ${$self}{record}->getFullDetails();
+        # create DBIC friendly attribute list
+        my $attrs = [];
+        foreach my $type ( keys $full_rec ) {
+            push( @{$attrs},
+                  { type => $type, value => ${$full_rec}{$type}[1] } );
+        }
+        # add attrs into ill_request
+        ${$save_obj}{'ill_request_attributes'} = $attrs;
+    }
 
     #save.
     my $save = Koha::Database->new()->schema()->resultset('IllRequest')
-      ->create( $save_obj );
+      ->update_or_create( $save_obj );
 
     return $save;
 }
@@ -114,9 +116,8 @@ sub editStatus {
 
     ${$self}{status}->update($new_values);
 
-    msg(dump($self));
-
-    return $self->save;
+    return 1
+      if $self->save;
 }
 
 =head3 status

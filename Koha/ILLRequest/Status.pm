@@ -45,7 +45,7 @@ is hard-coded to use BLDSS API.
 sub new {
     my ( $class ) = @_;
     my $self = {
-                id              => '',
+                #id              => '',
                 borrowernumber  => '',
                 biblionumber    => '',
                 status          => 'new',
@@ -65,7 +65,7 @@ sub new {
 sub getFields {
     my ( $self ) = @_;
     return {
-            #id              => ${$self}{id},
+            id              => ${$self}{id},
             borrowernumber  => ${$self}{borrowernumber},
             biblionumber    => ${$self}{biblionumber},
             status          => ${$self}{status},
@@ -156,6 +156,9 @@ sub create_from_store {
     foreach my $field ( keys %{$self} ) {
         ${$self}{$field} = ${$attributes}{$field};
     }
+    # Finally: we should retrieve 'id' if it exists.
+    ${$self}{id} = ${$attributes}{id}
+      if ${$attributes}{id};
 
     return $self;
 }

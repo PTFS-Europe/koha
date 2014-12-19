@@ -97,8 +97,9 @@ if ( $type eq 'api' and $query ) {
     # We should have a complete set of Request properties / attributes, so we
     # should just be able to push to DB?
     my $request = @{Koha::ILLRequests->new()->retrieve_ill_request($query)}[0];
+    $request->editStatus(\%{$input->Vars});
 
-    push @{$reply}, $request->editStatus(\%{$input->Vars});
+    push @{$reply}, $request->getSummary();
 
 } else {
     msg ("no match\n");
