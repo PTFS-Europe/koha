@@ -70,6 +70,24 @@ sub build {
     return { record => $record, status => $status };
 }
 
+=head3 checkAvailability
+
+    my $checkAvailability = $illRequest->checkAvailability($uin, $properties);
+
+Submit a request to the currently configured API for $UIN, supplemented with
+the hashref $PROPERTIES.  Return the API response as an HTML object.
+
+=cut
+
+
+sub checkAvailability {
+    my ( $self, $uin, $properties ) = @_;
+    #return ${$self}{api}->availability($uin, $properties);
+    my $reply  = ${$self}{api}->availability($uin, $properties);
+    my $parser = XML::LibXML->new();
+    return $parser->load_xml( { string => $reply } );
+}
+
 =head3 search
 
     my $results = $abstractILL->search($query);

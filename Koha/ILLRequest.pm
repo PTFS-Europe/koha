@@ -102,6 +102,21 @@ sub save {
     return $save;
 }
 
+=head3 checkAvailability
+
+    my $checkAvailability = $illRequest->checkAvailability();
+
+Ask our Record to connect to its source (API) to check the availability for
+this Request.
+
+=cut
+
+sub checkAvailability {
+    my ( $self ) = @_;
+    #msg(dump(${$self}{record}));
+    return ${$self}{record}->checkAvailability();
+}
+
 =head3 editStatus
 
     my $updatedRequest = $illRequest->editStatus($new_values);

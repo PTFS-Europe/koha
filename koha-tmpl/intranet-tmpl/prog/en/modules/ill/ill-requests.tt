@@ -123,6 +123,13 @@
                                                 <a href=[% rqc %]>
                                                     Edit [% value %]
                                                 </a>
+                                                <br/>
+                                                [% rq_aparams = "?query_type=availability&query_value=" %]
+                                                [% rqa = rq_url _ rq_aparams %]
+                                                [% rqc = rqa _ value %]
+                                                <a href=[% rqc %]>
+                                                    Availability for [% value %]
+                                                </a>
                                             [% ELSE %]
                                                 [% value %]
                                             [% END %]

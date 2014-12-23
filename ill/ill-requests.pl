@@ -63,6 +63,10 @@ $template->param( recv => $input );
 if ( $type eq 'api' and $query ) {
     $reply = Koha::ILLRequests->new()->search_api($query);
 
+} elsif ( $type eq 'availability' and $query ) {
+    my $request = @{Koha::ILLRequests->new()->retrieve_ill_request($query)}[0];
+    push @{$reply}, $request->checkAvailability();
+
 } elsif ( $type eq 'request' and $query ) {
     my $request = Koha::ILLRequests->new()->request($query);
     push @{$reply}, $request->getSummary();

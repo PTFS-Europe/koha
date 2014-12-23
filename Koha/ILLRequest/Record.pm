@@ -62,6 +62,122 @@ sub new {
     return $self;
 }
 
+=head3 checkAvailability
+
+    my $checkAvailability = $illRequest->checkAvailability();
+
+Use our API to check the current availability of this item and return an
+associative array in the usual style ready for user output.
+
+=cut
+use Data::Dump qw( dump );
+sub msg {
+    open my $log_fh, '>>', '/home/alex/koha-dev/var/log/dump.log'
+      or die "Could not open log: $!";
+    print $log_fh @_;
+    close $log_fh;
+}
+
+=head3 checkAvailability
+
+    my $checkAvailability = $illRequest->checkAvailability();
+
+Return a record augmented by its availability status.  Availability is a
+transient property, so is not part of the actual record as such.
+
+XXX: This should normally be done via the config; but for now we hard-code the
+     means of availability parsing.
+
+=cut
+
+sub checkAvailability {
+    my ( $self ) = @_;
+    my $uin        = ${$self}{data}{uin}{value};
+    my $properties = { year => ${$self}{data}{metadata_itemLevel_year}{value} };
+    my $xml  = Koha::ILLRequest::Abstract->new()
+      ->checkAvailability($uin, $properties);
+    my $avail = [];
+
+    # Check for valid API response.
+    my $msg = $xml->findvalue('/apiResponse/message');
+    my $sts = $xml->findvalue('/apiResponse/status');
+    die "API Error: '$msg' (Error code: $sts).\n" if ($sts != '0');
+
+    foreach my $datum ($xml->findnodes('/apiResponse/result/availability')) {
+        msg("Got another one\n");
+        push @{$avail}, $self->_parseAvail($datum);
+    }
+
+    #$record->availability_from_xml($doc);
+    msg(dump($avail));
+    die;
+    return $avail;
+}
+
+sub _parseAvail {
+    my ( $self, $chunk ) = @_;
+    my $config =
+      {
+       loanAvailabilityDate => {
+                                name      => "Loan availability date",
+                                inSummary => "True",
+                               },
+       copyAvailabilityDate => {
+                                name      => "Copy availability date",
+                                inSummary => "True",
+                               },
+       copyrightFee         => {
+                                name      => "Copyright fee",
+                                inSummary => "True",
+                               },
+       availableImmediately => {
+                                name => "Available immediately?",
+                                inSummary => "True",
+                               },
+       matchedToSpecificItem => {
+                                name => "Matched to specific item?",
+                                inSummary => "True",
+                               },
+       isOnOrder            => {
+                                name => "On order?",
+                                inSummary => "True",
+                               },
+       availableFormats_availableFormat_deliveryFormat => {
+                                                           name => "Delivery format",
+                                                           inSummary => "True",
+                                                          },
+       availableFormats_availableFormat_deliveryModifiers => {
+                                              name => "Delivery modifiers",
+                                              inSummary => "True",
+                                             },
+       availableFormats_availableFormat_availableSpeeds_speed => {
+                                                  name => "Speed",
+                                                  inSummary => "True",
+                                                  },
+      };
+    my $return = {};
+    foreach my $field ( keys $config ) {
+        my $xpath = './' . join("/", split(/_/, $field));
+        my $value = [];
+        my $nodes = $chunk->findnodes($xpath);
+        if ( @{$nodes} > 1 ) {
+            foreach my $sub ( @{$nodes} ) {
+                push @{$value}, $sub->to_literal;
+            }
+        } else {
+            $value = [ $chunk->findvalue($xpath) ];
+        }
+        msg(dump($value) . "\n\n");
+        ${$return}{$field} =
+          {
+           value      => join(":", @{$value}),
+           name       => ${$config}{$field}{name},
+           inSummary  => ${$config}{$field}{inSummary},
+          };
+    }
+    return $return;
+}
+
 =head3 create_from_xml
 
     $rec->create_from_xml($xml);
