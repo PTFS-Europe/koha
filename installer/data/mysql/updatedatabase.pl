@@ -9585,13 +9585,69 @@ if ( CheckVersion($DBversion) ) {
     SetVersion ($DBversion);
 }
 
-$DBversion = "3.18.01.XXX";
+$DBversion = "3.18.02.000";
+if ( CheckVersion($DBversion) ) {
+    print "Upgrade to $DBversion done (3.18.2 release)\n";
+    SetVersion($DBversion);
+}
+
+$DBversion = "3.18.02.001";
+if ( CheckVersion($DBversion) ) {
+    $dbh->do("
+        UPDATE systempreferences
+        SET options = 'public|school|academic|research|private|societyAssociation|corporate|government|religiousOrg|subscription'
+        WHERE variable = 'UsageStatsLibraryType'
+    ");
+    if ( C4::Context->preference("UsageStatsLibraryType") eq "university" ) {
+        C4::Context->set_preference("UsageStatsLibraryType", "academic")
+    }
+    print "Upgrade to $DBversion done (Bug 13436: Add more options to UsageStatsLibraryType)\n";
+    SetVersion ($DBversion);
+}
+
+$DBversion = "3.18.02.002";
+if ( CheckVersion($DBversion) ) {
+    $dbh->do(q|
+        UPDATE suggestions SET branchcode="" WHERE branchcode="__ANY__"
+    |);
+    print "upgrade to $DBversion done (Bug 10753: replace __ANY__ with empty string in suggestions.branchcode)\n";
+    SetVersion ($DBversion);
+}
+
+$DBversion = "3.18.02.003";
+if ( CheckVersion($DBversion) ) {
+    my ($count) = $dbh->selectrow_array("SELECT COUNT(*) FROM borrowers GROUP BY userid HAVING COUNT(userid) > 1");
+
+    if ( $count ) {
+        print "Upgrade to $DBversion done (Bug 1861 - Unique patrons logins not (totally) enforced) FAILED!\n";
+        print "Your database has users with duplicate user logins. Please have your administrator deduplicate your user logins.\n";
+        print "Afterward, your Koha administrator should execute the following database query: ALTER TABLE borrowers DROP INDEX userid, ADD UNIQUE userid (userid)";
+    } else {
+        $dbh->do(q{
+            ALTER TABLE borrowers
+                DROP INDEX userid ,
+                ADD UNIQUE userid (userid)
+        });
+        print "Upgrade to $DBversion done (Bug 1861 - Unique patrons logins not (totally) enforced)\n";
+    }
+
+    SetVersion($DBversion);
+}
+
+$DBversion = "3.18.03.000";
+if ( CheckVersion($DBversion) ) {
+    print "Upgrade to $DBversion done (3.18.3 release)\n";
+    SetVersion($DBversion);
+}
+
+$DBversion = "3.18.03.XXX";
 if ( CheckVersion($DBversion) ) {
     $dbh->do("INSERT INTO `systempreferences` (variable,value,explanation,options,type) VALUES('SessionRestrictionByIP','1','Check for Change in  Remote IP address for Session Security. Disable when remote ip address changes frequently.','','YesNo')");
     print "Upgrade to $DBversion done (Bug 5511 - SessionRestrictionByIP)";
     SetVersion ($DBversion);
+}
 
-$DBversion = "3.18.01.XXX";
+$DBversion = "3.18.03.XXX";
 if( CheckVersion($DBversion) ){
 
     my $sql=<<'VEA_END';
@@ -9670,62 +9726,6 @@ EAN_END
     print "Upgrade to $DBversion done (Bug 7736 DB Changes for Edifact Processing ( Quote, Order and Invoice))\n";
     SetVersion($DBversion);
 }
-
-$DBversion = "3.18.02.000";
-if ( CheckVersion($DBversion) ) {
-    print "Upgrade to $DBversion done (3.18.2 release)\n";
-    SetVersion($DBversion);
-}
-
-$DBversion = "3.18.02.001";
-if ( CheckVersion($DBversion) ) {
-    $dbh->do("
-        UPDATE systempreferences
-        SET options = 'public|school|academic|research|private|societyAssociation|corporate|government|religiousOrg|subscription'
-        WHERE variable = 'UsageStatsLibraryType'
-    ");
-    if ( C4::Context->preference("UsageStatsLibraryType") eq "university" ) {
-        C4::Context->set_preference("UsageStatsLibraryType", "academic")
-    }
-    print "Upgrade to $DBversion done (Bug 13436: Add more options to UsageStatsLibraryType)\n";
-    SetVersion ($DBversion);
-}
-
-$DBversion = "3.18.02.002";
-if ( CheckVersion($DBversion) ) {
-    $dbh->do(q|
-        UPDATE suggestions SET branchcode="" WHERE branchcode="__ANY__"
-    |);
-    print "upgrade to $DBversion done (Bug 10753: replace __ANY__ with empty string in suggestions.branchcode)\n";
-    SetVersion ($DBversion);
-}
-
-$DBversion = "3.18.02.003";
-if ( CheckVersion($DBversion) ) {
-    my ($count) = $dbh->selectrow_array("SELECT COUNT(*) FROM borrowers GROUP BY userid HAVING COUNT(userid) > 1");
-
-    if ( $count ) {
-        print "Upgrade to $DBversion done (Bug 1861 - Unique patrons logins not (totally) enforced) FAILED!\n";
-        print "Your database has users with duplicate user logins. Please have your administrator deduplicate your user logins.\n";
-        print "Afterward, your Koha administrator should execute the following database query: ALTER TABLE borrowers DROP INDEX userid, ADD UNIQUE userid (userid)";
-    } else {
-        $dbh->do(q{
-            ALTER TABLE borrowers
-                DROP INDEX userid ,
-                ADD UNIQUE userid (userid)
-        });
-        print "Upgrade to $DBversion done (Bug 1861 - Unique patrons logins not (totally) enforced)\n";
-    }
-
-    SetVersion($DBversion);
-}
-
-$DBversion = "3.18.03.000";
-if ( CheckVersion($DBversion) ) {
-    print "Upgrade to $DBversion done (3.18.3 release)\n";
-    SetVersion($DBversion);
-}
-
 
 =head1 FUNCTIONS
 
