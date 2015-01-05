@@ -39,7 +39,8 @@ function moneyFormat(textObj) {
     if (dolAmount == "") {
         dolAmount = "0";
     }
-// Strip leading 0s
+
+    // Strip leading 0s
     if (dolAmount.length > 1) {
         while(dolAmount.length > 1 && dolAmount.substring(0,1) == "0") {
             dolAmount = dolAmount.substring(1,dolAmount.length);
@@ -48,7 +49,8 @@ function moneyFormat(textObj) {
     if (decAmount.length > 2) {
         decAmount = decAmount.substring(0,2);
     }
-// Pad right side
+
+    // Pad right side
     if (decAmount.length == 1) {
        decAmount = decAmount + "0";
     }
@@ -57,6 +59,37 @@ function moneyFormat(textObj) {
     }
 
     textObj.value = dolAmount + "." + decAmount;
+
+    // Calculate Change
+    [% IF total %]
+    var total = [% total | format('%.2f') %];
+    [% ELSE %]
+    var total = [% amountoutstanding | format('%.2f') %];
+    [% END %]
+    var giveChange = ( Number(dolAmount + "." + decAmount) * 100 - Number(total) * 100 ) / 100;
+    if ( giveChange > 0 ) {
+        document.getElementById('change').innerHTML = giveChange.toFixed(2);
+    } else {
+        document.getElementById('change').innerHTML = '0.00';
+    }
+
+    // Set hidden form field
+    if ( giveChange > 0 ) {
+        document.getElementById('paid').value = total;
+    } else {
+        document.getElementById('paid').value = dolAmount + "." + decAmount;
+    }
+
+    // Set reciept params
+    if ( giveChange > 0 ) {
+        $('a#reciept').attr('href', function(i,a){
+            return a.replace( /(tendered=).*&(change=).*&/ig, '$1' + dolAmount + "." + decAmount + '&' + '$2' + giveChange.toFixed(2).toString() + '&' );
+        });
+    } else {
+        $('a#reciept').attr('href', function(i,a){
+            return a.replace( /(tendered=).*&(change=).*&/ig, '$1' + dolAmount + "." + decAmount + '&' + '$2' + '0.00' + '&' );
+        });
+    }
 }
 //]]>
 </script>
@@ -140,16 +173,37 @@ function moneyFormat(textObj) {
 </table>
 
 <ol>
-
     <li>
-        <label for="paid">Collect from patron: </label>
-            <!-- default to paying all -->
-        <input name="paid" id="paid" value="[% amountoutstanding | format('%.2f') %]" onchange="moneyFormat(document.payindivfine.paid)"/>
+        <label for="collected">Collected from patron: </label>
+        <input name="collected" id="collected" value="[% amountoutstanding | format('%.2f') %]" onchange="moneyFormat(document.payindivfine.collected)" onkeydown="if (event.keyCode == 13) { blur(this); document.getElementById('submitbutton').focus(); return false; }"/>
+        <input type="hidden" name="paid" id="paid" value="[% amountoutstanding | format('%.2f') %]" />
+    </li>
+    <li>
+        <label for="change">Change to give: </label>
+        <span  name="change" id="change" class="debit">0.00</span>
+    </li>
+    <li>
+        <label for="type">Payment type: </label>
+        <select name="type" id="type">
+            [% FOREACH PaymentType IN PaymentTypes %]
+            <option value="[% PaymentType.authorised_value %]">[% PaymentType.lib %]</option>
+            [% END %]
+        </select>
+    </li>
+    <li>
+        <label for="till">Till: </label>
+        <select name="till" id="till">
+            <option value="[% till.name %]" selected="selected">[% till.name %]</option>
+            [% FOREACH till IN tills_loop %]
+            <option value="[% till.tillid %]">[% till.name %]</option>
+            [% END %]
+        </select>
     </li>
 </ol>
 </fieldset>
 
-    <div class="action"><input type="submit" name="submitbutton" value="Confirm" />
+    <div class="action"><input class="btn btn-small" id="submitbutton" type="submit" name="submitbutton" value="Confirm" />
+        <a id="reciept" class="btn btn-small" target="_blank" href="/cgi-bin/koha/members/printreciept.pl?borrowernumber=[% borrower.borrowernumber %]&accountlines_id=[% accountlines_id %]&tendered=[% amountoutstanding | format('%.2f') %]&change=0.00&action=print">Reciept</a>
         <a class="cancel" href="/cgi-bin/koha/members/pay.pl?borrowernumber=[% borrower.borrowernumber %]">Cancel</a></div>
     </form>
 [% ELSIF ( writeoff_individual ) %]
@@ -190,6 +244,7 @@ function moneyFormat(textObj) {
     </table>
     </fieldset>
     <div class="action"><input type="submit" name="confirm_writeoff" id="confirm_writeoff" value="Write off this charge" />
+        <a id="reciept"class="btn btn-small" target="_blank" href="/cgi-bin/koha/members/printreciept.pl?borrowernumber=[% borrower.borrowernumber %]&accountlines_id=[% accountlines_id %]&tendered=0.00&change=0.00&action=print">Reciept</a>
         <a class="cancel" href="/cgi-bin/koha/members/pay.pl?borrowernumber=[% borrower.borrowernumber %]">Cancel</a></div>
     </form>
 [% ELSE %]
@@ -207,9 +262,30 @@ function moneyFormat(textObj) {
             <span class="debit">[% total | format('%.2f') %]</span>
         </li>
     <li>
-        <label for="paid">Collect from patron: </label>
-        <!-- default to paying all -->
-        <input name="paid" id="paid" value="[% total | format('%.2f') %]" onchange="moneyFormat(document.payfine.paid)"/>
+        <label for="collected">Collected from patron: </label>
+        <input name="collected" id="collected" value="[% total | format('%.2f') %]" onchange="moneyFormat(document.payfine.collected)" onkeydown="if (event.keyCode == 13) { blur(this); document.getElementById('submitbutton').focus(); return false; }"/>
+        <input type="hidden" name="paid" id="paid" value="[% total | format('%.2f') %]" />
+    </li>
+    <li>
+        <label for="change">Change to give: </label>
+        <span  name="change" id="change" class="debit">0.00</span>
+    </li>
+    <li>
+        <label for="type">Payment type: </label>
+        <select name="type" id="type">
+            [% FOREACH PaymentType IN PaymentTypes %]
+            <option value="[% PaymentType.authorised_value %]">[% PaymentType.lib %]</option>
+            [% END %]
+        </select>
+    </li>
+    <li>
+        <label for="till">Till: </label>
+        <select name="till" id="till">
+            <option value="[% till.name %]" selected="selected">[% till.name %]</option>
+            [% FOREACH till IN tills_loop %]
+            <option value="[% till.tillid %]">[% till.name %]</option>
+            [% END %]
+        </select>
     </li>
     <li>
         <label for="selected_accts_notes">Note: </label>
@@ -217,8 +293,15 @@ function moneyFormat(textObj) {
     </li>
     </ol>
     </fieldset>
-    <div class="action"><input type="submit" name="submitbutton" value="Confirm" />
-        <a class="cancel" href="/cgi-bin/koha/members/boraccount.pl?borrowernumber=[% borrower.borrowernumber %]">Cancel</a></div>
+    <div class="action">
+        <input class="btn btn-small" id="submitbutton" type="submit" name="submitbutton" value="Confirm" />
+        [% IF ( selected_accts ) %]
+        <a id="reciept" class="btn btn-small" target="_blank" href="/cgi-bin/koha/members/printreciept.pl?borrowernumber=[% borrower.borrowernumber %]&accountlines_id=[% selected_accts %]&tendered=[% total | format('%.2f') %]&change=0.00&action=print">Reciept</a>
+        [% ELSE %]
+        <a id="reciept" class="btn btn-small" target="_blank" href="/cgi-bin/koha/members/printreciept.pl?borrowernumber=[% borrower.borrowernumber %]&tendered=[% total | format('%.2f') %]&change=0.00&action=print">Reciept</a>
+        [% END %]
+        <a class="cancel" href="/cgi-bin/koha/members/boraccount.pl?borrowernumber=[% borrower.borrowernumber %]">Cancel</a>
+    </div>
     </form>
 [% END %]
 </div></div>

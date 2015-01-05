@@ -72,7 +72,7 @@ if ($add){
             $template->param( 'ERROR' => $error );
             output_html_with_http_headers $input, $cookie, $template->output;
         } else {
-            print $input->redirect("/cgi-bin/koha/members/boraccount.pl?borrowernumber=$borrowernumber");
+            print $input->redirect("/cgi-bin/koha/members/maninvoice.pl?borrowernumber=$borrowernumber");
             exit;
         }
     }
@@ -87,17 +87,30 @@ if ($add){
                              updatecharges => 'remaining_permissions' },
         debug           => 1,
     });
-					
-  # get authorised values with type of MANUAL_INV
-  my @invoice_types;
-  my $dbh = C4::Context->dbh;
-  my $sth = $dbh->prepare('SELECT * FROM authorised_values WHERE category = "MANUAL_INV"');
-  $sth->execute();
-  while ( my $row = $sth->fetchrow_hashref() ) {
-    push @invoice_types, $row;
-  }
-  $template->param( invoice_types_loop => \@invoice_types );
 
+  # IF Cash Management enabled use transcodes,
+  # otherwise fall back to Manual Invoice types
+
+  if ( C4::Context->preference('CashManagement') ) {
+    my @cash_transcodes;
+    my $dbh = C4::Context->dbh;
+    my $sth = $dbh->prepare('SELECT code, description FROM cash_transcode');
+    $sth->execute();
+    while ( my $row = $sth->fetchrow_hashref() ) {
+      push @cash_transcodes, $row;
+    }
+    $template->param( cash_transcodes => \@cash_transcodes );
+  } else {
+    # get authorised values with type of MANUAL_INV
+    my @invoice_types;
+    my $dbh = C4::Context->dbh;
+    my $sth = $dbh->prepare('SELECT * FROM authorised_values WHERE category = "MANUAL_INV"');
+    $sth->execute();
+    while ( my $row = $sth->fetchrow_hashref() ) {
+      push @invoice_types, $row;
+    }
+    $template->param( invoice_types_loop => \@invoice_types );
+  }
     if ( $data->{'category_type'} eq 'C') {
         my  ( $catcodes, $labels ) =  GetborCatFromCatType( 'A', 'WHERE category_type = ?' );
         my $cnt = scalar(@$catcodes);

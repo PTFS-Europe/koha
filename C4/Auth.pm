@@ -32,6 +32,7 @@ use C4::Branch; # GetBranches
 use C4::Search::History;
 use C4::VirtualShelves;
 use Koha::AuthUtils qw(hash_password);
+use Koha::Database;
 use POSIX qw/strftime/;
 use List::MoreUtils qw/ any /;
 
@@ -231,6 +232,7 @@ sub get_template_and_user {
             $template->param( CAN_user_staffaccess      => 1 );
             $template->param( CAN_user_plugins          => 1 );
             $template->param( CAN_user_coursereserves   => 1 );
+            $template->param( CAN_user_cashmanage       => 1 );
             foreach my $module (keys %$all_perms) {
                 foreach my $subperm (keys %{ $all_perms->{$module} }) {
                     $template->param( "CAN_user_${module}_${subperm}" => 1 );
@@ -372,6 +374,25 @@ sub get_template_and_user {
             persona                      => C4::Context->preference("persona"),
     );
     if ( $in->{'type'} eq "intranet" ) {
+        my $schema   = Koha::Database->new()->schema();
+        my $filter = { branch => C4::Context->userenv?C4::Context->userenv->{"branch"}:undef };
+        my $tills_rs = $schema->resultset('CashTill')->search(
+            $filter,
+            {
+                prefetch  => 'branch',
+                '+select' => ['branch.branchname'],
+                '+as'     => ['branchname']
+            }
+        );
+        my @tills_loop;
+        my $current_till;
+        while ( my $till = $tills_rs->next ) {
+            push @tills_loop, { tillid => $till->get_column('tillid'), name => $till->get_column('name'), description => $till->get_column('description') };
+            if ( $in->{'query'}->cookie("KohaStaffClient") eq $till->get_column('tillid') ) {
+                $current_till = { tillid => $till->get_column('tillid'), name => $till->get_column('name'), description => $till->get_column('description') };
+            }
+        }
+
         $template->param(
             AmazonCoverImages           => C4::Context->preference("AmazonCoverImages"),
             AutoLocation                => C4::Context->preference("AutoLocation"),
@@ -403,6 +424,8 @@ sub get_template_and_user {
             EnableBorrowerFiles         => C4::Context->preference('EnableBorrowerFiles'),
             UseKohaPlugins              => C4::Context->preference('UseKohaPlugins'),
             UseCourseReserves            => C4::Context->preference("UseCourseReserves"),
+            tills_loop                  => \@tills_loop,
+            till                        => $current_till,
         );
     }
     else {

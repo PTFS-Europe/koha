@@ -1,0 +1,87 @@
+[% USE Koha %] [% INCLUDE 'doc-head-open.inc' %]
+<title>Print Receipt for [% cardnumber %]</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="[% IF ( IntranetFavicon ) %][% IntranetFavicon %][% ELSE %][% interface %]/[% theme %]/img/favicon.ico[% END %]"
+type="image/x-icon" />
+<link rel="stylesheet" type="text/css" href="[% themelang %]/css/printreceiptinvoice.css"/>
+[% INCLUDE 'slip-print.inc' #printThenClose %]
+</head>
+
+<body id="pat_printreciept" class="pat" onload="printThenClose();">
+
+    <div id="receipt">
+        <!-- The table with the account items -->
+        <table>
+            [% IF ( LibraryName ) %]
+            <tr>
+                <th colspan=3 class="centerednames">
+                    <h3>[% LibraryName %]</h3>
+                </th>
+            </tr>
+            [% END %]
+            <tr>
+                <th colspan=3 class="centerednames">
+                    <h2><u>Fee receipt</u></h2>
+                </th>
+            </tr>
+            <tr>
+                <th colspan=3 class="centerednames">
+                    [% IF ( branchname ) %]
+                    <h2>[% branchname %]</h2>[% END %]
+                </th>
+            </tr>
+            <tr>
+                <th colspan=3>
+                    Received with thanks from [% firstname %] [% surname %]
+                    <br
+                    />Card number : [% cardnumber %]
+                    <br />
+                </th>
+            </tr>
+            <tr>
+                <th>Date</th>
+                <th>Description of charges</th>
+                <th>Amount</th>
+            </tr>
+
+            [% FOREACH account IN accounts %]
+            <tr class="highlight">
+                <td>[% account.date %]</td>
+                <td>
+                    [% SWITCH account.accounttype %] [% CASE 'Pay' %]Payment, thanks [% CASE 'Pay00'
+                    %]Payment, thanks (cash via SIP2) [% CASE 'Pay01' %]Payment,
+                    thanks (VISA via SIP2) [% CASE 'Pay02' %]Payment, thanks (credit
+                    card via SIP2) [% CASE 'N' %]New Card [% CASE 'F' %]Fine [%
+                    CASE 'A' %]Account management fee [% CASE 'M' %]Sundry [% CASE
+                    'L' %]Lost Item [% CASE 'W' %]Writeoff [% CASE %][% account.accounttype
+                    %] [%- END -%] [%- IF account.description %], [% account.description
+                    %][% END %]
+                </td>
+                [% IF ( account.amountcredit ) %]
+                <td class="credit">[% ELSE %]
+                    <td class="debit">[% END %][% account.amount %]</td>
+            </tr>
+
+            [% END %]
+            <tfoot>
+                <tr>
+                    <td colspan="2">Total:</td>
+                    <td>[% total %]</td>
+                </tr>
+                <tr>
+                    <td colspan="2">Tendered:</td>
+                    <td>[% tendered %]</td>
+                </tr>
+                <tr>
+                    <td colspan="2">Change:</td>
+                    <td>[% change %]</td>
+            </tfoot>
+        </table>
+        <h1>Account Summary</h1>
+        [% IF ( totalcredit ) %]
+        <p>Your account is in credit by [% total %]</p>
+        [% ELSE %]
+        <p>Your account is in debit by [% total %]</p>
+        [% END %]
+    </div>
+    [% INCLUDE 'intranet-bottom.inc' notill="1" %]

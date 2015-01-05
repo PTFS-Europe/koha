@@ -1,3 +1,4 @@
+[% USE Koha %]
 [% INCLUDE 'doc-head-open.inc' %]
 <title>Koha &rsaquo; Patrons &rsaquo; Create manual invoice</title>
 [% INCLUDE 'doc-head-close.inc' %]
@@ -43,6 +44,8 @@ $(document).ready(function(){
 	<legend>Manual invoice</legend>
 	<ol>
       <li>
+[% IF Koha.Preference( 'CashManagement' ) %]
+[% ELSE %]
 <script type="text/javascript">
 var type_fees = new Array();
 type_fees['L'] = '';
@@ -53,8 +56,16 @@ type_fees['M'] = '';
 [% FOREACH invoice_types_loo IN invoice_types_loop %]
 type_fees['[% invoice_types_loo.authorised_value %]'] = "[% invoice_types_loo.lib %]";
 [% END %]
+[% END %]
 </script>
         <label for="type">Type: </label>
+        [% IF Koha.Preference( 'CashManagement' ) %]
+        <select name="type" id="type">
+        [% FOREACH cash_transcode IN cash_transcodes %]
+            <option value="[% cash_transcode.code %]">[% cash_transcode.description %]</option>
+        [% END %]
+        </select>
+        [% ELSE %]
         <select name="type" id="type" onchange="this.form.desc.value=this.options[this.selectedIndex].value; this.form.amount.value=type_fees[this.options[this.selectedIndex].value];">
           <option value="L">Lost item</option>
           <option value="F">Fine</option>
@@ -65,6 +76,7 @@ type_fees['[% invoice_types_loo.authorised_value %]'] = "[% invoice_types_loo.li
             <option value="[% invoice_types_loo.authorised_value %]">[% invoice_types_loo.authorised_value %]</option>
           [% END %]
         </select>
+        [% END %]
       </li>
 	<li><label for="barcode">Barcode: </label><input type="text" name="barcode" id="barcode" /></li>
 	<li><label for="desc">Description: </label><input type="text" name="desc" id="desc" size="50" /></li>

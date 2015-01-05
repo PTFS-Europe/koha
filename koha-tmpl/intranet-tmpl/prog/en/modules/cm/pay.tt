@@ -1,0 +1,70 @@
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Koha &rsaquo; Cash Management</title>
+[% INCLUDE 'doc-head-close.inc' %]
+<script type="text/javascript">
+$(document).ready(function(){
+        $('#chargeform').preventDoubleFormSubmit();
+        $("fieldset.rows input, fieldset.rows select").addClass("noEnterSubmit");
+});
+
+</script>
+</head>
+
+</head>
+<body id="cm-home" class="cm">
+[% INCLUDE 'header.inc' %]
+
+
+<div id="breadcrumbs"><a href="/cgi-bin/koha/mainpage.pl">Home</a> &rsaquo; Cash Management</div>
+
+<div id="doc" class="yui-t7">
+
+  <div id="bd">
+    <div class="yui-g">
+
+<form action="/cgi-bin/koha/cm/pay.pl"method="post" id="chargeform">
+<input type="hidden"cmd="charge" id="cmd" value="charge" />
+<table>
+<tr><th>Item</th><th>Amount</th><th>Payment Type</th></tr>
+
+<tr>
+
+</tr>
+<td>
+<select name="trans_code" id="trans_code">
+    [% FOREACH  t IN transcodes %]
+    <option value="[% t.code %]">[% t.description %]</option>
+    [% END %]
+</select>
+</td>
+<td>
+<input type="text" name="amt" id="amt" />
+</td>
+<td>
+<select name="paymenttype" id="paymenttype">
+   [% FOREACH p IN paymenttypes %]
+     [% IF p == 'Cash' %]
+     <option value="[% p %]" selected="1" >[% p %]</option>
+     [% ELSE %]
+     <option value="[% p %]">[% p %]</option>
+     [% END %]
+   [% END %]
+</select>
+</td>
+</tr>
+</table>
+
+<!--Currently in single transaction mode <li>Total: -->
+<fieldset class="action">
+   <input type="submit" name="charge" value="Charge" />
+   <a class="cancel" href="/cgi-bin/koha/circ/circulation-home.pl">Cancel</a>
+</fieldset>
+</form>
+      <div class="yui-u">
+
+      </div>
+    </div>
+  </div>
+</div>
+
+[% INCLUDE 'intranet-bottom.inc' %]

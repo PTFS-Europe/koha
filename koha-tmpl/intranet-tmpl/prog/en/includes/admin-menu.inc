@@ -1,3 +1,4 @@
+[% USE Koha %]
 <script type="text/javascript">//<![CDATA[
     $(document).ready(function() {
         var path = location.pathname.substring(1);
@@ -58,6 +59,15 @@
         <li><a href="/cgi-bin/koha/admin/edi_ean_accounts.pl">EDI eans</a></li>
 
 </ul>
+
+    [% IF Koha.Preference( 'CashManagement' ) %]
+<h5>Cash Management parameters</h5>
+<ul>
+    <li><a href="/cgi-bin/koha/admin/transcode.pl">Category Codes</a></li>
+    <li><a href="/cgi-bin/koha/admin/tills.pl">Tills</a></li>
+</ul>
+    [% END %]
+
 
 <h5>Additional parameters</h5>
 

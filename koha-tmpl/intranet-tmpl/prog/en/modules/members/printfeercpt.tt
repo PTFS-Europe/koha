@@ -71,4 +71,4 @@
   </tfoot>
 </table>
 </div>
-[% INCLUDE 'intranet-bottom.inc' %]
+[% INCLUDE 'intranet-bottom.inc' notill="1" %]

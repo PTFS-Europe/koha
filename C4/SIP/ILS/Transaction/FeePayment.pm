@@ -47,8 +47,12 @@ sub pay {
     my $borrowernumber = shift;
     my $amt            = shift;
     my $type           = shift;
+    my $koha_type;
+    if ( $type eq '00' ) {
+        $koha_paytype = 'Cash';
+    }
     warn("RECORD:$borrowernumber::$amt");
-    recordpayment( $borrowernumber, $amt,$type );
+    recordpayment( $borrowernumber, $amt, $type, undef, $tillid, $koha_type );
 }
 
 #sub DESTROY {

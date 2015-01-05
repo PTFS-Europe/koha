@@ -1,3 +1,4 @@
+[% USE Koha %]
 [% INCLUDE 'doc-head-open.inc' %]
 <title>Koha &rsaquo; Administration</title>
 [% INCLUDE 'doc-head-close.inc' %]
@@ -97,6 +98,16 @@
         <dd>Manage Branch EDI EANs</dd>
 
 </dl>
+
+[% IF Koha.Preference( 'CashManagement' ) %]
+<h3>Cash management parameters</h3>
+<dl>
+    <dt><a href="/cgi-bin/koha/admin/transcode.pl">Cash Management Categories</a></dt>
+    <dd>Define categories for recording paymenrs in cash management.</dd>
+    <dt><a href="/cgi-bin/koha/admin/tills.pl">Tills</a></dt>
+    <dd>Define tills for cash management.</dd>
+</dl>
+[% END %]
 
 <h3>Additional parameters</h3>
 <dl>

@@ -1,0 +1,6 @@
+#!/usr/bin/perl
+
+use Modern::Perl;
+use Koha::Service::Till;
+
+Koha::Service::Till->new->run;

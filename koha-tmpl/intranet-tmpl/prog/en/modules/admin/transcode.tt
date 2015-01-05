@@ -1,0 +1,270 @@
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Koha &rsaquo; Administration &rsaquo; Cash Management Transaction Categories</title>
+[% INCLUDE 'doc-head-close.inc' %]
+<link rel="stylesheet" type="text/css" href="[% themelang %]/css/datatables.css"
+/>[% INCLUDE 'datatables.inc' %]
+<script type="text/javascript">
+    //<![CDATA[
+    $(document).ready(function()
+    {
+        var trans_table = $('#table_transcodes').dataTable(
+            $.extend(true,
+            {}, dataTablesDefaults,
+            {
+                "columnDefs": [
+                {
+                    "targets": 0,
+                    "orderable": true,
+                    "searchable": false,
+                    "data": "code",
+                },
+                {
+                    "targets": 1,
+                    "orderable": true,
+                    "searchable": true,
+                    "data": "description",
+                },
+                {
+                    "targets": 2,
+                    "orderable": true,
+                    "searchable": true,
+                    "data": "income_group",
+                },
+                {
+                    "targets": 3,
+                    "orderable": true,
+                    "searchable": true,
+                    "data": "taxrate",
+                },
+                {
+                    "targets": 4,
+                    "orderable": true,
+                    "searchable": true,
+                    "data": "visible_charge",
+                },
+                {
+                    "targets": 5,
+                    "orderable": false,
+                    "searchable": false,
+                    "data": "action",
+                }],
+                "order": [1, 'asc'],
+            })
+        );
+
+        var row;
+        $('.edit-category').on('click', function()
+        {
+            row = trans_table.api().row($(this).closest('tr'));
+            $("#addCategoryHeader").text("Edit category");
+            $("#addCategorySubmit").text("Edit category");
+
+            var code = $(this).data('code');
+            $("#addCategoryForm #code").val( code ).prop('disabled', true);
+
+            var data = row.data();
+            $("#addCategoryForm #description").val( data.description );
+            $("#addCategoryForm #group").val( data.group );
+            $("#addCategoryForm #tax").val( data.taxrate );
+            $("#addCategoryForm #visible_charge").val( data.visible_charge );
+        });
+
+        $('#add_category').on('click', function()
+        {
+            // Reset Form
+            $("#addCategoryForm #code").removeAttr('value').prop('disabled', false);
+            $("#addCategoryForm #description").removeAttr('value');
+            $("#addCategoryForm #group").removeAttr('value');
+            $("#addCategoryForm #tax").removeAttr('value');
+            $("#addCategoryForm #visible_charge").removeAttr('value');
+
+            // Correct Form Headers
+            $("#addCategoryHeader").text("Add category");
+            $("#addCategorySubmit").text("Add category");
+        });
+
+        $("#addCategoryForm").submit(function()
+        {
+            var edit = $("#addCategoryForm #code").prop('disabled');
+
+            var code = $("input:[name=code]").val();
+            var description = $("input:[name=description]").val();
+            var group = $('#group').val();
+            var groupname = $("#group option:selected").text();
+            var tax = $('#tax').val();
+            var taxname = $("#tax option:selected").text();
+            var visible_charge = $('#visible_charge').val();
+
+            var transcode = {
+                "code": code,
+                "description": description,
+                "income_group": group,
+                "taxrate": tax,
+                "visible_charge": visible_charge
+            };
+
+            if ( edit )
+            {
+                $.ajax(
+                {
+                    type: "PUT",
+                    url: "/cgi-bin/koha/svc/transcodes/"+code,
+                    contentType: 'application/json',
+                    data: JSON.stringify(transcode),
+                    dataType: 'json',
+                    success: function(data)
+                    {
+                        data["action"] = '<a class="edit-category" href="#addCategory" data-toggle="modal" data-code="'+data["code"]+'">Edit</a> <a class="delete-category" href="#deleteCategory" data-code="'+data["code"]+'">Delete</a>';
+                        console.log( "data returned: " + JSON.stringify(data));
+                        trans_table.api().row( row ).data( data ).draw();
+                        $('#addCategory').modal('hide');
+                    },
+                    error: function(data)
+                    {
+                        trans_table.api().row.add(transcode).draw();
+                        $('#addCategory').modal('hide');
+                    }
+                });
+            }
+            else
+            {
+                $.ajax(
+                {
+                    type: "POST",
+                    url: "/cgi-bin/koha/svc/transcodes",
+                    contentType: 'application/json',
+                    data: JSON.stringify(transcode),
+                    dataType: 'json',
+                    success: function(data)
+                    {
+                        data["action"] = '<a class="edit-category" href="#addCategory" data-toggle="modal" data-code="'+data["code"]+'">Edit</a> <a class="delete-category" href="#deleteCategory" data-code="'+data["code"]+'">Delete</a>';
+                        trans_table.api().row.add(data).draw();
+                        $('#addCategory').modal('hide');
+                    },
+                    error: function(data)
+                    {
+                        trans_table.api().row.add(transcode).draw();
+                        $('#addCategory').modal('hide');
+                    }
+                });
+            }
+            return false; // avoid to execute the actual submit of the form.
+        });
+
+
+        $('#addCategorySubmit').click(function()
+        {
+            $("#addCategoryForm").submit();
+        });
+    });
+    //]]>
+</script>
+</head>
+
+<body id="admin_transcode" class="admin">
+    [% INCLUDE 'header.inc' %] [% INCLUDE 'cat-search.inc' %]
+
+    <div id="breadcrumbs">
+        <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+        &rsaquo; <a href="/cgi-bin/koha/admin/admin-home.pl">Administration</a>
+        &rsaquo; <a href="/cgi-bin/koha/admin/transcode.pl">Cash management</a>
+        &rsaquo; Transaction categories
+    </div>
+
+    <div id="doc3" class="yui-t2">
+        <div id="bd">
+            <div id="yui-main">
+                <div class="yui-b">
+                    [% IF display %]
+                    <div id="toolbar" class="btn-toolbar">
+                        <a class="btn btn-small" id="add_category" role="button" href="#addCategory" data-toggle="modal" data-code="BANG"><i class="icon-plus"></i> New Category</a>
+                    </div>
+                    [% END %] [% IF display %]
+                    <h2>Transaction categories</h2>
+                    <table id="table_transcodes">
+                        <thead>
+                            <th>Code</th>
+                            <th>Description</th>
+                            <th>Group Code</th>
+                            <th>Tax rate</th>
+                            <th>Visible charge</th>
+                            <th>Actions</th>
+                        </thead>
+                        [% FOREACH tcode IN transcodes %]
+                        <tr>
+                            <td>[% tcode.code %]</td>
+                            <td>[% tcode.description %]</td>
+                            <td>[% tcode.income_group %]</td>
+                            <td>[% tcode.taxrate %]</td>
+                            <td>
+                                [% IF tcode.visible_charge == 1%]
+                                   Yes
+                                [% ELSE %]
+                                   No
+                                [% END %]
+                            </td>
+                            <td>
+                                <a class="edit-category" href="#addCategory" data-toggle="modal" data-code="[% tcode.code %]">Edit</a>
+                                <a class="delete-category" href="#deleteCategory" data-code="[% tcode.code %]">Delete</a>
+                            </td>
+                        </tr>
+                        [% END %]
+                    </table>
+                    [% END %]
+
+                </div>
+            </div>
+            <div class="yui-b">
+                [% INCLUDE 'admin-menu.inc' %]
+            </div>
+        </div>
+        [% INCLUDE 'intranet-bottom.inc' %]
+
+        <!-- AddItem Modal -->
+        <div id="addCategory" class="modal hide fade" tabindex="-1" role="dialog">
+            <div class="modal-header">
+                <button type="button" class="closebtn" data-dismiss="modal" aria-hidden="true">x</button>
+                <h3 id="addCategoryHeader">Add category</h3>
+            </div>
+            <div class="modal-body">
+                <form id="addCategoryForm">
+                    <fieldset class="rows">
+                        <ol>
+                            <li>
+                                <label for="code">Code:</label>
+                                <input type="text" id="code" name="code">
+                            </li>
+                            <li>
+                                <label for="description">Description:</label>
+                                <input type="text" id="description" name="description">
+                            </li>
+                            <li>
+                                <label for="group">Group:</label>
+                                <select id="group" name="group">
+                                    [% FOREACH group IN groups %]
+                                    <option value="[% group.authorised_value %]">[% group.lib %]</option>
+                                    [% END %]
+                                </select>
+                            </li>
+                            <li>
+                                <label for="tax">Tax Rate:</label>
+                                <select id="tax" name="tax">
+                                    [% FOREACH tax IN taxrates %]
+                                    <option value="[% tax.authorised_value %]">[% tax.lib %]</option>
+                                    [% END %]
+                                </select>
+                            </li>
+                            <li>
+                                <label for="visible_charge">Visible charge:</label>
+                                <input type="checkbox" id="visible_charge" name="visible_charge">
+                            </li>
+
+                        </ol>
+                    </fieldset>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+                <button type="submit" id="addCategorySubmit" class="btn btn-primary">Add category</button>
+            </div>
+        </div>

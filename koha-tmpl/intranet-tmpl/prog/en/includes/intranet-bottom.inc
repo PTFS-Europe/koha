@@ -1,3 +1,4 @@
+[% USE Koha %]
         </div>
 
 [% IF ( languages_loop ) %]
@@ -64,6 +65,9 @@
         </div>
         </div>
     [% END %]
+[% END %]
+[% IF Koha.Preference( 'CashManagement' ) && notill != 1 %]
+[% INCLUDE 'till-modal.inc' %]
 [% END %]
     </body>
 </html>

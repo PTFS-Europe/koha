@@ -1,0 +1,135 @@
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Koha &rsaquo; Cash Management Till</title>
+[% INCLUDE 'doc-head-close.inc' %]
+<link rel="stylesheet" type="text/css" href="[% themelang %]/css/datatables.css" />
+[% INCLUDE 'datatables.inc' %]
+<script type="text/javascript">
+$(document).ready(function() {
+    var table = $("#table_transactions").dataTable($.extend(true, {}, dataTablesDefaults, {
+        "sPaginationType": "four_button",
+        'aaSorting': [],
+        "sDom": 'C<"top pager"ilpf><"#filter_c">tr<"bottom pager"ip>'
+    }));
+
+    var pop = [% popup %];
+    if ( pop ) {
+       $('#selectTill').modal();
+    }
+
+});
+</script>
+</head>
+<body id="cm-till" class="cm">
+[% INCLUDE 'header.inc' %]
+<!-- CM Header ?? -->
+
+
+<div id="breadcrumbs"><a href="/cgi-bin/koha/mainpage.pl">Home</a> &rsaquo; Cash Management</div>
+
+<div id="doc" class="yui-t2">
+
+  <div id="bd">
+    <div id="yui-main">
+      <div class="yui-b">
+<!-- TOOLBAR ??? -->
+<div id="toolbar" class="btn-toolbar">
+    <div class="btn-group">
+       <a id="displaytoday" class="btn btn-small" href="/cgi-bin/koha/cm/till.pl?cmd=display&tillid=[% till.tillid %]">Today</a>
+    </div>
+    <div class="btn-group">
+       <a id="displayall" class="btn btn-small" href="/cgi-bin/koha/cm/till.pl?cmd=all&tillid=[% till.tillid %]">All</a>
+    </div>
+<!--
+    <div class="btn-group">
+       <id="displayday" class="btn btn-small" href="/cgi-bin/koha/cm/till.pl?cmd=day&tillid="[% till.tillid %]">Day</a>
+    </div>
+-->
+    <div class="btn-group">
+       <a id="cashuptill" class="btn btn-small" href="/cgi-bin/koha/cm/till.pl?cmd=cashup&tillid=[% till.tillid %]">Cash up</a>
+    </div>
+</div>
+<!-- TOOLBAR ??? -->
+<div class="statictabs">
+
+      <h1>Cash Management</h1>
+      <h2>Till:[% till.name %] ([% till.description %])</h2>
+<!-- may need a select other till if perm -->
+
+         <form action="/cgi-bin/koha/cm/till.pl" method="get">
+           <input type="hidden" name="till_id" id="till_id" value="[% till.tillid %]" />
+         </form>
+           <div id="tabs" class="toptabs">
+           <div id="till_trans">
+           <table id="table_transactions">
+           <thead>
+             <th>Timestamp</th>
+             <th>Code</th>
+             <th>Payment Type</th>
+             <th>Amount In</th>
+             <th>Amount Out</th>
+           </thead>
+           <tbody>
+           [% FOREACH t IN transactions %]
+           <tr>
+           <td>[% t.created %]</td>
+           <td>[% t.tcode %]</td>
+           <td>[% t.paymenttype %]</td>
+           [% IF t.amt > 0 %]
+             <td>[% t.amt %]</td>
+             <td></td>
+           [% ELSIF t.amt  < 0 %]
+             <td></td>
+             <td>[% t.amt %]</td>
+           [% ELSE %]
+             <td></td>
+             <td></td>
+           [% END %]
+           </tr>
+           [% END %]
+           </tbody>
+           </table>
+           <p Running Totals:/>
+           <table>
+           <thead>
+             [% IF cashup == 1 %]
+                <th>Payment Type</th>
+             [% END %]
+             <th>Paid In</th>
+             <th>Paid Out</th>
+             <th>Total</th>
+           </thead>
+           <tbody>
+             [% IF cashup == 1 %]
+             [% FOREACH st IN subtotals %]
+             <tr>
+                  <td>[% st.type %]</td>
+                  <td>[% st.total_in | format('%.2f') %]</td>
+                  <td>[% st.total_out | format('%.2f')  %]</td>
+                  <td>[% st.balance | format('%.2f') %]</td>
+             </tr>
+             [% END %]
+             [% END %]
+           <tr>
+             [% IF cashup == 1 %]
+             <td>Totals</td>
+             [% END %]
+             <td>[% total_in | format('%.2f') %]</td>
+             <td>[% total_out | format('%.2f')  %]</td>
+             <td>[% balance | format('%.2f') %]</td>
+           </tr>
+           </tbody>
+           </table>
+
+           </div>
+           </div>
+
+      </div>
+    </div>
+<!--
+  <div class="yui-b">
+ menu.inc
+  </div>
+-->
+</div>
+
+[% INCLUDE 'intranet-bottom.inc' %]

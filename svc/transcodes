@@ -1,0 +1,6 @@
+#!/usr/bin/perl
+
+use Modern::Perl;
+use Koha::Service::Transcode;
+
+Koha::Service::Transcode->new->run;

@@ -322,6 +322,21 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 cashes_till
+
+Type: has_many
+
+Related object: L<Koha::Schema::Result::CashTill>
+
+=cut
+
+__PACKAGE__->has_many(
+  "cashes_till",
+  "Koha::Schema::Result::CashTill",
+  { "foreign.branch" => "self.branchcode" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 categories_branches
 
 Type: has_many

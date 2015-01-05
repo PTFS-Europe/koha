@@ -82,6 +82,13 @@
                     </li>
                     [% END %]
 
+                    [% IF CAN_user_cashmanage %]
+                    <li>
+                        <a class="icon_general icon_acquisitions" href="/cgi-bin/koha/cm/cm-home.pl">Cash Management</a>
+                        <span class="biglink"></span>
+                    </li>
+                    [% END %]
+
                     [% IF ( CAN_user_reports ) %]
                     <li>
                         <a class="icon_general icon_reports" href="/cgi-bin/koha/reports/reports-home.pl">Reports</a>

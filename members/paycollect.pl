@@ -29,6 +29,7 @@ use C4::Members::Attributes qw(GetBorrowerAttributes);
 use C4::Accounts;
 use C4::Koha;
 use C4::Branch;
+use Koha::Database;
 
 my $input = CGI->new();
 
@@ -61,6 +62,8 @@ my $select       = $input->param('selected_accts');
 my $payment_note = uri_unescape $input->param('payment_note');
 my $accountno;
 my $accountlines_id;
+my $tillid = $input->param('tillid') || $input->cookie("KohaStaffClient");
+my $type = $input->param('type');
 if ( $individual || $writeoff ) {
     if ($individual) {
         $template->param( pay_individual => 1 );
@@ -110,10 +113,10 @@ if ( $total_paid and $total_paid ne '0.00' ) {
         if ($individual) {
             if ( $total_paid == $total_due ) {
                 makepayment( $accountlines_id, $borrowernumber, $accountno, $total_paid, $user,
-                    $branch, $payment_note );
+                    $branch, $payment_note, $tillid, $type );
             } else {
                 makepartialpayment( $accountlines_id, $borrowernumber, $accountno, $total_paid,
-                    $user, $branch, $payment_note );
+                    $user, $branch, $payment_note, $tillid, $type );
             }
             print $input->redirect(
                 "/cgi-bin/koha/members/pay.pl?borrowernumber=$borrowernumber");
@@ -124,10 +127,10 @@ if ( $total_paid and $total_paid ne '0.00' ) {
                 }
                 my @acc = split /,/, $select;
                 my $note = $input->param('selected_accts_notes');
-                recordpayment_selectaccts( $borrowernumber, $total_paid, \@acc, $note );
+                recordpayment_selectaccts( $borrowernumber, $total_paid, \@acc, $note, $tillid, $type );
             } else {
                 my $note = $input->param('selected_accts_notes');
-                recordpayment( $borrowernumber, $total_paid, '', $note );
+                recordpayment( $borrowernumber, $total_paid, '', $note, $tillid, $type );
             }
 
 # recordpayment does not return success or failure so lets redisplay the boraccount
@@ -143,6 +146,9 @@ if ( $total_paid and $total_paid ne '0.00' ) {
 
 borrower_add_additional_fields($borrower);
 
+my $schema = Koha::Database->new()->schema();
+my @paymenttypes = $schema->resultset('AuthorisedValue')->search( { category => 'PaymentType', });
+
 $template->param(
     borrowernumber => $borrowernumber,    # some templates require global
     borrower      => $borrower,
@@ -150,6 +156,7 @@ $template->param(
     activeBorrowerRelationship => (C4::Context->preference('borrowerRelationship') ne ''),
     RoutingSerials => C4::Context->preference('RoutingSerials'),
     ExtendedPatronAttributes => C4::Context->preference('ExtendedPatronAttributes'),
+    PaymentTypes => \@paymenttypes
 );
 
 output_html_with_http_headers $input, $cookie, $template->output;

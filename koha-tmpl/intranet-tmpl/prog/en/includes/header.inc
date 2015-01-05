@@ -1,3 +1,4 @@
+[% USE Koha %]
 [% USE Branches %]
 <div id="header" class="navbar navbar-static-top">
     <div class="navbar-inner">
@@ -26,6 +27,11 @@
                     [% IF ( UseCourseReserves ) %]
                     <li><a href="/cgi-bin/koha/course_reserves/course-reserves.pl">Course reserves</a></li>
                     [% END %]
+		    [% IF CAN_user_cashmanage %]
+		    <li>
+		      <a href="/cgi-bin/koha/cm/cm-home.pl">Cash management</a>
+		    </li>
+		    [% END %]
                     [% IF ( CAN_user_reports ) %]
                     <li><a href="/cgi-bin/koha/reports/reports-home.pl">Reports</a></li>
                     [% END %]
@@ -71,6 +77,11 @@
                     [% ELSE %]
                     <li>
                         <a class="toplinks" href="/cgi-bin/koha/circ/selectbranchprinter.pl">Set library</a>
+                    </li>
+                    [% END %]
+                    [% IF Koha.Preference( 'CashManagement' ) %]
+                    <li>
+                        <a id="till-select" class="toplinks" href="#selectTill" data-toggle="modal">Set till (<span id="KohaStaffClient">[% till.name %]</span>)</a>
                     </li>
                     [% END %]
                     [% IF EnableSearchHistory %]
