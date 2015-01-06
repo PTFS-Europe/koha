@@ -127,3 +127,36 @@ record:
         name: Author
       pages:
         name: Pages
+
+availability:
+  loanAvailabilityDate:
+    name: Loan availability date
+    inSummary: True
+  copyAvailabilityDate:
+    name: Copy availability date
+    inSummary: True
+  copyrightFee:
+    name: Copyright fee
+    inSummary: True
+  availableImmediately:
+    name: Available immediately?
+    inSummary: True
+  matchedToSpecificItem:
+    name: Matched to specific item?
+    inSummary: True
+  isOnOrder:
+    name: On order?
+    inSummary: True
+  availableFormats:
+    go: True
+    availableFormat:
+      go: True
+      deliveryFormat:
+        name: Delivery format
+        inSummary: True
+      deliveryModifiers:
+        name: Delivery modifiers
+        inSummary: True
+      availableSpeeds_speed:
+        name: Speed
+        inSummary: True

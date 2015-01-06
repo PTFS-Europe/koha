@@ -53,9 +53,10 @@ the API's $XML response.
 sub new {
     my ($class, $config) = @_;
     my $self = {
-                properties  => $config->record_properties(),
-                data        => {},
-                accessors   => {},
+                record_props  => $config->getProperties('record'),
+                avail_props   => $config->getProperties('availability'),
+                data          => {},
+                accessors     => {},
                };
 
     bless $self, $class;
@@ -106,45 +107,7 @@ sub checkAvailability {
 
 sub _parseAvail {
     my ( $self, $chunk ) = @_;
-    my $config =
-      {
-       loanAvailabilityDate => {
-                                name      => "Loan availability date",
-                                inSummary => "True",
-                               },
-       copyAvailabilityDate => {
-                                name      => "Copy availability date",
-                                inSummary => "True",
-                               },
-       copyrightFee         => {
-                                name      => "Copyright fee",
-                                inSummary => "True",
-                               },
-       availableImmediately => {
-                                name => "Available immediately?",
-                                inSummary => "True",
-                               },
-       matchedToSpecificItem => {
-                                name => "Matched to specific item?",
-                                inSummary => "True",
-                               },
-       isOnOrder            => {
-                                name => "On order?",
-                                inSummary => "True",
-                               },
-       availableFormats_availableFormat_deliveryFormat => {
-                                                           name => "Delivery format",
-                                                           inSummary => "True",
-                                                          },
-       availableFormats_availableFormat_deliveryModifiers => {
-                                              name => "Delivery modifiers",
-                                              inSummary => "True",
-                                             },
-       availableFormats_availableFormat_availableSpeeds_speed => {
-                                                  name => "Speed",
-                                                  inSummary => "True",
-                                                  },
-      };
+    my $config = ${$self}{avail_props};
     my $return = {};
     # We're building data for html output.  The template expects format:
     # { id => [ name, value ], ... }
@@ -182,17 +145,17 @@ sub create_from_xml {
     my ( $self, $xml ) = @_;
 
     # for each property defined in the API config...
-    foreach my $field ( keys ${$self}{properties} ) {
+    foreach my $field ( keys ${$self}{record_props} ) {
         # populate data if desired.
         my $xpath = './' . join("/",split(/_/, $field));
         ${$self}{data}{$field} =
           {
            value      => $xml->findvalue($xpath),
-           name       => ${$self}{properties}{$field}{name},
-           inSummary  => ${$self}{properties}{$field}{inSummary},
+           name       => ${$self}{record_props}{$field}{name},
+           inSummary  => ${$self}{record_props}{$field}{inSummary},
           };
         # populate accessor if desired.
-        my $accessor = ${$self}{properties}{$field}{accessor};
+        my $accessor = ${$self}{record_props}{$field}{accessor};
         if ($accessor) {
             ${$self}{accessors}{$accessor} = ${$self}{data}{$field}{value};
         }
@@ -209,17 +172,17 @@ sub create_from_xml {
 sub create_from_store {
     my ( $self, $attributes ) = @_;
 
-    foreach my $field ( keys ${$self}{properties} ) {
+    foreach my $field ( keys ${$self}{record_props} ) {
 
         # populate data from database
         ${$self}{data}{$field} = {
             value     => $attributes->{$field},
-            name      => ${$self}{properties}{$field}{name},
-            inSummary => ${$self}{properties}{$field}{inSummary},
+            name      => ${$self}{record_props}{$field}{name},
+            inSummary => ${$self}{record_props}{$field}{inSummary},
         };
 
         # populate accessor if desired
-        my $accessor = ${$self}{properties}{$field}{accessor};
+        my $accessor = ${$self}{record_props}{$field}{accessor};
         if ($accessor) {
             ${$self}{accessors}{$accessor} = ${$self}{data}{$field}{value};
         }

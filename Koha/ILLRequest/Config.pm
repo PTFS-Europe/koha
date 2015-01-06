@@ -60,7 +60,8 @@ sub new {
     my $class = shift;
     my $self  = _load_config_file(C4::Context->config("illconfig"));
     bless $self, $class;
-    $self->_derive_record_properties();
+    $self->_deriveProperties("record_props", ${$self}{record});
+    $self->_deriveProperties("availability_props", ${$self}{availability});
     return $self;
 }
 
@@ -69,58 +70,61 @@ sub get_types {
     return { no_longer_used => "Ignore" };
 }
 
-=head3 _derive_record_properties
+=head3 _deriveProperties
 
-    $self->_derive_record_properties();
+    my $_derivedProperties = $illRequest->_deriveProperties($target, $source);
 
-Translate config file data structure into ILL module friendly hashref,
-without losing data required to traverse XML response.
+Translate config file's $TARGET data structure into an ILL module friendly
+hashref, without losing data required for traversal of XML responses.
+
+The hashref will be stored in $SOURCE.
 
 =cut
 
-sub _derive_record_properties {
-    my ($self) = @_;
-    return $self->_next_level(${$self}{record});
+sub _deriveProperties {
+    my ($self, $target, $source) = @_;
+    return $self->_nextLevel($target, $source);
 }
 
-=head3 _next_level
+=head3 _nextLevel
 
-    $self->_next_level(TODO, PREFIX);
+    $self->_nextLevel($target, $todo, $prefix);
 
-Provide means for _derive_record_properties to recursively process the
-config data structure.  TODO is the next level of the recursive
-structure; PREFIX the next part of the name to prepend for the key in
-the final hash.
+Provide means for _deriveProperties to recursively process the config data
+structure.  $TARGET is the key under which the resulting data structure will
+be saved in $self.  $TODO is the next level of the recursive structure;
+$PREFIX the next part of the name to prepend for the key in the final hash.
 
 =cut
 
-sub _next_level {
-    my ($self, $todo, @prefix) = @_;
+sub _nextLevel {
+    my ($self, $target, $todo, @prefix) = @_;
     foreach my $id ( keys $todo ) {
         if ( $id eq 'go') {
         } elsif ( ${$todo}{$id}{go} ) {
-            $self->_next_level(${$todo}{$id}, @prefix , $id);
+            $self->_nextLevel($target, ${$todo}{$id}, @prefix , $id);
         } else {
-            ${$self}{record_properties}{join("_", @prefix , $id)}
-              = ${$todo}{$id};
+            ${$self}{$target}{join("_", @prefix , $id)} = ${$todo}{$id};
         }
     }
-    return ${$self}{record_properties};
+    return ${$self}{$target};
 }
 # End translation.
 
-=head3 record_properties
+=head3 getProperties
 
-    $properties = $config->record_properties();
+    $properties = $config->getProperties($name);
 
-Return the record_properties, a data structure derived from parsing
-the ILL yaml config.
+Return the properties of type $NAME, a data structure derived from parsing the
+ILL yaml config.
+
+At present we provide "record" and "availability" properties.
 
 =cut
 
-sub record_properties {
-    my $self = shift;
-    return ${$self}{record_properties};
+sub getProperties {
+    my ( $self, $name ) = @_;
+    return ${$self}{$name . "_props"};
 }
 
 =head3 _load_config_file
