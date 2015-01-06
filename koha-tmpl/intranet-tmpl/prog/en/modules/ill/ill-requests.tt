@@ -36,7 +36,17 @@
             </form>
             <div id="results">
                 [% USE Dumper %]
-                [% Dumper.dump(recv) %]
+                <h2>Debugging Output</h2>
+                <dl>
+                    <dt>Request</dt>
+                    <dd>
+                        [% Dumper.dump(recv) %]
+                    </dd>
+                    <dt>Reply</dt>
+                    <dd>
+                        [% Dumper.dump(reply) %]
+                    </dd>
+                </dl>
                 [% IF reply and query_type == "edit" %]
                     <h2>Edit request “[% query_value %]”</h2>
                     [% FOREACH request IN reply %]
