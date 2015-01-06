@@ -125,13 +125,6 @@ Modify our properties with the values of the corresponding properties passed
 as the hashref $NEW_VALUES.
 
 =cut
-use Data::Dump qw( dump );
-sub msg {
-    open my $log_fh, '>>', '/home/alex/koha-dev/var/log/dump.log'
-      or die "Could not open log: $!";
-    print $log_fh @_;
-    close $log_fh;
-}
 
 sub update {
     my ( $self, $new_values ) = @_;
@@ -140,7 +133,6 @@ sub update {
         ${$self}{$field} = ${$new_values}{$field};
     }
 
-    msg(dump($self));
     return $self;
 }
 

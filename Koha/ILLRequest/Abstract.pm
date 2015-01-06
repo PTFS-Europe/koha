@@ -82,7 +82,6 @@ the hashref $PROPERTIES.  Return the API response as an HTML object.
 
 sub checkAvailability {
     my ( $self, $uin, $properties ) = @_;
-    #return ${$self}{api}->availability($uin, $properties);
     my $reply  = ${$self}{api}->availability($uin, $properties);
     my $parser = XML::LibXML->new();
     return $parser->load_xml( { string => $reply } );

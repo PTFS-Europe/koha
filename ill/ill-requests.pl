@@ -26,21 +26,10 @@ use C4::Search qw(GetDistinctValues);
 use C4::Context;
 use Koha::ILLRequests;
 
-use Data::Dump qw( dump );
-sub msg {
-    open my $log_fh, '>>', '/home/alex/koha-dev/var/log/dump.log'
-      or die "Could not open log: $!";
-    print $log_fh @_;
-    close $log_fh;
-}
-
 my $input = CGI->new;
 my $reply = [];
 my $type = $input->param('query_type');
 my $query = $input->param('query_value');
-
-# msg( $query . "\n" );
-# msg( $type . "\n" );
 
 if ( !$query and !$type ) {
     $type = 'requests';
@@ -106,7 +95,7 @@ if ( $type eq 'api' and $query ) {
     push @{$reply}, $request->getSummary();
 
 } else {
-    msg ("no match\n");
+    die("no match\n");
 }
 
 $template->param( reply => $reply );

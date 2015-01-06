@@ -68,14 +68,6 @@ ill_request_attributes tables.
 
 =cut
 
-use Data::Dump qw( dump );
-sub msg {
-    open my $log_fh, '>>', '/home/alex/koha-dev/var/log/dump.log'
-      or die "Could not open log: $!";
-    print $log_fh @_;
-    close $log_fh;
-}
-
 sub save {
     my ( $self ) = @_;
     # Build combined object as expected by dbic.
@@ -113,7 +105,6 @@ this Request.
 
 sub checkAvailability {
     my ( $self ) = @_;
-    #msg(dump(${$self}{record}));
     return ${$self}{record}->checkAvailability();
 }
 

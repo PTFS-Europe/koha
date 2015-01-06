@@ -70,13 +70,6 @@ Use our API to check the current availability of this item and return an
 associative array in the usual style ready for user output.
 
 =cut
-use Data::Dump qw( dump );
-sub msg {
-    open my $log_fh, '>>', '/home/alex/koha-dev/var/log/dump.log'
-      or die "Could not open log: $!";
-    print $log_fh @_;
-    close $log_fh;
-}
 
 =head3 checkAvailability
 
@@ -103,14 +96,11 @@ sub checkAvailability {
     my $sts = $xml->findvalue('/apiResponse/status');
     die "API Error: '$msg' (Error code: $sts).\n" if ($sts != '0');
 
+    # Build Availability Results
     foreach my $datum ($xml->findnodes('/apiResponse/result/availability')) {
-        msg("Got another one\n");
         push @{$avail}, $self->_parseAvail($datum);
     }
 
-    #$record->availability_from_xml($doc);
-    msg(dump($avail));
-    die;
     return $avail;
 }
 
@@ -156,6 +146,8 @@ sub _parseAvail {
                                                   },
       };
     my $return = {};
+    # We're building data for html output.  The template expects format:
+    # { id => [ name, value ], ... }
     foreach my $field ( keys $config ) {
         my $xpath = './' . join("/", split(/_/, $field));
         my $value = [];
@@ -167,13 +159,11 @@ sub _parseAvail {
         } else {
             $value = [ $chunk->findvalue($xpath) ];
         }
-        msg(dump($value) . "\n\n");
         ${$return}{$field} =
-          {
-           value      => join(":", @{$value}),
-           name       => ${$config}{$field}{name},
-           inSummary  => ${$config}{$field}{inSummary},
-          };
+          [
+           ${$config}{$field}{name},
+           join("; ", @{$value}),
+          ];
     }
     return $return;
 }
