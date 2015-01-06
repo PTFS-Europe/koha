@@ -104,6 +104,8 @@
                         <h2>Search results for ”[% query_value %]”</h2>
                     [% ELSIF query_type == "borrowers" and query_value %]
                         <h2>Borrower ”[% query_value %]“ their requests</h2>
+                    [% ELSIF query_type == "availability" and query_value %]
+                        <h2>Availability details for request ”[% query_value %]“</h2>
                     [% ELSE %]
                         <h2>Details for all requests</h2>
                     [% END %]
