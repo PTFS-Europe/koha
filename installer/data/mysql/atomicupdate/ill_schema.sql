@@ -68,8 +68,8 @@ CREATE TABLE ill_requests (
 
 CREATE TABLE `ill_request_attributes` (
     req_id bigint(20) unsigned NOT NULL DEFAULT '0',
-    type varchar(30) COLLATE NOT NULL,
-    value text COLLATE NOT NULL,
+    type varchar(30) NOT NULL,
+    value text NOT NULL,
     KEY `fk_illrequest_id` (`req_id`),
     CONSTRAINT `fk_illrequest_id` FOREIGN KEY (`req_id`) REFERENCES `ill_requests` (`id`)
 ); 
