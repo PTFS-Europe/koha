@@ -53,8 +53,9 @@ the API's $XML response.
 sub new {
     my ($class, $config) = @_;
     my $self = {
-                record_props  => $config->getProperties('record'),
                 avail_props   => $config->getProperties('availability'),
+                price_props   => $config->getProperties('prices'),
+                record_props  => $config->getProperties('record'),
                 data          => {},
                 accessors     => {},
                };
@@ -98,6 +99,33 @@ sub checkAvailability {
     return $avail;
 }
 
+=head3 checkPrices
+
+    my $prices = $illRequest->checkPrices();
+
+Use our API to return a generic structure on prices, formats, services and
+delivery times and return it as a suitably formatted associative array.
+
+=cut
+
+sub checkPrices {
+    my ( $self ) = @_;
+    my $xml  = Koha::ILLRequest::Abstract->new()->getPrices();
+    my $prices = [];
+
+    # Check for valid API response.
+    my $msg = $xml->findvalue('/apiResponse/message');
+    my $sts = $xml->findvalue('/apiResponse/status');
+    die "API Error: '$msg' (Error code: $sts).\n" if ($sts != '0');
+
+    # Build Prices Results (there should only be one result node...)
+    foreach my $datum ($xml->findnodes('/apiResponse/result')) {
+        push @{$prices}, $self->_parseResponse($datum);
+    }
+
+    return $prices;
+}
+
 sub _parseResponse {
     my ( $self, $chunk, $config, $accum ) = @_;
     if ( $config eq "avail" ) {
@@ -106,17 +134,9 @@ sub _parseResponse {
         $config = ${$self}{price_props};
     }
     $accum = {} if ( !$accum );
-    # We're building data for html output.  The template expects format:
-    # { id => [ name, value ], ... }
     foreach my $field ( keys $config ) {
-        my $nodes = [ 0 ];
-        if ( $field ne "./" ) {
-            $nodes = $chunk->findnodes($field);
-        }
-        if ( @{$nodes} > 1 ) { # or ${$config}{$field} ) {
-            # Type test for array in $config$field would fix prices.
-            # Also: we can remove initial findnodes.
-            foreach my $node (@{$nodes}) {
+        if ( ref(${$config}{$field}) eq 'ARRAY' ) {
+            foreach my $node ($chunk->findnodes($field)) {
                 ${$accum}{$field} = [] if ( !${$accum}{$field} );
                 push @{$accum}{$field},
                   $self->_parseResponse($node, ${$config}{$field}[0], {});

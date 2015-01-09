@@ -68,6 +68,7 @@ sub new {
     ${$self}{record_props} = $self->_deriveProperties(${$self}{record});
     ${$self}{availability_props} =
       $self->_deriveProperties(${$self}{availability});
+    ${$self}{prices_props} = $self->_deriveProperties(${$self}{prices});
     return $self;
 }
 
