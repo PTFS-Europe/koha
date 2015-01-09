@@ -18,6 +18,7 @@ package Koha::ILLRequest::Config;
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 use Modern::Perl;
+use Clone qw( clone );
 use YAML;
 
 =head1 NAME
@@ -60,8 +61,13 @@ sub new {
     my $class = shift;
     my $self  = _load_config_file(C4::Context->config("illconfig"));
     bless $self, $class;
-    $self->_deriveProperties("record_props", ${$self}{record});
-    $self->_deriveProperties("availability_props", ${$self}{availability});
+
+    ${$self}{semantics}{keywords} =
+      [ "name", "accessor", "inSummary", "many" ];
+
+    ${$self}{record_props} = $self->_deriveProperties(${$self}{record});
+    ${$self}{availability_props} =
+      $self->_deriveProperties(${$self}{availability});
     return $self;
 }
 
@@ -82,34 +88,56 @@ The hashref will be stored in $SOURCE.
 =cut
 
 sub _deriveProperties {
-    my ($self, $target, $source) = @_;
-    return $self->_nextLevel($target, $source);
+    my ($self, $source) = @_;
+    my $modifiedSource = clone($source);
+    delete ${$modifiedSource}{many};
+    return $self->_recurse(
+                           {
+                            accum => {},
+                            tmpl  => $modifiedSource,
+                            kwrds => ${$self}{semantics}{keywords},
+                           },
+                          );
 }
 
-=head3 _nextLevel
+sub _recurse {
+    my ($self, $args, @prefix) = @_;
+    # We manufacture an accumulated result set indexed by xpaths.
+    my $xpath = "./" . join("/", @prefix);
 
-    $self->_nextLevel($target, $todo, $prefix);
-
-Provide means for _deriveProperties to recursively process the config data
-structure.  $TARGET is the key under which the resulting data structure will
-be saved in $self.  $TODO is the next level of the recursive structure;
-$PREFIX the next part of the name to prepend for the key in the final hash.
-
-=cut
-
-sub _nextLevel {
-    my ($self, $target, $todo, @prefix) = @_;
-    foreach my $id ( keys $todo ) {
-        if ( $id eq 'go') {
-        } elsif ( ${$todo}{$id}{go} ) {
-            $self->_nextLevel($target, ${$todo}{$id}, @prefix , $id);
-        } else {
-            ${$self}{$target}{join("_", @prefix , $id)} = ${$todo}{$id};
+    if ( ${$args}{tmpl}{many} and ${$args}{tmpl}{many} eq "yes" ) {
+        # The many keyword is special: it means we create a new root.
+        ${$args}{accum}{$xpath} =
+          [ $self->_deriveProperties(${$args}{tmpl}) ];
+    } else {
+        while ( my ($key, $value) = each ${$args}{tmpl} ) {
+            if ( $key ~~ ${$args}{kwrds} ) {
+                # syntactic keyword entry -> add keyword entry's value to the
+                # current prefix entry in our accumulated results.
+                if ( $key eq "inSummary" ) {
+                    # inSummary should only appear if it's "yes"...
+                    ${$args}{accum}{$xpath}{$key} = 1 if $value eq "yes";
+                } else {
+                    # otherwise simply enrich.
+                    ${$args}{accum}{$xpath}{$key} = $value;
+                }
+            } else {
+                # non-keyword & non-root entry -> simple recursion to add it
+                # to our accumulated results.
+                $self->_recurse(
+                                {
+                                 accum => ${$args}{accum},
+                                 tmpl  => ${$args}{tmpl}{$key},
+                                 kwrds => ${$args}{kwrds},
+                                },
+                                @prefix,
+                                $key
+                               );
+            }
         }
     }
-    return ${$self}{$target};
+    return ${$args}{accum};
 }
-# End translation.
 
 =head3 getProperties
 

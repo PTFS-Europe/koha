@@ -70,24 +70,16 @@ sub new {
 Use our API to check the current availability of this item and return an
 associative array in the usual style ready for user output.
 
-=cut
-
-=head3 checkAvailability
-
-    my $checkAvailability = $illRequest->checkAvailability();
-
-Return a record augmented by its availability status.  Availability is a
+TODO: Return a record augmented by its availability status.  Availability is a
 transient property, so is not part of the actual record as such.
-
-XXX: This should normally be done via the config; but for now we hard-code the
-     means of availability parsing.
 
 =cut
 
 sub checkAvailability {
     my ( $self ) = @_;
-    my $uin        = ${$self}{data}{uin}{value};
-    my $properties = { year => ${$self}{data}{metadata_itemLevel_year}{value} };
+    my $uin        = ${$self}{data}{"./uin"}{value};
+    my $properties =
+      { year => ${$self}{data}{"./metadata/itemLevel/year"}{value} };
     my $xml  = Koha::ILLRequest::Abstract->new()
       ->checkAvailability($uin, $properties);
     my $avail = [];
@@ -99,36 +91,44 @@ sub checkAvailability {
 
     # Build Availability Results
     foreach my $datum ($xml->findnodes('/apiResponse/result/availability')) {
-        push @{$avail}, $self->_parseAvail($datum);
+        push @{$avail},
+          $self->_parseResponse($datum, ${$self}{avail_props}, {});
     }
 
     return $avail;
 }
 
-sub _parseAvail {
-    my ( $self, $chunk ) = @_;
-    my $config = ${$self}{avail_props};
-    my $return = {};
+sub _parseResponse {
+    my ( $self, $chunk, $config, $accum ) = @_;
+    if ( $config eq "avail" ) {
+        $config = ${$self}{avail_props};
+    } elsif ( $config eq "price" ) {
+        $config = ${$self}{price_props};
+    }
+    $accum = {} if ( !$accum );
     # We're building data for html output.  The template expects format:
     # { id => [ name, value ], ... }
     foreach my $field ( keys $config ) {
-        my $xpath = './' . join("/", split(/_/, $field));
-        my $value = [];
-        my $nodes = $chunk->findnodes($xpath);
-        if ( @{$nodes} > 1 ) {
-            foreach my $sub ( @{$nodes} ) {
-                push @{$value}, $sub->to_literal;
+        my $nodes = [ 0 ];
+        if ( $field ne "./" ) {
+            $nodes = $chunk->findnodes($field);
+        }
+        if ( @{$nodes} > 1 ) { # or ${$config}{$field} ) {
+            # Type test for array in $config$field would fix prices.
+            # Also: we can remove initial findnodes.
+            foreach my $node (@{$nodes}) {
+                ${$accum}{$field} = [] if ( !${$accum}{$field} );
+                push @{$accum}{$field},
+                  $self->_parseResponse($node, ${$config}{$field}[0], {});
             }
         } else {
-            $value = [ $chunk->findvalue($xpath) ];
+            my ( $op, $arg ) = ( "findvalue", $field );
+            ( $op, $arg ) = ( "textContent", "" )
+              if ( $field eq "./" );
+            ${$accum}{$field} = [ ${$config}{$field}{name}, $chunk->$op($arg) ];
         }
-        ${$return}{$field} =
-          [
-           ${$config}{$field}{name},
-           join("; ", @{$value}),
-          ];
     }
-    return $return;
+    return $accum;
 }
 
 =head3 create_from_xml
@@ -147,10 +147,9 @@ sub create_from_xml {
     # for each property defined in the API config...
     foreach my $field ( keys ${$self}{record_props} ) {
         # populate data if desired.
-        my $xpath = './' . join("/",split(/_/, $field));
         ${$self}{data}{$field} =
           {
-           value      => $xml->findvalue($xpath),
+           value      => $xml->findvalue($field),
            name       => ${$self}{record_props}{$field}{name},
            inSummary  => ${$self}{record_props}{$field}{inSummary},
           };

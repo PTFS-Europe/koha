@@ -15,74 +15,87 @@
 # with Koha; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-# This file creates a data structure defining valid item types and
-# their fields for the British Library DSS InterLibrary Loan API.
+# INTRODUCTION:
 #
-# The first section defines fields for the various request field
-# levels. For the BL API, each request can have information at the
-# title, Item and Item of Interest levels.
+# This file creates a data structures defining what fields of the XML
+# responses from the ILL API we want to use, and how we use them.  The
+# API currently developed against is the British Library's DSS
+# Interlibrary Loan API.
 #
-# The second section defines the BL DSS API item types, and defines
-# which of the fields defined in the first section are relevant for
-# this item type.
+# The 'record' data structure is concerned with defining the way we
+# want to handle bibliographic and item information resulting from API
+# searches.
+#
+# The 'availability' data structure has similar concerns, but for
+# availability information regarding a specific 'record'.
+#
+# The 'prices' data structure is concerned with responses providing
+# pricing information for the API's services.
 
-# The 'record' data structure provides an overview of the xml records
-# we are interested in receiving.  This structure is an abstract
-# representation of the XML we receive from the API at the individual
-# record level of the search results.
-
+# SEMANTICS:
+#
 # The semantics of our abstract representation are as follows:
-# - The top level is always called 'record' — we are working at the
-#   record level in a set of results returned by an API.
-# - Each element we want to refer to in the API's record response
-#   should be a key at record's next level of indentation.
-# - We recognise 4 keywords to 'mark-up' our representation;
+# - The top level identifies the response type (e.g. 'record').
+# - Each element or attribute we want to refer to in the API's
+#   response should be a key at the next level of indentation.
+#
+# Keywords (markup):
 #   + name: a human readable value for the field. This is used, for
 #     instance, for rendering the field's value on webpages. Any
 #     fields that have a 'name' keyword are returned as part of the
 #     'getFullDetails' method of ILL Records.
+#
 #   + inSummary: if used for a field, then this field will be one of
 #     the fields returned by the 'getSummary' method of ILL Records.
+#
 #   + accessor: if defined, this is the id that can be used in the
 #     'getProperty' method of ILL Records.
-#   + go: if go is defined then our ILL parser will ignore this field
-#     level, and instead process each child of this level.
+#
+#   + many: use many to indicate that the element in question is one
+#     that recurs.  E.g. if the xml response provides an "isbns"
+#     element which may contain any number of "isbn" elements, then
+#     the "isbn" element in the spec here should use the many keyword.
 #
 # Remember: to simply not work with given fields returned by the API's
 # response it suffices to not define those fields in the abstract
 # representation at all.
+#
+# Attributes vs. Elements:
+#
+# You can specify an attribute you wish to retrieve by prepending its
+# id with an "@" symbol, like in xpath.  In order for this to be valid
+# YAML, you'll need to enclose the id in quotation marks, e.g. "@key".
 
 record:
   uin:
     name: British Library Identifier
-    inSummary: True
-    accessor: title
+    inSummary: yes
+    accessor: id
   type:
     name: Material Type
-    inSummary: True
+    inSummary: yes
   isAvailableImmediateley:
     name: Available now?
   metadata:
-    go: True
     titleLevel:
-      go: True
       title:
         name: Title
-        inSummary: True
+        inSummary: yes
+        accessor: title
       author:
         name: Author
-        inSummary: True
+        inSummary: yes
       identifier:
         name: Identifier
       publisher:
         name: Publisher
-        inSummary: True
+        inSummary: yes
       issn:
         name: ISSN
-        inSummary: True
+        inSummary: yes
       isbn:
         name: ISBN
-        inSummary: True
+        inSummary: yes
       ismn:
         name: ISMN
       shelfmark:
@@ -98,10 +111,9 @@ record:
       mapScale:
         name: Map Scale
     itemLevel:
-      go: True
       year:
         name: Year
-        inSummary: True
+        inSummary: yes
       volume:
         name: Volume Number
       issue:
@@ -110,7 +122,7 @@ record:
         name: Part Number
       edition:
         name: Edition
-        inSummary: True
+        inSummary: yes
       season:
         name: Season
       month:
@@ -120,7 +132,6 @@ record:
       specialIssue:
         name: Special Issue
     itemOfInterestLevel:
-      go: True
       title:
         name: Title
       author:
@@ -131,32 +142,88 @@ record:
 availability:
   loanAvailabilityDate:
     name: Loan availability date
-    inSummary: True
+    inSummary: yes
   copyAvailabilityDate:
     name: Copy availability date
-    inSummary: True
+    inSummary: yes
   copyrightFee:
     name: Copyright fee
-    inSummary: True
+    inSummary: yes
+    "@currency":
+      name: Currency
+      inSummary: yes
   availableImmediately:
     name: Available immediately?
-    inSummary: True
+    inSummary: yes
   matchedToSpecificItem:
     name: Matched to specific item?
-    inSummary: True
+    inSummary: yes
   isOnOrder:
     name: On order?
-    inSummary: True
+    inSummary: yes
   availableFormats:
-    go: True
     availableFormat:
-      go: True
+      many: yes
+      "@availabilityDate":
+        name: Availability date
+        inSummary: yes
       deliveryFormat:
         name: Delivery format
-        inSummary: True
+        inSummary: yes
+        "@key":
+          name: Key
       deliveryModifiers:
         name: Delivery modifiers
-        inSummary: True
-      availableSpeeds_speed:
-        name: Speed
-        inSummary: True
+        inSummary: yes
+      availableSpeeds:
+        speed:
+          many: yes
+          name: Speed
+          inSummary: yes
+          "@key":
+            name: Key
+      availableQuality:
+        quality:
+          many: yes
+          name: Quality
+          inSummary: yes
+          "@key":
+            name: Key
+
+prices:
+  currency:
+    accessor: money
+    name: Currency
+    inSummary: no
+  region:
+    name: Region
+  copyrightVat:
+    name: Copyright VAT
+    inSummary: yes
+  loanRenewalCost:
+    name: Loan Renewal Cost
+    inSummary: yes
+  services:
+    service:
+      many: yes
+      "@id":
+        name: Service
+        inSummary: yes
+      format:
+        many: yes
+        "@vat":
+          name: VAT
+          inSummary: yes
+        "@id":
+          name: Format
+          inSummary: yes
+        price:
+          many: yes
+          name: Price
+          inSummary: yes
+          "@speed":
+            name: Delivery
+            inSummary: yes
+          "@quality":
+            name: Quality
+            inSummary: yes

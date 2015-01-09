@@ -17,11 +17,12 @@
 
 use Modern::Perl;
 
-use Test::More; # tests => 2;
+use Test::More tests => 7;
 use Test::Warn;
 use XML::LibXML;
 use BLDSS;
 use Koha::ILLRequest::Abstract;
+use Data::Dump qw(dump);
 
 # mock data
 my $doc = XML::LibXML->new()->load_xml( { string => "<record><uin>BLL01015482483</uin><type>book</type><isAvailableImmediateley>false</isAvailableImmediateley><metadata><titleLevel><title>James Joyce / edited by Sean Latham.</title><identifier>ISBN 9780716529064 (cased)</identifier><isbn>9780716529064|0716529068|9780716529071|0716529076</isbn><shelfmark>Document Supply m10/.19782</shelfmark><publisher>Dublin : Irish Academic Press, 2010.</publisher></titleLevel><itemLevel><year>2010</year></itemLevel><itemOfInterestLevel/></metadata></record>" } );
@@ -39,26 +40,31 @@ isa_ok($record, 'Koha::ILLRequest::Record');
 
 # create_from_xml
 $record->create_from_xml($node);
-is(${$record}{data}{uin}{value}, "BLL01015482483", "Created from XML");
+is(${$record}{data}{"./uin"}{value}, "BLL01015482483", "Created from XML");
+#diag(dump($record));
 
 # getSummary
 is_deeply($record->getSummary, {
-                                metadata_itemLevel_edition => ["Edition", ""],
-                                metadata_itemLevel_year => ["Year", 2010],
-                                metadata_titleLevel_author => ["Author", ""],
-                                metadata_titleLevel_isbn => ["ISBN", "9780716529064|0716529068|9780716529071|0716529076"],
-                                metadata_titleLevel_issn => ["ISSN", ""],
-                                metadata_titleLevel_publisher => ["Publisher", "Dublin : Irish Academic Press, 2010."],
-                                metadata_titleLevel_title => ["Title", "James Joyce / edited by Sean Latham."],
-                                type => ["Material Type", "book"],
-                                uin => ["British Library Identifier", "BLL01015482483"],
+                                "./metadata/itemLevel/edition" => ["Edition", ""],
+                                "./metadata/itemLevel/year" => ["Year", 2010],
+                                "./metadata/titleLevel/author" => ["Author", ""],
+                                "./metadata/titleLevel/isbn" => ["ISBN", "9780716529064|0716529068|9780716529071|0716529076"],
+                                "./metadata/titleLevel/issn" => ["ISSN", ""],
+                                "./metadata/titleLevel/publisher" => ["Publisher", "Dublin : Irish Academic Press, 2010."],
+                                "./metadata/titleLevel/title" => ["Title", "James Joyce / edited by Sean Latham."],
+                                "./type" => ["Material Type", "book"],
+                                "./uin" => ["British Library Identifier", "BLL01015482483"],
                                }, "Got summary");
 
 # getProperty
-is($record->getProperty('title'), "BLL01015482483", "Gotten property");
+is($record->getProperty('id'), "BLL01015482483", "Gotten property");
+is($record->getProperty('title'), 'James Joyce / edited by Sean Latham.',
+   "Gotten property");
 
 # checkAvailability
-is(${pop($record->checkAvailability)}{matchedToSpecificItem}[1], "true", "Available?");
-diag(dump($record->checkAvailability));
-
-done_testing();
+my $tmp = XML::LibXML->new()->load_xml( { string => '<availability><loanAvailabilityDate>2015-01-08</loanAvailabilityDate><copyAvailabilityDate>2015-01-08</copyAvailabilityDate><copyrightFee currency="GBP">12.0</copyrightFee><availableImmediately>false</availableImmediately><matchedToSpecificItem>true</matchedToSpecificItem><isOnOrder>false</isOnOrder><availableFormats><availableFormat availabilityDate="2015-01-08"><deliveryFormat key="1">Encrypted Download</deliveryFormat><deliveryModifiers/><availableSpeeds><speed key="2">2 Hours</speed><speed key="3">24 Hours</speed><speed key="4">4 Days</speed></availableSpeeds><availableQuality><quality key="1">Standard</quality><quality key="2">High</quality></availableQuality></availableFormat><availableFormat availabilityDate="2015-01-08"><deliveryFormat key="4">Paper</deliveryFormat><deliveryModifiers/><availableSpeeds><speed key="2">2 Hours</speed><speed key="3">24 Hours</speed><speed key="4">4 Days</speed></availableSpeeds><availableQuality><quality key="1">Standard</quality><quality key="2">High</quality></availableQuality></availableFormat></availableFormats></availability>' } );
+foreach my $datum ($tmp->findnodes('availability')) {
+    is(${$record->_parseResponse($datum, "avail")}{"./copyrightFee/\@currency"}[1],
+       "GBP", "Parse Response");
+}
+#is(${pop($record->checkAvailability)}{matchedToSpecificItem}[1], "true", "Available?");
