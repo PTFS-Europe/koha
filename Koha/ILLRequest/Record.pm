@@ -136,7 +136,7 @@ sub _parseResponse {
     } elsif ( $config eq "price" ) {
         $config = ${$self}{price_props};
     }
-    $accum = {} if ( !$accum );
+    $accum = {} if ( !$accum ); # initiate $accum if empty.
     foreach my $field ( keys $config ) {
         if ( ref(${$config}{$field}) eq 'ARRAY' ) {
             foreach my $node ($chunk->findnodes($field)) {
@@ -148,8 +148,19 @@ sub _parseResponse {
             my ( $op, $arg ) = ( "findvalue", $field );
             ( $op, $arg ) = ( "textContent", "" )
               if ( $field eq "./" );
-            ${$accum}{$field} = [ ${$config}{$field}{name}, $chunk->$op($arg) ];
-        }
+            ${$accum}{$field} =
+              {
+               value     => $chunk->$op($arg),
+               name      => ${$config}{$field}{name},
+               inSummary => ${$config}{$field}{inSummary},
+              };
+            # FIXME: populate accessor if desired.  This breaks the
+            # functional-ish approach by referencing $self directly.
+            my $accessor = ${$config}{$field}{accessor};
+            if ($accessor) {
+                ${$self}{accessors}{$accessor} = ${$accum}{$field}{value};
+            }
+       }
     }
     return $accum;
 }
