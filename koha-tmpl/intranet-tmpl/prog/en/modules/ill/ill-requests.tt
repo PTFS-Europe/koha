@@ -96,6 +96,9 @@
                             [% END %]
                         </p>
                     [% END %]
+                [% ELSIF reply and query_type == "prices" %]
+                    <h2>Prices for ILL services</h2>
+
                 [% ELSIF reply %]
                     [% rq_url = "/cgi-bin/koha/ill/ill-requests.pl" %]
                     [% rq_params = "?query_type=edit&query_value=" %]
@@ -124,7 +127,7 @@
                                     [% FOREACH line IN summary %]
                                         [% value = line.value.1 %]
                                         <td>
-                                            [% IF line.key == 'uin' and
+                                            [% IF line.key == './uin' and
                                                query_type == "api" %]
                                                 [% rqc = rq _ value %]
                                                 <a href=[% rqc %]>
