@@ -221,16 +221,33 @@ config.
 
 sub getSummary {
     my $self = shift;
-    my %summary;
-    foreach my $datum ( keys ${$self}{data} ) {
-        my $summarize = ${$self}{data}{$datum}{inSummary};
-        my $name = ${$self}{data}{$datum}{name};
-        if ($summarize and $name) {
-            $summary{$datum} = [ $name, ${$self}{data}{$datum}{value} ];
+    return $self->_summarize(${$self}{data});
+}
+
+=head3 _summarize
+
+    my $_summarize = $illRequest->_summarize();
+
+Extract fields in data structure that are marked for summary, ready for
+display in templates.
+
+=cut
+sub _summarize {
+    my ( $self, $structure) = @_;
+    my $accum = {};
+    while (my ( $id, $value ) = each $structure) {
+        if (ref $value eq 'ARRAY') {
+            ${$accum}{$id} = [];
+            foreach my $elem (@{$value}) {
+                push ${$accum}{$id}, $self->_summarize($elem);
+            }
+        } elsif (${$value}{name} and ${$value}{inSummary}) {
+            ${$accum}{$id} = [ ${$value}{name}, ${$value}{value} ];
         }
     }
-    return \%summary;
+    return $accum;
 }
+
 
 =head3 getFullDetails
 
