@@ -112,25 +112,25 @@ delivery times and return it as a suitably formatted associative array.
 =cut
 
 sub checkPrices {
-    my ( $self ) = @_;
-    my $xml  = Koha::ILLRequest::Abstract->new()->getPrices();
-    my $prices = [];
+    my ( $self, $xml ) = @_;
+    if (!$xml) {
+        $xml  = Koha::ILLRequest::Abstract->new()->getPrices();
 
-    # Check for valid API response.
-    my $msg = $xml->findvalue('/apiResponse/message');
-    my $sts = $xml->findvalue('/apiResponse/status');
-    die "API Error: '$msg' (Error code: $sts).\n" if ($sts != '0');
-
-    # Build Prices Results (there should only be one result node...)
-    foreach my $datum ($xml->findnodes('/apiResponse/result')) {
-        push @{$prices}, $self->_parseResponse($datum);
+        # Check for valid API response.
+        my $msg = $xml->findvalue('/apiResponse/message');
+        my $sts = $xml->findvalue('/apiResponse/status');
+        die "API Error: '$msg' (Error code: $sts).\n" if ($sts != '0');
     }
 
-    return $prices;
+    $xml = ${$xml->findnodes('/apiResponse/result')}[0];
+    my $prices = $self->_parseResponse($xml, ${$self}{price_props}, {});
+    return $self->_summarize($prices);
 }
 
 sub _parseResponse {
     my ( $self, $chunk, $config, $accum ) = @_;
+    # If clause for unit-testing convenience only. Normally relevant *_props
+    # should be passed in $config.
     if ( $config eq "avail" ) {
         $config = ${$self}{avail_props};
     } elsif ( $config eq "price" ) {

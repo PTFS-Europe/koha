@@ -87,6 +87,22 @@ sub checkAvailability {
     return $parser->load_xml( { string => $reply } );
 }
 
+=head3 getPrices
+
+    my $getPrices = $illRequest->getPrices();
+
+Return an array containing pricing information for the API in use.
+
+=cut
+
+sub getPrices {
+    my ( $self ) = @_;
+
+    my $prices = ${$self}{api}->prices;
+    my $parser = XML::LibXML->new();
+    return $parser->load_xml( { string => $prices } );
+}
+
 =head3 search
 
     my $results = $abstractILL->search($query);
