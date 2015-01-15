@@ -169,36 +169,22 @@ sub _parseResponse {
 
     $rec->create_from_xml($xml);
 
-Populates a record object with data from a service xml reply: traverse xml,
-storing each data point defined in config's properties' structure; build 
-list of accessors -> data point mappings.
+Parse $XML, which should be an API record section, using $REC's configuration.
 
 =cut
 
 sub create_from_xml {
     my ( $self, $xml ) = @_;
-
-    # for each property defined in the API config...
-    foreach my $field ( keys ${$self}{record_props} ) {
-        # populate data if desired.
-        ${$self}{data}{$field} =
-          {
-           value      => $xml->findvalue($field),
-           name       => ${$self}{record_props}{$field}{name},
-           inSummary  => ${$self}{record_props}{$field}{inSummary},
-          };
-        # populate accessor if desired.
-        my $accessor = ${$self}{record_props}{$field}{accessor};
-        if ($accessor) {
-            ${$self}{accessors}{$accessor} = ${$self}{data}{$field}{value};
-        }
-    }
-
+    ${$self}{data} = $self->_parseResponse($xml, ${$self}{record_props}, {});
     return $self;
 }
 
 =head3 create_from_store
 
+    my $create_from_store = $illRequest->create_from_store($attributes);
+
+Parse $ATTRIBUTES, which should be the result of querying the database for
+this Record's intended contents.
 
 =cut
 
