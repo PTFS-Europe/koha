@@ -77,19 +77,22 @@ transient property, so is not part of the actual record as such.
 =cut
 
 sub checkAvailability {
-    my ( $self ) = @_;
-    my $uin        = ${$self}{data}{"./uin"}{value};
-    my $properties =
-      { year => ${$self}{data}{"./metadata/itemLevel/year"}{value} };
-    my $xml  = Koha::ILLRequest::Abstract->new()
-      ->checkAvailability($uin, $properties);
-    my $avail = [];
+    my ( $self, $xml ) = @_;
+    if ( !$xml ) {
+        # If $xml is not supplied, then we create it OO style.
+        my $uin        = ${$self}{data}{"./uin"}{value};
+        my $properties =
+          { year => ${$self}{data}{"./metadata/itemLevel/year"}{value} };
+        $xml  = Koha::ILLRequest::Abstract->new()
+          ->checkAvailability($uin, $properties);
+    }
 
     # Check for valid API response.
     my $msg = $xml->findvalue('/apiResponse/message');
     my $sts = $xml->findvalue('/apiResponse/status');
     die "API Error: '$msg' (Error code: $sts).\n" if ($sts != '0');
 
+    my $avail = [];
     # Build Availability Results
     foreach my $datum ($xml->findnodes('/apiResponse/result/availability')) {
         push @{$avail},
