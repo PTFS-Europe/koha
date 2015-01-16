@@ -103,9 +103,46 @@ this Request.
 
 =cut
 
-sub checkAvailability {
-    my ( $self ) = @_;
-    return ${$self}{record}->checkAvailability();
+sub checkSimpleAvailability {
+    my ( $self, $testData ) = @_;
+    my $availability = ${$self}{record}->checkAvailability($testData);
+    my @formats;
+    foreach my $format (@{$availability->formats}) {
+        my @speeds;
+        foreach my $speed (@{$format->speeds}) {
+            push @speeds,
+              {
+               speed => [ "Speed", $speed->textContent ],
+               key => [ "Key", $speed->key ],
+              };
+        }
+        my @qualities;
+        foreach my $quality (@{$format->qualities}) {
+            push @qualities,
+              {
+               quality => [ "Quality", $quality->textContent ],
+               key => [ "Key", $quality->key ],
+              };
+        }
+
+        push @formats,
+          {
+           format    => [ "Format", $format->deliveryFormat->textContent ],
+           key       => [ "Key", $format->deliveryFormat->key ],
+           speeds    => [ "Speeds", \@speeds ],
+           qualities => [ "Qualities", \@qualities ],
+          };
+    }
+
+    my $result =
+      {
+       copyrightFee => [ "Copyright fee", $availability->copyrightFee ],
+       availableImmediately => [ "Available immediately?",
+                                 $availability->availableImmediately ],
+       formats => [ "Formats", \@formats ],
+      };
+
+    return $result;
 }
 
 =head3 editStatus
@@ -219,6 +256,16 @@ sub update {
 
     return $self->status();
 }
+
+sub _seed_for_test {
+    my ($self, $recordData) = @_;
+    ${$self}{record} =
+      Koha::ILLRequest::Record->new(Koha::ILLRequest::Config->new());
+    ${$self}{record}->create_from_xml($recordData);
+    ${$self}{status} = Koha::ILLRequest::Status->new();
+    return $self;
+}
+
 
 =head3 seed_from_api
 

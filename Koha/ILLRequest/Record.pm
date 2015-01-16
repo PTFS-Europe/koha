@@ -72,34 +72,25 @@ Use our API to check the current availability of this item and return an
 associative array in the usual style ready for user output.
 
 TODO: Return a record augmented by its availability status.  Availability is a
-transient property, so is not part of the actual record as such.
+transient property, so is not part of the actual record as such.  It is
+unclear whether this augmentation should happen here or at ILLRequest level
+(where it currently happens via hard-coded values.
 
 =cut
 
 sub checkAvailability {
-    my ( $self, $xml ) = @_;
-    if ( !$xml ) {
-        # If $xml is not supplied, then we create it OO style.
-        my $uin        = ${$self}{data}{"./uin"}{value};
+    my ( $self, $response ) = @_;
+    unless ($response) {        # Response is optional, for unit testing.
         my $properties =
-          { year => ${$self}{data}{"./metadata/itemLevel/year"}{value} };
-        $xml  = Koha::ILLRequest::Abstract->new()
-          ->checkAvailability($uin, $properties);
+          { year => ${$self}{data}{"./metadata/itemLevel/year"} };
+        $response = Koha::ILLRequest::Abstract->new()
+          ->checkAvailability($self->getProperty('id'), $properties);
     }
-
-    # Check for valid API response.
-    my $msg = $xml->findvalue('/apiResponse/message');
-    my $sts = $xml->findvalue('/apiResponse/status');
-    die "API Error: '$msg' (Error code: $sts).\n" if ($sts != '0');
-
-    my $avail = [];
-    # Build Availability Results
-    foreach my $datum ($xml->findnodes('/apiResponse/result/availability')) {
-        push @{$avail},
-          $self->_parseResponse($datum, ${$self}{avail_props}, {});
+    unless ((my $sts = $response->status) eq '0') {
+        my $msg = $response->message;
+        die "API Error: '$msg' (Error code: $sts).\n";
     }
-
-    return $avail;
+    return $response->result->availability;
 }
 
 =head3 checkPrices
@@ -112,19 +103,15 @@ delivery times and return it as a suitably formatted associative array.
 =cut
 
 sub checkPrices {
-    my ( $self, $xml ) = @_;
-    if (!$xml) {
-        $xml  = Koha::ILLRequest::Abstract->new()->getPrices();
-
-        # Check for valid API response.
-        my $msg = $xml->findvalue('/apiResponse/message');
-        my $sts = $xml->findvalue('/apiResponse/status');
-        die "API Error: '$msg' (Error code: $sts).\n" if ($sts != '0');
+    my ( $self, $response ) = @_;
+    unless ($response) {        # Response is optional, for unit testing.
+        $response = Koha::ILLRequest::Abstract->new()->getPrices();
     }
-
-    $xml = ${$xml->findnodes('/apiResponse/result')}[0];
-    my $prices = $self->_parseResponse($xml, ${$self}{price_props}, {});
-    return $self->_summarize($prices);
+    unless ((my $sts = $response->status) eq '0') {
+        my $msg = $response->message;
+        die "API Error: '$msg' (Error code: $sts).\n";
+    }
+    return $response->result;
 }
 
 sub _parseResponse {

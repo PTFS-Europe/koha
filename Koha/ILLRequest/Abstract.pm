@@ -22,6 +22,7 @@ use Carp;
 
 use BLDSS;
 use XML::LibXML;
+use Koha::ILLRequest::XML::BLDSS;
 use Koha::ILLRequest::Record;
 use Koha::ILLRequest::Status;
 use Koha::ILLRequest::Config;
@@ -79,12 +80,11 @@ the hashref $PROPERTIES.  Return the API response as an HTML object.
 
 =cut
 
-
 sub checkAvailability {
     my ( $self, $uin, $properties ) = @_;
     my $reply  = ${$self}{api}->availability($uin, $properties);
-    my $parser = XML::LibXML->new();
-    return $parser->load_xml( { string => $reply } );
+    return Koha::ILLRequest::XML::BLDSS->new
+      ->load_xml( { string => $reply } );
 }
 
 =head3 getPrices
@@ -99,8 +99,7 @@ sub getPrices {
     my ( $self ) = @_;
 
     my $prices = ${$self}{api}->prices;
-    my $parser = XML::LibXML->new();
-    return $parser->load_xml( { string => $prices } );
+    return Koha::ILLRequest::XML::BLDSS->new->load_xml( { string => $prices } );
 }
 
 =head3 search

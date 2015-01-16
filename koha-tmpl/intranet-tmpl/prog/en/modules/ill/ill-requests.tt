@@ -99,6 +99,38 @@
                 [% ELSIF reply and query_type == "prices" %]
                     <h2>Prices for ILL services</h2>
 
+                [% ELSIF reply and query_type == "availability" %]
+                    <h2>Availability details for request ”[% query_value %]“</h2>
+                    <dl>
+                        [% FOREACH field IN reply.0 %]
+                            <dt id=[% field.key %]>[% field.value.0 %]</dt>
+                            [% IF field.key == 'formats' %]
+                                <dd>
+                                    <ul>
+                                        [% FOREACH format IN field.value.1 %]
+                                            [% FOREACH field IN format %]
+                                                <li><em id=[% field.key %]>[% field.value.0 %]: </em>
+                                                [% IF field.key == 'qualities' or field.key == 'speeds' %]
+                                                    <ul>
+                                                        [% FOREACH option IN field.value.1 %]
+                                                            [% FOREACH detail IN option %]
+                                                                <li><em id=[% detail.key %]>[% detail.value.0 %]: </em> [% detail.value.1 %]</li>
+                                                            [% END %]
+                                                        [% END %]
+                                                    </ul></li>
+                                                [% ELSE %]
+                                                    [% field.value.1 %]
+                                                [% END %]
+                                            [% END %]
+                                        [% END %]
+                                    </ul>
+                                </dd>
+                            [% ELSE %]
+                                <dd>[% field.value.1 %]</dd>
+                            [% END %]
+                        [% END %]
+                    </dl>
+
                 [% ELSIF reply %]
                     [% rq_url = "/cgi-bin/koha/ill/ill-requests.pl" %]
                     [% rq_params = "?query_type=edit&query_value=" %]
@@ -107,8 +139,6 @@
                         <h2>Search results for ”[% query_value %]”</h2>
                     [% ELSIF query_type == "borrowers" and query_value %]
                         <h2>Borrower ”[% query_value %]“ their requests</h2>
-                    [% ELSIF query_type == "availability" and query_value %]
-                        <h2>Availability details for request ”[% query_value %]“</h2>
                     [% ELSE %]
                         <h2>Details for all requests</h2>
                     [% END %]

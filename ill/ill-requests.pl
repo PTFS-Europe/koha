@@ -54,7 +54,7 @@ if ( $type eq 'api' and $query ) {
 
 } elsif ( $type eq 'availability' and $query ) {
     my $request = @{Koha::ILLRequests->new()->retrieve_ill_request($query)}[0];
-    $reply = $request->checkAvailability();
+    push @{$reply}, $request->checkSimpleAvailability();
 
 } elsif ( $type eq 'request' and $query ) {
     my $request = Koha::ILLRequests->new()->request($query);
