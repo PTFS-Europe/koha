@@ -99,6 +99,63 @@ sub save {
     my $checkAvailability = $illRequest->checkAvailability();
 
 Ask our Record to connect to its source (API) to check the availability for
+this Request, then request the latest prices information and compile a list of
+prices for the request.
+
+Currently this is not implemented. A request such as this would involve 1 + n
+API requests, n being the number of format/speed/quality combinations.
+
+Perhaps a preferable approach would be to fire additional requests for
+calculatePrice through AJAX?
+
+=cut
+
+sub checkAvailability {
+    my ( $self, $testData ) = @_;
+    my $availability =
+      ${$self}{record}->checkAvailability(${$testData}{availability});
+    my $prices = ${$self}{record}->checkAvailability(${$testData}{prices});
+
+}
+
+=head3 calculatePrice
+
+    my $calculateP = $illRequest->calculatePrice($data);
+
+Take $DATA, a hashref containing a FORMAT and PRICE key with the respective
+API IDs as values, and return the price for that particular request.
+
+=cut
+
+
+sub calculatePrice {
+    my ( $self, $data, $testData ) = @_;
+
+    my $prices = ${$self}{record}->checkPrices($testData);
+    my $xpath = '//format[@id="' . ${$data}{format} . '"]/price[@speed="' .
+      ${$data}{speed} . '" and @quality="' . ${$data}{quality} . '"]';
+    my $price = $prices->findnodes($xpath);
+    if (@{$price} > 1) {
+        warn "We have more than one result.  This should not have happened.";
+    }
+
+    # Currently hard-coded values rather than read from config.
+    my $result = {
+                  currency => [ "Currency", $prices->currency ],
+                  region => [ "Region", $prices->region ],
+                  copyrightVat => [ "CopyrightVat", $prices->copyrightVat ],
+                  loanRenewalCost => [ "Loan Renewal Cost", $prices->loanRenewalCost ],
+                  price => [ "Price", ${$price}[0]->textContent ],
+                 };
+
+    return $result;
+}
+
+=head3 checkSimpleAvailability
+
+    my $justAvailability = $illRequest->checkSimpleAvailability();
+
+Ask our Record to connect to its source (API) to check the availability for
 this Request.
 
 =cut
@@ -152,7 +209,6 @@ sub checkSimpleAvailability {
 Update $ILLREQUEST's Status with the hashref passed to EDITSTATUS.
 
 =cut
-
 
 sub editStatus {
     my ( $self, $new_values ) = @_;

@@ -96,40 +96,57 @@
                             [% END %]
                         </p>
                     [% END %]
-                [% ELSIF reply and query_type == "prices" %]
-                    <h2>Prices for ILL services</h2>
+
+                [% ELSIF reply and query_type == "price" %]
+                    <h2>Price for request “[% query_value %]“</h2>
+                    [% rply = reply.0 %]
+                    <form method="POST" action="/cgi-bin/koha/ill/ill-request.pl">
+                        <p>[% rply.price.0 %]: [% rply.currency.1 %] [% rply.price.1 %]</p>
+                        <p>[% rply.copyrightVat.0 %]: [% 100 * rply.copyrightVat.1 %]%</p>
+                        <p>[% rply.loanRenewalCost.0 %]: [% rply.currency.1 %] [% rply.loanRenewalCost.1 %]</p>
+                        <input type="hidden" name="query_type" value="order" />
+                        <input type="hidden" name="query_value" value=[% query_value %] />
+                        <input type="submit" value="Place request" />
+                    </form>
 
                 [% ELSIF reply and query_type == "availability" %]
                     <h2>Availability details for request ”[% query_value %]“</h2>
+                    [% rply = reply.0 %]
                     <dl>
-                        [% FOREACH field IN reply.0 %]
-                            <dt id=[% field.key %]>[% field.value.0 %]</dt>
-                            [% IF field.key == 'formats' %]
-                                <dd>
-                                    <ul>
-                                        [% FOREACH format IN field.value.1 %]
-                                            [% FOREACH field IN format %]
-                                                <li><em id=[% field.key %]>[% field.value.0 %]: </em>
-                                                [% IF field.key == 'qualities' or field.key == 'speeds' %]
-                                                    <ul>
-                                                        [% FOREACH option IN field.value.1 %]
-                                                            [% FOREACH detail IN option %]
-                                                                <li><em id=[% detail.key %]>[% detail.value.0 %]: </em> [% detail.value.1 %]</li>
-                                                            [% END %]
-                                                        [% END %]
-                                                    </ul></li>
-                                                [% ELSE %]
-                                                    [% field.value.1 %]
-                                                [% END %]
-                                            [% END %]
-                                        [% END %]
-                                    </ul>
-                                </dd>
-                            [% ELSE %]
-                                <dd>[% field.value.1 %]</dd>
-                            [% END %]
-                        [% END %]
+                        <dt id="availableImmediately">[% rply.availableImmediately.0 %]</dt>
+                        <dd>[% rply.availableImmediately.1 %]</dd>
+                        <dt id="copyrightFee">[% rply.copyrightFee.0 %]</dt>
+                        <dd>[% rply.copyrightFee.1 %]</dd>
                     </dl>
+                    <h3>[% rply.formats.0 %]</h3>
+                    [% FOREACH format IN rply.formats.1 %]
+                        <form method="POST" action="/cgi-bin/koha/ill/ill-requests.pl">
+                            <fieldset id="format">
+                                <input type="hidden" name="format" value=[% format.key.1 %] />
+                                <input type="hidden" name="query_value" value=[% query_value %] />
+                                <input type="hidden" name="query_type" value="price" />
+                                <h4>[% format.format.0 %]: [% format.format.1 %]</h4>
+                                <h5>[% format.speeds.0 %]</h5>
+                                [% FOREACH speed IN format.speeds.1 %]
+                                    <span id="speed">
+                                        [% speed.speed.0 %]: [% speed.speed.1 %]
+                                    </span>
+                                    <input name="speed" id="speed" type="radio"
+                                           value=[% speed.key.1 %] />
+                                [% END %]
+                                <h5>[% format.qualities.0 %]</h5>
+                                [% FOREACH quality IN format.qualities.1 %]
+                                    <span id="quality">
+                                        [% quality.quality.0 %]: [% quality.quality.1 %]
+                                    </span>
+                                    <input name="quality" id="quality" type="radio"
+                                           value=[% quality.key.1 %] />
+                                [% END %]
+                                <br/>
+                                <input type="submit" value="Check this price" />
+                            </fieldset>
+                        </form>
+                    [% END %]
 
                 [% ELSIF reply %]
                     [% rq_url = "/cgi-bin/koha/ill/ill-requests.pl" %]

@@ -56,6 +56,16 @@ if ( $type eq 'api' and $query ) {
     my $request = @{Koha::ILLRequests->new()->retrieve_ill_request($query)}[0];
     push @{$reply}, $request->checkSimpleAvailability();
 
+} elsif ( $type eq 'price' and $query ) {
+    my $request = @{Koha::ILLRequests->new()->retrieve_ill_request($query)}[0];
+    my $coordinates = {
+                       format  => $input->param('format'),
+                       speed   => $input->param('speed'),
+                       quality => $input->param('quality'),
+                       };
+    $template->param( coordinates => $coordinates );
+    push @{$reply}, $request->calculatePrice($coordinates);
+
 } elsif ( $type eq 'request' and $query ) {
     my $request = Koha::ILLRequests->new()->request($query);
     push @{$reply}, $request->getSummary();
@@ -95,7 +105,7 @@ if ( $type eq 'api' and $query ) {
     push @{$reply}, $request->getSummary();
 
 } else {
-    die("no match\n");
+    die("no match");
 }
 
 $template->param( reply => $reply );
