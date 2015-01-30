@@ -2,21 +2,9 @@
 INSERT INTO systempreferences (variable,value,explanation,options,type)
 VALUES ('ILLModule','0','If ON, enables the Inter-Library Loan module','','YesNo');
 INSERT INTO systempreferences (variable,value,explanation,options,type)
-VALUES (
-    'BookILLRequest',
-    '0',
-    'If ON, enables the requesting of books in the Inter-Library Loan module',
-    '',
-    'YesNo'
-);
+VALUES ('BookILLRequest', '0', 'If ON, enables the requesting of books in the Inter-Library Loan module', '', 'YesNo');
 INSERT INTO systempreferences (variable,value,explanation,options,type)
-VALUES (
-    'JournalILLRequest',
-    '0',
-    'If ON, enables the requesting of journals in the Inter-Library Loan module',
-    '',
-    'YesNo'
-);
+VALUES ('JournalILLRequest', '0', 'If ON, enables the requesting of journals in the Inter-Library Loan module', '', 'YesNo');
 INSERT INTO systempreferences (variable,value,explanation,options,type)
 VALUES ('ThesisILLRequest','0','If ON, enables the requesting of theses in the Inter-Library Loan module','','YesNo');
 INSERT INTO systempreferences (variable,value,explanation,options,type)
@@ -37,13 +25,7 @@ VALUES ('ILLLocalField2', 'Custom field for ILL submission forms', 'free');
 INSERT INTO systempreferences (variable, explanation, type)
 VALUES ('ILLLocalField3', 'Custom field for ILL submission forms', 'free');
 -- Permissions
-INSERT INTO permissions (variable,value,explanation,options,type)
-VALUES ('ILLEmailNotify',
-    '0',
-    'If ON, patrons receive an email notification of a placed request',
-    '',
-    'YesNo'
-);
+
 -- Userflags
 INSERT INTO userflags (bit,flag,flagdesc,defaulton)
 VALUES ('20','ill','Manage ILL requests','0');
