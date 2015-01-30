@@ -85,4 +85,10 @@ $response = Koha::ILLRequest::XML::BLDSS->new->load_xml( { string => '<?xml vers
 isa_ok($record->checkPrices($response),
        "Koha::ILLRequest::XML::BLDSS::Result");
 
+my $result = $record->checkPrices($response);
+
+is_deeply( [ $result->currency, $result->loanRenewalCost ], [ "GBP", "4.55" ],
+           "checkPrice Elements");
+isa_ok(${$result->services}[0], "Koha::ILLRequest::XML::BLDSS::Service");
+
 done_testing();
