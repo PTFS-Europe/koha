@@ -36,22 +36,21 @@ ALTER TABLE categories ADD illlimit VARCHAR(60) AFTER issuelimit;
 -- ILL Requests
 
 CREATE TABLE ill_requests (
-    id serial primary key,
-    borrowernumber integer references borrowers (borrowernumber),
-    biblionumber integer references biblio (biblionumber),
+    id serial PRIMARY KEY,
+    borrowernumber integer REFERENCES borrowers (borrowernumber),
+    biblionumber integer REFERENCES biblio (biblionumber),
     status varchar(50),
     placement_date date,
     reply_date date,
-    ts timestamp default current_timestamp on update current_timestamp,
+    ts timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     completion_date date,
     reqtype varchar(30),
     branch varchar(50)
 );
 
-CREATE TABLE `ill_request_attributes` (
-    req_id bigint(20) unsigned NOT NULL DEFAULT '0',
+CREATE TABLE ill_request_attributes (
+    req_id bigint(20) unsigned NOT NULL,
     type varchar(30) NOT NULL,
     value text NOT NULL,
-    KEY `fk_illrequest_id` (`req_id`),
-    CONSTRAINT `fk_illrequest_id` FOREIGN KEY (`req_id`) REFERENCES `ill_requests` (`id`)
-); 
+    FOREIGN KEY(req_id) REFERENCES ill_requests(id)
+);
