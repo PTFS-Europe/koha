@@ -286,7 +286,7 @@ sub fee {
 }
 sub fee_currency {
     my $self = shift;
-    return $self->{currency} || 'USD';
+    return $self->{currency} || 'GBP';
 }
 sub owner {
     my $self = shift;
