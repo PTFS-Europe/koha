@@ -18,7 +18,7 @@ my %fields = (
 	transaction_id=> undef,
 	sip_fee_type  => '01', # Other/Unknown
 	fee_amount    => undef,
-	sip_currency  => 'USD', # FIXME: why hardcoded?
+	sip_currency  => 'GBP', # FIXME: why hardcoded?
 	screen_msg    => '',
 	print_line    => '',
 );
