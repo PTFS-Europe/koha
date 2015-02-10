@@ -341,8 +341,22 @@ sub inet_privileges {
 sub parental_permission {
     my $self = shift;
     my %no_permission = (
-        MOB18Y => 1,
+        J5  => 1,
+        J10  => 1,
+        JS5  => 1,
+        JS10  => 1,
+        MOBJ5  => 1,
+        MJS5  => 1,
+        MOBJ10  => 1,
+        MJS10  => 1,
+        MOB18Y  => 1,
+        MY18EI  => 1,
+        MY18S  => 1,
+        ONLINE  => 1,
         Y18  => 1,
+        YEI18  => 1,
+        YSEI18  => 1,
+        YS18  => 1,
     );
     if ($self->{category_type} eq 'C' && exists $no_permission{$self->{ptype}} ) {
         return 'N';
