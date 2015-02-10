@@ -21,6 +21,7 @@ my %fields = (
 	sip_currency  => 'GBP', # FIXME: why hardcoded?
 	screen_msg    => '',
 	print_line    => '',
+    fee_ack       => 'N',
 );
 
 our $AUTOLOAD;
