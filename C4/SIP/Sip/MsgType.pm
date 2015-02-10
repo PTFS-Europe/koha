@@ -511,7 +511,7 @@ sub handle_checkout {
 
     $patron_id = $fields->{(FID_PATRON_ID)};
     $item_id   = $fields->{(FID_ITEM_ID)};
-    my $sc_fee_acknowledged = $fields->{ (FID_FEE_ACK) } eq 'Y';
+
 
     if ($no_block eq 'Y') {
 	# Off-line transactions need to be recorded, but there's
@@ -525,7 +525,7 @@ sub handle_checkout {
     } else {
 	# Does the transaction date really matter for items that are
 	# checkout out while the terminal is online?  I'm guessing 'no'
-    $status = $ils->checkout( $patron_id, $item_id, $sc_renewal_policy, $sc_fee_acknowledged );
+		$status = $ils->checkout($patron_id, $item_id, $sc_renewal_policy);
     }
 
     $item = $status->item;
@@ -585,7 +585,6 @@ sub handle_checkout {
 	$resp .= add_field(FID_INST_ID, $inst);
 	$resp .= add_field(FID_PATRON_ID, $patron_id);
 	$resp .= add_field(FID_ITEM_ID, $item_id);
-  $resp .= maybe_add( FID_FEE_AMT, $status->fee() );
 
 	# If the item is valid, provide the title, otherwise
 	# leave it blank

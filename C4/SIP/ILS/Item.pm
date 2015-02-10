@@ -92,10 +92,7 @@ sub new {
 
     my $it = C4::Context->preference('item-level_itypes') ? $item->{itype} : $item->{itemtype};
     my $itemtype = Koha::Database->new()->schema()->resultset('Itemtype')->find( $it );
-    if ($itemtype) {
-        $item->{sip_media_type} = $itemtype->sip_media_type();
-        $item->{fee}            = $itemtype->rentalcharge();
-    }
+    $item->{sip_media_type} = $itemtype->sip_media_type() if $itemtype;
 
 	# check if its on issue and if so get the borrower
 	my $issue = GetItemIssue($item->{'itemnumber'});

@@ -20,8 +20,6 @@ use C4::Circulation;
 use C4::Members;
 use C4::Reserves qw(ModReserveFill);
 use C4::Debug;
-use C4::Circulation qw( GetIssuingCharges );
-
 use parent qw(ILS::Transaction);
 
 our $debug;
@@ -127,7 +125,6 @@ sub do_checkout {
 	$debug and warn "do_checkout: calling AddIssue(\$borrower,$barcode, $overridden_duedate, 0)\n"
 		# . "w/ \$borrower: " . Dumper($borrower)
 		. "w/ C4::Context->userenv: " . Dumper(C4::Context->userenv);
-    $self->{fee_amount} = GetIssuingCharges($itemnumber, $borrower);
 	my $due_dt  = AddIssue($borrower, $barcode, $overridden_duedate, 0);
     if ($due_dt) {
         $self->{due} = $due_dt->clone();
@@ -138,16 +135,6 @@ sub do_checkout {
     #$self->{item}->due_date($due);
 	$self->ok(1);
 	return $self;
-}
-
-sub fee {
-    my ($self) = @_;
-
-    my ($charge) = GetIssuingCharges( $self->{item}->{itemnumber}, $self->{patron}->{ils_id} );
-
-    if ($charge > 0 ) {
-        return sprintf( "%.2f", $charge );
-    }
 }
 
 1;
