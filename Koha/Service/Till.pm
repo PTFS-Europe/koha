@@ -14,7 +14,6 @@ sub new {
 
     return $class->SUPER::new(
         {
-            needed_flags => { admin => 'edit_tills' },
             routes       => [
                 [ qr'GET /(\d*)',    'read' ],
                 [ qr'POST /',        'create' ],
