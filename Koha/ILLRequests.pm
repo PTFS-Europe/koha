@@ -83,10 +83,10 @@ can be used for output to the end-user.  For placing the request, the
 =cut
 
 sub search_api {
-    my ( $self, $query ) = @_;
+    my ( $self, $query, $opts ) = @_;
     my $summaries;
 
-    my $records = Koha::ILLRequest::Abstract->new()->search($query);
+    my $records = Koha::ILLRequest::Abstract->new()->search($query, $opts);
     foreach my $recs ( @{$records} ) {
         push @{$summaries}, $recs->getSummary();
     }
