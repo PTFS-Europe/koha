@@ -28,7 +28,7 @@ use URI::Escape;
 
 my $input = CGI->new;
 my $reply = [];
-my $type = $input->param('query_type') || 'new';
+my $action = $input->param('query_type') || 'new';
 my $query = $input->param('query_value') || '';
 
 my ( $template, $borrowernumber, $cookie )
@@ -42,12 +42,12 @@ my ( $template, $borrowernumber, $cookie )
                          );
 
 $template->param( query_value => $query );
-$template->param( query_type => $type );
+$template->param( query_type => $action );
 
-if ( $type eq 'search' and $query ) {
+if ( $action eq 'search' and $query ) {
     my $opts = {};
     my $nav_qry = "?query_type=search&query_value=" . uri_escape($query);
-    for my $opt qw( isbn issn title author start_rec max_results ) {
+    for my $opt qw( isbn issn title author type start_rec max_results ) {
         my $val = $input->param($opt);
         if ( $val ne '' ) {
             $opts->{$opt} = $val;
@@ -69,10 +69,8 @@ if ( $type eq 'search' and $query ) {
     $template->param( next => $next );
     $template->param( prev => $prev );
 
-} elsif ( $type eq 'new' ) {
-    # No special action.
-} else {
-    # No special action.
+} else {                        # or action eq 'new'
+    $template->param( type => [ "Book", "Article", "Journal" ] );
 }
 
 $template->param( recv => $input );

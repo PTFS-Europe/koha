@@ -51,6 +51,15 @@
                                 <label for="author">Author:</label>
                                 <input type="text" name="author" id="author" type="text"/>
                             </li>
+                            <li>
+                                <label for="type">Type:</label>
+                                <select name="type" id="type">
+                                    <option value=""/>
+                                    [% FOREACH opt IN type %]
+                                        <option value=[% opt %]>[% opt %]</option>
+                                    [% END %]
+                                </select>
+                            </li>
                         </ol>
                         <fieldset class="action">
                             <input type="submit" value="Search"/>
