@@ -72,6 +72,7 @@ sub do_checkout {
         }
     } else {
         foreach my $confirmation (keys %{$needsconfirmation}) {
+	syslog('LOG_ERR', "Checkout Confirmation:$confirmation");
             if ($confirmation eq 'RENEW_ISSUE'){
                 $self->screen_msg("Item already checked out to you: renewing item.");
             } elsif ($confirmation eq 'RESERVED' or $confirmation eq 'RESERVE_WAITING') {
@@ -86,8 +87,9 @@ sub do_checkout {
                 $self->screen_msg("Item already checked out to another patron.  Please return item for check-in.");
                 $noerror = 0;
             } elsif ($confirmation eq 'DEBT') {
-                $self->screen_msg('Outstanding Fines block issue');
-                $noerror = 0;
+                #$self->screen_msg('Outstanding Fines block issue');
+                #$noerror = 0;
+                $self->screen_msg('Warning Outstanding Fines');
             } elsif ($confirmation eq 'HIGHHOLDS') {
                 $overridden_duedate = $needsconfirmation->{$confirmation}->{returndate};
                 $self->screen_msg('Loan period reduced for high-demand item');
