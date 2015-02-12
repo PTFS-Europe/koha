@@ -3,19 +3,21 @@
 [% INCLUDE 'doc-head-close.inc' %]
 <script type="text/javascript" src="[% themelang %]/lib/jquery/plugins/jquery.tablesorter.min.js"></script>
 <script type="text/javascript" src="[% themelang %]/lib/jquery/plugins/jquery.checkboxes.min.js"></script>
+</head>
 
+<body id="acq_suggestion" class="acq">
 [% INCLUDE 'header.inc' %]
 [% INCLUDE 'cat-search.inc' %]
+
 <div id="breadcrumbs">
     <a href="/cgi-bin/koha/mainpage.pl">Home</a> &rsaquo; ILL Requests
 </div>
 
-
-<body id="acq_suggestion" class="acq">
 <div id="doc3" class="yui-t2">
 <div id="bd">
     <div id="yui-main">
         <div class="yui-b">
+            [% INCLUDE 'ill-toolbar.inc' %]
 
             <h1>ILL Request management</h1>
             <form method="POST" action="/cgi-bin/koha/ill/ill-requests.pl">
@@ -35,19 +37,7 @@
                 <input type="submit" value="submit"/>
             </form>
             <div id="results">
-                [% USE Dumper %]
-                <h2>Debugging Output</h2>
-                <dl>
-                    <dt>Request</dt>
-                    <dd>
-                        [% Dumper.dump(recv) %]
-                    </dd>
-                    <dt>Reply</dt>
-                    <dd>
-                        [% Dumper.dump(reply) %]
-                    </dd>
-                </dl>
-                [% IF reply and query_type == "edit" %]
+               [% IF reply and query_type == "edit" %]
                     <h2>Edit request “[% query_value %]”</h2>
                     [% FOREACH request IN reply %]
                         <p>
@@ -195,6 +185,7 @@
                                             [% ELSE %]
                                                 [% value %]
                                             [% END %]
+                                        </td>
                                     [% END %]
                                 </tr>
                             [% END %]
