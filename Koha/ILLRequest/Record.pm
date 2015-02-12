@@ -273,7 +273,7 @@ sub getProperty {
     if (defined ${$self}{accessors}{$accessor}) {
         $result = ${$self}{accessors}{$accessor};
     } else {
-        $result = "Accessor '" . $accessor . "' not defined in config.";
+        $result = 0;
     }
     return $result;
 }

@@ -328,10 +328,16 @@ sub _seed_for_test {
 =cut
 
 sub seed_from_api {
-    my ( $self, $uin ) = @_;
+    my ( $self, $uin, $borrowernumber, $branch ) = @_;
 
     ${$self}{record} = ${Koha::ILLRequest::Abstract->new()->search($uin)}[0];
-    ${$self}{status} = Koha::ILLRequest::Status->new();
+    ${$self}{status} = Koha::ILLRequest::Status
+      ->new( {
+              reqtype        => $self->{record}->getProperty('type'),
+              borrowernumber => $borrowernumber,
+              branch         => $branch,
+             }
+           );
     $self->save();        # save to DB.
 
     return $self;

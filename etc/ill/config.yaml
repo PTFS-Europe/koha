@@ -74,6 +74,7 @@ record:
   type:
     name: Material Type
     inSummary: yes
+    accessor: type
   isAvailableImmediateley:
     name: Available now?
   metadata:
