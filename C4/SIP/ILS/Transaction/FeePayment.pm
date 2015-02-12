@@ -2,6 +2,8 @@ package ILS::Transaction::FeePayment;
 
 use warnings;
 use strict;
+use Koha::Till;
+
 
 # Copyright 2011 PTFS-Europe Ltd.
 #
@@ -48,6 +50,8 @@ sub pay {
     my $amt            = shift;
     my $type           = shift;
     my $koha_type;
+    my $koha_paytype;
+    my $tillid;
     if ( $type eq '00' ) {
         $koha_paytype = 'Cash';
     }
