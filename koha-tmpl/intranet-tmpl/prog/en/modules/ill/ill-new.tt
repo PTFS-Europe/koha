@@ -1,0 +1,112 @@
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Koha &rsaquo; ILL requests  &rsaquo;</title>
+[% INCLUDE 'doc-head-close.inc' %]
+<script type="text/javascript" src="[% themelang %]/lib/jquery/plugins/jquery.tablesorter.min.js"></script>
+<script type="text/javascript" src="[% themelang %]/lib/jquery/plugins/jquery.checkboxes.min.js"></script>
+</head>
+
+<body id="acq_suggestion" class="acq">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'cat-search.inc' %]
+
+[% parent = "/cgi-bin/koha/ill/ill-requests.pl" %]
+[% here = "/cgi-bin/koha/ill/ill-new.pl" %]
+
+<div id="breadcrumbs">
+    <a href="/cgi-bin/koha/mainpage.pl">Home</a> &rsaquo;
+    <a href=[% parent %]>ILL Requests</a> &rsaquo; New Request
+</div>
+
+<div id="doc3" class="yui-t2">
+    <div id="bd">
+        <div id="yui-main">
+            <div class="yui-b">
+                [% INCLUDE 'ill-toolbar.inc' %]
+
+                <h1>New ILL Request</h1> 
+                [% IF !reply or !query_type or query_type == 'new' %]
+                    <h2>Search the British Library</h2>
+                    <form method="POST" action=[% here %]>
+                        <fieldset class="rows">
+                            <legend>Search the British Library</legend>
+                        <input name="query_type" id="query_type" value="search" type="hidden"/>
+                        <ol>
+                            <li>
+                                <label class="required" for="query_value">Keywords:</label>
+                                <input type="text" name="query_value" id="query_value" type="text"/>
+                            </li>
+                            <li>
+                                <label for="isbn">ISBN:</label>
+                                <input type="text" name="isbn" id="isbn" type="text"/>
+                            </li>
+                            <li>
+                                <label for="issn">ISSN:</label>
+                                <input type="text" name="issn" id="issn" type="text"/>
+                            </li>
+                            <li>
+                                <label for="title">Title:</label>
+                                <input type="text" name="title" id="title" type="text"/>
+                            </li>
+                            <li>
+                                <label for="author">Author:</label>
+                                <input type="text" name="author" id="author" type="text"/>
+                            </li>
+                        </ol>
+                        <fieldset class="action">
+                            <input type="submit" value="Search"/>
+                            <a class="cancel" href=[% parent %]>Cancel</a>
+                        </fieldset>
+                    </form>
+                [% ELSIF reply and query_type == 'search' %]
+                    <h2>Search results for ”[% query_value %]”</h2>
+                    [% rqp = "?query_type=request&query_value=" %]
+                    <table>
+                        <thead>
+                            <tr>
+                                [% FOREACH field IN reply.0 %]
+                                    <th id=[% field.key %]>[% field.value.0 %]</th>
+                                [% END %]
+                            </tr>
+                        </thead>
+                        <tbody>
+                            [% FOREACH record IN reply %]
+                                <tr>
+                                    [% FOREACH field IN record %]
+                                        [% value = field.value.1 %]
+                                        <td>
+                                            [% IF field.key == './uin' %]
+                                                <a href=[% parent _ rqp _ value %]>
+                                                    Request [% value %]
+                                                </a>
+                                            [% ELSE %]
+                                                [% value %]
+                                            [% END %]
+                                        </td>
+                                    [% END %]
+                                </tr>
+                            [% END %]
+                        </tbody>
+                    </table>
+                    <p>
+                        [% IF prev %]
+                            <a class="nav" title="Next set of results"
+                               href=[% here _ prev %]>&lsaquo;&lsaquo; Previous</a>
+                        [% ELSE %]
+                            <span> &lsaquo;&lsaquo; Previous</span>
+                        [% END %]
+                        [% IF next %]
+                            <a class="nav" title="Next set of results"
+                               href=[% here _ next %]>Next &rsaquo;&rsaquo;</a>
+                        [% ELSE %]
+                            <span>Next &rsaquo;&rsaquo;</span>
+                        [% END %]
+                    </p>
+
+                [% END %]
+
+            </div>
+        </div>
+    </div>
+</div>
+
+[% INCLUDE 'intranet-bottom.inc' %]
