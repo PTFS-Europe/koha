@@ -18,6 +18,7 @@ package Koha::ILLRequest::Status;
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 use Modern::Perl;
+use DateTime;
 use Carp;
 
 =head1 NAME
@@ -129,8 +130,11 @@ sub update {
     my ( $self, $new_values ) = @_;
 
     foreach my $field ( keys %{$self} ) {
-        ${$self}{$field} = ${$new_values}{$field};
+        my $new_value = $new_values->{$field};
+        $self->{$field} = $new_value if $new_value;
     }
+
+    $self->{ts} = DateTime->now;
 
     return $self;
 }
