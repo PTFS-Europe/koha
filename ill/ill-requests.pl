@@ -67,7 +67,8 @@ if ( $type eq 'api' and $query ) {
     push @{$reply}, $request->calculatePrice($coordinates);
 
 } elsif ( $type eq 'request' and $query ) {
-    my $request = Koha::ILLRequests->new()->request($query);
+    my $request = Koha::ILLRequests->new()
+      ->request($query, $input->param('brw'));
     push @{$reply}, $request->getSummary();
 
 } elsif ( ( $query eq "*" ) or

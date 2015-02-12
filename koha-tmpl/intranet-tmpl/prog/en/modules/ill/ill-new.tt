@@ -29,38 +29,44 @@
                     <form method="POST" action=[% here %]>
                         <fieldset class="rows">
                             <legend>Search the British Library</legend>
-                        <input name="query_type" id="query_type" value="search" type="hidden"/>
-                        <ol>
-                            <li>
-                                <label class="required" for="query_value">Keywords:</label>
-                                <input type="text" name="query_value" id="query_value" type="text"/>
-                            </li>
-                            <li>
-                                <label for="isbn">ISBN:</label>
-                                <input type="text" name="isbn" id="isbn" type="text"/>
-                            </li>
-                            <li>
-                                <label for="issn">ISSN:</label>
-                                <input type="text" name="issn" id="issn" type="text"/>
-                            </li>
-                            <li>
-                                <label for="title">Title:</label>
-                                <input type="text" name="title" id="title" type="text"/>
-                            </li>
-                            <li>
-                                <label for="author">Author:</label>
-                                <input type="text" name="author" id="author" type="text"/>
-                            </li>
-                            <li>
-                                <label for="type">Type:</label>
-                                <select name="type" id="type">
-                                    <option value=""/>
-                                    [% FOREACH opt IN type %]
-                                        <option value=[% opt %]>[% opt %]</option>
-                                    [% END %]
-                                </select>
-                            </li>
-                        </ol>
+                            <input name="query_type" id="query_type" value="search" type="hidden"/>
+                            <ol>
+                                <li>
+                                    <label class="required" for="query_value">Keywords:</label>
+                                    <input type="text" name="query_value" id="query_value" type="text"/>
+                                </li>
+                                <li>
+                                    <label for="isbn">ISBN:</label>
+                                    <input type="text" name="isbn" id="isbn" type="text"/>
+                                </li>
+                                <li>
+                                    <label for="issn">ISSN:</label>
+                                    <input type="text" name="issn" id="issn" type="text"/>
+                                </li>
+                                <li>
+                                    <label for="title">Title:</label>
+                                    <input type="text" name="title" id="title" type="text"/>
+                                </li>
+                                <li>
+                                    <label for="author">Author:</label>
+                                    <input type="text" name="author" id="author" type="text"/>
+                                </li>
+                                <li>
+                                    <label for="type">Type:</label>
+                                    <select name="type" id="type">
+                                        <option value=""/>
+                                        [% FOREACH opt IN type %]
+                                            <option value=[% opt %]>[% opt %]</option>
+                                        [% END %]
+                                    </select>
+                                </li>
+                            </ol>
+                        </fieldset>
+                        <fieldset class="rows">
+                            <legend>Borrower Options</legend>
+                            <label for="brw">Borrower Number:</label>
+                            <input type="text" name="brw" id="brw" type="text"/>
+                        </fieldset>
                         <fieldset class="action">
                             <input type="submit" value="Search"/>
                             <a class="cancel" href=[% parent %]>Cancel</a>
@@ -68,7 +74,6 @@
                     </form>
                 [% ELSIF reply and query_type == 'search' %]
                     <h2>Search results for ”[% query_value %]”</h2>
-                    [% rqp = "?query_type=request&query_value=" %]
                     <table>
                         <thead>
                             <tr>

@@ -68,6 +68,10 @@ if ( $action eq 'search' and $query ) {
       if ( $pcounter > 1 ) ;
     $template->param( next => $next );
     $template->param( prev => $prev );
+    my $rq_qry = "?query_type=request";
+    $rq_qry .= "&brw=" . $input->param('brw') if ($input->param ne '');
+    $rq_qry .= "&query_value=";
+    $template->param( rqp => $rq_qry );
 
 } else {                        # or action eq 'new'
     $template->param( type => [ "Book", "Article", "Journal" ] );
