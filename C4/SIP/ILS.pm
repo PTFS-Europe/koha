@@ -219,10 +219,12 @@ sub end_patron_session {
 
 sub pay_fee {
     my ($self, $patron_id, $patron_pwd, $fee_amt, $fee_type,
-	$pay_type, $fee_id, $trans_id, $currency) = @_;
+	$pay_type, $fee_id, $trans_id, $currency,$tillid) = @_;
     my $trans;
 
     $trans = ILS::Transaction::FeePayment->new();
+    syslod('LOG_DEBUG', "pay_fee passed tillid:$tillid");
+    $tillid ||= 477; # test till
 
 
     $trans->transaction_id($trans_id);
@@ -232,7 +234,7 @@ sub pay_fee {
         $trans->screen_msg('Invalid patron barcode.');
         return $trans;
     }
-    $trans->pay($patron->{borrowernumber},$fee_amt, $pay_type);
+    $trans->pay($patron->{borrowernumber},$fee_amt, $pay_type, $tillid);
     $trans->ok(1);
 
     return $trans;

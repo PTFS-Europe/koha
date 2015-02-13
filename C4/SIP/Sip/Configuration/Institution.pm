@@ -40,6 +40,11 @@ sub policy {
     return $self->{policy};
 }
 
+sub tillid {
+    my $self = shift;
+    return $self->{tillid};
+}
+
 # 'policy' => {
 #     'checkout' => 'true',
 #     'retries' => 5,

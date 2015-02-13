@@ -1074,10 +1074,12 @@ sub handle_fee_paid {
     $fee_id = $fields->{(FID_FEE_ID)};
     $trans_id = $fields->{(FID_TRANSACTION_ID)};
 
+    my $tillid  = $ils->{institution}->{tillid};
+
     $ils->check_inst_id($inst_id, "handle_fee_paid");
 
     $status = $ils->pay_fee($patron_id, $patron_pwd, $fee_amt, $fee_type,
-			   $pay_type, $fee_id, $trans_id, $currency);
+			   $pay_type, $fee_id, $trans_id, $currency,$tillid);
 
     $resp .= ($status->ok ? 'Y' : 'N') . Sip::timestamp;
     $resp .= add_field(FID_INST_ID, $inst_id);

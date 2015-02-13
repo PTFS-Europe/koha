@@ -49,13 +49,16 @@ sub pay {
     my $borrowernumber = shift;
     my $amt            = shift;
     my $type           = shift;
+    my $tillid         = shift;
     my $koha_type;
     my $koha_paytype;
-    my $tillid;
     if ( $type eq '00' ) {
         $koha_paytype = 'Cash';
     }
-    warn("RECORD:$borrowernumber::$amt");
+    elsif ( $type =~m/^0[12]$/) {
+        $koha_paytype = 'Card';
+    }
+    #warn("RECORD:$borrowernumber::$amt");
     recordpayment( $borrowernumber, $amt, $type, undef, $tillid, $koha_type );
 }
 
