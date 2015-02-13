@@ -111,18 +111,24 @@ this request.
 sub request {
     my ( $self, $opts ) = @_;
 
-    my $brws = Koha::Borrowers->new->search( {
-        cardnumber => $opts->{borrower},
+    my $illRequest;
+    my $brw = Koha::Borrowers->new->search( {
+        borrowernumber => $opts->{borrower},
     } );
-
-    if ( $brws->count == 1 ) {
-        $opts->{borrower} = $brws->next->borrowernumber;
-        my $illRequest = Koha::ILLRequest->new()->seed($opts);
-        return $illRequest;
+    if (!$brw) {
+        my $brws = Koha::Borrowers->new->search( {
+            cardnumber => $opts->{borrower},
+        } );
+        if ( $brws->count == 1 ) {
+            $opts->{borrower} = $brws->next->borrowernumber;
+            $illRequest = Koha::ILLRequest->new()->seed($opts);
+        } else {
+            return 0;
+        }
     } else {
-        return 0;
+        $illRequest = Koha::ILLRequest->new()->seed($opts);
     }
-
+    return $illRequest;
 }
 
 =head3 retrieve_ill_requests
