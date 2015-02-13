@@ -388,7 +388,7 @@ sub get_template_and_user {
         my $current_till;
         while ( my $till = $tills_rs->next ) {
             push @tills_loop, { tillid => $till->get_column('tillid'), name => $till->get_column('name'), description => $till->get_column('description') };
-            if ( $in->{'query'}->cookie("KohaStaffClient") eq $till->get_column('tillid') ) {
+            if ( defined($in->{'query'}->cookie("KohaStaffClient")) && $in->{'query'}->cookie("KohaStaffClient") eq $till->get_column('tillid') ) {
                 $current_till = { tillid => $till->get_column('tillid'), name => $till->get_column('name'), description => $till->get_column('description') };
             }
         }
