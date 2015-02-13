@@ -114,6 +114,21 @@ Administration:
                   Common Name: the Common Name
                   emailAddress: the emailAddress
             - field for SSL client certificate authentication
+    Interlibrary Loans:
+        -
+            - pref: ILLModule
+              default: 0
+              choices:
+                  yes: Enable
+                  no: Disable
+            - the interlibrary loans module
+        -
+            - pref: OpacILLRequests
+              default: 0
+              choices:
+                  yes: Enable
+                  no: Disable
+            - OPAC based interlibrary loan requests.
     Mozilla Persona:
         -
             - pref: Persona
