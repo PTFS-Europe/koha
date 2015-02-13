@@ -1,0 +1,241 @@
+[% USE Koha %]
+[% USE KohaDates %]
+
+[% INCLUDE 'doc-head-open.inc' %]
+[% IF ( LibraryNameTitle ) %][% LibraryNameTitle %][% ELSE %]Koha online[% END %] catalog &rsaquo; Your library home
+[% INCLUDE 'doc-head-close.inc' %]
+[% BLOCK cssinclude %][% END %]
+</head>
+[% INCLUDE 'bodytag.inc' bodyid='opac-user' bodyclass='scrollto' %]
+[% INCLUDE 'masthead.inc' %]
+
+<div class="main">
+    <ul class="breadcrumb">
+        <li><a href="/cgi-bin/koha/opac-main.pl">Home</a> <span class="divider">&rsaquo;</span></li>
+        <li>[% FOREACH BORROWER_INF IN BORROWER_INFO %]<a href="/cgi-bin/koha/opac-user.pl">[% INCLUDE 'patron-title.inc' category_type = BORROWER_INF.category_type firstname = BORROWER_INF.firstname surname = BORROWER_INF.surname othernames = BORROWER_INF.othernames cardnumber = BORROWER_INF.cardnumber %]</a>[% END %] <span class="divider">&rsaquo;</span></li>
+        <li><a href="#">Your summary</a></li>
+    </ul>
+
+    <div class="container-fluid">
+        <div class="row-fluid">
+             <div class="span2">
+                <div id="navigation">
+                    [% INCLUDE 'navigation.inc' IsPatronPage=1 %]
+                </div>
+            </div>
+            <div class="span10">
+                <h1>ILL Requests</h1>
+                [% IF error.error == 'missing_fields' and error.action == 'search' %]
+                    <p><em>Please Note:</em> Some mandatory fields are missing.</p>
+                [% END %]
+
+                [% IF !op or op == 'request' %]
+                    [% IF ( loggedinusername || Koha.Preference( 'OpacILLRequests' ) ) %]
+                        <a class="new" href="/cgi-bin/koha/opac-ill.pl?op=new">New Request</a>
+                    [% END %]
+                    <h2>Current Requests</h2>
+                    [% IF reply %]
+                        <table>
+                            <thead>
+                                <tr>
+                                    [% FOREACH line IN reply.0 %]
+                                        <th id=[% line.key %]>[% line.value.0 %]</th>
+                                    [% END %]
+                                </tr>
+                            </thead>
+                            <tbody>
+                                [% FOREACH summary IN reply %]
+                                    <tr>
+                                        [% FOREACH line IN summary %]
+                                            <td>
+                                                [% line.value.1 %]
+                                            </td>
+                                        [% END %]
+                                    </tr>
+                                [% END %]
+                            </tbody>
+                        </table>
+                    [% ELSE %]
+                        <p>You have no ILL requests.</p>
+                    [% END %]
+                [% ELSIF op == 'new' %]
+                    <h2>Search the British Library</h2>
+                    <form method="POST" action=[% forward %]>
+                        <fieldset class="rows">
+                            <legend>Search Form</legend>
+                            <input name="op" id="op" value="search" type="hidden"/>
+                            <ol>
+                                <li>
+                                    <label class="required" for="query_value">Keywords:</label>
+                                    <input type="text" name="query_value" id="query_value" type="text"/>
+                                </li>
+                                <li>
+                                    <label for="isbn">ISBN:</label>
+                                    <input type="text" name="isbn" id="isbn" type="text"/>
+                                </li>
+                                <li>
+                                    <label for="issn">ISSN:</label>
+                                    <input type="text" name="issn" id="issn" type="text"/>
+                                </li>
+                                <li>
+                                    <label for="title">Title:</label>
+                                    <input type="text" name="title" id="title" type="text"/>
+                                </li>
+                                <li>
+                                    <label for="author">Author:</label>
+                                    <input type="text" name="author" id="author" type="text"/>
+                                </li>
+                                <li>
+                                    <label for="type">Type:</label>
+                                    <select name="type" id="type">
+                                        <option value=""/>
+                                        [% FOREACH opt IN type %]
+                                            <option value=[% opt %]>[% opt %]</option>
+                                        [% END %]
+                                    </select>
+                                </li>
+                            </ol>
+                        </fieldset>
+                        <fieldset class="rows">
+                            <legend>Borrower Options</legend>
+                            <ol>
+                                <li>
+                                    <label class="required" for="branch">Destination Branch:</label>
+                                    <select name="branch" id="branch">
+                                        <option value=""></option>
+                                        [% FOREACH branch IN branches %]
+                                            [% IF ( branch.selected ) %]
+                                                <option value="[% branch.value %]"
+                                                        selected="selected">
+                                                    [% branch.branchname %]
+                                                </option>
+                                            [% ELSE %]
+                                                <option value="[% branch.value %]">
+                                                    [% branch.branchname %]
+                                                </option>
+                                            [% END %]
+                                        [% END %]
+                                    </select>
+                                </li>
+                            </ol>
+
+                        </fieldset>
+                        <fieldset class="action">
+                            <input type="submit" value="Search"/>
+                            <a class="cancel" href=[% back %]>Cancel</a>
+                        </fieldset>
+                    </form>
+                [% ELSIF op == 'search' %]
+                    <h2>Search results for ”[% query_value %]”</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                [% FOREACH field IN reply.0 %]
+                                    <th id=[% field.key %]>[% field.value.0 %]</th>
+                                [% END %]
+                            </tr>
+                        </thead>
+                        <tbody>
+                            [% FOREACH record IN reply %]
+                                <tr>
+                                    [% FOREACH field IN record %]
+                                        [% value = field.value.1 %]
+                                        <td>
+                                            [% IF field.key == './uin' %]
+                                                <a href=[%  rqp _ value %]>
+                                                    Request [% value %]
+                                                </a>
+                                            [% ELSE %]
+                                                [% value %]
+                                            [% END %]
+                                        </td>
+                                    [% END %]
+                                </tr>
+                            [% END %]
+                        </tbody>
+                    </table>
+                    <p>
+                        [% IF prev %]
+                            <a class="nav" title="Next set of results"
+                               href=[% prev %]>&lsaquo;&lsaquo; Previous</a>
+                        [% ELSE %]
+                            <span> &lsaquo;&lsaquo; Previous</span>
+                        [% END %]
+                        [% IF next %]
+                            <a class="nav" title="Next set of results"
+                               href=[% next %]>Next &rsaquo;&rsaquo;</a>
+                        [% ELSE %]
+                            <span>Next &rsaquo;&rsaquo;</span>
+                        [% END %]
+                    </p>
+                [% END %]
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+[% INCLUDE 'opac-bottom.inc' %]
+
+
+[% BLOCK jsinclude %]
+    [% INCLUDE 'calendar.inc' %]
+    [% INCLUDE 'datatables.inc' %]
+    <script type="text/JavaScript">
+        //<![CDATA[
+        var MSG_CONFIRM_DELETE_HOLD   = _("Are you sure you want to cancel this hold?");
+        var MSG_CONFIRM_SUSPEND_HOLDS = _("Are you sure you want to suspend all holds?");
+        var MSG_CONFIRM_RESUME_HOLDS  = _("Are you sure you want to resume all suspended holds?");
+
+        $(document).ready(function(){
+            $('#opac-user-views').tabs();
+            $(".js-show").show();
+            $(".js-hide").hide();
+            $(".modal-nojs").addClass("modal").addClass("hide").removeClass("modal-nojs");
+            $(".suspend-until").prop("readonly",1);
+            var dTables = $("#checkoutst,#holdst,#overduest");
+            dTables.each(function(){
+                var thIndex = $(this).find("th.psort").index();
+                $(this).dataTable($.extend(true, {}, dataTablesDefaults, {
+                    "aaSorting" : [[ thIndex, 'asc' ]],
+                    "aoColumnDefs": [
+                        { "aTargets": [ "nosort" ],"bSortable": false,"bSearchable": false },
+                        { "sType": "anti-the", "aTargets" : [ "anti-the" ] },
+                        { "sType": "title-string", "aTargets" : [ "title-string" ] }
+                    ]
+                }));
+            });
+
+            [% IF ( GoogleJackets ) %]KOHA.Google.GetCoverFromIsbn();[% END %]
+            [% IF ( OpacRenewalAllowed && canrenew && !userdebarred ) %]
+                $("#renewselected").submit(function(){
+                    valid = false;
+                    $("input[type=checkbox]").each(function(){
+                        if($(this).is(':checked')){
+                            valid = true;
+                        }
+                    });
+                    if(!valid){
+                        alert(_("Nothing has been selected. Check the box for each item you want to renew"));
+                    }
+                    return valid;
+                });
+                $("body").on("click","#renewselected_link",function(e){
+                    e.preventDefault();
+                    $("#renewselected").submit();
+                });
+                $("body").on("click","#renewall_link",function(e){
+                    e.preventDefault();
+                    $("#renewall").submit();
+                });
+                [% IF ( canrenew && !userdebarred && OpacRenewalAllowed && !( borrower.is_expired && borrower.BlockExpiredPatronOpacActions ) ) %]
+                    $("#checkoutst caption").append("<div id=\"renewcontrols\"><a id=\"renewselected_link\" href=\"#\">"+_("Renew selected")+"</a> <a id=\"renewall_link\" href=\"#\">"+_("Renew all")+"</a></div>");
+                [% END %]
+            [% END %]
+
+            $( ".suspend-until" ).datepicker({ minDate: 1 }); // Require that "until date" be in the future
+        });
+        //]]>
+    </script>
+[% END %]
