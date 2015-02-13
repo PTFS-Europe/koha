@@ -24,7 +24,10 @@
                 [% INCLUDE 'ill-toolbar.inc' %]
 
                 <h1>New ILL Request</h1> 
-                [% IF !reply or !query_type or query_type == 'new' %]
+                [% IF error or !query_type or query_type == 'new' %]
+                    [% IF error.error == 'missing_fields' and error.action == 'search' %]
+                        <p><em>Please Note:</em> Some mandatory fields are missing.</p>
+                    [% END %]
                     <h2>Search the British Library</h2>
                     <form method="POST" action=[% here %]>
                         <fieldset class="rows">
@@ -64,15 +67,38 @@
                         </fieldset>
                         <fieldset class="rows">
                             <legend>Borrower Options</legend>
-                            <label for="brw">Borrower Number:</label>
-                            <input type="text" name="brw" id="brw" type="text"/>
+                            <ol>
+                                <li>
+                                    <label class="required" for="brw">Borrower Number:</label>
+                                    <input type="text" name="brw" id="brw" type="text"/>
+                                </li>
+                                <li>
+                                    <label class="required" for="branch">Destination Branch:</label>
+                                    <select name="branch" id="branch">
+                                        <option value=""></option>
+                                        [% FOREACH branch IN branches %]
+                                            [% IF ( branch.selected ) %]
+                                                <option value="[% branch.value %]"
+                                                        selected="selected">
+                                                    [% branch.branchname %]
+                                                </option>
+                                            [% ELSE %]
+                                                <option value="[% branch.value %]">
+                                                    [% branch.branchname %]
+                                                </option>
+                                            [% END %]
+                                        [% END %]
+                                    </select>
+                                </li>
+                            </ol>
+
                         </fieldset>
                         <fieldset class="action">
                             <input type="submit" value="Search"/>
                             <a class="cancel" href=[% parent %]>Cancel</a>
                         </fieldset>
                     </form>
-                [% ELSIF reply and query_type == 'search' %]
+                [% ELSIF query_type == 'search' %]
                     <h2>Search results for ”[% query_value %]”</h2>
                     <table>
                         <thead>

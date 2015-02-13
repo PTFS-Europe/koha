@@ -20,6 +20,7 @@
 use Modern::Perl;
 use CGI;
 use C4::Auth;
+use C4::Branch; # GetBranches
 use C4::Output;
 use C4::Search qw(GetDistinctValues);
 use C4::Context;
@@ -28,6 +29,7 @@ use URI::Escape;
 
 my $input = CGI->new;
 my $reply = [];
+my $error = 0;
 my $action = $input->param('query_type') || 'new';
 my $query = $input->param('query_value') || '';
 
@@ -44,7 +46,13 @@ my ( $template, $borrowernumber, $cookie )
 $template->param( query_value => $query );
 $template->param( query_type => $action );
 
-if ( $action eq 'search' and $query ) {
+if ( fail($query, $input->param('brw'), $input->param('branch')) ) {
+    $error = {
+        error => "missing_fields",
+        action => $action,
+    };
+
+} elsif ( $action eq 'search' ) {
     my $opts = {};
     my $nav_qry = "?query_type=search&query_value=" . uri_escape($query);
     for my $opt qw( isbn issn title author type start_rec max_results ) {
@@ -69,16 +77,27 @@ if ( $action eq 'search' and $query ) {
     $template->param( next => $next );
     $template->param( prev => $prev );
     my $rq_qry = "?query_type=request";
-    $rq_qry .= "&brw=" . $input->param('brw') if ($input->param ne '');
+    $rq_qry .= "&brw=" . $input->param('brw');
+    $rq_qry .= "&branch=" . $input->param('branch');
     $rq_qry .= "&query_value=";
     $template->param( rqp => $rq_qry );
 
 } else {                        # or action eq 'new'
-    $template->param( type => [ "Book", "Article", "Journal" ] );
 }
 
-$template->param( recv => $input );
-$template->param( reply => $reply );
-$template->param( debug => 1 ); # if ( $input->param('debug') );
+$template->param( type => [ "Book", "Article", "Journal" ] );
+$template->param( recv     => $input );
+$template->param( branches => GetBranchesLoop );
+$template->param( reply    => $reply );
+$template->param( error    => $error );
+$template->param( debug    => 1 ); # if ( $input->param('debug') );
 
 output_html_with_http_headers( $input, $cookie, $template->output );
+
+sub fail {
+    my @values = @_;
+    foreach my $val ( @values ) {
+        return 1 if (!$val or $val eq '');
+    }
+    return 0;
+}

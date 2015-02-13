@@ -20,6 +20,7 @@ package Koha::ILLRequests;
 use Modern::Perl;
 use Carp;
 
+use Koha::Borrowers;
 use Koha::Database;
 use Koha::ILLRequest;
 use Koha::ILLRequest::Abstract;
@@ -110,9 +111,18 @@ this request.
 sub request {
     my ( $self, $opts ) = @_;
 
-    my $illRequest = Koha::ILLRequest->new()->seed($opts);
+    my $brws = Koha::Borrowers->new->search( {
+        cardnumber => $opts->{borrower},
+    } );
 
-    return $illRequest;
+    if ( $brws->count == 1 ) {
+        $opts->{borrower} = $brws->next->borrowernumber;
+        my $illRequest = Koha::ILLRequest->new()->seed($opts);
+        return $illRequest;
+    } else {
+        return 0;
+    }
+
 }
 
 =head3 retrieve_ill_requests
