@@ -67,14 +67,16 @@ if ( $type eq 'api' and $query ) {
     push @{$reply}, $request->calculatePrice($coordinates);
 
 } elsif ( $type eq 'request' and $query ) {
-    my $request = Koha::ILLRequests->new()
-      ->request($query, $input->param('brw'));
+    my $request = Koha::ILLRequests->new()->request( {
+        uin      => $query,
+        borrower => $input->param('brw')
+    } );
     push @{$reply}, $request->getSummary();
 
 } elsif ( ( $query eq "*" ) or
           ( not $query and
             ( $type eq 'requests' or $type eq 'borrowers' ) ) ) {
-    my $requests = Koha::ILLRequests->new()->retrieve_ill_requests();
+    my $requests = Koha::ILLRequests->new->retrieve_ill_requests;
     foreach my $rq ( @{$requests} ) {
         push @{$reply}, $rq->getSummary();
     }

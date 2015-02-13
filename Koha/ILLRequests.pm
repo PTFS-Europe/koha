@@ -108,9 +108,9 @@ this request.
 =cut
 
 sub request {
-    my ( $self, $uin, $brw ) = @_;
+    my ( $self, $opts ) = @_;
 
-    my $illRequest = Koha::ILLRequest->new()->seed_from_api($uin, $brw);
+    my $illRequest = Koha::ILLRequest->new()->seed($opts);
 
     return $illRequest;
 }
@@ -143,7 +143,7 @@ sub retrieve_ill_requests {
     my $illRequests = [];
     while ( my $row = $result->next ) {
         push @{$illRequests},
-          Koha::ILLRequest->new()->seed_from_store($row->id);
+          Koha::ILLRequest->new()->seed( { id => $row->id } );
     }
 
     return $illRequests;
@@ -160,7 +160,7 @@ Retrieve the ILLREQUEST identified by $ILLREQUESTID.
 sub retrieve_ill_request {
     my ( $self, $illRequestId ) = @_;
 
-    my $request = Koha::ILLRequest->new()->seed_from_store($illRequestId);
+    my $request = Koha::ILLRequest->new()->seed( { id => $illRequestId } );
     if ( $request ) {
         return [ $request ];
     } else {

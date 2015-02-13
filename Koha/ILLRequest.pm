@@ -322,20 +322,43 @@ sub _seed_for_test {
     return $self;
 }
 
+=head3 seed
 
-=head3 seed_from_api
+    my $seed = $illRequest->seed();
+
+A generic seeding procedure, taking a hashref as an argument.  Depending on
+the keys of the hashref we defer to seed_from_api or seed_from_store.
 
 =cut
 
-sub seed_from_api {
-    my ( $self, $uin, $borrowernumber, $branch ) = @_;
+sub seed {
+    my ( $self, $opts ) = @_;
 
-    ${$self}{record} = ${Koha::ILLRequest::Abstract->new()->search($uin)}[0];
-    ${$self}{status} = Koha::ILLRequest::Status
-      ->new( {
-              reqtype        => $self->{record}->getProperty('type'),
-              borrowernumber => $borrowernumber,
-              branch         => $branch,
+    my $rq;
+    if ( $opts->{id} ) {
+        $rq = $self->_seed_from_store( $opts );
+    } elsif ( $opts->{uin} ) {
+        $rq = $self->_seed_from_api( $opts );
+    } else {
+        $rq = 0
+    }
+
+    return $rq;
+}
+
+=head3 _seed_from_api
+
+=cut
+
+sub _seed_from_api {
+    my ( $self, $opts ) = @_;
+
+    ${$self}{record} = ${Koha::ILLRequest::Abstract->new()
+          ->search($opts->{uin})}[0];
+    ${$self}{status} = Koha::ILLRequest::Status->new( {
+              reqtype  => $self->{record}->getProperty('type'),
+              borrower => $opts->{borrower},
+              branch   => $opts->{branch},
              }
            );
     $self->save();        # save to DB.
@@ -343,7 +366,7 @@ sub seed_from_api {
     return $self;
 }
 
-=head3 seed_from_store
+=head3 _seed_from_store
 
   Read a Record from the Koha Database. Here, we simply do a db
   attribute / IllRequest dump and feed that dump into Record
@@ -351,13 +374,13 @@ sub seed_from_api {
 
 =cut
 
-sub seed_from_store {
-    my ( $self, $id ) = @_;
+sub _seed_from_store {
+    my ( $self, $opts ) = @_;
 
-    my $result =
-      Koha::Database->new()->schema()->resultset('IllRequest')->
-        find( { id => $id },
-              { join => 'ill_request_attributes', order_by => 'id' } );
+    my $result = Koha::Database->new()->schema()->resultset('IllRequest')
+        ->find( { id => $opts->{id} },
+                { join     => 'ill_request_attributes',
+                  order_by => 'id' } );
 
     if ($result) {
         my $attributes = { $result->get_columns };
