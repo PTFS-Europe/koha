@@ -88,7 +88,6 @@ will be credited to the next one.
 
 #'
 sub recordpayment {
-    warn "recordpayment";
 
     #here we update the account lines
     my ( $borrowernumber, $data, $sip_paytype, $payment_note, $tillid, $type ) = @_;
@@ -135,7 +134,7 @@ sub recordpayment {
         $usth->execute( $newamtos, $thisacct );
 
         if ( C4::Context->preference('CashManagement')) {
-            my $tcode = $accdata->{'type'} ||= 'DEFAULT';
+            my $tcode = $accdata->{'accounttype'} ||= 'DEFAULT';
             if ( $tcode eq 'F' ) {
                 $tcode = 'FINE';
             }
@@ -217,7 +216,6 @@ was made.
 # FIXME - I'm not at all sure about the above, because I don't
 # understand what the acct* tables in the Koha database are for.
 sub makepayment {
-    warn "makepayment";
 
     #here we update both the accountoffsets and the account lines
     #updated to check, if they are paying off a lost item, we return the item
@@ -624,7 +622,6 @@ will be credited to the next one.
 
 sub recordpayment_selectaccts {
     my ( $borrowernumber, $amount, $accts, $note, $tillid, $type ) = @_;
-    warn "recordpayment_selectaccts";
 
     my $dbh        = C4::Context->dbh;
     my $newamtos   = 0;
@@ -729,7 +726,6 @@ sub recordpayment_selectaccts {
 # fills in
 sub makepartialpayment {
     my ( $accountlines_id, $borrowernumber, $accountno, $amount, $user, $branch, $payment_note, $tillid, $type ) = @_;
-    warn "makepartialpayment";
     my $manager_id = 0;
     $manager_id = C4::Context->userenv->{'number'} if C4::Context->userenv;
     if (!$amount || $amount < 0) {
