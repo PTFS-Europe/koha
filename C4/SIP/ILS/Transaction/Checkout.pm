@@ -20,6 +20,7 @@ use C4::Circulation;
 use C4::Members;
 use C4::Reserves qw(ModReserveFill);
 use C4::Debug;
+use Koha::Till;
 use parent qw(ILS::Transaction);
 
 our $debug;
@@ -120,6 +121,9 @@ sub do_checkout {
         if ($self->{fee_ack} eq 'N' ) {
             $noerror = 0;
         }
+        elsif ($self->{fee_ack} eq 'Y') {
+            log_rental_fee($self->{fee_amount}, $self->{tillid});
+        }
     }
 	unless ($noerror) {
 		$debug and warn "cannot issue: " . Dumper($issuingimpossible) . "\n" . Dumper($needsconfirmation);
@@ -149,6 +153,17 @@ sub do_checkout {
     #$self->{item}->due_date($due);
 	$self->ok(1);
 	return $self;
+}
+sub log_rental_fee {
+    my ($fee_amt, $tillid) =@_;
+	syslog('LOG_DEBUG', "log_rental_fee till=$tillid amt=$fee_amt");
+    $tillid ||= 477; # test till
+    my $transcode = 'RENTALFEE';
+    my $pay_type  = 'Cash';
+
+    my $till = Koha::Till->new( { tillid => $tillid });
+    $till->payin($fee_amt,, $transcode, $pay_type);
+    return;
 }
 
 1;

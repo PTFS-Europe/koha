@@ -135,6 +135,7 @@ sub checkout {
     $circ->item($item = new ILS::Item $item_id);
     if ($fee_ack) {
         $circ->fee_ack($fee_ack);
+        $circ->tillid($self->{institution}->{tillid});
     }
 
     if (!$patron) {
