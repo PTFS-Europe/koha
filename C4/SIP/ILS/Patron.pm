@@ -68,7 +68,7 @@ sub new {
     %ilspatron = (
         getmemberdetails_object => $kp,
         name => $kp->{firstname} . " " . $kp->{surname},
-        id   => $kp->{cardnumber},    # to SIP, the id is the BARCODE, not userid
+        id   => uc $kp->{cardnumber},    # to SIP, the id is the BARCODE, not userid
         password        => $pw,
         ptype           => $kp->{categorycode},     # 'A'dult.  Whatever.
         dateexpiry      => $dexpiry,
