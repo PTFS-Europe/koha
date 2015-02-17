@@ -131,7 +131,7 @@ function moneyFormat(textObj) {
 [% END %]
 
 [% IF ( pay_individual ) %]
-    <form name="payindivfine" id="payindivfine" onsubmit="return validatePayment(this);" method="post" action="/cgi-bin/koha/members/paycollect.pl">
+    <form name="payindivfine" id="payindivfine" method="post" action="/cgi-bin/koha/members/paycollect.pl">
     <input type="hidden" name="borrowernumber" id="borrowernumber" value="[% borrower.borrowernumber %]" />
     <input type="hidden" name="pay_individual" id="pay_individual" value="[% pay_individual %]" />
     <input type="hidden" name="itemnumber" id="itemnumber" value="[% itemnumber %]" />
@@ -249,7 +249,7 @@ function moneyFormat(textObj) {
     </form>
 [% ELSE %]
 
-    <form name="payfine" id="payfine" onsubmit="return validatePayment(this);" method="post" action="/cgi-bin/koha/members/paycollect.pl">
+    <form name="payfine" id="payfine" method="post" action="/cgi-bin/koha/members/paycollect.pl">
     <input type="hidden" name="borrowernumber" id="borrowernumber" value="[% borrower.borrowernumber %]" />
     <input type="hidden" name="selected_accts" id="selected_accts" value="[% selected_accts %]" />
     <input type="hidden" name="total" id="total" value="[% total %]" />
