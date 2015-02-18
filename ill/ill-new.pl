@@ -64,7 +64,7 @@ if ( fail($query, $input->param('brw'), $input->param('branch')) ) {
     }
     $reply = Koha::ILLRequests->new()->search_api($query, $opts);
     my $max_results = $opts->{max_results} || 10;
-    my $results = @{$reply};
+    my $results = @{$reply || []};
     my $bcounter = $input->param('start_rec') || 1;
     my $ncounter = $bcounter + $results;
     my $pcounter = $bcounter - $results;

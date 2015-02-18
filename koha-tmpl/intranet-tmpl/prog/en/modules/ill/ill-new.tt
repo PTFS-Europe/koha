@@ -100,49 +100,52 @@
                     </form>
                 [% ELSIF query_type == 'search' %]
                     <h2>Search results</h2>
-                    <p>Results of search for: ”[% search %]“</p>
-                    <table>
-                        <thead>
-                            <tr>
-                                [% FOREACH field IN reply.0 %]
-                                    <th id=[% field.key %]>[% field.value.0 %]</th>
-                                [% END %]
-                            </tr>
-                        </thead>
-                        <tbody>
-                            [% FOREACH record IN reply %]
+                    [% IF reply.0 %]
+                        <p>Results of search for: ”[% search %]“</p>
+                        <table>
+                            <thead>
                                 <tr>
-                                    [% FOREACH field IN record %]
-                                        [% value = field.value.1 %]
-                                        <td>
-                                            [% IF field.key == './uin' %]
-                                                <a href=[% parent _ rqp _ value %]>
-                                                    Request [% value %]
-                                                </a>
-                                            [% ELSE %]
-                                                [% value %]
-                                            [% END %]
-                                        </td>
+                                    [% FOREACH field IN reply.0 %]
+                                        <th id=[% field.key %]>[% field.value.0 %]</th>
                                     [% END %]
                                 </tr>
+                            </thead>
+                            <tbody>
+                                [% FOREACH record IN reply %]
+                                    <tr>
+                                        [% FOREACH field IN record %]
+                                            [% value = field.value.1 %]
+                                            <td>
+                                                [% IF field.key == './uin' %]
+                                                    <a href=[% parent _ rqp _ value %]>
+                                                        Request [% value %]
+                                                    </a>
+                                                [% ELSE %]
+                                                    [% value %]
+                                                [% END %]
+                                            </td>
+                                        [% END %]
+                                    </tr>
+                                [% END %]
+                            </tbody>
+                        </table>
+                        <p>
+                            [% IF prev %]
+                                <a class="nav" title="Next set of results"
+                                   href=[% here _ prev %]>&lsaquo;&lsaquo; Previous</a>
+                            [% ELSE %]
+                                <span> &lsaquo;&lsaquo; Previous</span>
                             [% END %]
-                        </tbody>
-                    </table>
-                    <p>
-                        [% IF prev %]
-                            <a class="nav" title="Next set of results"
-                               href=[% here _ prev %]>&lsaquo;&lsaquo; Previous</a>
-                        [% ELSE %]
-                            <span> &lsaquo;&lsaquo; Previous</span>
-                        [% END %]
-                        [% IF next %]
-                            <a class="nav" title="Next set of results"
-                               href=[% here _ next %]>Next &rsaquo;&rsaquo;</a>
-                        [% ELSE %]
-                            <span>Next &rsaquo;&rsaquo;</span>
-                        [% END %]
-                    </p>
-
+                            [% IF next %]
+                                <a class="nav" title="Next set of results"
+                                   href=[% here _ next %]>Next &rsaquo;&rsaquo;</a>
+                            [% ELSE %]
+                                <span>Next &rsaquo;&rsaquo;</span>
+                            [% END %]
+                        </p>
+                    [% ELSE %]
+                        <p>No results were found for: “[% search%]”</p>
+                    [% END %]
                 [% END %]
 
             </div>
