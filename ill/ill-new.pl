@@ -80,7 +80,15 @@ if ( fail($query, $input->param('brw'), $input->param('branch')) ) {
     $rq_qry .= "&brw=" . $input->param('brw');
     $rq_qry .= "&branch=" . $input->param('branch');
     $rq_qry .= "&query_value=";
-    $template->param( rqp => $rq_qry );
+    ($query) ? $opts->{keywords} = $query : $opts;
+    my $search_string;
+    while ( my ($type, $value) = each $opts ) {
+        $search_string .= "[" . join(": ", $type, $value) . "]";
+    }
+    $template->param(
+        rqp    => $rq_qry,
+        search => $search_string,
+    );
 
 } else {                        # or action eq 'new'
 }
