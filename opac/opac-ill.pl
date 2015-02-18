@@ -89,6 +89,11 @@ if ( fail(1) ) {
       if ( $pcounter > 1 ) ;
     my $rq_qry = "?op=request";
     $rq_qry .= "&query_value=";
+    ($query) ? $opts->{keywords} = $query : $opts;
+    my $search_string;
+    while ( my ($type, $value) = each $opts ) {
+        $search_string .= "[" . join(": ", $type, $value) . "]";
+    }
     $template->param(
         back        => $here . "?op=search",
         forward     => $here . "?op=request",
@@ -96,6 +101,7 @@ if ( fail(1) ) {
         prev        => $prev,
         rqp         => $rq_qry,
         query_value => $query,
+        search      => $search_string,
     );
 } elsif ( $op eq 'request' ) {
     my $request = Koha::ILLRequests->new->request( {
