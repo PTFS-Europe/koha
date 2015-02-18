@@ -28,48 +28,12 @@
                 <span>Requests by Borrower</span>
                 <input name="query_type" id="query_type"
                        type="radio" value="borrowers"/>
-                <span>Search the API</span>
-                <input name="query_type" id="query_type"
-                       type="radio" value="api">
-                <br/>
                 <label for="query_value">Search for:</label>
                 <input name="query_value" id="query_value" type="text"/>
                 <input type="submit" value="submit"/>
             </form>
             <div id="results">
-               [% IF reply and query_type == "edit" %]
-                    <h2>Edit request “[% query_value %]”</h2>
-                    [% FOREACH request IN reply %]
-                        <p>
-                            [% FOREACH line IN request.0 %]
-                                <span id=[% line.key %]>
-                                    [% line.value.0 _ ": " _ line.value.1 %]
-                                </span>
-                                <br/>
-                            [% END %]
-                            <form method="POST"
-                                  action="/cgi-bin/koha/ill/ill-requests.pl">
-                                [% FOREACH line IN request.1 %]
-                                    <span id=[% line.key %]>
-                                        <label for=[% line.key %]>
-                                            [% line.value.0 _ ": " %]
-                                        </label>
-                                        <input name=[% line.key %]
-                                               id=[% line.key %]
-                                               type="text"
-                                               value=[% line.value.1 %] />
-                                    </span>
-                                    <br/>
-                                [% END %]
-                                <input type="hidden" value="post-edit"
-                                       name="query_type"/>
-                                <input type="hidden" value=[% query_value %]
-                                       name="query_value"/>
-                                <input type="submit" value="submit"/>
-                            </form>
-                        </p>
-                    [% END %]
-                [% ELSIF reply and query_value and
+                [% IF reply and query_value and
                    (query_type == "request" or query_type == "requests") %]
                     [% IF query_type == "request" %]
                         <h2>Request created for “[% query_value %]“</h2>
@@ -85,57 +49,6 @@
                                 <br/>
                             [% END %]
                         </p>
-                    [% END %]
-
-                [% ELSIF reply and query_type == "price" %]
-                    <h2>Price for request “[% query_value %]“</h2>
-                    [% rply = reply.0 %]
-                    <form method="POST" action="/cgi-bin/koha/ill/ill-request.pl">
-                        <p>[% rply.price.0 %]: [% rply.currency.1 %] [% rply.price.1 %]</p>
-                        <p>[% rply.copyrightVat.0 %]: [% 100 * rply.copyrightVat.1 %]%</p>
-                        <p>[% rply.loanRenewalCost.0 %]: [% rply.currency.1 %] [% rply.loanRenewalCost.1 %]</p>
-                        <input type="hidden" name="query_type" value="order" />
-                        <input type="hidden" name="query_value" value=[% query_value %] />
-                        <input type="submit" value="Place request" />
-                    </form>
-
-                [% ELSIF reply and query_type == "availability" %]
-                    <h2>Availability details for request ”[% query_value %]“</h2>
-                    [% rply = reply.0 %]
-                    <dl>
-                        <dt id="availableImmediately">[% rply.availableImmediately.0 %]</dt>
-                        <dd>[% rply.availableImmediately.1 %]</dd>
-                        <dt id="copyrightFee">[% rply.copyrightFee.0 %]</dt>
-                        <dd>[% rply.copyrightFee.1 %]</dd>
-                    </dl>
-                    <h3>[% rply.formats.0 %]</h3>
-                    [% FOREACH format IN rply.formats.1 %]
-                        <form method="POST" action="/cgi-bin/koha/ill/ill-requests.pl">
-                            <fieldset id="format">
-                                <input type="hidden" name="format" value=[% format.key.1 %] />
-                                <input type="hidden" name="query_value" value=[% query_value %] />
-                                <input type="hidden" name="query_type" value="price" />
-                                <h4>[% format.format.0 %]: [% format.format.1 %]</h4>
-                                <h5>[% format.speeds.0 %]</h5>
-                                [% FOREACH speed IN format.speeds.1 %]
-                                    <span id="speed">
-                                        [% speed.speed.0 %]: [% speed.speed.1 %]
-                                    </span>
-                                    <input name="speed" id="speed" type="radio"
-                                           value=[% speed.key.1 %] />
-                                [% END %]
-                                <h5>[% format.qualities.0 %]</h5>
-                                [% FOREACH quality IN format.qualities.1 %]
-                                    <span id="quality">
-                                        [% quality.quality.0 %]: [% quality.quality.1 %]
-                                    </span>
-                                    <input name="quality" id="quality" type="radio"
-                                           value=[% quality.key.1 %] />
-                                [% END %]
-                                <br/>
-                                <input type="submit" value="Check this price" />
-                            </fieldset>
-                        </form>
                     [% END %]
 
                 [% ELSIF reply %]
@@ -156,6 +69,7 @@
                                 [% FOREACH line IN reply.0 %]
                                     <th id=[% line.key %]>[% line.value.0 %]</th>
                                 [% END %]
+                                <th id="id">Manage ILL</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -170,23 +84,18 @@
                                                 <a href=[% rqc %]>
                                                     Request [% value %]
                                                 </a>
-                                            [% ELSIF line.key == 'id' %]
-                                                [% rqc = rq _ value %]
-                                                <a href=[% rqc %]>
-                                                    Edit [% value %]
-                                                </a>
-                                                <br/>
-                                                [% rq_aparams = "?query_type=availability&query_value=" %]
-                                                [% rqa = rq_url _ rq_aparams %]
-                                                [% rqc = rqa _ value %]
-                                                <a href=[% rqc %]>
-                                                    Availability for [% value %]
-                                                </a>
                                             [% ELSE %]
                                                 [% value %]
                                             [% END %]
                                         </td>
                                     [% END %]
+
+                                    <td>
+                                        <a href=[% manage_url _ summary.id.1 %]
+                                           title="Edit and progress this ILL">
+                                           Manage ILL
+                                        </a>
+                                    </td>
                                 </tr>
                             [% END %]
                         </tbody>

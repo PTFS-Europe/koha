@@ -1,0 +1,131 @@
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Koha &rsaquo; ILL requests  &rsaquo;</title>
+[% INCLUDE 'doc-head-close.inc' %]
+<script type="text/javascript" src="[% themelang %]/lib/jquery/plugins/jquery.tablesorter.min.js"></script>
+<script type="text/javascript" src="[% themelang %]/lib/jquery/plugins/jquery.checkboxes.min.js"></script>
+</head>
+
+<body id="acq_suggestion" class="acq">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'cat-search.inc' %]
+
+<div id="breadcrumbs">
+    <a href="/cgi-bin/koha/mainpage.pl">Home</a> &rsaquo; ILL Requests
+</div>
+
+<div id="doc3" class="yui-t2">
+<div id="bd">
+    <div id="yui-main">
+        <div class="yui-b">
+            [% INCLUDE 'ill-toolbar.inc' %]
+
+            <h1>Manage interlibrary loan number [% ill.id.1 %]</h1>
+            <div class="statictabs">
+            <ul>
+                [% FOREACH tab IN tabs %]
+                    [% IF op == tab.key %]
+                        <li id=[% tab.key _ "_tab" %] class="active">
+                            <a href=[% tab_url _ tab.key %]>[% tab.value %]</a>
+                        </li>
+                    [% ELSE %]
+                        <li id=[% tab.key _ "_tab" %]>
+                            <a href=[% tab_url _ tab.key %]>[% tab.value %]</a>
+                        </li>
+                    [% END %]
+                [% END %]
+            </ul>
+ 
+            <div class="tabs-container">
+            <h2>[% title %]</h2>
+            [% IF op == 'view' or op == 'update' %]
+                <p>
+                    [% FOREACH field IN ill %]
+                        <span id=[% field.key %]>
+                                [% field.value.0 _ ": " _ field.value.1 %]
+                        </span>
+                        <br/>
+                    [% END %]
+                </p>
+            [% ELSIF op == 'edit' %]
+                <p>
+                    [% FOREACH field IN ill.0 %]
+                        <span id=[% field.key %]>
+                            [% field.value.0 _ ": " _ field.value.1 %]
+                        </span>
+                        <br/>
+                    [% END %]
+                    <form method="POST"
+                          action=[% here %]>
+                        [% FOREACH field IN ill.1 %]
+                            <span id=[% field.key %]>
+                                <label for=[% field.key %]>
+                                    [% field.value.0 _ ": " %]
+                                </label>
+                                <input name=[% field.key %]
+                                       id=[% field.key %]
+                                       type="text"
+                                       value=[% field.value.1 %] />
+                            </span>
+                            <br/>
+                        [% END %]
+                        <input type="hidden" value=[% forward %]
+                               name="op"/>
+                        <input type="hidden" value=[% rq %]
+                               name="rq"/>
+                        <input type="submit" value="submit"/>
+                    </form>
+                </p>
+            [% ELSIF op == 'progress' %]
+                <dl>
+                    <dt id="availableImmediately">[% ill.availableImmediately.0 %]</dt>
+                    <dd>[% ill.availableImmediately.1 %]</dd>
+                    <dt id="copyrightFee">[% ill.copyrightFee.0 %]</dt>
+                    <dd>[% ill.copyrightFee.1 %]</dd>
+                </dl>
+                <h3>[% ill.formats.0 %]</h3>
+                [% FOREACH format IN ill.formats.1 %]
+                    <form method="POST" action="/cgi-bin/koha/ill/ill-manage.pl">
+                        <fieldset id="format">
+                            <input type="hidden" name="format" value=[% format.key.1 %] />
+                            <input type="hidden" name="rq" value=[% rq %] />
+                            <input type="hidden" name="op" value="price" />
+                            <h4>[% format.format.0 %]: [% format.format.1 %]</h4>
+                            <h5>[% format.speeds.0 %]</h5>
+                            [% FOREACH speed IN format.speeds.1 %]
+                                <span id="speed">
+                                    [% speed.speed.0 %]: [% speed.speed.1 %]
+                                </span>
+                                <input name="speed" id="speed" type="radio"
+                                       value=[% speed.key.1 %] />
+                            [% END %]
+                            <h5>[% format.qualities.0 %]</h5>
+                            [% FOREACH quality IN format.qualities.1 %]
+                                <span id="quality">
+                                    [% quality.quality.0 %]: [% quality.quality.1 %]
+                                </span>
+                                <input name="quality" id="quality" type="radio"
+                                       value=[% quality.key.1 %] />
+                            [% END %]
+                            <br/>
+                            <input type="submit" value="Check this price" />
+                        </fieldset>
+                    </form>
+                [% END %]
+            [% ELSIF op == 'price' %]
+                <form method="POST" action="/cgi-bin/koha/ill/ill-manage.pl">
+                    <p>[% ill.price.0 %]: [% ill.currency.1 %] [% ill.price.1 %]</p>
+                    <p>[% ill.copyrightVat.0 %]: [% 100 * ill.copyrightVat.1 %]%</p>
+                    <p>[% ill.loanRenewalCost.0 %]: [% ill.currency.1 %] [% ill.loanRenewalCost.1 %]</p>
+                    <input type="hidden" name="op" value="order" />
+                    <input type="hidden" name="rq" value=[% rq %] />
+                    <input type="submit" value="Place request" />
+                </form>
+
+            [% END %]
+            </div>
+
+        </div>
+    </div>
+</div>
+
+[% INCLUDE 'intranet-bottom.inc' %]

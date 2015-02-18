@@ -49,26 +49,9 @@ $template->param( query_value => $query );
 $template->param( query_type => $type );
 $template->param( recv => $input );
 
-if ( $type eq 'api' and $query ) {
-    $reply = Koha::ILLRequests->new()->search_api($query);
-
-} elsif ( $type eq 'availability' and $query ) {
-    my $request = @{Koha::ILLRequests->new()->retrieve_ill_request($query)}[0];
-    push @{$reply}, $request->checkSimpleAvailability();
-
-} elsif ( $type eq 'price' and $query ) {
-    my $request = @{Koha::ILLRequests->new()->retrieve_ill_request($query)}[0];
-    my $coordinates = {
-                       format  => $input->param('format'),
-                       speed   => $input->param('speed'),
-                       quality => $input->param('quality'),
-                       };
-    $template->param( coordinates => $coordinates );
-    push @{$reply}, $request->calculatePrice($coordinates);
-
-} elsif ( $type eq 'request' and $query
-              and $input->param('brw')
-              and $input->param('branch') ) {
+if ( $type eq 'request' and $query
+         and $input->param('brw')
+         and $input->param('branch') ) {
     my $request = Koha::ILLRequests->new->request( {
         uin      => $query,
         branch   => $input->param('branch'),
@@ -83,6 +66,8 @@ if ( $type eq 'api' and $query ) {
     foreach my $rq ( @{$requests} ) {
         push @{$reply}, $rq->getSummary();
     }
+    my $manage_url = "/cgi-bin/koha/ill/ill-manage.pl?op=view&rq=";
+    $template->param( manage_url => $manage_url );
 
 } elsif ( $type eq 'requests' ) {
     my $requests = Koha::ILLRequests->new()->retrieve_ill_request($query);
@@ -95,20 +80,6 @@ if ( $type eq 'api' and $query ) {
     foreach my $rq ( @{$requests} ) {
         push @{$reply}, $rq->getSummary();
     }
-
-} elsif ( $type eq 'edit' ) {
-    my $requests = Koha::ILLRequests->new()->retrieve_ill_request($query);
-    foreach my $rq ( @{$requests} ) {
-        push @{$reply}, $rq->getForEditing();
-    }
-
-} elsif ( $type eq 'post-edit' ) {
-    # We should have a complete set of Request properties / attributes, so we
-    # should just be able to push to DB?
-    my $request = @{Koha::ILLRequests->new()->retrieve_ill_request($query)}[0];
-    $request->editStatus(\%{$input->Vars});
-
-    push @{$reply}, $request->getSummary();
 
 } else {
     die("no match");
