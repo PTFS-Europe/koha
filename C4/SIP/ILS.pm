@@ -135,7 +135,7 @@ sub checkout {
     $circ->item($item = new ILS::Item $item_id);
     if ($fee_ack) {
         $circ->fee_ack($fee_ack);
-        $circ->tillid($self->{institution}->{tillid});
+        $circ->tillid($self->{institution}->{policy}->{tillid});
     }
 
     if (!$patron) {
@@ -224,17 +224,19 @@ sub pay_fee {
     my $trans;
 
     $trans = ILS::Transaction::FeePayment->new();
-    syslog('LOG_DEBUG', "pay_fee passed tillid:$tillid");
+    syslog('LOG_INFO', "pay_fee passed tillid:$tillid");
     $tillid ||= 477; # test till
 
 
     $trans->transaction_id($trans_id);
     my $patron;
     $trans->patron($patron = ILS::Patron->new($patron_id));
+    syslog('LOG_INFO', "patron initialized");
     if (!$patron) {
         $trans->screen_msg('Invalid patron barcode.');
         return $trans;
     }
+    syslog('LOG_INFO', "calling pay");
     $trans->pay($patron->{borrowernumber},$fee_amt, $pay_type, $tillid);
     $trans->ok(1);
 

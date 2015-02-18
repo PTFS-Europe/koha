@@ -3,6 +3,7 @@ package ILS::Transaction::FeePayment;
 use warnings;
 use strict;
 use Koha::Till;
+use Sys::Syslog qw(syslog);
 
 
 # Copyright 2011 PTFS-Europe Ltd.
@@ -50,16 +51,19 @@ sub pay {
     my $amt            = shift;
     my $type           = shift;
     my $tillid         = shift;
-    my $koha_type;
     my $koha_paytype;
+    syslog('LOG_INFO',"pay:$borrowernumber:$amt:$type:$tillid");
+
     if ( $type eq '00' ) {
         $koha_paytype = 'Cash';
     }
     elsif ( $type =~m/^0[12]$/) {
         $koha_paytype = 'Card';
     }
+    syslog('LOG_INFO',"recordpayment:$borrowernumber:$amt:$type:$tillid:$koha_paytype");
     #warn("RECORD:$borrowernumber::$amt");
-    recordpayment( $borrowernumber, $amt, $type, undef, $tillid, $koha_type );
+    recordpayment( $borrowernumber, $amt, $type, 'sip', $tillid, $koha_paytype );
+    return;
 }
 
 #sub DESTROY {

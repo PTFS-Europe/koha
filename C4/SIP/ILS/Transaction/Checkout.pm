@@ -162,7 +162,12 @@ sub log_rental_fee {
     my $pay_type  = 'Cash';
 
     my $till = Koha::Till->new( { tillid => $tillid });
-    $till->payin($fee_amt,, $transcode, $pay_type);
+    if (!$till) {
+	syslog('LOG_ERR', "log_rental_fee cannot create till $tillid");
+        return;
+    }
+
+    $till->payin($fee_amt, $transcode, $pay_type);
     return;
 }
 

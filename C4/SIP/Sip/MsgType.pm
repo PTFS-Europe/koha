@@ -1074,7 +1074,8 @@ sub handle_fee_paid {
     $fee_id = $fields->{(FID_FEE_ID)};
     $trans_id = $fields->{(FID_TRANSACTION_ID)};
 
-    my $tillid  = $ils->{institution}->{tillid};
+    my $tillid  = $ils->{institution}->{policy}->{tillid};
+    $tillid ||= 477;
 
     $ils->check_inst_id($inst_id, "handle_fee_paid");
 
