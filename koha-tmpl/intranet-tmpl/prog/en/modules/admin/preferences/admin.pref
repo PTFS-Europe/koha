@@ -121,7 +121,7 @@ Administration:
               choices:
                   yes: Enable
                   no: Disable
-            - the interlibrary loans module
+            - the interlibrary loans module (master switch).
         -
             - pref: OpacILLRequests
               default: 0
@@ -129,6 +129,13 @@ Administration:
                   yes: Enable
                   no: Disable
             - OPAC based interlibrary loan requests.
+        -
+            - pref: GenericILLModule
+              default: 0
+              choices:
+                  yes: Enable
+                  no: Disable
+            - peer to peer ILL lending via email requests.
     Mozilla Persona:
         -
             - pref: Persona
