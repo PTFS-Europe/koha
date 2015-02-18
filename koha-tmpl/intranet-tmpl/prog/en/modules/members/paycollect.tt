@@ -203,7 +203,7 @@ function moneyFormat(textObj) {
 </fieldset>
 
     <div class="action"><input class="btn btn-small" id="submitbutton" type="submit" name="submitbutton" value="Confirm" />
-        <a id="receipt" class="btn btn-small" target="_blank" href="/cgi-bin/koha/members/printreceipt.pl?borrowernumber=[% borrower.borrowernumber %]&accountlines_id=[% accountlines_id %]&tendered=[% amountoutstanding | format('%.2f') %]&change=0.00&action=print">Reciept</a>
+        <a id="receipt" class="btn btn-small" target="_blank" href="/cgi-bin/koha/members/printreceipt.pl?borrowernumber=[% borrower.borrowernumber %]&accountlines_id=[% accountlines_id %]&tendered=[% amountoutstanding | format('%.2f') %]&change=0.00&action=print">Receipt</a>
         <a class="cancel" href="/cgi-bin/koha/members/pay.pl?borrowernumber=[% borrower.borrowernumber %]">Cancel</a></div>
     </form>
 [% ELSIF ( writeoff_individual ) %]
@@ -244,7 +244,7 @@ function moneyFormat(textObj) {
     </table>
     </fieldset>
     <div class="action"><input type="submit" name="confirm_writeoff" id="confirm_writeoff" value="Write off this charge" />
-        <a id="receipt"class="btn btn-small" target="_blank" href="/cgi-bin/koha/members/printreceipt.pl?borrowernumber=[% borrower.borrowernumber %]&accountlines_id=[% accountlines_id %]&tendered=0.00&change=0.00&action=print">Reciept</a>
+        <a id="receipt"class="btn btn-small" target="_blank" href="/cgi-bin/koha/members/printreceipt.pl?borrowernumber=[% borrower.borrowernumber %]&accountlines_id=[% accountlines_id %]&tendered=0.00&change=0.00&action=print">Receipt</a>
         <a class="cancel" href="/cgi-bin/koha/members/pay.pl?borrowernumber=[% borrower.borrowernumber %]">Cancel</a></div>
     </form>
 [% ELSE %]
@@ -296,9 +296,9 @@ function moneyFormat(textObj) {
     <div class="action">
         <input class="btn btn-small" id="submitbutton" type="submit" name="submitbutton" value="Confirm" />
         [% IF ( selected_accts ) %]
-        <a id="receipt" class="btn btn-small" target="_blank" href="/cgi-bin/koha/members/printreceipt.pl?borrowernumber=[% borrower.borrowernumber %]&accountlines_id=[% selected_accts %]&tendered=[% total | format('%.2f') %]&change=0.00&action=print">Reciept</a>
+        <a id="receipt" class="btn btn-small" target="_blank" href="/cgi-bin/koha/members/printreceipt.pl?borrowernumber=[% borrower.borrowernumber %]&accountlines_id=[% selected_accts %]&tendered=[% total | format('%.2f') %]&change=0.00&action=print">Receipt</a>
         [% ELSE %]
-        <a id="receipt" class="btn btn-small" target="_blank" href="/cgi-bin/koha/members/printreceipt.pl?borrowernumber=[% borrower.borrowernumber %]&tendered=[% total | format('%.2f') %]&change=0.00&action=print">Reciept</a>
+        <a id="receipt" class="btn btn-small" target="_blank" href="/cgi-bin/koha/members/printreceipt.pl?borrowernumber=[% borrower.borrowernumber %]&tendered=[% total | format('%.2f') %]&change=0.00&action=print">Receipt</a>
         [% END %]
         <a class="cancel" href="/cgi-bin/koha/members/boraccount.pl?borrowernumber=[% borrower.borrowernumber %]">Cancel</a>
     </div>
