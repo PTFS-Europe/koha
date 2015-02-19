@@ -231,7 +231,7 @@ component provides information about the request for Koha.
 sub status {
     my ( $self ) = @_;
 
-    return $self->status;
+    return $self->{status};
 }
 
 =head3 summary
@@ -399,9 +399,29 @@ sub _seed_from_store {
     return 0;
 }
 
+=head3 requires_moderation
+
+    my $status = $illRequest->requires_moderation;
+
+Return the name of the status if moderation by staff is required; or 0
+otherwise.
+
+=cut
+
+sub requires_moderation {
+    my ( $self ) = @_;
+    my $status = $self->status->getProperty('status');
+    my $require_moderation = {
+        'Cancellation Requested' => 'Cancellation Requested',
+        'New Request' => 'New Request',
+    };
+    return $require_moderation->{$status};
+}
+
 =head1 AUTHOR
 
 Martin Renvoize <martin.renovize@ptfs-europe.com>
+Alex Sassmannshausen <alex.sassmannshausen@ptfs-europe.com>
 
 =cut
 

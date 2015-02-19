@@ -91,9 +91,17 @@ is_deeply($illRequest->checkSimpleAvailability($response),
           },
           "Simple Availability Output");
 
-# editStatus
-
 # status
+isa_ok($illRequest->status, 'Koha::ILLRequest::Status');
+
+# editStatus
+ok($illRequest->editStatus({status => 'Cancellation Requested'}), "Edit Status");
+is($illRequest->status->getProperty('status'), 'Cancellation Requested', "Edit Status, Confirmation");
+
+# requires_moderation
+is($illRequest->requires_moderation, 'Cancellation Requested', "Requires Moderation, True");
+ok($illRequest->editStatus({status => 'In Process'}), "Edit Status");
+is($illRequest->requires_moderation, undef, "Requires Moderation, False");
 
 # calculatePrices
 $response = Koha::ILLRequest::XML::BLDSS->new->load_xml( { string => '<?xml version="1.0" encoding="UTF-8"?><apiResponse><timestamp>2015-01-12 14:12:16.60 GMT</timestamp><status>0</status><message/><result><currency>GBP</currency><region>UK</region><copyrightVat>.2</copyrightVat><loanRenewalCost>4.55</loanRenewalCost><services><service id="4"><format vat=".2"><price>5.21</price></format></service><service id="7"><format vat=".2"><price>9.55</price></format></service><service id="8"><format vat=".2"><price>4.25</price></format></service><service id="1"><format id="1" vat=".2"><price speed="1" quality="1">5</price><price speed="1" quality="2">5.25</price><price speed="2" quality="1">25</price><price speed="2" quality="2">56.5</price><price speed="3" quality="1">16</price><price speed="3" quality="2">45.75</price><price speed="4" quality="1">8.95</price><price speed="4" quality="2">29.2</price></format><format id="2" vat=".2"><price speed="1" quality="1">6</price><price speed="1" quality="2">5.25</price><price speed="2" quality="1">31</price><price speed="2" quality="2">56.5</price><price speed="3" quality="1">17</price><price speed="3" quality="2">46.9</price><price speed="4" quality="1">10.25</price><price speed="4" quality="2">29.2</price></format><format id="3" vat=".2"><price speed="1" quality="1">5.5</price><price speed="1" quality="2">5.25</price><price speed="2" quality="1">29</price><price speed="2" quality="2">56.5</price><price speed="3" quality="1">16.5</price><price speed="3" quality="2">46.9</price><price speed="4" quality="1">9.5</price><price speed="4" quality="2">29.2</price></format><format id="4" vat="0"><price speed="2" quality="1">27</price><price speed="2" quality="2">58.05</price><price speed="3" quality="1">19.5</price><price speed="3" quality="2">48.5</price><price speed="4" quality="1">10.45</price><price speed="4" quality="2">30.05</price></format><format id="5" vat=".2"><price speed="3" quality="1">19</price><price speed="3" quality="2">48.5</price><price speed="4" quality="1">11.8</price><price speed="4" quality="2">30.8</price></format><format id="6" vat="0"><price speed="3">24.1</price><price speed="4">14.1</price></format></service></services></result></apiResponse>' } );

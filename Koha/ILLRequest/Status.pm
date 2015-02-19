@@ -78,6 +78,19 @@ sub getFields {
            };
 }
 
+=head3 getProperty
+
+    my $fieldvalue = $illRequest->getProperty($FIELDNAME);
+
+Return the value of field $FIELDNAME or 0 if it does not exist.
+
+=cut
+
+sub getProperty {
+    my ( $self, $property ) = @_;
+    return $self->{$property} || 0;
+}
+
 sub getFullStatus {
     my ( $self ) = @_;
 
