@@ -26,12 +26,15 @@
             <div class="span10">
                 <h1>ILL Requests</h1>
                 [% IF error.error == 'missing_fields' and error.action == 'search' %]
-                    <p><em>Please Note:</em> Some mandatory fields are missing.</p>
+                    <p><em>Please Note:</em> some mandatory fields are missing.</p>
                 [% ELSIF error.error == 'unknown' and error.action == 'cancellation' %]
-                    <p><em>Please Note:</em> We were unable to request the
+                    <p><em>Please Note:</em> we were unable to request the
         cancellation of request number [% query_value %].</p>
                 [% ELSIF error.error == 'unknown' and error.action == 'request' %]
-                    <p><em>Please Note:</em> We were unable to place your request.</p>
+                    <p><em>Please Note:</em> we were unable to place your request.</p>
+                [% ELSIF error.error == 'api' and error.action %]
+                    <p><em>Please Note:</em> there was an error whilst communicating
+        with the remote service.</p>
                 [% END %]
 
                 [% IF !op %]

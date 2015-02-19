@@ -76,32 +76,36 @@ if ( fail(1) ) {
         }
     }
     $reply = Koha::ILLRequests->new()->search_api($query, $opts);
-    my $max_results = $opts->{max_results} || 10;
-    my $results  = @{$reply || []};
-    my $bcounter = $cgi->param('start_rec') || 1;
-    my $ncounter = $bcounter + $results;
-    my $pcounter = $bcounter - $results;
-    my $next = 0;
-    $next = $nav_qry . "&start_rec=" . $ncounter
-      if ( $results == $max_results );
-    my $prev = 0;
-    $prev = $nav_qry . "&start_rec=" . $pcounter
-      if ( $pcounter > 1 ) ;
-    my $rq_qry = "?op=request";
-    $rq_qry .= "&query_value=";
-    ($query) ? $opts->{keywords} = $query : $opts;
+    if ($reply) {
+        my $max_results = $opts->{max_results} || 10;
+        my $results  = @{$reply || []};
+        my $bcounter = $cgi->param('start_rec') || 1;
+        my $ncounter = $bcounter + $results;
+        my $pcounter = $bcounter - $results;
+        my $next = 0;
+        $next = $nav_qry . "&start_rec=" . $ncounter
+          if ( $results == $max_results );
+        my $prev = 0;
+        $prev = $nav_qry . "&start_rec=" . $pcounter
+          if ( $pcounter > 1 ) ;
+        my $rq_qry = "?op=request";
+        $rq_qry .= "&query_value=";
+        $template->param(
+            back        => $here . "?op=search",
+            forward     => $here . "?op=request",
+            next        => $next,
+            prev        => $prev,
+            rqp         => $rq_qry,
+        );
+    } else {
+        $error = { error => 'api', action => 'search' };
+    }
     my $search_string;
+    ($query) ? $opts->{keywords} = $query : $opts;
     while ( my ($type, $value) = each $opts ) {
         $search_string .= "[" . join(": ", $type, $value) . "]";
     }
-    $template->param(
-        back        => $here . "?op=search",
-        forward     => $here . "?op=request",
-        next        => $next,
-        prev        => $prev,
-        rqp         => $rq_qry,
-        search      => $search_string,
-    );
+    $template->param(search => $search_string);
 } else {
     if ( $op eq 'request' ) {
         my $request = Koha::ILLRequests->new->request( {

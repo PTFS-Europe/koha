@@ -129,6 +129,10 @@ sub search {
 
     my $reply = ${$self}{api}->search($query, $opts);
 
+    if (!$reply) {
+        return 0;
+    }
+
     my $parser = XML::LibXML->new();
     my $doc = $parser->load_xml( { string => $reply } );
 

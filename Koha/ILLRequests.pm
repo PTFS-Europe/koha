@@ -85,9 +85,12 @@ can be used for output to the end-user.  For placing the request, the
 
 sub search_api {
     my ( $self, $query, $opts ) = @_;
-    my $summaries;
-
     my $records = Koha::ILLRequest::Abstract->new()->search($query, $opts);
+    if (!$records) {
+        return 0;
+    }
+
+    my $summaries = [];
     foreach my $recs ( @{$records} ) {
         push @{$summaries}, $recs->getSummary();
     }
