@@ -23,6 +23,7 @@ use Modern::Perl;
 use CGI;
 
 use C4::Auth;
+use C4::Branch;
 use C4::Context;
 use C4::Koha;
 use C4::Output;
@@ -66,9 +67,10 @@ if ( $rq and $op eq 'view' ) {
 } elsif ( $rq and $op eq 'edit' ) {
     my $request = @{Koha::ILLRequests->new()->retrieve_ill_request($rq)}[0];
     $template->param(
-        ill   => $request->getForEditing,
-        title => $tabs->{$op},
-        forward => "update",
+        branches => GetBranchesLoop,
+        ill      => $request->getForEditing,
+        title    => $tabs->{$op},
+        forward  => "update",
     );
 
 } elsif ( $rq and $op eq 'progress' ) {

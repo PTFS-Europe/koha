@@ -36,92 +36,128 @@
             </ul>
  
             <div class="tabs-container">
-            <h2>[% title %]</h2>
-            [% IF op == 'view' or op == 'update' %]
-                <p>
-                    [% FOREACH field IN ill %]
-                        <span id=[% field.key %]>
-                                [% field.value.0 _ ": " _ field.value.1 %]
-                        </span>
-                        <br/>
-                    [% END %]
-                </p>
-            [% ELSIF op == 'edit' %]
-                <p>
-                    [% FOREACH field IN ill.0 %]
-                        <span id=[% field.key %]>
-                            [% field.value.0 _ ": " _ field.value.1 %]
-                        </span>
-                        <br/>
-                    [% END %]
-                    <form method="POST"
-                          action=[% here %]>
-                        [% FOREACH field IN ill.1 %]
-                            <span id=[% field.key %]>
-                                <label for=[% field.key %]>
-                                    [% field.value.0 _ ": " %]
-                                </label>
-                                <input name=[% field.key %]
-                                       id=[% field.key %]
-                                       type="text"
-                                       value=[% field.value.1 %] />
-                            </span>
-                            <br/>
-                        [% END %]
-                        <input type="hidden" value=[% forward %]
-                               name="op"/>
-                        <input type="hidden" value=[% rq %]
-                               name="rq"/>
+                <h2>[% title %]</h2>
+                [% IF op == 'view' or op == 'update' %]
+                    <fieldset class="rows" style="float: none;">
+                        <ol>
+                            [% FOREACH field IN ill %]
+                                <li>
+                                    <label id=[% field.key %]>[% field.value.0 _ ":" %]</label>
+                                    <span id=[% field.key %]>[% field.value.1 %]</span>
+                                </li>
+                            [% END %]
+                        </ol>
+                    </fieldset>
+                [% ELSIF op == 'edit' %]
+                    <form method="POST" action=[% here %]>
+                        <fieldset class="rows" style="float: none;">
+                            <legend>Bibliographic details</legend>
+                            <ol>
+                                [% FOREACH field IN ill.0 %]
+                                    <li>
+                                        <label id=[% field.key %]>[% field.value.0 _ ":" %]</label>
+                                        <span id=[% field.key %]>[% field.value.1 %]</span>
+                                    </li>
+                                [% END %]
+                            </ol>
+                        </fieldset>
+                        <fieldset class="rows" style="float: none;">
+                            <legend>Request details</legend>
+                                <ol>
+                                    [% FOREACH field IN ill.1 %]
+                                        <li>
+                                            <label for=[% field.key %]
+                                                   id=[% field.key _ "_label" %]>
+                                                [% field.value.0 _ ":" %]
+                                            </label>
+                                            [% IF field.key == 'branch' %]
+                                                <select name="branch" id="branch">
+                                                    <option value=""></option>
+                                                    [% FOREACH branch IN branches %]
+                                                        [% IF ( branch.selected ) %]
+                                                            <option value="[% branch.value %]"
+                                                                    selected="selected">
+                                                                [% branch.branchname %]
+                                                            </option>
+                                                        [% ELSE %]
+                                                            <option value="[% branch.value %]">
+                                                                [% branch.branchname %]
+                                                            </option>
+                                                        [% END %]
+                                                    [% END %]
+                                                </select>
+                                            [% ELSIF field.key == 'completion_date' or
+                                               field.key == 'placement_date' or
+                                               field.key == 'reply_date' or
+                                               field.key == 'ts' or
+                                               field.key == 'id' or
+                                               field.key == 'reqtype' %]
+                                                <input name=[% field.key %]
+                                                       id=[% field.key %]
+                                                       disabled="true"
+                                                       type="text"
+                                                       value=[% field.value.1 %] />
+                                            [% ELSE %]
+                                                <input name=[% field.key %]
+                                                   id=[% field.key %]
+                                                   type="text"
+                                                   value=[% field.value.1 %] />
+                                            [% END %]
+                                        </li>
+                                    [% END %]
+                                </ol>
+                        </fieldset>
+                        <input type="hidden" value=[% forward %] name="op"/>
+                        <input type="hidden" value=[% rq %] name="rq"/>
                         <input type="submit" value="submit"/>
                     </form>
-                </p>
-            [% ELSIF op == 'progress' %]
-                <dl>
-                    <dt id="availableImmediately">[% ill.availableImmediately.0 %]</dt>
-                    <dd>[% ill.availableImmediately.1 %]</dd>
-                    <dt id="copyrightFee">[% ill.copyrightFee.0 %]</dt>
-                    <dd>[% ill.copyrightFee.1 %]</dd>
-                </dl>
-                <h3>[% ill.formats.0 %]</h3>
-                [% FOREACH format IN ill.formats.1 %]
+                [% ELSIF op == 'progress' %]
+                    <dl>
+                        <dt id="availableImmediately">[% ill.availableImmediately.0 %]</dt>
+                        <dd>[% ill.availableImmediately.1 %]</dd>
+                        <dt id="copyrightFee">[% ill.copyrightFee.0 %]</dt>
+                        <dd>[% ill.copyrightFee.1 %]</dd>
+                    </dl>
+                    <h3>[% ill.formats.0 %]</h3>
+                    [% FOREACH format IN ill.formats.1 %]
+                        <form method="POST" action="/cgi-bin/koha/ill/ill-manage.pl">
+                            <fieldset id="format">
+                                <input type="hidden" name="format" value=[% format.key.1 %] />
+                                <input type="hidden" name="rq" value=[% rq %] />
+                                <input type="hidden" name="op" value="price" />
+                                <h4>[% format.format.0 %]: [% format.format.1 %]</h4>
+                                <h5>[% format.speeds.0 %]</h5>
+                                [% FOREACH speed IN format.speeds.1 %]
+                                    <span id="speed">
+                                        [% speed.speed.0 %]: [% speed.speed.1 %]
+                                    </span>
+                                    <input name="speed" id="speed" type="radio"
+                                           value=[% speed.key.1 %] />
+                                [% END %]
+                                <h5>[% format.qualities.0 %]</h5>
+                                [% FOREACH quality IN format.qualities.1 %]
+                                    <span id="quality">
+                                        [% quality.quality.0 %]: [% quality.quality.1 %]
+                                    </span>
+                                    <input name="quality" id="quality" type="radio"
+                                           value=[% quality.key.1 %] />
+                                [% END %]
+                                <br/>
+                                <input type="submit" value="Check this price" />
+                            </fieldset>
+                        </form>
+                    [% END %]
+                [% ELSIF op == 'price' %]
                     <form method="POST" action="/cgi-bin/koha/ill/ill-manage.pl">
-                        <fieldset id="format">
-                            <input type="hidden" name="format" value=[% format.key.1 %] />
-                            <input type="hidden" name="rq" value=[% rq %] />
-                            <input type="hidden" name="op" value="price" />
-                            <h4>[% format.format.0 %]: [% format.format.1 %]</h4>
-                            <h5>[% format.speeds.0 %]</h5>
-                            [% FOREACH speed IN format.speeds.1 %]
-                                <span id="speed">
-                                    [% speed.speed.0 %]: [% speed.speed.1 %]
-                                </span>
-                                <input name="speed" id="speed" type="radio"
-                                       value=[% speed.key.1 %] />
-                            [% END %]
-                            <h5>[% format.qualities.0 %]</h5>
-                            [% FOREACH quality IN format.qualities.1 %]
-                                <span id="quality">
-                                    [% quality.quality.0 %]: [% quality.quality.1 %]
-                                </span>
-                                <input name="quality" id="quality" type="radio"
-                                       value=[% quality.key.1 %] />
-                            [% END %]
-                            <br/>
-                            <input type="submit" value="Check this price" />
-                        </fieldset>
+                        <p>[% ill.price.0 %]: [% ill.currency.1 %] [% ill.price.1 %]</p>
+                        <p>[% ill.copyrightVat.0 %]: [% 100 * ill.copyrightVat.1 %]%</p>
+                        <p>[% ill.loanRenewalCost.0 %]: [% ill.currency.1 %] [% ill.loanRenewalCost.1 %]</p>
+                        <input type="hidden" name="op" value="order" />
+                        <input type="hidden" name="rq" value=[% rq %] />
+                        <input type="submit" value="Place request" />
                     </form>
-                [% END %]
-            [% ELSIF op == 'price' %]
-                <form method="POST" action="/cgi-bin/koha/ill/ill-manage.pl">
-                    <p>[% ill.price.0 %]: [% ill.currency.1 %] [% ill.price.1 %]</p>
-                    <p>[% ill.copyrightVat.0 %]: [% 100 * ill.copyrightVat.1 %]%</p>
-                    <p>[% ill.loanRenewalCost.0 %]: [% ill.currency.1 %] [% ill.loanRenewalCost.1 %]</p>
-                    <input type="hidden" name="op" value="order" />
-                    <input type="hidden" name="rq" value=[% rq %] />
-                    <input type="submit" value="Place request" />
-                </form>
 
-            [% END %]
+                [% END %]
             </div>
 
         </div>
