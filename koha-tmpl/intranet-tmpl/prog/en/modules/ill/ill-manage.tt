@@ -51,6 +51,10 @@
                 [% ELSIF op == 'message' %]
                     [% IF message == 'deleted' %]
                         <p>The request has been deleted.</p>
+                    [% ELSIF message == 'unknown_request' %]
+                        <p>The request you referred to does not exist.</p>
+                    [% ELSIF message == 'api' %]
+                        <p>There was a problem communicating with the remote service.</p>
                     [% ELSIF message == 'failure' %]
                         <p>Something went wrong.</p>
                     [% END %]

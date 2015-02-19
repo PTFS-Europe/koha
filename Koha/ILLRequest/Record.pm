@@ -86,9 +86,13 @@ sub checkAvailability {
         $response = Koha::ILLRequest::Abstract->new()
           ->checkAvailability($self->getProperty('id'), $properties);
     }
-    unless ((my $sts = $response->status) eq '0') {
-        my $msg = $response->message;
-        die "API Error: '$msg' (Error code: $sts).\n";
+    if (!$response or (my $sts = $response->status) ne '0') {
+        if ($response) {
+            my $msg = $response->message;
+            die "API Error: '$msg' (Error code: $sts).\n";
+        } else {
+            return 0;
+        }
     }
     return $response->result->availability;
 }

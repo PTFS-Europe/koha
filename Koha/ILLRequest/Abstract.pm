@@ -83,6 +83,9 @@ the hashref $PROPERTIES.  Return the API response as an HTML object.
 sub checkAvailability {
     my ( $self, $uin, $properties ) = @_;
     my $reply  = ${$self}{api}->availability($uin, $properties);
+    if (!$reply) {
+        return 0;
+    }
     return Koha::ILLRequest::XML::BLDSS->new
       ->load_xml( { string => $reply } );
 }

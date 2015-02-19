@@ -27,6 +27,9 @@
                 [% IF error or !query_type or query_type == 'new' %]
                     [% IF error.error == 'missing_fields' and error.action == 'search' %]
                         <p><em>Please Note:</em> Some mandatory fields are missing.</p>
+                    [% ELSIF error.error == 'api' and error.action %]
+                        <p><em>Please Note:</em> there was an error whilst
+                communicating with the remote service.</p>
                     [% END %]
                     <h2>Search the British Library</h2>
                     <form method="POST" action=[% here %]>

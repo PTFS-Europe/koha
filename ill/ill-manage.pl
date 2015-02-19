@@ -51,6 +51,7 @@ if ($rq) {
 }
 my $here    = "/cgi-bin/koha/ill/ill-manage.pl";
 my $tab_url = $here . "?rq=" . $rq . "&op=";
+my $parent  = "/cgi-bin/koha/ill/ill-requests.pl";
 
 my $tabs = {
     view          => "View",
@@ -62,86 +63,104 @@ my $tabs = {
 if (C4::Context->preference('GenericILLModule')) {
     $tabs->{generic_ill} = "Generic ILL";
 }
-if ($request and $request->requires_moderation) {
-    $tabs->{moderate} = "Moderation";
-}
 
-if ( $op eq 'view' ) {
-    $template->param(
-        ill   => $request->getSummary,
-        title => $tabs->{$op},
-    );
+if ($request) {
+    if ($request and $request->requires_moderation) {
+        $tabs->{moderate} = "Moderation";
+    }
 
-} elsif ( $op eq 'action_delete' ) {
-    if ( $request->delete ) {
-        $op = 'message';
+    if ( $op eq 'view' ) {
         $template->param(
-            message => 'deleted',
-            title   => 'Deleted',
-            forward => "/cgi-bin/koha/ill/ill-requests.pl",
+            ill   => $request->getSummary,
+            title => $tabs->{$op},
         );
+
+    } elsif ( $op eq 'action_delete' ) {
+        if ( $request->delete ) {
+            $op = 'message';
+            $template->param(
+                message => 'deleted',
+                title   => 'Deleted',
+                forward => $parent,
+            );
+        } else {
+            $template->param(
+                message => 'failure',
+                title   => 'Not deleted',
+                forward => $parent,
+            );
+        }
+
+    } elsif ( $op eq 'edit' ) {
+        $template->param(
+            branches => GetBranchesLoop,
+            ill      => $request->getForEditing,
+            title    => $tabs->{$op},
+            forward  => "update",
+        );
+
+    } elsif ( $op eq 'moderate' ) {
+        my $moderation = $request->requires_moderation;
+        my $forward = 'view';
+        my $back    = $tab_url . "view";
+        my $title   = "View";
+        if ($moderation eq "Cancellation Requested") {
+            $forward = 'action_delete';
+            $title   = "Deletion requested";
+        }
+        $template->param(
+            title   => $title,
+            back    => $back,
+            forward => $forward,
+        )
+
+    } elsif ( $op eq 'progress' ) {
+        my $ill = $request->checkSimpleAvailability;
+        if ($ill) {
+            $template->param(
+                title   => "Availability",
+                forward => 'price',
+                ill     => $ill,
+            );
+        } else {
+            $op      = 'message';
+            $template->param (
+                message => 'api',
+                forward => $parent,
+            );
+        }
+
+    } elsif ( $op eq 'price' ) {
+        my $coordinates = {
+                           format  => $cgi->param('format'),
+                           speed   => $cgi->param('speed'),
+                           quality => $cgi->param('quality'),
+                           };
+        $template->param(
+            ill         => $request->calculatePrice($coordinates),
+            title       => "Prices",
+            forward     => "order",
+            coordinates => $coordinates,
+        );
+
+    } elsif ( $op eq 'update' ) {
+        # We should have a complete set of Request properties / attributes, so we
+        # should just be able to push to DB?
+        $request->editStatus(\%{$cgi->Vars});
+        $template->param(
+            ill   => $request->getSummary,
+            title => $tabs->{view},
+        );
+
     } else {
-        $template->param(
-            message => 'failure',
-            title   => 'Not deleted',
-            forward => "/cgi-bin/koha/ill/ill-requests.pl",
-        );
+        die("Unexpected combination of parameters!")
     }
-
-} elsif ( $op eq 'edit' ) {
-    $template->param(
-        branches => GetBranchesLoop,
-        ill      => $request->getForEditing,
-        title    => $tabs->{$op},
-        forward  => "update",
-    );
-
-} elsif ( $op eq 'moderate' ) {
-    my $moderation = $request->requires_moderation;
-    my $forward = 'view';
-    my $back    = $tab_url . "view";
-    my $title   = "View";
-    if ($moderation eq "Cancellation Requested") {
-        $forward = 'action_delete';
-        $title   = "Deletion requested";
-    }
-    $template->param(
-        title   => $title,
-        back    => $back,
-        forward => $forward,
-    )
-
-} elsif ( $op eq 'progress' ) {
-    $template->param(
-        ill     => $request->checkSimpleAvailability,
-        title   => "Availability",
-        forward => 'price',
-    );
-
-} elsif ( $op eq 'price' ) {
-    my $coordinates = {
-                       format  => $cgi->param('format'),
-                       speed   => $cgi->param('speed'),
-                       quality => $cgi->param('quality'),
-                       };
-    $template->param(
-        ill         => $request->calculatePrice($coordinates),
-        title       => "Prices",
-        forward     => "order",
-        coordinates => $coordinates,
-    );
-
-} elsif ( $op eq 'update' ) {
-    # We should have a complete set of Request properties / attributes, so we
-    # should just be able to push to DB?
-    $request->editStatus(\%{$cgi->Vars});
-    $template->param(
-        ill   => $request->getSummary,
-        title => $tabs->{view},
-    );
-
 } else {
-    die("Unexpected combination of parameters!")
+    $op      = 'message';
+    $template->param (
+        message => 'unknown_request',
+        forward => $parent,
+    );
 }
 
 $template->param(

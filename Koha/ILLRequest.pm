@@ -184,6 +184,7 @@ this Request.
 sub checkSimpleAvailability {
     my ( $self, $testData ) = @_;
     my $availability = ${$self}{record}->checkAvailability($testData);
+    return 0 if (!$availability);
     my @formats;
     foreach my $format (@{$availability->formats}) {
         my @speeds;
