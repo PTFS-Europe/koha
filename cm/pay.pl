@@ -85,7 +85,6 @@ sub do_payment {
 
     foreach my $amt (@amounts) {
         my $trans_code = shift @codes;
-        warn("TRANS:$amt:$tillid:$trans_code:$paymenttype");
 
         # commit a transaction
         my $new_trans = $schema->resultset('CashTransaction')->create(
