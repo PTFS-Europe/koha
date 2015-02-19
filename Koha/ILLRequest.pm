@@ -256,6 +256,20 @@ sub status {
     return $self->{status};
 }
 
+=head3 record
+
+    my $record = $illRequest->record();
+
+Return the Record component of the ILLREQUEST objet $ILLREQUEST.  The Record
+component provides bibliographic details as retrieved from the API.
+
+=cut
+
+sub record {
+    my ( $self ) = @_;
+    return $self->{record};
+}
+
 =head3 summary
 
     my $summary = $illRequest->summary();

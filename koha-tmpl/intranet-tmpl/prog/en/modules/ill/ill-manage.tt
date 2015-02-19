@@ -55,6 +55,8 @@
                         <p>The request you referred to does not exist.</p>
                     [% ELSIF message == 'api' %]
                         <p>There was a problem communicating with the remote service.</p>
+                    [% ELSIF message == 'not_implemented' %]
+                        <p>We have not implemented this functionality yet.</p>
                     [% ELSIF message == 'failure' %]
                         <p>Something went wrong.</p>
                     [% END %]
@@ -179,6 +181,59 @@
                         <input type="hidden" name="rq" value=[% rq %] />
                         <input type="submit" value="Place request" />
                     </form>
+
+                [% ELSIF op == 'generic_ill' %]
+                    <!-- Start of GENERIC_EMAIL case -->
+                    [% IF partners %]
+                        <form method="POST" action=[% here %]>
+                            <fieldset class="rows" style="float: none;">
+                                <legend>Interlibrary loan request details</legend>
+                                    <ol>
+                                        <li>
+                                            <label for="partners">Partner libraries:</label>
+                                            <select size="5" multiple="true" id="partners"
+                                                    name="partners">
+                                                [% FOREACH partner IN partners %]
+                                                    <option value="[% partner.authorised_value %]"
+                                                            selected="selected">
+                                                        [% partner.lib %]
+                                                    </option>
+                                                [% END %]
+                                            </select>
+                                    </li>
+                                    <li>
+                                        <label for="draft">Email text:</label>
+                                        <textarea name="draft" id="draft" rows="20"
+                                                cols="80">[% draft %]</textarea>
+                                    </li>
+                                </ol>
+                            </fieldset>
+                            <input name="op" id="op" value=[% forward %] type="hidden"/>
+                            <input name="rq" id="rq" value=[% rq %] type="hidden"/>
+                            <input type="submit" value="Send email."/>
+                            <input type="reset" value="Reset"/>
+                            <span>
+                                <a href=[% back %] title="Return to request details">
+                                    Cancel
+                                </a>
+                            </span>
+                        </form>
+                    [% ELSE %]
+                        <fieldset class="rows" style="float: none;">
+                            <legend>Interlibrary loan request details</legend>
+                            <span>No partners have been defined yet.
+        Please create authorized values of the format:
+                                <dl>
+                                    <dt>Category</dt>
+                                    <dd>ILLGENERIC</dd>
+                                    <dt>Authorized Value</dt>
+                                    <dd>email address of partner</dd>
+                                    <dt>Description</dt>
+                                    <dd>name of the partner</dd>
+                                </dl>
+                            </span>
+                        </fieldset>
+                    [% END %]
 
                 [% END %]
             </div>

@@ -91,6 +91,24 @@ if ($request) {
             );
         }
 
+    } elsif ( $op eq 'action_email' ) {
+        $op = 'message';
+        $template->param(
+            message => 'not_implemented',
+            title   => 'Email sent',
+            forward => $parent,
+        );
+
+    } elsif ( $op eq 'generic_ill') {
+        $template->param(
+            draft    => generate_draft($request->record->getFullDetails),
+            title    => $tabs->{$op},
+            forward  => "action_email",
+            back     => $tab_url . "view",
+            # Test what happens when ILLGENERIC is empty/non-existent.
+            partners => C4::Koha::GetAuthorisedValues('ILLGENERIC'),
+        );
+
     } elsif ( $op eq 'edit' ) {
         $template->param(
             branches => GetBranchesLoop,
@@ -171,3 +189,28 @@ $template->param(
 );
 
 output_html_with_http_headers( $cgi, $cookie, $template->output );
+
+sub generate_draft {
+    my ( $details ) = @_;
+
+    my $draft = <<EOF;
+Dear Sir/Madam,
+
+    We would like to request an interlibrary loan for title matching the
+following description:
+
+EOF
+    while (my ($key, $values) = each $details) {
+        if (${$values}[1]) {
+            $draft .= "  - " . ${$values}[0] . ": " . ${$values}[1]. "\n";
+        }
+    }
+
+    $draft .= <<EOF;
+
+Please let us know if you are able to supply this to us.
+
+Kind Regards
+EOF
+    return $draft;
+}
