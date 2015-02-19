@@ -31,7 +31,6 @@ $(document).ready(function() {
   <div id="bd">
     <div id="yui-main">
       <div class="yui-b">
-<!-- TOOLBAR ??? -->
 <div id="toolbar" class="btn-toolbar">
     <div class="btn-group">
        <a id="displaytoday" class="btn btn-small" href="/cgi-bin/koha/cm/till.pl?cmd=display&tillid=[% till.tillid %]">Today</a>
@@ -43,15 +42,17 @@ $(document).ready(function() {
     <div class="btn-group">
        <id="displayday" class="btn btn-small" href="/cgi-bin/koha/cm/till.pl?cmd=day&tillid="[% till.tillid %]">Day</a>
     </div>
+    <div class="btn-group">
+       <a id="cashuptill" class="btn btn-small" href="/cgi-bin/koha/cm/till.pl?cmd=cashup&tillid=[% till.tillid %]">Till Totals</a>
+    </div>
+    <div class="btn-group">
+       <a id="addfloat" class="btn btn-small" href="/cgi-bin/koha/cm/tills.pl?cmd=float&tillid=[% till.tillid %]">Add Float</a>
+    </div>
 -->
     <div class="btn-group">
-       <a id="cashuptill" class="btn btn-small" href="/cgi-bin/koha/cm/till.pl?cmd=cashup&tillid=[% till.tillid %]">Cash up</a>
-    </div>
-    <div class="btn-group">
-       <a id="addfloat" class="btn btn-small" href="/cgi-bin/koha/cm/till.pl?cmd=float&tillid=[% till.tillid %]">Add Float</a>
+       <a id="cashuptill" class="btn btn-small" href="/cgi-bin/koha/cm/tills.pl?cmd=cashup&tillid=[% till.tillid %]&cmd=select">Cashup Tills</a>
     </div>
 </div>
-<!-- TOOLBAR ??? -->
 <div class="statictabs">
 
       <h1>Cash Management</h1>

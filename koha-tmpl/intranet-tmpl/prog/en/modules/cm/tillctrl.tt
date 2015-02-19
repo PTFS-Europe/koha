@@ -1,0 +1,91 @@
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Koha &rsaquo; Cash Management Till</title>
+[% INCLUDE 'doc-head-close.inc' %]
+<link rel="stylesheet" type="text/css" href="[% themelang %]/css/datatables.css" />
+[% INCLUDE 'datatables.inc' %]
+<script type="text/javascript">
+</script>
+</head>
+<body id="cm-tills" class="cm">
+[% INCLUDE 'header.inc' %]
+<!-- CM Header ?? -->
+
+
+<div id="breadcrumbs"><a href="/cgi-bin/koha/mainpage.pl">Home</a> &rsaquo; Cash Management</div>
+
+<div id="doc" class="yui-t2">
+
+  <div id="bd">
+    <div id="yui-main">
+      <div class="yui-b">
+<div id="toolbar" class="btn-toolbar">
+    <div class="btn-group">
+       <a id="displaytoday" class="btn btn-small" href="/cgi-bin/koha/cm/till.pl?cmd=display">Exit</a>
+    </div>
+<!-- TOOLBAR -->
+</div>
+<div class="statictabs">
+      <h1>Cash Management: Cashing Up</h1>
+[% IF popup %]
+    <h2>Select tills to cash up</h2>
+    <form action="/cgi-bin/koha/cm/tills.pl" method="post">
+       <input type="hidden" name="popup" value="0" />
+       <input type="hidden" name="cmd" value="cashup" />
+       <table id="tillselection">
+       <thead> <th>Till id</th><th>Name</th><th>Branch</th><th>Selected</th></thead>
+       <tbody>
+       [% FOREACH till IN tills %]
+       <tr>
+        <td>[% till.tillid %]</td>
+        <td>[% till.name %]</td>
+        <td>[% till.branch.branchcode %]</td>
+        <td><input type="checkbox" name="selected_till" value="[% till.tillid %]">Select</td>
+       </tr>
+       [% END %]
+       </tbody>
+       </table>
+       [% IF select_error == 1 %]
+          <p>Please select tills to cash up</p>
+       [% END %]
+       <input type="submit" value="Cash up" class="submit" />
+        <a class="cancel" href="/cgi-bin/koha/cm/till.pl">Cancel</a>
+    </form>
+[% ELSE %]
+    <!-- Show Totals -->
+    <table id="cashup totals">
+    <thead>
+     <th>Code</th><th>Description</th><th>Gross</th>
+    </thead>
+    <tbody>
+    [% FOREACH t IN total_array %]
+     <tr>
+      <td>[% t.code %]</td>`
+      <td>[% t.description %]</td>`
+      <td>[% t.total  | format('%.2f') %]</td>`
+     </tr>
+    [% END %]
+<!-- totals -->
+    <tr>
+     <td>Total income</td>
+     <td> </td>
+     <td>[% total_receipts  | format('%.2f') %]</td>
+     </tr>
+<!-- minus cards -->
+    <tr>
+     <td>Total debit credit card</td>
+     <td> </td>
+     <td>[% card_receipts  | format('%.2f') %]</td>
+     </tr>
+<!-- bankable -->
+    <tr>
+     <td>Total bankable</td>
+     <td> </td>
+     <td>[% total_receipts - card_receipts | format('%.2f') %]</td>
+     </tr>
+    </tbody>
+    </table>
+[% END %]
+
+</div>
+
+[% INCLUDE 'intranet-bottom.inc' %]
