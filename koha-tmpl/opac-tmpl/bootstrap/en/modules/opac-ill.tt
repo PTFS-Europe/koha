@@ -27,9 +27,14 @@
                 <h1>ILL Requests</h1>
                 [% IF error.error == 'missing_fields' and error.action == 'search' %]
                     <p><em>Please Note:</em> Some mandatory fields are missing.</p>
+                [% ELSIF error.error == 'unknown' and error.action == 'cancellation' %]
+                    <p><em>Please Note:</em> We were unable to request the
+        cancellation of request number [% query_value %].</p>
+                [% ELSIF error.error == 'unknown' and error.action == 'request' %]
+                    <p><em>Please Note:</em> We were unable to place your request.</p>
                 [% END %]
 
-                [% IF !op or op == 'request' %]
+                [% IF !op %]
                     [% IF ( loggedinusername || Koha.Preference( 'OpacILLRequests' ) ) %]
                         <a class="new" href="/cgi-bin/koha/opac-ill.pl?op=new">New Request</a>
                     [% END %]
@@ -41,6 +46,7 @@
                                     [% FOREACH line IN reply.0 %]
                                         <th id=[% line.key %]>[% line.value.0 %]</th>
                                     [% END %]
+                                    <th id="cancel">Cancel?</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -51,6 +57,12 @@
                                                 [% line.value.1 %]
                                             </td>
                                         [% END %]
+                                        <td>
+                                            <a href=[% cancel_url _ summary.id.1 %]
+                                               title="Request to have this request cancelled">
+                                               Cancel request
+                                            </a>
+                                        </td>
                                     </tr>
                                 [% END %]
                             </tbody>

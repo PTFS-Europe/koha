@@ -100,33 +100,39 @@ if ( fail(1) ) {
         next        => $next,
         prev        => $prev,
         rqp         => $rq_qry,
-        query_value => $query,
         search      => $search_string,
     );
-} elsif ( $op eq 'request' ) {
-    my $request = Koha::ILLRequests->new->request( {
-        uin      => $query,
-        branch   => $borrower->branchcode,
-        borrower => $borrower->borrowernumber,
-    } );
-    if ($request) {
-        my $requests = Koha::ILLRequests->new->retrieve_ill_requests($borrowernumber);
-        foreach my $rq ( @{$requests} ) {
-            push @{$reply}, $rq->getSummary;
+} else {
+    if ( $op eq 'request' ) {
+        my $request = Koha::ILLRequests->new->request( {
+            uin      => $query,
+            branch   => $borrower->branchcode,
+            borrower => $borrower->borrowernumber,
+        } );
+        if (!$request) {
+            $error = { error => 'unknown', action => 'request' };
+        }
+    } elsif ( $op eq 'request_cancellation') {
+        my $request = @{Koha::ILLRequests->new->retrieve_ill_request($query) || [0]}[0];
+        if (!$request or !$request->editStatus( { status => "Cancellation Requested" } )) {
+            $error = { error => 'unknown', action => 'cancellation' };
         }
     }
-
-} else {
+    $op = undef;
     my $requests = Koha::ILLRequests->new->retrieve_ill_requests($borrowernumber);
     if ($requests) {
         foreach my $rq ( @{$requests} ) {
             push @{$reply}, $rq->getSummary;
         }
     }
+    $template->param(
+        cancel_url => $here . "?op=request_cancellation&query_value=",
+    );
 }
 
 $template->param(
     illview  => 1,
+    query_value => $query,
     reply    => $reply,
     error    => $error,
     op       => $op,
