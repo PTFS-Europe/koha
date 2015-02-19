@@ -2,10 +2,130 @@
 <title>Koha &rsaquo; Cash Management</title>
 [% INCLUDE 'doc-head-close.inc' %]
 <script type="text/javascript">
-$(document).ready(function(){
-        $('#chargeform').preventDoubleFormSubmit();
-        $("fieldset.rows input, fieldset.rows select").addClass("noEnterSubmit");
-});
+function addCharge() {
+  var table = document.getElementById("charge_table");
+  var rowCount = table.rows.length;
+  var amount = document.getElementById("amt").value;
+  var tcode  = document.getElementById("trans_code").value;
+  var row = table.insertRow(rowCount - 1);
+  var cell1 = row.insertCell(0);
+  var cell2 = row.insertCell(1);
+
+  cell1.innerHTML =  tcode;
+  cell2.innerHTML =  amount;
+  var sum = 0.0;
+  var r = table.rows;
+  for(index = 1; index < rowCount; ++index) {
+     var v = parseFloat(r[index].childNodes[1].firstChild.data);
+     sum += v;
+  }
+  updateTotal(sum);
+  document.getElementById('amt').value = '0.00';
+}
+
+function updateTotal(newTotal) {
+   var totalDiv = document.getElementById("totalPay");
+   totalDiv.innerHTML = newTotal.toFixed(2);
+}
+
+function addChargeLines(formObj) {
+  var table = document.getElementById("charge_table");
+  var r = table.rows;
+  var rowCount = r.length;
+
+  var amounts = "";
+  var codes   = "";
+  for(index = 1; index < rowCount - 1; ++index) {
+     var c = r[index].childNodes[0].firstChild.data;
+     var v = parseFloat(r[index].childNodes[1].firstChild.data);
+     if ( index != 1) {
+         codes += ",";
+         amounts += ",";
+     }
+     codes += c;
+     amounts += v;
+  }
+  document.getElementById('amounts').value =  amounts;
+  document.getElementById('codes').value =  codes;
+}
+
+function moneyFormat(textObj) {
+    var newValue = textObj.value;
+    var decAmount = "";
+    var dolAmount = "";
+    var decFlag   = false;
+    var aChar     = "";
+
+    for(i=0; i < newValue.length; i++) {
+        aChar = newValue.substring(i, i+1);
+        if (aChar >= "0" && aChar <= "9") {
+            if(decFlag) {
+                decAmount = "" + decAmount + aChar;
+            }
+            else {
+                dolAmount = "" + dolAmount + aChar;
+            }
+        }
+        if (aChar == ".") {
+            if (decFlag) {
+                dolAmount = "";
+                break;
+            }
+            decFlag = true;
+        }
+    }
+
+    if (dolAmount == "") {
+        dolAmount = "0";
+    }
+
+    // Strip leading 0s
+    if (dolAmount.length > 1) {
+        while(dolAmount.length > 1 && dolAmount.substring(0,1) == "0") {
+            dolAmount = dolAmount.substring(1,dolAmount.length);
+        }
+    }
+    if (decAmount.length > 2) {
+        decAmount = decAmount.substring(0,2);
+    }
+
+    // Pad right side
+    if (decAmount.length == 1) {
+       decAmount = decAmount + "0";
+    }
+    if (decAmount.length == 0) {
+       decAmount = decAmount + "00";
+    }
+
+    textObj.value = dolAmount + "." + decAmount;
+
+    // Calculate Change
+    var total = document.getElementById("totalPay").innerHTML;
+    var giveChange = ( Number(dolAmount + "." + decAmount) * 100 - Number(total) * 100 ) / 100;
+    if ( giveChange > 0 ) {
+        document.getElementById('change').innerHTML = giveChange.toFixed(2);
+    } else {
+        document.getElementById('change').innerHTML = '0.00';
+    }
+
+    // Set hidden form field
+    if ( giveChange > 0 ) {
+        document.getElementById('paid').value = total;
+    } else {
+        document.getElementById('paid').value = dolAmount + "." + decAmount;
+    }
+
+    // Set receipt params
+    if ( giveChange > 0 ) {
+        $('a#receipt').attr('href', function(i,a){
+            return a.replace( /(tendered=).*&(change=).*&/ig, '$1' + dolAmount + "." + decAmount + '&' + '$2' + giveChange.toFixed(2).toString() + '&' );
+        });
+    } else {
+        $('a#receipt').attr('href', function(i,a){
+            return a.replace( /(tendered=).*&(change=).*&/ig, '$1' + dolAmount + "." + decAmount + '&' + '$2' + '0.00' + '&' );
+        });
+    }
+}
 
 </script>
 </head>
@@ -17,51 +137,96 @@ $(document).ready(function(){
 
 <div id="breadcrumbs"><a href="/cgi-bin/koha/mainpage.pl">Home</a> &rsaquo; Cash Management</div>
 
-<div id="doc" class="yui-t7">
+<div id="doc3" class="yui-t2">
 
   <div id="bd">
-    <div class="yui-g">
+    <div id="yui-main">
+      <div class="yui-b">
+      <div id="toolbar" class="btn-toolbar">
+         <button class="btn btn-small" id="add_charge" onclick="addCharge(); return false;"><i class="icon-plus"></i> Add Charge</a>
 
-<form action="/cgi-bin/koha/cm/pay.pl"method="post" id="chargeform">
+      </div>
 <input type="hidden"cmd="charge" id="cmd" value="charge" />
-<table>
-<tr><th>Item</th><th>Amount</th><th>Payment Type</th></tr>
-
-<tr>
-
-</tr>
+<table id="charge_table">
+<thead>
+<tr><th>Item</th><th>Amount</th></tr>
+</thead>
+<tbody>
+<tr id="charge_entry">
 <td>
-<select name="trans_code" id="trans_code">
+<select name="trans_code" id="trans_code" size="1">
     [% FOREACH  t IN transcodes %]
     <option value="[% t.code %]">[% t.description %]</option>
     [% END %]
 </select>
 </td>
 <td>
-<input type="text" name="amt" id="amt" />
-</td>
-<td>
-<select name="paymenttype" id="paymenttype">
-   [% FOREACH p IN paymenttypes %]
-     [% IF p == 'Cash' %]
-     <option value="[% p %]" selected="1" >[% p %]</option>
-     [% ELSE %]
-     <option value="[% p %]">[% p %]</option>
-     [% END %]
-   [% END %]
-</select>
+<input type="text" name="amt" id="amt" pattern='^\d+(?:\d{0,2})$' value="0.00" />
 </td>
 </tr>
+</tbody>
 </table>
 
-<!--Currently in single transaction mode <li>Total: -->
-<fieldset class="action">
-   <input type="submit" name="charge" value="Charge" />
-   <a class="cancel" href="/cgi-bin/koha/circ/circulation-home.pl">Cancel</a>
-</fieldset>
-</form>
-      <div class="yui-u">
+<!-- <div id="running_total">
+<p>Total: 0.00<p/>
+</div>
+-->
 
+
+<form name="paytotal" id="paytotal" onsubmit="return addChargeLines(this);" method="post" action="/cgi-bin/koha/cm/pay.pl">
+    <input type="hidden" name="cmd" id="cmd" value="committrans">
+    <input type="hidden" name="amounts" id="amounts" >
+    <input type="hidden" name="codes" id="codes" >
+    <fieldset class="rows">
+    <legend>Collect payment</legend>
+    <ol>
+      <li>
+        <span class="label">Total amount outstanding: </span>
+        <span class="debit" id="totalPay">0.00</span>
+      </li>
+      <li>
+         <label for="collected">Collected from patron: </label>
+         <input name="collected" id="collected" value="0.00" onchange="moneyFormat(document.paytotal.collected)" onkeydown="if (event.keyCode == 13) { blur(this); document.getElementById('submitbutton').focus(); return false; }"/>
+         <input type="hidden" name="paid" id="paid" value="0.00" />
+      </li>
+      <li>
+          <label for="change">Change to give: </label>
+          <apan name="change" id="change" class="debit">0.00</span>
+      </li>
+      <li>
+      <label for="paymenttype">Payment type: </label>
+	<select name="paymenttype" id="paymenttype" size="1">
+	   [% FOREACH p IN paymenttypes %]
+	     [% IF p == 'Cash' %]
+	     <option value="[% p %]" selected="1" >[% p %]</option>
+	     [% ELSE %]
+	     <option value="[% p %]">[% p %]</option>
+	     [% END %]
+	   [% END %]
+	</select>
+       </li>
+    <li>
+        <label for="till">Till: </label>
+        <select name="till" id="till">
+            [% FOREACH till IN tills %]
+            [% IF tillid == till.tillid %]
+            <option value="[% till.tillid %]" selected="1">[% till.name %]</option>
+            [% ELSE %]
+            <option value="[% till.tillid %]">[% till.name %]</option>
+            [% END %]
+            [% END %]
+        </select>
+    </li>
+    </ol>
+    </fieldset>
+    <div class="action">
+        <input class="btn btn-small" id="submitbutton" type="submit" name="submitbutton" value="Confirm" />
+<!--
+        <a id="receipt" class="btn btn-small" target="_blank" href="/cgi-bin/koha/cm/printreceipt.pl?tendered=[% total | format('%.2f') %]&change=0.00&action=print">Receipt</a>
+-->
+        <a class="cancel" href="/cgi-bin/koha/cm/pay.pl">Cancel</a>
+    </div>
+    </form>
       </div>
     </div>
   </div>

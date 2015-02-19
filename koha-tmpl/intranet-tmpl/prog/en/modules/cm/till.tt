@@ -47,6 +47,9 @@ $(document).ready(function() {
     <div class="btn-group">
        <a id="cashuptill" class="btn btn-small" href="/cgi-bin/koha/cm/till.pl?cmd=cashup&tillid=[% till.tillid %]">Cash up</a>
     </div>
+    <div class="btn-group">
+       <a id="addfloat" class="btn btn-small" href="/cgi-bin/koha/cm/till.pl?cmd=float&tillid=[% till.tillid %]">Add Float</a>
+    </div>
 </div>
 <!-- TOOLBAR ??? -->
 <div class="statictabs">

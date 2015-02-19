@@ -45,13 +45,16 @@ my $branchname = GetBranchName( $user->{branchcode} );
 my $tillid = $q->param('tillid') || $q->cookie('KohaStaffClient');
 my $schema = Koha::Database->new()->schema();
 
-my $chrg_cmd = $q->param('charge');
-if ( $chrg_cmd eq 'Charge' ) {
+my $command = $q->param('cmd');
+
+if ( $command && $command eq 'committrans' ) {
     do_payment();
 }
+
 my @payment_types =
   $schema->resultset('AuthorisedValue')
   ->search( { category => 'PaymentType', } );
+my @tills = $schema->resultset('CashTill')->all();
 
 @payment_types = map { $_->authorised_value } @payment_types;
 
@@ -64,6 +67,7 @@ my @transcodes = $schema->resultset('CashTranscode')
 $template->param(
     branchname   => $branchname,
     tillid       => $tillid,
+    tills        => \@tills,
     paymenttypes => \@payment_types,
     transcodes   => \@transcodes,
 );
@@ -71,18 +75,27 @@ $template->param(
 output_html_with_http_headers( $q, $cookie, $template->output );
 
 sub do_payment {
-    my $amt         = $q->param('amt');
-    my $paymenttype = $q->param('paymenttype');
-    my $trans_code  = $q->param('trans_code');
+    my @amounts = split /,/, $q->param('amounts');
+    my @codes   = split /,/, $q->param('codes');
 
-    # commit a transaction
-    my $new_trans = $schema->resultset('CashTransaction')->create(
-        {
-            amt         => $amt,
-            till        => $tillid,
-            tcode       => $trans_code,
-            paymenttype => $paymenttype,
-        }
-    );
+    #    my $amt         = $q->param('amt');
+    my $paymenttype = $q->param('paymenttype');
+
+    #    my $trans_code  = $q->param('trans_code');
+
+    foreach my $amt (@amounts) {
+        my $trans_code = shift @codes;
+        warn("TRANS:$amt:$tillid:$trans_code:$paymenttype");
+
+        # commit a transaction
+        my $new_trans = $schema->resultset('CashTransaction')->create(
+            {
+                amt         => $amt,
+                till        => $tillid,
+                tcode       => $trans_code,
+                paymenttype => $paymenttype,
+            }
+        );
+    }
     return;
 }
