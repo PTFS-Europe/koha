@@ -53,9 +53,10 @@ my $here    = "/cgi-bin/koha/ill/ill-manage.pl";
 my $tab_url = $here . "?rq=" . $rq . "&op=";
 
 my $tabs = {
-    view        => "View",
-    edit        => "Edit",
-    progress    => "Progress",
+    view          => "View",
+    edit          => "Edit",
+    progress      => "Progress",
+    action_delete => "Delete",
 };
 
 if (C4::Context->preference('GenericILLModule')) {
