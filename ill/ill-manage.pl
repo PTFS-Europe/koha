@@ -43,29 +43,51 @@ my ( $template, $borrowernumber, $cookie ) = get_template_and_user(
     }
 );
 
+my $op      = $cgi->param('op');
+my $rq      = $cgi->param('rq');
+my $request = 0;
+if ($rq) {
+    $request = @{Koha::ILLRequests->new->retrieve_ill_request($rq) || [0]}[0];
+}
+my $here    = "/cgi-bin/koha/ill/ill-manage.pl";
+my $tab_url = $here . "?rq=" . $rq . "&op=";
+
 my $tabs = {
     view        => "View",
     edit        => "Edit",
     progress    => "Progress",
 };
+
 if (C4::Context->preference('GenericILLModule')) {
     $tabs->{generic_ill} = "Generic ILL";
 }
+if ($request and $request->requires_moderation) {
+    $tabs->{moderate} = "Moderation";
+}
 
-my $op = $cgi->param('op');
-my $rq = $cgi->param('rq');
-my $here = "/cgi-bin/koha/ill/ill-manage.pl";
-my $tab_url = $here . "?rq=" . $rq . "&op=";
-
-if ( $rq and $op eq 'view' ) {
-    my $request = @{Koha::ILLRequests->new()->retrieve_ill_request($rq)}[0];
+if ( $op eq 'view' ) {
     $template->param(
         ill   => $request->getSummary,
         title => $tabs->{$op},
     );
 
-} elsif ( $rq and $op eq 'edit' ) {
-    my $request = @{Koha::ILLRequests->new()->retrieve_ill_request($rq)}[0];
+} elsif ( $op eq 'action_delete' ) {
+    if ( $request->delete ) {
+        $op = 'message';
+        $template->param(
+            message => 'deleted',
+            title   => 'Deleted',
+            forward => "/cgi-bin/koha/ill/ill-requests.pl",
+        );
+    } else {
+        $template->param(
+            message => 'failure',
+            title   => 'Not deleted',
+            forward => "/cgi-bin/koha/ill/ill-requests.pl",
+        );
+    }
+
+} elsif ( $op eq 'edit' ) {
     $template->param(
         branches => GetBranchesLoop,
         ill      => $request->getForEditing,
@@ -73,16 +95,29 @@ if ( $rq and $op eq 'view' ) {
         forward  => "update",
     );
 
-} elsif ( $rq and $op eq 'progress' ) {
-    my $request = @{Koha::ILLRequests->new()->retrieve_ill_request($rq)}[0];
+} elsif ( $op eq 'moderate' ) {
+    my $moderation = $request->requires_moderation;
+    my $forward = 'view';
+    my $back    = $tab_url . "view";
+    my $title   = "View";
+    if ($moderation eq "Cancellation Requested") {
+        $forward = 'action_delete';
+        $title   = "Deletion requested";
+    }
+    $template->param(
+        title   => $title,
+        back    => $back,
+        forward => $forward,
+    )
+
+} elsif ( $op eq 'progress' ) {
     $template->param(
         ill     => $request->checkSimpleAvailability,
         title   => "Availability",
         forward => 'price',
     );
 
-} elsif ( $rq and $op eq 'price' ) {
-    my $request = @{Koha::ILLRequests->new()->retrieve_ill_request($rq)}[0];
+} elsif ( $op eq 'price' ) {
     my $coordinates = {
                        format  => $cgi->param('format'),
                        speed   => $cgi->param('speed'),
@@ -91,13 +126,13 @@ if ( $rq and $op eq 'view' ) {
     $template->param(
         ill         => $request->calculatePrice($coordinates),
         title       => "Prices",
+        forward     => "order",
         coordinates => $coordinates,
     );
 
-} elsif ( $rq and $op eq 'update' ) {
+} elsif ( $op eq 'update' ) {
     # We should have a complete set of Request properties / attributes, so we
     # should just be able to push to DB?
-    my $request = @{Koha::ILLRequests->new()->retrieve_ill_request($rq)}[0];
     $request->editStatus(\%{$cgi->Vars});
     $template->param(
         ill   => $request->getSummary,

@@ -59,6 +59,27 @@ sub new {
     return $self;
 }
 
+=head3 delete
+
+    my $ok = $illRequest->delete;
+
+Wrapper around dbix::class' delete.
+
+=cut
+
+sub delete {
+    my ( $self ) = @_;
+
+    my $related = Koha::Database->new()->schema()->resultset('IllRequestAttribute')
+        ->find( { req_id => $self->status->getProperty('id') } );
+    my $data = Koha::Database->new()->schema()->resultset('IllRequest')
+        ->find( { id => $self->status->getProperty('id') } );
+
+    $related->set_primary_key('req_id');
+    my $result = $data->delete if $related->delete;
+    return $result || 0;
+}
+
 =head3 save
 
     $illRequest->save();

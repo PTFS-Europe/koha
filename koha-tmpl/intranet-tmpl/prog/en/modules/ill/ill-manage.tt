@@ -48,6 +48,13 @@
                             [% END %]
                         </ol>
                     </fieldset>
+                [% ELSIF op == 'message' %]
+                    [% IF message == 'deleted' %]
+                        <p>The request has been deleted.</p>
+                    [% ELSIF message == 'failure' %]
+                        <p>Something went wrong.</p>
+                    [% END %]
+                    <p><a href=[% forward %] title="View all requests">View requests.</a></p>
                 [% ELSIF op == 'edit' %]
                     <form method="POST" action=[% here %]>
                         <fieldset class="rows" style="float: none;">
@@ -111,6 +118,18 @@
                         <input type="hidden" value=[% rq %] name="rq"/>
                         <input type="submit" value="submit"/>
                     </form>
+                [% ELSIF op == 'moderate' %]
+                    <form method="POST"  action=[% here %]>
+                        <fieldset class="rows" style="float: none;">
+                            <p>The patron requested this interlibrary loan request be
+                cancelled.</p>
+                            <p>Accept cancellation request?</p>
+                            <input name="op" id="op" value=[% forward %] type="hidden"/>
+                            <input name="rq" id="rq" value=[% rq %] type="hidden"/>
+                        </fieldset>
+                        <input type="submit" value="Accept"/>
+                        <a href=[% back %] title="Deny request">Deny</a>
+                    </form>
                 [% ELSIF op == 'progress' %]
                     <dl>
                         <dt id="availableImmediately">[% ill.availableImmediately.0 %]</dt>
@@ -120,11 +139,11 @@
                     </dl>
                     <h3>[% ill.formats.0 %]</h3>
                     [% FOREACH format IN ill.formats.1 %]
-                        <form method="POST" action="/cgi-bin/koha/ill/ill-manage.pl">
+                        <form method="POST" action=[% here %]>
                             <fieldset id="format">
                                 <input type="hidden" name="format" value=[% format.key.1 %] />
                                 <input type="hidden" name="rq" value=[% rq %] />
-                                <input type="hidden" name="op" value="price" />
+                                <input type="hidden" name="op" value=[% forward %] />
                                 <h4>[% format.format.0 %]: [% format.format.1 %]</h4>
                                 <h5>[% format.speeds.0 %]</h5>
                                 [% FOREACH speed IN format.speeds.1 %]
@@ -148,11 +167,11 @@
                         </form>
                     [% END %]
                 [% ELSIF op == 'price' %]
-                    <form method="POST" action="/cgi-bin/koha/ill/ill-manage.pl">
+                    <form method="POST" action=[% here %]>
                         <p>[% ill.price.0 %]: [% ill.currency.1 %] [% ill.price.1 %]</p>
                         <p>[% ill.copyrightVat.0 %]: [% 100 * ill.copyrightVat.1 %]%</p>
                         <p>[% ill.loanRenewalCost.0 %]: [% ill.currency.1 %] [% ill.loanRenewalCost.1 %]</p>
-                        <input type="hidden" name="op" value="order" />
+                        <input type="hidden" name="op" value=[% forward %] />
                         <input type="hidden" name="rq" value=[% rq %] />
                         <input type="submit" value="Place request" />
                     </form>
