@@ -28,7 +28,12 @@ use C4::Members qw( GetMember );
 use C4::Branch qw( GetBranchName );
 use List::Util qw(sum);
 
+# TODO
+# Add Start and Stop dates of the period to the screen (For each till)
+# Include Float amounts
+# When selecting tills view only your branch
 my $q = CGI->new();
+
 my ( $template, $loggedinuser, $cookie, $user_flags ) = get_template_and_user(
     {
         template_name   => 'cm/tillctrl.tt',
@@ -45,10 +50,7 @@ my @selected_tills = $q->param('selected_till');
 my $till_count     = @selected_tills;
 my $cmd            = $q->param('cmd');
 
-my $schema = Koha::Database->new()->schema;
-
-my $tills = get_tills($schema);
-my $date;
+my $tills = get_tills($branchname);
 
 my $total_paid_in  = 0;
 my $total_paid_out = 0;
@@ -80,66 +82,12 @@ $template->param(
 
 output_html_with_http_headers( $q, $cookie, $template->output );
 
-sub get_till {
-    my ( $schema, $cgi_query ) = @_;
-
-    my $id = $cgi_query->param('tillid');
-    $id ||= $cgi_query->cookie('KohaStaffClient');
-
-    if ($id) {
-        return $schema->resultset('CashTill')->find($id);
-    }
-
-    my $rs = $schema->resultset('CashTill')->search( { tillid => $id } );
-    return $rs->single;
-}
-
 sub get_tills {
-    my $schema    = shift;
-    my @all_tills = $schema->resultset('CashTill')->all;
+    my ($branch) = @_;
+    my $schema = Koha::Database->new()->schema;
+    my @all_tills =
+      $schema->resultset('CashTill')->search( { branch => $branch } );
     return \@all_tills;
-}
-
-sub get_transactions {
-    my ( $till, $cmd, $date ) = @_;
-    my $sql;
-    my @query_parameters;
-
-    my $dbh = C4::Context->dbh;
-    if ( $cmd eq 'cashup' ) {
-
-        # get last cashup
-        $sql =
-q{select max(created) from cash_transaction where till = ? and tcode = 'CASHUP'};
-        my $res_ref = $dbh->selectcol_arrayref( $sql, {}, $till );
-        if ( defined $res_ref->[0] ) {
-            my $last_cash_up = $res_ref->[0];
-
-            $sql =
-'select * from cash_transaction where till = ? and created > ? order by created';
-            @query_parameters = ( $till, $last_cash_up );
-
-        }
-        else {
-            # never cashed up before
-            $sql =
-              'select * from cash_transaction where till = ? order by created';
-            @query_parameters = ($till);
-        }
-    }
-    elsif ( $cmd eq 'display' || $cmd eq 'cashup' ) {
-        $sql =
-'select * from cash_transaction where till = ? and datediff( created, NOW()) = 0 order by created';
-        @query_parameters = ($till);
-    }
-    elsif ( $cmd eq 'day' )
-    {    # show transactions for a specific date ( not today )
-        $sql =
-'select * from cash_transaction where till = ? and DATE( created) = ? order by created';
-        @query_parameters = ( $till, $date );
-    }
-
-    return $dbh->selectall_arrayref( $sql, { Slice => {} }, @query_parameters );
 }
 
 sub get_tran_totals {
