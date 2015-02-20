@@ -50,9 +50,9 @@ my $schema = Koha::Database->new()->schema;
 my $tills = get_tills($schema);
 my $date;
 
-my $total_paid_in;
-my $total_paid_out;
-my $transactions;
+my $total_paid_in = 0;
+my $total_paid_out = 0;
+my $transactions = [];
 my $popup = 0;
 $popup = $q->param('popup');
 my $select_error = 0;
@@ -67,53 +67,7 @@ if ( $till_count && $cmd eq 'cashup' ) {
     my $dbh = C4::Context->dbh;
     my $sth = $dbh->prepare(
         'insert into cash_transaction ( created, till, tcode) values(?,?,?)');
-    my $till_trans = [];
-    for my $t (@selected_tills) {
-        my $transactions = get_transactions( $t, $cmd );
-        if ( @{$transactions} ) {
-            record_cashup( $sth, $t, $transactions->[-1]->{created} );
-        }
-        push $till_trans,
-          {
-            till_id      => $t,
-            transactions => $transactions,
-          };
-    }
-
-    if ( $cmd eq 'cashup' ) {
-
-        my $subtotals     = [];
-        my @payment_types = $schema->resultset('AuthorisedValue')
-          ->search( { category => 'PaymentType', } )->all();
-        foreach my $pt (@payment_types) {
-            my $type   = $pt->authorised_value;
-            my $sum_in = sum
-              map { $_->{amt} if $_->{paymenttype} eq $type && $_->{amt} > 0 }
-              @{$transactions};
-            my $sum_out = sum
-              map { $_->{amt} if $_->{paymenttype} eq $type && $_->{amt} < 0 }
-              @{$transactions};
-            $sum_in  ||= 0;
-            $sum_out ||= 0;
-
-            push @{$subtotals},
-              {
-                type    => $type,
-                in      => $sum_in,
-                out     => $sum_out,
-                balance => $sum_in + $sum_out,
-              };
-        }
-
-        $template->param(
-            subtotals => $subtotals,
-            cashup    => 1,
-        );
-    }
-    $template->param(
-        selected_tills => \@selected_tills,
-        transactions   => $till_trans,
-    );
+    get_tran_totals(@selected_tills);
 }
 else {
     $popup = '1';
@@ -122,10 +76,6 @@ else {
 
 $template->param(
     branchname   => $branchname,
-    transactions => $transactions,
-    total_in     => $total_paid_in,
-    total_out    => $total_paid_out,
-    balance      => $total_paid_in + $total_paid_out,    # paid_out is neg
     popup        => $popup,
     select_error => $select_error,
 );
@@ -162,7 +112,7 @@ sub get_transactions {
 
         # get last cashup
         $sql =
-q{select max(created) from cash_transactions where till = ? and tcode = 'CASHUP'};
+q{select max(created) from cash_transaction where till = ? and tcode = 'CASHUP'};
         my $res_ref = $dbh->selectcol_arrayref( $sql, {}, $till );
         if ( defined $res_ref->[0] ) {
             my $last_cash_up = $res_ref->[0];
@@ -211,7 +161,7 @@ sub get_tran_totals {
     }
     my $card_total = 0;
     my $sql =
-q{select max(created) from cash_transactions where till = ? and tcode = 'CASHUP'};
+q{select max(created) from cash_transaction where till = ? and tcode = 'CASHUP'};
     my $trans_sth = $dbh->prepare(
 'select sum(amt) as total, tcode from cash_transaction where till = ? and created > ? and created <= ? group by tcode'
     );
@@ -227,10 +177,11 @@ q{select sum(amt) from cash_transaction where till = ? and paymenttype = 'Card' 
 
         my $last_cash_up = $tuple[0];
         $trans_sth->execute( $till, $last_cash_up, $cashup_time );
-        my $totals = $trans_sth->fetchall_arrayref( { Slice => {} } );
+        my $totals = $trans_sth->fetchall_arrayref( {} );
         $card_sth->execute( $till, $last_cash_up, $cashup_time );
-        my @arr  = $card_sth->fetcheow_array();
+        my @arr  = $card_sth->fetchrow_array();
         my $card = shift @arr;
+        $card ||= 0;
 
         # contribute to totals table
         foreach my $tuple ( @{$totals} ) {
