@@ -50,10 +50,10 @@ my $schema = Koha::Database->new()->schema;
 my $tills = get_tills($schema);
 my $date;
 
-my $total_paid_in = 0;
+my $total_paid_in  = 0;
 my $total_paid_out = 0;
-my $transactions = [];
-my $popup = 0;
+my $transactions   = [];
+my $popup          = 0;
 $popup = $q->param('popup');
 my $select_error = 0;
 if ( $till_count == 0 && $cmd eq 'cashup' ) {
@@ -64,10 +64,8 @@ if ( $till_count == 0 && $cmd eq 'cashup' ) {
 
 if ( $till_count && $cmd eq 'cashup' ) {
 
-    my $dbh = C4::Context->dbh;
-    my $sth = $dbh->prepare(
-        'insert into cash_transaction ( created, till, tcode) values(?,?,?)');
-    get_tran_totals(@selected_tills);
+    my $cashtime = get_tran_totals(@selected_tills);
+    record_cashup( $cashtime, @selected_tills );
 }
 else {
     $popup = '1';
@@ -210,11 +208,16 @@ q{select sum(amt) from cash_transaction where till = ? and paymenttype = 'Card' 
         total_receipts => $total,
         card_receipts  => $card_total,
     );
-    return;
+    return $cashup_time;
 }
 
 sub record_cashup {
-    my ( $statement_handle, $till, $last_transaction_created ) = @_;
-    $statement_handle->execute( $till, $last_transaction_created );
+    my ( $last_transaction_created, @tills ) = @_;
+    my $dbh = C4::Context->dbh;
+    my $sth = $dbh->prepare(
+        'insert into cash_transaction ( created, till, tcode) values(?,?,?)');
+    for my $till (@tills) {
+        $sth->execute( $till, $last_transaction_created, 'CASHUP' );
+    }
     return;
 }
