@@ -262,14 +262,6 @@ sub quote_item {
     $item_hash->{itype} = $item->girfield('stock_category');
     $item_hash->{location} = $item->girfield('collection_code');
 
-    my $budget = _get_budget( $schema, $item->girfield('fund_allocation') );
-
-    if ( !$budget ) {
-        carp 'Skipping line with no budget info';
-        $logger->trace('line skipped for invalid budget');
-        return;
-    }
-
     my $note = {};
 
     my $shelfmark =
@@ -307,27 +299,28 @@ sub quote_item {
     my $order_hash = {
         biblionumber     => $bib->{biblionumber},
         entrydate        => DateTime->now( time_zone => 'local' )->ymd(),
-        quantity         => $item->quantity,
         basketno         => $basketno,
         listprice        => $item->price,
+        quantity         => 1,
         quantityreceived => 0,
 
         #        notes             => $order_note, becane internalnote in 3.15
         order_internalnote => $order_note,
         rrp                => $item->price,
         ecost => _discounted_price( $quote->vendor->discount, $item->price ),
-        budget_id         => $budget->budget_id,
         uncertainprice    => 0,
         sort1             => q{},
         sort2             => q{},
         supplierreference => $item->reference,
     };
+
     if ( $item->girfield('servicing_instruction') ) {
 
         # not in 3.14 !!!
         $order_hash->{order_vendornote} =
           $item->girfield('servicing_instruction');
     }
+
     if ( $item->internal_notes() ) {
         if ( $order_hash->{order_internalnote} ) {    # more than ''
             $order_hash->{order_internalnote} .= q{ };
@@ -336,57 +329,162 @@ sub quote_item {
         $order_hash->{order_internalnote} .= $item->internal_notes;
     }
 
+    my $budget = _get_budget( $schema, $item->girfield('fund_allocation') );
 
-    my $new_order = $schema->resultset('Aqorder')->create($order_hash);
-    my $o         = $new_order->ordernumber();
-    $logger->trace("Order created :$o");
-
-    # should be done by database settings
-    $new_order->parent_ordernumber( $new_order->ordernumber() );
-    $new_order->update();
-
-    if ( C4::Context->preference('AcqCreateItem') eq 'ordering' ) {
-        my $itemnumber;
-        ( $bib->{biblionumber}, $bib->{biblioitemnumber}, $itemnumber ) =
-          AddItem( $item_hash, $bib->{biblionumber} );
-        $logger->trace("Added item:$itemnumber");
-        $schema->resultset('AqordersItem')->create(
-            {
-                ordernumber => $new_order->ordernumber,
-                itemnumber  => $itemnumber,
-            }
-        );
-
+    my $skip = '0';
+    if ( !$budget ) {
         if ( $item->quantity > 1 ) {
-            my $occurence = 1;
-            while ( $occurence < $item->quantity ) {
-                my $new_item = {
-                    notforloan       => -1,
-                    cn_sort          => q{},
-                    cn_source        => 'ddc',
-                    price            => $item->price,
-                    replacementprice => $item->price,
-                    itype => $item->girfield( 'stock_category', $occurence ),
-                    location =>
-                      $item->girfield( 'collection_code', $occurence ),
-                    itemcallnumber => $item->girfield( 'shelfmark', $occurence )
-                      || $item->girfield( 'classification', $occurence ),
-                    holdingbranch => $item->girfield( 'branch', $occurence ),
-                    homebranch    => $item->girfield( 'branch', $occurence ),
-                };
-                ( undef, undef, $itemnumber ) =
-                  AddItem( $new_item, $bib->{biblionumber} );
-                $logger->trace("New item $itemnumber added");
-                $schema->resultset('AqordersItem')->create(
+            carp 'Skipping line with no budget info';
+            $logger->trace('girfield skipped for invalid budget');
+            $skip++;
+        } else {
+            carp 'Skipping line with no budget info';
+            $logger->trace('orderline skipped for invalid budget');
+            return;
+        }
+    }
+
+
+    my %ordernumber;
+    my %budgets;
+
+    if ( !$skip ) {
+        # $order_hash->{quantity} = 1; by default above
+        # we should handle both 1:1 GIR & 1:n GIR (with LQT values) here
+        $order_hash->{budget_id} = $budget->budget_id;
+
+        my $first_order = $schema->resultset('Aqorder')->create($order_hash);
+        my $o         = $first_order->ordernumber();
+        $logger->trace("Order created :$o");
+
+        # should be done by database settings
+        $first_order->parent_ordernumber( $first_order->ordernumber() );
+        $first_order->update();
+
+        # add to $budgets to prevent duplicate orderlines
+        $budgets{$budget->budget_id} = '1';
+
+        # record ordernumber against budget
+        $ordernumber{$budget->budget_id} = $o;
+
+        if ( C4::Context->preference('AcqCreateItem') eq 'ordering' ) {
+            my $itemnumber;
+            ( $bib->{biblionumber}, $bib->{biblioitemnumber}, $itemnumber ) =
+              AddItem( $item_hash, $bib->{biblionumber} );
+            $logger->trace("Added item:$itemnumber");
+            $schema->resultset('AqordersItem')->create(
+                {
+                    ordernumber => $first_order->ordernumber,
+                    itemnumber  => $itemnumber,
+                }
+            );
+        }
+    }
+
+    if ( $item->quantity > 1 ) {
+        my $occurence = 1;
+        while ( $occurence < $item->quantity ) {
+            # check budget code
+            $budget = _get_budget( $schema, $item->girfield('fund_allocation', $occurence) );
+
+            if ( !$budget ) {
+                carp 'Skipping line with no budget info';
+                $logger->trace('girfield skipped for invalid budget');
+                next;
+            }
+
+            # add orderline for NEW budget in $budgets
+            if ( !exists $budgets{$budget->budget_id} ) {
+                # $order_hash->{quantity} = 1; by default above
+                # we should handle both 1:1 GIR & 1:n GIR (with LQT values) here
+
+                $order_hash->{budget_id} = $budget->budget_id;
+
+                my $new_order = $schema->resultset('Aqorder')->create($order_hash);
+                my $o         = $new_order->ordernumber();
+                $logger->trace("Order created :$o");
+
+                # should be done by database settings
+                $new_order->parent_ordernumber( $new_order->ordernumber() );
+                $new_order->update();
+
+                # add to $budgets to prevent duplicate orderlines
+                $budgets{$budget->budget_id} = '1';
+
+                # record ordernumber against budget
+                $ordernumber{$budget->budget_id} = $o;
+
+                if ( C4::Context->preference('AcqCreateItem') eq 'ordering' ) {
+                    my $new_item = {
+                        notforloan       => -1,
+                        cn_sort          => q{},
+                        cn_source        => 'ddc',
+                        price            => $item->price,
+                        replacementprice => $item->price,
+                        itype => $item->girfield( 'stock_category', $occurence ),
+                        location =>
+                          $item->girfield( 'collection_code', $occurence ),
+                        itemcallnumber => $item->girfield( 'shelfmark', $occurence )
+                          || $item->girfield( 'classification', $occurence ),
+                        holdingbranch => $item->girfield( 'branch', $occurence ),
+                        homebranch    => $item->girfield( 'branch', $occurence ),
+                    };
+                    my $itemnumber;
+                    ( undef, undef, $itemnumber ) =
+                      AddItem( $new_item, $bib->{biblionumber} );
+                    $logger->trace("New item $itemnumber added");
+                    $schema->resultset('AqordersItem')->create(
+                        {
+                            ordernumber => $new_order->ordernumber,
+                            itemnumber  => $itemnumber,
+                        }
+                    );
+                }
+
+                ++$occurence;
+            }
+            # increment quantity in orderline for EXISTING budget in $budgets
+            else {
+                $schema->resultset('Aqorder')->find(
                     {
-                        ordernumber => $new_order->ordernumber,
-                        itemnumber  => $itemnumber,
+                        ordernumber => $ordernumber{$budget->budget_id}
                     }
-                );
+                )->update(
+                    {
+                        quantity => \[ 'quantity + ?', 1]
+                    }
+                )->discard_changes();
+
+                if ( C4::Context->preference('AcqCreateItem') eq 'ordering' ) {
+                    my $new_item = {
+                        notforloan       => -1,
+                        cn_sort          => q{},
+                        cn_source        => 'ddc',
+                        price            => $item->price,
+                        replacementprice => $item->price,
+                        itype => $item->girfield( 'stock_category', $occurence ),
+                        location =>
+                          $item->girfield( 'collection_code', $occurence ),
+                        itemcallnumber => $item->girfield( 'shelfmark', $occurence )
+                          || $item->girfield( 'classification', $occurence ),
+                        holdingbranch => $item->girfield( 'branch', $occurence ),
+                        homebranch    => $item->girfield( 'branch', $occurence ),
+                    };
+                    my $itemnumber;
+                    ( undef, undef, $itemnumber ) =
+                      AddItem( $new_item, $bib->{biblionumber} );
+                    $logger->trace("New item $itemnumber added");
+                    $schema->resultset('AqordersItem')->create(
+                        {
+                            ordernumber => $ordernumber{$budget->budget_id},
+                            itemnumber  => $itemnumber,
+                        }
+                    );
+                }
+
                 ++$occurence;
             }
         }
-
     }
     return 1;
 }
