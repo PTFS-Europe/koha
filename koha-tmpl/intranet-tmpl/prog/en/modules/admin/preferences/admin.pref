@@ -136,6 +136,10 @@ Administration:
                   yes: Enable
                   no: Disable
             - peer to peer ILL lending via email requests.
+        -
+            - pref: GenericILLPartners
+            - "The borrower category to use to identify ILL partners:"
+            - default: ILLLIBS
     Mozilla Persona:
         -
             - pref: Persona

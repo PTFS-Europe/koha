@@ -6,6 +6,8 @@ VALUES ('OpacILLRequests','0','If ON, allows patrons to view their ILL requests 
 INSERT INTO systempreferences (variable,value,explanation,options,type)
 VALUES ('GenericILLModule','0','if ON, staff will have the option to place ILLs with partner libraries, instead of a central authority','','YesNo');
 INSERT INTO systempreferences (variable,value,explanation,options,type)
+VALUES ('GenericILLPartners','ILLLIBS','The borrower category to use to fetch ILL partner details.','','Free');
+INSERT INTO systempreferences (variable,value,explanation,options,type)
 VALUES ('ILLEmailNotify','0','If ON, patrons receive an email notification of a placed request','','YesNo');
 
 -- Permissions
