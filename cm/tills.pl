@@ -28,10 +28,6 @@ use C4::Members qw( GetMember );
 use C4::Branch qw( GetBranchName );
 use List::Util qw(sum);
 
-# TODO
-# Add Start and Stop dates of the period to the screen (For each till)
-# Include Float amounts
-# When selecting tills view only your branch
 my $q = CGI->new();
 
 my ( $template, $loggedinuser, $cookie, $user_flags ) = get_template_and_user(
@@ -50,7 +46,7 @@ my @selected_tills = $q->param('selected_till');
 my $till_count     = @selected_tills;
 my $cmd            = $q->param('cmd');
 
-my $tills = get_tills($branchname);
+my $tills = get_tills( $user->{branchcode} );
 
 my $total_paid_in  = 0;
 my $total_paid_out = 0;
@@ -91,8 +87,9 @@ sub get_tills {
 }
 
 sub get_tran_totals {
-    my (@tills) = @_;
-    my $dbh = C4::Context->dbh;
+    my (@tills)      = @_;
+    my $cashup_times = [];
+    my $dbh          = C4::Context->dbh;
 
     my $arr_ref     = $dbh->selectall_arrayref('select NOW()');
     my $cashup_time = $arr_ref->[0]->[0];
@@ -114,10 +111,12 @@ q{select max(created) from cash_transaction where till = ? and tcode = 'CASHUP'}
     my $card_sth = $dbh->prepare(
 q{select sum(amt) from cash_transaction where till = ? and paymenttype = 'Card' and created > ? and created <= ?}
     );
+    my $float_sth =
+      $dbh->prepare(q{select starting_float from cash_till where tillid = ?});
     my $sth = $dbh->prepare($sql);
     foreach my $till (@tills) {
 
-        # get last cashup
+        # get last cashupfloat
         $sth->execute($till);
         my @tuple = $sth->fetchrow_array;
 
@@ -134,6 +133,15 @@ q{select sum(amt) from cash_transaction where till = ? and paymenttype = 'Card' 
             $transcodes{ $tuple->{tcode} }->{total} += $tuple->{total};
         }
         $card_total += $card;
+        my $float;
+        ($float) = $dbh->selectrow_array( $float_sth, {}, $till );
+        push @{$cashup_times},
+          {
+            till  => $till,
+            start => $last_cash_up,
+            stop  => $cashup_time,
+            float => $float,
+          };
     }
     my $total  = 0;
     my $tarray = [];
@@ -155,6 +163,7 @@ q{select sum(amt) from cash_transaction where till = ? and paymenttype = 'Card' 
         total_array    => $tarray,
         total_receipts => $total,
         card_receipts  => $card_total,
+        tilltimes      => $cashup_times,
     );
     return $cashup_time;
 }
@@ -165,7 +174,7 @@ sub record_cashup {
     my $sth = $dbh->prepare(
         'insert into cash_transaction ( created, till, tcode) values(?,?,?)');
     for my $till (@tills) {
-        $sth->execute( $till, $last_transaction_created, 'CASHUP' );
+        $sth->execute( $last_transaction_created, $till, 'CASHUP' );
     }
     return;
 }

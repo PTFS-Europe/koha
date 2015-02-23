@@ -52,6 +52,21 @@
     </form>
 [% ELSE %]
     <!-- Show Totals -->
+    <h2>Cashup totals for the following tills</h2>
+    <table id "till_details">
+    <th>Till</th><th>From</th><th>To</th><th>Float</th>
+    <tbody>
+    [% FOREACH till IN tilltimes %]
+    <tr>
+       <td>[% till.till %]</td>
+       <td>[% till.start %]</td>
+       <td>[% till.stop %]</td>
+       <td>[% till.float | format('%.2f') %]</td>
+    </tr>
+    [% END %]
+    </tbody>
+    </table>
+    <h2>Totals</h2>
     <table id="cashup totals">
     <thead>
      <th>Code</th><th>Description</th><th>Gross</th>

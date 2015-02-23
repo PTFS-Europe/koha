@@ -50,7 +50,7 @@ $(document).ready(function() {
     </div>
 -->
     <div class="btn-group">
-       <a id="cashuptill" class="btn btn-small" href="/cgi-bin/koha/cm/tills.pl?cmd=cashup&tillid=[% till.tillid %]&cmd=select">Cashup Tills</a>
+       <a id="cashuptill" class="btn btn-small" href="/cgi-bin/koha/cm/tills.pl?cmd=cashup&tillid=[% till.tillid %]">Cashup Tills</a>
     </div>
 </div>
 <div class="statictabs">

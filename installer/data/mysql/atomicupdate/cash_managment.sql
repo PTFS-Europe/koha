@@ -63,3 +63,7 @@ insert into authorised_values (category, authorised_value, lib)
 
 insert into authorised_values (category, authorised_value, lib)
    values( 'PaymentGroup', 'Default', 'Default');
+
+ALTER TABLE accountlines MODIFY accounttype varchar(10);
+
+alter table cash_till add column starting_float decimal(4,2) default 0.0;
