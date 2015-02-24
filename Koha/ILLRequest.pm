@@ -19,9 +19,12 @@ package Koha::ILLRequest;
 
 use Modern::Perl;
 use Carp;
+use Encode;
 use Koha::Database;
+use Koha::Email;
 use Koha::ILLRequest::Status;
 use Koha::ILLRequest::Abstract;
+use Mail::Sendmail;
 use base qw(Koha::Object);
 
 =head1 NAME
@@ -452,6 +455,91 @@ sub requires_moderation {
         'New Request' => 'New Request',
     };
     return $require_moderation->{$status};
+}
+
+=head3 place_generic_request
+
+    my ( $result, $email ) = $illRequest->place_generic_request($params);
+
+Create an email from $PARAMS and submit it.  If we are successful, return 1
+and the email summary.  If not, then return 0 and the email summary.
+
+=cut
+
+sub place_generic_request {
+    my ( $self, $params ) = @_;
+
+    my $message = Koha::Email->new;
+    $params->{to} = join("; ", @{$params->{to}});
+    if ( !$params->{from} || $params->{from} eq '' ) {
+        die "No originator for email: ", $params->{from};
+    }
+    if ( !$params->{replyto} || $params->{replyto} eq '') {
+        $params->{replyto} = $params->{from};
+    }
+    if ( !$params->{sender} || $params->{sender} eq '' ) {
+        $params->{sender} = $params->{from};
+    }
+    my %mail = $message->create_message_headers(
+        {
+            to          => $params->{to},
+            from        => $params->{from},
+            replyto     => $params->{replyto},
+            sender      => $params->{sender},
+            subject     => Encode::encode( "utf8", $params->{subject} ),
+            message     => Encode::encode( "utf8", $params->{message} ),
+            contenttype => 'text/plain; charset="utf8"',
+        }
+    );
+
+    my $result = sendmail(%mail);
+    if ( $result ) {
+        $self->editStatus( { status => "Requested by Email" } );
+        return (1, $params);
+    } else {
+        carp($Mail::Sendmail::error);
+        return (0, $params);
+    }
+
+}
+
+=head3 prepare_generic_request
+
+    my $emailTemplate = $illRequest->prepare_generic_request;
+
+Return a hashref containing 'subject'and 'body' for an email.
+
+=cut
+
+sub prepare_generic_request {
+    my ( $self ) = @_;
+
+
+    my $draft->{subject} = "ILL Request";
+    $draft->{body} = <<EOF;
+Dear Sir/Madam,
+
+    We would like to request an interlibrary loan for title matching the
+following description:
+
+EOF
+
+    my $details = $self->record->getFullDetails;
+    while (my ($key, $values) = each $details) {
+        if (${$values}[1]) {
+            $draft->{body} .= "  - " . ${$values}[0]
+                . ": " . ${$values}[1]. "\n";
+        }
+    }
+
+    $draft->{body} .= <<EOF;
+
+Please let us know if you are able to supply this to us.
+
+Kind Regards
+EOF
+
+    return $draft;
 }
 
 =head1 AUTHOR

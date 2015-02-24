@@ -92,21 +92,36 @@ if ($request) {
         }
 
     } elsif ( $op eq 'action_email' ) {
+        my $branchdetails = GetBranchDetail(C4::Context->userenv->{'branch'});
+        my ( $result, $summary ) = $request->place_generic_request(
+            {
+                to          => [ $cgi->param('partners') ],
+                from        => $branchdetails->{'branchemail'},
+                replyto     => $branchdetails->{'branchreplyto'},
+                sender      => $branchdetails->{'branchreturnpath'},
+                subject     => Encode::encode( "utf8", $cgi->param('subject') ),
+                message     => Encode::encode( "utf8", $cgi->param('body') ),
+                contenttype => 'text/plain; charset="utf8"',
+            }
+        );
         $op = 'message';
+        ( $result ) ? $template->param( message => 'email_success' )
+            : $template->param( message => 'email_failure' );
         $template->param(
-            message => 'not_implemented',
-            title   => 'Email sent',
+            title   => 'Email request result',
+            email   => $summary,
             forward => $parent,
         );
 
     } elsif ( $op eq 'generic_ill') {
+        my $ill_code = C4::Context->preference('GenericILLPartners');
+        my @partners = Koha::Borrowers->new->search( { categorycode => $ill_code } );
         $template->param(
-            draft    => generate_draft($request->record->getFullDetails),
+            draft    => $request->prepare_generic_request,
+            partners => \@partners,
             title    => $tabs->{$op},
             forward  => "action_email",
             back     => $tab_url . "view",
-            # Test what happens when ILLGENERIC is empty/non-existent.
-            partners => C4::Koha::GetAuthorisedValues('ILLGENERIC'),
         );
 
     } elsif ( $op eq 'edit' ) {
@@ -189,28 +204,3 @@ $template->param(
 );
 
 output_html_with_http_headers( $cgi, $cookie, $template->output );
-
-sub generate_draft {
-    my ( $details ) = @_;
-
-    my $draft = <<EOF;
-Dear Sir/Madam,
-
-    We would like to request an interlibrary loan for title matching the
-following description:
-
-EOF
-    while (my ($key, $values) = each $details) {
-        if (${$values}[1]) {
-            $draft .= "  - " . ${$values}[0] . ": " . ${$values}[1]. "\n";
-        }
-    }
-
-    $draft .= <<EOF;
-
-Please let us know if you are able to supply this to us.
-
-Kind Regards
-EOF
-    return $draft;
-}
