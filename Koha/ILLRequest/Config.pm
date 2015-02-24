@@ -62,8 +62,10 @@ sub new {
     my $self  = _load_config_file(C4::Context->config("illconfig"));
     bless $self, $class;
 
-    ${$self}{semantics}{keywords} =
+    ${$self}{configuration}{keywords} =
       [ "name", "accessor", "inSummary", "many" ];
+    $self->{configuration}->{credentials} =
+        _load_credentials(C4::Context->config("illcredentials"));
 
     ${$self}{record_props} = $self->_deriveProperties(${$self}{record});
     ${$self}{availability_props} =
@@ -96,7 +98,7 @@ sub _deriveProperties {
                            {
                             accum => {},
                             tmpl  => $modifiedSource,
-                            kwrds => ${$self}{semantics}{keywords},
+                            kwrds => ${$self}{configuration}{keywords},
                            },
                           );
 }
@@ -154,6 +156,55 @@ At present we provide "record" and "availability" properties.
 sub getProperties {
     my ( $self, $name ) = @_;
     return ${$self}{$name . "_props"};
+}
+
+=head3 getCredentials
+
+    my $credentials = $config->getCredentials($branchCode);
+
+Fetch the best-fit credentials: if we have credentials for $branchCode, use
+those; otherwise fall back on default credentials.
+
+=cut
+
+sub getCredentials {
+    my ( $self, $branchCode ) = @_;
+    my $conf = $self->{configuration}->{credentials};
+    my $creds = $conf->{$branchCode}
+        || $conf->{default}
+        || die "We have no credentials for your branch ($branchCode)!";
+    return { user => $creds->{user}, pass => $creds->{pass} };
+}
+
+=head3 _load_credentials
+
+    my $_load_credentials = $config->_load_credentials($C4ConfigValues);
+
+Read the configuration values passed as $C4ConfigValues, and populate a
+hashref suitable with these.
+
+=cut
+
+sub _load_credentials {
+    my ( $config_values ) = @_;
+    die "ILLCREDENTIALS have not been defined in koha-conf.xml."
+        if ( !(ref $config_values eq 'HASH') );
+    my $credentials = {};
+    my $branches = $config_values->{branch};
+    if ( ref $branches eq 'ARRAY' ) {
+        foreach my $branch ( @{$branches} ) {
+            $credentials->{$branch->{code}} = $branch;
+        }
+    } else {
+        $credentials->{$branches->{code}} = $branches;
+    }
+    if ( $config_values->{user} ) {
+        $credentials->{default} = {
+            user => $config_values->{user},
+            pass => $config_values->{pass}
+        };
+    }
+    return $credentials;
 }
 
 =head3 _load_config_file
