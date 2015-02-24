@@ -127,6 +127,8 @@ $template->param( adultborrower => 1 ) if ( $data->{'category_type'} eq 'A' );
 my ( $picture, $dberror ) = GetPatronImage( $data->{'borrowernumber'} );
 $template->param( picture => 1 ) if $picture;
 
+my $session = C4::Context->userenv;
+
 $template->param(
     finesview      => 1,
     firstname      => $data->{'firstname'},
@@ -145,8 +147,8 @@ $template->param(
     country      => $data->{'country'},
     phone        => $data->{'phone'},
     email        => $data->{'email'},
-    branchcode   => $data->{'branchcode'},
-    branchname   => GetBranchName( $data->{'branchcode'} ),
+    branchcode   => $session->{'branch'},
+    branchname   => $session->{'branchname'},
     total        => sprintf( "%.2f", $total ),
     totalcredit  => $totalcredit,
     is_child     => ( $data->{'category_type'} eq 'C' ),
