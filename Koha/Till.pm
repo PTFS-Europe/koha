@@ -3,12 +3,13 @@ use strict;
 use warnings;
 use Koha::Database;
 
+my $default_transaction_code = 'DEFAULT';
+
 sub new {
     my ( $class, $params ) = @_;
 
-    my $schema = Koha::Database->new()->schema();
-    my $tills_rs =
-      $schema->resultset('CashTill')->search( $params );
+    my $schema   = Koha::Database->new()->schema();
+    my $tills_rs = $schema->resultset('CashTill')->search($params);
 
     unless ( $tills_rs && $tills_rs->count == '1' ) {
         return undef;
@@ -29,6 +30,17 @@ sub payin {
     # IN code will be pos
     # OUT code should be neg
     # EVENT is 0
+
+    # dont refuse the payment if we cant identify a transaction for it
+    my $tc_rs = $self->{schema}->resultset('CashTranscode')->search(
+        {
+            code => $code,
+        }
+    );
+    if ( $tc_rs->count == 0 ) {
+        $code = $default_transaction_code;
+    }
+
     my $new_transaction =
       $self->{schema}->resultset('CashTransaction')->create(
         {
