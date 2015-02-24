@@ -154,11 +154,13 @@ function moneyFormat(textObj) {
 <tbody>
 <tr id="charge_entry">
 <td>
+<form>
 <select name="trans_code" id="trans_code" size="1">
     [% FOREACH  t IN transcodes %]
     <option value="[% t.code %]">[% t.description %]</option>
     [% END %]
 </select>
+</form>
 </td>
 <td>
 <input type="text" name="amt" id="amt" pattern='^\d+(?:\d{0,2})$' value="0.00" />
