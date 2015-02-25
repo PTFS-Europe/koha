@@ -5,8 +5,8 @@
         $("#selectTillForm").submit(function()
         {
 
-            var tillid = $('#till').val();
-            var tillname = $("#till option:selected").text();
+            var tillid = $('#till-select').val();
+            var tillname = $("#till-select option:selected").text();
             $.ajax(
             {
                 type: "GET",
@@ -33,7 +33,7 @@
     //]]>
 </script>
 
-<!-- AddItem Modal -->
+<!-- selectTill Modal -->
 <div id="selectTill" class="modal hide fade" tabindex="-1" role="dialog">
     <div class="modal-header">
         <button type="button" class="closebtn" data-dismiss="modal" aria-hidden="true">x</button>
@@ -45,7 +45,7 @@
                 <ol>
                     <li>
                         <label for="till">Choose till:</label>
-                        <select id="till" name="till">
+                        <select name="till" id="till-select">
                             [% FOREACH till IN tills_loop %]
                             <option value="[% till.tillid %]">[% till.name %]</option>
                             [% END %]

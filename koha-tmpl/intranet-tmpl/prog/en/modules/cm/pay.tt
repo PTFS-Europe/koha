@@ -130,7 +130,6 @@ function moneyFormat(textObj) {
 </script>
 </head>
 
-</head>
 <body id="cm-home" class="cm">
 [% INCLUDE 'header.inc' %]
 
@@ -143,10 +142,9 @@ function moneyFormat(textObj) {
     <div id="yui-main">
       <div class="yui-b">
       <div id="toolbar" class="btn-toolbar">
-         <button class="btn btn-small" id="add_charge" onclick="addCharge(); return false;"><i class="icon-plus"></i> Add Charge</a>
-
+         <button class="btn btn-small" id="add_charge" onclick="addCharge(); return false;"><i class="icon-plus"></i> Add Charge</button>
       </div>
-<input type="hidden"cmd="charge" id="cmd" value="charge" />
+<input type="hidden" data-cmd="charge" class="cmd" value="charge" />
 <table id="charge_table">
 <thead>
 <tr><th>Item</th><th>Amount</th></tr>
@@ -176,7 +174,7 @@ function moneyFormat(textObj) {
 
 
 <form name="paytotal" id="paytotal" onsubmit="return addChargeLines(this);" method="post" action="/cgi-bin/koha/cm/pay.pl">
-    <input type="hidden" name="cmd" id="cmd" value="committrans">
+    <input type="hidden" name="cmd" class="cmd" value="committrans">
     <input type="hidden" name="amounts" id="amounts" >
     <input type="hidden" name="codes" id="codes" >
     <fieldset class="rows">
@@ -192,15 +190,15 @@ function moneyFormat(textObj) {
          <input type="hidden" name="paid" id="paid" value="0.00" />
       </li>
       <li>
-          <label for="change">Change to give: </label>
-          <apan name="change" id="change" class="debit">0.00</span>
+          <span class="label">Change to give: </span>
+          <span class="change debit" id="change">0.00</span>
       </li>
       <li>
       <label for="paymenttype">Payment type: </label>
 	<select name="paymenttype" id="paymenttype" size="1">
 	   [% FOREACH p IN paymenttypes %]
 	     [% IF p == 'Cash' %]
-	     <option value="[% p %]" selected="1" >[% p %]</option>
+	     <option value="[% p %]" selected>[% p %]</option>
 	     [% ELSE %]
 	     <option value="[% p %]">[% p %]</option>
 	     [% END %]
@@ -212,7 +210,7 @@ function moneyFormat(textObj) {
         <select name="till" id="till">
             [% FOREACH till IN tills %]
             [% IF tillid == till.tillid %]
-            <option value="[% till.tillid %]" selected="1">[% till.name %]</option>
+            <option value="[% till.tillid %]" selected>[% till.name %]</option>
             [% ELSE %]
             <option value="[% till.tillid %]">[% till.name %]</option>
             [% END %]
@@ -232,6 +230,5 @@ function moneyFormat(textObj) {
       </div>
     </div>
   </div>
-</div>
 
 [% INCLUDE 'intranet-bottom.inc' %]

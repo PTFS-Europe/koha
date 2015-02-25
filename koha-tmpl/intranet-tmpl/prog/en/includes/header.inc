@@ -81,7 +81,7 @@
                     [% END %]
                     [% IF Koha.Preference( 'CashManagement' ) %]
                     <li>
-                        <a id="till-select" class="toplinks" href="#selectTill" data-toggle="modal">Set till (<span id="KohaStaffClient">[% till.name %]</span>)</a>
+                        <a id="select-till" class="toplinks" href="#selectTill" data-toggle="modal">Set till (<span id="KohaStaffClient">[% till.name %]</span>)</a>
                     </li>
                     [% END %]
                     [% IF EnableSearchHistory %]
