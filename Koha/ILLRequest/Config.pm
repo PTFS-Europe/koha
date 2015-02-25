@@ -64,8 +64,13 @@ sub new {
 
     ${$self}{configuration}{keywords} =
       [ "name", "accessor", "inSummary", "many" ];
-    $self->{configuration}->{credentials} =
-        _load_credentials(C4::Context->config("illcredentials"));
+
+    $self->{configuration}->{credentials} = $self->_load_credentials(
+        {
+            api_keys         => C4::Context->config("ill_keys"),
+            api_application  => C4::Context->config("ill_application_key"),
+        }
+    );
 
     ${$self}{record_props} = $self->_deriveProperties(${$self}{record});
     ${$self}{availability_props} =
@@ -170,10 +175,14 @@ those; otherwise fall back on default credentials.
 sub getCredentials {
     my ( $self, $branchCode ) = @_;
     my $conf = $self->{configuration}->{credentials};
-    my $creds = $conf->{$branchCode}
-        || $conf->{default}
+    my $key = $conf->{api_keys}->{$branchCode}
+        || $conf->{api_keys}->{default}
         || die "We have no credentials for your branch ($branchCode)!";
-    return { user => $creds->{user}, pass => $creds->{pass} };
+
+    return {
+        api_key         => $key,
+        api_application => $conf->{api_application},
+    };
 }
 
 =head3 _load_credentials
@@ -186,24 +195,37 @@ hashref suitable with these.
 =cut
 
 sub _load_credentials {
-    my ( $config_values ) = @_;
-    die "ILLCREDENTIALS have not been defined in koha-conf.xml."
-        if ( !(ref $config_values eq 'HASH') );
+    my ( $self, $params ) = @_;
+
+    die "ILL_KEYS have not been defined in koha-conf.xml."
+        unless ( ref($params->{api_keys}) eq "HASH" );
+
+    die "ILL_APPLICATION_KEY has not been defined in koha-conf.xml."
+        unless ( $params->{api_application}
+                 && !ref($params->{api_application}) );
+
     my $credentials = {};
-    my $branches = $config_values->{branch};
-    if ( ref $branches eq 'ARRAY' ) {
+
+    # Per Branch Credentials
+    my $branches = $params->{api_keys}->{branch};
+    if ( ref($branches) eq "ARRAY" ) {
         foreach my $branch ( @{$branches} ) {
-            $credentials->{$branch->{code}} = $branch;
+            $credentials->{api_keys}->{$branch->{code}} = $branch->{api_key}
+                if ( $branch->{api_key} );
         }
-    } else {
-        $credentials->{$branches->{code}} = $branches;
+    } elsif ( ref($branches) eq "HASH" ) { # 1 entry only.
+        $credentials->{api_keys}->{$branches->{code}} = $branches->{api_key}
+            if ( $branches->{api_key} );
     }
-    if ( $config_values->{user} ) {
-        $credentials->{default} = {
-            user => $config_values->{user},
-            pass => $config_values->{pass}
-        };
+
+    # Default Credentials
+    if ( $params->{api_keys}->{api_key} ) {
+        $credentials->{api_keys}->{default} = $params->{api_keys}->{api_key};
     }
+
+    # Application key
+    $credentials->{api_application} = $params->{api_application};
+
     return $credentials;
 }
 

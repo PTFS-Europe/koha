@@ -96,12 +96,22 @@ __PAZPAR2_TOGGLE_XML_POST__
  <logdir>__LOG_DIR__</logdir>
  <docdir>__DOC_DIR__</docdir>
  <illconfig>__KOHA_CONF_DIR__/ill/config.yaml</illconfig>
- <!-- illcredentials should contain your account for accessing the BL API.
-      At the very least it should contain a <user> and a <pass> element.
-      It can also contain any number of <branch> elements, which in turn
-      should contain <code>, <user> and <pass> elements.
-      Malformed config will be ignored. -->
- <illcredentials></illcredentials>
+ <!-- ill_application_key: the KEY associated with your application
+      registration in the BLDSS application management interface -->
+ <ill_application_key></ill_application_key>
+ <!-- ill_keys: the KEYs associated with the various customers for
+      your setup.  See the example below for details. <branch> is
+      repeating and entirely optional. Top-level <api_key> is optional
+      if at least one branch is present. -->
+ <ill_keys>
+  <!--
+   <api_key>example_default_key</api_key>
+   <branch>
+    <code>example_branch1_code</code>
+    <api_key>branch1_key</api_key>
+   </branch>
+  -->
+ </ill_keys>
  <backupdir>__BACKUP_DIR__</backupdir>
  <!-- Enable the two following to allow superlibrarians to download
       database and configuration dumps (respectively) from the Export
