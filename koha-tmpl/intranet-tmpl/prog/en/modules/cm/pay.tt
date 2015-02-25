@@ -47,6 +47,13 @@ function addChargeLines(formObj) {
   }
   document.getElementById('amounts').value =  amounts;
   document.getElementById('codes').value =  codes;
+
+  // receipt printer
+  var change = document.getElementById('change').innerHTML;
+  var tendered = document.getElementById('collected').value;
+  var url="/cgi-bin/koha/cm/printreceipt.pl?tendered="+tendered+"&change="+change+"&amounts="+amounts+"&transcodes="+codes;
+  var win = window.open(url, '_blank');
+  win.focus();
 }
 
 function moneyFormat(textObj) {
@@ -115,18 +122,7 @@ function moneyFormat(textObj) {
         document.getElementById('paid').value = dolAmount + "." + decAmount;
     }
 
-    // Set receipt params
-    if ( giveChange > 0 ) {
-        $('a#receipt').attr('href', function(i,a){
-            return a.replace( /(tendered=).*&(change=).*&/ig, '$1' + dolAmount + "." + decAmount + '&' + '$2' + giveChange.toFixed(2).toString() + '&' );
-        });
-    } else {
-        $('a#receipt').attr('href', function(i,a){
-            return a.replace( /(tendered=).*&(change=).*&/ig, '$1' + dolAmount + "." + decAmount + '&' + '$2' + '0.00' + '&' );
-        });
-    }
 }
-
 </script>
 </head>
 
@@ -221,9 +217,6 @@ function moneyFormat(textObj) {
     </fieldset>
     <div class="action">
         <input class="btn btn-small" id="submitbutton" type="submit" name="submitbutton" value="Confirm" />
-<!--
-        <a id="receipt" class="btn btn-small" target="_blank" href="/cgi-bin/koha/cm/printreceipt.pl?tendered=[% total | format('%.2f') %]&change=0.00&action=print">Receipt</a>
--->
         <a class="cancel" href="/cgi-bin/koha/cm/pay.pl">Cancel</a>
     </div>
     </form>

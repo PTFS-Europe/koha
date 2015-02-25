@@ -1,0 +1,74 @@
+[% USE Koha %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Print Receipt</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="[% IF ( IntranetFavicon ) %][% IntranetFavicon %][% ELSE %][% interface %]/[% theme %]/img/favicon.ico[% END %]" type="image/x-icon" />
+<link rel="stylesheet" type="text/css" href="[% themelang %]/css/printreceiptinvoice.css"/>
+[% INCLUDE 'slip-print.inc' #printThenClose %]
+</head>
+
+<body id="pat_printreciept" class="pat" onload="printThenClose();">
+
+    <div id="receipt">
+        <!-- The table with the receipt items -->
+        <table>
+            [% IF ( LibraryName ) %]
+            <tr>
+                <th colspan="2" class="centerednames">
+                    <h3>[% LibraryName %]</h3>
+                </th>
+            </tr>
+            [% END %]
+            <tr>
+                <th colspan="2" class="centerednames">
+                    <h2><u>Fee receipt</u></h2>
+                </th>
+            </tr>
+            <tr>
+                <th colspan="2" class="centerednames">
+                    [% IF ( branchname ) %]
+                    <h2>[% branchname %]</h2>
+                    [% END %]
+                </th>
+            </tr>
+            <tr>
+                <th colspan="2" class="centerednames">
+                    [% IF ( datetime ) %]
+                    <h3>[% datetime %]</h3>
+                    [% END %]
+                </th>
+            </tr>
+            <tr>
+                <th>Description of charges</th>
+                <th>Amount</th>
+            </tr>
+
+            [% FOREACH receipt IN receipts %]
+            <tr class="highlight">
+                <td>
+                    [% IF receipt.description %]
+                    [% receipt.description %]
+                    [% END %]
+                </td>
+                <td>
+                    [% receipt.amount %]
+                </td>
+            </tr>
+
+            [% END %]
+            <tfoot>
+                <tr>
+                    <td>Total:</td>
+                    <td>[% total %]</td>
+                </tr>
+                <tr>
+                    <td>Tendered:</td>
+                    <td>[% tendered %]</td>
+                </tr>
+                <tr>
+                    <td>Change:</td>
+                    <td>[% change %]</td>
+            </tfoot>
+        </table>
+    </div>
+    [% INCLUDE 'intranet-bottom.inc' notill="1" %]
