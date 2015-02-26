@@ -66,4 +66,4 @@ listed, please inform your systems administrator.</p>
 [% END %]
 </form>
 [% END %]
-[% INCLUDE 'intranet-bottom.inc' %]
+[% INCLUDE 'intranet-bottom.inc' notill="1" %]

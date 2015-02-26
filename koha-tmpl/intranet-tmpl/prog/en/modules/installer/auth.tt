@@ -48,4 +48,4 @@ with the username and password given to you by your systems administrator and lo
 
 [% END %]
 
-[% INCLUDE 'intranet-bottom.inc' %]
+[% INCLUDE 'intranet-bottom.inc' notill="1" %]
