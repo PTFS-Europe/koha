@@ -100,4 +100,4 @@
         </table>
     [% END %]
 
-[% INCLUDE 'intranet-bottom.inc' %]
+[% INCLUDE 'intranet-bottom.inc' notill="1" %]

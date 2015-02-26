@@ -28,4 +28,4 @@
 [% IF ( slip ) %][% slip %][% ELSE %]No hold found[% END %]
 [% END %]
 
-[% INCLUDE 'intranet-bottom.inc' %]
+[% INCLUDE 'intranet-bottom.inc' notill="1" %]
