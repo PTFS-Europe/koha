@@ -15,10 +15,10 @@ sub new {
         {
             needed_flags => { admin => 'edit_transcodes' },
             routes       => [
-                [ qr'GET /(\d*)',    'read' ],
+                [ qr'GET /(.*)',    'read' ],
                 [ qr'POST /',        'create' ],
                 [ qr'PUT /(.+)',    'update' ],
-                [ qr'DELETE /(\d+)', 'delete' ],
+                [ qr'DELETE /(.+)', 'archive' ],
             ]
         }
     );
@@ -29,7 +29,6 @@ sub create {
 
     my $response = {};
     my $input    = from_json( $self->query->param('POSTDATA') );
-    warn "input: " . Dumper($input);
 
     my $schema    = Koha::Database->new()->schema();
     my $transcode = $schema->resultset('CashTranscode')->create($input);
@@ -50,6 +49,9 @@ sub read {
     my $response = {};
     my $schema   = Koha::Database->new()->schema();
     my $filter   = {};
+    unless ( $self->query->param('include') eq 'archived' ) {
+        $filter->{'archived'} = '0';
+    }
     if ($code) {
         $filter->{'code'} = $code;
     }
@@ -70,6 +72,7 @@ sub update {
 
     my $response = {};
     my $input    = from_json( $self->query->param('PUTDATA') );
+
     my $schema   = Koha::Database->new()->schema();
     my $transcode =
       $schema->resultset('CashTranscode')->find( { code => $code } );
@@ -86,9 +89,25 @@ sub update {
     return;
 }
 
-sub delete {
+sub archive {
     my ( $self, $code ) = @_;
 
+    my $response = {};
+    my $schema   = Koha::Database->new()->schema();
+    my $transcode =
+      $schema->resultset('CashTranscode')->find( { code => $code } );
+
+    unless ($transcode) {
+        $self->output( {}, { status => '404', type => 'json' } );
+        return;
+    }
+
+    my $archive = { archived => '1' };
+    $transcode->update($archive)->discard_changes();
+    $self->output( { $transcode->get_columns },
+        { status => '200 OK', type => 'json' } );
+
+    return;
 }
 
 1;

@@ -15,6 +15,7 @@ create table cash_transcode (
 	income_group varchar(10),
 	taxrate varchar(10),
 	visible_charge boolean not null default 1,
+    archived boolean not null default 0,
 	primary key (code)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

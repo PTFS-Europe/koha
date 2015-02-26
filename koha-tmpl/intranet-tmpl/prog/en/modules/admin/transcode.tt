@@ -3,6 +3,11 @@
 [% INCLUDE 'doc-head-close.inc' %]
 <link rel="stylesheet" type="text/css" href="[% themelang %]/css/datatables.css"
 />[% INCLUDE 'datatables.inc' %]
+<style>
+    .dt-center { text-align: center; }
+    tbody tr:nth-child(odd) td, tr.highlight.archived td, tr.highlight.archived th, tr.odd td, tr.odd.highlight td { background-color: FF9999; } 
+    tbody tr:nth-child(even) td, tr.highlight.archived td, tr.highlight.archived th, tr.even td, tr.even.highlight td { background-color: FFCCCC; } 
+</style>
 <script type="text/javascript">
     //<![CDATA[
     $(document).ready(function()
@@ -47,13 +52,72 @@
                     "orderable": false,
                     "searchable": false,
                     "data": "action",
+                    "className": "dt-center"
                 }],
                 "order": [1, 'asc'],
             })
         );
 
         var row;
-        $('.edit-category').on('click', function()
+        $('tbody').on('click', '.archive-category', function()
+        {
+            row = trans_table.api().row($(this).closest('tr'));
+            var code = $(this).data('code');
+            $.ajax(
+            {
+                type: "DELETE",
+                url: "/cgi-bin/koha/svc/transcodes/"+code,
+                dataType: 'json',
+                success: function(data)
+                {
+                    data["action"] = '<a class="restore-category" href="#restoreCategory" data-code="'+data["code"]+'">Restore</a>';
+                    if ( data.visible_charge == '1' ) {
+                        data["visible_charge"] = "Yes";
+                    } else {
+                        data["visible_charge"] = "No";
+                    }
+                    trans_table.api().row( row ).data( data ).draw();
+                },
+                error: function(data)
+                {
+                    trans_table.api().row.add(transcode).draw();
+                }
+            });
+        });
+
+        $('tbody').on('click', '.restore-category', function()
+        {
+            row = trans_table.api().row($(this).closest('tr'));
+            var code = $(this).data('code');
+            var transcode = row.data();
+            transcode.archived = 0;
+            delete transcode.action;
+            $.ajax(
+            {
+                type: "PUT",
+                url: "/cgi-bin/koha/svc/transcodes/"+code,
+                contentType: 'application/json',
+                data: JSON.stringify(transcode),
+                dataType: 'json',
+                success: function(data)
+                {
+                    data["action"] = '<a class="edit-category" href="#addCategory" data-toggle="modal" data-code="'+data["code"]+'">Edit</a> <a class="archive-category" href="#archiveCategory" data-code="'+data["code"]+'">Archive</a>';
+                    if ( data.visible_charge == '1' ) {
+                        data["visible_charge"] = "Yes";
+                    } else {
+                        data["visible_charge"] = "No";
+                    }
+
+                    trans_table.api().row( row ).data( data ).draw();
+                },
+                error: function(data)
+                {
+                    trans_table.api().row.add(transcode).draw();
+                }
+            });
+        });
+
+        $('tbody').on('click', '.edit-category', function()
         {
             row = trans_table.api().row($(this).closest('tr'));
             $("#addCategoryHeader").text("Edit category");
@@ -66,7 +130,9 @@
             $("#addCategoryForm #description").val( data.description );
             $("#addCategoryForm #group").val( data.group );
             $("#addCategoryForm #tax").val( data.taxrate );
-            $("#addCategoryForm #visible_charge").val( data.visible_charge );
+            if ( data.visible_charge == 'Yes' ) {
+                $("#addCategoryForm #visible_charge").attr('checked',1);
+            }
         });
 
         $('#add_category').on('click', function()
@@ -93,7 +159,7 @@
             var groupname = $("#group option:selected").text();
             var tax = $('#tax').val();
             var taxname = $("#tax option:selected").text();
-            var visible_charge = $('#visible_charge').val();
+            var visible_charge = $('#visible_charge').prop('checked');
 
             var transcode = {
                 "code": code,
@@ -114,8 +180,12 @@
                     dataType: 'json',
                     success: function(data)
                     {
-                        data["action"] = '<a class="edit-category" href="#addCategory" data-toggle="modal" data-code="'+data["code"]+'">Edit</a> <a class="delete-category" href="#deleteCategory" data-code="'+data["code"]+'">Delete</a>';
-                        console.log( "data returned: " + JSON.stringify(data));
+                        data["action"] = '<a class="edit-category" href="#addCategory" data-toggle="modal" data-code="'+data["code"]+'">Edit</a> <a class="archive-category" href="#archiveCategory" data-code="'+data["code"]+'">Archive</a>';
+                        if ( data.visible_charge == '1' ) {
+                            data["visible_charge"] = "Yes";
+                        } else {
+                            data["visible_charge"] = "No";
+                        }
                         trans_table.api().row( row ).data( data ).draw();
                         $('#addCategory').modal('hide');
                     },
@@ -137,7 +207,12 @@
                     dataType: 'json',
                     success: function(data)
                     {
-                        data["action"] = '<a class="edit-category" href="#addCategory" data-toggle="modal" data-code="'+data["code"]+'">Edit</a> <a class="delete-category" href="#deleteCategory" data-code="'+data["code"]+'">Delete</a>';
+                        data["action"] = '<a class="edit-category" href="#addCategory" data-toggle="modal" data-code="'+data["code"]+'">Edit</a> <a class="archive-category" href="#archiveCategory" data-code="'+data["code"]+'">Archive</a>';
+                        if ( data.visible_charge == '1' ) {
+                            data["visible_charge"] = "Yes";
+                        } else {
+                            data["visible_charge"] = "No";
+                        }
                         trans_table.api().row.add(data).draw();
                         $('#addCategory').modal('hide');
                     },
@@ -191,7 +266,7 @@
                             <th>Actions</th>
                         </thead>
                         [% FOREACH tcode IN transcodes %]
-                        <tr>
+                        <tr [% IF tcode.archived == 1 %]class="archived"[% END %]>
                             <td>[% tcode.code %]</td>
                             <td>[% tcode.description %]</td>
                             <td>[% tcode.income_group %]</td>
@@ -204,8 +279,12 @@
                                 [% END %]
                             </td>
                             <td>
+                                [% IF tcode.archived == '0' %]
                                 <a class="edit-category" href="#addCategory" data-toggle="modal" data-code="[% tcode.code %]">Edit</a>
-                                <a class="delete-category" href="#deleteCategory" data-code="[% tcode.code %]">Delete</a>
+                                <a class="archive-category" href="#archiveCategory" data-code="[% tcode.code %]">Archive</a>
+                                [% ELSE %]
+                                <a class="restore-category" href="#restoreCategory" data-code="[% tcode.code %]">Restore</a>
+                                [% END %]
                             </td>
                         </tr>
                         [% END %]

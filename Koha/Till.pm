@@ -35,6 +35,7 @@ sub payin {
     my $tc_rs = $self->{schema}->resultset('CashTranscode')->search(
         {
             code => $code,
+            archived => 0,
         }
     );
     if ( $tc_rs->count == 0 ) {

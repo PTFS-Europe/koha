@@ -54,6 +54,12 @@ __PACKAGE__->table("cash_transcode");
   default_value: 1
   is_nullable: 0
 
+=head2 archived
+
+  data_type: 'tinyint'
+  default_value: 0
+  is_nullable: 0
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -67,6 +73,8 @@ __PACKAGE__->add_columns(
   { data_type => "varchar", is_nullable => 1, size => 10 },
   "visible_charge",
   { data_type => "tinyint", default_value => 1, is_nullable => 0 },
+  "archived",
+  { data_type => "tinyint", default_value => 0, is_nullable => 0 },
 );
 
 =head1 PRIMARY KEY
@@ -99,9 +107,17 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07033 @ 2015-02-09 11:42:02
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:tnXXenzwcXssko38Na+Uzg
-
+# Created by DBIx::Class::Schema::Loader v0.07042 @ 2015-02-26 05:47:14
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:7eyl/xTvKOreIN1DdRmvRw
+__PACKAGE__->load_components(qw( FilterColumn ));
+__PACKAGE__->filter_column(
+    visible_charge => {
+        filter_to_storage => sub { $_[1] ? 1 : 0 },
+    },
+    archived => {
+        filter_to_storage => sub { $_[1] ? 1 : 0 },
+    }
+);
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 1;
