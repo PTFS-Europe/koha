@@ -51,7 +51,8 @@ function addChargeLines(formObj) {
   // receipt printer
   var change = document.getElementById('change').innerHTML;
   var tendered = document.getElementById('collected').value;
-  var url="/cgi-bin/koha/cm/printreceipt.pl?tendered="+tendered+"&change="+change+"&amounts="+amounts+"&transcodes="+codes;
+  var tillid = document.getElementById('till').value;
+  var url="/cgi-bin/koha/cm/printreceipt.pl?tendered="+tendered+"&change="+change+"&amounts="+amounts+"&transcodes="+codes+"&paymenttime=[% paymenttime %]&tillid="+tillid;
   var win = window.open(url, '_blank');
   win.focus();
 }
@@ -173,6 +174,7 @@ function moneyFormat(textObj) {
     <input type="hidden" name="cmd" class="cmd" value="committrans">
     <input type="hidden" name="amounts" id="amounts" >
     <input type="hidden" name="codes" id="codes" >
+    <input type="hidden" name="paymenttime" id="paymenttime" value="[% paymenttime %]">
     <fieldset class="rows">
     <legend>Collect payment</legend>
     <ol>

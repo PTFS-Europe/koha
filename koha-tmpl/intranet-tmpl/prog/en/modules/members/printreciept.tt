@@ -31,6 +31,9 @@ type="image/x-icon" />
                 </th>
             </tr>
             <tr>
+                <td colspan=3 class="centerednames">[% receiptid %]</td>
+            </tr>
+            <tr>
                 <th colspan=3>
                     Received with thanks from [% firstname %] [% surname %]
                     <br

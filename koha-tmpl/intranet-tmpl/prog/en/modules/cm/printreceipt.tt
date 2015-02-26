@@ -39,6 +39,11 @@
                 </th>
             </tr>
             <tr>
+                <td colspan="2" class="centerednames">
+                    [% receiptid %]
+                </td>
+            </tr>
+            <tr>
                 <th>Description of charges</th>
                 <th>Amount</th>
             </tr>

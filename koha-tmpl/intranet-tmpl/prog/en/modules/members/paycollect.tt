@@ -93,7 +93,8 @@ function moneyFormat(textObj) {
 }
 
 function printReceipt(url) {
-    var win = window.open(url, '_blank');
+    var tillid = document.getElementById('till').value; 
+    var win = window.open(url+"&paymenttime=[% PaymentTime %]&tillid="+tillid, '_blank');
     win.focus();
 }
 //]]>
@@ -149,6 +150,7 @@ function printReceipt(url) {
     <input type="hidden" name="accountno" id="accountno" value="[% accountno %]" />
     <input type="hidden" name="accountlines_id" id="accountlines_id" value="[% accountlines_id %]" />
     <input type="hidden" name="title" id="title" value="[% title %]" />
+    <input type="hidden" name="paymenttime" id="paymenttime" value="[% PaymentTime %]"/>
 
 <fieldset class="rows">
     <legend>Pay an individual fine</legend>
@@ -227,6 +229,7 @@ function printReceipt(url) {
     <input type="hidden" name="accountlines_id" id="accountlines_id" value="[% accountlines_id %]" />
     <input type="hidden" name="title" id="title" value="[% title %]" />
     <input type="hidden" name="payment_note" id="payment_note" value="[% payment_note %]" />
+    <input type="hidden" name="paymenttime" id="paymenttime" value="[% PaymentTime %]"/>
     <table>
     <thead><tr>
             <th>Description</th>
@@ -259,6 +262,7 @@ function printReceipt(url) {
     <input type="hidden" name="borrowernumber" id="borrowernumber" value="[% borrower.borrowernumber %]" />
     <input type="hidden" name="selected_accts" id="selected_accts" value="[% selected_accts %]" />
     <input type="hidden" name="total" id="total" value="[% total %]" />
+    <input type="hidden" name="paymenttime" id="paymenttime" value="[% PaymentTime %]"/>
 
     <fieldset class="rows">
     [% IF ( selected_accts ) %]<legend>Pay an amount toward selected fines</legend>[% ELSE %]<legend>Pay an amount toward all fines</legend>[% END %]

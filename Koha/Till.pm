@@ -25,7 +25,7 @@ sub new {
 }
 
 sub payin {
-    my ( $self, $amt, $code, $type ) = @_;
+    my ( $self, $amt, $code, $type, $receiptid ) = @_;
 
     # IN code will be pos
     # OUT code should be neg
@@ -49,6 +49,7 @@ sub payin {
             till        => $self->{till_id},
             tcode       => $code,
             paymenttype => $type,
+            receiptid   => $receiptid,
         }
       );
     return;

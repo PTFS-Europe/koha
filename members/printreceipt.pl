@@ -49,6 +49,8 @@ my $borrowernumber = $input->param('borrowernumber');
 my $action = $input->param('action') || '';
 my $change = $input->param('change');
 my $tendered = $input->param('tendered');
+my $tillid = $input->param('tillid') || $input->cookie("KohaStaffClient");
+my $timestamp = $input->param('paymenttime');
 my $accountlines_id =
   { map { $_ => 1 } split( /,/, $input->param('accountlines_id') ) };
 
@@ -128,6 +130,7 @@ my ( $picture, $dberror ) = GetPatronImage( $data->{'borrowernumber'} );
 $template->param( picture => 1 ) if $picture;
 
 my $session = C4::Context->userenv;
+my $receiptid = $tillid . "-" . $timestamp;
 
 $template->param(
     finesview      => 1,
@@ -154,7 +157,8 @@ $template->param(
     is_child     => ( $data->{'category_type'} eq 'C' ),
     change       => $change,
     tendered     => $tendered,
-    accounts     => \@accountrows
+    accounts     => \@accountrows,
+    receiptid    => $receiptid
 );
 
 output_html_with_http_headers $input, $cookie, $template->output;

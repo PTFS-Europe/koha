@@ -45,6 +45,8 @@ my $change = $input->param('change');
 my $tendered = $input->param('tendered');
 my @amounts = split /,/, $input->param('amounts');
 my @transcodes = split /,/, $input->param('transcodes');
+my $tillid = $input->param('tillid') || $input->cookie("KohaStaffClient");
+my $timestamp = $input->param('paymenttime');
 
 my $schema = Koha::Database->new()->schema();
 
@@ -66,6 +68,8 @@ for ( @amounts ) {
     $total += $_;
 }
 
+my $receiptid = $tillid . "-" . $timestamp;
+
 $template->param(
     branchcode   => $session->{'branch'},
     branchname   => $session->{'branchname'},
@@ -74,7 +78,8 @@ $template->param(
     total        => sprintf( "%.2f", $total ),
     change       => $change,
     tendered     => $tendered,
-    receipts     => \@receiptrows
+    receipts     => \@receiptrows,
+    receiptid    => $receiptid
 );
 
 output_html_with_http_headers $input, $cookie, $template->output;

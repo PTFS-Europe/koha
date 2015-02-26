@@ -34,8 +34,7 @@ __PACKAGE__->table("cash_transaction");
 
   data_type: 'datetime'
   datetime_undef_if_invalid: 1
-  default_value: 'CURRENT_TIMESTAMP'
-  is_nullable: 0
+  is_nullable: 1
 
 =head2 amt
 
@@ -62,6 +61,12 @@ __PACKAGE__->table("cash_transaction");
   is_nullable: 1
   size: 10
 
+=head2 receiptid
+
+  data_type: 'varchar'
+  is_nullable: 1
+  size: 16
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -76,8 +81,7 @@ __PACKAGE__->add_columns(
   {
     data_type => "datetime",
     datetime_undef_if_invalid => 1,
-    default_value => "CURRENT_TIMESTAMP",
-    is_nullable => 0,
+    is_nullable => 1,
   },
   "amt",
   { data_type => "decimal", is_nullable => 0, size => [12, 2] },
@@ -87,6 +91,8 @@ __PACKAGE__->add_columns(
   { data_type => "varchar", is_foreign_key => 1, is_nullable => 0, size => 10 },
   "paymenttype",
   { data_type => "varchar", is_nullable => 1, size => 10 },
+  "receiptid",
+  { data_type => "varchar", is_nullable => 1, size => 16 },
 );
 
 =head1 PRIMARY KEY
@@ -134,8 +140,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07033 @ 2014-12-23 10:45:30
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:PjMVYbC4gvBOxI2SiPuLOQ
+# Created by DBIx::Class::Schema::Loader v0.07042 @ 2015-02-26 16:05:25
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:vn/i9etct5FaTJpVFh64lg
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

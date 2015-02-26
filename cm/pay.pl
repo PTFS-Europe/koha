@@ -63,6 +63,7 @@ my @transcodes = $schema->resultset('CashTranscode')
 
 # kludge we need to add a typr col so we can select only charges
 @transcodes = grep { $_ if ( $_->code ne 'CASHUP' ) } @transcodes;
+my $timestamp = time;
 
 $template->param(
     branchname   => $branchname,
@@ -70,6 +71,7 @@ $template->param(
     tills        => \@tills,
     paymenttypes => \@payment_types,
     transcodes   => \@transcodes,
+    paymenttime  => $timestamp,
 );
 
 output_html_with_http_headers( $q, $cookie, $template->output );
@@ -80,6 +82,9 @@ sub do_payment {
 
     #    my $amt         = $q->param('amt');
     my $paymenttype = $q->param('paymenttype');
+    my $paymenttime = $q->param('paymenttime');
+
+    my $receiptid = $tillid . "-" . $paymenttime;
 
     #    my $trans_code  = $q->param('trans_code');
 
@@ -93,6 +98,7 @@ sub do_payment {
                 till        => $tillid,
                 tcode       => $trans_code,
                 paymenttype => $paymenttype,
+                receiptid   => $receiptid,
             }
         );
     }
