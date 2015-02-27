@@ -163,6 +163,11 @@ LINE: while ( my $borrowerline = <$handle> ) {
         print "ERROR: missing branchcode for line $.: $borrowerline\n";
     }
 
+    if ( $borrower{'userid'} && $borrower{'userid'} eq '' ) {
+	print "ERROR: userid is blank, setting to undefined\n";
+        delete $borrower{'userid'};
+    }
+
     if ($extended) {
         my $attr_str = $borrower{patron_attributes};
 
