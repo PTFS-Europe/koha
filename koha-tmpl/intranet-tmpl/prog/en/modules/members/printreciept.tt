@@ -31,15 +31,9 @@ type="image/x-icon" />
                 </th>
             </tr>
             <tr>
+                [% IF ( receiptid ) %]
                 <td colspan=3 class="centerednames">[% receiptid %]</td>
-            </tr>
-            <tr>
-                <th colspan=3>
-                    Received with thanks from [% firstname %] [% surname %]
-                    <br
-                    />Card number : [% cardnumber %]
-                    <br />
-                </th>
+                [% END %]
             </tr>
             <tr>
                 <th>Date</th>
