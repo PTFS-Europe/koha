@@ -81,15 +81,15 @@ sub do_checkin {
         $self->alert_type('99');
     }
     if ($messages->{Wrongbranch}) {
-        $self->{item}->destination_loc($messages->{Wrongbranch}->{Rightbranch});
+        $self->destination_loc($messages->{Wrongbranch}->{Rightbranch});
         $self->alert_type('04');            # send to other branch
     }
     if ($messages->{WrongTransfer}) {
-        $self->{item}->destination_loc($messages->{WrongTransfer});
+        $self->destination_loc($messages->{WrongTransfer});
         $self->alert_type('04');            # send to other branch
     }
     if ($messages->{NeedsTransfer}) {
-        $self->{item}->destination_loc($messages->{NeedsTransfer});
+        $self->destination_loc($iteminformation->{homebranch});
         $self->alert_type('04');            # send to other branch
     }
     if ($messages->{ResFound}) {
