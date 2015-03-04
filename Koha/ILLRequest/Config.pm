@@ -59,18 +59,19 @@ ILL configuration file.
 
 sub new {
     my $class = shift;
+    my $test  = shift;
     my $self  = _load_config_file(C4::Context->config("illconfig"));
     bless $self, $class;
 
     ${$self}{configuration}{keywords} =
       [ "name", "accessor", "inSummary", "many" ];
 
-    $self->{configuration}->{credentials} = $self->_load_credentials(
+    $self->{configuration}->{credentials} = _load_credentials(
         {
             api_keys         => C4::Context->config("ill_keys"),
             api_application  => C4::Context->config("ill_application_key"),
         }
-    );
+    ) unless ( $test );
 
     ${$self}{record_props} = $self->_deriveProperties(${$self}{record});
     ${$self}{availability_props} =
@@ -168,63 +169,86 @@ sub getProperties {
     my $credentials = $config->getCredentials($branchCode);
 
 Fetch the best-fit credentials: if we have credentials for $branchCode, use
-those; otherwise fall back on default credentials.
+those; otherwise fall back on default credentials.  If neither can be found,
+simply populate application details, and populate key details with 0.
 
 =cut
 
 sub getCredentials {
     my ( $self, $branchCode ) = @_;
-    my $conf = $self->{configuration}->{credentials};
-    my $key = $conf->{api_keys}->{$branchCode}
-        || $conf->{api_keys}->{default}
-        || die "We have no credentials for your branch ($branchCode)!";
+    my $creds = $self->{configuration}->{credentials}
+        || die "We have no credentials defined.  Please check koha-conf.xml.";
+
+    my $exact = { api_key => 0, api_auth => 0 };
+    if ( $branchCode && $creds->{api_keys}->{$branchCode} ) {
+        $exact = $creds->{api_keys}->{$branchCode}
+    } elsif ( $creds->{api_keys}->{default} ) {
+        $exact = $creds->{api_keys}->{default};
+    }
 
     return {
-        api_key         => $key,
-        api_application => $conf->{api_application},
+        api_key              => $exact->{api_key},
+        api_key_auth         => $exact->{api_auth},
+        api_application      => $creds->{api_application}->{key},
+        api_application_auth => $creds->{api_application}->{auth},
     };
 }
 
 =head3 _load_credentials
 
-    my $_load_credentials = $config->_load_credentials($C4ConfigValues);
+    my $_load_credentials = $config->_load_credentials(
+        { api_keys => $keys_hash, api_application => $app_hash }
+    );
 
-Read the configuration values passed as $C4ConfigValues, and populate a
-hashref suitable with these.
+Read the configuration values passed as the parameter, and populate a hashref
+suitable for use with these.
 
 =cut
 
 sub _load_credentials {
-    my ( $self, $params ) = @_;
+    my ( $params ) = @_;
 
     die "ILL_KEYS have not been defined in koha-conf.xml."
         unless ( ref($params->{api_keys}) eq "HASH" );
 
     die "ILL_APPLICATION_KEY has not been defined in koha-conf.xml."
-        unless ( $params->{api_application}
-                 && !ref($params->{api_application}) );
+        unless ( ref($params->{api_application}) eq "HASH" );
 
     my $credentials = {};
 
     # Per Branch Credentials
     my $branches = $params->{api_keys}->{branch};
-    if ( ref($branches) eq "ARRAY" ) {
+    if ( ref($branches) eq "ARRAY" ) { # Multiple branches
         foreach my $branch ( @{$branches} ) {
-            $credentials->{api_keys}->{$branch->{code}} = $branch->{api_key}
-                if ( $branch->{api_key} );
+            if ( $branch->{api_key} && $branch->{api_auth} ) {
+                $credentials->{api_keys}->{$branch->{code}} = {
+                    api_key  => $branch->{api_key},
+                    api_auth => $branch->{api_auth},
+                }
+            }
         }
-    } elsif ( ref($branches) eq "HASH" ) { # 1 entry only.
-        $credentials->{api_keys}->{$branches->{code}} = $branches->{api_key}
-            if ( $branches->{api_key} );
+    } elsif ( ref($branches) eq "HASH" ) { # One branch only
+        if ( $branches->{api_key} && $branches->{api_auth} ) {
+            $credentials->{api_keys}->{$branches->{code}} = {
+                api_key  => $branches->{api_key},
+                api_auth => $branches->{api_auth},
+            }
+        }
     }
 
     # Default Credentials
-    if ( $params->{api_keys}->{api_key} ) {
-        $credentials->{api_keys}->{default} = $params->{api_keys}->{api_key};
+    if ( $params->{api_keys}->{api_key} && $params->{api_keys}->{api_auth} ) {
+        $credentials->{api_keys}->{default} = {
+            api_key  => $params->{api_keys}->{api_key},
+            api_auth => $params->{api_keys}->{api_auth},
+        }
     }
 
-    # Application key
-    $credentials->{api_application} = $params->{api_application};
+    # Application key & auth
+    $credentials->{api_application}  = {
+        key  => $params->{api_application}->{key},
+        auth => $params->{api_application}->{auth},
+    };
 
     return $credentials;
 }

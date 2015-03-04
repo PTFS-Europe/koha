@@ -98,7 +98,12 @@ __PAZPAR2_TOGGLE_XML_POST__
  <illconfig>__KOHA_CONF_DIR__/ill/config.yaml</illconfig>
  <!-- ill_application_key: the KEY associated with your application
       registration in the BLDSS application management interface -->
- <ill_application_key></ill_application_key>
+ <ill_application>
+  <!--
+   <key>app_key</key>
+   <auth>app_auth</auth>
+  -->
+ </ill_application>
  <!-- ill_keys: the KEYs associated with the various customers for
       your setup.  See the example below for details. <branch> is
       repeating and entirely optional. Top-level <api_key> is optional
@@ -106,9 +111,11 @@ __PAZPAR2_TOGGLE_XML_POST__
  <ill_keys>
   <!--
    <api_key>example_default_key</api_key>
+   <api_auth>example_default_auth</api_auth>
    <branch>
     <code>example_branch1_code</code>
     <api_key>branch1_key</api_key>
+    <api_auth>branch1_auth</api_auth>
    </branch>
   -->
  </ill_keys>
