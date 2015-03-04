@@ -14,7 +14,7 @@ VALUES ('ILLEmailNotify','0','If ON, patrons receive an email notification of a 
 
 -- Userflags
 INSERT INTO userflags (bit,flag,flagdesc,defaulton)
-VALUES ('20','ill','Manage ILL requests','0');
+VALUES ('21','ill','Manage ILL requests','0');
 
 -- Borrower Categories
 ALTER TABLE categories ADD illlimit VARCHAR(60) AFTER issuelimit;
