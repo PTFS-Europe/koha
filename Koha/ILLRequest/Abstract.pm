@@ -49,13 +49,14 @@ communicating with ILL APIs and other objects.
 =cut
 
 sub new {
-    my ( $class ) = @_;
+    my ( $class, $params ) = @_;
     my $self = {};
 
     # This is where we may want to introduce the possibility to choose amongst
     # backends.
     ${$self}{config} = Koha::ILLRequest::Config->new();
-    ${$self}{api} = BLDSS->new();
+    my $creds = $self->{config}->getCredentials($params->{branch});
+    $self->{api} = BLDSS->new( $creds );
 
     bless( $self, $class );
     return $self;
