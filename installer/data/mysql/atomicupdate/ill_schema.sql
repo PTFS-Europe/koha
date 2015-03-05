@@ -36,7 +36,7 @@ CREATE TABLE ill_requests (
 
 CREATE TABLE ill_request_attributes (
     req_id bigint(20) unsigned NOT NULL,
-    type varchar(30) NOT NULL,
+    type varchar(200) NOT NULL,
     value text NOT NULL,
     FOREIGN KEY(req_id) REFERENCES ill_requests(id)
 );
