@@ -72,6 +72,10 @@
                         </dl>
                     [% ELSIF message == 'not_implemented' %]
                         <p>We have not implemented this functionality yet.</p>
+                    [% ELSIF message == 'request_success' %]
+                        <p>We have now placed your request.</p>
+                    [% ELSIF message == 'request_failure' %]
+                        <p>We were not able to place your request.</p>
                     [% ELSIF message == 'failure' %]
                         <p>Something went wrong.</p>
                     [% END %]
@@ -192,6 +196,15 @@
                         <p>[% ill.price.0 %]: [% ill.currency.1 %] [% ill.price.1 %]</p>
                         <p>[% ill.copyrightVat.0 %]: [% 100 * ill.copyrightVat.1 %]%</p>
                         <p>[% ill.loanRenewalCost.0 %]: [% ill.currency.1 %] [% ill.loanRenewalCost.1 %]</p>
+                        <input name="format" id="format"
+                               value="[% coordinates.format %]" type="hidden"/>
+                        <input name="speed" id="speed"
+                               value="[% coordinates.speed %]" type="hidden"/>
+                        <input name="quality" id="quality"
+                               value="[% coordinates.quality %]" type="hidden"/>
+                        <input name="service" id="service"
+                               value="[% ill.service.1 %]" type="hidden"/>
+
                         <input type="hidden" name="op" value=[% forward %] />
                         <input type="hidden" name="rq" value=[% rq %] />
                         <input type="submit" value="Place request" />

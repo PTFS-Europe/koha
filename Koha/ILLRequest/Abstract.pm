@@ -22,6 +22,8 @@ use Carp;
 
 use BLDSS;
 use XML::LibXML;
+use C4::Branch;
+use Koha::Borrowers;
 use Koha::ILLRequest::XML::BLDSS;
 use Koha::ILLRequest::Record;
 use Koha::ILLRequest::Status;
@@ -104,6 +106,55 @@ sub getPrices {
 
     my $prices = ${$self}{api}->prices;
     return Koha::ILLRequest::XML::BLDSS->new->load_xml( { string => $prices } );
+}
+
+=head3 request
+
+    my $result = $illRequest->request($params);
+
+Return confirmation of whether we were able to place the request defined by
+$PARAMS with the API.
+
+=cut
+
+sub request {
+    my ( $self, $params ) = @_;
+
+    my $brw = Koha::Borrowers->find($params->{patron});
+    my $branch = C4::Branch::GetBranchDetail($params->{branch});
+    # Currently hard-coded to BL requirements.  This should instead use
+    # methods from the API or config to extract appropriate & required fields.
+    my $final_details = {
+        type     => "A",
+        Item     => {
+            uin      => $params->{record}->getProperty('id'),
+        },
+        service  => $params->{transaction},
+        Delivery => {
+            email   => $branch->{branchemail},
+            Address => {
+                AddressLine1     => $branch->{branchaddress1},
+                AddressLine2     => $branch->{branchaddress2},
+                AddressLine3     => $branch->{branchaddress3},
+                TownOrCity       => $branch->{branchcity},
+                CountyOrState    => $branch->{branchstate},
+                ProvinceOrRegion => "",
+                PostOrZipCode    => $branch->{branchzip},
+                Country          => $branch->{branchcountry},
+            }
+        },
+        # Optional params:
+        requestor => join(" ", $brw->firstname, $brw->surname),
+    };
+    my $rq_result = $self->{api}->create_order($final_details);
+
+    use Data::Dump qw(dump);
+    if ($rq_result) {
+        die dump $rq_result;
+    } else {
+        die dump $self->{api};
+    }
+    return 0;
 }
 
 =head3 search

@@ -113,6 +113,29 @@ if ($request) {
             forward => $parent,
         );
 
+    } elsif ( $op eq 'action_request' ) {
+        my ( $result, $summary ) = $request->place_request(
+            {
+                branch  => C4::Context->userenv->{'branch'},
+                # This is hard-coded to BL values: we need to generate this
+                # dynamically from form fields.
+                details => {
+                    format   => $cgi->param('format'),
+                    speed    => $cgi->param('speed'),
+                    quality  => $cgi->param('quality'),
+                    service  => $cgi->param('service'),
+                    quantity => 1, # hard-coded to 1 for now
+                }
+            }
+        );
+        $op = 'message';
+        ( $result ) ? $template->param( message => 'request_success' )
+            : $template->param( message => 'request_failure' );
+        $template->param(
+            title   => 'API request result',
+            forward => $parent,
+        );
+
     } elsif ( $op eq 'generic_ill') {
         my $ill_code = C4::Context->preference('GenericILLPartners');
         my @partners = Koha::Borrowers->new->search( { categorycode => $ill_code } );
@@ -165,14 +188,14 @@ if ($request) {
 
     } elsif ( $op eq 'price' ) {
         my $coordinates = {
-                           format  => $cgi->param('format'),
-                           speed   => $cgi->param('speed'),
-                           quality => $cgi->param('quality'),
-                           };
+            format  => $cgi->param('format'),
+            speed   => $cgi->param('speed'),
+            quality => $cgi->param('quality'),
+        };
         $template->param(
             ill         => $request->calculatePrice($coordinates),
             title       => "Prices",
-            forward     => "order",
+            forward     => "action_request",
             coordinates => $coordinates,
         );
 
@@ -197,6 +220,7 @@ if ($request) {
 }
 
 $template->param(
+    here    => $here,
     op      => $op,
     rq      => $rq,
     tab_url => $tab_url,

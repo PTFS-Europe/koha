@@ -155,22 +155,28 @@ API IDs as values, and return the price for that particular request.
 sub calculatePrice {
     my ( $self, $data, $testData ) = @_;
 
+    # testData is used for unit testing only
     my $prices = ${$self}{record}->checkPrices($testData);
     my $xpath = '//format[@id="' . ${$data}{format} . '"]/price[@speed="' .
       ${$data}{speed} . '" and @quality="' . ${$data}{quality} . '"]';
+    # We have format from before; now we need to retrieve price for display,
+    # as well as service id for eventual request.
     my $price = $prices->findnodes($xpath);
     if (@{$price} > 1) {
         warn "We have more than one result.  This should not have happened.";
     }
+    my $exact = ${$price}[0];
+    my $service = $exact->parentNode->parentNode;
 
     # Currently hard-coded values rather than read from config.
     my $result = {
-                  currency => [ "Currency", $prices->currency ],
-                  region => [ "Region", $prices->region ],
-                  copyrightVat => [ "CopyrightVat", $prices->copyrightVat ],
-                  loanRenewalCost => [ "Loan Renewal Cost", $prices->loanRenewalCost ],
-                  price => [ "Price", ${$price}[0]->textContent ],
-                 };
+        currency        => [ "Currency", $prices->currency ],
+        region          => [ "Region", $prices->region ],
+        copyrightVat    => [ "CopyrightVat", $prices->copyrightVat ],
+        loanRenewalCost => [ "Loan Renewal Cost", $prices->loanRenewalCost ],
+        price           => [ "Price", $exact->textContent ],
+        service         => [ "Service", $service->{id} ],
+    };
 
     return $result;
 }
@@ -455,6 +461,36 @@ sub requires_moderation {
         'New Request' => 'New Request',
     };
     return $require_moderation->{$status};
+}
+
+=head3 place_request
+
+    my ( $result, $request ) = $illRequest->place_request();
+
+Create an API request from $PARAMS.  If we are successful, return 0 and our
+request object; else return 1 and our request object.
+
+=cut
+
+sub place_request {
+    my ( $self, $params ) =@_;
+
+    my $success = Koha::ILLRequest::Abstract->new->request(
+        {
+            branch      => $self->status->getProperty('branch'),
+            patron      => $self->status->getProperty('borrowernumber'),
+            transaction => $params->{details},
+            record      => $self->record,
+        }
+    );
+
+    if ($success) {
+        $self->editStatus( { status => "Requested" } );
+        return ( 1, $self );
+    } else {
+        return ( 0, $self);
+    }
+
 }
 
 =head3 place_generic_request
