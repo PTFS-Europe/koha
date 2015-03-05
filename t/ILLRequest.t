@@ -113,6 +113,7 @@ is_deeply($illRequest->calculatePrice($price_coordinates, $response),
            loanRenewalCost => ["Loan Renewal Cost", 4.55],
            price => ["Price", 45.75],
            region => ["Region", "UK"],
+           service => ["Service", "1"],
           },
           "Retrieved a price");
 
