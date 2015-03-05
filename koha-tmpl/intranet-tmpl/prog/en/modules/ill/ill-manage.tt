@@ -224,7 +224,7 @@
                                                 [% FOREACH partner = partners %]
                                                     <option value=[% partner.email %]
                                                             selected="selected">
-                                                        [% partner.surname %]
+                                                        [% partner.branchcode _ " - " _ partner.surname %]
                                                     </option>
                                                 [% END %]
                                             </select>
