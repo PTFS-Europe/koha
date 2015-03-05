@@ -69,7 +69,7 @@ sub new {
     $self->{configuration}->{credentials} = _load_credentials(
         {
             api_keys         => C4::Context->config("ill_keys"),
-            api_application  => C4::Context->config("ill_application_key"),
+            api_application  => C4::Context->config("ill_application"),
         }
     ) unless ( $test );
 
