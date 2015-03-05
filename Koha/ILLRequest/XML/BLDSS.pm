@@ -42,6 +42,7 @@ sub rebless {
                                 result          => 1,
                                 service         => 1,
                                 speed           => 1,
+                                newOrder        => 1,
                                };
 
 
@@ -377,6 +378,22 @@ sub attributes {
 sub new {
     my $class = shift;
     return $class->SUPER::new('price');
+}
+
+# newOrder Object
+
+package Koha::ILLRequest::XML::BLDSS::NewOrder;
+
+use base qw(Koha::ILLRequest::XML::BLDSS::Element);
+
+sub elements {
+    return qw( requestId customerReference service format speed quality
+               quantity copyrightState note);
+}
+
+sub new {
+    my $class = shift;
+    return $class->SUPER::new('NewOrder');
 }
 
 1;
