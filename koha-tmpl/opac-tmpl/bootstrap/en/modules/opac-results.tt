@@ -853,7 +853,7 @@ $(document).ready(function(){
             }
 
             if ( data.totalItems ) {
-                $overdrive_results.html( _( 'Found' ) + ' <a href="/cgi-bin/koha/opac-overdrive-search.pl?q=' + escape( querystring ) + '">' + data.totalItems + ' ' + _( 'results' ) + '</a> ' + _( 'in OverDrive collection' ) );
+                $overdrive_results.html( _( 'Found' ) + ' <a href="/cgi-bin/koha/opac-overdrive-search.pl?q=' + escape( querystring ) + '">' + data.totalItems + ' ' + _( 'results' ) + '</a> ' + _( 'in eBook collection' ) );
             } else {
                 $overdrive_results.remove();
             }
