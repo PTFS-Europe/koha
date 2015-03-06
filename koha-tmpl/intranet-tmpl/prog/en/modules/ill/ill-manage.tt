@@ -41,10 +41,12 @@
                     <fieldset class="rows" style="float: none;">
                         <ol>
                             [% FOREACH field IN ill %]
-                                <li>
-                                    <label id=[% field.key %]>[% field.value.0 _ ":" %]</label>
-                                    <span id=[% field.key %]>[% field.value.1 %]</span>
-                                </li>
+                                [% IF field.value.1 %]
+                                    <li>
+                                        <label id=[% field.key %]>[% field.value.0 _ ":" %]</label>
+                                        <span id=[% field.key %]>[% field.value.1 %]</span>
+                                    </li>
+                                [% END %]
                             [% END %]
                         </ol>
                     </fieldset>
@@ -86,10 +88,12 @@
                             <legend>Bibliographic details</legend>
                             <ol>
                                 [% FOREACH field IN ill.0 %]
-                                    <li>
-                                        <label id=[% field.key %]>[% field.value.0 _ ":" %]</label>
-                                        <span id=[% field.key %]>[% field.value.1 %]</span>
-                                    </li>
+                                    [% IF field.value.1 %]
+                                        <li>
+                                            <label id=[% field.key %]>[% field.value.0 _ ":" %]</label>
+                                            <span id=[% field.key %]>[% field.value.1 %]</span>
+                                        </li>
+                                    [% END %]
                                 [% END %]
                             </ol>
                         </fieldset>
