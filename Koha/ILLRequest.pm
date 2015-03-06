@@ -458,7 +458,6 @@ sub requires_moderation {
     my $status = $self->status->getProperty('status');
     my $require_moderation = {
         'Cancellation Requested' => 'Cancellation Requested',
-        'New Request' => 'New Request',
     };
     return $require_moderation->{$status};
 }
