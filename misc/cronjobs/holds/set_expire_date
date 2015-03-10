@@ -5,7 +5,7 @@ use warnings;
 use C4::Context;
 
 my $sql =
-q{update reserves set expirationdate = reservedate + interval 100 day where expirationdate is null};
+q{update reserves set expirationdate = reservedate + interval 365 day where expirationdate is null};
 
 my $dbh = C4::Context->dbh;
 
