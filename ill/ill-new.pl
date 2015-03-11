@@ -65,6 +65,8 @@ if ( fail($query, $input->param('brw'), $input->param('branch')) ) {
     }
     my $requests = Koha::ILLRequests->new;
     $reply = $requests->search_api($query, $opts);
+    $template->param( search => $requests->get_search_string );
+
     if ($reply) {
         # setup place request url
         my $rq_qry = "?query_type=request";
@@ -87,13 +89,6 @@ if ( fail($query, $input->param('brw'), $input->param('branch')) ) {
     } else {
         $error = { error => "api", action => "search" }
     }
-    ($query) ? $opts->{keywords} = $query : $opts;
-    my $search_string;
-    while ( my ($type, $value) = each $opts ) {
-        $search_string .= "[" . join(": ", $type, $value) . "]";
-    }
-    $template->param(search => $search_string);
-
 } else {                        # or action eq 'new'
 }
 

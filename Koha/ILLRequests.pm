@@ -88,6 +88,7 @@ sub search_api {
     my $records = Koha::ILLRequest::Abstract->new()->search($query, $opts);
     $self->{opts}->{max_results} = $opts->{max_results} || 10;
     $self->{opts}->{start_rec}   = $opts->{start_rec} || 1;
+    $self->{opts}->{keywords}    = $query if ( $query );
     $self->{search_results} = $records;
 
     if (!$records) {
@@ -136,6 +137,26 @@ sub get_pagers {
     }
 
     return { previous => $previous, next => $next };
+}
+
+=head3 get_search_string
+
+    my $search_string = $requests->get_search_string();
+
+Return the search options used for the last search in a display friendly way.
+
+=cut
+
+sub get_search_string {
+    my ( $self ) = @_;
+    die "No search has been performed against the API yet"
+        unless $self->{opts};
+    my $search_string;
+    my $opts = $self->{opts};
+    while ( my ($type, $value) = each $opts ) {
+        $search_string .= "[" . join(": ", $type, $value) . "]";
+    }
+    return $search_string;
 }
 
 =head3 request

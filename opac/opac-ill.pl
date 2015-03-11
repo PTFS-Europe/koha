@@ -80,6 +80,8 @@ if ( fail(1) ) {
     }
     my $requests = Koha::ILLRequests->new;
     $reply = $requests->search_api($query, $opts);
+    $template->param( search => $requests->get_search_string );
+
     if ($reply) {
         # setup place request url
         my $rq_qry   = "?op=request" . "&query_value=";
@@ -101,12 +103,6 @@ if ( fail(1) ) {
     } else {
         $error = { error => 'api', action => 'search' };
     }
-    my $search_string;
-    ($query) ? $opts->{keywords} = $query : $opts;
-    while ( my ($type, $value) = each $opts ) {
-        $search_string .= "[" . join(": ", $type, $value) . "]";
-    }
-    $template->param(search => $search_string);
 } else {
     if ( $op eq 'request' ) {
         my $request = Koha::ILLRequests->new->request( {
