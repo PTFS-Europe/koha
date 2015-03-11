@@ -105,7 +105,7 @@ sub search_api {
 
 =head3 get_pagers
 
-    my $pagers = $illRequest->get_pagers(
+    my $pagers = $requests->get_pagers(
         { next => $base_url . "/next=", previous => $base_url . "/prev=" });
 
 When passed a hashref containing keys next and/or previous, return a hashref
@@ -120,6 +120,8 @@ for each key respectively.
 
 sub get_pagers {
     my ( $self, $pagers ) = @_;
+    die "No search has been performed against the API yet"
+        unless $self->{opts};
     my $max_results = $self->{opts}->{max_results};
     my $results  = @{$self->{search_results}};
     my $current  = $self->{opts}->{start_rec};
