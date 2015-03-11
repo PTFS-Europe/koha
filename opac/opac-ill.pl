@@ -48,13 +48,13 @@ my $reply;
 my $query    = $cgi->param('query_value');
 my $here     = "/cgi-bin/koha/opac-ill.pl";
 my $op       = $cgi->param('op');
-my $error    = 0;
+my ( $error, $message );
 my $borrower = Koha::Borrowers->new->find($borrowernumber)
     || die "You're logged in as the database user. We don't support that.";
 
 if ( fail(1) ) {
     $error = {
-        error => "missing_fields",
+        message => "missing_fields",
         op    => $op,
     };
 
@@ -101,7 +101,7 @@ if ( fail(1) ) {
             rqp         => $rq_qry,
         );
     } else {
-        $error = { error => 'api', action => 'search' };
+        $error = { message => 'api_search_fail', action => 'search' };
     }
 } else {
     if ( $op eq 'request' ) {
@@ -111,12 +111,16 @@ if ( fail(1) ) {
             borrower => $borrower->borrowernumber,
         } );
         if (!$request) {
-            $error = { error => 'unknown', action => 'request' };
+            $error = { message => 'request_placement_fail', action => 'request' };
+        } else {
+            $message = { message => 'request_placement_ok', uin => $query };
         }
     } elsif ( $op eq 'request_cancellation') {
         my $request = @{Koha::ILLRequests->new->retrieve_ill_request($query) || [0]}[0];
         if (!$request or !$request->editStatus( { status => "Cancellation Requested" } )) {
-            $error = { error => 'unknown', action => 'cancellation' };
+            $error = { message => 'request_cancellation_fail', action => 'cancellation' };
+        } else {
+            $message = { message => 'request_cancellation_ok', id => $query };
         }
     }
     $op = undef;
@@ -136,6 +140,7 @@ $template->param(
     query_value => $query,
     reply    => $reply,
     error    => $error,
+    message  => $message,
     op       => $op,
 );
 

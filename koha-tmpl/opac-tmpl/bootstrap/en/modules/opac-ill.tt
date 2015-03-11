@@ -25,16 +25,30 @@
             </div>
             <div class="span10">
                 <h1>ILL Requests</h1>
-                [% IF error.error == 'missing_fields' and error.action == 'search' %]
-                    <p><em>Please Note:</em> some mandatory fields are missing.</p>
-                [% ELSIF error.error == 'unknown' and error.action == 'cancellation' %]
-                    <p><em>Please Note:</em> we were unable to request the
-        cancellation of request number [% query_value %].</p>
-                [% ELSIF error.error == 'unknown' and error.action == 'request' %]
-                    <p><em>Please Note:</em> we were unable to place your request.</p>
-                [% ELSIF error.error == 'api' and error.action %]
-                    <p><em>Please Note:</em> there was an error whilst communicating
-        with the remote service.</p>
+                [% IF error %]
+                    <div class="alert alert-error">
+                        <p><span id="[% error.message %]">
+                            [% IF error.message == 'missing_fields' %]
+                                Some mandatory fields are missing.
+                            [% ELSIF error.message == 'request_cancellation_fail' %]
+                                We were unable to request the cancellation of request number [% query_value %].
+                            [% ELSIF error.message == 'request_placement_fail' %]
+                                We were unable to place your request.
+                            [% ELSIF error.message == 'api_search_fail' %]
+                                There was an error whilst communicating with the remote service.
+                            [% END %]
+                        </span></p>
+                    </div>
+                [% ELSIF message %]
+                    <div class="alert alert-success">
+                        <p><span id="[% message.message %]">
+                            [% IF message.message == 'request_placement_ok' %]
+                                Your request for [% message.uin %] has been added to the queue.
+                            [% ELSIF message.message == 'request_cancellation_ok' %]
+                                Your cancellation of request [% message.id %] has been requested.
+                            [% END %]
+                        </span></p>
+                    </div>
                 [% END %]
 
                 [% IF !op %]
