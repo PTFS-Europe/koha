@@ -102,7 +102,7 @@
                 [% ELSE %]
                     <li>
                 [% END %]
-                <a href="/cgi-bin/koha/opac-ill.pl">my inter-library loans</a></li>
+                <a href="/cgi-bin/koha/opac-ill.pl">your interlibrary loans</a></li>
             [% END %]
 
         </ul>
