@@ -401,9 +401,10 @@ sub _seed_from_api {
     ${$self}{record} = ${Koha::ILLRequest::Abstract->new()
           ->search($opts->{uin})}[0];
     ${$self}{status} = Koha::ILLRequest::Status->new( {
-              reqtype  => $self->{record}->getProperty('type'),
-              borrower => $opts->{borrower},
-              branch   => $opts->{branch},
+              reqtype   => $self->{record}->getProperty('type'),
+              borrower  => $opts->{borrower},
+              branch    => $opts->{branch},
+              permitted => $opts->{permitted},
              }
            );
     $self->save();        # save to DB.

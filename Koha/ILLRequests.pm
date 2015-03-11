@@ -178,58 +178,109 @@ this request.
 sub request {
     my ( $self, $opts ) = @_;
 
-    my $illRequest;
-    my $brw = Koha::Borrowers->new->search( {
-        borrowernumber => $opts->{borrower},
-    } );
-    if (!$brw) {
-        my $brws = Koha::Borrowers->new->search( {
-            cardnumber => $opts->{borrower},
-        } );
-        if ( $brws->count == 1 ) {
-            $opts->{borrower} = $brws->next->borrowernumber;
-            $illRequest = Koha::ILLRequest->new()->seed($opts);
-        } else {
-            return 0;
-        }
-    } else {
-        $illRequest = Koha::ILLRequest->new()->seed($opts);
-    }
-    return $illRequest;
+    # $opts->{borrower} is either a cardnumber or a borrowernumber.
+    my $borrowers = Koha::Borrowers->new;
+    my $brws = $borrowers->search( { borrowernumber => $opts->{borrower} } );
+    $brws = $borrowers->search( {cardnumber => $opts->{borrower} } )
+        unless ( $brws );
+
+    return 0 unless ( $brws->count == 1 ); # brw fetch did not work
+
+    # we have a brw.
+    my $brw = $brws->next;
+    $opts->{borrower} = $brw->borrowernumber;
+    $opts->{permitted} = $self->check_limits(
+        { borrower => $brw }, { branch => $opts->{branch} }
+    );
+
+    return Koha::ILLRequest->new->seed($opts);
 }
 
 =head3 retrieve_ill_requests
 
-    my $illRequest = $illRequests->retrieve_ill_requests();
+    my $illRequests = $illRequests->retrieve_ill_requests();
     -OR-
-    my $illRequest = $illRequests->retrieve_ill_requests($borrowernumber);
+    my $illRequests = $illRequests->retrieve_ill_requests($borrowernumber);
+    -OR-
+    my $illRequests = $illRequests->retrieve_ill_requests({column => value});
 
-Retrieve either all ILLREQUESTs currently stored in the db, or only
-those attached to $BORROWERNUMBER.
+Retrieve either all ILLREQUESTs currently stored in the db, or only those
+attached to $BORROWERNUMBER.  Finally, if a hashref is passed to this method
+then we performa a search against the db using that hashref as the search
+criteria.
 
 Returns a reference to an array of ILLREQUESTs.
 
 =cut
 
 sub retrieve_ill_requests {
-    my ( $self, $borrowernumber ) = @_;
+    my ( $self, $target ) = @_;
     my $result;
 
-    if ($borrowernumber) {
-        $result = Koha::Database->new()->schema()->resultset('IllRequest')
-          ->search( { borrowernumber => $borrowernumber } );
+    if ( ( $target && ref $target eq 'HASH' ) or !$target ) {
+        $result = $self->_retrieve_requests($target)
     } else {
-        $result = Koha::Database->new()->schema()->resultset('IllRequest')
-          ->search( { id => { 'like', '%' } } );
+        $result = $self->_retrieve_requests( { borrowernumber => $target } )
     }
 
     my $illRequests = [];
     while ( my $row = $result->next ) {
         push @{$illRequests},
-          Koha::ILLRequest->new()->seed( { id => $row->id } );
+          Koha::ILLRequest->new->seed( { id => $row->id } );
     }
 
     return $illRequests;
+}
+
+=head3 _retrieve_requests
+
+    my $requests = $illRequests->_retrieve_requests( $params );
+
+New abstraction helper to simply fetch arbitrary selection of requests.
+$PARAMS should be a hashref containing valid resultset search criteria.
+
+=cut
+
+sub _retrieve_requests {
+    my ( $self, $params ) = @_;
+    return Koha::Database->new->schema->resultset('IllRequest')
+        ->search($params);
+}
+
+=head3 check_limits
+
+    my $ok = $illRequests->check_limits($params);
+
+Given $PARAMS, a hashref containing a $borrower object and a $branchcode,
+see whether we are still able to place ILLs.
+
+=cut
+
+sub check_limits {
+    my ( $self, $params ) = @_;
+    my $borrower = $params->{borrower};
+    my $branchcode = $params->{branch} || $borrower->branchcode;
+    my $branch_resultset =
+        $self->_retrieve_requests( { branch => $branchcode } );
+    my $branch_count     = $branch_resultset->count;
+    my $brw_resultset    = $self->_retrieve_requests(
+        { borrowernumber => $borrower->borrowernumber}
+    );
+    my $brw_count        = $brw_resultset->count;
+    # A limit of -1 means no limit exists.
+    my $branch_limit     = Koha::ILLRequest::Abstract->new
+        ->getBranchLimit( $branchcode );
+    # FIXME: Implement borrower limit from borrower category.
+    my $brw_limit        = -1;
+
+    if ( ( $branch_limit > $branch_count && $brw_limit > $brw_count  )
+             || ( $branch_limit == -1 && $brw_limit == -1 )
+             || ( $branch_limit == -1 && $brw_limit > $brw_count )
+             || ( $branch_limit > $branch_count && $brw_limit == -1 ) ) {
+        return 1;
+    } else {
+        return 0;
+    }
 }
 
 =head3 retrieve_ill_request

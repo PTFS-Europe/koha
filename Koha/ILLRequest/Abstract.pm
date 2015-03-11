@@ -108,6 +108,20 @@ sub getPrices {
     return Koha::ILLRequest::XML::BLDSS->new->load_xml( { string => $prices } );
 }
 
+=head3 getBranchLimit
+
+    my $branch_limit = $abstract->getBranchLimit($branchcode);
+
+Return the ILL limit for $BRANCHCODE or -1 if it is not defined.
+
+=cut
+
+sub getBranchLimit {
+    my ( $self, $branchcode ) = @_;
+    my $limits = $self->{config}->getBranchLimits;
+    return $limits->{$branchcode} || -1;
+}
+
 =head3 request
 
     my $result = $illRequest->request($params);

@@ -164,6 +164,19 @@ sub getProperties {
     return ${$self}{$name . "_props"};
 }
 
+=head3 getBranchLimits
+
+    my $branchlimits = $config->getBranchLimits();
+
+Return the hash of ILL branch limits defined by our config.
+
+=cut
+
+sub getBranchLimits {
+    my ( $self ) = @_;
+    return $self->{configuration}->{credentials}->{limits};
+}
+
 =head3 getCredentials
 
     my $credentials = $config->getCredentials($branchCode);
@@ -214,7 +227,12 @@ sub _load_credentials {
     die "ILL_APPLICATION_KEY has not been defined in koha-conf.xml."
         unless ( ref($params->{api_application}) eq "HASH" );
 
-    my $credentials = {};
+    # default data structure
+    my $credentials = {
+        api_application => {},
+        api_keys        => {},
+        limits          => {},
+    };
 
     # Per Branch Credentials
     my $branches = $params->{api_keys}->{branch};
@@ -226,6 +244,9 @@ sub _load_credentials {
                     api_auth => $branch->{api_auth},
                 }
             }
+            if ( $branch->{limit} ) {
+                $credentials->{limits}->{$branch->{code}} = $branch->{limit};
+            }
         }
     } elsif ( ref($branches) eq "HASH" ) { # One branch only
         if ( $branches->{api_key} && $branches->{api_auth} ) {
@@ -233,6 +254,9 @@ sub _load_credentials {
                 api_key  => $branches->{api_key},
                 api_auth => $branches->{api_auth},
             }
+        }
+        if ( $branches->{limit} ) {
+            $credentials->{limits}->{$branches->{code}} = $branches->{limit};
         }
     }
 
