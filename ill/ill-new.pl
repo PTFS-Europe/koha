@@ -59,29 +59,31 @@ if ( fail($query, $input->param('brw'), $input->param('branch')) ) {
         my $val = $input->param($opt);
         if ( $val ne '' ) {
             $opts->{$opt} = $val;
-            $nav_qry .= "&${opt}=" . uri_escape($val);
+            $nav_qry .= "&${opt}=" . uri_escape($val)
+                unless $ {opt} eq "start_rec"; # handle paging separately.
         }
     }
-    $reply = Koha::ILLRequests->new()->search_api($query, $opts);
+    my $requests = Koha::ILLRequests->new;
+    $reply = $requests->search_api($query, $opts);
     if ($reply) {
-        my $max_results = $opts->{max_results} || 10;
-        my $results = @{$reply || []};
-        my $bcounter = $input->param('start_rec') || 1;
-        my $ncounter = $bcounter + $results;
-        my $pcounter = $bcounter - $results;
-        my $next = 0;
-        $next = $nav_qry . "&start_rec=" . $ncounter
-          if ( $results == $max_results );
-        my $prev = 0;
-        $prev = $nav_qry . "&start_rec=" . $pcounter
-          if ( $pcounter > 1 ) ;
-        $template->param( next => $next );
-        $template->param( prev => $prev );
+        # setup place request url
         my $rq_qry = "?query_type=request";
         $rq_qry .= "&brw=" . $input->param('brw');
         $rq_qry .= "&branch=" . $input->param('branch');
         $rq_qry .= "&query_value=";
-        $template->param(rqp    => $rq_qry);
+        # Setup pagers
+        my $page_qry = $nav_qry . "&start_rec=";
+        my $pagers   = $requests->get_pagers(
+            {
+                next     => $page_qry,
+                previous => $page_qry,
+            }
+        );
+        $template->param(
+            next        => $pagers->{next},
+            previous    => $pagers->{previous},
+            rqp    => $rq_qry,
+        );
     } else {
         $error = { error => "api", action => "search" }
     }

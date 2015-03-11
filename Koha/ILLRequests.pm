@@ -86,7 +86,12 @@ can be used for output to the end-user.  For placing the request, the
 sub search_api {
     my ( $self, $query, $opts ) = @_;
     my $records = Koha::ILLRequest::Abstract->new()->search($query, $opts);
+    $self->{opts}->{max_results} = $opts->{max_results} || 10;
+    $self->{opts}->{start_rec}   = $opts->{start_rec} || 1;
+    $self->{search_results} = $records;
+
     if (!$records) {
+        $self->{search_results} = [];
         return 0;
     }
 
@@ -95,6 +100,42 @@ sub search_api {
         push @{$summaries}, $recs->getSummary();
     }
     return $summaries;
+}
+
+=head3 get_pagers
+
+    my $pagers = $illRequest->get_pagers(
+        { next => $base_url . "/next=", previous => $base_url . "/prev=" });
+
+When passed a hashref containing keys next and/or previous, return a hashref
+with keys previous and next, set to the concatenation of the values of the
+respective keys passed in and the appropriate starting record for
+next/previous.
+
+If next or previous make no sense on the result list, return 0 as the value
+for each key respectively.
+
+=cut
+
+sub get_pagers {
+    my ( $self, $pagers ) = @_;
+    my $max_results = $self->{opts}->{max_results};
+    my $results  = @{$self->{search_results}};
+    my $current  = $self->{opts}->{start_rec};
+    my ( $next, $previous, $position ) = ( 0, 0, 0 );
+
+    if ( $pagers->{next} ) {
+        $position = $current + $results;
+        $next = $pagers->{next} . $position
+            if ( $results == $max_results );
+    }
+    if ( $pagers->{previous} ) {
+        $position = $current - $results;
+        $previous = $pagers->{previous} . $position
+            if ( $position >= 1 );
+    }
+
+    return { previous => $previous, next => $next };
 }
 
 =head3 request

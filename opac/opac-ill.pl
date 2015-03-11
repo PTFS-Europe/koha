@@ -73,29 +73,29 @@ if ( fail(1) ) {
         my $val = $cgi->param($opt);
         if ( !fail($val)) {
             $opts->{$opt} = $val;
-            $nav_qry .= "&${opt}=" . uri_escape($val);
+            $nav_qry .= "&${opt}=" . uri_escape($val)
+                unless ${opt} eq "start_rec"; # handle paging separately.
+
         }
     }
-    $reply = Koha::ILLRequests->new()->search_api($query, $opts);
+    my $requests = Koha::ILLRequests->new;
+    $reply = $requests->search_api($query, $opts);
     if ($reply) {
-        my $max_results = $opts->{max_results} || 10;
-        my $results  = @{$reply || []};
-        my $bcounter = $cgi->param('start_rec') || 1;
-        my $ncounter = $bcounter + $results;
-        my $pcounter = $bcounter - $results;
-        my $next = 0;
-        $next = $nav_qry . "&start_rec=" . $ncounter
-          if ( $results == $max_results );
-        my $prev = 0;
-        $prev = $nav_qry . "&start_rec=" . $pcounter
-          if ( $pcounter > 1 ) ;
-        my $rq_qry = "?op=request";
-        $rq_qry .= "&query_value=";
+        # setup place request url
+        my $rq_qry   = "?op=request" . "&query_value=";
+        # Setup pagers
+        my $page_qry = $nav_qry . "&start_rec=";
+        my $pagers   = $requests->get_pagers(
+            {
+                next     => $page_qry,
+                previous => $page_qry,
+            }
+        );
         $template->param(
             back        => $here . "?op=search",
             forward     => $here . "?op=request",
-            next        => $next,
-            prev        => $prev,
+            next        => $pagers->{next},
+            previous    => $pagers->{previous},
             rqp         => $rq_qry,
         );
     } else {

@@ -172,9 +172,9 @@
                             </tbody>
                         </table>
                         <p>
-                            [% IF prev %]
-                                <a class="nav" title="Next set of results"
-                                   href=[% prev %]>&lsaquo;&lsaquo; Previous</a>
+                            [% IF previous %]
+                                <a class="nav" title="Previous set of results"
+                                   href=[% previous %]>&lsaquo;&lsaquo; Previous</a>
                             [% ELSE %]
                                 <span> &lsaquo;&lsaquo; Previous</span>
                             [% END %]
