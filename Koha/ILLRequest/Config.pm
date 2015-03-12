@@ -165,17 +165,18 @@ sub getProperties {
     return ${$self}{$name . "_props"};
 }
 
-=head3 getBranchLimits
+=head3 getLimitRules
 
-    my $branchlimits = $config->getBranchLimits();
+    my $rules = $config->getLimitRules('brw_cat' | 'branch')
 
-Return the hash of ILL branch limits defined by our config.
+Return the hash of ILL limit rules defined by our config.
 
 =cut
 
-sub getBranchLimits {
-    my ( $self ) = @_;
-    return $self->{configuration}->{limits};
+sub getLimitRules {
+    my ( $self, $type ) = @_;
+    die "Unexpected type." unless ( $type eq 'brw_cat' || $type eq 'branch' );
+    return $self->{configuration}->{limits}->{$type};
 }
 
 =head3 getCredentials
@@ -240,11 +241,26 @@ sub _load_configuration {
     my $branches = $xml_config->{branch};
     if ( ref($branches) eq "ARRAY" ) {
         # Multiple branch overrides defined
-        map { _load_unit_config($_, $_->{code}, $configuration) }
+        map { _load_unit_config($_, $_->{code}, $configuration, 'branch') }
             @{$branches};
     } elsif ( ref($branches) eq "HASH" ) {
         # Single branch override defined
-        _load_unit_config($branches, $branches->{code}, $configuration);
+        _load_unit_config(
+            $branches, $branches->{code}, $configuration, 'branch'
+        );
+    }
+
+    # Per Borrower Category Configuration
+    my $brw_cats = $xml_config->{borrower_category};
+    if ( ref($brw_cats) eq "ARRAY" ) {
+        # Multiple branch overrides defined
+        map { _load_unit_config($_, $_->{code}, $configuration, 'brw_cat') }
+            @{$brw_cats};
+    } elsif ( ref($brw_cats) eq "HASH" ) {
+        # Single branch override defined
+        _load_unit_config(
+            $brw_cats, $brw_cats->{code}, $configuration, 'brw_cat'
+        );
     }
 
     # Default Configuration
@@ -260,7 +276,7 @@ sub _load_configuration {
 }
 
 sub _load_unit_config {
-    my ( $unit, $id, $configuration ) = @_;
+    my ( $unit, $id, $configuration, $type ) = @_;
     return $configuration unless $id;
 
     if ( $unit->{api_key} && $unit->{api_auth} ) {
@@ -269,9 +285,24 @@ sub _load_unit_config {
             api_auth => $unit->{api_auth},
         };
     }
-    # For now we assume Request_Limit is just a number
-    if ( $unit->{request_limit} ) {
-        $configuration->{limits}->{$id} = $unit->{request_limit};
+    # Add request_limit rules.
+    # METHOD := 'annual' || 'active'
+    # COUNT  := x >= -1
+    if ( ref $unit->{request_limit} eq 'HASH' ) {
+        my $unit_limits = $configuration->{limits}->{$id};
+        my $method  = $unit->{request_limit}->{method};
+        my $count = $unit->{request_limit}->{count};
+        if ( 'default' eq $id ) {
+            $configuration->{limits}->{$id}->{method}  = $method
+                if ( $method && ( 'annual' eq $method || 'active' eq $method ) );
+            $configuration->{limits}->{$id}->{count} = $count
+                if ( $count && ( -1 <= $count ) );
+        } else {
+            $configuration->{limits}->{$type}->{$id}->{method}  = $method
+                if ( $method && ( 'annual' eq $method || 'active' eq $method ) );
+            $configuration->{limits}->{$type}->{$id}->{count} = $count
+                if ( $count && ( -1 <= $count ) );
+        }
     }
 
     return $configuration;

@@ -108,18 +108,27 @@ sub getPrices {
     return Koha::ILLRequest::XML::BLDSS->new->load_xml( { string => $prices } );
 }
 
-=head3 getBranchLimit
+=head3 getLimits
 
-    my $branch_limit = $abstract->getBranchLimit($branchcode);
+    my $limit_rules = $abstract->getLimits( {
+        type  => 'brw_cat' | 'branch',
+        value => $value
+    } );
 
-Return the ILL limit for $BRANCHCODE or -1 if it is not defined.
+Return the ILL limit rules for the supplied combination of type / value.
+
+As the config may have no rules for this particular type / value combination,
+or for the default, we must define fall-back values here.
 
 =cut
 
-sub getBranchLimit {
-    my ( $self, $branchcode ) = @_;
-    my $limits = $self->{config}->getBranchLimits;
-    return $limits->{$branchcode} || -1;
+sub getLimits {
+    my ( $self, $params ) = @_;
+    my $limits = $self->{config}->getLimitRules($params->{type});
+
+    return $limits->{$params->{value}}
+        || $limits->{default}
+        || { count => -1, method => 'active' };
 }
 
 =head3 request

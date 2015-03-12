@@ -249,38 +249,80 @@ sub _retrieve_requests {
 
 =head3 check_limits
 
-    my $ok = $illRequests->check_limits($params);
+    my $ok = $illRequests->check_limits( {
+        borrower   => $borrower,
+        branchcode => 'branchcode' | undef,
+    } );
 
 Given $PARAMS, a hashref containing a $borrower object and a $branchcode,
 see whether we are still able to place ILLs.
+
+LimitRules are derived from koha-conf.xml:
+ + default limit counts, and counting method
+ + branch specific limit counts & counting method
+ + borrower category specific limit counts & counting method
+ + err on the side of caution: a counting fail will cause fail, even if
+   the other counts passes.
 
 =cut
 
 sub check_limits {
     my ( $self, $params ) = @_;
-    my $borrower = $params->{borrower};
-    my $branchcode = $params->{branch} || $borrower->branchcode;
-    my $branch_resultset =
-        $self->_retrieve_requests( { branch => $branchcode } );
-    my $branch_count     = $branch_resultset->count;
-    my $brw_resultset    = $self->_retrieve_requests(
-        { borrowernumber => $borrower->borrowernumber}
-    );
-    my $brw_count        = $brw_resultset->count;
-    # A limit of -1 means no limit exists.
-    my $branch_limit     = Koha::ILLRequest::Abstract->new
-        ->getBranchLimit( $branchcode );
-    # FIXME: Implement borrower limit from borrower category.
-    my $brw_limit        = -1;
+    my $borrower          = $params->{borrower};
+    my $branchcode        = $params->{branch} || $borrower->branchcode;
 
-    if ( ( $branch_limit > $branch_count && $brw_limit > $brw_count  )
-             || ( $branch_limit == -1 && $brw_limit == -1 )
-             || ( $branch_limit == -1 && $brw_limit > $brw_count )
-             || ( $branch_limit > $branch_count && $brw_limit == -1 ) ) {
-        return 1;
-    } else {
+    # Establish rules
+    my $abstract = Koha::ILLRequest::Abstract->new;
+    my ( $branch_rules, $brw_rules ) = (
+        $abstract->getLimits( {
+            type => 'branch',
+            value => $branchcode
+        } ),
+        $abstract->getLimits( {
+            type => 'brw_cat',
+            value => $borrower->categorycode,
+        } ),
+    );
+    # Almost there, but category code didn't quite work.
+    my ( $branch_limit, $brw_limit )
+        = ( $branch_rules->{count}, $brw_rules->{count} );
+    my ( $branch_count, $brw_count ) = (
+        $self->_limit_counter(
+            $branch_rules->{method}, { branch => $branchcode }
+        ),
+        $self->_limit_counter(
+            $brw_rules->{method}, { borrowernumber => $borrower->borrowernumber }
+        ),
+    );
+
+    # Compare and return
+    # A limit of -1 means no limit exists.
+    if ( ( $branch_limit != -1 && $branch_limit <= $branch_count )
+             || ( $brw_limit != -1 && $brw_limit <= $brw_count ) ) {
         return 0;
+    } else {
+        return 1;
     }
+}
+
+sub _limit_counter {
+    my ( $self, $method, $target ) = @_;
+
+    # Establish parameters of counts
+    my $where;
+    if ($method eq 'annual') {
+        $where = { "year(placement_date)" => \" = year(now())" };
+    } else {                    # assume 'active'
+        # FIXME: This status list is ugly. There should be a method in config
+        # to return these.
+        $where = { status => { -not_in => [ 'Queued', 'Completed' ] } };
+    }
+
+    # Create resultset
+    my $resultset = $self->_retrieve_requests( { %{$target}, %{$where} } );
+
+    # Fetch counts
+    return $resultset->count;
 }
 
 =head3 retrieve_ill_request

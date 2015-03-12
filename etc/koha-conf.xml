@@ -123,10 +123,17 @@ __PAZPAR2_TOGGLE_XML_POST__
      <api_key>branch1_key</api_key>
      <api_auth>branch1_auth</api_auth>
      <request_limit>
-      <mode>annual</mode>
+      <method>annual</method>
       <count>10</count>
      </request_limit>
     </branch>
+    <borrower_category>
+     <code>example_brw_cat_code</code>
+     <request_limit>
+      <method>active</method>
+      <count>10</count>
+     </request_limit>
+    </borrower_category>
    -->
   </configuration>
  </interlibrary_loans>

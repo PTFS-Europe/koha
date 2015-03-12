@@ -45,7 +45,7 @@ my $second_branch = {
     code          => "second",
     api_key       => "eduirn",
     api_auth      => "eudtireand",
-    request_limit => "5",
+    request_limit => { count => "5" },
 };
 
 BEGIN {
@@ -68,7 +68,7 @@ is_deeply(
     "Basic _load_configuration"
 );
 
-$params->{configuration}->{request_limit} = 10;
+$params->{configuration}->{request_limit}->{count} = 10;
 is_deeply(
     Koha::ILLRequest::Config::_load_configuration($params),
     {
@@ -81,7 +81,7 @@ is_deeply(
             },
             api_application => $application,
         },
-        limits          => { default => 10 },
+        limits          => { default => { count => 10 } },
     },
     "Basic _load_configuration, with limit"
 );
@@ -103,7 +103,7 @@ is_deeply(
             },
             api_application => $application,
         },
-        limits          => { default => 10 },
+        limits          => { default => { count => 10 } },
     },
     "Single Branch _load_configuration"
 );
@@ -129,7 +129,12 @@ is_deeply(
             },
             api_application => $application,
         },
-        limits          => { default => 10, $second_branch->{code} => 5}
+        limits          => {
+            default => {count => 10 },
+            branch  => {
+                $second_branch->{code} => {count => 5 },
+            },
+        },
     },
     "Multi Branch _load_configuration"
 );
