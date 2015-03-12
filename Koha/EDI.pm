@@ -166,7 +166,7 @@ sub process_invoice {
                 if ($order) {
                     ModReceiveOrder(
                         {
-                            biblionumber         => $order->biblionumber,
+                            biblionumber         => $order->biblionumber->biblionumber,
                             ordernumber          => $ordernumber,
                             quantityreceived     => $line->quantity,
                             cost                 => $line->price_net,
