@@ -33,15 +33,19 @@ my $application = {
     key  => "6546uedrun",
     auth => "edutrineadue",
 };
+# Simulate $from_xml
 my $params = {
-    api_keys        => $defaults,
-    api_application => $application,
+    configuration  => $defaults,
+    application    => $application,
 };
 my $first_branch = {
     code => "test", api_key => "dphügnpgüffq", api_auth => "udrend"
 };
 my $second_branch = {
-    code => "second", api_key => "eduirn", api_auth => "eudtireand"
+    code          => "second",
+    api_key       => "eduirn",
+    api_auth      => "eudtireand",
+    request_limit => "5",
 };
 
 BEGIN {
@@ -51,65 +55,92 @@ BEGIN {
 my $config = Koha::ILLRequest::Config->new(1); # with test_mode enabled.
 isa_ok($config, 'Koha::ILLRequest::Config');
 
-# _load_credentials
+# _load_configuration
 is_deeply(
-    Koha::ILLRequest::Config::_load_credentials($params),
+    Koha::ILLRequest::Config::_load_configuration($params),
     {
-        api_keys        => { default => $defaults },
-        api_application => $application,
+        credentials => {
+            api_keys        => { default => $defaults },
+            api_application => $application,
+        },
+        limits      => {},
     },
-    "Basic _load_credentials"
+    "Basic _load_configuration"
 );
 
-$params->{api_keys}->{branch} = $first_branch;
+$params->{configuration}->{request_limit} = 10;
 is_deeply(
-    Koha::ILLRequest::Config::_load_credentials($params),
+    Koha::ILLRequest::Config::_load_configuration($params),
     {
-        api_keys        => {
-            default => {
-                api_key  => $defaults->{api_key},
-                api_auth => $defaults->{api_auth},
+        credentials => {
+            api_keys        => {
+                default => {
+                    api_key  => $defaults->{api_key},
+                    api_auth => $defaults->{api_auth}
+                }
             },
-            $first_branch->{code} => {
-                api_key  => $first_branch->{api_key},
-                api_auth => $first_branch->{api_auth},
-            },
+            api_application => $application,
         },
-        api_application => $application
+        limits          => { default => 10 },
     },
-    "Single Branch _load_credentials"
+    "Basic _load_configuration, with limit"
 );
 
-$params->{api_keys}->{branch} = [ $first_branch, $second_branch ];
+$params->{configuration}->{branch} = $first_branch;
 is_deeply(
-    Koha::ILLRequest::Config::_load_credentials($params),
+    Koha::ILLRequest::Config::_load_configuration($params),
     {
-        api_keys        => {
-            default => {
-                api_key  => $defaults->{api_key},
-                api_auth => $defaults->{api_auth},
+        credentials => {
+            api_keys        => {
+                default => {
+                    api_key  => $defaults->{api_key},
+                    api_auth => $defaults->{api_auth},
+                },
+                $first_branch->{code} => {
+                    api_key  => $first_branch->{api_key},
+                    api_auth => $first_branch->{api_auth},
+                },
             },
-            $first_branch->{code} => {
-                api_key  => $first_branch->{api_key},
-                api_auth => $first_branch->{api_auth},
-            },
-            $second_branch->{code} => {
-                api_key  => $second_branch->{api_key},
-                api_auth => $second_branch->{api_auth},
-            },
+            api_application => $application,
         },
-        api_application => $application,
+        limits          => { default => 10 },
     },
-    "Multi Branch _load_credentials"
+    "Single Branch _load_configuration"
+);
+
+$params->{configuration}->{branch} = [ $first_branch, $second_branch ];
+is_deeply(
+    Koha::ILLRequest::Config::_load_configuration($params),
+    {
+        credentials => {
+            api_keys        => {
+                default => {
+                    api_key  => $defaults->{api_key},
+                    api_auth => $defaults->{api_auth},
+                },
+                $first_branch->{code} => {
+                    api_key  => $first_branch->{api_key},
+                    api_auth => $first_branch->{api_auth},
+                },
+                $second_branch->{code} => {
+                    api_key  => $second_branch->{api_key},
+                    api_auth => $second_branch->{api_auth},
+                },
+            },
+            api_application => $application,
+        },
+        limits          => { default => 10, $second_branch->{code} => 5}
+    },
+    "Multi Branch _load_configuration"
 );
 
 # getCredentials
 $params = {
-    api_keys        => {},
-    api_application => $application,
+    configuration => {},
+    application   => $application,
 };
-$config->{configuration}->{credentials} =
-    Koha::ILLRequest::Config::_load_credentials($params),
+$config->{configuration} =
+    Koha::ILLRequest::Config::_load_configuration($params);
 is_deeply(
     $config->getCredentials,
     {
@@ -121,9 +152,9 @@ is_deeply(
     "getCredentials, no creds, just App."
 );
 
-$params->{api_keys} = $defaults;
-$config->{configuration}->{credentials} =
-    Koha::ILLRequest::Config::_load_credentials($params),
+$params->{configuration} = $defaults;
+$config->{configuration} =
+    Koha::ILLRequest::Config::_load_configuration($params),
 is_deeply(
     $config->getCredentials,
     {
@@ -135,9 +166,9 @@ is_deeply(
     "getCredentials, default creds & App."
 );
 
-$params->{api_keys}{branch} = $first_branch;
-$config->{configuration}->{credentials} =
-    Koha::ILLRequest::Config::_load_credentials($params),
+$params->{configuration}->{branch} = $first_branch;
+$config->{configuration} =
+    Koha::ILLRequest::Config::_load_configuration($params),
 is_deeply(
     $config->getCredentials($first_branch->{code}),
     {

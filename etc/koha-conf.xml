@@ -95,30 +95,41 @@ __PAZPAR2_TOGGLE_XML_POST__
  <includes>__INTRANET_TMPL_DIR__/prog/en/includes/</includes>
  <logdir>__LOG_DIR__</logdir>
  <docdir>__DOC_DIR__</docdir>
- <illconfig>__KOHA_CONF_DIR__/ill/config.yaml</illconfig>
- <!-- ill_application_key: the KEY associated with your application
-      registration in the BLDSS application management interface -->
- <ill_application>
-  <!--
-   <key>app_key</key>
-   <auth>app_auth</auth>
-  -->
- </ill_application>
- <!-- ill_keys: the KEYs associated with the various customers for
-      your setup.  See the example below for details. <branch> is
-      repeating and entirely optional. Top-level <api_key> is optional
-      if at least one branch is present. -->
- <ill_keys>
-  <!--
-   <api_key>example_default_key</api_key>
-   <api_auth>example_default_auth</api_auth>
-   <branch>
-    <code>example_branch1_code</code>
-    <api_key>branch1_key</api_key>
-    <api_auth>branch1_auth</api_auth>
-   </branch>
-  -->
- </ill_keys>
+ <interlibrary_loans>
+  <!-- Path to API YAML specification. -->
+  <api_specification>__KOHA_CONF_DIR__/ill/spec.yaml</api_specification>
+  <!-- Definition of our application credentials -->
+  <application>
+   <!--
+    <key>app_key</key>
+    <auth>app_auth</auth>
+   -->
+  </application>
+  <!-- Other configuration
+       Either:
+       - insert values as direct child of this element (default values)
+       - or insert a branch element, with <code> as child, and values
+         as child elements.  These are per branch overrides. -->
+  <configuration>
+   <!--
+    <api_key>example_default_key</api_key>
+    <api_auth>example_default_auth</api_auth>
+    <request_limit>
+     <mode>active</mode>
+     <count>-1</count>
+    </request_limit>
+    <branch>
+     <code>example_branch1_code</code>
+     <api_key>branch1_key</api_key>
+     <api_auth>branch1_auth</api_auth>
+     <request_limit>
+      <mode>annual</mode>
+      <count>10</count>
+     </request_limit>
+    </branch>
+   -->
+  </configuration>
+ </interlibrary_loans>
  <backupdir>__BACKUP_DIR__</backupdir>
  <!-- Enable the two following to allow superlibrarians to download
       database and configuration dumps (respectively) from the Export

@@ -17,7 +17,7 @@
 
 use Modern::Perl;
 
-use Test::More tests => 2;
+use Test::More;
 use Test::Warn;
 use Data::Dump qw( dump );
 
@@ -38,3 +38,5 @@ isa_ok($abstract, 'Koha::ILLRequest::Abstract');
 # getPrices
 #isa_ok($abstract->getPrices, 'XML::LibXML::Document');
 #diag(dump($abstract->getPrices));
+
+done_testing;

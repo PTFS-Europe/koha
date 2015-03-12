@@ -60,23 +60,24 @@ ILL configuration file.
 sub new {
     my $class = shift;
     my $test  = shift;
-    my $self  = _load_config_file(C4::Context->config("illconfig"));
-    bless $self, $class;
+    my $self  = {};
 
-    ${$self}{configuration}{keywords} =
+    $self->{configuration} =
+        _load_configuration(C4::Context->config("interlibrary_loans")
+      ) unless ( $test );
+
+    $self->{configuration}->{keywords} =
       [ "name", "accessor", "inSummary", "many" ];
 
-    $self->{configuration}->{credentials} = _load_credentials(
-        {
-            api_keys         => C4::Context->config("ill_keys"),
-            api_application  => C4::Context->config("ill_application"),
-        }
-    ) unless ( $test );
+    bless $self, $class;
 
-    ${$self}{record_props} = $self->_deriveProperties(${$self}{record});
-    ${$self}{availability_props} =
-      $self->_deriveProperties(${$self}{availability});
-    ${$self}{prices_props} = $self->_deriveProperties(${$self}{prices});
+    my $spec  = _load_api_specification(
+        C4::Context->config("interlibrary_loans")->{api_specification}
+      );
+    $self->{record_props} = $self->_deriveProperties($spec->{record});
+    $self->{availability_props} =
+      $self->_deriveProperties($spec->{availability});
+    $self->{prices_props} = $self->_deriveProperties($spec->{prices});
     return $self;
 }
 
@@ -174,7 +175,7 @@ Return the hash of ILL branch limits defined by our config.
 
 sub getBranchLimits {
     my ( $self ) = @_;
-    return $self->{configuration}->{credentials}->{limits};
+    return $self->{configuration}->{limits};
 }
 
 =head3 getCredentials
@@ -207,86 +208,85 @@ sub getCredentials {
     };
 }
 
-=head3 _load_credentials
+=head3 _load_configuration
 
-    my $_load_credentials = $config->_load_credentials(
-        { api_keys => $keys_hash, api_application => $app_hash }
-    );
+    my $configuration = $config->_load_configuration($config_from_xml);
 
 Read the configuration values passed as the parameter, and populate a hashref
 suitable for use with these.
 
 =cut
 
-sub _load_credentials {
-    my ( $params ) = @_;
+sub _load_configuration {
+    my $from_xml = shift;
+    my $xml_config = $from_xml->{configuration};
 
-    die "ILL_KEYS have not been defined in koha-conf.xml."
-        unless ( ref($params->{api_keys}) eq "HASH" );
+    # Input validation
+    die "CONFIGURATION has not been defined in koha-conf.xml."
+        unless ( ref($xml_config) eq "HASH" );
+    die "APPLICATION has not been defined in koha-conf.xml."
+        unless ( ref($from_xml->{application}) eq "HASH" );
 
-    die "ILL_APPLICATION_KEY has not been defined in koha-conf.xml."
-        unless ( ref($params->{api_application}) eq "HASH" );
-
-    # default data structure
-    my $credentials = {
-        api_application => {},
-        api_keys        => {},
-        limits          => {},
+    # Default data structure to be returned
+    my $configuration = {
+        credentials => {
+            api_application => {},
+            api_keys        => {},
+        },
+        limits      => {},
     };
 
-    # Per Branch Credentials
-    my $branches = $params->{api_keys}->{branch};
-    if ( ref($branches) eq "ARRAY" ) { # Multiple branches
-        foreach my $branch ( @{$branches} ) {
-            if ( $branch->{api_key} && $branch->{api_auth} ) {
-                $credentials->{api_keys}->{$branch->{code}} = {
-                    api_key  => $branch->{api_key},
-                    api_auth => $branch->{api_auth},
-                }
-            }
-            if ( $branch->{limit} ) {
-                $credentials->{limits}->{$branch->{code}} = $branch->{limit};
-            }
-        }
-    } elsif ( ref($branches) eq "HASH" ) { # One branch only
-        if ( $branches->{api_key} && $branches->{api_auth} ) {
-            $credentials->{api_keys}->{$branches->{code}} = {
-                api_key  => $branches->{api_key},
-                api_auth => $branches->{api_auth},
-            }
-        }
-        if ( $branches->{limit} ) {
-            $credentials->{limits}->{$branches->{code}} = $branches->{limit};
-        }
+    # Per Branch Configuration
+    my $branches = $xml_config->{branch};
+    if ( ref($branches) eq "ARRAY" ) {
+        # Multiple branch overrides defined
+        map { _load_unit_config($_, $_->{code}, $configuration) }
+            @{$branches};
+    } elsif ( ref($branches) eq "HASH" ) {
+        # Single branch override defined
+        _load_unit_config($branches, $branches->{code}, $configuration);
     }
 
-    # Default Credentials
-    if ( $params->{api_keys}->{api_key} && $params->{api_keys}->{api_auth} ) {
-        $credentials->{api_keys}->{default} = {
-            api_key  => $params->{api_keys}->{api_key},
-            api_auth => $params->{api_keys}->{api_auth},
-        }
-    }
+    # Default Configuration
+    _load_unit_config($xml_config, 'default', $configuration);
 
     # Application key & auth
-    $credentials->{api_application}  = {
-        key  => $params->{api_application}->{key},
-        auth => $params->{api_application}->{auth},
+    $configuration->{credentials}->{api_application}  = {
+        key  => $from_xml->{application}->{key},
+        auth => $from_xml->{application}->{auth},
     };
 
-    return $credentials;
+    return $configuration;
 }
 
-=head3 _load_config_file
+sub _load_unit_config {
+    my ( $unit, $id, $configuration ) = @_;
+    return $configuration unless $id;
 
-    _load_config_file(FILENAME);
+    if ( $unit->{api_key} && $unit->{api_auth} ) {
+        $configuration->{credentials}->{api_keys}->{$id} = {
+            api_key  => $unit->{api_key},
+            api_auth => $unit->{api_auth},
+        };
+    }
+    # For now we assume Request_Limit is just a number
+    if ( $unit->{request_limit} ) {
+        $configuration->{limits}->{$id} = $unit->{request_limit};
+    }
+
+    return $configuration;
+}
+
+=head3 _load_api_specification
+
+    _load_api_specification(FILENAME);
 
 Return a hashref, the result of loading FILENAME using the YAML
 loader, or raise an error.
 
 =cut
 
-sub _load_config_file {
+sub _load_api_specification {
     my ($config_file) = @_;
     die "The ill config file (" . $config_file . ") does not exist"
       if not -e $config_file;

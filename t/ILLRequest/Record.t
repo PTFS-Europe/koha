@@ -45,7 +45,7 @@ $record->create_from_xml($node);
 is(${$record}{data}{"./uin"}{value}, "BLL01015482483", "Created from XML");
 #diag(dump($record));
 
-# getSummary
+# getSummary — depends on your spec.yaml, will fail if changed from default.
 is_deeply($record->getSummary, {
                                 "./metadata/itemLevel/edition" => ["Edition", ""],
                                 "./metadata/itemLevel/year" => ["Year", 2010],
