@@ -103,7 +103,7 @@
 <h3>Cash management parameters</h3>
 <dl>
     <dt><a href="/cgi-bin/koha/admin/transcode.pl">Cash Management Categories</a></dt>
-    <dd>Define categories for recording paymenrs in cash management.</dd>
+    <dd>Define categories for recording payments in cash management.</dd>
     <dt><a href="/cgi-bin/koha/admin/tills.pl">Tills</a></dt>
     <dd>Define tills for cash management.</dd>
 </dl>
