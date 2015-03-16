@@ -94,7 +94,7 @@ if ($add){
   if ( C4::Context->preference('CashManagement') ) {
     my @cash_transcodes;
     my $dbh = C4::Context->dbh;
-    my $sth = $dbh->prepare('SELECT code, description FROM cash_transcode WHERE visible_charge = 1 AND archived = 0');
+    my $sth = $dbh->prepare('SELECT code, description FROM cash_transcode WHERE visible_charge = 1 AND archived = 0 ORDER BY description');
     $sth->execute();
     while ( my $row = $sth->fetchrow_hashref() ) {
       push @cash_transcodes, $row;
