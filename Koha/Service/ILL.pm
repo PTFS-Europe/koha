@@ -50,7 +50,8 @@ sub search {
 
     if ( $self->query->param('query') ) {
         my $query = $self->query->param('query');
-        my $reply = Koha::ILLRequests->new()->search_api($query);
+        my $reply = Koha::ILLRequests->new
+            ->search_api( { keywords => $query } );
         $self->output( $reply, { status => '200 OK', type => 'json' } );
     }
     elsif ( $self->query->param('borrowernumber') ) {

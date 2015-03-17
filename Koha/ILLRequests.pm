@@ -76,7 +76,7 @@ sub new {
 
 =head3 search_api
 
-    my $Records = $illRequests->search_api($query);
+    my $Records = $illRequests->search_api($opts);
 
 Perform a search against the defined API, returning an array of RECORDs, which
 can be used for output to the end-user.  For placing the request, the
@@ -85,12 +85,12 @@ can be used for output to the end-user.  For placing the request, the
 =cut
 
 sub search_api {
-    my ( $self, $query, $opts ) = @_;
-    my $records = Koha::ILLRequest::Abstract->new()->search($query, $opts);
+    my ( $self, $opts ) = @_;
+    my $records = Koha::ILLRequest::Abstract->new
+        ->search($opts->{keywords}, $opts);
     $self->{opts} = $opts;
     $self->{opts}->{max_results} = $opts->{max_results} || 10;
-    $self->{opts}->{start_rec}   = $opts->{start_rec} || 1;
-    $self->{opts}->{keywords}    = $query if ( $query );
+    $self->{opts}->{start_rec}   = $opts->{start_rec}   || 1;
     $self->{search_results} = $records;
 
     if (!$records) {

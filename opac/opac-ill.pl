@@ -74,6 +74,7 @@ if ( fail(1) ) {
 
 } elsif ( $op eq 'search' ) {
     my $opts = {};
+    $opts->{keywords} = $query if ( '' ne $query );
     my $nav_qry = "?op=search&query_value=" . uri_escape($query);
     for my $opt qw( isbn issn title author type start_rec max_results ) {
         my $val = $cgi->param($opt);
@@ -85,7 +86,7 @@ if ( fail(1) ) {
         }
     }
     my $requests = Koha::ILLRequests->new;
-    $reply = $requests->search_api($query, $opts);
+    $reply = $requests->search_api($opts);
     my $search_strings = $requests->get_search_string;
     $template->param(
         search => $search_strings->{userstring},

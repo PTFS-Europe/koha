@@ -56,6 +56,7 @@ if ( fail($query, $input->param('brw'), $input->param('branch')) ) {
 
 } elsif ( $action eq 'search' ) {
     my $opts = {};
+    $opts->{keywords} = $query if ( '' ne $query );
     my $nav_qry = "?query_type=search&query_value=" . uri_escape($query);
     for my $opt qw( isbn issn title author type start_rec max_results ) {
         my $val = $input->param($opt);
@@ -66,7 +67,7 @@ if ( fail($query, $input->param('brw'), $input->param('branch')) ) {
         }
     }
     my $requests = Koha::ILLRequests->new;
-    $reply = $requests->search_api($query, $opts);
+    $reply = $requests->search_api($opts);
     my $search_strings = $requests->get_search_string;
     $template->param(
         search => $search_strings->{userstring},
