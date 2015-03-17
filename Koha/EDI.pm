@@ -176,6 +176,9 @@ sub process_invoice {
                             cost                 => $price,
                             invoiceid            => $invoicenumber,
                             datereceived         => $msg_date,
+                            budget_id            => $order->budget_id,
+                            rrp                  => $order->rrp,
+                            ecost                => $order->ecost,
                             received_itemnumbers => [],
                         }
                     );
