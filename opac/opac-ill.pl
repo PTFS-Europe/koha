@@ -61,9 +61,15 @@ if ( fail(1) ) {
 } elsif ( $op eq 'new' ) {
     $template->param(
         branches => GetBranchesLoop($borrower->branchcode),
-        type     => [ "Book", "Article", "Journal" ],
+        types    => [ "Book", "Article", "Journal" ],
         back     => $here,
         forward  => $here . "?op=search",
+        keywords => $cgi->param('keywords') || "",
+        isbn     => $cgi->param('isbn')     || "",
+        issn     => $cgi->param('issn')     || "",
+        title    => $cgi->param('title')    || "",
+        author   => $cgi->param('author')   || "",
+        type     => $cgi->param('type')     || "",
     );
 
 } elsif ( $op eq 'search' ) {
@@ -80,7 +86,11 @@ if ( fail(1) ) {
     }
     my $requests = Koha::ILLRequests->new;
     $reply = $requests->search_api($query, $opts);
-    $template->param( search => $requests->get_search_string );
+    my $search_strings = $requests->get_search_string;
+    $template->param(
+        search => $search_strings->{userstring},
+        back   => $here . "?op=new&" . $search_strings->{querystring},
+    );
 
     if ($reply) {
         # setup place request url
@@ -94,7 +104,6 @@ if ( fail(1) ) {
             }
         );
         $template->param(
-            back        => $here . "?op=search",
             forward     => $here . "?op=request",
             next        => $pagers->{next},
             previous    => $pagers->{previous},

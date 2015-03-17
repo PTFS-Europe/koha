@@ -65,7 +65,11 @@ if ( fail($query, $input->param('brw'), $input->param('branch')) ) {
     }
     my $requests = Koha::ILLRequests->new;
     $reply = $requests->search_api($query, $opts);
-    $template->param( search => $requests->get_search_string );
+    my $search_strings = $requests->get_search_string;
+    $template->param(
+        search => $search_strings->{userstring},
+        back   => "?op=new&" . $search_strings->{querystring},
+    );
 
     if ($reply) {
         # setup place request url
@@ -92,7 +96,15 @@ if ( fail($query, $input->param('brw'), $input->param('branch')) ) {
 } else {                        # or action eq 'new'
 }
 
-$template->param( type => [ "Book", "Article", "Journal" ] );
+$template->param(
+    types    => [ "Book", "Article", "Journal" ],
+    keywords => $input->param('keywords') || "",
+    isbn     => $input->param('isbn')     || "",
+    issn     => $input->param('issn')     || "",
+    title    => $input->param('title')    || "",
+    author   => $input->param('author')   || "",
+    type     => $input->param('type')     || "",
+);
 $template->param( recv     => $input );
 $template->param( branches => GetBranchesLoop );
 $template->param( reply    => $reply );

@@ -25,6 +25,7 @@ use Koha::Database;
 use Koha::ILLRequest;
 use Koha::ILLRequest::Abstract;
 use Koha::ILLRequest::Status;
+use URI::Escape;
 
 use base qw(Koha::Objects);
 
@@ -86,6 +87,7 @@ can be used for output to the end-user.  For placing the request, the
 sub search_api {
     my ( $self, $query, $opts ) = @_;
     my $records = Koha::ILLRequest::Abstract->new()->search($query, $opts);
+    $self->{opts} = $opts;
     $self->{opts}->{max_results} = $opts->{max_results} || 10;
     $self->{opts}->{start_rec}   = $opts->{start_rec} || 1;
     $self->{opts}->{keywords}    = $query if ( $query );
@@ -153,12 +155,18 @@ sub get_search_string {
     my ( $self ) = @_;
     die "No search has been performed against the API yet"
         unless $self->{opts};
-    my $search_string;
+    my $userstring = "";
+    my @querystring = ();
     my $opts = $self->{opts};
     while ( my ($type, $value) = each $opts ) {
-        $search_string .= "[" . join(": ", $type, $value) . "]";
+        $userstring .= "[" . join(": ", $type, $value) . "]";
+        push @querystring, join("=", $type, uri_escape($value));
     }
-    return $search_string;
+    my $strings = {
+        userstring  => $userstring,
+        querystring => join("&", @querystring),
+    };
+    return $strings;
 }
 
 =head3 request

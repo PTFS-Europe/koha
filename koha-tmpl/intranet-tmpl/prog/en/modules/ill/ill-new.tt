@@ -39,30 +39,41 @@
                             <ol>
                                 <li>
                                     <label class="required" for="query_value">Keywords:</label>
-                                    <input type="text" name="query_value" id="query_value" type="text"/>
+                                    <input type="text" name="query_value" id="query_value"
+                                           value="[% keywords %]" />
                                 </li>
                                 <li>
                                     <label for="isbn">ISBN:</label>
-                                    <input type="text" name="isbn" id="isbn" type="text"/>
+                                    <input type="text" name="isbn" id="isbn"
+                                           value="[% isbn %]" />
                                 </li>
                                 <li>
                                     <label for="issn">ISSN:</label>
-                                    <input type="text" name="issn" id="issn" type="text"/>
+                                    <input type="text" name="issn" id="issn"
+                                           value="[% issn %]" />
                                 </li>
                                 <li>
                                     <label for="title">Title:</label>
-                                    <input type="text" name="title" id="title" type="text"/>
+                                    <input type="text" name="title" id="title"
+                                           value="[% title %]" />
                                 </li>
                                 <li>
                                     <label for="author">Author:</label>
-                                    <input type="text" name="author" id="author" type="text"/>
+                                    <input type="text" name="author" id="author"
+                                           value="[% author %]" />
                                 </li>
                                 <li>
                                     <label for="type">Type:</label>
                                     <select name="type" id="type">
                                         <option value=""/>
-                                        [% FOREACH opt IN type %]
-                                            <option value=[% opt %]>[% opt %]</option>
+                                        [% FOREACH opt IN types %]
+                                            [% IF type == opt %]
+                                                <option value=[% opt %] selected="selected">
+                                                    [% opt %]
+                                                </option>
+                                             [% ELSE %]
+                                                <option value=[% opt %]>[% opt %]</option>
+                                             [% END %]
                                         [% END %]
                                     </select>
                                 </li>
@@ -104,7 +115,11 @@
                 [% ELSIF query_type == 'search' %]
                     <h2>Search results</h2>
                     [% IF reply.0 %]
-                        <p>Results of search for: ”[% search %]“</p>
+                        <p class="bg-info">Results of search for: ”[% search %]“
+                            <a href="[% back %]" title="Amend your search"
+                               class="btn btn-default btn-sm"
+                               role="button">Amend your search</a>
+                        </p>
                         <table>
                             <thead>
                                 <tr>
@@ -147,7 +162,12 @@
                             [% END %]
                         </p>
                     [% ELSE %]
-                        <p>No results were found for: “[% search%]”</p>
+                        <p>
+                            No results were found for: “[% search%]”
+                            <a href="[% back %]" title="Amend your search"
+                               class="btn btn-default btn-sm"
+                               role="button">Amend your search</a>
+                        </p>
                     [% END %]
                 [% END %]
 
