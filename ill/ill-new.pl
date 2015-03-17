@@ -43,8 +43,10 @@ my ( $template, $borrowernumber, $cookie )
                           }
                          );
 
-$template->param( query_value => $query );
-$template->param( query_type => $action );
+$template->param(
+    query_value => $query,
+    query_type  => $action,
+);
 
 if ( fail($query, $input->param('brw'), $input->param('branch')) ) {
     $error = {
@@ -104,12 +106,12 @@ $template->param(
     title    => $input->param('title')    || "",
     author   => $input->param('author')   || "",
     type     => $input->param('type')     || "",
+    recv     => $input,
+    branches => GetBranchesLoop,
+    reply    => $reply,
+    error    => $error,
+    debug    => 0,
 );
-$template->param( recv     => $input );
-$template->param( branches => GetBranchesLoop );
-$template->param( reply    => $reply );
-$template->param( error    => $error );
-$template->param( debug    => 1 ); # if ( $input->param('debug') );
 
 output_html_with_http_headers( $input, $cookie, $template->output );
 
