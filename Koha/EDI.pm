@@ -174,7 +174,7 @@ sub process_invoice {
                             ordernumber          => $ordernumber,
                             quantityreceived     => $line->quantity,
                             cost                 => $price,
-                            invoiceid            => $invoicenumber,
+                            invoiceid            => $invoiceid,
                             datereceived         => $msg_date,
                             budget_id            => $order->budget_id,
                             rrp                  => $order->rrp,
