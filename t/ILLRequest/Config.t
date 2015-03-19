@@ -219,14 +219,17 @@ diag dump $config->getLimitRules('brw_cat');
 is_deeply(
     $config->getLimitRules('branch'),
     {
-        second => { count => 5 }
+        default => { count => 10 },
+        second  => { count => 5 },
     },
     "second branch getLimitRules"
 );
 
 is_deeply(
     $config->getLimitRules('brw_cat'),
-    undef,
+    {
+        default => { count => 10 },
+    },
     "empty brw_cat getLimitRules"
 );
 

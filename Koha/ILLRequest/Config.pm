@@ -177,7 +177,9 @@ Return the hash of ILL limit rules defined by our config.
 sub getLimitRules {
     my ( $self, $type ) = @_;
     die "Unexpected type." unless ( $type eq 'brw_cat' || $type eq 'branch' );
-    return $self->{configuration}->{limits}->{$type};
+    my $values = $self->{configuration}->{limits}->{$type};
+    $values->{default} = $self->{configuration}->{limits}->{default};
+    return $values;
 }
 
 
