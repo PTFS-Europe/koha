@@ -26,7 +26,8 @@ use Business::ISBN;
 use DateTime;
 use C4::Context;
 use Koha::Database;
-use C4::Acquisition qw( NewBasket AddInvoice ModReceiveOrder );
+use C4::Acquisition qw( NewBasket );
+use C4::Suggestions qw( ModSuggestion );
 use C4::Items qw(AddItem);
 use C4::Biblio qw( AddBiblio TransformKohaToMarc GetMarcBiblio );
 use Koha::Edifact::Order;
@@ -105,10 +106,9 @@ sub create_edi_order {
 
 sub process_invoice {
     my $invoice_message = shift;
-    my $database        = Koha::Database->new();
-    my $schema          = $database->schema();
+    my $schema          = Koha::Database->new()->schema();
+    my $logger          = Log::Log4perl->get_logger();
     my $vendor_acct;
-    my $logger = Log::Log4perl->get_logger();
     my $edi =
       Koha::Edifact->new( { transmission => $invoice_message->raw_msg, } );
     my $messages = $edi->message_array();
@@ -139,15 +139,18 @@ sub process_invoice {
             }
             $invoice_message->edi_acct( $vendor_acct->id );
             $logger->trace("Adding invoice:$invoicenumber");
-            my $invoiceid = AddInvoice(
-                invoicenumber         => $invoicenumber,
-                booksellerid          => $invoice_message->vendor_id,
-                shipmentdate          => $msg_date,
-                billingdate           => $tax_date,
-                shipmentcost          => $shipmentcharge,
-                shipmentcost_budgetid => $vendor_acct->shipment_budget,
-                message_id            => $invoice_message->id,
+            my $new_invoice = $schema->resultset('Aqinvoice')->create(
+                {
+                    invoicenumber         => $invoicenumber,
+                    booksellerid          => $invoice_message->vendor_id,
+                    shipmentdate          => $msg_date,
+                    billingdate           => $tax_date,
+                    shipmentcost          => $shipmentcharge,
+                    shipmentcost_budgetid => $vendor_acct->shipment_budget,
+                    message_id            => $invoice_message->id,
+                }
             );
+            my $invoiceid = $new_invoice->invoiceid;
             $logger->trace("Added as invoiceno :$invoiceid");
             my $lines = $msg->lineitems();
 
@@ -156,32 +159,64 @@ sub process_invoice {
                 $logger->trace( "Receipting order:$ordernumber Qty: ",
                     $line->quantity );
 
-                # handle old basketno/ordernumber references
-                if ( $ordernumber =~ m{\d+\/(\d+)}xms ) {
-                    $ordernumber = $1;
-                }
                 my $order = $schema->resultset('Aqorder')->find($ordernumber);
 
       # ModReceiveOrder does not validate that $ordernumber exists validate here
                 if ($order) {
-                        my $price = $line->price_net;
-                        if (!defined $price ) {
-                             $price = $line->price_gross;
-                        }
-                    ModReceiveOrder(
+
+                    # check suggestions
+                    my $s = $schema->resultset('Suggestion')->search(
                         {
-                            biblionumber         => $order->biblionumber->biblionumber,
-                            ordernumber          => $ordernumber,
-                            quantityreceived     => $line->quantity,
-                            cost                 => $price,
-                            invoiceid            => $invoiceid,
-                            datereceived         => $msg_date,
-                            budget_id            => $order->budget_id,
-                            rrp                  => $order->rrp,
-                            ecost                => $order->ecost,
-                            received_itemnumbers => [],
+                            biblionumber => $order->biblionumber,
                         }
-                    );
+                    )->single;
+                    if ($s) {
+                        ModSuggestion(
+                            {
+                                suggestionid => $s->suggestionid,
+                                STATUS       => 'AVAILABLE',
+                            }
+                        );
+                    }
+
+                    my $price = $line->price_net;
+                    if ( !defined $price )
+                    {    # no net price so generate it from lineitem amount
+                        $price = $line->amt_lineitem;
+                        if ( $price and $line->quantity > 1 ) {
+                            $price /= $line->quantity;    # div line cost by qty
+                        }
+                    }
+                    if ( $order->quantity > $line->quantity ) {
+                        my $ordered = $order->quantity;
+
+                        # part receipt
+                        $order->orderstatus('partial');
+                        $order->quantity( $ordered - $line->quantity );
+                        $order->update;
+                        my $received_order = $order->copy(
+                            {
+                                ordernumber      => undef,
+                                quantity         => $line->quantity,
+                                quantityreceived => $line->quantity,
+                                orderstatus      => 'complete',
+                                unitprice        => $price,
+                                invoiceid        => $invoiceid,
+                                datereceived     => $msg_date,
+                            }
+                        );
+                        transfer_items( $line, $order, $received_order );
+                        receipt_items( $line, $received_order->ordernumber );
+                    }
+                    else {    # simple receipt all copies on order
+                        $order->quantityreceived( $line->quantity );
+                        $order->datereceived($msg_date);
+                        $order->invoiceid($invoiceid);
+                        $order->unitprice($price);
+                        $order->orderstatus('complete');
+                        $order->update;
+                        receipt_items( $line, $ordernumber );
+                    }
                 }
                 else {
                     $logger->error(
@@ -197,6 +232,94 @@ sub process_invoice {
 
     $invoice_message->status('received');
     $invoice_message->update;    # status and basketno link
+    return;
+}
+
+sub receipt_items {
+    my ( $inv_line, $ordernumber );
+    my $schema   = $inv_line->schema;
+    my $logger   = Log::Log4perl->get_logger();
+    my $quantity = $inv_line->quantity;
+
+    # itemnumber is not a foreign key ??? makes this a bit cumbersome
+    my @item_links = $schema->resultset('AqordersItem')->search(
+        {
+            ordernumber => $ordernumber,
+        }
+    );
+    my %branch_map;
+    foreach my $ilink (@item_links) {
+        my $item = $schema->resultset('Item')->find( $ilink->itemnumber );
+        my $b    = $item->homebranch->branchcode;
+        if ( !exists $branch_map{$b} ) {
+            @{ $branch_map{$b} } = [];
+        }
+        push @{ $branch_map{$b} }, $item;
+    }
+    my $gir_occurence = 0;
+    while ( $gir_occurence < $quantity ) {
+        my $branch = $inv_line->girfield( 'branch', $gir_occurence );
+        my $item = shift @{ $branch_map{$branch} };
+        if ($item) {
+            my $barcode = $inv_line->girfield( 'barcode', $gir_occurence );
+            if ( $barcode && !$item->barcode ) {
+                $item->barcode($barcode);
+            }
+
+            # clear not for loan flag
+            if ( $item->notforloan == -1 ) {
+                $item->notforloan(0);
+            }
+            $item->update;
+        }
+        else {
+            $logger->warn("Unmatched item at branch:$branch");
+        }
+        ++$gir_occurence;
+    }
+    return;
+
+}
+
+sub transfer_items {
+    my ( $inv_line, $order_from, $order_to );
+
+    # Transfer x items from the orig order to a completed partial order
+    my $quantity = $inv_line->quantity;
+    my $gocc     = 0;
+    my %mapped_by_branch;
+    while ( $gocc < $quantity ) {
+        my $branch = $inv_line->girfield( 'branch', $gocc );
+        if ( !exists $mapped_by_branch{$branch} ) {
+            $mapped_by_branch{$branch} = 1;
+        }
+        else {
+            $mapped_by_branch{$branch}++;
+        }
+    }
+    my $schema = $order_from->schema;
+
+    my @item_links = $schema->resultset('AqordersItem')->search(
+        {
+            ordernumber => $order_from->ordernumber,
+        }
+    );
+    foreach my $ilink (@item_links) {
+        my $item     = $schema->resultset('Item')->find( $ilink->itemnumber );
+        my $i_branch = $item->homebranch;
+        if ( exists $mapped_by_branch{$i_branch}
+            && $mapped_by_branch{$i_branch} > 0 )
+        {
+            $ilink->ordernumber( $order_to->ordernumber );
+            $ilink->update;
+            --$quantity;
+            --$mapped_by_branch{$i_branch};
+        }
+        if ( $quantity < 1 ) {
+            last;
+        }
+    }
+
     return;
 }
 
