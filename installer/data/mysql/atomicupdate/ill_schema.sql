@@ -4,6 +4,8 @@ VALUES ('ILLModule','0','If ON, enables the Inter-Library Loan module','','YesNo
 INSERT INTO systempreferences (variable,value,explanation,options,type)
 VALUES ('OpacILLRequests','0','If ON, allows patrons to view their ILL requests in the OPAC','','YesNo');
 INSERT INTO systempreferences (variable,value,explanation,options,type)
+VALUES ('UnmediatedILL','0','if ON, staff and members of the public will be able to place requests directly through the API, without staff moderation.','','YesNo');
+INSERT INTO systempreferences (variable,value,explanation,options,type)
 VALUES ('GenericILLModule','0','if ON, staff will have the option to place ILLs with partner libraries, instead of a central authority','','YesNo');
 INSERT INTO systempreferences (variable,value,explanation,options,type)
 VALUES ('GenericILLPartners','ILLLIBS','The borrower category to use to fetch ILL partner details.','','Free');

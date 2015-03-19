@@ -130,6 +130,13 @@ Administration:
                   no: Disable
             - OPAC based interlibrary loan requests.
         -
+            - pref: UnmediatedILL
+              default: 0
+              choices:
+                  yes: Enable
+                  no: Disable
+            - unmediated interlibrary loan requests.
+        -
             - pref: GenericILLModule
               default: 0
               choices:

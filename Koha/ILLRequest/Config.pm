@@ -62,8 +62,9 @@ sub new {
     my $test  = shift;
     my $self  = {};
 
-    $self->{configuration} =
-        _load_configuration(C4::Context->config("interlibrary_loans")
+    $self->{configuration} = _load_configuration(
+        C4::Context->config("interlibrary_loans"),
+        C4::Context->preference("UnmediatedILL")
       ) unless ( $test );
 
     $self->{configuration}->{keywords} =
@@ -179,6 +180,24 @@ sub getLimitRules {
     return $self->{configuration}->{limits}->{$type};
 }
 
+
+=head3 getDefaultFormats
+
+    my $defaultFormat = $config->getLimitRules('brw_cat' | 'branch')
+
+Return the hash of ILL default formats defined by our config.
+
+=cut
+
+sub getDefaultFormats {
+    my ( $self, $type ) = @_;
+    die "Unexpected type." unless ( $type eq 'brw_cat' || $type eq 'branch' );
+    # FIXME: BUG: does not return default limits
+    my $values = $self->{configuration}->{default_formats}->{$type};
+    $values->{default} = $self->{configuration}->{default_formats}->{default};
+    return $values;
+}
+
 =head3 getCredentials
 
     my $credentials = $config->getCredentials($branchCode);
@@ -219,7 +238,7 @@ suitable for use with these.
 =cut
 
 sub _load_configuration {
-    my $from_xml = shift;
+    my ( $from_xml, $unmediated ) = @_;
     my $xml_config = $from_xml->{configuration};
 
     # Input validation
@@ -230,11 +249,12 @@ sub _load_configuration {
 
     # Default data structure to be returned
     my $configuration = {
-        credentials => {
+        credentials     => {
             api_application => {},
             api_keys        => {},
         },
-        limits      => {},
+        limits          => {},
+        default_formats => {},
     };
 
     # Per Branch Configuration
@@ -272,15 +292,18 @@ sub _load_configuration {
         auth => $from_xml->{application}->{auth},
     };
 
+    die "No DEFAULT_FORMATS has been defined in koha-conf.xml, but UNMEDIATEDILL is active."
+        if ( $unmediated && !$configuration->{default_formats}->{default} );
+
     return $configuration;
 }
 
 sub _load_unit_config {
-    my ( $unit, $id, $configuration, $type ) = @_;
-    return $configuration unless $id;
+    my ( $unit, $id, $config, $type ) = @_;
+    return $config unless $id;
 
     if ( $unit->{api_key} && $unit->{api_auth} ) {
-        $configuration->{credentials}->{api_keys}->{$id} = {
+        $config->{credentials}->{api_keys}->{$id} = {
             api_key  => $unit->{api_key},
             api_auth => $unit->{api_auth},
         };
@@ -289,23 +312,43 @@ sub _load_unit_config {
     # METHOD := 'annual' || 'active'
     # COUNT  := x >= -1
     if ( ref $unit->{request_limit} eq 'HASH' ) {
-        my $unit_limits = $configuration->{limits}->{$id};
         my $method  = $unit->{request_limit}->{method};
         my $count = $unit->{request_limit}->{count};
         if ( 'default' eq $id ) {
-            $configuration->{limits}->{$id}->{method}  = $method
+            $config->{limits}->{$id}->{method}  = $method
                 if ( $method && ( 'annual' eq $method || 'active' eq $method ) );
-            $configuration->{limits}->{$id}->{count} = $count
+            $config->{limits}->{$id}->{count} = $count
                 if ( $count && ( -1 <= $count ) );
         } else {
-            $configuration->{limits}->{$type}->{$id}->{method}  = $method
+            $config->{limits}->{$type}->{$id}->{method}  = $method
                 if ( $method && ( 'annual' eq $method || 'active' eq $method ) );
-            $configuration->{limits}->{$type}->{$id}->{count} = $count
+            $config->{limits}->{$type}->{$id}->{count} = $count
                 if ( $count && ( -1 <= $count ) );
         }
     }
 
-    return $configuration;
+    # Add default_formats types.
+    # FORMAT && QUALITY && QUANTITY && SERVICE && SPEED := x >= 0
+    if ( ref $unit->{default_formats} eq 'HASH' ) {
+        my @fields = qw(format quality quantity service speed);
+        if ( 'default' eq $id ) {
+            for ( @fields ) {
+                my $val = $unit->{default_formats}->{$_};
+                die "Invalid default_formats: '$_' missing"
+                    unless $val;
+                $config->{default_formats}->{$id}->{$_} = $val;
+            }
+        } else {
+            for ( @fields ) {
+                my $val = $unit->{default_formats}->{$_};
+                die "Invalid default_formats: '$_' missing"
+                    unless $val;
+                $config->{default_formats}->{$type}->{$id}->{$_} = $val;
+            }
+        }
+    }
+
+    return $config;
 }
 
 =head3 _load_api_specification

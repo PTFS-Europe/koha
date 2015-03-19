@@ -118,6 +118,13 @@ __PAZPAR2_TOGGLE_XML_POST__
      <mode>active</mode>
      <count>-1</count>
     </request_limit>
+    <default_formats>
+     <format>1</format>
+     <quality>1</quality>
+     <quantity>1</quantity>
+     <service>1</service>
+     <speed>1</speed>
+    </default_formats>
     <branch>
      <code>example_branch1_code</code>
      <api_key>branch1_key</api_key>
@@ -126,6 +133,13 @@ __PAZPAR2_TOGGLE_XML_POST__
       <method>annual</method>
       <count>10</count>
      </request_limit>
+     <default_formats>
+      <format>1</format>
+      <quality>1</quality>
+      <quantity>1</quantity>
+      <service>1</service>
+      <speed>1</speed>
+     </default_formats>
     </branch>
     <borrower_category>
      <code>example_brw_cat_code</code>

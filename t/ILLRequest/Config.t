@@ -17,6 +17,7 @@
 
 use Modern::Perl;
 
+use Test::Exception;
 use Test::More;
 use Test::Warn;
 
@@ -59,11 +60,12 @@ isa_ok($config, 'Koha::ILLRequest::Config');
 is_deeply(
     Koha::ILLRequest::Config::_load_configuration($params),
     {
-        credentials => {
+        credentials     => {
             api_keys        => { default => $defaults },
             api_application => $application,
         },
-        limits      => {},
+        limits          => {},
+        default_formats => {},
     },
     "Basic _load_configuration"
 );
@@ -72,7 +74,7 @@ $params->{configuration}->{request_limit}->{count} = 10;
 is_deeply(
     Koha::ILLRequest::Config::_load_configuration($params),
     {
-        credentials => {
+        credentials     => {
             api_keys        => {
                 default => {
                     api_key  => $defaults->{api_key},
@@ -82,6 +84,7 @@ is_deeply(
             api_application => $application,
         },
         limits          => { default => { count => 10 } },
+        default_formats => {},
     },
     "Basic _load_configuration, with limit"
 );
@@ -90,7 +93,7 @@ $params->{configuration}->{branch} = $first_branch;
 is_deeply(
     Koha::ILLRequest::Config::_load_configuration($params),
     {
-        credentials => {
+        credentials     => {
             api_keys        => {
                 default => {
                     api_key  => $defaults->{api_key},
@@ -104,6 +107,7 @@ is_deeply(
             api_application => $application,
         },
         limits          => { default => { count => 10 } },
+        default_formats => {},
     },
     "Single Branch _load_configuration"
 );
@@ -112,7 +116,7 @@ $params->{configuration}->{branch} = [ $first_branch, $second_branch ];
 is_deeply(
     Koha::ILLRequest::Config::_load_configuration($params),
     {
-        credentials => {
+        credentials     => {
             api_keys        => {
                 default => {
                     api_key  => $defaults->{api_key},
@@ -135,8 +139,95 @@ is_deeply(
                 $second_branch->{code} => {count => 5 },
             },
         },
+        default_formats => {},
     },
     "Multi Branch _load_configuration"
+);
+
+dies_ok { Koha::ILLRequest::Config::_load_configuration($params, 1) }
+    "Unmediated, missing config _load_configuration";
+
+$params->{configuration}->{default_formats} = {
+    format => 1, quality => 1, quantity => 1, service => 1, speed => 1
+};
+is_deeply(
+    Koha::ILLRequest::Config::_load_configuration($params, 1),
+    {
+        credentials     => {
+            api_keys        => {
+                default => {
+                    api_key  => $defaults->{api_key},
+                    api_auth => $defaults->{api_auth},
+                },
+                $first_branch->{code} => {
+                    api_key  => $first_branch->{api_key},
+                    api_auth => $first_branch->{api_auth},
+                },
+                $second_branch->{code} => {
+                    api_key  => $second_branch->{api_key},
+                    api_auth => $second_branch->{api_auth},
+                },
+            },
+            api_application => $application,
+        },
+        limits          => {
+            default => {count => 10 },
+            branch  => {
+                $second_branch->{code} => {count => 5 },
+            },
+        },
+        default_formats => {
+            default => {
+                format => 1,
+                quality => 1,
+                quantity => 1,
+                service => 1,
+                speed => 1
+            }
+        },
+    },
+    "default_formats, default only _load_configuration"
+);
+
+# getDefaultFormats
+dies_ok { $config->getLimitRules('wrongType') }
+    "Faulty getDefaultFormats";
+
+$config->{configuration} =
+    Koha::ILLRequest::Config::_load_configuration($params);
+is_deeply(
+    $config->getDefaultFormats('brw_cat'),
+    {
+        default => {
+            format => 1,
+            quality => 1,
+            quantity => 1,
+            service => 1,
+            speed => 1
+        }
+    },
+    "Default getDefaultFormats"
+);
+
+# getLimitRules
+dies_ok { $config->getLimitRules('wrongType') }
+    "Faulty getLimitRules";
+
+$config->{configuration} =
+    Koha::ILLRequest::Config::_load_configuration($params);
+diag dump $config->getLimitRules('brw_cat');
+is_deeply(
+    $config->getLimitRules('branch'),
+    {
+        second => { count => 5 }
+    },
+    "second branch getLimitRules"
+);
+
+is_deeply(
+    $config->getLimitRules('brw_cat'),
+    undef,
+    "empty brw_cat getLimitRules"
 );
 
 # getCredentials

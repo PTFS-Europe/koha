@@ -131,6 +131,29 @@ sub getLimits {
         || { count => -1, method => 'active' };
 }
 
+=head3 getDefaultFormat
+
+    my $format = $abstract->getDefaultFormat( {
+        type  => 'brw_cat' | 'branch',
+        value => $value
+    } );
+
+Return the ILL default format that we should use in case of non-interactive use.
+
+This procedure just dies if it cannot find a sane values, as we assume the
+caller requires configured defaults.
+
+=cut
+
+sub getDefaultFormat {
+    my ( $self, $params ) = @_;
+    my $formats = $self->{config}->getDefaultFormats($params->{type});
+
+    return $formats->{$params->{value}}
+        || $formats->{default}
+        || die "No suitable format found.  Unlikely to have happened.";
+}
+
 =head3 request
 
     my $result = $illRequest->request($params);
