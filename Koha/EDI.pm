@@ -206,7 +206,7 @@ sub process_invoice {
                             }
                         );
                         transfer_items( $line, $order, $received_order );
-                        receipt_items( $line, $received_order->ordernumber );
+                        receipt_items( $schema, $line, $received_order->ordernumber );
                     }
                     else {    # simple receipt all copies on order
                         $order->quantityreceived( $line->quantity );
@@ -215,7 +215,7 @@ sub process_invoice {
                         $order->unitprice($price);
                         $order->orderstatus('complete');
                         $order->update;
-                        receipt_items( $line, $ordernumber );
+                        receipt_items( $schema, $line, $ordernumber );
                     }
                 }
                 else {
@@ -236,8 +236,7 @@ sub process_invoice {
 }
 
 sub receipt_items {
-    my ( $inv_line, $ordernumber );
-    my $schema   = $inv_line->schema;
+    my ( $schema, $inv_line, $ordernumber ) = @_;
     my $logger   = Log::Log4perl->get_logger();
     my $quantity = $inv_line->quantity;
 
@@ -250,9 +249,14 @@ sub receipt_items {
     my %branch_map;
     foreach my $ilink (@item_links) {
         my $item = $schema->resultset('Item')->find( $ilink->itemnumber );
+        if (!$item) {
+             my $i = $ilink->itemnumber;
+             $logger->warn("Cannot find aqorder item for $i :Order:$ordernumber");
+             next;
+        }
         my $b    = $item->homebranch->branchcode;
         if ( !exists $branch_map{$b} ) {
-            @{ $branch_map{$b} } = [];
+            $branch_map{$b} = [];
         }
         push @{ $branch_map{$b} }, $item;
     }
@@ -261,10 +265,21 @@ sub receipt_items {
         my $branch = $inv_line->girfield( 'branch', $gir_occurence );
         my $item = shift @{ $branch_map{$branch} };
         if ($item) {
-            my $barcode = $inv_line->girfield( 'barcode', $gir_occurence );
-            if ( $barcode && !$item->barcode ) {
-                $item->barcode($barcode);
-            }
+		my $barcode = $inv_line->girfield( 'barcode', $gir_occurence );
+		if ( $barcode && !$item->barcode ) {
+			my $rs = $schema->resultset('Item')->search({
+					barcode => $barcode,
+					});
+			if ($rs->count > 0) {
+				$logger->warn("Barcode $barcode is a duplicate");
+			}
+			else {
+
+
+				$logger->trace("Adding barcode $barcode");
+				$item->barcode($barcode);
+			}
+		}
 
             # clear not for loan flag
             if ( $item->notforloan == -1 ) {
@@ -282,7 +297,7 @@ sub receipt_items {
 }
 
 sub transfer_items {
-    my ( $inv_line, $order_from, $order_to );
+    my ( $inv_line, $order_from, $order_to ) = @_;
 
     # Transfer x items from the orig order to a completed partial order
     my $quantity = $inv_line->quantity;
@@ -298,6 +313,10 @@ sub transfer_items {
         }
     }
     my $schema = $order_from->schema;
+    my $logger         = Log::Log4perl->get_logger();
+   my $o1 = $order_from->ordernumber;
+   my $o2 = $order_to->ordernumber;
+   $logger->warn("transferring $quantity copies from order $o1 to order $o2");
 
     my @item_links = $schema->resultset('AqordersItem')->search(
         {
@@ -305,6 +324,7 @@ sub transfer_items {
         }
     );
     foreach my $ilink (@item_links) {
+        my $ino = $ilink->itemnumber;
         my $item     = $schema->resultset('Item')->find( $ilink->itemnumber );
         my $i_branch = $item->homebranch;
         if ( exists $mapped_by_branch{$i_branch}
@@ -314,7 +334,11 @@ sub transfer_items {
             $ilink->update;
             --$quantity;
             --$mapped_by_branch{$i_branch};
+            $logger->warn("Transferred item $item");
         }
+        else {
+		$logger->warn("Skipped item $item");
+	}
         if ( $quantity < 1 ) {
             last;
         }
