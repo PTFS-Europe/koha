@@ -56,7 +56,7 @@ if ( $type eq 'request' and $query
     } );
     push(@{$reply}, $request->getSummary) if ($request);
 
-} elsif ( ( $query eq "*" ) or
+} elsif ( ( $query eq "*" ) or  # seach filters: use for facets.
           ( not $query and
             ( $type eq 'requests' or $type eq 'borrowers' ) ) ) {
     my $requests = Koha::ILLRequests->new->retrieve_ill_requests;

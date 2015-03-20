@@ -3,6 +3,16 @@
 [% INCLUDE 'doc-head-close.inc' %]
 <script type="text/javascript" src="[% themelang %]/lib/jquery/plugins/jquery.tablesorter.min.js"></script>
 <script type="text/javascript" src="[% themelang %]/lib/jquery/plugins/jquery.checkboxes.min.js"></script>
+<link rel="stylesheet" type="text/css" href="[% themelang %]/css/datatables.css" />
+[% INCLUDE 'datatables.inc' %]
+<script type="text/javascript">
+  $(document).ready(function() {
+  var my_table = $("#ill-requests").dataTable($.extend(true, {}, dataTablesDefaults, {
+    // dataTablesDefaults contain default options and strings defined in datables-strings.inc
+    // You can put your specific datatables options here
+  }));
+});
+</script>
 </head>
 
 <body id="acq_suggestion" class="acq">
@@ -20,18 +30,6 @@
             [% INCLUDE 'ill-toolbar.inc' %]
 
             <h1>ILL Request management</h1>
-            <form method="POST" action="/cgi-bin/koha/ill/ill-requests.pl">
-                <label for="query_type">Search type:</label>
-                <span>Specific Request</span>
-                <input name="query_type" id="query_type"
-                       type="radio" value="requests" checked="checked"/>
-                <span>Requests by Borrower</span>
-                <input name="query_type" id="query_type"
-                       type="radio" value="borrowers"/>
-                <label for="query_value">Search for:</label>
-                <input name="query_value" id="query_value" type="text"/>
-                <input type="submit" value="submit"/>
-            </form>
             <div id="results">
                 [% IF reply and query_value and
                    (query_type == "request" or query_type == "requests") %]
@@ -63,7 +61,7 @@
                         <h2>Details for all requests</h2>
                     [% END %]
                     [% rq = rq_url _ rq_params %]
-                    <table>
+                    <table id="ill-requests">
                         <thead>
                             <tr>
                                 [% FOREACH line IN reply.0 %]
