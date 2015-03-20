@@ -12,14 +12,15 @@ VALUES ('GenericILLPartners','ILLLIBS','The borrower category to use to fetch IL
 INSERT INTO systempreferences (variable,value,explanation,options,type)
 VALUES ('ILLEmailNotify','0','If ON, patrons receive an email notification of a placed request','','YesNo');
 
--- Permissions
-
 -- Userflags
 INSERT INTO userflags (bit,flag,flagdesc,defaulton)
-VALUES ('21','ill','Manage ILL requests','0');
+VALUES ('21','ill','The Interlibrary Loans Module','0');
 
--- Borrower Categories
-ALTER TABLE categories ADD illlimit VARCHAR(60) AFTER issuelimit;
+-- Permissions
+INSERT INTO permissions (module_bit,code,description)
+VALUES ('21','place','Able to create ILL requests');
+INSERT INTO permissions (module_bit,code,description)
+VALUES ('21','manage','Able to create ILL requests');
 
 -- ILL Requests
 

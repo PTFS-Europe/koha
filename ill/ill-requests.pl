@@ -35,15 +35,12 @@ if ( !$query and !$type ) {
     $type = 'requests';
 }
 
-my ( $template, $borrowernumber, $cookie )
-  = get_template_and_user(
-                          {
-                           template_name => 'ill/ill-requests.tt',
-                           query         => $input,
-                           type          => 'intranet',
-                           flagsrequired => { ill => 1 },
-                          }
-                         );
+my ( $template, $borrowernumber, $cookie ) = get_template_and_user( {
+    template_name => 'ill/ill-requests.tt',
+    query         => $input,
+    type          => 'intranet',
+    flagsrequired => { ill => '*' },
+} );
 
 $template->param( query_value => $query );
 $template->param( query_type => $type );

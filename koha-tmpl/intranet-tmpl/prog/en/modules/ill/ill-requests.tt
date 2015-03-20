@@ -69,7 +69,9 @@
                                 [% FOREACH line IN reply.0 %]
                                     <th id=[% line.key %]>[% line.value.0 %]</th>
                                 [% END %]
-                                <th id="id">Manage ILL</th>
+                                [% IF CAN_user_ill_manage %]
+                                    <th id="id">Manage ILL</th>
+                                [% END %]
                             </tr>
                         </thead>
                         <tbody>
@@ -90,12 +92,14 @@
                                         </td>
                                     [% END %]
 
-                                    <td>
-                                        <a href=[% manage_url _ summary.id.1 %]
-                                           title="Edit and progress this ILL">
-                                           Manage ILL
-                                        </a>
-                                    </td>
+                                    [% IF CAN_user_ill_manage %]
+                                        <td>
+                                            <a href=[% manage_url _ summary.id.1 %]
+                                               title="Edit and progress this ILL">
+                                                Manage ILL
+                                            </a>
+                                        </td>
+                                    [% END %]
                                 </tr>
                             [% END %]
                         </tbody>

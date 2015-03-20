@@ -91,7 +91,7 @@
     [% IF ( CAN_user_borrowers ) %]
         [% IF ( suggestionsview ) %]<li class="active">[% ELSE %]<li>[% END %]<a href="/cgi-bin/koha/members/purchase-suggestions.pl?borrowernumber=[% borrowernumber %]">Purchase suggestions</a></li>
     [% END %]
-    [% IF ILLModule %]
+    [% IF ILLModule and CAN_user_ill %]
        [% IF ill %]
            <li class="active">
        [% ELSE %]

@@ -131,7 +131,9 @@ function searchToHold(){
 <div id="toolbar" class="btn-toolbar">
     [% SWITCH ( tab ) %]
         [% CASE 'ill' %]
-        <button class="btn btn-small"><i class="icon-plus"></i> New ILL Request</button>
+        [% IF CAN_user_ill %]
+            <button class="btn btn-small"><i class="icon-plus"></i> New ILL Request</button>
+        [% END %]
     [% END %]
     [% IF ( CAN_user_borrowers ) %]
         [% IF ( category_type ) %]

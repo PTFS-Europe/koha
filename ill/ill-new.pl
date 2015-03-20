@@ -33,15 +33,12 @@ my $error = 0;
 my $action = $input->param('query_type') || 'new';
 my $query = $input->param('query_value') || '';
 
-my ( $template, $borrowernumber, $cookie )
-  = get_template_and_user(
-                          {
-                           template_name => 'ill/ill-new.tt',
-                           query         => $input,
-                           type          => 'intranet',
-                           flagsrequired => { ill => 1 },
-                          }
-                         );
+my ( $template, $borrowernumber, $cookie ) = get_template_and_user( {
+    template_name => 'ill/ill-new.tt',
+    query         => $input,
+    type          => 'intranet',
+    flagsrequired => { ill => '*' },
+} );
 
 $template->param(
     query_value => $query,
