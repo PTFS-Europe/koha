@@ -134,11 +134,13 @@ sub getLimits {
 =head3 getDefaultFormat
 
     my $format = $abstract->getDefaultFormat( {
-        type  => 'brw_cat' | 'branch',
-        value => $value
+        brw_cat => $brw_cat,
+        branch  => $branch_code,
     } );
 
-Return the ILL default format that we should use in case of non-interactive use.
+Return the ILL default format that we should use in case of non-interactive
+use.  We will return borrower category definitions with a higher priority than
+branch level definitions.  Default is fall-back.
 
 This procedure just dies if it cannot find a sane values, as we assume the
 caller requires configured defaults.
@@ -147,10 +149,12 @@ caller requires configured defaults.
 
 sub getDefaultFormat {
     my ( $self, $params ) = @_;
-    my $formats = $self->{config}->getDefaultFormats($params->{type});
+    my $brn_formats = $self->{config}->getDefaultFormats('branch');
+    my $brw_formats = $self->{config}->getDefaultFormats('brw_cat');
 
-    return $formats->{$params->{value}}
-        || $formats->{default}
+    return $brw_formats->{$params->{brw_cat}}
+        || $brn_formats->{$params->{branch}}
+        || $brw_formats->{default}
         || die "No suitable format found.  Unlikely to have happened.";
 }
 

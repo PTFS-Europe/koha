@@ -190,18 +190,32 @@ sub request {
     my $borrowers = Koha::Borrowers->new;
     my $brws = $borrowers->search( { borrowernumber => $opts->{borrower} } );
     $brws = $borrowers->search( {cardnumber => $opts->{borrower} } )
-        unless ( $brws );
+        unless ( $brws->count == 1 );
 
-    return 0 unless ( $brws->count == 1 ); # brw fetch did not work
+    die "Invalid borrower"
+        unless ( $brws->count == 1 ); # brw fetch did not work
 
     # we have a brw.
-    my $brw = $brws->next;
-    $opts->{borrower} = $brw->borrowernumber;
-    $opts->{permitted} = $self->check_limits(
+    my $brw       = $brws->next;
+    my $permitted = $self->check_limits(
         { borrower => $brw }, { branch => $opts->{branch} }
     );
+    $opts->{borrower} = $brw->borrowernumber;
+    $opts->{permitted} = $permitted;
+    my $request = Koha::ILLRequest->new->seed($opts);
 
-    return Koha::ILLRequest->new->seed($opts);
+    if ( C4::Context->preference("UnmediatedILL") && $permitted ) {
+        # FIXME: Also carry out privilege checks
+        my ( $result, $new_rq ) =
+            $request->place_request;
+        if ( $result ) {
+            return $new_rq;
+        } else {
+            die "Placing the request failed.";
+        }
+    } else {
+        return $request;
+    }
 }
 
 =head3 retrieve_ill_requests

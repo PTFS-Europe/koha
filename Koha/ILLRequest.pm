@@ -474,12 +474,22 @@ request object; else return 1 and our request object.
 
 sub place_request {
     my ( $self, $params ) =@_;
+    my $brws = Koha::Borrowers->new;
+    my $brw  = $brws->find( $self->status->getProperty('borrowernumber') );
+    my $branch_code = $self->status->getProperty('branch');
+    my $brw_cat     = $brw->categorycode;
+
+    my $details = $params->{details}
+        || Koha::ILLRequest::Abstract->new->getDefaultFormat( {
+            brw_cat => $brw_cat,
+            branch  => $branch_code,
+        } );
 
     my $success = Koha::ILLRequest::Abstract->new->request(
         {
             branch      => $self->status->getProperty('branch'),
             patron      => $self->status->getProperty('borrowernumber'),
-            transaction => $params->{details},
+            transaction => $details,
             record      => $self->record,
         }
     );
