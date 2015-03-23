@@ -239,7 +239,25 @@ sub retrieve_ill_requests {
     my ( $self, $target ) = @_;
     my $result;
 
-    if ( ( $target && ref $target eq 'HASH' ) or !$target ) {
+    if ( $target && ref $target eq 'HASH' ) {
+
+        while ( my ( $column, $value ) = each %{$target} ) {
+            delete $target->{$column}
+                if ( !$value || '' eq $value );
+        }
+        if ( $target->{cardnumber}
+                 and '' ne $target->{cardnumber} ) { # translate to borrowernumber
+            my $brws = Koha::Borrowers->new
+                ->search( { cardnumber => $target->{cardnumber} } );
+            die "Invalid borrower"
+                unless ( $brws->count == 1 ); # brw fetch did not work
+            $target->{borrowernumber} = $brws->next->borrowernumber;
+            delete $target->{cardnumber};
+        }
+        # FIXME: Not implemented yet.
+        delete $target->{required_date};
+        $result = $self->_retrieve_requests($target)
+    } elsif ( !$target ) {
         $result = $self->_retrieve_requests($target)
     } else {
         $result = $self->_retrieve_requests( { borrowernumber => $target } )

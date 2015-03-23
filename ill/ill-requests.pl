@@ -17,14 +17,18 @@
 # with Koha; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-use strict;
-use warnings;
+use Modern::Perl;
+
 use CGI;
+
 use C4::Auth;
+use C4::Branch;
+use C4::Context;
 use C4::Output;
 use C4::Search qw(GetDistinctValues);
-use C4::Context;
+use Koha::Borrowers;
 use Koha::ILLRequests;
+use URI::Escape;
 
 my $input = CGI->new;
 my $reply = [];
@@ -56,32 +60,36 @@ if ( $type eq 'request' and $query
     } );
     push(@{$reply}, $request->getSummary) if ($request);
 
-} elsif ( ( $query eq "*" ) or  # seach filters: use for facets.
-          ( not $query and
-            ( $type eq 'requests' or $type eq 'borrowers' ) ) ) {
+} elsif ( $type eq 'filter' ) {
+    my $requests = Koha::ILLRequests->new->retrieve_ill_requests( {
+        cardnumber      => $input->param('borrower_filter')    || 0,
+        branch          => $input->param('branch_filter')      || 0,
+        status          => $input->param('status_filter')      || 0,
+        placement_date  => $input->param('placed_filter')      || 0,
+        ts              => $input->param('modified_filter')    || 0,
+        completion_date => $input->param('completed_filter')   || 0,
+        required_date   => $input->param('required_by_filter') || 0, # dummy
+        reqtype         => $input->param('type_filter')        || 0,
+    } );
+    foreach my $rq ( @{$requests} ) {
+        push @{$reply}, $rq->getSummary();
+    }
+
+} else {
     my $requests = Koha::ILLRequests->new->retrieve_ill_requests;
     foreach my $rq ( @{$requests} ) {
         push @{$reply}, $rq->getSummary();
     }
     my $manage_url = "/cgi-bin/koha/ill/ill-manage.pl?op=view&rq=";
     $template->param( manage_url => $manage_url );
-
-} elsif ( $type eq 'requests' ) {
-    my $requests = Koha::ILLRequests->new()->retrieve_ill_request($query);
-    foreach my $rq ( @{$requests} ) {
-        push @{$reply}, $rq->getSummary();
-    }
-
-} elsif ( $type eq 'borrowers' ) {
-    my $requests = Koha::ILLRequests->new()->retrieve_ill_requests($query);
-    foreach my $rq ( @{$requests} ) {
-        push @{$reply}, $rq->getSummary();
-    }
-
-} else {
-    die("no match");
 }
 
-$template->param( reply => $reply );
+$template->param(
+    reply    => $reply,
+    branches => GetBranchesLoop,
+    types    => [ "Book", "Article", "Journal" ],
+    statuses => [ "New Request", "Queued", "Completed",
+                  "Cancellation Requested"]
+);
 
 output_html_with_http_headers( $input, $cookie, $template->output );

@@ -5,6 +5,7 @@
 <script type="text/javascript" src="[% themelang %]/lib/jquery/plugins/jquery.checkboxes.min.js"></script>
 <link rel="stylesheet" type="text/css" href="[% themelang %]/css/datatables.css" />
 [% INCLUDE 'datatables.inc' %]
+[% INCLUDE 'calendar.inc' %]
 <script type="text/javascript">
   $(document).ready(function() {
   var my_table = $("#ill-requests").dataTable($.extend(true, {}, dataTablesDefaults, {
@@ -110,6 +111,77 @@
 
 
         </div>
+    </div>
+    <div class="yui-b">
+        <form action="ill-requests.pl" method="GET">
+            <fieldset class="brief">
+                <h4>Filter requests:</h4>
+                <ol>
+                    <li>
+                        <label for="status_filter">Status:</label>
+                        <select id="status_filter" name="status_filter">
+                            <option value="" />
+                            [% FOREACH status IN statuses %]
+                                <option value="[% status %]">[% status %]</option>
+                            [% END %]
+                        </select>
+                    </li>
+                    <li>
+                        <label for="placed_filter">Date placed:</label>
+                        <input type="text" name="placed_filter" size="10"
+                               id="placed_filter" class="datepicker"/>
+                        <div class="hint">[% INCLUDE 'date-format.inc' %]</div>
+                    </li>
+                    <li>
+                        <label for="modified_filter">Date modified:</label>
+                        <input type="text" name="modified_filter" size="10"
+                               id="modified_filter" class="datepicker"/>
+                        <div class="hint">[% INCLUDE 'date-format.inc' %]</div>
+                    </li>
+                    <li>
+                        <label for="completed_filter">Date completed:</label>
+                        <input type="text" name="completed_filter" size="10"
+                               id="completed_filter" class="datepicker"/>
+                        <div class="hint">[% INCLUDE 'date-format.inc' %]</div>
+                    </li>
+                    <li>
+                        <label for="required_by_filter">Date required by (dummy):</label>
+                        <input type="text" name="required_by_filter" size="10"
+                               id="required_by_filter" class="datepicker"/>
+                        <div class="hint">[% INCLUDE 'date-format.inc' %]</div>
+                    </li>
+                    <li>
+                        <label for="type_filter">Type:</label>
+                        <select id="type_filter" name="type_filter">
+                            <option value="" />
+                            [% FOREACH type IN types %]
+                                <option value="[% type %]">[% type %]</option>
+                            [% END %]
+                        </select>
+                    </li>
+                    <li>
+                        <label for="branch_filter">Pickup branch:</label>
+                        <select id="branch_filter" name="branch_filter">
+                            <option value="" />
+                            [% FOREACH branch IN branches %]
+                                <option value="[% branch.value %]">
+                                    [% branch.branchname %]
+                                </option>
+                            [% END %]
+                        </select>
+                    </li>
+                    <li>
+                        <label for="borrower_filter">Borrower cardnumber:</label>
+                        <input type="text" name="borrower_filter" id="borrower_filter"/>
+                    </li>
+                </ol>
+                <fieldset class="action">
+                    <input name="query_type" id="query_type" value="filter" type="hidden"/>
+                    <input type="submit" value="Filter"/>
+                    <input type="reset" value="Reset"/>
+                </fieldset>
+            </fieldset>
+        </form>
     </div>
 </div>
 
