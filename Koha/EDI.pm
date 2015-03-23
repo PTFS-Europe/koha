@@ -205,7 +205,7 @@ sub process_invoice {
                                 datereceived     => $msg_date,
                             }
                         );
-                        transfer_items( $line, $order, $received_order );
+                        transfer_items( $schema, $line, $order, $received_order );
                         receipt_items( $schema, $line, $received_order->ordernumber );
                     }
                     else {    # simple receipt all copies on order
@@ -297,7 +297,7 @@ sub receipt_items {
 }
 
 sub transfer_items {
-    my ( $inv_line, $order_from, $order_to ) = @_;
+    my ( $schema, $inv_line, $order_from, $order_to ) = @_;
 
     # Transfer x items from the orig order to a completed partial order
     my $quantity = $inv_line->quantity;
@@ -311,8 +311,8 @@ sub transfer_items {
         else {
             $mapped_by_branch{$branch}++;
         }
+        ++$gocc;
     }
-    my $schema = $order_from->schema;
     my $logger         = Log::Log4perl->get_logger();
    my $o1 = $order_from->ordernumber;
    my $o2 = $order_to->ordernumber;
