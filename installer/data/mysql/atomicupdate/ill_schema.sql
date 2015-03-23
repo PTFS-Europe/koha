@@ -22,6 +22,9 @@ VALUES ('21','place','Able to create ILL requests');
 INSERT INTO permissions (module_bit,code,description)
 VALUES ('21','manage','Able to create ILL requests');
 
+-- Borrower Categories
+ALTER TABLE categories ADD illlimit VARCHAR(60) AFTER issuelimit;
+
 -- ILL Requests
 
 CREATE TABLE ill_requests (
