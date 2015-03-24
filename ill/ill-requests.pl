@@ -58,27 +58,26 @@ if ( $type eq 'request' and $query
         branch   => $input->param('branch'),
         borrower => $input->param('brw'),
     } );
-    push(@{$reply}, $request->getSummary) if ($request);
-
-} elsif ( $type eq 'filter' ) {
-    my $requests = Koha::ILLRequests->new->retrieve_ill_requests( {
-        cardnumber      => $input->param('borrower_filter')    || 0,
-        branch          => $input->param('branch_filter')      || 0,
-        status          => $input->param('status_filter')      || 0,
-        placement_date  => $input->param('placed_filter')      || 0,
-        ts              => $input->param('modified_filter')    || 0,
-        completion_date => $input->param('completed_filter')   || 0,
-        required_date   => $input->param('required_by_filter') || 0, # dummy
-        reqtype         => $input->param('type_filter')        || 0,
-    } );
-    foreach my $rq ( @{$requests} ) {
-        push @{$reply}, $rq->getSummary();
-    }
+    push(@{$reply}, $request->getSummary( { brw => 1 } )) if ($request);
 
 } else {
-    my $requests = Koha::ILLRequests->new->retrieve_ill_requests;
+    my $requests;
+    if ( $type eq 'filter' ) {
+        $requests = Koha::ILLRequests->new->retrieve_ill_requests( {
+            cardnumber      => $input->param('borrower_filter')    || 0,
+            branch          => $input->param('branch_filter')      || 0,
+            status          => $input->param('status_filter')      || 0,
+            placement_date  => $input->param('placed_filter')      || 0,
+            ts              => $input->param('modified_filter')    || 0,
+            completion_date => $input->param('completed_filter')   || 0,
+            required_date   => $input->param('required_by_filter') || 0, # dummy
+            reqtype         => $input->param('type_filter')        || 0,
+        } );
+    } else {
+        $requests = Koha::ILLRequests->new->retrieve_ill_requests;
+    }
     foreach my $rq ( @{$requests} ) {
-        push @{$reply}, $rq->getSummary();
+        push @{$reply}, $rq->getSummary( { brw => 1 } );
     }
     my $manage_url = "/cgi-bin/koha/ill/ill-manage.pl?op=view&rq=";
     $template->param( manage_url => $manage_url );

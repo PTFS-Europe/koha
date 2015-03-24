@@ -23,7 +23,6 @@ use Carp;
 use BLDSS;
 use XML::LibXML;
 use C4::Branch;
-use Koha::Borrowers;
 use Koha::ILLRequest::XML::BLDSS;
 use Koha::ILLRequest::Record;
 use Koha::ILLRequest::Status;
@@ -170,7 +169,7 @@ $PARAMS with the API.
 sub request {
     my ( $self, $params ) = @_;
 
-    my $brw = Koha::Borrowers->find($params->{patron});
+    my $brw = $params->{patron};
     my $branch = C4::Branch::GetBranchDetail($params->{branch});
     # Currently hard-coded to BL requirements.  This should instead use
     # methods from the API or config to extract appropriate & required fields.

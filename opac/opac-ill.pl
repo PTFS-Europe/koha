@@ -136,7 +136,7 @@ if ( fail(1) ) {
     my $requests = Koha::ILLRequests->new->retrieve_ill_requests($borrowernumber);
     if ($requests) {
         foreach my $rq ( @{$requests} ) {
-            push @{$reply}, $rq->getSummary;
+            push @{$reply}, $rq->getSummary( { brw => 1 } );
         }
     }
     $template->param(

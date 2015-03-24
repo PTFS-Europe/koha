@@ -44,7 +44,15 @@
                                 [% IF field.value.1 %]
                                     <li>
                                         <label id=[% field.key %]>[% field.value.0 _ ":" %]</label>
-                                        <span id=[% field.key %]>[% field.value.1 %]</span>
+                                        [% IF field.key == 'borrower' %]
+                                            [% brw = field.value.1 %]
+                                            <a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% brw.borrowernumber %]"
+                                               title="View borrower details">
+                                                [% brw.firstname _ " " _ brw.surname _ ", " _ brw.cardnumber %]
+                                            </a>
+                                        [% ELSE %]
+                                            <span id=[% field.key %]>[% field.value.1 %]</span>
+                                        [% END %]
                                     </li>
                                 [% END %]
                             [% END %]
@@ -133,6 +141,12 @@
                                                        disabled="true"
                                                        type="text"
                                                        value=[% field.value.1 %] />
+                                            [% ELSIF field.key == 'borrower' %]
+                                                [% brw = field.value.1 %]
+                                                <input name=[% field.key %]
+                                                   id=[% field.key %]
+                                                   type="text"
+                                                   value="[% brw.cardnumber %]" />
                                             [% ELSE %]
                                                 <input name=[% field.key %]
                                                    id=[% field.key %]

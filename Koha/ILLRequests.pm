@@ -187,20 +187,11 @@ sub request {
     my ( $self, $opts ) = @_;
 
     # $opts->{borrower} is either a cardnumber or a borrowernumber.
-    my $borrowers = Koha::Borrowers->new;
-    my $brws = $borrowers->search( { borrowernumber => $opts->{borrower} } );
-    $brws = $borrowers->search( {cardnumber => $opts->{borrower} } )
-        unless ( $brws->count == 1 );
-
-    die "Invalid borrower"
-        unless ( $brws->count == 1 ); # brw fetch did not work
-
-    # we have a brw.
-    my $brw       = $brws->next;
+    my $brw = _borrower_from_number($opts->{borrower});
     my $permitted = $self->check_limits(
         { borrower => $brw }, { branch => $opts->{branch} }
     );
-    $opts->{borrower} = $brw->borrowernumber;
+    $opts->{borrower} = $brw;
     $opts->{permitted} = $permitted;
     my $request = Koha::ILLRequest->new->seed($opts);
 
@@ -240,18 +231,13 @@ sub retrieve_ill_requests {
     my $result;
 
     if ( $target && ref $target eq 'HASH' ) {
-
         while ( my ( $column, $value ) = each %{$target} ) {
             delete $target->{$column}
                 if ( !$value || '' eq $value );
         }
-        if ( $target->{cardnumber}
-                 and '' ne $target->{cardnumber} ) { # translate to borrowernumber
-            my $brws = Koha::Borrowers->new
-                ->search( { cardnumber => $target->{cardnumber} } );
-            die "Invalid borrower"
-                unless ( $brws->count == 1 ); # brw fetch did not work
-            $target->{borrowernumber} = $brws->next->borrowernumber;
+        if ( $target->{cardnumber} ) { # translate to borrowernumber
+            my $brw = _borrower_from_number($target->{cardnumber}, 'crd');
+            $target->{borrowernumber} = $brw->borrowernumber;
             delete $target->{cardnumber};
         }
         # FIXME: Not implemented yet.
@@ -382,6 +368,39 @@ sub retrieve_ill_request {
     } else {
         return [];
     }
+}
+
+=head3 _borrower_from_number
+
+    my $_borrower_from_number = $illRequest->_borrower_from_number();
+
+Return a borrower from the given card or borrower $NUMBER.  The strategy for
+resolution depends on $strategy:
+  - 'crd' means try only cardnumber, error otherwise.
+  - 'brw' means try only borrowernumber, error otherwise.
+  - else: try both and return the first match.
+
+=cut
+
+sub _borrower_from_number {
+    my ( $number, $strategy ) = @_;
+
+    my $borrowers = Koha::Borrowers->new;
+    my $brws;
+    if ( 'crd' eq $strategy ) {
+        $brws = $borrowers->search( { cardnumber => $number } );
+    } elsif ( 'brw' eq $strategy) {
+        $brws = $borrowers->search( { borrowernumber => $number } );
+    } else {
+        $brws = $borrowers->search( { borrowernumber => $number } );
+        $brws = $borrowers->search( { cardnumber => $number } )
+            unless ( $brws->count == 1 );
+    }
+
+    die "Invalid borrower"
+        unless ( $brws->count == 1 ); # brw fetch did not work
+    # we should have a unique brw.
+    return $brws->next;
 }
 
 =head1 AUTHOR

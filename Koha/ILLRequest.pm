@@ -244,6 +244,11 @@ Update $ILLREQUEST's Status with the hashref passed to EDITSTATUS.
 sub editStatus {
     my ( $self, $new_values ) = @_;
 
+    if ( $new_values->{borrower} ) {
+        my $brw = _borrower_from_number($new_values->{borrower}, 'crd');
+        $new_values->{borrowernumber} = $brw->borrowernumber;
+        delete $new_values->{borrower};
+    }
     ${$self}{status}->update($new_values);
 
     return 1
@@ -290,9 +295,9 @@ display to the end-user.  It returns a composit of $self's Record and Status
 =cut
 
 sub getSummary {
-    my ( $self ) = @_;
-    my $record = ${$self}{record}->getSummary();
-    my $status = ${$self}{status}->getSummary();
+    my ( $self, $params ) = @_;
+    my $record = ${$self}{record}->getSummary($params);
+    my $status = ${$self}{status}->getSummary($params);
     my %summary = (%{$record}, %{$status});
 
     return \%summary;
@@ -331,9 +336,9 @@ The former is for display and should not be edited by hand.  The latter can be e
 =cut
 
 sub getForEditing {
-    my ( $self ) = @_;
-    my $record = ${$self}{record}->getSummary();
-    my $status = ${$self}{status}->getFullStatus();
+    my ( $self, $params ) = @_;
+    my $record = ${$self}{record}->getSummary( $params );
+    my $status = ${$self}{status}->getFullStatus( $params );
 
     return [ $record, $status ];
 }
@@ -398,9 +403,9 @@ sub seed {
 sub _seed_from_api {
     my ( $self, $opts ) = @_;
 
-    ${$self}{record} = ${Koha::ILLRequest::Abstract->new()
+    $self->{record} = ${Koha::ILLRequest::Abstract->new
           ->search($opts->{uin})}[0];
-    ${$self}{status} = Koha::ILLRequest::Status->new( {
+    $self->{status} = Koha::ILLRequest::Status->new( {
               reqtype   => $self->{record}->getProperty('type'),
               borrower  => $opts->{borrower},
               branch    => $opts->{branch},
@@ -435,8 +440,10 @@ sub _seed_from_store {
             $attributes->{ $attribute->get_column('type') } =
               $attribute->get_column('value');
         }
+        $attributes->{borrower}
+            = _borrower_from_number($attributes->{borrowernumber}, 'brw');
         # XXX: A bit Kludgy.
-        my $tmp = Koha::ILLRequest::Abstract->new()->build($attributes);
+        my $tmp = Koha::ILLRequest::Abstract->new->build($attributes);
         ${$self}{record} = ${$tmp}{record};
         ${$self}{status} = ${$tmp}{status};
         return $self;
@@ -474,8 +481,7 @@ request object; else return 1 and our request object.
 
 sub place_request {
     my ( $self, $params ) =@_;
-    my $brws = Koha::Borrowers->new;
-    my $brw  = $brws->find( $self->status->getProperty('borrowernumber') );
+    my $brw = $self->status->getProperty('borrower');
     my $branch_code = $self->status->getProperty('branch');
     my $brw_cat     = $brw->categorycode;
 
@@ -488,7 +494,7 @@ sub place_request {
     my $success = Koha::ILLRequest::Abstract->new->request(
         {
             branch      => $self->status->getProperty('branch'),
-            patron      => $self->status->getProperty('borrowernumber'),
+            patron      => $brw,
             transaction => $details,
             record      => $self->record,
         }
@@ -586,6 +592,39 @@ Kind Regards
 EOF
 
     return $draft;
+}
+
+=head3 _borrower_from_number
+
+    my $_borrower_from_number = $illRequest->_borrower_from_number();
+
+Return a borrower from the given card or borrower $NUMBER.  The strategy for
+resolution depends on $strategy:
+  - 'crd' means try only cardnumber, error otherwise.
+  - 'brw' means try only borrowernumber, error otherwise.
+  - else: try both and return the first match.
+
+=cut
+
+sub _borrower_from_number {
+    my ( $number, $strategy ) = @_;
+
+    my $borrowers = Koha::Borrowers->new;
+    my $brws;
+    if ( 'crd' eq $strategy ) {
+        $brws = $borrowers->search( { cardnumber => $number } );
+    } elsif ( 'brw' eq $strategy ) {
+        $brws = $borrowers->search( { borrowernumber => $number } );
+    } else {
+        $brws = $borrowers->search( { borrowernumber => $number } );
+        $brws = $borrowers->search( { cardnumber => $number } )
+            unless ( $brws->count == 1 );
+    }
+
+    die "Invalid borrower: ($number)"
+        unless ( $brws->count == 1 ); # brw fetch did not work
+    # we should have a unique brw.
+    return $brws->next;
 }
 
 =head1 AUTHOR

@@ -71,7 +71,12 @@
                                     <tr>
                                         [% FOREACH line IN summary %]
                                             <td>
-                                                [% line.value.1 %]
+                                                [% IF line.key == 'borrower' %]
+                                                    [% brw = line.value.1 %]
+                                                    [% brw.firstname _ " " _ brw.surname _ ", " _ brw.cardnumber %]
+                                                [% ELSE %]
+                                                    [% line.value.1 %]
+                                                [% END %]
                                             </td>
                                         [% END %]
                                         <td>

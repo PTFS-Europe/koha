@@ -42,8 +42,17 @@
                     [% FOREACH summary IN reply %]
                         <p>
                             [% FOREACH line IN summary %]
-                                <span id=[% line.key %]>
-                                    [% line.value.0 _ ": " _ line.value.1 %]
+                                <span id="[% line.key %]">
+                                    [% IF line.key == 'borrower' %]
+                                        [% brw = line.value.1 %]
+                                        [% line.value.0 _ ": " %]
+                                        <a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% brw.borrowernumber %]"
+                                           title="View borrower details">
+                                            [% brw.firstname _ " " _ brw.surname _ ", " _ brw.cardnumber %]
+                                        </a>
+                                    [% ELSE %]
+                                        [% line.value.0 _ ": " _ line.value.1 %]
+                                    [% END %]
                                 </span>
                                 <br/>
                             [% END %]
@@ -77,20 +86,23 @@
                             [% FOREACH summary IN reply %]
                                 <tr>
                                     [% FOREACH line IN summary %]
-                                        [% value = line.value.1 %]
                                         <td>
-                                            [% IF line.key == './uin' and
-                                               query_type == "api" %]
-                                                [% rqc = rq _ value %]
+                                            [% IF line.key == 'borrower' %]
+                                                [% brw = line.value.1 %]
+                                                <a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% brw.borrowernumber %]"
+                                                    title="View borrower details">
+                                                    [% brw.firstname _ " " _ brw.surname _ ", " _ brw.cardnumber %]
+                                                </a>
+                                            [% ELSIF line.key == './uin' and query_type == "api" %]
+                                                [% rqc = rq _ line.value.1 %]
                                                 <a href=[% rqc %]>
                                                     Request [% value %]
                                                 </a>
                                             [% ELSE %]
-                                                [% value %]
+                                                [% line.value.1 %]
                                             [% END %]
                                         </td>
                                     [% END %]
-
                                     [% IF CAN_user_ill_manage %]
                                         <td>
                                             <a href=[% manage_url _ summary.id.1 %]
