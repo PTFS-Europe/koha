@@ -282,9 +282,9 @@ sub receipt_items {
 		}
 
             # clear not for loan flag
-            if ( $item->notforloan == -1 ) {
-                $item->notforloan(0);
-            }
+           # if ( $item->notforloan == -1 ) {
+           #     $item->notforloan(0);
+           # }
             $item->update;
         }
         else {
