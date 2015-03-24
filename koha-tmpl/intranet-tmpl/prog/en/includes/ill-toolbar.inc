@@ -5,7 +5,7 @@ $(document).ready(function(){
 //]]>
 </script>
 
-[% IF CAN_user_ill %]
+[% IF ILLModule and CAN_user_ill %]
 <div id="toolbar" class="btn-toolbar">
     <a id="ill-view" class="btn btn-small" href="/cgi-bin/koha/ill/ill-requests.pl">
         <i class="icon-search"></i>View Requests</a>

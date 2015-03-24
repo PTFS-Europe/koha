@@ -268,7 +268,7 @@
                                             <li><a href="/cgi-bin/koha/opac-suggestions.pl">Purchase suggestions</a></li>
                                         [% END %]
                                     [% END %]
-                                    [% IF Koha.Preference( 'OpacILLRequests' ) and CAN_user_ill %]
+                                    [% IF Koha.Preference('OpacILLRequests') and Koha.Preference('ILLModule') and CAN_user_ill %]
                                        <li><a href="/cgi-bin/koha/opac-ill.pl?op=new"
                                               title="Request an interlibrary loan">
                                               Interlibrary Loans
