@@ -55,7 +55,7 @@ sub new {
 
     # This is where we may want to introduce the possibility to choose amongst
     # backends.
-    ${$self}{config} = Koha::ILLRequest::Config->new();
+    $self->{config} = Koha::ILLRequest::Config->new;
     my $creds = $self->{config}->getCredentials($params->{branch});
     $self->{api} = BLDSS->new( $creds );
 
@@ -63,19 +63,33 @@ sub new {
     return $self;
 }
 
+=head3 _api
+
+    my $api = $abstract->api;
+
+Return the api object.
+
+=cut
+
+sub _api {
+    my $self = shift;
+    return $self->{api};
+}
+
+
 sub build {
     my ( $self, $attributes ) = @_;
 
-    my $record = Koha::ILLRequest::Record->new(${$self}{config})
+    my $record = Koha::ILLRequest::Record->new($self->{config})
       ->create_from_store($attributes);
-    my $status = Koha::ILLRequest::Status->new()->create_from_store($attributes);
+    my $status = Koha::ILLRequest::Status->new->create_from_store($attributes);
 
     return { record => $record, status => $status };
 }
 
 =head3 checkAvailability
 
-    my $checkAvailability = $illRequest->checkAvailability($uin, $properties);
+    my $availability = $abstract->checkAvailability($uin, $properties);
 
 Submit a request to the currently configured API for $UIN, supplemented with
 the hashref $PROPERTIES.  Return the API response as an HTML object.
@@ -84,7 +98,7 @@ the hashref $PROPERTIES.  Return the API response as an HTML object.
 
 sub checkAvailability {
     my ( $self, $uin, $properties ) = @_;
-    my $reply  = ${$self}{api}->availability($uin, $properties);
+    my $reply  = $self->_api->availability($uin, $properties);
     if (!$reply) {
         return 0;
     }
@@ -94,7 +108,7 @@ sub checkAvailability {
 
 =head3 getPrices
 
-    my $getPrices = $illRequest->getPrices();
+    my $getPrices = $abstract->getPrices;
 
 Return an array containing pricing information for the API in use.
 
@@ -103,7 +117,9 @@ Return an array containing pricing information for the API in use.
 sub getPrices {
     my ( $self ) = @_;
 
-    my $prices = ${$self}{api}->prices;
+    my $prices = $self->_api->prices;
+    if ( $self->_api->error) {
+    }
     return Koha::ILLRequest::XML::BLDSS->new->load_xml( { string => $prices } );
 }
 
@@ -159,7 +175,7 @@ sub getDefaultFormat {
 
 =head3 request
 
-    my $result = $illRequest->request($params);
+    my $result = $abstract->request($params);
 
 Return confirmation of whether we were able to place the request defined by
 $PARAMS with the API.
@@ -195,13 +211,13 @@ sub request {
         # Optional params:
         requestor => join(" ", $brw->firstname, $brw->surname),
     };
-    my $rq_result = $self->{api}->create_order($final_details);
+    my $rq_result = $self->_api->create_order($final_details);
 
     use Data::Dump qw(dump);
     if ($rq_result) {
         die dump $rq_result;
     } else {
-        die dump $self->{api};
+        die dump $self->_api;
     }
     return 0;
 }
@@ -231,19 +247,19 @@ We simply pass the options hashref straight to the API library.
 sub search {
     my ( $self, $query, $opts ) = @_;
 
-    my $reply = ${$self}{api}->search($query, $opts);
+    my $reply = $self->_api->search($query, $opts);
 
     if (!$reply) {
         return 0;
     }
 
-    my $parser = XML::LibXML->new();
+    my $parser = XML::LibXML->new;
     my $doc = $parser->load_xml( { string => $reply } );
 
     my @return;
     foreach my $datum ( $doc->findnodes('/apiResponse/result/records/record') ) {
         my $record =
-          Koha::ILLRequest::Record->new(${$self}{config})
+          Koha::ILLRequest::Record->new($self->{config})
             ->create_from_xml($datum);
         push (@return, $record);
     }
