@@ -129,8 +129,15 @@ if ($request) {
             }
         );
         $op = 'message';
-        ( $result ) ? $template->param( message => 'request_success' )
-            : $template->param( message => 'request_failure' );
+        if ( 'HASH' eq ref $result and $result->{status} ) {
+            $op      = 'message';
+            $template->param (
+                message => $result->{status},
+                forward => $parent,
+            );
+        } else {
+            $template->param( message => 'request_success' );
+        }
         $template->param(
             title   => 'API request result',
             forward => $parent,
@@ -172,17 +179,17 @@ if ($request) {
 
     } elsif ( $op eq 'progress' ) {
         my $ill = $request->checkSimpleAvailability;
-        if ($ill) {
+        if ( $ill->{status} ) {
+            $op      = 'message';
+            $template->param (
+                message => $ill->{status},
+                forward => $parent,
+            );
+        } else {
             $template->param(
                 title   => "Availability",
                 forward => 'price',
                 ill     => $ill,
-            );
-        } else {
-            $op      = 'message';
-            $template->param (
-                message => 'api',
-                forward => $parent,
             );
         }
 

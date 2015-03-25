@@ -63,6 +63,27 @@ sub new {
     return $self;
 }
 
+=head3 _getStatusCode
+
+    my $illStatus = _getStatusCode($status, $message);
+
+An introspective call turning API error codes into ILL Module error codes.
+
+=cut
+
+sub _getStatusCode {
+    my ( $status, $message ) = @_;
+    my $code = "This unusual case has not yet been defined: $message ($status)";
+    if ( '111' eq $status ) {
+        $code = 'unavailable';
+    } elsif ( '1' eq $status ) {
+        if ( 'Invalid Request: A valid physical address is required for the delivery format specified' eq $message ) {
+            $code = 'branch_address_incomplete';
+        }
+    }
+    return $code;
+}
+
 =head3 _api
 
     my $api = $abstract->api( $params );
@@ -98,6 +119,9 @@ sub _api {
         "\nDetail: ", $self->_api->error->{content}
     ) if ( $self->_api->error );
 
+    $re = Koha::ILLRequest::XML::BLDSS->new->load_xml( { string => $re } );
+    return { status => _getStatusCode($re->status, $re->message) }
+            if ( $re->status ne '0' );
     return $re;
 }
 
@@ -122,13 +146,15 @@ the hashref $PROPERTIES.  Return the API response as an HTML object.
 =cut
 
 sub checkAvailability {
-    my ( $self, $uin, $properties ) = @_;
+    my ( $self, $record ) = @_;
     my $reply  = $self->_api( {
         action => 'availability',
-        params => [ $uin, $properties ]
+        params => [
+            $record->getProperty('id'),
+            { year => $record->getProperty('year') } ]
     } );
-    return Koha::ILLRequest::XML::BLDSS->new
-      ->load_xml( { string => $reply } );
+
+    return $reply;
 }
 
 =head3 getPrices
@@ -146,8 +172,8 @@ sub getPrices {
         action => 'prices',
         params => [],
     } );
-    return Koha::ILLRequest::XML::BLDSS->new
-        ->load_xml( { string => $prices } );
+
+    return $prices;
 }
 
 =head3 getLimits
@@ -245,13 +271,7 @@ sub request {
         params => [ $final_details ],
     } );
 
-    use Data::Dump qw(dump);
-    if ($rq_result) {
-        die dump $rq_result;
-    } else {
-        die dump $self->_api;
-    }
-    return 0;
+    return $rq_result;
 }
 
 =head3 search

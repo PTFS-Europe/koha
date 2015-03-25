@@ -88,6 +88,17 @@
                         <p>We were not able to place your request.</p>
                     [% ELSIF message == 'failure' %]
                         <p>Something went wrong.</p>
+                    [% ELSIF message == 'authentication' %]
+                        <p>Something went wrong whilst authenticating with your
+                interlibrary loans service.</p>
+                    [% ELSIF message == 'unavailable' %]
+                        <p>This item is currently unavailable at your interlibrary
+                loans service.</p>
+                    [% ELSIF message == 'branch_address_incomplete' %]
+                        <p>The delivery address for this ILL is incomplete.  Please
+                check the service branch's address.</p>
+                    [% ELSE %]
+                        <p>[% message %]</p>
                     [% END %]
                     <p><a href=[% forward %] title="View all requests">View requests.</a></p>
                 [% ELSIF op == 'edit' %]

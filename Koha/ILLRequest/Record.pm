@@ -81,19 +81,10 @@ unclear whether this augmentation should happen here or at ILLRequest level
 sub checkAvailability {
     my ( $self, $response ) = @_;
     unless ($response) {        # Response is optional, for unit testing.
-        my $properties =
-          { year => ${$self}{data}{"./metadata/itemLevel/year"} };
-        $response = Koha::ILLRequest::Abstract->new()
-          ->checkAvailability($self->getProperty('id'), $properties);
+        $response = Koha::ILLRequest::Abstract->new->checkAvailability($self);
     }
-    if (!$response or (my $sts = $response->status) ne '0') {
-        if ($response) {
-            my $msg = $response->message;
-            die "API Error: '$msg' (Error code: $sts).\n";
-        } else {
-            return 0;
-        }
-    }
+    return $response
+        if ( 'HASH' eq ref $response and $response->{status} );
     return $response->result->availability;
 }
 
@@ -110,10 +101,6 @@ sub checkPrices {
     my ( $self, $response ) = @_;
     unless ($response) {        # Response is optional, for unit testing.
         $response = Koha::ILLRequest::Abstract->new()->getPrices();
-    }
-    unless ((my $sts = $response->status) eq '0') {
-        my $msg = $response->message;
-        die "API Error: '$msg' (Error code: $sts).\n";
     }
     return $response->result;
 }

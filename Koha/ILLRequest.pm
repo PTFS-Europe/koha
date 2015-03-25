@@ -193,7 +193,9 @@ this Request.
 sub checkSimpleAvailability {
     my ( $self, $testData ) = @_;
     my $availability = ${$self}{record}->checkAvailability($testData);
-    return 0 if (!$availability);
+    # We have a status message from the API.
+    return $availability
+        if ( 'HASH' eq ref $availability and $availability->{status} );
     my @formats;
     foreach my $format (@{$availability->formats}) {
         my @speeds;
@@ -500,13 +502,11 @@ sub place_request {
         }
     );
 
-    if ($success) {
-        $self->editStatus( { status => "Requested" } );
-        return ( 1, $self );
-    } else {
-        return ( 0, $self);
-    }
+    return ( $success, $self )
+        if ( 'HASH' eq ref $success and $success->{status} );
 
+    $self->editStatus( { status => "Requested" } );
+    return ( 1, $self );
 }
 
 =head3 place_generic_request
