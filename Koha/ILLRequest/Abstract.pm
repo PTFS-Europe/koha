@@ -65,15 +65,40 @@ sub new {
 
 =head3 _api
 
-    my $api = $abstract->api;
+    my $api = $abstract->api( $params );
 
-Return the api object.
+Perform an action on $self's API object. if !$PARAMS, return the object.
+Else, perform the API operation in $params->{action}, with the action params
+in $params->{params}, and evaluate it's result in API.
+
+Die if the API reports an error.
 
 =cut
 
 sub _api {
-    my $self = shift;
-    return $self->{api};
+    my ( $self, $params ) = @_;
+
+    return $self->{api}
+        if ( !$params or !$params->{action} );
+
+    my $op = $params->{action};
+    my $re;
+    if      ( 'availability' eq $op ) {
+        $re = $self->_api->availability(@{$params->{params}}),
+    } elsif ( 'create_order' eq $op ) {
+        $re = $self->_api->create_order(@{$params->{params}}),
+    } elsif ( 'prices' eq $op ) {
+        $re = $self->_api->prices(@{$params->{params}}),
+    } elsif ( 'search' eq $op ) {
+        $re = $self->_api->search(@{$params->{params}}),
+    }
+
+    die(
+        "The API responded with an error: ", $self->_api->error->{status},
+        "\nDetail: ", $self->_api->error->{content}
+    ) if ( $self->_api->error );
+
+    return $re;
 }
 
 
@@ -98,10 +123,10 @@ the hashref $PROPERTIES.  Return the API response as an HTML object.
 
 sub checkAvailability {
     my ( $self, $uin, $properties ) = @_;
-    my $reply  = $self->_api->availability($uin, $properties);
-    if (!$reply) {
-        return 0;
-    }
+    my $reply  = $self->_api( {
+        action => 'availability',
+        params => [ $uin, $properties ]
+    } );
     return Koha::ILLRequest::XML::BLDSS->new
       ->load_xml( { string => $reply } );
 }
@@ -117,10 +142,12 @@ Return an array containing pricing information for the API in use.
 sub getPrices {
     my ( $self ) = @_;
 
-    my $prices = $self->_api->prices;
-    if ( $self->_api->error) {
-    }
-    return Koha::ILLRequest::XML::BLDSS->new->load_xml( { string => $prices } );
+    my $prices = $self->_api( {
+        action => 'prices',
+        params => [],
+    } );
+    return Koha::ILLRequest::XML::BLDSS->new
+        ->load_xml( { string => $prices } );
 }
 
 =head3 getLimits
@@ -196,22 +223,27 @@ sub request {
         },
         service  => $params->{transaction},
         Delivery => {
-            email   => $branch->{branchemail},
+            email   => $branch->{branchemail} || "",
             Address => {
-                AddressLine1     => $branch->{branchaddress1},
-                AddressLine2     => $branch->{branchaddress2},
-                AddressLine3     => $branch->{branchaddress3},
-                TownOrCity       => $branch->{branchcity},
-                CountyOrState    => $branch->{branchstate},
+                AddressLine1     => $branch->{branchaddress1} || "",
+                AddressLine2     => $branch->{branchaddress2} || "",
+                AddressLine3     => $branch->{branchaddress3} || "",
+                TownOrCity       => $branch->{branchcity} || "",
+                CountyOrState    => $branch->{branchstate} || "",
                 ProvinceOrRegion => "",
-                PostOrZipCode    => $branch->{branchzip},
-                Country          => $branch->{branchcountry},
+                PostOrZipCode    => $branch->{branchzip} || "",
+                Country          => $branch->{branchcountry} || "",
             }
         },
         # Optional params:
-        requestor => join(" ", $brw->firstname, $brw->surname),
+        requestor         => join(" ", $brw->firstname, $brw->surname),
+        # FIXME: we'll need to add prefix here
+        customerReference => $params->{reference},
     };
-    my $rq_result = $self->_api->create_order($final_details);
+    my $rq_result = $self->_api( {
+        action => 'create_order',
+        params => [ $final_details ],
+    } );
 
     use Data::Dump qw(dump);
     if ($rq_result) {
@@ -247,11 +279,10 @@ We simply pass the options hashref straight to the API library.
 sub search {
     my ( $self, $query, $opts ) = @_;
 
-    my $reply = $self->_api->search($query, $opts);
-
-    if (!$reply) {
-        return 0;
-    }
+    my $reply = $self->_api( {
+        action => 'search',
+        params => [ $query, $opts ],
+    } );
 
     my $parser = XML::LibXML->new;
     my $doc = $parser->load_xml( { string => $reply } );
