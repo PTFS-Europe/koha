@@ -105,13 +105,16 @@ sub _api {
     my $op = $params->{action};
     my $re;
     if      ( 'availability' eq $op ) {
-        $re = $self->_api->availability(@{$params->{params}}),
+        $re = $self->_api->availability(@{$params->{params}});
     } elsif ( 'create_order' eq $op ) {
-        $re = $self->_api->create_order(@{$params->{params}}),
+        $re = $self->_api->create_order(@{$params->{params}});
+    } elsif ( 'cancel_order' eq $op ) {
+        $re = $self->_api->cancel_order(@{$params->{params}});
     } elsif ( 'prices' eq $op ) {
-        $re = $self->_api->prices(@{$params->{params}}),
+        $re = $self->_api->prices(@{$params->{params}});
     } elsif ( 'search' eq $op ) {
-        $re = $self->_api->search(@{$params->{params}}),
+        $re = $self->_api->search(@{$params->{params}});
+        return $re;
     }
 
     die(
@@ -120,8 +123,8 @@ sub _api {
     ) if ( $self->_api->error );
 
     $re = Koha::ILLRequest::XML::BLDSS->new->load_xml( { string => $re } );
-    return { status => _getStatusCode($re->status, $re->message) }
-            if ( $re->status ne '0' );
+    return _getStatusCode($re->status, $re->message)
+        if ( $re->status ne '0' );
     return $re;
 }
 
