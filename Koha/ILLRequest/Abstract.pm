@@ -39,6 +39,31 @@ Koha::ILLRequest::Abstract - Koha ILL AbstractILL Object class
 In theory, this class is to act as a layer in between individual means for
 communicating with ILL APIs and other objects.
 
+=head2 Interface Status Messages
+
+=over
+
+=item * branch_address_incomplete
+
+An interface request has determined branch address details are incomplete.
+
+=item * cancel_success
+
+The interface's cancel_request method was successful in cancelling the
+ILLRequest using the API.
+
+=item * cancel_fail
+
+The interface's cancel_request method failed to cancel the ILLRequest using
+the API.
+
+=item * unavailable
+
+The interface's request method returned saying that the desired item is not
+available for request.
+
+=back
+
 =head1 API
 
 =head2 Class Methods
@@ -74,14 +99,31 @@ An introspective call turning API error codes into ILL Module error codes.
 sub _getStatusCode {
     my ( $status, $message ) = @_;
     my $code = "This unusual case has not yet been defined: $message ($status)";
-    if ( '111' eq $status ) {
-        $code = 'unavailable';
-    } elsif ( '1' eq $status ) {
+
+    if ( 0 == $status ) {
+        if ( 'Order successfully cancelled' eq $message ) {
+            $code = 'cancel_success';
+        }
+
+    } elsif ( 1 == $status ) {
         if ( 'Invalid Request: A valid physical address is required for the delivery format specified' eq $message ) {
             $code = 'branch_address_incomplete';
         }
     }
     return $code;
+        } else {
+            $code = 'invalid_request';
+        }
+
+    } elsif ( 111 == $status ) {
+        $code = 'unavailable';
+
+    } elsif ( 162 == $status ) {
+        $code = 'cancel_fail';
+
+    }
+
+    return { status => $code, message => $message };
 }
 
 =head3 _api
