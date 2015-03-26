@@ -257,6 +257,21 @@ sub editStatus {
       if $self->save;
 }
 
+=head3 getStatus
+
+    my $statusMsg = $illRequest->getStatus;
+
+Return $ILLREQUEST's current status (the status message, NOT the status
+object).
+
+=cut
+
+sub getStatus {
+    my ( $self ) = @_;
+
+    return $self->status->getProperty('status');
+}
+
 =head3 status
 
     my $status = $illRequest->status();
