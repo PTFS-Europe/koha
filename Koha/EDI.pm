@@ -694,6 +694,16 @@ sub _check_for_existing_bib {
     if ( @{$tuple_arr} ) {
         return $tuple_arr->[0];
     }
+    elsif ( length($isbn) == 13 && $isbn!~/^97[89]/) {
+        my $tarr = $dbh->selectall_arrayref(
+            'select biblionumber, biblioitemnumber from biblioitems where ean = ?',
+            { Slice => {} },
+            $isbn
+        );
+        if ( @{$tarr} ) {
+            return $tarr->[0];
+        }
+    }
     else {
         undef $search_isbn;
         $isbn =~ s/\-//xmsg;
