@@ -99,32 +99,32 @@
                             <legend>Search Form</legend>
                             <input name="op" id="op" value="search" type="hidden"/>
                             <ol>
-                                <li>
+                                <li id="illkeywords">
                                     <label class="required" for="query_value">Keywords:</label>
                                     <input type="text" name="query_value" id="query_value"
                                            value="[% keywords %]" />
                                 </li>
-                                <li>
+                                <li id="illisbn">
                                     <label for="isbn">ISBN:</label>
                                     <input type="text" name="isbn" id="isbn"
                                            value="[% isbn %]" />
                                 </li>
-                                <li>
+                                <li id="illissn">
                                     <label for="issn">ISSN:</label>
                                     <input type="text" name="issn" id="issn"
                                            value="[% issn %]" />
                                 </li>
-                                <li>
+                                <li id="illtitle">
                                     <label for="title">Title:</label>
                                     <input type="text" name="title" id="title"
                                            value="[% title %]" />
                                 </li>
-                                <li>
+                                <li id="illauthor">
                                     <label for="author">Author:</label>
                                     <input type="text" name="author" id="author"
                                            value="[% author %]" />
                                 </li>
-                                <li>
+                                <li id="illtype">
                                     <label for="type">Type:</label>
                                     <select name="type" id="type">
                                         <option value=""/>
@@ -144,7 +144,7 @@
                         <fieldset class="rows">
                             <legend>Borrower Options</legend>
                             <ol>
-                                <li>
+                                <li id="illbranch">
                                     <label class="required" for="branch">Destination Branch:</label>
                                     <select name="branch" id="branch">
                                         <option value=""></option>
