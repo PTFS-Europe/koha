@@ -122,6 +122,7 @@ sub save {
             # List of additional, non-automatic "Record" fields.  These are
             # additional fields used directly by the Koha ILL interface.
             push @attrs, { type => 'primary_order_id', value => '' };
+            push @attrs, { type => 'primary_access_url', value => '' };
             # add attrs into ill_request
             $save_obj->{'ill_request_attributes'} = \@attrs;
         }
@@ -312,6 +313,32 @@ sub order_id {
         return $self;
     } else {
         return $self->record->property( 'order_id' );
+    }
+}
+
+=head3 access_url
+
+    my $url = $illRequest->order_id;
+    # or
+    my $new_url = $illRequest->order_id('new_url');
+
+Helper function to access or set the access_url associated with this request.
+
+=cut
+
+sub access_url {
+    my ( $self, $url ) = @_;
+
+    if ( $url ) {
+        my $result = $self->record->property( 'access_url', $url );
+        if ( $self->save('access_url') ) {
+            return $result;
+        } else {
+            return 0;
+        }
+        return $self;
+    } else {
+        return $self->record->property( 'access_url' );
     }
 }
 
@@ -565,8 +592,10 @@ sub place_request {
     return ( $success, $self )
         if ( 'HASH' eq ref $success and $success->{status} );
 
-    # FIXME: this is currently hard-coded to BLDSS
+    # FIXME: these are currently hard-coded to BLDSS
     $self->order_id($success->result->newOrder->orderline);
+    $self->access_url($success->result->newOrder->downloadUrl);
+
     $self->editStatus( { status => "Requested" } );
     return ( 1, $self );
 }

@@ -57,16 +57,21 @@ sub new {
                 price_props   => $config->getProperties('prices'),
                 record_props  => $config->getProperties('record'),
                 primary_props => {
-                    primary_order_id => {
+                    primary_order_id   => {
                         name      => "Order ID",
-                        inSummary => "false",
+                        inSummary => undef,
+                    },
+                    primary_access_url => {
+                        name      => "Access URL",
+                        inSummary => "true",
                     },
                 },
                 data          => {},
                 accessors     => {},
                };
     $self->{primary_accessors} = {
-        order_id => sub { $self->{data}->{primary_order_id}->{value} },
+        order_id   => sub { $self->{data}->{primary_order_id}->{value} },
+        access_url => sub { $self->{data}->{primary_access_url}->{value} },
     };
 
     bless $self, $class;
