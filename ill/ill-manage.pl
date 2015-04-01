@@ -57,7 +57,6 @@ my $tabs = {
     view          => "View",
     edit          => "Edit",
     progress      => "Progress",
-    action_delete => "Delete",
 };
 
 if (C4::Context->preference('GenericILLModule')) {
@@ -67,6 +66,12 @@ if (C4::Context->preference('GenericILLModule')) {
 if ($request) {
     if ($request and $request->requires_moderation) {
         $tabs->{moderate} = "Moderation";
+    }
+
+    if ( $request and ( $request->getStatus eq "Requested" ) ) {
+        $tabs->{action_cancel} = "Revert request";
+    } else {
+        $tabs->{action_delete} = "Delete request";
     }
 
     if ( $op eq 'view' ) {

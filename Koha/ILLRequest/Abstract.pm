@@ -21,6 +21,7 @@ use Modern::Perl;
 use Carp;
 
 use BLDSS;
+use Locale::Country;
 use XML::LibXML;
 use C4::Branch;
 use Koha::ILLRequest::XML::BLDSS;
@@ -108,9 +109,6 @@ sub _getStatusCode {
     } elsif ( 1 == $status ) {
         if ( 'Invalid Request: A valid physical address is required for the delivery format specified' eq $message ) {
             $code = 'branch_address_incomplete';
-        }
-    }
-    return $code;
         } else {
             $code = 'invalid_request';
         }
@@ -165,6 +163,8 @@ sub _api {
     ) if ( $self->_api->error );
 
     $re = Koha::ILLRequest::XML::BLDSS->new->load_xml( { string => $re } );
+    # We're not fully using status based returns yet, two exit cases are for
+    # backward compatibility.
     return _getStatusCode($re->status, $re->message)
         if ( $re->status ne '0' );
     return $re;
@@ -287,10 +287,20 @@ sub request {
     my $branch = C4::Branch::GetBranchDetail($params->{branch});
     # Currently hard-coded to BL requirements.  This should instead use
     # methods from the API or config to extract appropriate & required fields.
+    my $country = country2code($branch->{branchcountry}, LOCALE_CODE_ALPHA_3)
+        || die "Invalid country in branch record: $branch->{branchcountry}.";
     my $final_details = {
-        type     => "A",
+        type     => "S",
         Item     => {
-            uin      => $params->{record}->getProperty('id'),
+            uin     => $params->{record}->getProperty('id'),
+            # At least one item of interest criterium is required for 'paper'
+            # book requests.  But this is not always provided by the BL.
+            # Through no fault of our own, we may end in a dead-end.
+            itemOfInterestLevel => {
+                title  => $params->{record}->getProperty('ioiTitle'),
+                pages  => $params->{record}->getProperty('ioiPages'),
+                author => $params->{record}->getProperty('ioiAuthor'),
+            }
         },
         service  => $params->{transaction},
         Delivery => {
@@ -303,13 +313,15 @@ sub request {
                 CountyOrState    => $branch->{branchstate} || "",
                 ProvinceOrRegion => "",
                 PostOrZipCode    => $branch->{branchzip} || "",
-                Country          => $branch->{branchcountry} || "",
+                Country          => $country,
             }
         },
         # Optional params:
         requestor         => join(" ", $brw->firstname, $brw->surname),
         # FIXME: we'll need to add prefix here
         customerReference => $params->{reference},
+        # FIXME: Pay Copyright: should be read from a config file.
+        payCopyright => "true",
     };
     my $rq_result = $self->_api( {
         action => 'create_order',

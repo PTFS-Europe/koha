@@ -163,6 +163,15 @@ sub availability {
     return Koha::ILLRequest::XML::BLDSS->rebless(${$availabilities}[0]);
 }
 
+sub newOrder {
+    my $self = shift;
+    my $newOrders = $self->findnodes("./newOrder");
+    if (@{$newOrders} > 1) {
+        warn "We have more than one result.  This should not have happened.";
+    }
+    return Koha::ILLRequest::XML::BLDSS->rebless(${$newOrders}[0]);
+}
+
 sub services {
     my $self = shift;
     my @services = map {Koha::ILLRequest::XML::BLDSS->rebless($_)}
@@ -382,13 +391,16 @@ sub new {
 
 # newOrder Object
 
+# This is based on the assumption of Synchroneous requests.
+
 package Koha::ILLRequest::XML::BLDSS::NewOrder;
 
 use base qw(Koha::ILLRequest::XML::BLDSS::Element);
 
 sub elements {
-    return qw( requestId customerReference service format speed quality
-               quantity copyrightState note);
+    return qw( orderline customerReference service format speed quality
+               quantity totalCost estimatedDespatchDate downloadUrl
+               copyrightState note );
 }
 
 sub new {

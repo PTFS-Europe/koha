@@ -557,12 +557,16 @@ sub place_request {
             patron      => $brw,
             transaction => $details,
             record      => $self->record,
+            # FIXME: we'll need to add prefix here
+            reference   => $self->status->getProperty('id'),
         }
     );
 
     return ( $success, $self )
         if ( 'HASH' eq ref $success and $success->{status} );
 
+    # FIXME: this is currently hard-coded to BLDSS
+    $self->order_id($success->result->newOrder->orderline);
     $self->editStatus( { status => "Requested" } );
     return ( 1, $self );
 }
