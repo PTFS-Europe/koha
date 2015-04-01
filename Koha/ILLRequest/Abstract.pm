@@ -331,6 +331,34 @@ sub request {
     return $rq_result;
 }
 
+=head3 cancel_request
+
+    my $cancel_request = $illRequest->cancel_request( $params );
+
+The standard interface method allowing for request cancellation.  $PARAMS will
+be a hashref containing whatever the API requested be stored in the 'orderid'
+field of the ill_request_attributes table upon ILL request.
+
+=cut
+
+sub cancel_request {
+    my ( $self, $params ) = @_;
+
+    # BL implementation of interface method:
+    my $re = $self->_api( {
+        action => 'cancel_order',
+        params => [ $params->{order_id} ],
+    } );
+
+    # For backward compatibility: not all query types return status hashes
+    # yet.
+    if ( 'HASH' eq ref $re && $re->{status} ) {
+        return $re;
+    } else {
+        return _getStatusCode($re->status, $re->message);
+    }
+}
+
 =head3 search
 
     my $results = $abstractILL->search($query);

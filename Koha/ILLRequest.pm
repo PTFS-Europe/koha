@@ -571,6 +571,26 @@ sub place_request {
     return ( 1, $self );
 }
 
+=head3 cancel_request
+
+    my $status = $illRequest->cancel_request;
+
+Use the interface to attempt to cancel a request.
+
+=cut
+
+sub cancel_request {
+    my ( $self ) = @_;
+    my $result = Koha::ILLRequest::Abstract->new
+        ->cancel_request( { order_id => $self->order_id } );
+    if ( 'cancel_success' eq $result->{status} ) {
+        # Succes, change status, remove order_id.
+        $self->editStatus( { status => "Request reverted" } );
+        $self->order_id("UNSET");
+    }
+    return ( $result, $self );
+}
+
 =head3 place_generic_request
 
     my ( $result, $email ) = $illRequest->place_generic_request($params);

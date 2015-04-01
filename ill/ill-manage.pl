@@ -96,6 +96,21 @@ if ($request) {
             );
         }
 
+    } elsif ( $op eq 'action_cancel' ) {
+        my $result;
+        ( $result, $request ) = $request->cancel_request;
+        if ( 'cancel_success' eq $result->{status} ) {
+            $template->param( title => 'Request reverted' );
+        } else {
+            $template->param( title => 'Unable to revert request' );
+        }
+        $op = 'message';
+        $template->param(
+            message => $result->{status},
+            whole   => $result,
+            forward => $parent,
+        );
+
     } elsif ( $op eq 'action_email' ) {
         my $branchdetails = GetBranchDetail(C4::Context->userenv->{'branch'});
         my ( $result, $summary ) = $request->place_generic_request(
@@ -189,6 +204,7 @@ if ($request) {
             $op      = 'message';
             $template->param (
                 message => $ill->{status},
+                whole   => $ill,
                 forward => $parent,
             );
         } else {
