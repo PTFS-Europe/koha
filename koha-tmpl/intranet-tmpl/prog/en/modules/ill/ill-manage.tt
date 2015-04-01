@@ -59,7 +59,12 @@
                         </ol>
                     </fieldset>
                 [% ELSIF op == 'message' %]
-                    [% IF message == 'deleted' %]
+                    [% IF    message == 'cancel_success' %]
+                        <p>We have been able to undo the request at the API level.</p>
+                    [% ELSIF message == 'cancel_fail' %]
+                        <p>We were unable to undo the request at the API level.</p>
+                        <p>It is probably already too far along in the process.</p>
+                    [% ELSIF message == 'deleted' %]
                         <p>The request has been deleted.</p>
                     [% ELSIF message == 'unknown_request' %]
                         <p>The request you referred to does not exist.</p>
@@ -80,6 +85,9 @@
                             <dt>subject</dt><dd>[% email.subject %]</dd>
                             <dt>body</dt><dd><pre>[% email.message %]</pre></dd>
                         </dl>
+                    [% ELSIF message == 'invalid_request' %]
+                        <p>There was a problem communicating with the remote service.</p>
+                        <p>They report: [% whole.message %]</p>
                     [% ELSIF message == 'not_implemented' %]
                         <p>We have not implemented this functionality yet.</p>
                     [% ELSIF message == 'request_success' %]

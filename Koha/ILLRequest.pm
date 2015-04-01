@@ -20,6 +20,7 @@ package Koha::ILLRequest;
 use Modern::Perl;
 use Carp;
 use Encode;
+use Koha::Borrowers;
 use Koha::Database;
 use Koha::Email;
 use Koha::ILLRequest::Status;
@@ -263,7 +264,7 @@ sub editStatus {
         $new_values->{borrowernumber} = $brw->borrowernumber;
         delete $new_values->{borrower};
     }
-    ${$self}{status}->update($new_values);
+    $self->status->update($new_values);
 
     return 1
       if $self->save;
@@ -487,14 +488,14 @@ sub _seed_from_api {
 sub _seed_from_store {
     my ( $self, $opts ) = @_;
 
-    my $result = Koha::Database->new()->schema()->resultset('IllRequest')
-        ->find( { id => $opts->{id} },
-                { join     => 'ill_request_attributes',
-                  order_by => 'id' } );
+    my $result_set = Koha::Database->new->schema->resultset('IllRequest');
+    my $result = $result_set->find( $opts->{id} );
 
     if ($result) {
+        my $linked = $result_set->search_related(
+            'ill_request_attributes', { req_id => $opts->{id} }
+        );
         my $attributes = { $result->get_columns };
-        my $linked = $result->ill_request_attributes;
         while ( my $attribute = $linked->next ) {
             $attributes->{ $attribute->get_column('type') } =
               $attribute->get_column('value');
@@ -503,8 +504,8 @@ sub _seed_from_store {
             = _borrower_from_number($attributes->{borrowernumber}, 'brw');
         # XXX: A bit Kludgy.
         my $tmp = Koha::ILLRequest::Abstract->new->build($attributes);
-        ${$self}{record} = ${$tmp}{record};
-        ${$self}{status} = ${$tmp}{status};
+        $self->{record} = $tmp->{record};
+        $self->{status} = $tmp->{status};
         return $self;
     }
 

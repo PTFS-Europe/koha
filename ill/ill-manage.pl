@@ -117,8 +117,8 @@ if ($request) {
         my ( $result, $summary ) = $request->place_request(
             {
                 branch  => C4::Context->userenv->{'branch'},
-                # This is hard-coded to BL values: we need to generate this
-                # dynamically from form fields.
+                # FIXME: This is hard-coded to BL values: we need to generate
+                # this dynamically from form fields.
                 details => {
                     format   => $cgi->param('format'),
                     speed    => $cgi->param('speed'),
@@ -133,6 +133,7 @@ if ($request) {
             $op      = 'message';
             $template->param (
                 message => $result->{status},
+                whole   => $result,
                 forward => $parent,
             );
         } else {
