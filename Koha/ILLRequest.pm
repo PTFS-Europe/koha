@@ -74,13 +74,13 @@ Wrapper around dbix::class' delete.
 sub delete {
     my ( $self ) = @_;
 
-    my $related = Koha::Database->new()->schema()->resultset('IllRequestAttribute')
-        ->find( { req_id => $self->status->getProperty('id') } );
-    my $data = Koha::Database->new()->schema()->resultset('IllRequest')
-        ->find( { id => $self->status->getProperty('id') } );
+    my $result_set = Koha::Database->new->schema->resultset('IllRequest');
+    my $rq = $result_set->find( $self->status->getProperty('id') );
+    my $related = $result_set->search_related(
+        'ill_request_attributes', { req_id => $rq->id }
+    );
 
-    $related->set_primary_key('req_id');
-    my $result = $data->delete if $related->delete;
+    my $result = $rq->delete if $related->delete_all;
     return $result || 0;
 }
 
