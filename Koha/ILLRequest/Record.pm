@@ -56,9 +56,17 @@ sub new {
                 avail_props   => $config->getProperties('availability'),
                 price_props   => $config->getProperties('prices'),
                 record_props  => $config->getProperties('record'),
-                data          => {},
+                data          => {
+                    primary_order_id => {
+                        name  => "Order ID",
+                        value => 0,
+                    },
+                },
                 accessors     => {},
                };
+    $self->{primary_accessors} = {
+        order_id => sub { $self->{data}->{primary_order_id}->{value} },
+    };
 
     bless $self, $class;
     return $self;
@@ -248,6 +256,34 @@ sub getFullDetails {
     return \%details;
 }
 
+=head3 property
+
+    my $newPropertyValue || 0 = $record->property(
+        'propertyName', 'newPropertyValue'
+    );
+
+Means of accessing and setting properties according to Record's API.  This is
+primarily used for setting primary_ accessor values.
+
+=cut
+
+sub property {
+    my ( $self, $prop_name, $prop_value ) = @_;
+    my $result;
+    if ( $prop_value ) {
+        if ( defined $self->{primary_accessors}->{$prop_name} ) {
+            $self->{data}->{'primary_' . $prop_name}->{value} = $prop_value;
+            $result = $prop_value;
+        } else {
+            $result = 0;
+        }
+    } else {
+        $result = $self->getProperty($prop_name);
+    }
+    return $result;
+}
+
+
 =head3 getProperty
 
     $rec->getPoperty(ID);
@@ -261,7 +297,9 @@ warning message.
 sub getProperty {
     my ($self, $accessor) = @_;
     my $result;
-    if (defined ${$self}{accessors}{$accessor}) {
+    if      ( defined $self->{primary_accessors}->{$accessor} ) {
+        $result = &{$self->{primary_accessors}->{$accessor}};
+    } elsif ( defined $self->{accessors}->{$accessor} ) {
         $result = ${$self}{accessors}{$accessor};
     } else {
         $result = 0;

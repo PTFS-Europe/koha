@@ -93,29 +93,41 @@ ill_request_attributes tables.
 =cut
 
 sub save {
-    my ( $self ) = @_;
+    my ( $self, $field ) = @_;
     # Build combined object as expected by dbic.
     # Get ill_request DBIC data
-    my $save_obj = ${$self}{status}->getFields();
+    my $save_obj = $self->status->getFields;
+    my $result_set = Koha::Database->new->schema;
     # If this is the first save, we must merge in the Record.
-    if ( !${$save_obj}{id} ) {
-        # Retrieve Record
-        my $full_rec = ${$self}{record}->getFullDetails();
-        # create DBIC friendly attribute list
-        my $attrs = [];
-        foreach my $type ( keys $full_rec ) {
-            push( @{$attrs},
-                  { type => $type, value => ${$full_rec}{$type}[1] } );
+    if ( $save_obj->{id} and $field ) {
+        # We have a specific field in the Record that has been updated and
+        # which must be saved.
+        $result_set = $result_set->resultset('IllRequestAttribute');
+        my $attribute = $result_set->find(
+            ( $save_obj->{id}, 'primary_' . $field )
+        );
+        $attribute->value( $self->record->property($field) );
+        my $save = $attribute->update;
+    } else {
+        $result_set = $result_set->resultset('IllRequest');
+        if ( !$save_obj->{id} ) {
+            # Retrieve Record
+            my $full_rec = $self->record->getFullDetails;
+            # create DBIC friendly attribute list
+            my @attrs = ();
+            while ( my ( $type, $value ) = each %{$full_rec} ) {
+                push @attrs, { type => $type, value => ${$value}[1] };
+            }
+            # List of additional, non-automatic "Record" fields.  These are
+            # additional fields used directly by the Koha ILL interface.
+            push @attrs, { type => 'primary_order_id', value => '' };
+            # add attrs into ill_request
+            $save_obj->{'ill_request_attributes'} = \@attrs;
         }
-        # add attrs into ill_request
-        ${$save_obj}{'ill_request_attributes'} = $attrs;
+        my $save = $result_set->update_or_create( $save_obj );
+        $self->status->{id} = $save->id unless $save_obj->{id};
     }
-
-    #save.
-    my $save = Koha::Database->new()->schema()->resultset('IllRequest')
-      ->update_or_create( $save_obj );
-
-    return $save;
+    return $self;
 }
 
 =head3 checkAvailability
@@ -270,6 +282,36 @@ sub getStatus {
     my ( $self ) = @_;
 
     return $self->status->getProperty('status');
+}
+
+=head3 order_id
+
+    my $orderID = $illRequest->order_id;
+    # or
+    my $newOrderID = $illRequest->order_id('newOrderID');
+
+Helper function to access or set the order_id associated with this request.
+
+=cut
+
+sub order_id {
+    my ( $self, $params ) = @_;
+
+    # params could be a string, number, list or hash.  If one of the latter
+    # then we must be able to serialize and deserialize it into the database.
+    #
+    # For now we assume it's a string or number.
+    if ( $params ) {
+        my $result = $self->record->property( 'order_id', $params );
+        if ( $self->save('order_id') ) {
+            return $result;
+        } else {
+            return 0;
+        }
+        return $self;
+    } else {
+        return $self->record->property( 'order_id' );
+    }
 }
 
 =head3 status
