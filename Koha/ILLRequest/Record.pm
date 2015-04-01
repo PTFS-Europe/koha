@@ -56,12 +56,13 @@ sub new {
                 avail_props   => $config->getProperties('availability'),
                 price_props   => $config->getProperties('prices'),
                 record_props  => $config->getProperties('record'),
-                data          => {
+                primary_props => {
                     primary_order_id => {
-                        name  => "Order ID",
-                        value => 0,
+                        name      => "Order ID",
+                        inSummary => "false",
                     },
                 },
+                data          => {},
                 accessors     => {},
                };
     $self->{primary_accessors} = {
@@ -177,21 +178,33 @@ this Record's intended contents.
 sub create_from_store {
     my ( $self, $attributes ) = @_;
 
-    foreach my $field ( keys ${$self}{record_props} ) {
+    # Populate dynamic API fields
+    foreach my $field ( keys $self->{record_props} ) {
 
         # populate data from database
-        ${$self}{data}{$field} = {
+        $self->{data}->{$field} = {
             value     => $attributes->{$field},
-            name      => ${$self}{record_props}{$field}{name},
-            inSummary => ${$self}{record_props}{$field}{inSummary},
+            name      => $self->{record_props}->{$field}->{name},
+            inSummary => $self->{record_props}->{$field}->{inSummary},
         };
 
         # populate accessor if desired
-        my $accessor = ${$self}{record_props}{$field}{accessor};
-        if ($accessor) {
-            ${$self}{accessors}{$accessor} = ${$self}{data}{$field}{value};
+        my $accessor = $self->{record_props}->{$field}->{accessor};
+        if ( $accessor ) {
+            $self->{accessors}->{$accessor}
+                = $self->{data}->{$field}->{value};
         }
     }
+
+    # Populate 'primary values'
+    foreach my $field ( keys $self->{primary_props} ) {
+        $self->{data}->{$field} = {
+            value     => $attributes->{$field},
+            name      => $self->{primary_props}->{$field}->{name},
+            inSummary => $self->{primary_props}->{$field}->{inSummary},
+        };
+    }
+
     return $self;
 }
 
@@ -272,8 +285,14 @@ sub property {
     my $result;
     if ( $prop_value ) {
         if ( defined $self->{primary_accessors}->{$prop_name} ) {
-            $self->{data}->{'primary_' . $prop_name}->{value} = $prop_value;
-            $result = $prop_value;
+            if ( 'UNSET' eq $prop_value ) {
+                $self->{data}->{'primary_' . $prop_name}->{value} = "";
+                $result = 1;
+            } else {
+                $self->{data}->{'primary_' . $prop_name}->{value}
+                    = $prop_value;
+                $result = $prop_value;
+            }
         } else {
             $result = 0;
         }
