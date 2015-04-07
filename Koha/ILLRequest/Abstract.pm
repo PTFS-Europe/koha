@@ -79,14 +79,47 @@ sub new {
     my ( $class, $params ) = @_;
     my $self = {};
 
+    bless( $self, $class );
+
+    $self->_config(Koha::ILLRequest::Config->new);
+
     # This is where we may want to introduce the possibility to choose amongst
     # backends.
-    $self->{config} = Koha::ILLRequest::Config->new;
-    my $creds = $self->{config}->getCredentials($params->{branch});
-    $self->{api} = BLDSS->new( $creds );
+    $self->_api = BLDSS->new( {
+        api_keys => $self->_config->getCredentials($params->{branch}),
+    } );
 
-    bless( $self, $class );
     return $self;
+}
+
+=head3 _api
+
+    my $api = $abstract->_api($api);
+    my $api = $abstract->_api;
+
+Getter/Setter for our API object.
+
+=cut
+
+sub _api {
+    my ( $self, $api ) = @_;
+    $self->{api} = $api if ( $api );
+    return $self->{api};
+}
+
+=head3 _config
+
+    my $config = $abstract->_config($config);
+    my $config = $abstract->_config;
+
+Getter/Setter for our config object.
+
+=cut
+
+sub _config {
+    my ( $self, $config ) = @_;
+    $self->{config} = $config if ( $config );
+    return $self->{config};
 }
 
 =head3 _getStatusCode
@@ -124,9 +157,9 @@ sub _getStatusCode {
     return { status => $code, message => $message };
 }
 
-=head3 _api
+=head3 _api_do
 
-    my $api = $abstract->api( $params );
+    my $api = $abstract->_api_do( $params );
 
 Perform an action on $self's API object. if !$PARAMS, return the object.
 Else, perform the API operation in $params->{action}, with the action params
@@ -136,10 +169,10 @@ Die if the API reports an error.
 
 =cut
 
-sub _api {
+sub _api_do {
     my ( $self, $params ) = @_;
 
-    return $self->{api}
+    return $self->_api
         if ( !$params or !$params->{action} );
 
     my $op = $params->{action};
@@ -174,7 +207,7 @@ sub _api {
 sub build {
     my ( $self, $attributes ) = @_;
 
-    my $record = Koha::ILLRequest::Record->new($self->{config})
+    my $record = Koha::ILLRequest::Record->new($self->_config)
       ->create_from_store($attributes);
     my $status = Koha::ILLRequest::Status->new->create_from_store($attributes);
 
@@ -192,7 +225,7 @@ the hashref $PROPERTIES.  Return the API response as an HTML object.
 
 sub checkAvailability {
     my ( $self, $record ) = @_;
-    my $reply  = $self->_api( {
+    my $reply  = $self->_api_do( {
         action => 'availability',
         params => [
             $record->getProperty('id'),
@@ -213,7 +246,7 @@ Return an array containing pricing information for the API in use.
 sub getPrices {
     my ( $self ) = @_;
 
-    my $prices = $self->_api( {
+    my $prices = $self->_api_do( {
         action => 'prices',
         params => [],
     } );
@@ -237,7 +270,7 @@ or for the default, we must define fall-back values here.
 
 sub getLimits {
     my ( $self, $params ) = @_;
-    my $limits = $self->{config}->getLimitRules($params->{type});
+    my $limits = $self->_config->getLimitRules($params->{type});
 
     return $limits->{$params->{value}}
         || $limits->{default}
@@ -262,8 +295,8 @@ caller requires configured defaults.
 
 sub getDefaultFormat {
     my ( $self, $params ) = @_;
-    my $brn_formats = $self->{config}->getDefaultFormats('branch');
-    my $brw_formats = $self->{config}->getDefaultFormats('brw_cat');
+    my $brn_formats = $self->_config->getDefaultFormats('branch');
+    my $brw_formats = $self->_config->getDefaultFormats('brw_cat');
 
     return $brw_formats->{$params->{brw_cat}}
         || $brn_formats->{$params->{branch}}
@@ -323,7 +356,7 @@ sub request {
         # FIXME: Pay Copyright: should be read from a config file.
         payCopyright => "true",
     };
-    my $rq_result = $self->_api( {
+    my $rq_result = $self->_api_do( {
         action => 'create_order',
         params => [ $final_details ],
     } );
@@ -345,7 +378,7 @@ sub cancel_request {
     my ( $self, $params ) = @_;
 
     # BL implementation of interface method:
-    my $re = $self->_api( {
+    my $re = $self->_api_do( {
         action => 'cancel_order',
         params => [ $params->{order_id} ],
     } );
@@ -384,7 +417,7 @@ We simply pass the options hashref straight to the API library.
 sub search {
     my ( $self, $query, $opts ) = @_;
 
-    my $reply = $self->_api( {
+    my $reply = $self->_api_do( {
         action => 'search',
         params => [ $query, $opts ],
     } );
@@ -395,7 +428,7 @@ sub search {
     my @return;
     foreach my $datum ( $doc->findnodes('/apiResponse/result/records/record') ) {
         my $record =
-          Koha::ILLRequest::Record->new($self->{config})
+          Koha::ILLRequest::Record->new($self->_config)
             ->create_from_xml($datum);
         push (@return, $record);
     }
