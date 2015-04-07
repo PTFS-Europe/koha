@@ -60,6 +60,7 @@ isa_ok($config, 'Koha::ILLRequest::Config');
 is_deeply(
     Koha::ILLRequest::Config::_load_configuration($params),
     {
+        api_url         => 'http://apitest.bldss.bl.uk',
         credentials     => {
             api_keys        => { default => $defaults },
             api_application => $application,
@@ -74,6 +75,7 @@ $params->{configuration}->{request_limit}->{count} = 10;
 is_deeply(
     Koha::ILLRequest::Config::_load_configuration($params),
     {
+        api_url         => 'http://apitest.bldss.bl.uk',
         credentials     => {
             api_keys        => {
                 default => {
@@ -93,6 +95,7 @@ $params->{configuration}->{branch} = $first_branch;
 is_deeply(
     Koha::ILLRequest::Config::_load_configuration($params),
     {
+        api_url         => 'http://apitest.bldss.bl.uk',
         credentials     => {
             api_keys        => {
                 default => {
@@ -116,6 +119,7 @@ $params->{configuration}->{branch} = [ $first_branch, $second_branch ];
 is_deeply(
     Koha::ILLRequest::Config::_load_configuration($params),
     {
+        api_url         => 'http://apitest.bldss.bl.uk',
         credentials     => {
             api_keys        => {
                 default => {
@@ -153,6 +157,7 @@ $params->{configuration}->{default_formats} = {
 is_deeply(
     Koha::ILLRequest::Config::_load_configuration($params, 1),
     {
+        api_url         => 'http://apitest.bldss.bl.uk',
         credentials     => {
             api_keys        => {
                 default => {
@@ -215,7 +220,6 @@ dies_ok { $config->getLimitRules('wrongType') }
 
 $config->{configuration} =
     Koha::ILLRequest::Config::_load_configuration($params);
-diag dump $config->getLimitRules('brw_cat');
 is_deeply(
     $config->getLimitRules('branch'),
     {

@@ -230,6 +230,19 @@ sub getCredentials {
     };
 }
 
+=head3 getApiUrl
+
+    my $api_url = $config->getApiUrl;
+
+Return the url for the api configured by koha-conf.xml, or the fall-back url.
+
+=cut
+
+sub getApiUrl {
+    my ( $self ) = @_;
+    return $self->{configuration}->{api_url};
+}
+
 =head3 _load_configuration
 
     my $configuration = $config->_load_configuration($config_from_xml);
@@ -241,7 +254,8 @@ suitable for use with these.
 
 sub _load_configuration {
     my ( $from_xml, $unmediated ) = @_;
-    my $xml_config = $from_xml->{configuration};
+    my $xml_config  = $from_xml->{configuration};
+    my $xml_api_url = $from_xml->{api_url};
 
     # Input validation
     die "CONFIGURATION has not been defined in koha-conf.xml."
@@ -251,6 +265,7 @@ sub _load_configuration {
 
     # Default data structure to be returned
     my $configuration = {
+        api_url         => $xml_api_url || 'http://apitest.bldss.bl.uk',
         credentials     => {
             api_application => {},
             api_keys        => {},

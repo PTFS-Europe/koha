@@ -85,9 +85,12 @@ sub new {
 
     # This is where we may want to introduce the possibility to choose amongst
     # backends.
-    $self->_api = BLDSS->new( {
-        api_keys => $self->_config->getCredentials($params->{branch}),
-    } );
+    $self->_api(
+        BLDSS->new( {
+            api_keys => $self->_config->getCredentials($params->{branch}),
+            api_url  => $self->_config->getApiUrl,
+        } )
+    );
 
     return $self;
 }

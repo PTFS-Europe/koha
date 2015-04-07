@@ -98,6 +98,8 @@ __PAZPAR2_TOGGLE_XML_POST__
  <interlibrary_loans>
   <!-- Path to API YAML specification. -->
   <api_specification>__KOHA_CONF_DIR__/ill/spec.yaml</api_specification>
+  <!-- URL for API provider -->
+  <api_url>http://apitest.bldss.bl.uk</api_url>
   <!-- Definition of our application credentials -->
   <application>
    <!--
