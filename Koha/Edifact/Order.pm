@@ -324,6 +324,10 @@ sub order_line {
     my ( $self, $linenumber, $orderline ) = @_;
 
     my $schema       = $self->{schema};
+    if (! $orderline->biblionumber ) {
+# skip orderline with no bib details
+       return;
+    }
     my $biblionumber = $orderline->biblionumber->biblionumber;
     my @biblioitems  = $schema->resultset('Biblioitem')
       ->search( { biblionumber => $biblionumber, } );
