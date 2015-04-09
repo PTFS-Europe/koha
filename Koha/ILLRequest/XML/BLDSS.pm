@@ -105,6 +105,15 @@ sub AUTOLOAD {
     }
 }
 
+sub get_one_object {
+    my ( $self, $xpath ) = @_;
+    my $results = $self->findnodes($xpath);
+    if (@{$results} > 1) {
+        die "We have more than one result.  This should not have happened.";
+    }
+    return Koha::ILLRequest::XML::BLDSS->rebless(${$results}[0]);
+}
+
 # Stubs
 
 sub elements {
@@ -132,11 +141,7 @@ sub new {
 
 sub result {
     my $self = shift;
-    my $results = $self->findnodes("./result");
-    if (@{$results} > 1) {
-        warn "We have more than one result.  This should not have happened.";
-    }
-    return Koha::ILLRequest::XML::BLDSS->rebless(${$results}[0]);
+    return $self->get_one_object("./result");
 }
 
 # Result Object.
@@ -156,20 +161,12 @@ sub new {
 
 sub availability {
     my $self = shift;
-    my $availabilities = $self->findnodes("./availability");
-    if (@{$availabilities} > 1) {
-        warn "We have more than one result.  This should not have happened.";
-    }
-    return Koha::ILLRequest::XML::BLDSS->rebless(${$availabilities}[0]);
+    return $self->get_one_object("./availability");
 }
 
 sub newOrder {
     my $self = shift;
-    my $newOrders = $self->findnodes("./newOrder");
-    if (@{$newOrders} > 1) {
-        warn "We have more than one result.  This should not have happened.";
-    }
-    return Koha::ILLRequest::XML::BLDSS->rebless(${$newOrders}[0]);
+    return $self->get_one_object("./newOrder");
 }
 
 sub services {
@@ -181,16 +178,8 @@ sub services {
 
 sub get_service {
     my ($self, $id) = @_;
-    unless ($id) {
-        die "get_service requires an id!";
-    }
-
-    my $services =
-      $self->findnodes("./services/service[attribute::id='$id']");
-    if (@{$services} > 1) {
-        warn "We have more than one result.  This should not have happened.";
-    }
-    return Koha::ILLRequest::XML::BLDSS->rebless(${$services}[0]);
+    die "get_service requires an id!" unless ( $id );
+    return $self->get_one_object("./services/service[attribute::id='$id']");
 }
 
 # Availability Object.
@@ -237,12 +226,7 @@ sub new {
 
 sub deliveryFormat {
     my $self = shift;
-    my $formats =
-      $self->findnodes("./deliveryFormat");
-    if (@{$formats} > 1) {
-        warn "We have more than one result.  This should not have happened.";
-    }
-    return Koha::ILLRequest::XML::BLDSS->rebless(${$formats}[0]);
+    return $self->get_one_object("./deliveryFormat");
 }
 
 sub speeds {
@@ -332,16 +316,8 @@ sub formats {
 
 sub get_format {
     my ($self, $id) = @_;
-    unless ($id) {
-        die "get_format requires an id!";
-    }
-
-    my $formats =
-      $self->findnodes("./format[attribute::id='$id']");
-    if (@{$formats} > 1) {
-        warn "We have more than one result.  This should not have happened.";
-    }
-    return Koha::ILLRequest::XML::BLDSS->rebless(${$formats}[0]);
+    die "get_format requires an id!" unless ( $id );
+    return $self->get_one_object("./format[attribute::id='$id']");
 }
 
 sub prices {
