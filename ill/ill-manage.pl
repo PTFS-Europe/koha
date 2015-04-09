@@ -70,6 +70,7 @@ if ($request) {
 
     if ( $request and ( $request->getStatus eq "Requested" ) ) {
         $tabs->{action_cancel} = "Revert request";
+        $tabs->{action_status} = "Request status";
     } else {
         $tabs->{action_delete} = "Delete request";
     }
@@ -163,6 +164,20 @@ if ($request) {
             title   => 'API request result',
             forward => $parent,
         );
+    } elsif ( $op eq 'action_status' ) {
+        my $result;
+        ( $result, $request ) = $request->status_request;
+        if ( 'status_success' eq $result->{status} ) {
+            $template->param( title => 'Current request status details' );
+        } else {
+            $template->param( title => 'Status could not be retrieved' );
+        }
+        $op = 'message';
+        $template->param(
+            message => $result->{status},
+            whole   => $result,
+            forward => $parent,
+        )
 
     } elsif ( $op eq 'generic_ill') {
         my $ill_code = C4::Context->preference('GenericILLPartners');

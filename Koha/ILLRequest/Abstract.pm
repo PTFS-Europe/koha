@@ -141,6 +141,9 @@ sub _getStatusCode {
         if ( 'Order successfully cancelled' eq $message ) {
             $code = 'cancel_success';
         }
+        if ( "status" eq $message) {
+            $code = 'status_success';
+        }
 
     } elsif ( 1 == $status ) {
         if ( 'Invalid Request: A valid physical address is required for the delivery format specified' eq $message ) {
@@ -191,6 +194,8 @@ sub _api_do {
     } elsif ( 'search' eq $op ) {
         $re = $self->_api->search(@{$params->{params}});
         return $re;
+    } elsif ( 'order' eq $op ) {
+        $re = $self->_api->order(@{$params->{params}});
     }
 
     die(
@@ -199,6 +204,7 @@ sub _api_do {
     ) if ( $self->_api->error );
 
     $re = Koha::ILLRequest::XML::BLDSS->new->load_xml( { string => $re } );
+
     # We're not fully using status based returns yet, two exit cases are for
     # backward compatibility.
     return _getStatusCode($re->status, $re->message)
@@ -392,6 +398,41 @@ sub cancel_request {
         return $re;
     } else {
         return _getStatusCode($re->status, $re->message);
+    }
+}
+
+=head3 status
+
+    my $status = $illRequest->status;
+
+The standard interface method allowing for request status queries.  $PARAMS
+will be a hashref containing whetever the API requested b stored in the
+'orderid' field of the ill_request_attributes table upon ILL request.
+
+=cut
+
+sub status {
+    my ( $self, $params ) = @_;
+
+    # BL implementation of interface method:
+    my $re = $self->_api_do( {
+        action => 'order',
+        params => [ $params->{order_id} ],
+    } );
+
+    # For backward compatibility: not all query types return status hashes
+    # yet.
+    if ( 'HASH' eq ref $re && $re->{status} ) {
+        return $re;
+    } else {
+        # querying message on this response fails for some reason.
+        my $status = _getStatusCode($re->status, "status");
+        if ( 'status_success' eq $status->{status} ) {
+            $status->{values} = {
+                status => [ "Status", $re->result->orderline->overallStatus ]
+            };
+        }
+        return $status;
     }
 }
 

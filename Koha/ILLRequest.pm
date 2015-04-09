@@ -344,7 +344,7 @@ sub access_url {
 
 =head3 status
 
-    my $status = $illRequest->status();
+    my $status = $illRequest->status;
 
 Return the Status component of the ILLREQUEST object $illRequest.  The Status
 component provides information about the request for Koha.
@@ -617,6 +617,22 @@ sub cancel_request {
         $self->editStatus( { status => "Request reverted" } );
         $self->order_id("UNSET");
     }
+    return ( $result, $self );
+}
+
+=head3 status_request
+
+    my $status_request = $illRequest->status_request;
+
+Use the interface to retrieve API details of the currently placed request.
+
+=cut
+
+sub status_request {
+    my ( $self ) = @_;
+    my $result = Koha::ILLRequest::Abstract->new
+        ->status( { order_id => $self->order_id } );
+
     return ( $result, $self );
 }
 

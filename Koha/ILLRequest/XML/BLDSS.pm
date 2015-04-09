@@ -43,6 +43,7 @@ sub rebless {
                                 service         => 1,
                                 speed           => 1,
                                 newOrder        => 1,
+                                orderline       => 1,
                                };
 
 
@@ -167,6 +168,11 @@ sub availability {
 sub newOrder {
     my $self = shift;
     return $self->get_one_object("./newOrder");
+}
+
+sub orderline {
+    my $self = shift;
+    return $self->get_one_object("./orderline");
 }
 
 sub services {
@@ -382,6 +388,22 @@ sub elements {
 sub new {
     my $class = shift;
     return $class->SUPER::new('NewOrder');
+}
+
+# orderline Object
+
+package Koha::ILLRequest::XML::BLDSS::Orderline;
+
+use base qw(Koha::ILLRequest::XML::BLDSS::Element);
+
+sub elements {
+    return qw( customerRef note requestor overallStatus metadata
+               serviceDetails deliveryDetails costDetails history );
+}
+
+sub new {
+    my $class = shift;
+    return $class->SUPER::new('Orderline');
 }
 
 1;

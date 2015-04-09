@@ -105,6 +105,15 @@
                     [% ELSIF message == 'branch_address_incomplete' %]
                         <p>The delivery address for this ILL is incomplete.  Please
                 check the service branch's address.</p>
+                    [% ELSIF message == 'status_success' %]
+                            <dl>
+                                [% FOREACH field IN whole.values %]
+                                    [% IF field.value.1 %]
+                                        <dt>[% field.value.0 %]</dt>
+                                        <dd>[% field.value.1 %]</dd>
+                                    [% END %]
+                                [% END %]
+                            </dl>
                     [% ELSE %]
                         <p>[% message %]</p>
                     [% END %]
