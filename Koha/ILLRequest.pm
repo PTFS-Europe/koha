@@ -286,6 +286,45 @@ sub getStatus {
     return $self->status->getProperty('status');
 }
 
+=head2 primary accessors
+
+Primary accessors are fields stored in the ill_request_attributes table, but
+which API independent.  They are assumed to always exist -- though the API may
+well not fill in these values.
+
+The most important primary accessor is order_id: this is the id associated
+with a request in the API in use.  It is used to perform further operations
+for this request against the API.
+
+=cut
+
+=head3 _prim_logic
+
+    my $primary_accessor = $illRequest->_prim_logic('name');
+
+Helper to factor out logic common to all primary accessor getters/setters.
+
+=cut
+
+sub _prim_logic {
+    my ( $self, $name ) = @_;
+
+    return sub {
+        my ( $params ) = @_;
+        if ( $params ) {
+            my $result = $self->record->property( $name, $params );
+            if ( $self->save($name) ) {
+                return $result;
+            } else {
+                return 0;
+            }
+            return $self;
+        } else {
+            return $self->record->property( $name );
+        }
+    }
+}
+
 =head3 order_id
 
     my $orderID = $illRequest->order_id;
@@ -297,23 +336,8 @@ Helper function to access or set the order_id associated with this request.
 =cut
 
 sub order_id {
-    my ( $self, $params ) = @_;
-
-    # params could be a string, number, list or hash.  If one of the latter
-    # then we must be able to serialize and deserialize it into the database.
-    #
-    # For now we assume it's a string or number.
-    if ( $params ) {
-        my $result = $self->record->property( 'order_id', $params );
-        if ( $self->save('order_id') ) {
-            return $result;
-        } else {
-            return 0;
-        }
-        return $self;
-    } else {
-        return $self->record->property( 'order_id' );
-    }
+    my ( $self, $id ) = @_;     # for now we assume $id is a string.
+    return &{$self->_prim_logic('order_id')}($id);
 }
 
 =head3 access_url
@@ -328,18 +352,7 @@ Helper function to access or set the access_url associated with this request.
 
 sub access_url {
     my ( $self, $url ) = @_;
-
-    if ( $url ) {
-        my $result = $self->record->property( 'access_url', $url );
-        if ( $self->save('access_url') ) {
-            return $result;
-        } else {
-            return 0;
-        }
-        return $self;
-    } else {
-        return $self->record->property( 'access_url' );
-    }
+    return &{$self->_prim_logic('access_url')}($url);
 }
 
 =head3 status
