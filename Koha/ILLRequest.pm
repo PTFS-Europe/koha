@@ -122,6 +122,7 @@ sub save {
             # List of additional, non-automatic "Record" fields.  These are
             # additional fields used directly by the Koha ILL interface.
             push @attrs, { type => 'primary_order_id', value => '' };
+            push @attrs, { type => 'primary_cost', value => '' };
             push @attrs, { type => 'primary_access_url', value => '' };
             # add attrs into ill_request
             $save_obj->{'ill_request_attributes'} = \@attrs;
@@ -342,9 +343,9 @@ sub order_id {
 
 =head3 access_url
 
-    my $url = $illRequest->order_id;
+    my $url = $illRequest->access_url;
     # or
-    my $new_url = $illRequest->order_id('new_url');
+    my $new_url = $illRequest->access_url('new_url');
 
 Helper function to access or set the access_url associated with this request.
 
@@ -353,6 +354,21 @@ Helper function to access or set the access_url associated with this request.
 sub access_url {
     my ( $self, $url ) = @_;
     return &{$self->_prim_logic('access_url')}($url);
+}
+
+=head3 cost
+
+    my $cost = $illRequest->cost;
+    # or
+    my $new_cost = $illRequest->cost('new_cost');
+
+Helper function to access or set the cost associated with this request.
+
+=cut
+
+sub cost {
+    my ( $self, $cost ) = @_;
+    return &{$self->_prim_logic('cost')}($cost);
 }
 
 =head3 status
@@ -607,6 +623,7 @@ sub place_request {
 
     # FIXME: these are currently hard-coded to BLDSS
     $self->order_id($success->result->newOrder->orderline);
+    $self->cost($success->result->newOrder->totalCost);
     $self->access_url($success->result->newOrder->downloadUrl);
 
     $self->editStatus( { status => "Requested" } );

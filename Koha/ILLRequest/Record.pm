@@ -65,6 +65,10 @@ sub new {
                         name      => "Access URL",
                         inSummary => "true",
                     },
+                    primary_cost => {
+                        name      => "Cost",
+                        inSummary => "true",
+                    },
                 },
                 data          => {},
                 accessors     => {},
@@ -72,6 +76,7 @@ sub new {
     $self->{primary_accessors} = {
         order_id   => sub { $self->{data}->{primary_order_id}->{value} },
         access_url => sub { $self->{data}->{primary_access_url}->{value} },
+        cost       => sub { $self->{data}->{primary_cost}->{value} },
     };
 
     bless $self, $class;
