@@ -43,15 +43,15 @@ my ( $template, $borrowernumber, $cookie ) = get_template_and_user(
     }
 );
 
-my $op      = $cgi->param('op');
-my $rq      = $cgi->param('rq');
-my $request = 0;
-if ($rq) {
-    $request = @{Koha::ILLRequests->new->retrieve_ill_request($rq) || [0]}[0];
-}
+my $illRequests = Koha::ILLRequests->new;
+my $op          = $cgi->param('op');
+my $rq          = $cgi->param('rq');
+my $request     = 0;
 my $here    = "/cgi-bin/koha/ill/ill-manage.pl";
 my $tab_url = $here . "?rq=" . $rq . "&op=";
 my $parent  = "/cgi-bin/koha/ill/ill-requests.pl";
+
+$request = $illRequests->find($rq) if ($rq);
 
 my $tabs = {
     view          => "View",

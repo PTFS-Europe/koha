@@ -31,6 +31,7 @@ use Koha::ILLRequests;
 use URI::Escape;
 
 my $input = CGI->new;
+my $illRequests = Koha::ILLRequests->new;
 my $reply = [];
 my $type = $input->param('query_type');
 my $query = $input->param('query_value');
@@ -53,7 +54,7 @@ $template->param( recv => $input );
 if ( $type eq 'request' and $query
          and $input->param('brw')
          and $input->param('branch') ) {
-    my $request = Koha::ILLRequests->new->request( {
+    my $request = $illRequests->request( {
         uin      => $query,
         branch   => $input->param('branch'),
         borrower => $input->param('brw'),
@@ -63,7 +64,7 @@ if ( $type eq 'request' and $query
 } else {
     my $requests;
     if ( $type eq 'filter' ) {
-        $requests = Koha::ILLRequests->new->retrieve_ill_requests( {
+        $requests = $illRequests->search( {
             cardnumber      => $input->param('borrower_filter')    || 0,
             branch          => $input->param('branch_filter')      || 0,
             status          => $input->param('status_filter')      || 0,
@@ -74,7 +75,7 @@ if ( $type eq 'request' and $query
             reqtype         => $input->param('type_filter')        || 0,
         } );
     } else {
-        $requests = Koha::ILLRequests->new->retrieve_ill_requests;
+        $requests = $illRequests->search;
     }
     foreach my $rq ( @{$requests} ) {
         push @{$reply}, $rq->getSummary( { brw => 1 } );

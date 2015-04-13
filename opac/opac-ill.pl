@@ -44,11 +44,12 @@ my ( $template, $borrowernumber, $cookie ) = get_template_and_user(
 );
 
 my $reply;
-my $query    = $cgi->param('query_value');
-my $here     = "/cgi-bin/koha/opac-ill.pl";
-my $op       = $cgi->param('op');
+my $illRequests = Koha::ILLRequests->new;
+my $query       = $cgi->param('query_value');
+my $here        = "/cgi-bin/koha/opac-ill.pl";
+my $op          = $cgi->param('op');
 my ( $error, $message );
-my $borrower = Koha::Borrowers->new->find($borrowernumber)
+my $borrower    = Koha::Borrowers->new->find($borrowernumber)
     || die "You're logged in as the database user. We don't support that.";
 
 if ( fail(1) ) {
@@ -84,9 +85,8 @@ if ( fail(1) ) {
 
         }
     }
-    my $requests = Koha::ILLRequests->new;
-    $reply = $requests->search_api($opts);
-    my $search_strings = $requests->get_search_string;
+    $reply = $illRequests->search_api($opts);
+    my $search_strings = $illRequests->get_search_string;
     $template->param(
         search => $search_strings->{userstring},
         back   => $here . "?op=new&" . $search_strings->{querystring},
@@ -97,7 +97,7 @@ if ( fail(1) ) {
         my $rq_qry   = "?op=request" . "&query_value=";
         # Setup pagers
         my $page_qry = $nav_qry . "&start_rec=";
-        my $pagers   = $requests->get_pagers(
+        my $pagers   = $illRequests->get_pagers(
             {
                 next     => $page_qry,
                 previous => $page_qry,
@@ -114,7 +114,7 @@ if ( fail(1) ) {
     }
 } else {
     if ( $op eq 'request' ) {
-        my $request = Koha::ILLRequests->new->request( {
+        my $request = $illRequests->request( {
             uin      => $query,
             branch   => $borrower->branchcode,
             borrower => $borrower->borrowernumber,
@@ -125,7 +125,7 @@ if ( fail(1) ) {
             $message = { message => 'request_placement_ok', uin => $query };
         }
     } elsif ( $op eq 'request_cancellation') {
-        my $request = @{Koha::ILLRequests->new->retrieve_ill_request($query) || [0]}[0];
+        my $request = $illRequests->find($query);
         if (!$request or !$request->editStatus( { status => "Cancellation Requested" } )) {
             $error = { message => 'request_cancellation_fail', action => 'cancellation' };
         } else {
@@ -133,7 +133,7 @@ if ( fail(1) ) {
         }
     }
     $op = undef;
-    my $requests = Koha::ILLRequests->new->retrieve_ill_requests($borrowernumber);
+    my $requests = $illRequests->search($borrowernumber);
     if ($requests) {
         foreach my $rq ( @{$requests} ) {
             push @{$reply}, $rq->getSummary( { brw => 1 } );

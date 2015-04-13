@@ -29,6 +29,9 @@ use Koha::ILLRequests;
 
 use JSON;
 
+
+my $illRequests = Koha::ILLRequests->new;
+
 sub new {
     my ($class) = @_;
 
@@ -50,14 +53,12 @@ sub search {
 
     if ( $self->query->param('query') ) {
         my $query = $self->query->param('query');
-        my $reply = Koha::ILLRequests->new
-            ->search_api( { keywords => $query } );
+        my $reply = $illRequests->search_api( { keywords => $query } );
         $self->output( $reply, { status => '200 OK', type => 'json' } );
     }
     elsif ( $self->query->param('borrowernumber') ) {
         my $borrowernumber = $self->query->param('borrowernumber');
-        my $requests = Koha::ILLRequests->new()
-          ->retrieve_ill_requests($borrowernumber);
+        my $requests = $illRequests->search($borrowernumber);
         if ($requests) {
             foreach my $rq ( @{$requests} ) {
                 push @{$reply}, $rq->getSummary();

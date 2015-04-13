@@ -28,6 +28,7 @@ use Koha::ILLRequests;
 use URI::Escape;
 
 my $input = CGI->new;
+my $illRequests = Koha::ILLRequests->new;
 my $reply = [];
 my $error = 0;
 my $action = $input->param('query_type') || 'new';
@@ -63,9 +64,8 @@ if ( fail($query, $input->param('brw'), $input->param('branch')) ) {
                 unless $ {opt} eq "start_rec"; # handle paging separately.
         }
     }
-    my $requests = Koha::ILLRequests->new;
-    $reply = $requests->search_api($opts);
-    my $search_strings = $requests->get_search_string;
+    $reply = $illRequests->search_api($opts);
+    my $search_strings = $illRequests->get_search_string;
     $template->param(
         search => $search_strings->{userstring},
         back   => "?op=new&" . $search_strings->{querystring},
@@ -79,7 +79,7 @@ if ( fail($query, $input->param('brw'), $input->param('branch')) ) {
         $rq_qry .= "&query_value=";
         # Setup pagers
         my $page_qry = $nav_qry . "&start_rec=";
-        my $pagers   = $requests->get_pagers(
+        my $pagers   = $illRequests->get_pagers(
             {
                 next     => $page_qry,
                 previous => $page_qry,

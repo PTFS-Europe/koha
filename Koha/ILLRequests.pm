@@ -209,13 +209,13 @@ sub request {
     }
 }
 
-=head3 retrieve_ill_requests
+=head3 search
 
-    my $illRequests = $illRequests->retrieve_ill_requests();
+    my $illRequests = $illRequests->search();
     -OR-
-    my $illRequests = $illRequests->retrieve_ill_requests($borrowernumber);
+    my $illRequests = $illRequests->search($borrowernumber);
     -OR-
-    my $illRequests = $illRequests->retrieve_ill_requests({column => value});
+    my $illRequests = $illRequests->search({column => value});
 
 Retrieve either all ILLREQUESTs currently stored in the db, or only those
 attached to $BORROWERNUMBER.  Finally, if a hashref is passed to this method
@@ -226,7 +226,7 @@ Returns a reference to an array of ILLREQUESTs.
 
 =cut
 
-sub retrieve_ill_requests {
+sub search {
     my ( $self, $target ) = @_;
     my $result;
 
@@ -351,23 +351,18 @@ sub _limit_counter {
     return $resultset->count;
 }
 
-=head3 retrieve_ill_request
+=head3 find
 
-    my $illRequest = $illRequests->retrieve_ill_request($illRequestId);
+    my $illRequest = $illRequests->find($illRequestId);
 
 Retrieve the ILLREQUEST identified by $ILLREQUESTID.
 
 =cut
 
-sub retrieve_ill_request {
+sub find {
     my ( $self, $illRequestId ) = @_;
-
-    my $request = Koha::ILLRequest->new()->seed( { id => $illRequestId } );
-    if ( $request ) {
-        return [ $request ];
-    } else {
-        return [];
-    }
+    my $request = Koha::ILLRequest->new->seed( { id => $illRequestId } );
+    return $request if $request || 0;
 }
 
 =head3 _borrower_from_number
