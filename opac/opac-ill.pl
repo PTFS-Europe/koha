@@ -112,6 +112,15 @@ if ( fail(1) ) {
     } else {
         $error = { message => 'api_search_fail', action => 'search' };
     }
+
+} elsif ( $op eq 'request_comment' ) {
+    my $request = $illRequests->find($query);
+    $reply = $request->getForEditing,
+    $template->param(
+        forward => $here . "?op=request_update",
+        back    => $here,
+    );
+
 } else {
     if ( $op eq 'request' ) {
         my $request = $illRequests->request( {
@@ -131,6 +140,24 @@ if ( fail(1) ) {
         } else {
             $message = { message => 'request_cancellation_ok', id => $query };
         }
+    } elsif ( $op eq 'request_update') {
+        my $request = $illRequests->find($query);
+        my $comment = $cgi->param('primary_notes_opac');
+        my $result = $request->editStatus(
+            { 'primary_notes_opac' => $comment }
+        );
+        if ( $result ) {
+            $message = {
+                message => 'request_comment_ok',
+                id      => $query,
+                comment => $comment,
+            };
+        } else {
+            $error = {
+                message => 'request_comment_fail',
+                action => 'comment'
+            };
+        }
     }
     $op = undef;
     my $requests = $illRequests->search($borrowernumber);
@@ -140,7 +167,8 @@ if ( fail(1) ) {
         }
     }
     $template->param(
-        cancel_url => $here . "?op=request_cancellation&query_value=",
+        cancel_url  => $here . "?op=request_cancellation&query_value=",
+        comment_url => $here . "?op=request_comment&query_value=",
     );
 }
 

@@ -36,6 +36,8 @@
                                 We were unable to place your request.
                             [% ELSIF error.message == 'api_search_fail' %]
                                 There was an error whilst communicating with the remote service.
+                            [% ELSIF error.message == 'request_comment_fail' %]
+                                We were unable to save your comment for request number [% query_value %].
                             [% END %]
                         </span></p>
                     </div>
@@ -46,6 +48,8 @@
                                 Your request for [% message.uin %] has been added to the queue.
                             [% ELSIF message.message == 'request_cancellation_ok' %]
                                 Your cancellation of request [% message.id %] has been requested.
+                            [% ELSIF message.message == 'request_comment_ok' %]
+                                Your comment, "[% message.comment %]", has been attached to request number [% message.id %].
                             [% END %]
                         </span></p>
                     </div>
@@ -63,7 +67,7 @@
                                     [% FOREACH line IN reply.0 %]
                                         <th id=[% line.key %]>[% line.value.0 %]</th>
                                     [% END %]
-                                    <th id="cancel">Cancel?</th>
+                                    <th id="actions">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -80,10 +84,10 @@
                                             </td>
                                         [% END %]
                                         <td>
-                                            <a href=[% cancel_url _ summary.id.1 %]
-                                               title="Request to have this request cancelled">
-                                               Cancel request
-                                            </a>
+                                            <ul>
+                                                <li><a href="[% cancel_url _ summary.id.1 %]" title="Request to have this request cancelled">Cancel request</a></li>
+                                                <li><a href="[% comment_url _ summary.id.1 %]" title="Edit your comments.">Comment on request</a></li>
+                                            </ul>
                                         </td>
                                     </tr>
                                 [% END %]
@@ -170,6 +174,37 @@
                             <a class="cancel" href=[% back %]>Cancel</a>
                         </fieldset>
                     </form>
+
+                [% ELSIF op == 'request_comment' %]
+                    <h2>Request comments</h2>
+                    [% id      = reply.1.id %]
+                    <form method="POST" action=[% forward %]>
+                        <fieldset class="rows">
+                            <legend>Comment form</legend>
+                            <input name="op" id="op" value="request_update" type="hidden"/>
+                            <input name="query_value" id="query_value" value="[% id.1 %]" type="hidden"/>
+                            <ol>
+                                [% FOREACH field IN reply.0 %]
+                                    [% IF field.key == 'primary_notes_opac' %]
+                                        <li>
+                                            <label id=[% field.key %]>[% field.value.0 _ ":" %]</label>
+                                            <textarea name="[% field.key %]" id="[% field.key %]" rows="5">[% field.value.1 %]</textarea>
+                                        </li>
+                                    [% ELSIF field.value.1 %]
+                                        <li>
+                                            <label id=[% field.key %]>[% field.value.0 _ ":" %]</label>
+                                            <span id=[% field.key %]>[% field.value.1 %]</span>
+                                        </li>
+                                    [% END %]
+                                [% END %]
+                            </ol>
+                        </fieldset>
+                        <fieldset class="action">
+                            <input type="submit" value="Comment"/>
+                            <a class="cancel" href=[% back %]>Cancel</a>
+                        </fieldset>
+                    </form>
+                    
                 [% ELSIF op == 'search' %]
                     <h2>Search results</h2>
                     [% IF reply.0 %]
