@@ -121,9 +121,9 @@ sub save {
             }
             # List of additional, non-automatic "Record" fields.  These are
             # additional fields used directly by the Koha ILL interface.
-            push @attrs, { type => 'primary_order_id', value => '' };
-            push @attrs, { type => 'primary_cost', value => '' };
-            push @attrs, { type => 'primary_access_url', value => '' };
+            foreach ( qw/ access_url cost notes_opac notes_staff order_id/ ) {
+                push @attrs, { type => 'primary_' . $_, value => '' };
+            }
             # add attrs into ill_request
             $save_obj->{'ill_request_attributes'} = \@attrs;
         }
@@ -267,6 +267,10 @@ sub editStatus {
         delete $new_values->{borrower};
     }
     $self->status->update($new_values);
+    my $upd = $self->record->update($new_values);
+    foreach ( @{$upd} ) {
+        $self->save($_);
+    }
 
     return 1
       if $self->save;
@@ -371,6 +375,36 @@ sub cost {
     return &{$self->_prim_logic('cost')}($cost);
 }
 
+=head3 opac_notes
+
+    my $opac_notes = $illRequest->opac_notes;
+    # or
+    my $new_opac_notes = $illRequest->opac_notes('new_opac_notes');
+
+Helper function to access or set the opac_notes associated with this request.
+
+=cut
+
+sub opac_notes {
+    my ( $self, $opac_notes ) = @_;
+    return &{$self->_prim_logic('notes_opac')}($opac_notes);
+}
+
+=head3 staff_notes
+
+    my $staff_notes = $illRequest->staff_notes;
+    # or
+    my $new_staff_notes = $illRequest->staff_notes('new_staff_notes');
+
+Helper function to access or set the staff_notes associated with this request.
+
+=cut
+
+sub staff_notes {
+    my ( $self, $staff_notes ) = @_;
+    return &{$self->_prim_logic('notes_staff')}($staff_notes);
+}
+
 =head3 status
 
     my $status = $illRequest->status;
@@ -453,8 +487,8 @@ The former is for display and should not be edited by hand.  The latter can be e
 
 sub getForEditing {
     my ( $self, $params ) = @_;
-    my $record = ${$self}{record}->getSummary( $params );
-    my $status = ${$self}{status}->getFullStatus( $params );
+    my $record = $self->record->getFullDetails($params);
+    my $status = $self->status->getFullStatus($params);
 
     return [ $record, $status ];
 }

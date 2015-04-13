@@ -50,6 +50,8 @@
                                                title="View borrower details">
                                                 [% brw.firstname _ " " _ brw.surname _ ", " _ brw.cardnumber %]
                                             </a>
+                                        [% ELSIF field.key == 'primary_notes_staff' or field.key == 'primary_notes_opac' %]
+                                            <span id="[% field.key %]"><pre>[% field.value.1 %]</pre></span>
                                         [% ELSE %]
                                             <span id=[% field.key %]>[% field.value.1 %]</span>
                                         [% END %]
@@ -124,7 +126,12 @@
                             <legend>Bibliographic details</legend>
                             <ol>
                                 [% FOREACH field IN ill.0 %]
-                                    [% IF field.value.1 %]
+                                    [% IF field.key == 'primary_notes_staff' %]
+                                        <li>
+                                            <label id=[% field.key %]>[% field.value.0 _ ":" %]</label>
+                                            <textarea name="[% field.key %]" id="[% field.key %]" rows="5">[% field.value.1 %]</textarea>
+                                        </li>
+                                    [% ELSIF field.value.1 %]
                                         <li>
                                             <label id=[% field.key %]>[% field.value.0 _ ":" %]</label>
                                             <span id=[% field.key %]>[% field.value.1 %]</span>

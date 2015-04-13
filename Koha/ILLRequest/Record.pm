@@ -57,10 +57,6 @@ sub new {
                 price_props   => $config->getProperties('prices'),
                 record_props  => $config->getProperties('record'),
                 primary_props => {
-                    primary_order_id   => {
-                        name      => "Order ID",
-                        inSummary => undef,
-                    },
                     primary_access_url => {
                         name      => "Access URL",
                         inSummary => "true",
@@ -69,18 +65,51 @@ sub new {
                         name      => "Cost",
                         inSummary => "true",
                     },
+                    primary_notes_opac => {
+                        name      => "Opac notes",
+                        inSummary => undef,
+                    },
+                    primary_notes_staff => {
+                        name      => "Staff notes",
+                        inSummary => undef,
+                    },
+                    primary_order_id   => {
+                        name      => "Order ID",
+                        inSummary => undef,
+                    },
                 },
                 data          => {},
                 accessors     => {},
                };
+    bless $self, $class;
+
     $self->{primary_accessors} = {
-        order_id   => sub { $self->{data}->{primary_order_id}->{value} },
-        access_url => sub { $self->{data}->{primary_access_url}->{value} },
-        cost       => sub { $self->{data}->{primary_cost}->{value} },
+        access_url  => $self->_make_prim_xsor('primary_access_url'),
+        cost        => $self->_make_prim_xsor('primary_cost'),
+        notes_opac  => $self->_make_prim_xsor('primary_notes_opac'),
+        notes_staff => $self->_make_prim_xsor('primary_notes_staff'),
+        order_id    => $self->_make_prim_xsor('primary_order_id'),
     };
 
-    bless $self, $class;
     return $self;
+}
+
+=head3 _make_prim_xsor
+
+    my $prim_xsor = $record->_make_prim_xsor('name');
+
+Helper to generate primary accessor subs.  Return a sub which can get/set
+primary accessor values of type 'name'.
+
+=cut
+
+sub _make_prim_xsor {
+    my ( $self, $name ) = @_;
+    return sub {
+        my $value = shift;
+        $self->{data}->{$name}->{value} = $value if ( $value );
+        return $self->{data}->{$name}->{value};
+    }
 }
 
 =head3 checkAvailability
@@ -279,6 +308,32 @@ sub getFullDetails {
         }
     }
     return \%details;
+}
+
+=head3 update
+
+    my $updated_record = $record->update( $new_primary_values );
+
+Cycle through all primary accessors, and update values as needed.  The
+non-primary values in record should be read only, hence are not touched here.
+
+We will return an arrayref containing the updated names of updated primary
+accessors.
+
+=cut
+
+sub update {
+    my ( $self, $new_values ) = @_;
+    my @updated;
+    while ( my ( $name, $proc ) = each %{$self->{primary_accessors}} ) {
+        my $pname = 'primary_' . $name;
+        my $new   = $new_values->{$pname};
+        if ( $new ) {
+            &{$proc}($new) unless ( '' eq $new );
+            push @updated, $name;
+        }
+    }
+    return \@updated;
 }
 
 =head3 property

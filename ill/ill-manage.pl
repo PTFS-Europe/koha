@@ -77,7 +77,7 @@ if ($request) {
 
     if ( $op eq 'view' ) {
         $template->param(
-            ill   => $request->getSummary( { brw => 1 } ),
+            ill   => $request->getFullDetails( { brw => 1 } ),
             title => $tabs->{$op},
         );
 
@@ -248,7 +248,7 @@ if ($request) {
         # should just be able to push to DB?
         $request->editStatus(\%{$cgi->Vars});
         $template->param(
-            ill   => $request->getSummary( { brw => 1 } ),
+            ill   => $request->getFullDetails( { brw => 1 } ),
             title => $tabs->{view},
         );
 
