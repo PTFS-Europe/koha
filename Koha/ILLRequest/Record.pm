@@ -135,9 +135,9 @@ sub _parseResponse {
     }
     $accum = {} if ( !$accum ); # initiate $accum if empty.
     foreach my $field ( keys $config ) {
-        if ( ref(${$config}{$field}) eq 'ARRAY' ) {
+        if ( ref $config->{$field} eq 'ARRAY' ) {
             foreach my $node ($chunk->findnodes($field)) {
-                ${$accum}{$field} = [] if ( !${$accum}{$field} );
+                $accum->{$field} = [] if ( !$accum->{$field} );
                 push @{$accum}{$field},
                   $self->_parseResponse($node, ${$config}{$field}[0], {});
             }
@@ -145,17 +145,18 @@ sub _parseResponse {
             my ( $op, $arg ) = ( "findvalue", $field );
             ( $op, $arg ) = ( "textContent", "" )
               if ( $field eq "./" );
-            ${$accum}{$field} =
-              {
-               value     => $chunk->$op($arg),
-               name      => ${$config}{$field}{name},
-               inSummary => ${$config}{$field}{inSummary},
-              };
+            $accum->{$field} = {
+                value     => $chunk->$op($arg),
+                name      => $config->{$field}->{name},
+                inSummary => $config->{$field}->{inSummary},
+            };
             # FIXME: populate accessor if desired.  This breaks the
             # functional-ish approach by referencing $self directly.
-            my $accessor = ${$config}{$field}{accessor};
+            my $accessor = $config->{$field}->{accessor};
             if ($accessor) {
-                ${$self}{accessors}{$accessor} = ${$accum}{$field}{value};
+                $self->{accessors}->{$accessor} = sub {
+                    return $accum->{$field}->{value};
+                };
             }
        }
     }
@@ -201,8 +202,9 @@ sub create_from_store {
         # populate accessor if desired
         my $accessor = $self->{record_props}->{$field}->{accessor};
         if ( $accessor ) {
-            $self->{accessors}->{$accessor}
-                = $self->{data}->{$field}->{value};
+            $self->{accessors}->{$accessor} = sub {
+                return $self->{data}->{$field}->{value};
+            };
         }
     }
 
@@ -292,8 +294,8 @@ primarily used for setting primary_ accessor values.
 
 sub property {
     my ( $self, $prop_name, $prop_value ) = @_;
-    my $result;
-    if ( $prop_value ) {
+    my $result = 0;
+    if ( $prop_value ) {        # 'set' operation
         if ( defined $self->{primary_accessors}->{$prop_name} ) {
             if ( 'UNSET' eq $prop_value ) {
                 $self->{data}->{'primary_' . $prop_name}->{value} = "";
@@ -303,10 +305,8 @@ sub property {
                     = $prop_value;
                 $result = $prop_value;
             }
-        } else {
-            $result = 0;
         }
-    } else {
+    } else {                    # 'get' operation
         $result = $self->getProperty($prop_name);
     }
     return $result;
@@ -325,13 +325,10 @@ warning message.
 
 sub getProperty {
     my ($self, $accessor) = @_;
-    my $result;
-    if      ( defined $self->{primary_accessors}->{$accessor} ) {
-        $result = &{$self->{primary_accessors}->{$accessor}};
-    } elsif ( defined $self->{accessors}->{$accessor} ) {
-        $result = ${$self}{accessors}{$accessor};
-    } else {
-        $result = 0;
+    my $result = 0;
+    for ( qw/ primary_accessors accessors / ) {
+        my $xsor = $self->{$_}->{$accessor};
+        $result = &{$xsor}() if ( 'CODE' eq ref $xsor );
     }
     return $result;
 }
