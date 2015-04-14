@@ -27,6 +27,10 @@
                 [% IF error or !query_type or query_type == 'new' %]
                     [% IF error.error == 'missing_fields' and error.action == 'search' %]
                         <p><em>Please Note:</em> Some mandatory fields are missing.</p>
+                    [% ELSIF error.error == 'invalid_borrower' and error.action == 'search' %]
+                        <p><em>Please Note:</em> The borrower number you entered is invalid.</p>
+                    [% ELSIF error.error == 'invalid_branch' and error.action == 'search' %]
+                        <p><em>Please Note:</em> The branch you chose is invalid.</p>
                     [% ELSIF error.error == 'api' and error.action %]
                         <p><em>Please Note:</em> there was an error whilst
                 communicating with the remote service.</p>

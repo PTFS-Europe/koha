@@ -90,6 +90,10 @@
                     [% ELSIF message == 'invalid_request' %]
                         <p>There was a problem communicating with the remote service.</p>
                         <p>They report: [% whole.message %]</p>
+                    [% ELSIF message == 'invalid_branch' %]
+                        <p>The branch you chose ([% whole %]) is invalid.</p>
+                    [% ELSIF message == 'invalid_borrower' %]
+                        <p>The borrower cardnumber you entered ([% whole %]) is invalid.</p>
                     [% ELSIF message == 'not_implemented' %]
                         <p>We have not implemented this functionality yet.</p>
                     [% ELSIF message == 'request_success' %]

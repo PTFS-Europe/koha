@@ -20,7 +20,8 @@
 use Modern::Perl;
 use CGI;
 use C4::Auth;
-use C4::Branch; # GetBranches
+use C4::Branch;
+use C4::Members;
 use C4::Output;
 use C4::Search qw(GetDistinctValues);
 use C4::Context;
@@ -47,10 +48,11 @@ $template->param(
 );
 
 if ( fail($query, $input->param('brw'), $input->param('branch')) ) {
-    $error = {
-        error => "missing_fields",
-        action => $action,
-    };
+    $error = { error => "missing_fields", action => $action };
+} elsif ( !GetBranchDetail($input->param('branch')) ) {
+    $error = { error => "invalid_branch", action => $action };
+} elsif ( !GetMember( cardnumber => $input->param('brw') ) ) {
+    $error = { error => "invalid_borrower", action => $action };
 
 } elsif ( $action eq 'search' ) {
     my $opts = {};

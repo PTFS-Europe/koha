@@ -26,6 +26,7 @@ use C4::Auth;
 use C4::Branch;
 use C4::Context;
 use C4::Koha;
+use C4::Members;
 use C4::Output;
 use C4::Branch;
 use Koha::Borrowers;
@@ -245,13 +246,30 @@ if ($request) {
         );
 
     } elsif ( $op eq 'update' ) {
-        # We should have a complete set of Request properties / attributes, so we
-        # should just be able to push to DB?
-        $request->editStatus(\%{$cgi->Vars});
-        $template->param(
-            ill   => $request->getFullDetails( { brw => 1 } ),
-            title => $tabs->{view},
-        );
+        if ( !GetMember( cardnumber => $cgi->param('borrower') ) ) {
+            $op      = 'message';
+            $template->param (
+                message => 'invalid_borrower',
+                whole   => $cgi->param('borrower'),
+                forward => $parent,
+            );
+        } elsif ( !GetBranchDetail($cgi->param('branch')) ) {
+            $op      = 'message';
+            $template->param (
+                message => 'invalid_branch',
+                whole   => $cgi->param('branch'),
+                forward => $parent,
+            );
+
+        } else {
+            # We should have a complete set of Request properties / attributes, so we
+            # should just be able to push to DB?
+            $request->editStatus(\%{$cgi->Vars});
+            $template->param(
+                ill   => $request->getFullDetails( { brw => 1 } ),
+                title => $tabs->{view},
+            );
+        }
 
     } else {
         die("Unexpected combination of parameters!")
