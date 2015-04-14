@@ -32,19 +32,25 @@ sub load_xml {
 sub rebless {
     my ($self, $node) = @_;
     my $interesting_elements = {
-                                apiResponse     => 1,
-                                availableFormat => 1,
-                                availability    => 1,
-                                deliveryFormat  => 1,
-                                format          => 1,
-                                price           => 1,
-                                quality         => 1,
-                                result          => 1,
-                                service         => 1,
-                                speed           => 1,
-                                newOrder        => 1,
-                                orderline       => 1,
-                               };
+        apiResponse     => 1,
+        availableFormat => 1,
+        availability    => 1,
+
+        deliveryFormat  => 1,
+        format          => 1,
+        price           => 1,
+        quality         => 1,
+        result          => 1,
+        service         => 1,
+        speed           => 1,
+
+        newOrder        => 1,
+
+        orderline       => 1,
+        deliveryDetails => 1,
+        address         => 1,
+        event           => 1,
+    };
 
 
     my $name = $node->getName;
@@ -89,7 +95,11 @@ sub AUTOLOAD {
         }
 
         if (my ($existing_node) = $self->findnodes("./$name")) {
-            return $existing_node->firstChild->getData;
+            if ( $existing_node->firstChild ) {
+                return $existing_node->firstChild->getData;
+            } else {
+                return '';
+            }
         } else {
             return '';
         }
@@ -107,8 +117,15 @@ sub AUTOLOAD {
 }
 
 sub get_one_object {
-    my ( $self, $xpath ) = @_;
-    my $results = $self->findnodes($xpath);
+    my ( $self, $xpath, $ns ) = @_;
+    my $results;
+    if ( $ns ) {
+        my $xpc = XML::LibXML::XPathContext->new;
+        $xpc->registerNs('x', $ns);
+        $results = $xpc->findnodes($xpath, $self);
+    } else {
+        $results = $self->findnodes($xpath);
+    }
     if (@{$results} > 1) {
         die "We have more than one result.  This should not have happened.";
     }
@@ -398,12 +415,136 @@ use base qw(Koha::ILLRequest::XML::BLDSS::Element);
 
 sub elements {
     return qw( customerRef note requestor overallStatus metadata
-               serviceDetails deliveryDetails costDetails history );
+               serviceDetails costDetails history );
+}
+
+sub cost {
+    my $self = shift;
+    return $self->get_one_object('./costDetails/cost')
+        ->getAttribute('total') || '';
+}
+
+sub historyEvents {
+    my $self = shift;
+    my @events = map {Koha::ILLRequest::XML::BLDSS->rebless($_)}
+      $self->findnodes("./history/event");
+    return  \@events;
+}
+
+sub deliveryDetails {
+    my $self = shift;
+    return $self->get_one_object("./deliveryDetails");
 }
 
 sub new {
     my $class = shift;
     return $class->SUPER::new('Orderline');
+}
+
+# deliveryDetails Object
+
+package Koha::ILLRequest::XML::BLDSS::DeliveryDetails;
+
+use base qw(Koha::ILLRequest::XML::BLDSS::Element);
+
+sub elements {
+    return qw( type email );
+}
+
+sub address {
+    my $self = shift;
+    return $self->get_one_object("./address");
+}
+
+sub new {
+    my $class = shift;
+    return $class->SUPER::new('deliveryDetails');
+}
+
+# address Object
+
+# Tricky because of the namespace.  Write custom accessors to fetch the
+# values.
+
+package Koha::ILLRequest::XML::BLDSS::Address;
+
+use base qw(Koha::ILLRequest::XML::BLDSS::Element);
+
+sub _cscore_get_one_object {
+    my ( $self, $fragment ) = @_;
+    return $self->get_one_object(
+        './x:' . $fragment,
+        'http://www.bl.uk/namespaces/schema/customer/core/v0'
+    );
+}
+
+sub AddressLine1 {
+    my $self = shift;
+    return $self->_cscore_get_one_object('AddressLine1')->textContent;
+}
+
+sub AddressLine2 {
+    my $self = shift;
+    return $self->_cscore_get_one_object('AddressLine2')->textContent;
+}
+
+sub AddressLine3 {
+    my $self = shift;
+    return $self->_cscore_get_one_object('AddressLine3')->textContent;
+}
+
+sub Country {
+    my $self = shift;
+    return $self->_cscore_get_one_object('Country')->textContent;
+}
+
+sub CountyOrState{
+    my $self = shift;
+    return $self->_cscore_get_one_object('CountyOrState')->textContent;
+}
+
+sub Department {
+    my $self = shift;
+    return $self->_cscore_get_one_object('Department')->textContent;
+}
+
+sub PostOrZipCode {
+    my $self = shift;
+    return $self->_cscore_get_one_object('PostOrZipCode')->textContent;
+}
+
+sub ProvinceOrRegion {
+    my $self = shift;
+    return $self->_cscore_get_one_object('ProvinceOrRegion')->textContent;
+}
+
+sub TownOrCity{
+    my $self = shift;
+    return $self->_cscore_get_one_object('TownOrCity')->textContent;
+}
+
+sub new {
+    my $class = shift;
+    return $class->SUPER::new('address');
+}
+
+# event Object
+
+package Koha::ILLRequest::XML::BLDSS::Event;
+
+use base qw(Koha::ILLRequest::XML::BLDSS::Element);
+
+sub elements {
+    return qw( eventType additionalInfo );
+}
+
+sub attributes {
+    return qw( time );
+}
+
+sub new {
+    my $class = shift;
+    return $class->SUPER::new('event');
 }
 
 1;

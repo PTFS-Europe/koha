@@ -428,9 +428,70 @@ sub status {
         # querying message on this response fails for some reason.
         my $status = _getStatusCode($re->status, "status");
         if ( 'status_success' eq $status->{status} ) {
+            my $orderline  = $re->result->orderline;
+            my $delDetails = $orderline->deliveryDetails;
             $status->{values} = {
-                status => [ "Status", $re->result->orderline->overallStatus ]
+                cost              => [
+                    "Total cost", $orderline->cost
+                ],
+                customerReference => [
+                    "Customer Reference", $orderline->customerRef
+                ],
+                note              => [
+                    "Note", $orderline->note
+                ],
+                requestor         => [
+                    "Requestor", $orderline->requestor
+                ],
+                status            => [
+                    "Status", $orderline->overallStatus
+                ],
             };
+
+            # Add extra delivery details
+            my @deliveryDetails;
+            push @deliveryDetails, {
+                deliveryType => ["Delivery type", $delDetails->type ]
+            };
+            if ( 'digital' eq $delDetails->type ) {
+                push @deliveryDetails, {
+                    deliveryEmail => [ "Delivery email", $delDetails->email ]
+                };
+            } elsif ( 'physical' eq $delDetails->type ) {
+                my $address = $delDetails->address;
+
+                my @titles = (
+                    "Address line 1", "Address line 2", "Address line 3",
+                    "Country", "County or state", "Department", "Postcode",
+                    "Province or region", "Town or city"
+                );
+                for ( qw/ AddressLine1 AddressLine2 AddressLine3 Country
+                          CountyOrState Department PostOrZipCode
+                          ProvinceOrRegion TownOrCity / ) {
+                    push @deliveryDetails, {
+                        'delivery' . $_ => [ shift(@titles), $address->$_ ]
+                    };
+                }
+            } else {
+                die "unexpected delivery type: $delDetails->type";
+            }
+
+            $status->{values}->{delivery} = [
+                "Delivery details", \@deliveryDetails
+            ];
+
+            # Add history elements
+            my @history;
+            for ( @{$orderline->historyEvents} ) {
+                push @history, {
+                    time => [ "Timestamp", $_->time ],
+                    type => [ "Event type", $_->eventType ],
+                    info => [ "Additional notes", $_->additionalInfo ],
+                }
+            }
+            $status->{values}->{history} = [
+                "Request history", \@history
+            ];
         }
         return $status;
     }

@@ -175,6 +175,7 @@ if ($request) {
         $op = 'message';
         $template->param(
             message => $result->{status},
+            ill     => $request->getSummary,
             whole   => $result,
             forward => $parent,
         )
