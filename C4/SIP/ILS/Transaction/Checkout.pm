@@ -121,9 +121,6 @@ sub do_checkout {
         if ($self->{fee_ack} eq 'N' ) {
             $noerror = 0;
         }
-        elsif ($self->{fee_ack} eq 'Y') {
-            log_rental_fee($self->{fee_amount}, $self->{tillid});
-        }
     }
 	unless ($noerror) {
 		$debug and warn "cannot issue: " . Dumper($issuingimpossible) . "\n" . Dumper($needsconfirmation);
