@@ -62,7 +62,7 @@ sub pay {
     }
     syslog('LOG_INFO',"recordpayment:$borrowernumber:$amt:$type:$tillid:$koha_paytype");
     #warn("RECORD:$borrowernumber::$amt");
-    recordpayment( $borrowernumber, $amt, $type, 'sip', $tillid, $koha_paytype );
+    recordpayment( $borrowernumber, $amt, $type, 'sip', $tillid, $koha_paytype, q{} );
     return;
 }
 
