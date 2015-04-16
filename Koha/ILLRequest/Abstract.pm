@@ -21,9 +21,9 @@ use Modern::Perl;
 use Carp;
 
 use BLDSS;
-use Locale::Country;
 use XML::LibXML;
 use C4::Branch;
+use Koha::ILLRequest::Backend::BLDSS;
 use Koha::ILLRequest::XML::BLDSS;
 use Koha::ILLRequest::Record;
 use Koha::ILLRequest::Status;
@@ -191,6 +191,9 @@ sub _api_do {
         $re = $self->_api->cancel_order(@{$params->{params}});
     } elsif ( 'prices' eq $op ) {
         $re = $self->_api->prices(@{$params->{params}});
+    } elsif ( 'reference' eq $op ) {
+        $re = $self->_api->reference(@{$params->{params}});
+        die "Reference currently returns 404." unless ( $re );
     } elsif ( 'search' eq $op ) {
         $re = $self->_api->search(@{$params->{params}});
         return $re;
@@ -329,8 +332,14 @@ sub request {
     my $branch = C4::Branch::GetBranchDetail($params->{branch});
     # Currently hard-coded to BL requirements.  This should instead use
     # methods from the API or config to extract appropriate & required fields.
-    my $country = country2code($branch->{branchcountry}, LOCALE_CODE_ALPHA_3)
-        || die "Invalid country in branch record: $branch->{branchcountry}.";
+    my ( $invalid, $delivery ) = Koha::ILLRequest::Backend::BLDSS->new
+        ->validate_delivery_input ( {
+            service  => $params->{transaction},
+            borrower => $brw,
+            branch   => $branch,
+        } );
+    return $invalid if ( $invalid );
+
     my $final_details = {
         type     => "S",
         Item     => {
@@ -345,19 +354,7 @@ sub request {
             }
         },
         service  => $params->{transaction},
-        Delivery => {
-            email   => $branch->{branchemail} || "",
-            Address => {
-                AddressLine1     => $branch->{branchaddress1} || "",
-                AddressLine2     => $branch->{branchaddress2} || "",
-                AddressLine3     => $branch->{branchaddress3} || "",
-                TownOrCity       => $branch->{branchcity} || "",
-                CountyOrState    => $branch->{branchstate} || "",
-                ProvinceOrRegion => "",
-                PostOrZipCode    => $branch->{branchzip} || "",
-                Country          => $country,
-            }
-        },
+        Delivery => $delivery,
         # Optional params:
         requestor         => join(" ", $brw->firstname, $brw->surname),
         # FIXME: we'll need to add prefix here
@@ -365,6 +362,7 @@ sub request {
         # FIXME: Pay Copyright: should be read from a config file.
         payCopyright => "true",
     };
+
     my $rq_result = $self->_api_do( {
         action => 'create_order',
         params => [ $final_details ],
