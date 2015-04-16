@@ -46,14 +46,26 @@ $template->param(
     query_value => $query,
     query_type  => $action,
 );
+my ( $brw_count, $brw ) = validate_borrower($input->param('brw'));
 
-if ( fail($query, $input->param('brw'), $input->param('branch')) ) {
-    $error = { error => "missing_fields", action => $action };
+if ( fail($query, $input->param('branch')) ) {
+    $error = { error => "missing_branch", action => $action };
 } elsif ( !GetBranchDetail($input->param('branch')) ) {
     $error = { error => "invalid_branch", action => $action };
-} elsif ( !GetMember( cardnumber => $input->param('brw') ) ) {
+} elsif ( $brw_count == 0 ) {
     $error = { error => "invalid_borrower", action => $action };
-
+} elsif ( $brw_count > 1 ) {
+    $template->param(
+        query_type   => 'borrowers',
+        borrowers    => $brw,
+        branch       => $input->param('branch'),
+        surname      => $input->param('brw'),
+        forward      => 'search',
+        query_value  => $query,
+    );
+    for ( qw/ isbn issn title author type start_rec max_results / ) {
+        $template->param( $_ => $input->param($_) );
+    }
 } elsif ( $action eq 'search' ) {
     my $opts = {};
     $opts->{keywords} = $query if ( '' ne $query );
@@ -76,7 +88,7 @@ if ( fail($query, $input->param('brw'), $input->param('branch')) ) {
     if ($reply) {
         # setup place request url
         my $rq_qry = "?query_type=request";
-        $rq_qry .= "&brw=" . $input->param('brw');
+        $rq_qry .= "&brw=" . $brw->borrowernumber;
         $rq_qry .= "&branch=" . $input->param('branch');
         $rq_qry .= "&query_value=";
         # Setup pagers
@@ -121,4 +133,30 @@ sub fail {
         return 1 if (!$val or $val eq '');
     }
     return 0;
+}
+
+sub validate_borrower {
+    # Perform cardnumber search.  If no results, perform surname search.
+    # Return ( 0, undef ), ( 1, $brw ) or ( n, $brws )
+    my $input = shift;
+    my $borrowers = Koha::Borrowers->new;
+    my ( $count, $brw );
+
+    my $brws = $borrowers->search( { cardnumber => $input } );
+    $count = $brws->count;
+    if ( $count == 0 ) {
+        $brws = $borrowers->search( { surname => $input } );
+        $count = $brws->count;
+        if ( $count == 1 ) {
+            $brw = $brws->next;
+        } elsif ( $count > 1 ) {
+            $brw = $brws;
+        }
+    } elsif ( $count == 1 ) {
+        $brw = $brws->next;
+    } else {
+        die "We have more than one result for cardnumber $input."
+    }
+
+    return ( $count, $brw );
 }

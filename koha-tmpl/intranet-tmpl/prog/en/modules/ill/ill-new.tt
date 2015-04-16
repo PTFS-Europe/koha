@@ -27,8 +27,10 @@
                 [% IF error or !query_type or query_type == 'new' %]
                     [% IF error.error == 'missing_fields' and error.action == 'search' %]
                         <p><em>Please Note:</em> Some mandatory fields are missing.</p>
+                    [% ELSIF error.error == 'missing_branch' and error.action == 'search' %]
+                        <p><em>Please Note:</em> Branch is a mandatory field.</p>
                     [% ELSIF error.error == 'invalid_borrower' and error.action == 'search' %]
-                        <p><em>Please Note:</em> The borrower number you entered is invalid.</p>
+                        <p><em>Please Note:</em> The borrower details you entered are invalid.</p>
                     [% ELSIF error.error == 'invalid_branch' and error.action == 'search' %]
                         <p><em>Please Note:</em> The branch you chose is invalid.</p>
                     [% ELSIF error.error == 'api' and error.action %]
@@ -87,11 +89,11 @@
                             <legend>Borrower Options</legend>
                             <ol>
                                 <li>
-                                    <label class="required" for="brw">Borrower Number:</label>
+                                    <label class="required" for="brw">Borrower number or surname:</label>
                                     <input type="text" name="brw" id="brw" type="text"/>
                                 </li>
                                 <li>
-                                    <label class="required" for="branch">Destination Branch:</label>
+                                    <label class="required" for="branch">Destination branch:</label>
                                     <select name="branch" id="branch">
                                         <option value=""></option>
                                         [% FOREACH branch IN branches %]
@@ -113,6 +115,38 @@
                         </fieldset>
                         <fieldset class="action">
                             <input type="submit" value="Search"/>
+                            <a class="cancel" href=[% parent %]>Cancel</a>
+                        </fieldset>
+                    </form>
+                [% ELSIF query_type == 'borrowers' %]
+                    <h2>Borrower selection</h2>
+                    <form method="POST" action=[% here %]>
+                        <fieldset class="rows">
+                            <legend>Available borrowers for surname [% surname %]</legend>
+                            <input name="query_type" id="query_type" value="[% forward %]" type="hidden"/>
+                            <input name="query_value" id="query_value" value="[% query_value %]" type="hidden"/>
+                            <input name="branch" id="branch" value="[% branch %]" type="hidden"/>
+                            <input name="isbn" id="isbn" value="[% isbn %]" type="hidden"/>
+                            <input name="issn" id="issn" value="[% issn %]" type="hidden"/>
+                            <input name="title" id="title" value="[% title %]" type="hidden"/>
+                            <input name="author" id="author" value="[% author %]" type="hidden"/>
+                            <input name="type" id="type" value="[% type %]" type="hidden"/>
+                            <input name="start_rec" id="start_rec" value="[% start_rec %]" type="hidden"/>
+                            <input name="max_results" id="max_results" value="[% max_results %]" type="hidden"/>
+                            <ol>
+                                <li>
+                                    <label class="required" for="brw">Borrower</label>
+                                    <select name="brw" id="brw">
+                                        <option value=""></option>
+                                        [% FOREACH brw IN borrowers %]
+                                            <option value="[% brw.cardnumber %]">[% brw.firstname %] [% brw.surname %] ([% brw.cardnumber %])</option>
+                                        [% END %]
+                                    </select>
+                                </li>
+                            </ol>
+                        </fieldset>
+                        <fieldset class="action">
+                            <input type="submit" value="Select"/>
                             <a class="cancel" href=[% parent %]>Cancel</a>
                         </fieldset>
                     </form>
