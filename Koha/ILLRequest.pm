@@ -56,7 +56,11 @@ Create a new $illRequest.
 
 sub new {
     my ( $class ) = @_;
-    my $self = {};
+    my $self = {
+        record   => {},
+        status   => {},
+        abstract => Koha::ILLRequest::Abstract->new,
+    };
 
     bless $self, $class;
 
@@ -90,6 +94,15 @@ sub delete {
 
 Write $ILLREQUEST to the koha database (i.e. the ill_requests and
 ill_request_attributes tables.
+
+This approach is getting plain horrendous.  A new approach would be to, within
+this procedure, defer to the Record and Status object to save themselves.
+This would also make handling special cases (e.g. config prefix identifiers)
+easier.
+
+The downside would be that we also introduce database connections in 2 further
+modules (this might be closer to "natural" though: the DBIx objects are
+already ILLRequests and ILLRequestAttributes, which map to Status and Record).
 
 =cut
 
@@ -151,9 +164,10 @@ calculatePrice through AJAX?
 
 sub checkAvailability {
     my ( $self, $testData ) = @_;
-    my $availability =
-      ${$self}{record}->checkAvailability(${$testData}{availability});
-    my $prices = ${$self}{record}->checkAvailability(${$testData}{prices});
+    my $availability = $self->record->checkAvailability(
+        $testData->{availability}
+    );
+    my $prices = $self->record->checkAvailability($testData->{prices});
 
 }
 
@@ -171,7 +185,7 @@ sub calculatePrice {
     my ( $self, $data, $testData ) = @_;
 
     # testData is used for unit testing only
-    my $prices = ${$self}{record}->checkPrices($testData);
+    my $prices = $self->record->checkPrices($testData);
     my $xpath = '//format[@id="' . ${$data}{format} . '"]/price[@speed="' .
       ${$data}{speed} . '" and @quality="' . ${$data}{quality} . '"]';
     # We have format from before; now we need to retrieve price for display,
@@ -207,7 +221,7 @@ this Request.
 
 sub checkSimpleAvailability {
     my ( $self, $testData ) = @_;
-    my $availability = ${$self}{record}->checkAvailability($testData);
+    my $availability = $self->record->checkAvailability($testData);
     # We have a status message from the API.
     return $availability
         if ( 'HASH' eq ref $availability and $availability->{status} );
@@ -405,32 +419,51 @@ sub staff_notes {
     return &{$self->_prim_logic('notes_staff')}($staff_notes);
 }
 
+=head3 _abstract
+
+    my $abstract = $illRequest->abstract($abstract);
+    my $abstract = $illRequest->abstract;
+
+Getter/Setter for the Abstract component of the ILLREQUEST object $illRequest.
+The Abstract component provides access to the backend APIs.
+
+=cut
+
+sub _abstract {
+    my ( $self, $new_abstract ) = @_;
+    $self->{abstract} = $new_abstract if $new_abstract;
+    return $self->{abstract};
+}
+
 =head3 status
 
+    my $status = $illRequest->status($status);
     my $status = $illRequest->status;
 
-Return the Status component of the ILLREQUEST object $illRequest.  The Status
-component provides information about the request for Koha.
+Getter/Setter for the Status component of the ILLREQUEST object $illRequest.
+The Status component provides information about the request for Koha.
 
 =cut
 
 sub status {
-    my ( $self ) = @_;
-
+    my ( $self, $new_status ) = @_;
+    $self->{status} = $new_status if $new_status;
     return $self->{status};
 }
 
 =head3 record
 
-    my $record = $illRequest->record();
+    my $record = $illRequest->record($record);
+    my $record = $illRequest->record;
 
-Return the Record component of the ILLREQUEST objet $ILLREQUEST.  The Record
-component provides bibliographic details as retrieved from the API.
+Getter/Setter for the Record component of the ILLREQUEST objet $ILLREQUEST.
+The Record component provides bibliographic details as retrieved from the API.
 
 =cut
 
 sub record {
-    my ( $self ) = @_;
+    my ( $self, $new_record ) = @_;
+    $self->{record} = $new_record if $new_record;
     return $self->{record};
 }
 
@@ -446,8 +479,9 @@ display to the end-user.  It returns a composit of $self's Record and Status
 
 sub getSummary {
     my ( $self, $params ) = @_;
-    my $record = ${$self}{record}->getSummary($params);
-    my $status = ${$self}{status}->getSummary($params);
+    my $record = $self->record->getSummary($params);
+    # FIXME: need to populate with $params->{prefix} if desired.
+    my $status = $self->status->getSummary($params);
     my %summary = (%{$record}, %{$status});
 
     return \%summary;
@@ -465,8 +499,9 @@ display to the end-user.  It returns a composit of $self's Record and Status
 
 sub getFullDetails {
     my ( $self ) = @_;
-    my $record = ${$self}{record}->getFullDetails();
-    my $status = ${$self}{status}->getFullStatus();
+    my $record = $self->record->getFullDetails;
+    # FIXME: need to populate with $params->{prefix} if desired.
+    my $status = $self->status->getFullStatus;
     my %summary = (%{$record}, %{$status});
 
     return \%summary;
@@ -488,6 +523,7 @@ The former is for display and should not be edited by hand.  The latter can be e
 sub getForEditing {
     my ( $self, $params ) = @_;
     my $record = $self->record->getFullDetails($params);
+    # FIXME: need to populate with $params->{prefix} if desired.
     my $status = $self->status->getFullStatus($params);
 
     return [ $record, $status ];
@@ -515,10 +551,11 @@ sub update {
 
 sub _seed_for_test {
     my ($self, $recordData) = @_;
-    ${$self}{record} =
-      Koha::ILLRequest::Record->new(Koha::ILLRequest::Config->new());
-    ${$self}{record}->create_from_xml($recordData);
-    ${$self}{status} = Koha::ILLRequest::Status->new();
+    $self->record(
+        Koha::ILLRequest::Record->new(Koha::ILLRequest::Config->new)
+      );
+    $self->record->create_from_xml($recordData);
+    $self->status(Koha::ILLRequest::Status->new);
     return $self;
 }
 
@@ -553,16 +590,16 @@ sub seed {
 sub _seed_from_api {
     my ( $self, $opts ) = @_;
 
-    $self->{record} = ${Koha::ILLRequest::Abstract->new
-          ->search($opts->{uin})}[0];
-    $self->{status} = Koha::ILLRequest::Status->new( {
-              reqtype   => $self->{record}->getProperty('type'),
-              borrower  => $opts->{borrower},
-              branch    => $opts->{branch},
-              permitted => $opts->{permitted},
-             }
-           );
-    $self->save();        # save to DB.
+    $self->record($self->_abstract->find($opts->{uin}));
+    $self->status(
+        Koha::ILLRequest::Status->new( {
+            reqtype   => $self->record->getProperty('type'),
+            borrower  => $opts->{borrower},
+            branch    => $opts->{branch},
+            permitted => $opts->{permitted},
+        } )
+      );
+    $self->save;                # save to DB.
 
     return $self;
 }
@@ -581,21 +618,22 @@ sub _seed_from_store {
     my $result_set = Koha::Database->new->schema->resultset('IllRequest');
     my $result = $result_set->find( $opts->{id} );
 
-    if ($result) {
+    if ( $result ) {
         my $linked = $result_set->search_related(
             'ill_request_attributes', { req_id => $opts->{id} }
         );
         my $attributes = { $result->get_columns };
         while ( my $attribute = $linked->next ) {
-            $attributes->{ $attribute->get_column('type') } =
-              $attribute->get_column('value');
+            $attributes->{ $attribute->get_column('type') }
+                = $attribute->get_column('value');
         }
-        $attributes->{borrower}
-            = _borrower_from_number($attributes->{borrowernumber}, 'brw');
+        $attributes->{borrower} = _borrower_from_number(
+            $attributes->{borrowernumber}, 'brw'
+        );
         # XXX: A bit Kludgy.
-        my $tmp = Koha::ILLRequest::Abstract->new->build($attributes);
-        $self->{record} = $tmp->{record};
-        $self->{status} = $tmp->{status};
+        my $tmp = $self->_abstract->build($attributes);
+        $self->record($tmp->{record});
+        $self->status($tmp->{status});
         return $self;
     }
 
@@ -613,11 +651,10 @@ otherwise.
 
 sub requires_moderation {
     my ( $self ) = @_;
-    my $status = $self->status->getProperty('status');
     my $require_moderation = {
         'Cancellation Requested' => 'Cancellation Requested',
     };
-    return $require_moderation->{$status};
+    return $require_moderation->{$self->status->getProperty('status')};
 }
 
 =head3 place_request
@@ -636,21 +673,18 @@ sub place_request {
     my $brw_cat     = $brw->categorycode;
 
     my $details = $params->{details}
-        || Koha::ILLRequest::Abstract->new->getDefaultFormat( {
+        || $self->_abstract->getDefaultFormat( {
             brw_cat => $brw_cat,
             branch  => $branch_code,
         } );
 
-    my $success = Koha::ILLRequest::Abstract->new->request(
-        {
-            branch      => $self->status->getProperty('branch'),
-            patron      => $brw,
-            transaction => $details,
-            record      => $self->record,
-            # FIXME: we'll need to add prefix here
-            reference   => $self->status->getProperty('id'),
-        }
-    );
+    my $success = $self->_abstract->request( {
+        branch      => $self->status->getProperty('branch'),
+        patron      => $brw,
+        transaction => $details,
+        record      => $self->record,
+        reference   => $self->status->getProperty('id', "with_prefix"),
+    } );
 
     return ( $success, $self )
         if ( 'HASH' eq ref $success and $success->{status} );
@@ -674,8 +708,9 @@ Use the interface to attempt to cancel a request.
 
 sub cancel_request {
     my ( $self ) = @_;
-    my $result = Koha::ILLRequest::Abstract->new
-        ->cancel_request( { order_id => $self->order_id } );
+    my $result = $self->_abstract->cancel_request( {
+        order_id => $self->order_id
+    } );
     if ( 'cancel_success' eq $result->{status} ) {
         # Succes, change status, remove order_id.
         $self->editStatus( { status => "Request reverted" } );
@@ -694,9 +729,7 @@ Use the interface to retrieve API details of the currently placed request.
 
 sub status_request {
     my ( $self ) = @_;
-    my $result = Koha::ILLRequest::Abstract->new
-        ->status( { order_id => $self->order_id } );
-
+    my $result = $self->_abstract->status( { order_id => $self->order_id } );
     return ( $result, $self );
 }
 

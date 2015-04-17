@@ -357,7 +357,6 @@ sub request {
         Delivery => $delivery,
         # Optional params:
         requestor         => join(" ", $brw->firstname, $brw->surname),
-        # FIXME: we'll need to add prefix here
         customerReference => $params->{reference},
         # FIXME: Pay Copyright: should be read from a config file.
         payCopyright => "true",
@@ -537,6 +536,14 @@ sub search {
     }
 
     return \@return;
+}
+
+sub find {
+    my ( $self, $uin ) = @_;
+    my $results = $self->search($uin);
+    die "Unexpected number of results: $results->count."
+        if ( scalar @{$results} != 1 );
+    return ${$results}[0];
 }
 
 =head1 AUTHOR
