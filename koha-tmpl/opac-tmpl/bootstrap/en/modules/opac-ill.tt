@@ -64,8 +64,10 @@
                         <table>
                             <thead>
                                 <tr>
-                                    [% FOREACH line IN reply.0 %]
-                                        <th id=[% line.key %]>[% line.value.0 %]</th>
+                                    [% FOREACH field IN reply.0 %]
+                                        [% IF field.key != 'id' %]
+                                            <th id=[% field.key %]>[% field.value.0 %]</th>
+                                        [% END %]
                                     [% END %]
                                     <th id="actions">Actions</th>
                                 </tr>
@@ -73,15 +75,17 @@
                             <tbody>
                                 [% FOREACH summary IN reply %]
                                     <tr>
-                                        [% FOREACH line IN summary %]
-                                            <td>
-                                                [% IF line.key == 'borrower' %]
-                                                    [% brw = line.value.1 %]
-                                                    [% brw.firstname _ " " _ brw.surname _ ", " _ brw.cardnumber %]
-                                                [% ELSE %]
-                                                    [% line.value.1 %]
-                                                [% END %]
-                                            </td>
+                                        [% FOREACH field IN summary %]
+                                            [% IF field.key != 'id' %]
+                                                <td>
+                                                    [% IF field.key == 'borrower' %]
+                                                        [% brw = field.value.1 %]
+                                                        [% brw.firstname _ " " _ brw.surname _ ", " _ brw.cardnumber %]
+                                                    [% ELSE %]
+                                                        [% field.value.1 %]
+                                                    [% END %]
+                                                </td>
+                                            [% END %]
                                         [% END %]
                                         <td>
                                             <ul>

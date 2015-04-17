@@ -167,6 +167,22 @@ sub getProperties {
     return ${$self}{$name . "_props"};
 }
 
+=head3 getPrefixes
+
+    my $prefixes = $config->getPrefixes('brw_cat' | 'branch');
+
+Return the prefix for ILLs defined by our config.
+
+=cut
+
+sub getPrefixes {
+    my ( $self, $type ) = @_;
+    die "Unexpected type." unless ( $type eq 'brw_cat' || $type eq 'branch' );
+    my $values = $self->{configuration}->{prefixes}->{$type};
+    $values->{default} = $self->{configuration}->{prefixes}->{default};
+    return $values;
+}
+
 =head3 getLimitRules
 
     my $rules = $config->getLimitRules('brw_cat' | 'branch')
@@ -195,7 +211,6 @@ Return the hash of ILL default formats defined by our config.
 sub getDefaultFormats {
     my ( $self, $type ) = @_;
     die "Unexpected type." unless ( $type eq 'brw_cat' || $type eq 'branch' );
-    # FIXME: BUG: does not return default limits
     my $values = $self->{configuration}->{default_formats}->{$type};
     $values->{default} = $self->{configuration}->{default_formats}->{default};
     return $values;
@@ -273,6 +288,7 @@ sub _load_configuration {
         },
         limits          => {},
         default_formats => {},
+        prefixes        => {},
     };
 
     # Per Branch Configuration
@@ -342,6 +358,16 @@ sub _load_unit_config {
                 if ( $method && ( 'annual' eq $method || 'active' eq $method ) );
             $config->{limits}->{$type}->{$id}->{count} = $count
                 if ( $count && ( -1 <= $count ) );
+        }
+    }
+
+    # Add prefix rules.
+    # PREFIX := string
+    if ( $unit->{prefix} ) {
+        if ( 'default' eq $id ) {
+            $config->{prefixes}->{$id} = $unit->{prefix};
+        } else {
+            $config->{prefixes}->{$type}->{$id} = $unit->{prefix};
         }
     }
 

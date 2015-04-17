@@ -41,20 +41,22 @@
                     [% END %]
                     [% FOREACH summary IN reply %]
                         <p>
-                            [% FOREACH line IN summary %]
-                                <span id="[% line.key %]">
-                                    [% IF line.key == 'borrower' %]
-                                        [% brw = line.value.1 %]
-                                        [% line.value.0 _ ": " %]
-                                        <a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% brw.borrowernumber %]"
-                                           title="View borrower details">
-                                            [% brw.firstname _ " " _ brw.surname _ ", " _ brw.cardnumber %]
-                                        </a>
-                                    [% ELSE %]
-                                        [% line.value.0 _ ": " _ line.value.1 %]
-                                    [% END %]
-                                </span>
-                                <br/>
+                            [% FOREACH field IN summary %]
+                                [% IF field.value.1 and field.key != 'id' %]
+                                    <span id="[% field.key %]">
+                                        [% IF field.key == 'borrower' %]
+                                            [% brw = field.value.1 %]
+                                            [% field.value.0 _ ": " %]
+                                            <a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% brw.borrowernumber %]"
+                                            title="View borrower details">
+                                                [% brw.firstname _ " " _ brw.surname _ ", " _ brw.cardnumber %]
+                                            </a>
+                                        [% ELSE %]
+                                            [% field.value.0 _ ": " _ field.value.1 %]
+                                        [% END %]
+                                    </span>
+                                    <br/>
+                                [% END %]
                             [% END %]
                         </p>
                     [% END %]
@@ -74,8 +76,10 @@
                     <table id="ill-requests">
                         <thead>
                             <tr>
-                                [% FOREACH line IN reply.0 %]
-                                    <th id=[% line.key %]>[% line.value.0 %]</th>
+                                [% FOREACH field IN reply.0 %]
+                                    [% IF field.key != 'id' %]
+                                        <th id=[% field.key %]>[% field.value.0 %]</th>
+                                    [% END %]
                                 [% END %]
                                 [% IF ILLModule and CAN_user_ill_manage %]
                                     <th id="id">Manage ILL</th>
@@ -85,23 +89,25 @@
                         <tbody>
                             [% FOREACH summary IN reply %]
                                 <tr>
-                                    [% FOREACH line IN summary %]
-                                        <td>
-                                            [% IF line.key == 'borrower' %]
-                                                [% brw = line.value.1 %]
-                                                <a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% brw.borrowernumber %]"
-                                                    title="View borrower details">
-                                                    [% brw.firstname _ " " _ brw.surname _ ", " _ brw.cardnumber %]
-                                                </a>
-                                            [% ELSIF line.key == './uin' and query_type == "api" %]
-                                                [% rqc = rq _ line.value.1 %]
-                                                <a href=[% rqc %]>
-                                                    Request [% value %]
-                                                </a>
-                                            [% ELSE %]
-                                                [% line.value.1 %]
-                                            [% END %]
-                                        </td>
+                                    [% FOREACH field IN summary %]
+                                        [% IF field.key != 'id' %]
+                                            <td>
+                                                [% IF field.key == 'borrower' %]
+                                                    [% brw = field.value.1 %]
+                                                    <a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% brw.borrowernumber %]"
+                                                        title="View borrower details">
+                                                        [% brw.firstname _ " " _ brw.surname _ ", " _ brw.cardnumber %]
+                                                    </a>
+                                                [% ELSIF field.key == './uin' and query_type == "api" %]
+                                                    [% rqc = rq _ field.value.1 %]
+                                                    <a href=[% rqc %]>
+                                                        Request [% value %]
+                                                    </a>
+                                                [% ELSE %]
+                                                    [% field.value.1 %]
+                                                [% END %]
+                                            </td>
+                                        [% END %]
                                     [% END %]
                                     [% IF ILLModule and CAN_user_ill_manage %]
                                         <td>

@@ -102,7 +102,8 @@ Return the value of field $FIELDNAME or 0 if it does not exist.
 =cut
 
 sub getProperty {
-    my ( $self, $property ) = @_;
+    my ( $self, $property, $prefix ) = @_;
+    return $prefix . $self->{id} if ( 'id' eq $property and $prefix );
     return $self->{$property} || 0;
 }
 
@@ -127,6 +128,10 @@ sub getFullStatus {
         $return->{borrowernumber}
             = [ "Borrower Number", $self->{borrowernumber} ];
     }
+    # Add ID with prefix
+    $return->{prefix_id} = [
+        "Request Number", $params->{id_prefix} . $self->{id}
+    ];
     return $return;
 }
 
@@ -145,6 +150,10 @@ sub getSummary {
         $return->{borrowernumber}
             = [ "Borrower Number", $self->{borrowernumber} ];
     }
+    # Add ID with prefix
+    $return->{prefix_id} = [
+        "Request Number", $params->{id_prefix} . $self->{id}
+    ];
     return $return;
 }
 

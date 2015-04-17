@@ -479,11 +479,10 @@ display to the end-user.  It returns a composit of $self's Record and Status
 
 sub getSummary {
     my ( $self, $params ) = @_;
+    $params->{id_prefix} = $self->id_prefix;
     my $record = $self->record->getSummary($params);
-    # FIXME: need to populate with $params->{prefix} if desired.
     my $status = $self->status->getSummary($params);
     my %summary = (%{$record}, %{$status});
-
     return \%summary;
 }
 
@@ -498,10 +497,10 @@ display to the end-user.  It returns a composit of $self's Record and Status
 =cut
 
 sub getFullDetails {
-    my ( $self ) = @_;
+    my ( $self, $params ) = @_;
+    $params->{id_prefix} = $self->id_prefix;
     my $record = $self->record->getFullDetails;
-    # FIXME: need to populate with $params->{prefix} if desired.
-    my $status = $self->status->getFullStatus;
+    my $status = $self->status->getFullStatus($params);
     my %summary = (%{$record}, %{$status});
 
     return \%summary;
@@ -522,8 +521,8 @@ The former is for display and should not be edited by hand.  The latter can be e
 
 sub getForEditing {
     my ( $self, $params ) = @_;
+    $params->{id_prefix} = $self->id_prefix;
     my $record = $self->record->getFullDetails($params);
-    # FIXME: need to populate with $params->{prefix} if desired.
     my $status = $self->status->getFullStatus($params);
 
     return [ $record, $status ];
@@ -683,7 +682,7 @@ sub place_request {
         patron      => $brw,
         transaction => $details,
         record      => $self->record,
-        reference   => $self->status->getProperty('id', "with_prefix"),
+        reference   => $self->status->getProperty('id', $self->id_prefix),
     } );
 
     return ( $success, $self )
@@ -849,6 +848,27 @@ sub _borrower_from_number {
         unless ( $brws->count == 1 ); # brw fetch did not work
     # we should have a unique brw.
     return $brws->next;
+}
+
+=head3 id_prefix
+
+    my $prefix = $record->id_prefix;
+
+Return the prefix appropriate for the current ILLRequest as derived from the
+borrower and branch associated with this request's Status, and the config
+file.
+
+=cut
+
+sub id_prefix {
+    my ( $self ) = @_;
+    my $brw = $self->status->getProperty('borrower');
+    my $prefix = $self->_abstract->getPrefix( {
+        brw_cat => $brw->categorycode,
+        branch  => $self->status->getProperty('branch'),
+    } );
+    $prefix .= "-" if ( $prefix );
+    return $prefix;
 }
 
 =head1 AUTHOR

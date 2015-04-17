@@ -289,6 +289,29 @@ sub getLimits {
         || { count => -1, method => 'active' };
 }
 
+=head3 getPrefix
+
+    my $prefix = $abstract->getPrefix( {
+        brw_cat => $brw_cat,
+        branch  => $branch_code,
+    } );
+
+Return the ILL prefix as defined by our $params: either per borrower category,
+per branch or the default.
+
+=cut
+
+sub getPrefix {
+    my ( $self, $params ) = @_;
+    my $brn_prefixes = $self->_config->getPrefixes('branch');
+    my $brw_prefixes = $self->_config->getPrefixes('brw_cat');
+
+    return $brw_prefixes->{$params->{brw_cat}}
+        || $brn_prefixes->{$params->{branch}}
+        || $brw_prefixes->{default}
+        || "";                  # "the empty prefix"
+}
+
 =head3 getDefaultFormat
 
     my $format = $abstract->getDefaultFormat( {

@@ -120,6 +120,7 @@ __PAZPAR2_TOGGLE_XML_POST__
      <mode>active</mode>
      <count>-1</count>
     </request_limit>
+    <prefix>ILL</prefix>
     <default_formats>
      <format>1</format>
      <quality>1</quality>
@@ -129,6 +130,7 @@ __PAZPAR2_TOGGLE_XML_POST__
     </default_formats>
     <branch>
      <code>example_branch1_code</code>
+     <prefix>Branch1ILL</prefix>
      <api_key>branch1_key</api_key>
      <api_auth>branch1_auth</api_auth>
      <request_limit>
@@ -144,6 +146,7 @@ __PAZPAR2_TOGGLE_XML_POST__
      </default_formats>
     </branch>
     <borrower_category>
+     <prefix>BrwILL</prefix>
      <code>example_brw_cat_code</code>
      <request_limit>
       <method>active</method>
