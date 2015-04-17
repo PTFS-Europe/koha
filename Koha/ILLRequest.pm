@@ -486,9 +486,10 @@ sub getSummary {
     return \%summary;
 }
 
-=head3 fullRequest
+=head3 getFullDetails
 
-    my $fullRequest = $illRequest->getFullRequest();
+    my $details = $illRequest->getFullDetails;
+    my $details = $illRequest->getFullDetails( { brw => 1 } );
 
 Return a data-structure ready for JSON or other format based processing and
 display to the end-user.  It returns a composit of $self's Record and Status
