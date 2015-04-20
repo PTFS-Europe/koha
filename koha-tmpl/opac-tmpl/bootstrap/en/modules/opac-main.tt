@@ -76,7 +76,7 @@
                                     <fieldset class="action">
                                         <input type="submit" value="Log in" class="btn" />
                                     </fieldset>
-                                    [% IF PatronSelfRegistration && PatronSelfRegistrationDefaultCategory %]<div id="patronregistration"><p>Don't have an account? <a href="/cgi-bin/koha/opac-memberentry.pl">Register here.</a></p></div>[% END %]
+                                    [% IF PatronSelfRegistration && PatronSelfRegistrationDefaultCategory %]<div id="patronregistration"><p>If you are not already a member of the library you can <a href="/cgi-bin/koha/opac-memberentry.pl">join online.</a></p></div>[% END %]
                                     </fieldset>
                                 [% IF Koha.Preference( 'NoLoginInstructions' ) %]
                                     <div id="nologininstructions-main">
