@@ -5,7 +5,7 @@
         [%- IF invert_name %]
             [%- borrower.surname %], [% borrower.firstname %] [% IF borrower.othernames %] ([% borrower.othernames %]) [% END %]
         [%- ELSE %]
-            [%- borrower.firstname %] [% IF borrower.othernames %] ([% borrower.othernames %]) [% END %] [% borrower.surname %]
+            [% borrower.title %] [% borrower.firstname %] [% IF borrower.othernames %] ([% borrower.othernames %]) [% END %] [% borrower.surname %]
         [%- END -%]
     [%- END -%]
     [% IF ( borrower.cardnumber ) %]
