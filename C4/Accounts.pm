@@ -94,7 +94,8 @@ sub recordpayment {
     my $dbh        = C4::Context->dbh;
     my $newamtos   = 0;
     my $accdata    = "";
-    my $branch     = C4::Context->userenv->{'branch'};
+    my $branch;
+    $branch     = C4::Context->userenv->{'branch'} if C4::Context->userenv;
     my $amountleft = $data;
     my $manager_id = 0;
     $manager_id = C4::Context->userenv->{'number'} if C4::Context->userenv;
