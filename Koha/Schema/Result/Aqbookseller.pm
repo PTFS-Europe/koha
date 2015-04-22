@@ -311,6 +311,21 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 edifact_messages
+
+Type: has_many
+
+Related object: L<Koha::Schema::Result::EdifactMessage>
+
+=cut
+
+__PACKAGE__->has_many(
+  "edifact_messages",
+  "Koha::Schema::Result::EdifactMessage",
+  { "foreign.vendor_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 invoiceprice
 
 Type: belongs_to
@@ -351,9 +366,24 @@ __PACKAGE__->belongs_to(
   },
 );
 
+=head2 vendor_edi_accounts
 
-# Created by DBIx::Class::Schema::Loader v0.07039 @ 2014-08-26 11:53:50
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:kz1tuPJihENyV6OyCwyX/A
+Type: has_many
+
+Related object: L<Koha::Schema::Result::VendorEdiAccount>
+
+=cut
+
+__PACKAGE__->has_many(
+  "vendor_edi_accounts",
+  "Koha::Schema::Result::VendorEdiAccount",
+  { "foreign.vendor_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+
+# Created by DBIx::Class::Schema::Loader v0.07033 @ 2014-09-02 11:37:47
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:bm3bQTUitVpvT+euN9brOg
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

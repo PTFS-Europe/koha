@@ -241,6 +241,21 @@ __PACKAGE__->many_to_many("borrowernumbers", "aqbudgetborrowers", "borrowernumbe
 # Created by DBIx::Class::Schema::Loader v0.07025 @ 2013-10-14 20:56:21
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:dxOTKpdIJ6ruJUE++4fC8w
 
-
 # You can replace this text with custom content, and it will be preserved on regeneration
+
+=head2 vendor_edi_accounts
+
+Type: has_many
+
+Related object: L<Koha::Schema::Result::VendorEdiAccount>
+
+=cut
+
+__PACKAGE__->has_many(
+  "vendor_edi_accounts",
+  "Koha::Schema::Result::VendorEdiAccount",
+  { "foreign.shipment_budget" => "self.budget_id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 1;

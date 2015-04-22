@@ -112,6 +112,7 @@ INSERT INTO systempreferences ( `variable`, `value`, `options`, `explanation`, `
 ('DisplayOPACiconsXSLT','1','','If ON, displays the format, audience, and material type icons in XSLT MARC21 results and detail pages in the OPAC.','YesNo'),
 ('dontmerge','1',NULL,'If ON, modifying an authority record will not update all associated bibliographic records immediately, ask your system administrator to enable the merge_authorities.pl cron job','YesNo'),
 ('EasyAnalyticalRecords','0','','If on, display in the catalogue screens tools to easily setup analytical record relationships','YesNo'),
+('EDIInvoicesShippingBudget',NULL,NULL,'The budget code used to allocate shipping charges to when processing EDI Invoice messages','free'),
 ('emailLibrarianWhenHoldIsPlaced','0',NULL,'If ON, emails the librarian whenever a hold is placed','YesNo'),
 ('EnableBorrowerFiles','0',NULL,'If enabled, allows librarians to upload and attach arbitrary files to a borrower record.','YesNo'),
 ('EnableOpacSearchHistory','1','YesNo','Enable or disable opac search history',''),

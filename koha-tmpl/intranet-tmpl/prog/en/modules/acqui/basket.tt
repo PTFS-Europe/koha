@@ -54,6 +54,13 @@
                 window.open(url, 'TransferOrder','width=600,height=400,toolbar=false,scrollbars=yes');
             }
 
+            function confirm_ediorder() {
+                var is_confirmed = confirm(_("Are you sure you want to close this basket and generate an Edifact order?"));
+                if (is_confirmed) {
+                    window.location = "[% script_name %]?op=edi_confirm&basketno=[% basketno %]";
+                }
+            }
+
 //]]>
 </script>
 [% ELSE %]
@@ -160,7 +167,7 @@
         </div>
     [% ELSE %]
     <div class="yui-b">
-        [% UNLESS ( confirm_close ) %]
+        [% IF !confirm_close && !edi_confirm %]
         [% UNLESS ( selectbasketg ) %]
             [% UNLESS ( closedate ) %]
                 <div id="toolbar" class="btn-toolbar">
@@ -176,6 +183,9 @@
                         </div>
                     [% END %]
                         <div class="btn-group"><a href="[% script_name %]?op=export&amp;basketno=[% basketno %]&amp;booksellerid=[% booksellerid %]" class="btn btn-small" id="exportbutton"><i class="icon-download"></i> Export this basket as CSV</a></div>
+                        [% IF ediaccount %]
+                        <div class="btn-group"><a href="/cgi-bin/koha/acqui/edi_ean.pl?op=ediorder&amp;basketno=[% basketno %]&amp;booksellerid=[% booksellerid %]" class="btn btn-small" id="ediorderbutton"><i class="icon-download"></i>Create edifact order</a></div>
+                        [% END %]
                 </div>
 <!-- Modal for confirm deletion box-->
                 <div class="modal hide" id="deleteBasketModal" tabindex="-1" role="dialog" aria-labelledby="delbasketModalLabel" aria-hidden="true">
@@ -659,6 +669,28 @@
             [% END %]
             <input type="hidden" id="basketno" value="[% basketno %]" name="basketno" />
             <input type="hidden" value="close" name="op" />
+            <input type="hidden" name="booksellerid" value="[% booksellerid %]" />
+            <input type="hidden" name="confirm" value="1" />
+            <input type="hidden" name="basketgroupname" value="[% basketgroupname %]" />
+            <input type="submit" class="approve" value="Yes, close (Y)" accesskey="y" />
+            <input type="submit" class="deny" value="No, don't close (N)" accesskey="n" onclick="javascript:window.location='/cgi-bin/koha/acqui/basket.pl?basketno=[% basketno %]';return false;" />
+        </form>
+        </div>
+    [% END %]
+[% IF edi_confirm %]
+        <div id="closebasket_needsconfirmation" class="dialog alert">
+
+        <form action="/cgi-bin/koha/acqui/basket.pl" class="confirm">
+            <h1>Are you sure you want to generate an edifact order and close basket [% basketname|html %]?</h1>
+            [% IF CAN_user_acquisition_group_manage %]
+            <p>
+            <label for="createbasketgroup">Attach this basket to a new basket group with the same name</label>
+            <input type="checkbox" id="createbasketgroup" name="createbasketgroup"/>
+            </p>
+            [% END %]
+            <input type="hidden" id="basketno" value="[% basketno %]" name="basketno" />
+            <input type="hidden" value="ediorder" name="op" />
+            <input type="hidden" name="ean" value="[% ean %]" />
             <input type="hidden" name="booksellerid" value="[% booksellerid %]" />
             <input type="hidden" name="confirm" value="1" />
             <input type="hidden" name="basketgroupname" value="[% basketgroupname %]" />
