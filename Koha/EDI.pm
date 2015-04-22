@@ -414,6 +414,7 @@ sub process_quote {
 sub quote_item {
     my ( $item, $quote, $basketno ) = @_;
 
+    my $schema = Koha::Database->new()->schema();
     # create biblio record
     my $logger = Log::Log4perl->get_logger();
     if ( !$basketno ) {
@@ -467,7 +468,7 @@ sub quote_item {
     }
 
     my $budget =
-      _get_budget( $quote->schema, $item->girfield('fund_allocation') );
+      _get_budget( $schema, $item->girfield('fund_allocation') );
 
     my $skip = '0';
     if ( !$budget ) {
@@ -486,7 +487,6 @@ sub quote_item {
     my %ordernumber;
     my %budgets;
     my $item_hash;
-    my $schema = $quote->schema;
 
     if ( !$skip ) {
         $order_hash->{budget_id} = $budget->budget_id;
