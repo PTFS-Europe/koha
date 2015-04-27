@@ -150,12 +150,12 @@ sub validate_borrower {
         if ( $count == 1 ) {
             $brw = $brws->next;
         } elsif ( $count > 1 ) {
-            $brw = $brws;
+            $brw = $brws;       # found multiple results
         }
     } elsif ( $count == 1 ) {
         $brw = $brws->next;
     } else {
-        die "We have more than one result for cardnumber $input."
+        $brw = $brws;           # found multiple results
     }
 
     return ( $count, $brw );
