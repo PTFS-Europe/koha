@@ -24,7 +24,6 @@ use Carp;
 use DateTime;
 use Readonly;
 use Business::ISBN;
-use Encode qw(from_to);
 use Koha::Database;
 use C4::Budgets qw( GetBudget );
 
@@ -633,7 +632,6 @@ sub _interchange_sr_identifier {
 sub encode_text {
     my $string = shift;
     if ($string) {
-        from_to( $string, 'utf8', 'iso-8859-1' );
         $string =~ s/[?]/??/g;
         $string =~ s/'/?'/g;
         $string =~ s/:/?:/g;
