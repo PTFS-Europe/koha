@@ -19,6 +19,7 @@ package Koha::Edifact::Segment;
 
 use strict;
 use warnings;
+use utf8;
 
 sub new {
     my ( $class, $parm_ref ) = @_;

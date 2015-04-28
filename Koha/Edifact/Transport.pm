@@ -19,6 +19,7 @@ package Koha::Edifact::Transport;
 
 use strict;
 use warnings;
+use utf8;
 use DateTime;
 use Carp;
 use English qw{ -no_match_vars };

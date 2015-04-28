@@ -19,6 +19,7 @@ package Koha::Edifact::Message;
 
 use strict;
 use warnings;
+use utf8;
 
 use Koha::Edifact::Line;
 

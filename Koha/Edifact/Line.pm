@@ -19,6 +19,7 @@ package Koha::Edifact::Line;
 
 use strict;
 use warnings;
+use utf8;
 
 use MARC::Record;
 use MARC::Field;
@@ -367,7 +368,13 @@ sub author {
     my $self  = shift;
     my $field = q{010};
     if ( exists $self->{item_description}->{$field} ) {
-        return $self->{item_description}->{$field};
+        my $a              = $self->{item_description}->{$field};
+        my $forename_field = q{011};
+        if ( exists $self->{item_description}->{$forename_field} ) {
+            $a .= ', ';
+            $a .= $self->{item_description}->{$forename_field};
+        }
+        return $a;
     }
     return;
 }

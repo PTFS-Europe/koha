@@ -19,6 +19,7 @@
 
 use warnings;
 use strict;
+use utf8;
 
 # Handles all the edi processing for a site
 # loops through the vendor_edifact records and uploads and downloads
