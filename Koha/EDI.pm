@@ -391,12 +391,8 @@ sub quote_item {
                 $item->girfield( 'fund_allocation', $occurence ) );
 
             if ( !$budget ) {
-                my $bad_budget =
-                  $item->girfield( 'fund_allocation', $occurence );
                 carp 'Skipping line with no budget info';
-                $logger->trace(
-                    "girfield skipped for invalid budget:$bad_budget");
-                ++$occurence;    ## lets look at the next one not this one again
+                $logger->trace('girfield skipped for invalid budget');
                 next;
             }
 
