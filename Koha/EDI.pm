@@ -33,7 +33,6 @@ use C4::Biblio qw( AddBiblio TransformKohaToMarc GetMarcBiblio );
 use Koha::Edifact::Order;
 use Koha::Edifact;
 use Log::Log4perl;
-use Text::Unidecode;
 
 our $VERSION = 1.1;
 our @EXPORT_OK =
@@ -84,13 +83,12 @@ sub create_edi_order {
 
     # ingest result
     if ($order_file) {
-        my $order_ascii = unidecode($order_file); # protest against jon latin chars
         if ($noingest) {    # allows scripts to produce test files
-            return $order_ascii;
+            return $order_file;
         }
         my $order = {
             message_type  => 'ORDERS',
-            raw_msg       => $order_ascii,
+            raw_msg       => $order_file,
             vendor_id     => $vendor->vendor_id,
             status        => 'Pending',
             basketno      => $basketno,
