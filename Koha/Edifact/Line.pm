@@ -415,8 +415,6 @@ sub extract_gir {
     my %qmap = (
         LAC => 'barcode',
         LCL => 'classification',
-        LCO => 'item_unique_id',
-        LCV => 'copy_value',
         LFN => 'fund_allocation',
         LLN => 'loan_category',
         LLO => 'branch',
@@ -424,6 +422,7 @@ sub extract_gir {
         LSQ => 'collection_code',
         LST => 'stock_category',
         LVT => 'servicing_instruction',
+        LCO => 'item_unique_id',
     );
 
     my $set_qualifier = $s->elem( 0, 0 );    # copy number
