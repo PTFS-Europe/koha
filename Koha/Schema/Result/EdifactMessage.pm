@@ -66,7 +66,7 @@ __PACKAGE__->table("edifact_messages");
 
 =head2 raw_msg
 
-  data_type: 'mediumtext'
+  data_type: 'text'
   is_nullable: 1
 
 =head2 filename
@@ -98,7 +98,7 @@ __PACKAGE__->add_columns(
   "basketno",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
   "raw_msg",
-  { data_type => "mediumtext", is_nullable => 1 },
+  { data_type => "text", is_nullable => 1 },
   "filename",
   { data_type => "text", is_nullable => 1 },
   "deleted",
@@ -195,8 +195,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07033 @ 2015-02-25 10:41:36
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:l4h8AsG2RJupxXQcEw8yzQ
+# Created by DBIx::Class::Schema::Loader v0.07033 @ 2014-09-18 16:21:46
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:aOMWguyzdK9caRRecsuTmQ
 
 
 1;
