@@ -26,8 +26,7 @@ use Business::ISBN;
 use DateTime;
 use C4::Context;
 use Koha::Database;
-use C4::Acquisition qw( NewBasket );
-use C4::Suggestions qw( ModSuggestion );
+use C4::Acquisition qw( NewBasket AddInvoice ModReceiveOrder );
 use C4::Items qw(AddItem);
 use C4::Biblio qw( AddBiblio TransformKohaToMarc GetMarcBiblio );
 use Koha::Edifact::Order;
@@ -106,9 +105,10 @@ sub create_edi_order {
 
 sub process_invoice {
     my $invoice_message = shift;
-    my $schema          = Koha::Database->new()->schema();
-    my $logger          = Log::Log4perl->get_logger();
+    my $database        = Koha::Database->new();
+    my $schema          = $database->schema();
     my $vendor_acct;
+    my $logger = Log::Log4perl->get_logger();
     my $edi =
       Koha::Edifact->new( { transmission => $invoice_message->raw_msg, } );
     my $messages = $edi->message_array();
@@ -139,18 +139,15 @@ sub process_invoice {
             }
             $invoice_message->edi_acct( $vendor_acct->id );
             $logger->trace("Adding invoice:$invoicenumber");
-            my $new_invoice = $schema->resultset('Aqinvoice')->create(
-                {
-                    invoicenumber         => $invoicenumber,
-                    booksellerid          => $invoice_message->vendor_id,
-                    shipmentdate          => $msg_date,
-                    billingdate           => $tax_date,
-                    shipmentcost          => $shipmentcharge,
-                    shipmentcost_budgetid => $vendor_acct->shipment_budget,
-                    message_id            => $invoice_message->id,
-                }
+            my $invoiceid = AddInvoice(
+                invoicenumber         => $invoicenumber,
+                booksellerid          => $invoice_message->vendor_id,
+                shipmentdate          => $msg_date,
+                billingdate           => $tax_date,
+                shipmentcost          => $shipmentcharge,
+                shipmentcost_budgetid => $vendor_acct->shipment_budget,
+                message_id            => $invoice_message->id,
             );
-            my $invoiceid = $new_invoice->invoiceid;
             $logger->trace("Added as invoiceno :$invoiceid");
             my $lines = $msg->lineitems();
 
@@ -159,61 +156,32 @@ sub process_invoice {
                 $logger->trace( "Receipting order:$ordernumber Qty: ",
                     $line->quantity );
 
+                # handle old basketno/ordernumber references
+                if ( $ordernumber =~ m{\d+\/(\d+)}xms ) {
+                    $ordernumber = $1;
+                }
                 my $order = $schema->resultset('Aqorder')->find($ordernumber);
 
       # ModReceiveOrder does not validate that $ordernumber exists validate here
                 if ($order) {
-
-                    # check suggestions
-                    my $s = $schema->resultset('Suggestion')->search(
+                        my $price = $line->price_net;
+                        if (!defined $price ) {
+                             $price = $line->price_gross;
+                        }
+                    ModReceiveOrder(
                         {
-                            biblionumber => $order->biblionumber,
+                            biblionumber         => $order->biblionumber->biblionumber,
+                            ordernumber          => $ordernumber,
+                            quantityreceived     => $line->quantity,
+                            cost                 => $price,
+                            invoiceid            => $invoicenumber,
+                            datereceived         => $msg_date,
+                            budget_id            => $order->budget_id,
+                            rrp                  => $order->rrp,
+                            ecost                => $order->ecost,
+                            received_itemnumbers => [],
                         }
-                    )->single;
-                    if ($s) {
-                        ModSuggestion(
-                            {
-                                suggestionid => $s->suggestionid,
-                                STATUS       => 'AVAILABLE',
-                            }
-                        );
-                    }
-
-                    my $price = $line->price_net;
-                    if ( !defined $price )
-                    {    # no net price so generate it from lineitem amount
-                        $price = $line->amt_lineitem;
-                        if ( $price and $line->quantity > 1 ) {
-                            $price /= $line->quantity;    # div line cost by qty
-                        }
-                    }
-                    if ( $order->quantity > $line->quantity ) {
-                        my $ordered = $order->quantity;
-
-                        # part receipt
-                        $order->orderstatus('partial');
-                        $order->quantity( $ordered - $line->quantity );
-                        $order->update;
-                        my $received_order = $order->copy(
-                            {
-                                ordernumber      => undef,
-                                quantity         => $line->quantity,
-                                quantityreceived => $line->quantity,
-                                orderstatus      => 'complete',
-                                unitprice        => $price,
-                                invoiceid        => $invoiceid,
-                                datereceived     => $msg_date,
-                            }
-                        );
-                    }
-                    else {    # simple receipt all copies on order
-                        $order->quantityreceived( $line->quantity );
-                        $order->datereceived($msg_date);
-                        $order->invoiceid($invoiceid);
-                        $order->unitprice($price);
-                        $order->orderstatus('complete');
-                        $order->update;
-                    }
+                    );
                 }
                 else {
                     $logger->error(
