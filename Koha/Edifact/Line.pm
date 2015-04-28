@@ -470,7 +470,6 @@ sub amt_total {
     return $self->moa_amt('128');
 }
 
-# Used to give price in currency other than that given in price
 sub amt_unitprice {
     my $self = shift;
     return $self->moa_amt('146');
@@ -479,7 +478,7 @@ sub amt_unitprice {
 # item amount after allowances excluding tax
 sub amt_lineitem {
     my $self = shift;
-    return $self->moa_amt('203');
+    return $self->moa_amt('146');
 }
 
 sub pri_price {
