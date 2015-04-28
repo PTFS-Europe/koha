@@ -205,8 +205,6 @@ sub process_invoice {
                                 datereceived     => $msg_date,
                             }
                         );
-                        transfer_items( $line, $order, $received_order );
-                        receipt_items( $line, $received_order->ordernumber );
                     }
                     else {    # simple receipt all copies on order
                         $order->quantityreceived( $line->quantity );
@@ -215,7 +213,6 @@ sub process_invoice {
                         $order->unitprice($price);
                         $order->orderstatus('complete');
                         $order->update;
-                        receipt_items( $line, $ordernumber );
                     }
                 }
                 else {
@@ -232,94 +229,6 @@ sub process_invoice {
 
     $invoice_message->status('received');
     $invoice_message->update;    # status and basketno link
-    return;
-}
-
-sub receipt_items {
-    my ( $inv_line, $ordernumber );
-    my $schema   = $inv_line->schema;
-    my $logger   = Log::Log4perl->get_logger();
-    my $quantity = $inv_line->quantity;
-
-    # itemnumber is not a foreign key ??? makes this a bit cumbersome
-    my @item_links = $schema->resultset('AqordersItem')->search(
-        {
-            ordernumber => $ordernumber,
-        }
-    );
-    my %branch_map;
-    foreach my $ilink (@item_links) {
-        my $item = $schema->resultset('Item')->find( $ilink->itemnumber );
-        my $b    = $item->homebranch->branchcode;
-        if ( !exists $branch_map{$b} ) {
-            @{ $branch_map{$b} } = [];
-        }
-        push @{ $branch_map{$b} }, $item;
-    }
-    my $gir_occurence = 0;
-    while ( $gir_occurence < $quantity ) {
-        my $branch = $inv_line->girfield( 'branch', $gir_occurence );
-        my $item = shift @{ $branch_map{$branch} };
-        if ($item) {
-            my $barcode = $inv_line->girfield( 'barcode', $gir_occurence );
-            if ( $barcode && !$item->barcode ) {
-                $item->barcode($barcode);
-            }
-
-            # clear not for loan flag
-            if ( $item->notforloan == -1 ) {
-                $item->notforloan(0);
-            }
-            $item->update;
-        }
-        else {
-            $logger->warn("Unmatched item at branch:$branch");
-        }
-        ++$gir_occurence;
-    }
-    return;
-
-}
-
-sub transfer_items {
-    my ( $inv_line, $order_from, $order_to );
-
-    # Transfer x items from the orig order to a completed partial order
-    my $quantity = $inv_line->quantity;
-    my $gocc     = 0;
-    my %mapped_by_branch;
-    while ( $gocc < $quantity ) {
-        my $branch = $inv_line->girfield( 'branch', $gocc );
-        if ( !exists $mapped_by_branch{$branch} ) {
-            $mapped_by_branch{$branch} = 1;
-        }
-        else {
-            $mapped_by_branch{$branch}++;
-        }
-    }
-    my $schema = $order_from->schema;
-
-    my @item_links = $schema->resultset('AqordersItem')->search(
-        {
-            ordernumber => $order_from->ordernumber,
-        }
-    );
-    foreach my $ilink (@item_links) {
-        my $item     = $schema->resultset('Item')->find( $ilink->itemnumber );
-        my $i_branch = $item->homebranch;
-        if ( exists $mapped_by_branch{$i_branch}
-            && $mapped_by_branch{$i_branch} > 0 )
-        {
-            $ilink->ordernumber( $order_to->ordernumber );
-            $ilink->update;
-            --$quantity;
-            --$mapped_by_branch{$i_branch};
-        }
-        if ( $quantity < 1 ) {
-            last;
-        }
-    }
-
     return;
 }
 
