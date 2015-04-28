@@ -164,16 +164,12 @@ sub process_invoice {
 
       # ModReceiveOrder does not validate that $ordernumber exists validate here
                 if ($order) {
-                        my $price = $line->price_net;
-                        if (!defined $price ) {
-                             $price = $line->price_gross;
-                        }
                     ModReceiveOrder(
                         {
                             biblionumber         => $order->biblionumber->biblionumber,
                             ordernumber          => $ordernumber,
                             quantityreceived     => $line->quantity,
-                            cost                 => $price,
+                            cost                 => $line->price_net,
                             invoiceid            => $invoicenumber,
                             datereceived         => $msg_date,
                             received_itemnumbers => [],
