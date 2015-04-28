@@ -19,6 +19,7 @@ package Koha::Edifact::Segment;
 
 use strict;
 use warnings;
+use utf8;
 
 sub new {
     my ( $class, $parm_ref ) = @_;
@@ -131,17 +132,12 @@ sub de_escape {
 __END__
 
 =head1 NAME
-   Koha::Edifact::Segment
 
-=head1 SYNOPSIS
-
+Koha::Edifact::Segment - Class foe Edifact Segments
 
 =head1 DESCRIPTION
 
  Used by Koha::Edifact to represent segments in a parsed Edifact message
-
-
-=head1 BUGS
 
 
 =head1 METHODS

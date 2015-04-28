@@ -458,7 +458,6 @@ sub get_order_infos {
     $line{basketno}       = $basketno;
     $line{budget_name}    = $budget->{budget_name};
     $line{rrp} = ConvertCurrency( $order->{'currency'}, $line{rrp} ); # FIXME from comm
-    $line{gstrate} ||= 0;
     if ( $bookseller->{'listincgst'} ) {
         $line{rrpgsti} = sprintf( "%.2f", $line{rrp} );
         $line{gstgsti} = sprintf( "%.2f", $line{gstrate} * 100 );

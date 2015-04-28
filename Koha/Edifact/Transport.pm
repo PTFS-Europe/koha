@@ -19,6 +19,7 @@ package Koha::Edifact::Transport;
 
 use strict;
 use warnings;
+use utf8;
 use DateTime;
 use Carp;
 use English qw{ -no_match_vars };
@@ -384,7 +385,8 @@ sub message_hash {
 __END__
 
 =head1 NAME
-   Koha::Edifact::Transport
+
+Koha::Edifact::Transport
 
 =head1 SYNOPSIS
 
@@ -397,8 +399,6 @@ $downlod->download_messages('QUOTE');
 Module that handles Edifact download and upload transport
 currently can use sftp or ftp
 Or FILE to access a local directory (useful for testing)
-
-=head1 BUGS
 
 
 =head1 METHODS

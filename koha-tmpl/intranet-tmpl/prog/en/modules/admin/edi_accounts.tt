@@ -127,7 +127,7 @@
      [% FOREACH qualifier IN code_qualifiers %]
         [% IF qualifier.code == account.id_code_qualifier %]
            <option value="[% qualifier.code %]" selected="selected">
-		[% qualifier.description %]
+               [% qualifier.description %]
            </option>
         [% ELSE %]
            <option value="[% qualifier.code %]">
@@ -143,15 +143,27 @@
   </li>
   <li>
      <label for="quotes_enabled">Quotes enabled: </label>
-     <input type="checkbox" name="quotes_enabled" id="quotes_enabled" value="[% account.quotes_enabled %]" [% IF account.quotes_enabled %]checked[% END %] />
+      [% IF account.quotes_enabled %]
+     <input type="checkbox" name="quotes_enabled" id="quotes_enabled" value="[% account.quotes_enabled %]" checked />
+      [% ELSE %]
+     <input type="checkbox" name="quotes_enabled" id="quotes_enabled" value="[% account.quotes_enabled %]" />
+      [% END %]
   </li>
   <li>
      <label for="orders_enabled">Orders enabled: </label>
-     <input type="checkbox" name="orders_enabled" id="orders_enabled" value="[% account.orders_enabled %]" [% IF account.orders_enabled %]checked[% END %] />
+[% IF account.orders_enabled %]
+     <input type="checkbox" name="orders_enabled" id="orders_enabled" value="[% account.orders_enabled %]" checked />
+[% ELSE %]
+     <input type="checkbox" name="orders_enabled" id="orders_enabled" value="[% account.orders_enabled %]" />
+[% END %]
   </li>
   <li>
      <label for="invoices_enabled">Invoices enabled: </label>
-     <input type="checkbox" name="invoices_enabled" id="invoices_enabled" value="[% account.invoices_enabled %]" [% IF account.invoices_enabled %]checked[% END %] />
+[% IF account.invoices_enabled %]
+     <input type="checkbox" name="invoices_enabled" id="invoices_enabled" value="[% account.invoices_enabled %]" checked />
+[% ELSE %]
+     <input type="checkbox" name="invoices_enabled" id="invoices_enabled" value="[% account.invoices_enabled %]" />
+[% END %]
   </li>
   </ol>
   </fieldset>

@@ -249,16 +249,12 @@ sub msgcharset {
 __END__
 
 =head1 NAME
-   Koha::Edifact
 
-=head1 SYNOPSIS
+Edifact - Edifact message handler
 
 =head1 DESCRIPTION
 
    Koha module for parsing Edifact messages
-
-=head1 BUGS
-
 
 =head1 SUBROUTINES
 

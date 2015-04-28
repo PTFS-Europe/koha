@@ -87,7 +87,7 @@
      [% FOREACH qualifier IN code_qualifiers %]
         [% IF qualifier.code == ean.id_code_qualifier %]
            <option value="[% qualifier.code %]" selected="selected">
-		[% qualifier.description %]
+               [% qualifier.description %]
            </option>
         [% ELSE %]
            <option value="[% qualifier.code %]">

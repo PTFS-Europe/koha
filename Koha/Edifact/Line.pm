@@ -1,6 +1,6 @@
 package Koha::Edifact::Line;
 
-# Copyright 2014 PTFS-Europe Ltd
+# Copyright 2014, 2015 PTFS-Europe Ltd
 #
 # This file is part of Koha.
 #
@@ -19,6 +19,7 @@ package Koha::Edifact::Line;
 
 use strict;
 use warnings;
+use utf8;
 
 use MARC::Record;
 use MARC::Field;
@@ -367,7 +368,13 @@ sub author {
     my $self  = shift;
     my $field = q{010};
     if ( exists $self->{item_description}->{$field} ) {
-        return $self->{item_description}->{$field};
+        my $a              = $self->{item_description}->{$field};
+        my $forename_field = q{011};
+        if ( exists $self->{item_description}->{$forename_field} ) {
+            $a .= ', ';
+            $a .= $self->{item_description}->{$forename_field};
+        }
+        return $a;
     }
     return;
 }
@@ -399,6 +406,24 @@ sub publication_date {
     return;
 }
 
+sub dewey_class {
+    my $self  = shift;
+    my $field = q{230};
+    if ( exists $self->{item_description}->{$field} ) {
+        return $self->{item_description}->{$field};
+    }
+    return;
+}
+
+sub lc_class {
+    my $self  = shift;
+    my $field = q{240};
+    if ( exists $self->{item_description}->{$field} ) {
+        return $self->{item_description}->{$field};
+    }
+    return;
+}
+
 sub girfield {
     my ( $self, $field, $occ ) = @_;
 
@@ -414,15 +439,24 @@ sub extract_gir {
     my $s    = shift;
     my %qmap = (
         LAC => 'barcode',
+        LAF => 'first_accession_number',
+        LAL => 'last_accession_number',
         LCL => 'classification',
         LCO => 'item_unique_id',
         LCV => 'copy_value',
+        LFH => 'feature_heading',
         LFN => 'fund_allocation',
+        LFS => 'filing_suffix',
         LLN => 'loan_category',
         LLO => 'branch',
+        LLS => 'label_sublocation',
+        LQT => 'part_order_quantity',
+        LRS => 'record_sublocation',
         LSM => 'shelfmark',
         LSQ => 'collection_code',
         LST => 'stock_category',
+        LSZ => 'size_code',
+        LVC => 'coded_servicing_instruction',
         LVT => 'servicing_instruction',
     );
 
@@ -545,7 +579,8 @@ sub tax {
 __END__
 
 =head1 NAME
-   Koha::Edifact::Line
+
+Koha::Edifact::Line
 
 =head1 SYNOPSIS
 
@@ -557,6 +592,7 @@ __END__
 
 =head1 BUGS
 
+  None documented at present
 
 =head1 Methods
 

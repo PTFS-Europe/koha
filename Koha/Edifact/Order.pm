@@ -2,6 +2,7 @@ package Koha::Edifact::Order;
 
 use strict;
 use warnings;
+use utf8;
 
 # Copyright 2014 PTFS-Europe Ltd
 #
@@ -24,7 +25,6 @@ use Carp;
 use DateTime;
 use Readonly;
 use Business::ISBN;
-use Encode qw(from_to);
 use Koha::Database;
 use C4::Budgets qw( GetBudget );
 
@@ -323,10 +323,10 @@ sub name_and_address {
 sub order_line {
     my ( $self, $linenumber, $orderline ) = @_;
 
-    my $schema       = $self->{schema};
-    if (! $orderline->biblionumber ) {
-# skip orderline with no bib details
-       return;
+    my $schema = $self->{schema};
+    if ( !$orderline->biblionumber )
+    {                        # cannot generate an orderline without a bib record
+        return;
     }
     my $biblionumber = $orderline->biblionumber->biblionumber;
     my @biblioitems  = $schema->resultset('Biblioitem')
@@ -375,7 +375,7 @@ sub order_line {
             itemtype  => $biblioitem->itemtype,
             shelfmark => $biblioitem->cn_class,
         };
-        my $branch = $orderline->basketno->branch->branchcode;
+        my $branch = $orderline->basketno->deliveryplace;
         if ($branch) {
             $item_hash->{branch} = $branch;
         }
@@ -633,7 +633,6 @@ sub _interchange_sr_identifier {
 sub encode_text {
     my $string = shift;
     if ($string) {
-        from_to( $string, 'utf8', 'iso-8859-1' );
         $string =~ s/[?]/??/g;
         $string =~ s/'/?'/g;
         $string =~ s/:/?:/g;
@@ -646,7 +645,8 @@ sub encode_text {
 __END__
 
 =head1 NAME
-   Koha::Edifact::Order
+
+Koha::Edifact::Order
 
 =head1 SYNOPSIS
 
@@ -654,19 +654,16 @@ Format an Edifact Order message from a Koha basket
 
 =head1 DESCRIPTION
 
-
 Generates an Edifact format Order message for a Koha basket.
 Normally the only methods used directly by the caller would be
 new to set up the message, encode to return the formatted message
 and filename to obtain a name under which to store the message
-
 
 =head1 BUGS
 
 Should integrate into Koha::Edifact namespace
 Can caller interface be made cleaner?
 Make handling of GIR segments more customizable
-
 
 =head1 METHODS
 

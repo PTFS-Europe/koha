@@ -19,6 +19,7 @@ package Koha::Edifact::Message;
 
 use strict;
 use warnings;
+use utf8;
 
 use Koha::Edifact::Line;
 
@@ -221,17 +222,12 @@ sub lineitems {
 __END__
 
 =head1 NAME
-   Koha::Edifact::Message
 
-=head1 SYNOPSIS
-
+Koha::Edifact::Message
 
 =head1 DESCRIPTION
 
 Class modelling an Edifact Message for parsing
-
-=head1 BUGS
-
 
 =head1 METHODS
 
@@ -244,12 +240,10 @@ Class modelling an Edifact Message for parsing
 
    Colin Campbell <colin.campbell@ptfs-europe.com>
 
-
 =head1 COPYRIGHT
 
    Copyright 2014, PTFS-Europe Ltd
    This program is free software, You may redistribute it under
    under the terms of the GNU General Public License
-
 
 =cut
