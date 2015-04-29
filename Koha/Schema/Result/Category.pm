@@ -83,12 +83,6 @@ __PACKAGE__->table("categories");
   data_type: 'smallint'
   is_nullable: 1
 
-=head2 illlimit
-
-  data_type: 'varchar'
-  is_nullable: 1
-  size: 60
-
 =head2 reservefee
 
   data_type: 'decimal'
@@ -147,8 +141,6 @@ __PACKAGE__->add_columns(
   { data_type => "tinyint", is_nullable => 1 },
   "issuelimit",
   { data_type => "smallint", is_nullable => 1 },
-  "illlimit",
-  { data_type => "varchar", is_nullable => 1, size => 60 },
   "reservefee",
   { data_type => "decimal", is_nullable => 1, size => [28, 6] },
   "hidelostitems",

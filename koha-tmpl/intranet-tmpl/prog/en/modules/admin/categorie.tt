@@ -173,7 +173,6 @@
 			[% END %]
 					</select></li>
 	<li><label for="reservefee">Hold fee: </label><input type="text" name="reservefee" id="reservefee" size="6" value="[% reservefee %]" /></li>
-	<li><label for="illlimit">ILL Request limit: </label><input type="text" name="illlimit" id="illlimit" size="6" value="[% illlimit %]" /></li>
     <li>
         <label for="category_type" class="required">Category type: </label>
         <select name="category_type" id="category_type">
@@ -295,7 +294,6 @@
 	<tr><th scope="row">Enrollment fee: </th><td>[% enrolmentfee %]</td></tr>
 	<tr><th scope="row">Receives overdue notices: </th><td>[% IF ( overduenoticerequired ) %]Yes[% ELSE %]No[% END %]</td></tr>
 	<tr><th scope="row">Lost items in staff client</th><td>[% IF ( hidelostitems ) %]Hidden by default[% ELSE %]Shown[% END %]</td></tr>
-	<tr><th scope="row">ILL Request limit: </th><td>[% illlimit %]</td></tr>
 	<tr><th scope="row">Hold fee: </th><td>[% reservefee %]</td></tr>
     <tr>
         <th scope="row">Default privacy: </th>
@@ -353,7 +351,6 @@
 			<th scope="col">Overdue</th>
             <th scope="col">Lost items</th>
  			<th scope="col">Hold fee</th>
-			<th scope="col">ILL Req. limit</th>
             [% IF ( EnhancedMessagingPreferences ) %]
             <th scope="col">Messaging</th>
             [% END %]
@@ -392,7 +389,6 @@
                         <td>[% IF ( loo.overduenoticerequired ) %]Yes[% ELSE %]No[% END %]</td>
                         <td>[% IF ( loo.hidelostitems ) %]Hidden[% ELSE %]Shown[% END %]</td>
                         <td>[% loo.reservefee %]</td>
-                        <td>[% loo.illlimit %]</td>
                         [% IF ( EnhancedMessagingPreferences ) %]
                         <td style="white-space: nowrap; font-size:80%;">
                             [% IF ( loo.messaging_prefs ) %]
