@@ -132,7 +132,7 @@ sub check_pidfile {
     flock $fh => LOCK_EX or log_exit("$0: flock $pidfile: $!");
 
     sysseek $fh, 0, SEEK_SET or log_exit("$0: sysseek $pidfile: $!");
-    trucate $fh, 0 or log_exit("$0: truncate $pidfile: $!");
+    truncate $fh, 0 or log_exit("$0: truncate $pidfile: $!");
     print $fh, "$$\n" or log_exit("$0: print $pidfile: $!");
 
     return $fh;
