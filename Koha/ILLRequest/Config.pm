@@ -246,6 +246,20 @@ sub getCredentials {
     };
 }
 
+=head3 getCensorship
+
+    my $censoredValues = $config->getCensorship;
+
+Return our censorship values for the OPAC as loaded from the koha-conf.xml, or
+the fallback value (no censorship).
+
+=cut
+
+sub getCensorship {
+    my ( $self ) = @_;
+    return $self->{configuration}->{censorship};
+}
+
 =head3 getApiUrl
 
     my $api_url = $config->getApiUrl;
@@ -282,6 +296,9 @@ sub _load_configuration {
     # Default data structure to be returned
     my $configuration = {
         api_url         => $xml_api_url || 'http://apitest.bldss.bl.uk',
+        censorship      => {
+            censor_notes_staff => 0,
+        },
         credentials     => {
             api_application => {},
             api_keys        => {},
@@ -325,6 +342,10 @@ sub _load_configuration {
         key  => $from_xml->{application}->{key},
         auth => $from_xml->{application}->{auth},
     };
+
+    # Censorship
+    $configuration->{censorship}->{censor_notes_staff} = 1
+        if ( 'hide' eq $from_xml->{staff_request_comments} );
 
     die "No DEFAULT_FORMATS has been defined in koha-conf.xml, but UNMEDIATEDILL is active."
         if ( $unmediated && !$configuration->{default_formats}->{default} );

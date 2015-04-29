@@ -266,6 +266,21 @@ sub getPrices {
     return $prices;
 }
 
+=head3 getCensorNotesStaff
+
+    my $bool = $abstract->getCensorNotesStaff;
+
+Return a boolean indicating whether we should be censoring staff notes or not,
+as determined by our configuration file.
+
+=cut
+
+sub getCensorNotesStaff {
+    my ( $self ) = @_;
+    my $censorship = $self->_config->getCensorship;
+    return $censorship->{censor_notes_staff};
+}
+
 =head3 getLimits
 
     my $limit_rules = $abstract->getLimits( {

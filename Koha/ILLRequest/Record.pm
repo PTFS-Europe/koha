@@ -299,15 +299,16 @@ values, if the fields have been defined by the yaml config.
 =cut
 
 sub getFullDetails {
-    my $self = shift;
-    my %details;
-    foreach my $datum ( keys ${$self}{data} ) {
-        my $name = ${$self}{data}{$datum}{name};
-        if ($name) {
-            $details{$datum} = [ $name, ${$self}{data}{$datum}{value} ];
+    my ( $self, $params ) = @_;
+    my $details = {};
+    while ( my ( $key, $value ) = each $self->{data} ) {
+        if ( $value->{name} ) {
+            $details->{$key} = [ $value->{name}, $value->{value} ]
+                unless ( 'primary_notes_staff' eq $key
+                         and $params->{censor_notes_staff} );
         }
     }
-    return \%details;
+    return $details;
 }
 
 =head3 update

@@ -155,6 +155,11 @@ __PAZPAR2_TOGGLE_XML_POST__
     </borrower_category>
    -->
   </configuration>
+  <!-- Plugins -->
+  <!-- How should we treat staff comments?
+       - hide: don't show in OPAC
+       - show: show in OPAC -->
+  <staff_request_comments>hide</staff_request_comments>
  </interlibrary_loans>
  <backupdir>__BACKUP_DIR__</backupdir>
  <!-- Enable the two following to allow superlibrarians to download

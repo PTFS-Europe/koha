@@ -523,7 +523,7 @@ The former is for display and should not be edited by hand.  The latter can be e
 sub getForEditing {
     my ( $self, $params ) = @_;
     $params->{id_prefix} = $self->id_prefix;
-    my $record = $self->record->getFullDetails($params);
+    my $record = $self->record->getFullDetails($self->_censor($params));
     my $status = $self->status->getFullStatus($params);
 
     return [ $record, $status ];
@@ -870,6 +870,21 @@ sub id_prefix {
     } );
     $prefix .= "-" if ( $prefix );
     return $prefix;
+}
+
+=head3 _censor
+
+    my $params = $illRequest->_censor($params);
+
+Return $params, modified to reflect our censorship requirements.
+
+=cut
+
+sub _censor {
+    my ( $self, $params ) = @_;
+    $params->{censor_notes_staff} = $self->_abstract->getCensorNotesStaff
+        if ( $params->{opac} );
+    return $params;
 }
 
 =head1 AUTHOR

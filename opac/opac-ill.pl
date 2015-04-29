@@ -115,7 +115,7 @@ if ( fail(1) ) {
 
 } elsif ( $op eq 'request_comment' ) {
     my $request = $illRequests->find($query);
-    $reply = $request->getForEditing,
+    $reply = $request->getForEditing( { opac => 1 } ),
     $template->param(
         forward => $here . "?op=request_update",
         back    => $here,
