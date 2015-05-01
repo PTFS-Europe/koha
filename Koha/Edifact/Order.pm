@@ -334,13 +334,16 @@ sub order_line {
     my $biblioitem = $biblioitems[0];    # makes the assumption there is 1 only
                                          # or else all have same details
 
-    # we are assuming the first id in isbn is an
-    # isbn or ean
-    my @identifiers = split /\s+/, $biblioitem->isbn;
-    my $id1 = shift @identifiers;
+    # if theres an ean or issn that probably came from quote
+    # otherwise we assume first id in isbn will be valid ean
+    my @identifiers =
+      ( $biblioitem->ean, $biblioitem->issn, $biblioitem->isbn );
+    my $id_string = join ' ', @identifiers;
+    @identifiers = split /\s+/, $id_string;
+    $id_string = shift @identifiers;
 
     # LIN line-number in msg :: if we had a 13 digit ean we could add
-    $self->add_seg( lin_segment( $linenumber, $id1 ) );
+    $self->add_seg( lin_segment( $linenumber, $id_string ) );
 
     # PIA isbn or other id
     $self->add_seg( additional_product_id( join( ' ', @identifiers ) ) );
