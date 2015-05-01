@@ -334,11 +334,16 @@ sub order_line {
     my $biblioitem = $biblioitems[0];    # makes the assumption there is 1 only
                                          # or else all have same details
 
+    # we are assuming the first id in isbn is an
+    # isbn or ean
+    my @identifiers = split /\s+/, $biblioitem->isbn;
+    my $id1 = shift @identifiers;
+
     # LIN line-number in msg :: if we had a 13 digit ean we could add
-    $self->add_seg( lin_segment( $linenumber, $biblioitem->isbn ) );
+    $self->add_seg( lin_segment( $linenumber, $id1 ) );
 
     # PIA isbn or other id
-    $self->add_seg( additional_product_id( $biblioitem->isbn ) );
+    $self->add_seg( additional_product_id( join( ' ', @identifiers ) ) );
 
     # IMD biblio description
     if ($use_marc_based_description) {
@@ -548,26 +553,31 @@ sub add_seg {
 
 sub lin_segment {
     my ( $line_number, $isbn ) = @_;
-    my $isbn_string = q||;
+    my $item_number = q||;
+
     if ($isbn) {
-        if ( $isbn =~ m/(978\d{10})/ ) {
+        if ( $isbn =~ m/^(978\d{10})/ ) {
             $isbn = $1;
         }
-        elsif ( $isbn =~ m/(\d{9}[\dxX])/ ) {
+        elsif ( $isbn =~ m/^(\d{9}[\dxX])/ ) {
             $isbn = $1;
+        }
+        elsif ( $isbn =~ m/^(\d{13})/ ) {    # we have 13 digits assume ean
+            $item_number = "++$1:EN";
+            $isbn        = q{};
         }
         else {
-            undef $isbn;
+            $isbn = q{};
         }
         if ($isbn) {
             my $b_isbn = Business::ISBN->new($isbn);
             if ( $b_isbn->is_valid ) {
                 $isbn        = $b_isbn->as_isbn13->isbn;
-                $isbn_string = "++$isbn:EN";
+                $item_number = "++$isbn:EN";
             }
         }
     }
-    return "LIN+$line_number$isbn_string$seg_terminator";
+    return "LIN+$line_number$item_number$seg_terminator";
 }
 
 sub additional_product_id {
