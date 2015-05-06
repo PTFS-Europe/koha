@@ -133,7 +133,7 @@ sub check_pidfile {
 
     sysseek $fh, 0, SEEK_SET or log_exit("$0: sysseek $pidfile: $!");
     truncate $fh, 0 or log_exit("$0: truncate $pidfile: $!");
-    print $fh, "$$\n" or log_exit("$0: print $pidfile: $!");
+    print $fh "$$\n" or log_exit("$0: print $pidfile: $!");
 
     return $fh;
 }
