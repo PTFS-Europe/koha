@@ -129,8 +129,9 @@ sub save {
             my $full_rec = $self->record->getFullDetails;
             # create DBIC friendly attribute list
             my @attrs = ();
-            while ( my ( $type, $value ) = each %{$full_rec} ) {
-                push @attrs, { type => $type, value => ${$value}[1] };
+            while ( my ( $type, $nvPair ) = each %{$full_rec} ) {
+                my $value = ${$nvPair}[1] || '';
+                push @attrs, { type => $type, value => $value };
             }
             # List of additional, non-automatic "Record" fields.  These are
             # additional fields used directly by the Koha ILL interface.
