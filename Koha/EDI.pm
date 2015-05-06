@@ -238,7 +238,7 @@ sub process_invoice {
 
 sub _get_invoiced_price {
     my $line  = shift;
-    my $price = _ $line->price_net;
+    my $price =  $line->price_net;
     if ( !defined $price ) {  # no net price so generate it from lineitem amount
         $price = $line->amt_lineitem;
         if ( $price and $line->quantity > 1 ) {
