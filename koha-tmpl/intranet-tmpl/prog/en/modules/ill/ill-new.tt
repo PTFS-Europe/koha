@@ -38,6 +38,7 @@
                 communicating with the remote service.</p>
                     [% END %]
                     <h2>Search the British Library</h2>
+                    <p>Alternatively, <a href="[% here _ '?query_type=manual' %]">click here for manual entry</a>.</p>
                     <form method="POST" action=[% here %]>
                         <fieldset class="rows">
                             <legend>Search the British Library</legend>
@@ -123,16 +124,12 @@
                     <form method="POST" action=[% here %]>
                         <fieldset class="rows">
                             <legend>Available borrowers for surname [% surname %]</legend>
+                            [% FOREACH opt IN flds %]
+                                [% UNLESS opt.key == "brw" OR opt.key == "query_type" %]
+                                    <input name="[% opt.key %]" id="[% opt.key %]" value="[% opt.value %]" type="hidden"/>
+                                [% END %]
+                            [% END %]
                             <input name="query_type" id="query_type" value="[% forward %]" type="hidden"/>
-                            <input name="query_value" id="query_value" value="[% query_value %]" type="hidden"/>
-                            <input name="branch" id="branch" value="[% branch %]" type="hidden"/>
-                            <input name="isbn" id="isbn" value="[% isbn %]" type="hidden"/>
-                            <input name="issn" id="issn" value="[% issn %]" type="hidden"/>
-                            <input name="title" id="title" value="[% title %]" type="hidden"/>
-                            <input name="author" id="author" value="[% author %]" type="hidden"/>
-                            <input name="type" id="type" value="[% type %]" type="hidden"/>
-                            <input name="start_rec" id="start_rec" value="[% start_rec %]" type="hidden"/>
-                            <input name="max_results" id="max_results" value="[% max_results %]" type="hidden"/>
                             <ol>
                                 <li>
                                     <label class="required" for="brw">Borrower</label>
@@ -147,6 +144,89 @@
                         </fieldset>
                         <fieldset class="action">
                             <input type="submit" value="Select"/>
+                            <a class="cancel" href=[% parent %]>Cancel</a>
+                        </fieldset>
+                    </form>
+                [% ELSIF query_type == 'manual_action' %]
+                    <h2>Manually entry confirmation</h2>
+                    <form method="POST" action="[% parent %]">
+                        <fieldset class="rows">
+                            <legend>Information</legend>
+                            <ol>
+                            [% FOREACH opt IN flds %]
+                                <li>
+                                    <label for="[% opt.key %]">[% opt.key %]</label>
+                                    <input name="[% opt.key %]" id="[% opt.key %]" value="[% opt.value %]" type="text" readonly="readonly"/>
+                                </li>
+                            [% END %]
+                            </ol>
+                        <fieldset class="action">
+                            <input type="submit" value="Create"/>
+                            <a class="cancel" href=[% parent %]>Cancel</a>
+                        </fieldset>
+                    </form>
+
+                [% ELSIF query_type == 'manual' %]
+                    <h2>Manually enter request details</h2>
+                    <form method="POST" action=[% here %]>
+                        <fieldset class="rows">
+                            <legend>Manually entry fields</legend>
+                            <input name="query_type" id="query_type" value="manual_action" type="hidden"/>
+                            <input name="query_value" id="query_value" value="dummy" type="hidden"/>
+                            <ol>
+                                [% FOREACH opt IN reply %]
+                                <li>
+                                    <label for="[% opt.key %]">[% opt.value %]</label>
+                                    <input name="[% opt.key %]" id="[% opt.key %]" type="text"/>
+                                </li>
+                                [% END %]
+                                <li>
+                                    <label for="type">Type:</label>
+                                    <select name="type" id="type">
+                                        <option value=""/>
+                                        [% FOREACH opt IN types %]
+                                            [% IF type == opt %]
+                                                <option value=[% opt %] selected="selected">
+                                                    [% opt %]
+                                                </option>
+                                             [% ELSE %]
+                                                <option value=[% opt %]>[% opt %]</option>
+                                             [% END %]
+                                        [% END %]
+                                    </select>
+                                </li>
+                            </ol>
+                        </fieldset>
+                        <fieldset class="rows">
+                            <legend>Borrower Options</legend>
+                            <ol>
+                                <li>
+                                    <label class="required" for="brw">Borrower number or surname:</label>
+                                    <input type="text" name="brw" id="brw" type="text"/>
+                                </li>
+                                <li>
+                                    <label class="required" for="branch">Destination branch:</label>
+                                    <select name="branch" id="branch">
+                                        <option value=""></option>
+                                        [% FOREACH branch IN branches %]
+                                            [% IF ( branch.selected ) %]
+                                                <option value="[% branch.value %]"
+                                                        selected="selected">
+                                                    [% branch.branchname %]
+                                                </option>
+                                            [% ELSE %]
+                                                <option value="[% branch.value %]">
+                                                    [% branch.branchname %]
+                                                </option>
+                                            [% END %]
+                                        [% END %]
+                                    </select>
+                                </li>
+                            </ol>
+
+                        </fieldset>
+                        <fieldset class="action">
+                            <input type="submit" value="Search"/>
                             <a class="cancel" href=[% parent %]>Cancel</a>
                         </fieldset>
                     </form>

@@ -56,6 +56,7 @@ sub new {
                 avail_props   => $config->getProperties('availability'),
                 price_props   => $config->getProperties('prices'),
                 record_props  => $config->getProperties('record'),
+                manual_props  => $config->getProperties('manual'),
                 primary_props => {
                     primary_access_url => {
                         name      => "Access URL",
@@ -83,31 +84,40 @@ sub new {
                };
     bless $self, $class;
 
+    # Primary fields are hardcoded: their accessors are too.
     $self->{primary_accessors} = {
-        access_url  => $self->_make_prim_xsor('primary_access_url'),
-        cost        => $self->_make_prim_xsor('primary_cost'),
-        notes_opac  => $self->_make_prim_xsor('primary_notes_opac'),
-        notes_staff => $self->_make_prim_xsor('primary_notes_staff'),
-        order_id    => $self->_make_prim_xsor('primary_order_id'),
+        access_url  => $self->_make_xsor('primary_access_url'),
+        cost        => $self->_make_xsor('primary_cost'),
+        notes_opac  => $self->_make_xsor('primary_notes_opac'),
+        notes_staff => $self->_make_xsor('primary_notes_staff'),
+        order_id    => $self->_make_xsor('primary_order_id'),
+    };
+
+    # Manual Entry is API provided.  Fields are prefixed with 'manual_entry'.
+    $self->{manual_entry_accessor} = sub {
+        my $name = shift;
+        return $self->_make_xsor('manual_entry_' . $name);
     };
 
     return $self;
 }
 
-=head3 _make_prim_xsor
+=head3 _make_xsor
 
-    my $prim_xsor = $record->_make_prim_xsor('name');
+    my $xsor = $record->_make_xsor('name');
 
 Helper to generate primary accessor subs.  Return a sub which can get/set
 primary accessor values of type 'name'.
 
 =cut
 
-sub _make_prim_xsor {
+sub _make_xsor {
     my ( $self, $name ) = @_;
     return sub {
-        my $value = shift;
-        $self->{data}->{$name}->{value} = $value if ( $value );
+        my ( $value, $display, $inSummary ) = @_;
+        $self->{data}->{$name}->{value}     = $value     if ( $value );
+        $self->{data}->{$name}->{name}      = $display   if ( $display );
+        $self->{data}->{$name}->{inSummary} = $inSummary if ( $inSummary );
         return $self->{data}->{$name}->{value};
     }
 }
@@ -206,6 +216,24 @@ sub create_from_xml {
     return $self;
 }
 
+=head3 create_from_manual_entry
+
+    my $record = $record->create_from_manual_entry($values, $names);
+
+Populate $record with $VALUES & $NAMES, the result of manual_entry rather than
+API or store operations.
+
+=cut
+
+sub create_from_manual_entry {
+    my ( $self, $values, $names ) = @_;
+    while ( my ( $id, $name ) = each $names ) {
+        my $accessor = &{$self->{manual_entry_accessor}}($id);
+        &{$accessor}($values->{$id}, $name, "true");
+    }
+    return $self;
+}
+
 =head3 create_from_store
 
     my $create_from_store = $illRequest->create_from_store($attributes);
@@ -217,6 +245,13 @@ this Record's intended contents.
 
 sub create_from_store {
     my ( $self, $attributes ) = @_;
+
+    # Populate manual entry fields
+    while ( my ($id, $name) = each %{$self->{manual_props}} ) {
+        my $xsor = &{$self->{manual_entry_accessor}}($id);
+        my $value = $attributes->{"manual_entry_" . $id} || "";
+        &{$xsor}($value, $name, "true");
+    }
 
     # Populate dynamic API fields
     foreach my $field ( keys $self->{record_props} ) {
@@ -335,6 +370,38 @@ sub update {
         }
     }
     return \@updated;
+}
+
+=head3 manual_property
+
+    my $newPropertyValue || 0 = $record->manual_property(
+        'propertyName', 'newPropertyValue'
+    );
+
+Means of accessing and setting properties according to Record's API.
+
+In order to avoid name clashes between automatically defined fields and manual
+entry properties, we use a separate global accessor for manual_entry
+properties.
+
+The downside of the current approach is that there is no way to validate
+property requests: a 'manual_property' call can create new 'manual properties'
+at will.
+
+This could be mitigated somewhat by creating a 'manual property skeleton' when
+Abstract's 'manual_entry_fields' is first used.  We could then use this
+skeleton as an 'invariant'.
+
+For now, we don't bother.
+
+=cut
+
+sub manual_property {
+    my ( $self, $prop_name, $prop_value ) = @_;
+    my $result = 0;
+    # magic command to 'unset' field value.
+    $prop_value = "" if ( 'UNSET' eq $prop_value );
+    return &{$self->{manual_entry_accessor}}($prop_name, $prop_value);
 }
 
 =head3 property

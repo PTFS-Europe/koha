@@ -105,6 +105,19 @@ sub search_api {
     return $summaries;
 }
 
+=head3 prepare_manual_entry
+
+    my $manual_entry_hashref = $illrequests->prepare_manual_entry;
+
+A procedure to provide the manual_entry_fields from Abstract.
+
+=cut
+
+sub prepare_manual_entry {
+    my ( $self ) = @_;
+    return Koha::ILLRequest::Abstract->new->manual_entry_fields;
+}
+
 =head3 get_pagers
 
     my $pagers = $requests->get_pagers(
@@ -195,6 +208,7 @@ sub request {
     $opts->{permitted} = $permitted;
     my $request = Koha::ILLRequest->new->seed($opts);
 
+    # FIXME: Disable in case of manual creation.
     if ( C4::Context->preference("UnmediatedILL") && $permitted ) {
         # FIXME: Also carry out privilege checks
         my ( $result, $new_rq ) =

@@ -51,7 +51,18 @@ $template->param( query_value => $query );
 $template->param( query_type => $type );
 $template->param( recv => $input );
 
-if ( $type eq 'request' and $query
+if ( 'manual_action' eq $type ) {
+    my %flds = $input->Vars;
+    my $flds = {};
+    while ( my ( $k, $v ) = each %flds ) {
+        $flds->{$k} = $v if ( 'query_type' ne $k or 'query_value' );
+    }
+    # Rename borrower key
+    $flds->{borrower} = $flds->{brw};
+    my $request = $illRequests->request($flds);
+    push(@{$reply}, $request->getSummary( { brw => 1 } )) if ( $request );
+
+} elsif ( $type eq 'request' and $query
          and $input->param('brw')
          and $input->param('branch') ) {
     my $request = $illRequests->request( {

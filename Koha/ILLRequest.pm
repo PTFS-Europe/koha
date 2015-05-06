@@ -562,10 +562,11 @@ sub _seed_for_test {
 
 =head3 seed
 
-    my $seed = $illRequest->seed();
+    my $request = $illRequest->seed($opts);
 
 A generic seeding procedure, taking a hashref as an argument.  Depending on
-the keys of the hashref we defer to seed_from_api or seed_from_store.
+the keys of the hashref we defer to seed_from_api, seed_from_store or
+seed_from_manual_entry.
 
 =cut
 
@@ -577,6 +578,10 @@ sub seed {
         $rq = $self->_seed_from_store( $opts );
     } elsif ( $opts->{uin} ) {
         $rq = $self->_seed_from_api( $opts );
+    } elsif ( $opts->{borrower} ) {
+        # Borrower is possessed by all, but it gives an inkling that we have a
+        # valid manual request.
+        $rq = $self->_seed_from_manual_entry( $opts );
     } else {
         $rq = 0
     }
@@ -584,7 +589,39 @@ sub seed {
     return $rq;
 }
 
+=head3 _seed_from_manual_entry
+
+    my $request = $illRequest->_seed_from_manual_entry($params);
+
+When an API does not have any valid items for a customer, they may want to
+manually enter item details.  This procedure provides a way for us to create
+an ILLRequest in Koha using fields populated via Abstract's
+`manual_entry_fields` method.
+
+=cut
+
+sub _seed_from_manual_entry {
+    my ( $self, $opts ) = @_;
+    $self->record($self->_abstract->manual_entry_build($opts));
+    $self->status(
+        Koha::ILLRequest::Status->new( {
+            reqtype   => $self->record->getProperty('type'),
+            borrower  => $opts->{borrower},
+            branch    => $opts->{branch},
+            permitted => $opts->{permitted},
+        } )
+    );
+    $self->save;                # save to DB.
+
+    return $self;
+}
+
 =head3 _seed_from_api
+
+    my $request = $illRequest->_seed_from_api($params);
+
+This seeding procedure is designed to populate an ILLRequest using a search
+result from the API in use by Abstract.
 
 =cut
 
@@ -607,9 +644,11 @@ sub _seed_from_api {
 
 =head3 _seed_from_store
 
-  Read a Record from the Koha Database. Here, we simply do a db
-  attribute / IllRequest dump and feed that dump into Record
-  structure: column_names => column values.
+    my $request = $illRequest->_seed_from_store($params);
+
+Read a Record from the Koha Database. Here, we simply do a db attribute /
+IllRequest dump and feed that dump into Record structure: column_names =>
+column values.
 
 =cut
 

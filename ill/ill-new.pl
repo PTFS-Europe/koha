@@ -33,6 +33,8 @@ my $illRequests = Koha::ILLRequests->new;
 my $reply = [];
 my $error = 0;
 my $action = $input->param('query_type') || 'new';
+# FIXME: Query value is missing for Manual Entry.  This whole .pl needs to be
+# refactored to do a way with query_type and query_value...
 my $query = $input->param('query_value') || '';
 
 my ( $template, $borrowernumber, $cookie ) = get_template_and_user( {
@@ -48,24 +50,35 @@ $template->param(
 );
 my ( $brw_count, $brw ) = validate_borrower($input->param('brw'));
 
-if ( fail($query, $input->param('branch')) ) {
+if ( $input->param('query_type') eq 'manual' ) {
+    $reply = $illRequests->prepare_manual_entry;
+    $template->param(
+        forward => 'manual_action',
+    );
+} elsif ( fail($query, $input->param('branch')) ) {
     $error = { error => "missing_branch", action => $action };
 } elsif ( !GetBranchDetail($input->param('branch')) ) {
     $error = { error => "invalid_branch", action => $action };
 } elsif ( $brw_count == 0 ) {
     $error = { error => "invalid_borrower", action => $action };
 } elsif ( $brw_count > 1 ) {
+    my $forward = $input->param('query_type');
+    my %flds = $input->Vars;
+    my $flds = {};
+    while ( my ( $k, $v ) = each %flds ) {
+        if ( 'query_type' ne $k or 'query_value' ne $k or 'brw' ne $k ) {
+            $flds->{$k} = $v;
+        }
+    }
     $template->param(
+        flds         => $flds,
         query_type   => 'borrowers',
         borrowers    => $brw,
         branch       => $input->param('branch'),
         surname      => $input->param('brw'),
-        forward      => 'search',
+        forward      => $forward,
         query_value  => $query,
     );
-    for ( qw/ isbn issn title author type start_rec max_results / ) {
-        $template->param( $_ => $input->param($_) );
-    }
 } elsif ( $action eq 'search' ) {
     my $opts = {};
     $opts->{keywords} = $query if ( '' ne $query );
@@ -105,8 +118,19 @@ if ( fail($query, $input->param('branch')) ) {
             rqp    => $rq_qry,
         );
     } else {
-        $error = { error => "api", action => "search" }
+        $error = { error => "api", action => "search" };
     }
+
+} elsif ( 'manual_action' eq $action ) {
+    # Currently we just Echo.  We also want to display nice results Labels etc.
+    my %flds = $input->Vars;
+    my $flds = {};
+    while ( my ( $k, $v ) = each %flds ) {
+        $flds->{$k} = $v;
+    }
+    $template->param(
+        flds         => $flds,
+    );
 } else {                        # or action eq 'new'
 }
 
