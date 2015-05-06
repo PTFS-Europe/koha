@@ -51,31 +51,17 @@ my $request     = 0;
 my $here    = "/cgi-bin/koha/ill/ill-manage.pl";
 my $tab_url = $here . "?rq=" . $rq . "&op=";
 my $parent  = "/cgi-bin/koha/ill/ill-requests.pl";
+my $tabs = {};
 
 $request = $illRequests->find($rq) if ($rq);
 
-my $tabs = {
-    view          => "View",
-    edit          => "Edit",
-    progress      => "Progress",
-};
-
-if (C4::Context->preference('GenericILLModule')) {
-    $tabs->{generic_ill} = "Generic ILL";
-}
-
 if ($request) {
-    if ($request and $request->requires_moderation) {
-        $tabs->{moderate} = "Moderation";
-    }
-
-    if ( $request and ( $request->getStatus eq "Requested" ) ) {
-        $tabs->{action_cancel} = "Revert request";
-        $tabs->{action_status} = "Request status";
-    } else {
-        $tabs->{action_delete} = "Delete request";
-    }
-
+    $tabs = build_tabs( {
+        op      => $op,
+        status  => $request->getStatus,
+        generic => C4::Context->preference('GenericILLModule'),
+        mod     => $request->require_moderation,
+    } );
     if ( $op eq 'view' ) {
         $template->param(
             ill   => $request->getFullDetails( { brw => 1 } ),
@@ -274,6 +260,13 @@ if ($request) {
     } else {
         die("Unexpected combination of parameters!")
     }
+
+    $tabs = build_tabs( {
+        op      => $op,
+        status  => $request->getStatus,
+        generic => C4::Context->preference('GenericILLModule'),
+        mod     => $request->require_moderation,
+    } );
 } else {
     $op      = 'message';
     $template->param (
@@ -291,3 +284,25 @@ $template->param(
 );
 
 output_html_with_http_headers( $cgi, $cookie, $template->output );
+
+sub build_tabs {
+    my ( $params ) = @_;
+    my $tabs = {
+        view          => "View",
+    };
+    if ( 'message' ne $op ) {
+        $tabs->{edit} = "Edit";
+        $tabs->{moderate} = "Moderation" if ( $params->{mod} );
+        if ( !grep { $params->{status} eq $_ } qw/Requested Queued/ ) {
+            $tabs->{progress} = "Progress";
+            $tabs->{generic_ill} = "Generic ILL" if ( $params->{generic} );
+        }
+        if ( "Requested" eq $params->{status} ) {
+            $tabs->{action_cancel} = "Revert request";
+            $tabs->{action_status} = "Request status";
+        } else {
+            $tabs->{action_delete} = "Delete request";
+        }
+    }
+    return $tabs;
+}
