@@ -63,6 +63,7 @@ if ( C4::Context->preference('ExtendedPatronAttributes') ) {
 # ILL Requests Tab specifics
 
 $template->param(
+    cardnumber     => $borrower->cardnumber,
     borrowernumber => $borrowernumber,
     ill            => 1,
 );

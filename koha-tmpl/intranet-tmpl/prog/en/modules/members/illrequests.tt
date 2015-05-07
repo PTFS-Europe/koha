@@ -42,29 +42,30 @@
                         <div ng-show="requests.length <= 0">
                             <p>You have no ILL requests.</p>
                         </div>
+                        <p><a href="/cgi-bin/koha/ill/ill-requests.pl?borrower_filter=[% cardnumber %]&query_type=filter">Click here</a> to administer or create new ILL Requests for this borrower.</p>
 
                         <!-- New ILL Request -->
-                        <h2>New ILL Request</h2>
-                        <form ng-submit="search()">
-                            <fieldset>
-                                <div class="form-group">
-                                    <input class="form-control" type="text" placeholder="Search ILL service providers..." name="illsearch" ng-model="query" autocomplete="off">
-                                    <input type="submit" id="submit" value="Search" class="btn">
-                                </div>
-                            </fieldset>
-                        </form>
+                        <!-- <h2>New ILL Request</h2> -->
+                        <!-- <form ng-submit="search()"> -->
+                        <!--     <fieldset> -->
+                        <!--         <div class="form-group"> -->
+                        <!--             <input class="form-control" type="text" placeholder="Search ILL service providers..." name="illsearch" ng-model="query" autocomplete="off"> -->
+                        <!--             <input type="submit" id="submit" value="Search" class="btn"> -->
+                        <!--         </div> -->
+                        <!--     </fieldset> -->
+                        <!-- </form> -->
 
-                        <!-- Search Results Table -->
-                        <div ng-show="results">
-                            <h1>Results of search</h1>
-                            <div ng-repeat="result in results" ng-class-odd="'odd'" ng-class-even="'even'" class="results ill_result">
-                                <span ng-repeat="(id, values) in result">
-                                    <span class="result_summary">{{values[0]}}: {{values[1]}}</span></br>
-                                </span>
-                                <button ng-click="submit(result.uin[1])">Request</button>
-                            </div>
-                        </div>
-                        <!-- /results -->
+                        <!-- <\!-- Search Results Table -\-> -->
+                        <!-- <div ng-show="results"> -->
+                        <!--     <h1>Results of search</h1> -->
+                        <!--     <div ng-repeat="result in results" ng-class-odd="'odd'" ng-class-even="'even'" class="results ill_result"> -->
+                        <!--         <span ng-repeat="(id, values) in result"> -->
+                        <!--             <span class="result_summary">{{values[0]}}: {{values[1]}}</span></br> -->
+                        <!--         </span> -->
+                        <!--         <button ng-click="submit(result.uin[1])">Request</button> -->
+                        <!--     </div> -->
+                        <!-- </div> -->
+                        <!-- <\!-- /results -\-> -->
                     </div>
                 </div>
             </div>
