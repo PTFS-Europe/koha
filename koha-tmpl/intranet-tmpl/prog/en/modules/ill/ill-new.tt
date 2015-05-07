@@ -154,14 +154,20 @@
                             <legend>Information</legend>
                             <ol>
                             [% FOREACH opt IN flds %]
+                                [% name = opt.value.0 %]
+                                [% value = opt.value.1 %]
+                                [% IF name %]
                                 <li>
-                                    <label for="[% opt.key %]">[% opt.key %]</label>
-                                    <input name="[% opt.key %]" id="[% opt.key %]" value="[% opt.value %]" type="text" readonly="readonly"/>
+                                    <label for="[% opt.key %]">[% name %]</label>
+                                    <input name="[% opt.key %]" id="[% opt.key %]" value="[% value %]" type="text" readonly="readonly"/>
                                 </li>
+                                [% ELSE %]
+                                <input name="[% opt.key %]" id="[% opt.key %]" value="[% value %]" type="hidden"/>
+                                [% END %]
                             [% END %]
                             </ol>
                         <fieldset class="action">
-                            <input type="submit" value="Create"/>
+                            <input type="submit" value="Confirm"/>
                             <a class="cancel" href=[% parent %]>Cancel</a>
                         </fieldset>
                     </form>
@@ -226,7 +232,7 @@
 
                         </fieldset>
                         <fieldset class="action">
-                            <input type="submit" value="Search"/>
+                            <input type="submit" value="Create"/>
                             <a class="cancel" href=[% parent %]>Cancel</a>
                         </fieldset>
                     </form>

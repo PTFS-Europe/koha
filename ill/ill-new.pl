@@ -123,10 +123,21 @@ if ( $input->param('query_type') eq 'manual' ) {
 
 } elsif ( 'manual_action' eq $action ) {
     # Currently we just Echo.  We also want to display nice results Labels etc.
+    my $names = $illRequests->prepare_manual_entry;
     my %flds = $input->Vars;
     my $flds = {};
     while ( my ( $k, $v ) = each %flds ) {
-        $flds->{$k} = $v;
+        my $name = $names->{$k};
+        if ( !$name ) {
+            $name = "";
+            $name = "Branch"   if ( 'branch' eq $k);
+            if ( 'brw' eq $k ) {
+                $name = "Borrower";
+                $v    = $brw->borrowernumber;
+            }
+        }
+        $flds->{$k} = [ $name, $v];
+        $flds->{primary_manual} = [ "", "true" ];
     }
     $template->param(
         flds         => $flds,

@@ -135,8 +135,10 @@ sub save {
             }
             # List of additional, non-automatic "Record" fields.  These are
             # additional fields used directly by the Koha ILL interface.
-            foreach ( qw/ access_url cost notes_opac notes_staff order_id/ ) {
-                push @attrs, { type => 'primary_' . $_, value => '' };
+            foreach ( $self->record->introspect_primary_properties ) {
+                push @attrs, { type => $_, value => '' }
+                    unless ( $full_rec->{'primary_manual'}
+                             and ( 'primary_manual' eq $_ ) );
             }
             # add attrs into ill_request
             $save_obj->{'ill_request_attributes'} = \@attrs;
@@ -578,9 +580,7 @@ sub seed {
         $rq = $self->_seed_from_store( $opts );
     } elsif ( $opts->{uin} ) {
         $rq = $self->_seed_from_api( $opts );
-    } elsif ( $opts->{borrower} ) {
-        # Borrower is possessed by all, but it gives an inkling that we have a
-        # valid manual request.
+    } elsif ( $opts->{primary_manual} ) {
         $rq = $self->_seed_from_manual_entry( $opts );
     } else {
         $rq = 0

@@ -82,7 +82,6 @@ sub new {
     bless( $self, $class );
 
     $self->_config(Koha::ILLRequest::Config->new);
-    $self->_config->setManual($self->manual_entry_fields);
 
     # This is where we may want to introduce the possibility to choose amongst
     # backends.
@@ -585,42 +584,14 @@ Return a hashref mapping keys to human names for a form that could be built by
 an interface user to manually submit an ILLRequest, rather than selecting it
 from the API search results.
 
-The hashref should contain a field for each search field, and then an extra
-field which can be populated with "keywords".
-
 =cut
 
 sub manual_entry_fields {
     my ( $self ) = @_;
-    # For now this is hard-coded to BLDSS API.  In reality this should be
-    # supplied by the API backend, which in turn *might* have this hard-coded.
-    my $fields = {
-        title               => "Bibliographic title",
-        author              => "Bibliographic author",
-        isbn                => "ISBN",
-        issn                => "ISSN",
-        ismn                => "ISMN",
-        shelfmark           => "Shelfmark",
-        publisher           => "Publisher",
-        conference_venue    => "Conference venue",
-        conference_date     => "Conference date",
-        thesis_university   => "Thesis university",
-        thesis_dissertation => "Thesis dissertation",
-        map_scale           => "Map scale",
-        year                => "Year",
-        volume              => "Volume",
-        part                => "Part",
-        issue               => "Issue",
-        edition             => "Edition",
-        season              => "Season",
-        month               => "Month",
-        day                 => "Day",
-        special_issue       => "Special issue",
-        interest_title      => "Item of interest title",
-        interest_pages      => "Item of interest pages",
-        interest_author     => "Item of interest author",
-        generic_keywords    => "Keywords",
-    };
+    my $fields = {};
+    while ( my ($k, $v) = each $self->_config->getProperties('manual') ) {
+        $fields->{$k} = $v->{name};
+    }
     return $fields;
 }
 
@@ -635,7 +606,7 @@ Create a Record containing the values passed as $params.
 sub manual_entry_build {
     my ( $self, $params ) = @_;
     my $record = Koha::ILLRequest::Record->new($self->_config)
-        ->create_from_manual_entry($params, $self->manual_entry_fields);
+        ->create_from_manual_entry($params);
     return $record;
 }
 

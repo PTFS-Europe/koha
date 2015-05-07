@@ -47,10 +47,6 @@ my ( $template, $borrowernumber, $cookie ) = get_template_and_user( {
     flagsrequired => { ill => '*' },
 } );
 
-$template->param( query_value => $query );
-$template->param( query_type => $type );
-$template->param( recv => $input );
-
 if ( 'manual_action' eq $type ) {
     my %flds = $input->Vars;
     my $flds = {};
@@ -61,6 +57,7 @@ if ( 'manual_action' eq $type ) {
     $flds->{borrower} = $flds->{brw};
     my $request = $illRequests->request($flds);
     push(@{$reply}, $request->getSummary( { brw => 1 } )) if ( $request );
+    $type = 'request';
 
 } elsif ( $type eq 'request' and $query
          and $input->param('brw')
@@ -96,11 +93,14 @@ if ( 'manual_action' eq $type ) {
 }
 
 $template->param(
-    reply    => $reply,
-    branches => GetBranchesLoop,
-    types    => [ "Book", "Article", "Journal" ],
-    statuses => [ "New Request", "Queued", "Completed",
-                  "Cancellation Requested"]
+    query_value => $query,
+    query_type  => $type,
+    recv        => $input,
+    reply       => $reply,
+    branches    => GetBranchesLoop,
+    types       => [ "Book", "Article", "Journal" ],
+    statuses    => [ "New Request", "Queued", "Completed",
+                     "Cancellation Requested"]
 );
 
 output_html_with_http_headers( $input, $cookie, $template->output );

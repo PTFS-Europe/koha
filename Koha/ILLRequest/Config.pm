@@ -80,7 +80,7 @@ sub new {
     $self->{availability_props} =
       $self->_deriveProperties($spec->{availability});
     $self->{prices_props} = $self->_deriveProperties($spec->{prices});
-    $self->{manual_props} = {};
+    $self->{manual_props} = $self->_deriveProperties($spec->{record}, "m");
     return $self;
 }
 
@@ -101,16 +101,22 @@ The hashref will be stored in $SOURCE.
 =cut
 
 sub _deriveProperties {
-    my ($self, $source) = @_;
+    my ($self, $source, $prefix) = @_;
     my $modifiedSource = clone($source);
     delete ${$modifiedSource}{many};
-    return $self->_recurse(
-                           {
-                            accum => {},
-                            tmpl  => $modifiedSource,
-                            kwrds => ${$self}{configuration}{keywords},
-                           },
-                          );
+    my $accum = $self->_recurse( {
+        accum => {},
+        tmpl  => $modifiedSource,
+        kwrds => $self->{configuration}->{keywords},
+    } );
+    if ( $prefix ) {
+        my $paccum = {};
+        while ( my ($k, $v) = each $accum ) {
+            $paccum->{$prefix . $k} = $v;
+        }
+        $accum = $paccum;
+    }
+    return $accum;
 }
 
 sub _recurse {
@@ -150,22 +156,6 @@ sub _recurse {
         }
     }
     return ${$args}{accum};
-}
-
-=head3 setManual
-
-    my $manual_props = $config->setManual($manual_props);
-
-Set the manual properties.  This is a stupid procedure that should normally
-not be necessary.  Manual properties need to be harmonized with traditional
-Record properties.
-
-=cut
-
-sub setManual {
-    my ( $self, $properties ) = @_;
-    $self->{manual_props} = $properties;
-    return $properties;
 }
 
 =head3 getProperties

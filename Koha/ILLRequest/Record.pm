@@ -60,10 +60,14 @@ sub new {
                 primary_props => {
                     primary_access_url => {
                         name      => "Access URL",
-                        inSummary => "true",
+                        inSummary => undef,
                     },
                     primary_cost => {
                         name      => "Cost",
+                        inSummary => "true",
+                    },
+                    primary_manual => {
+                        name      => "Manually Created",
                         inSummary => "true",
                     },
                     primary_notes_opac => {
@@ -88,15 +92,16 @@ sub new {
     $self->{primary_accessors} = {
         access_url  => $self->_make_xsor('primary_access_url'),
         cost        => $self->_make_xsor('primary_cost'),
+        manual      => $self->_make_xsor('primary_manual'),
         notes_opac  => $self->_make_xsor('primary_notes_opac'),
         notes_staff => $self->_make_xsor('primary_notes_staff'),
         order_id    => $self->_make_xsor('primary_order_id'),
     };
 
-    # Manual Entry is API provided.  Fields are prefixed with 'manual_entry'.
+    # Manual Entry is API provided.
     $self->{manual_entry_accessor} = sub {
         my $name = shift;
-        return $self->_make_xsor('manual_entry_' . $name);
+        return $self->_make_xsor($name);
     };
 
     return $self;
@@ -218,19 +223,21 @@ sub create_from_xml {
 
 =head3 create_from_manual_entry
 
-    my $record = $record->create_from_manual_entry($values, $names);
+    my $record = $record->create_from_manual_entry($values);
 
-Populate $record with $VALUES & $NAMES, the result of manual_entry rather than
-API or store operations.
+Populate $record with $VALUES, the result of manual_entry rather than API or
+store operations.
 
 =cut
 
 sub create_from_manual_entry {
-    my ( $self, $values, $names ) = @_;
-    while ( my ( $id, $name ) = each $names ) {
-        my $accessor = &{$self->{manual_entry_accessor}}($id);
-        &{$accessor}($values->{$id}, $name, "true");
+    my ( $self, $values ) = @_;
+    while ( my ( $id, $properties ) = each $self->{manual_props} ) {
+        $self->manual_property(
+            $id, $values->{$id}, $properties->{name}, $properties->{inSummary}
+        );
     }
+    $self->property('manual', "True");
     return $self;
 }
 
@@ -247,10 +254,10 @@ sub create_from_store {
     my ( $self, $attributes ) = @_;
 
     # Populate manual entry fields
-    while ( my ($id, $name) = each %{$self->{manual_props}} ) {
-        my $xsor = &{$self->{manual_entry_accessor}}($id);
-        my $value = $attributes->{"manual_entry_" . $id} || "";
-        &{$xsor}($value, $name, "true");
+    while ( my ($id, $props) = each %{$self->{manual_props}} ) {
+        $self->manual_property(
+            $id, $attributes->{$id}, $props->{name}, $props->{inSummary}
+        )
     }
 
     # Populate dynamic API fields
@@ -308,21 +315,38 @@ display in templates.
 
 =cut
 sub _summarize {
-    my ( $self, $structure) = @_;
-    my $accum = {};
-    while (my ( $id, $value ) = each $structure) {
-        if (ref $value eq 'ARRAY') {
-            ${$accum}{$id} = [];
-            foreach my $elem (@{$value}) {
-                push ${$accum}{$id}, $self->_summarize($elem);
-            }
-        } elsif (${$value}{name} and ${$value}{inSummary}) {
-            ${$accum}{$id} = [ ${$value}{name}, ${$value}{value} ];
+    my ( $self, $data) = @_;
+    my $merged = $self->_merge_manual($data);
+    my $summary = {};
+    while ( my ( $id, $props ) = each %{$merged} ) {
+        if ( $props->{name} and $props->{inSummary} ) {
+            $summary->{$id} = [ $props->{name}, $props->{value} ];
         }
     }
-    return $accum;
+    return $summary;
 }
 
+=head3 _merge_manual
+
+    my $_merge_manual = $illRequest->_merge_manual();
+
+For some displays we desperately want to avoid passing back both API fields
+and manual fields.  Furthermore, we need to reduce the Manual fields to the
+API fieldset, so we can display Manual values in tables compatible with API
+created ILLs.
+
+=cut
+
+sub _merge_manual {
+    my ( $self, $data ) = @_;
+    my $manual = $self->property('manual');
+    while ( my ( $id, $props ) = each %{$self->{record_props}} ) {
+        $data->{$id}->{value} = $data->{'m' . $id}->{value}
+            if ( $manual );
+        delete $data->{'m' . $id};
+    }
+    return $data;
+}
 
 =head3 getFullDetails
 
@@ -372,36 +396,38 @@ sub update {
     return \@updated;
 }
 
+=head3 introspect_primary_properties
+
+    my $introspect_primary_properties = $illRequest->introspect_primary_properties();
+
+Return a list of defined primary property keys.
+
+=cut
+
+sub introspect_primary_properties {
+    my ( $self ) = @_;
+    return keys %{$self->{primary_props}};
+}
+
 =head3 manual_property
 
     my $newPropertyValue || 0 = $record->manual_property(
-        'propertyName', 'newPropertyValue'
+        'propertyID', 'newPropertyValue', 'propertyName', 'inSummary'
     );
 
 Means of accessing and setting properties according to Record's API.
 
-In order to avoid name clashes between automatically defined fields and manual
-entry properties, we use a separate global accessor for manual_entry
-properties.
-
-The downside of the current approach is that there is no way to validate
-property requests: a 'manual_property' call can create new 'manual properties'
-at will.
-
-This could be mitigated somewhat by creating a 'manual property skeleton' when
-Abstract's 'manual_entry_fields' is first used.  We could then use this
-skeleton as an 'invariant'.
-
-For now, we don't bother.
-
 =cut
 
 sub manual_property {
-    my ( $self, $prop_name, $prop_value ) = @_;
+    my ( $self, $id, $value, $name, $inSummary ) = @_;
     my $result = 0;
-    # magic command to 'unset' field value.
-    $prop_value = "" if ( 'UNSET' eq $prop_value );
-    return &{$self->{manual_entry_accessor}}($prop_name, $prop_value);
+    if ( $self->{manual_props}->{$id} ) {
+        # magic command to 'unset' field value.
+        $value = "" if ( 'UNSET' eq $value );
+        my $accessor = &{$self->{manual_entry_accessor}}($id);
+        return &{$accessor}($value, $name, $inSummary);
+    }
 }
 
 =head3 property
@@ -420,14 +446,15 @@ sub property {
     my $result = 0;
     if ( $prop_value ) {        # 'set' operation
         if ( defined $self->{primary_accessors}->{$prop_name} ) {
+            my $value = $prop_value;
+            $result = $prop_value;
             if ( 'UNSET' eq $prop_value ) {
-                $self->{data}->{'primary_' . $prop_name}->{value} = "";
+                $value = "";
                 $result = 1;
-            } else {
-                $self->{data}->{'primary_' . $prop_name}->{value}
-                    = $prop_value;
-                $result = $prop_value;
             }
+            $self->{data}->{'primary_' . $prop_name} =
+                $self->{primary_props}->{'primary_' . $prop_name};
+            $self->{data}->{'primary_' . $prop_name}->{value} = $value;
         }
     } else {                    # 'get' operation
         $result = $self->getProperty($prop_name);
