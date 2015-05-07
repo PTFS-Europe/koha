@@ -84,11 +84,6 @@ sub new {
     return $self;
 }
 
-# Obsolete?
-sub get_types {
-    return { no_longer_used => "Ignore" };
-}
-
 =head3 _deriveProperties
 
     my $_derivedProperties = $illRequest->_deriveProperties($target, $source);
