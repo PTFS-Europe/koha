@@ -88,6 +88,8 @@
                         <p>It is probably already too far along in the process.</p>
                     [% ELSIF message == 'deleted' %]
                         <p>The request has been deleted.</p>
+                    [% ELSIF message == 'invalid_partner' %]
+                        <p>The partner details you entered are invalid.</p>
                     [% ELSIF message == 'unknown_request' %]
                         <p>The request you referred to does not exist.</p>
                     [% ELSIF message == 'api' %]
@@ -304,13 +306,18 @@
                         <input type="submit" value="Place request" />
                     </form>
 
-                [% ELSIF op == 'generic_ill' %]
+                [% ELSIF op == 'generic_ill' OR op == 'select_partner' %]
                     <!-- Start of GENERIC_EMAIL case -->
-                    [% IF partners %]
+                    [% IF partners OR select %]
                         <form method="POST" action=[% here %]>
                             <fieldset class="rows" style="float: none;">
                                 <legend>Interlibrary loan request details</legend>
                                     <ol>
+                                        [% IF partners %]
+                                        <li>
+                                            <label for="partner_search">Search partner libraries</label>
+                                            <input type="text" name="partner_search" id="partner_search" type="text"/>
+                                        </li>
                                         <li>
                                             <label for="partners">Partner libraries:</label>
                                             <select size="5" multiple="true" id="partners"
@@ -322,26 +329,48 @@
                                                     </option>
                                                 [% END %]
                                             </select>
-                                    </li>
-                                    <li>
-                                        <label for="subject">Subject Line</label>
-                                        <input type="text" name="subject"
-                                               id="subject" type="text"
-                                               value="[% draft.subject %]"/>
-                                    </li>
-                                    <li>
-                                        <label for="body">Email text:</label>
-                                        <textarea name="body" id="body" rows="20"
-                                                cols="80">[% draft.body %]</textarea>
-                                    </li>
+                                        </li>
+                                        <li>
+                                            <label for="subject">Subject Line</label>
+                                            <input type="text" name="subject"
+                                                   id="subject" type="text"
+                                                   value="[% draft.subject %]"/>
+                                        </li>
+                                        <li>
+                                            <label for="body">Email text:</label>
+                                            <textarea name="body" id="body" rows="20"
+                                                      cols="80">[% draft.body %]</textarea>
+                                        </li>
+                                        [% ELSIF select %]
+                                        <li>
+                                            <label class="required" for="partners">Partner library</label>
+                                            <select name="partners" id="partners">
+                                                <option value=""></option>
+                                                [% FOREACH partner IN select %]
+                                                    <option value="[% partner.email %]">[% partner.branchcode _ " - " _ partner.surname %]</option>
+                                                [% END %]
+                                            </select>
+                                        </li>
+                                        <li>
+                                            <label for="subject">Subject Line</label>
+                                            <input type="text" name="subject"
+                                                   id="subject" type="text"
+                                                   value="[% draft.subject %]"/>
+                                        </li>
+                                        <li>
+                                            <label for="body">Email text:</label>
+                                            <textarea name="body" id="body" rows="20"
+                                                      cols="80">[% draft.body %]</textarea>
+                                        </li>
+                                        [% END %]
                                 </ol>
                             </fieldset>
-                            <input name="op" id="op" value=[% forward %] type="hidden"/>
-                            <input name="rq" id="rq" value=[% rq %] type="hidden"/>
+                            <input name="op" id="op" value="[% forward %]" type="hidden"/>
+                            <input name="rq" id="rq" value="[% rq %]" type="hidden"/>
                             <input type="submit" value="Send email"/>
                             <input type="reset" value="Reset"/>
                             <span>
-                                <a href=[% back %] title="Return to request details">
+                                <a href="[% back %]" title="Return to request details">
                                     Cancel
                                 </a>
                             </span>

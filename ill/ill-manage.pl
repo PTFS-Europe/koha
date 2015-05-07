@@ -100,26 +100,51 @@ if ($request) {
         );
 
     } elsif ( $op eq 'action_email' ) {
-        my $branchdetails = GetBranchDetail(C4::Context->userenv->{'branch'});
-        my ( $result, $summary ) = $request->place_generic_request(
-            {
-                to          => [ $cgi->param('partners') ],
-                from        => $branchdetails->{'branchemail'},
-                replyto     => $branchdetails->{'branchreplyto'},
-                sender      => $branchdetails->{'branchreturnpath'},
-                subject     => Encode::encode( "utf8", $cgi->param('subject') ),
-                message     => Encode::encode( "utf8", $cgi->param('body') ),
-                contenttype => 'text/plain; charset="utf8"',
+        if ( $cgi->param('partner_search') ) {
+            # Borrower Search
+            my ( $partner_count, $partner ) = validate_partner(
+                $cgi->param('partner_search')
+            );
+            if ( $partner_count == 0 ) {
+                $op = 'message';
+                $template->param(
+                    message => "invalid_partner",
+                );
+            } else {
+                my $forward = $cgi->param('query_type');
+                $op = 'select_partner',
+                $template->param(
+                    forward      => 'action_email',
+                    draft        => {
+                        subject => $cgi->param('subject'),
+                        body    => $cgi->param('body')
+                    },
+                    select       => $partner,
+                    branch       => $cgi->param('branch'),
+                );
             }
-        );
-        $op = 'message';
-        ( $result ) ? $template->param( message => 'email_success' )
-            : $template->param( message => 'email_failure' );
-        $template->param(
-            title   => 'Email request result',
-            email   => $summary,
-            forward => $parent,
-        );
+        } else {
+            my $branchdetails = GetBranchDetail(C4::Context->userenv->{'branch'});
+            my ( $result, $summary ) = $request->place_generic_request(
+                {
+                    to          => [ $cgi->param('partners') ],
+                    from        => $branchdetails->{'branchemail'},
+                    replyto     => $branchdetails->{'branchreplyto'},
+                    sender      => $branchdetails->{'branchreturnpath'},
+                    subject     => Encode::encode( "utf8", $cgi->param('subject') ),
+                    message     => Encode::encode( "utf8", $cgi->param('body') ),
+                    contenttype => 'text/plain; charset="utf8"',
+                }
+            );
+            $op = 'message';
+            ( $result ) ? $template->param( message => 'email_success' )
+                : $template->param( message => 'email_failure' );
+            $template->param(
+                title   => 'Email request result',
+                email   => $summary,
+                forward => $parent,
+            );
+        }
 
     } elsif ( $op eq 'action_request' ) {
         my ( $result, $summary ) = $request->place_request(
@@ -305,4 +330,36 @@ sub build_tabs {
         }
     }
     return $tabs;
+}
+
+sub validate_partner {
+    # Perform cardnumber search.  If no results, perform surname search.
+    # Return ( 0, undef ), ( 1, $brw ) or ( n, $brws )
+    my $input = shift;
+    my $borrowers = Koha::Borrowers->new;
+    my $ill_code = C4::Context->preference('GenericILLPartners');
+    my ( $count, $brw );
+    my $brws = $borrowers->search( {
+        cardnumber   => $input,
+        categorycode => $ill_code,
+    } );
+    $count = $brws->count;
+    if ( $count == 0 ) {
+        $brws = $borrowers->search( {
+            categorycode => $ill_code,
+            surname      => { 'like', '%' . $input . '%' },
+        } );
+        $count = $brws->count;
+        if ( $count == 1 ) {
+            $brw = $brws->next;
+        } elsif ( $count > 1 ) {
+            $brw = $brws;       # found multiple results
+        }
+    } elsif ( $count == 1 ) {
+        $brw = $brws->next;
+    } else {
+        $brw = $brws;           # found multiple results
+    }
+
+    return ( $count, $brw );
 }
