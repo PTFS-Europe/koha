@@ -142,7 +142,9 @@ sub recordpayment {
             my $payment_type = $type;
             my $select = { tillid => $tillid };
             my $till = Koha::Till->new( $select );
-            $till->payin($thisamt, $tcode, $payment_type, $receiptid);
+            if ($till) {
+                $till->payin($thisamt, $tcode, $payment_type, $receiptid);
+            }
         }
 
         if ( C4::Context->preference("FinesLog") ) {
@@ -299,7 +301,9 @@ sub makepayment {
         my $payment_type = $type;
         my $select = { tillid => $tillid };
         my $till = Koha::Till->new( $select );
-        $till->payin($amount, $tcode, $payment_type, $receiptid);
+        if ($till) {
+            $till->payin($amount, $tcode, $payment_type, $receiptid);
+        }
     }
 
     UpdateStats({

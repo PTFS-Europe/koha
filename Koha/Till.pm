@@ -2,6 +2,7 @@ package Koha::Till;
 use strict;
 use warnings;
 use Koha::Database;
+use Carp;
 
 my $default_transaction_code = 'DEFAULT';
 
@@ -12,6 +13,12 @@ sub new {
     my $tills_rs = $schema->resultset('CashTill')->search($params);
 
     unless ( $tills_rs && $tills_rs->count == '1' ) {
+        my $plist = q{};
+        foreach my $pkey ( keys %{$params} ) {
+		$plist .= " $pkey:$params->{$pkey}";
+	}
+        carp("Cannot instantiate till ::$plist");
+
         return undef;
     }
 
