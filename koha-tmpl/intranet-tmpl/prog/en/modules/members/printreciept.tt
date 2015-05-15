@@ -74,11 +74,5 @@ type="image/x-icon" />
                     <td>[% change %]</td>
             </tfoot>
         </table>
-        <h1>Account Summary</h1>
-        [% IF ( totalcredit ) %]
-        <p>Your account is in credit by [% total %]</p>
-        [% ELSE %]
-        <p>Your account is in debit by [% total %]</p>
-        [% END %]
     </div>
     [% INCLUDE 'intranet-bottom.inc' notill="1" %]
