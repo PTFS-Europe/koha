@@ -188,7 +188,7 @@ sub calculatePrice {
     my ( $self, $data, $testData ) = @_;
 
     # testData is used for unit testing only
-    my $prices = $self->record->checkPrices($testData);
+    my $prices = $self->_abstract->getPrices;
     my $xpath = '//format[@id="' . ${$data}{format} . '"]/price[@speed="' .
       ${$data}{speed} . '" and @quality="' . ${$data}{quality} . '"]';
     # We have format from before; now we need to retrieve price for display,
@@ -585,6 +585,12 @@ sub seed {
     } else {
         $rq = 0
     }
+    # Now re-populate our Abstract with our branch configured.
+    $self->_abstract(
+        Koha::ILLRequest::Abstract->new( {
+            branch => $self->status->getProperty('branch')
+        } )
+    );
 
     return $rq;
 }
