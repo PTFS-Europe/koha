@@ -45,7 +45,11 @@
                     <div class="alert alert-success">
                         <p><span id="[% message.message %]">
                             [% IF message.message == 'request_placement_ok' %]
-                                Your request for [% message.uin %] has been added to the queue.
+                                [% IF message.uin %]
+                                    Your request for [% message.uin %] has been added to the queue.
+                                [% ELSE %]
+                                    Your request has been added to the queue.
+                                [% END %]
                             [% ELSIF message.message == 'request_cancellation_ok' %]
                                 Your cancellation of request [% message.id %] has been requested.
                             [% ELSIF message.message == 'request_comment_ok' %]
@@ -102,6 +106,7 @@
                     [% END %]
                 [% ELSIF op == 'new' %]
                     <h2>Search the British Library</h2>
+                    <p>Alternatively, <a href="[% here _ '?op=manual' %]">click here for manual entry</a>.</p>
                     <form method="POST" action=[% forward %]>
                         <fieldset class="rows">
                             <legend>Search Form</legend>
@@ -175,6 +180,68 @@
                         </fieldset>
                         <fieldset class="action">
                             <input type="submit" value="Search"/>
+                            <a class="cancel" href=[% back %]>Cancel</a>
+                        </fieldset>
+                    </form>
+
+                [% ELSIF op == 'manual' %]
+                    <h2>Create manual request</h2>
+                    <form method="POST" action=[% forward %]>
+                        <fieldset class="rows">
+                            <legend>Entry Form</legend>
+                            <input name="op" id="op" value="manual_request" type="hidden"/>
+                            <input name="primary_manual" id="primary_manual" value="true" type="hidden"/>
+                            <ol>
+                                [% FOREACH fld IN fields %]
+                                [% UNLESS fld.key == "m./type" OR fld.key == "m./uin" %]
+                                <li>
+                                    <label for="[% fld.key %]">[% fld.value %]</label>
+                                    <input name="[% fld.key %]" id="[% fld.key %]" type="text"/>
+                                </li>
+                                [% END %]
+                                [% END %]
+                                <li>
+                                    <label for="m./type">Type:</label>
+                                    <select name="m./type" id="m./type">
+                                        <option value=""/>
+                                        [% FOREACH opt IN types %]
+                                            [% IF type == opt %]
+                                                <option value=[% opt %] selected="selected">
+                                                    [% opt %]
+                                                </option>
+                                             [% ELSE %]
+                                                <option value=[% opt %]>[% opt %]</option>
+                                             [% END %]
+                                        [% END %]
+                                    </select>
+                                </li>
+                            </ol>
+                        </fieldset>
+                        <fieldset class="rows">
+                            <legend>Borrower Options</legend>
+                            <ol>
+                                <li id="illbranch">
+                                    <label class="required" for="branch">Destination Branch:</label>
+                                    <select name="branch" id="branch">
+                                        <option value=""></option>
+                                        [% FOREACH branch IN branches %]
+                                            [% IF ( branch.selected ) %]
+                                                <option value="[% branch.value %]"
+                                                        selected="selected">
+                                                    [% branch.branchname %]
+                                                </option>
+                                            [% ELSE %]
+                                                <option value="[% branch.value %]">
+                                                    [% branch.branchname %]
+                                                </option>
+                                            [% END %]
+                                        [% END %]
+                                    </select>
+                                </li>
+                            </ol>
+                        </fieldset>
+                        <fieldset class="action">
+                            <input type="submit" value="Create"/>
                             <a class="cancel" href=[% back %]>Cancel</a>
                         </fieldset>
                     </form>

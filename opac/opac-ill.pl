@@ -72,6 +72,15 @@ if ( fail(1) ) {
         type     => $cgi->param('type')     || "",
     );
 
+} elsif ( $op eq 'manual' ) {
+    $template->param(
+        branches => GetBranchesLoop($borrower->branchcode),
+        types    => [ "Book", "Article", "Journal" ],
+        back     => $here,
+        forward  => $here . "?op=manual_action",
+        fields   => $illRequests->prepare_manual_entry,
+    );
+
 } elsif ( $op eq 'search' ) {
     my $opts = {};
     $opts->{keywords} = $query if ( '' ne $query );
@@ -133,6 +142,21 @@ if ( fail(1) ) {
         } else {
             $message = { message => 'request_placement_ok', uin => $query };
         }
+    } elsif ( $op eq 'manual_request' ) {
+        my %flds = $cgi->Vars;
+        my $flds = {};
+        while ( my ( $k, $v ) = each %flds ) {
+            $flds->{$k} = $v if ( 'query_type' ne $k or 'query_value' );
+        }
+        # Rename borrower key
+        $flds->{borrower} = $borrower->borrowernumber;
+        my $request = $illRequests->request($flds);
+        if (!$request) {
+            $error = { message => 'request_placement_fail', action => 'request' };
+        } else {
+            $message = { message => 'request_placement_ok' };
+        }
+
     } elsif ( $op eq 'request_cancellation') {
         my $request = $illRequests->find($query);
         if (!$request or !$request->editStatus( { status => "Cancellation Requested" } )) {
