@@ -703,6 +703,21 @@ sub requires_moderation {
     return $require_moderation->{$self->status->getProperty('status')};
 }
 
+=head3 is_manual_request
+
+    my $bool = $illRequest->is_manual_request;
+
+Return 1 if this request is a manually created request, 0 if it was created
+using the API search method.
+
+=cut
+
+sub is_manual_request {
+    my ( $self ) = @_;
+    return 1 if ( $self->record->property('manual') );
+    return 0
+}
+
 =head3 place_request
 
     my ( $result, $request ) = $illRequest->place_request();

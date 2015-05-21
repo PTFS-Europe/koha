@@ -59,6 +59,7 @@ if ($request) {
     $tabs = build_tabs( {
         op      => $op,
         status  => $request->getStatus,
+        manual  => $request->is_manual_request,
         generic => C4::Context->preference('GenericILLModule'),
         mod     => $request->require_moderation,
     } );
@@ -289,6 +290,7 @@ if ($request) {
     $tabs = build_tabs( {
         op      => $op,
         status  => $request->getStatus,
+        manual  => $request->is_manual_request,
         generic => C4::Context->preference('GenericILLModule'),
         mod     => $request->require_moderation,
     } );
@@ -319,7 +321,7 @@ sub build_tabs {
         $tabs->{edit} = "Edit";
         $tabs->{moderate} = "Moderation" if ( $params->{mod} );
         if ( !grep { $params->{status} eq $_ } qw/Requested Queued/ ) {
-            $tabs->{progress} = "Progress";
+            $tabs->{progress} = "Progress" unless ( $params->{manual} );
             $tabs->{generic_ill} = "Generic ILL" if ( $params->{generic} );
         }
         if ( "Requested" eq $params->{status} ) {
