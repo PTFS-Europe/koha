@@ -304,6 +304,25 @@ sub getLimits {
         || { count => -1, method => 'active' };
 }
 
+=head3 getPayCopyright
+
+    my $payCopyright = $illRequest->getPayCopyright($branch);
+
+Return true if we don't have library privilege by default or for this specific
+branch.
+
+=cut
+
+sub getPayCopyright {
+    my ( $self, $branch ) = @_;
+    my $libraryPrivileges = $self->_config->getLibraryPrivileges;
+    my $privilege = $libraryPrivileges->{$branch}
+        || $libraryPrivileges->{default}
+        || 0;
+    return 'false' if $privilege;
+    return 'true';
+}
+
 =head3 getPrefix
 
     my $prefix = $abstract->getPrefix( {
@@ -397,7 +416,7 @@ sub request {
         requestor         => join(" ", $brw->firstname, $brw->surname),
         customerReference => $params->{reference},
         # FIXME: Pay Copyright: should be read from a config file.
-        payCopyright => "true",
+        payCopyright => $self->getPayCopyright($params->{branch}),
     };
 
     my $rq_result = $self->_api_do( {

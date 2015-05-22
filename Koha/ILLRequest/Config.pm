@@ -185,6 +185,22 @@ sub getPrefixes {
     return $values;
 }
 
+=head3 getLibraryPrivileges
+
+    my $privileges= $config->getLibraryPrivileges;
+
+Return the LibraryPrivilege definitions defined by our config.
+
+=cut
+
+sub getLibraryPrivileges {
+    my ( $self ) = @_;
+    my $values= $self->{configuration}->{library_privileges}->{branch} || {};
+    $values->{default} =
+        $self->{configuration}->{library_privileges}->{default};
+    return $values;
+}
+
 =head3 getLimitRules
 
     my $rules = $config->getLimitRules('brw_cat' | 'branch')
@@ -297,17 +313,18 @@ sub _load_configuration {
 
     # Default data structure to be returned
     my $configuration = {
-        api_url         => $xml_api_url || 'http://apitest.bldss.bl.uk',
-        censorship      => {
+        api_url            => $xml_api_url || 'http://apitest.bldss.bl.uk',
+        censorship         => {
             censor_notes_staff => 0,
         },
-        credentials     => {
+        credentials        => {
             api_application => {},
             api_keys        => {},
         },
-        limits          => {},
-        default_formats => {},
-        prefixes        => {},
+        library_privileges => {},
+        limits             => {},
+        default_formats    => {},
+        prefixes           => {},
     };
 
     # Per Branch Configuration
@@ -381,6 +398,20 @@ sub _load_unit_config {
                 if ( $method && ( 'annual' eq $method || 'active' eq $method ) );
             $config->{limits}->{$type}->{$id}->{count} = $count
                 if ( $count && ( -1 <= $count ) );
+        }
+    }
+
+    # Add library_privilege rules (only per branch).
+    # LIBRARY_PRIVILEGE := 1 || 0
+    unless ( 'brw_cat' eq $type ) {
+        if ( $unit->{library_privilege} ) {
+            if ( 'default' eq $id ) {
+                $config->{library_privileges}->{$id} =
+                    $unit->{library_privilege};
+            } else {
+                $config->{library_privileges}->{branch}->{$id} =
+                    $unit->{library_privilege};
+            }
         }
     }
 

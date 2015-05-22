@@ -113,6 +113,8 @@ __PAZPAR2_TOGGLE_XML_POST__
        - or insert a branch element, with <code> as child, and values
          as child elements.  These are per branch overrides. -->
   <configuration>
+   <!-- library_privilege: set to 1 if we have it (fall-back) -->
+   <library_privilege>0</library_privilege>
    <!--
     <api_key>example_default_key</api_key>
     <api_auth>example_default_auth</api_auth>
@@ -130,6 +132,7 @@ __PAZPAR2_TOGGLE_XML_POST__
     </default_formats>
     <branch>
      <code>example_branch1_code</code>
+     <library_privilege>0</library_privilege>
      <prefix>Branch1ILL</prefix>
      <api_key>branch1_key</api_key>
      <api_auth>branch1_auth</api_auth>
