@@ -608,7 +608,7 @@ from the API search results.
 sub manual_entry_fields {
     my ( $self ) = @_;
     my $fields = {};
-    while ( my ($k, $v) = each $self->_config->getProperties('manual') ) {
+    while ( my ($k, $v) = each %{$self->_config->getProperties('manual')} ) {
         $fields->{$k} = $v->{name};
     }
     return $fields;
