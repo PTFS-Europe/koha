@@ -11,17 +11,6 @@ $(document).ready(function(){
         <i class="icon-search"></i>View Requests</a>
     <a id="ill-new" class="btn btn-small" href="/cgi-bin/koha/ill/ill-new.pl">
         <i class="icon-plus"></i>New ILL Request</a>
-    <div class="btn-group">
-        <button class="btn btn-small dropdown-toggle" data-toggle="dropdown">
-            <i class="icon-print"></i> Example Dropdown <span class="caret"></span>
-        </button>
-            <ul class="dropdown-menu">
-                [% IF ( CAN_user_borrowers ) %]
-                <li><a id="ex_perms" href="#">Example Permissions</a></li>
-                [% END %]
-                <li><a id="ex_entry" href="#">Example Entry</a></li>
-            </ul>
-    </div>
 </div>
 [% END %]
 [% IF debug %]
