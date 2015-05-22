@@ -109,7 +109,7 @@ sub validate_delivery_input {
             TownOrCity    => "branchcity",
             PostOrZipCode => "branchzip",
         };
-        while ( my ( $bl_field, $k_field ) = each $mandatory_fields ) {
+        while ( my ( $bl_field, $k_field ) = each %{$mandatory_fields} ) {
             die "Physical delivery requested, but branch missing $k_field."
                 if ( !$brn->{$k_field} or "" eq $brn->{$k_field} );
             $delivery->{Address}->{$bl_field} = $brn->{$k_field};
@@ -120,7 +120,7 @@ sub validate_delivery_input {
             CountyOrState    => "branchstate",
             ProvinceOrRegion => "",
         };
-        while ( my ( $bl_field, $k_field ) = each $optional_fields ) {
+        while ( my ( $bl_field, $k_field ) = each %{$optional_fields} ) {
             $delivery->{Address}->{$bl_field} = $brn->{$k_field} || "";
         }
     } else {
