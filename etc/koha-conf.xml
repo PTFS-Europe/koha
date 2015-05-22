@@ -115,6 +115,8 @@ __PAZPAR2_TOGGLE_XML_POST__
   <configuration>
    <!-- library_privilege: set to 1 if we have it (fall-back) -->
    <library_privilege>0</library_privilege>
+   <!-- digital_recipient: 'branch' or 'borrower' (fall-back) -->
+   <digital_recipient>borrower</digital_recipient>
    <!--
     <api_key>example_default_key</api_key>
     <api_auth>example_default_auth</api_auth>
@@ -133,6 +135,7 @@ __PAZPAR2_TOGGLE_XML_POST__
     <branch>
      <code>example_branch1_code</code>
      <library_privilege>0</library_privilege>
+     <digital_recipient>borrower</digital_recipient>
      <prefix>Branch1ILL</prefix>
      <api_key>branch1_key</api_key>
      <api_auth>branch1_auth</api_auth>
@@ -151,6 +154,7 @@ __PAZPAR2_TOGGLE_XML_POST__
     <borrower_category>
      <prefix>BrwILL</prefix>
      <code>example_brw_cat_code</code>
+     <digital_recipient>borrower</digital_recipient>
      <request_limit>
       <method>active</method>
       <count>10</count>

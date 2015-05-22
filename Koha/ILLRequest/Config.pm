@@ -217,6 +217,22 @@ sub getLimitRules {
     return $values;
 }
 
+=head3 getDigitalRecipients
+
+    my $recipient_rules= $config->getDigitalRecipients('brw_cat' | 'branch');
+
+Return the hash of digital_recipient settings defined by our config.
+
+=cut
+
+sub getDigitalRecipients {
+    my ( $self, $type ) = @_;
+    die "Unexpected type." unless ( $type eq 'brw_cat' || $type eq 'branch' );
+    my $values = $self->{configuration}->{digital_recipients}->{$type};
+    $values->{default} =
+        $self->{configuration}->{digital_recipients}->{default};
+    return $values;
+}
 
 =head3 getDefaultFormats
 
@@ -324,6 +340,7 @@ sub _load_configuration {
         library_privileges => {},
         limits             => {},
         default_formats    => {},
+        digital_recipients => {},
         prefixes           => {},
     };
 
@@ -422,6 +439,17 @@ sub _load_unit_config {
             $config->{prefixes}->{$id} = $unit->{prefix};
         } else {
             $config->{prefixes}->{$type}->{$id} = $unit->{prefix};
+        }
+    }
+
+    # Add digital_recipient rules.
+    # DIGITAL_RECIPIENT := borrower || branch (defaults to borrower)
+    if ( $unit->{digital_recipient} ) {
+        if ( 'default' eq $id ) {
+            $config->{digital_recipients}->{$id} = $unit->{digital_recipient};
+        } else {
+            $config->{digital_recipients}->{$type}->{$id} =
+                $unit->{digital_recipient};
         }
     }
 

@@ -67,8 +67,9 @@ sub new {
 
 sub validate_delivery_input {
     my ( $self, $params ) = @_;
-    my ( $fmt, $brw, $brn ) = (
-        $params->{service}->{format}, $params->{borrower}, $params->{branch}
+    my ( $fmt, $brw, $brn, $recipient ) = (
+        $params->{service}->{format}, $params->{borrower}, $params->{branch},
+        $params->{digital_recipient},
     );
     # FIXME: Here we can cross-reference services with API's services request.
     # The latter currently returns 404, so instead we mock a services
@@ -91,9 +92,11 @@ sub validate_delivery_input {
     my ( $status, $delivery ) = ( 0, {} );
 
     if ( 'digital' eq $formats->{$fmt} ) {
-        die "Digital delivery requested, but invalid borrower email: $brw->email."
-            if ( !$brw->email or "" eq $brw->email );
-        $delivery->{email} = $brw->email;
+        my $target = $brw->email || "";
+        $target = $brn->{branchemail} if ( 'branch' eq $recipient );
+        die "Digital delivery: invalid $recipient type email address."
+            if ( !$target );
+        $delivery->{email} = $target;
     } elsif ( 'physical' eq $formats->{$fmt} ) {
         # Country
         $delivery->{Address}->{Country} = country2code(

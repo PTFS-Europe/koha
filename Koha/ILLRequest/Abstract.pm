@@ -346,6 +346,39 @@ sub getPrefix {
         || "";                  # "the empty prefix"
 }
 
+=head3 getDigitalRecipient
+
+    my $getDigitalRecipient = $abstract->getDigitalRecipient( {
+        brw_cat => $brw_cat,
+        branch  => $branch_code,
+    } );
+
+Return the digital_recipient setting that should take effect, defaulting to
+'borrower' if none is available, else using 'brw_cat' || 'branch' ||
+'default'.
+
+=cut
+
+sub getDigitalRecipient {
+    my ( $self, $params ) = @_;
+    my $brn_dig_recs = $self->_config->getDigitalRecipients('branch');
+    my $brw_dig_recs = $self->_config->getDigitalRecipients('brw_cat');
+    my $brw_dig_rec = $brw_dig_recs->{$params->{brw_cat}};
+    my $brn_dig_rec = $brn_dig_recs->{$params->{branch}};
+    my $def_dig_rec = $brw_dig_recs->{default};
+
+    my $dig_rec = "borrower";
+    if      ( 'borrower' eq $brw_dig_rec || 'branch' eq $brw_dig_rec ) {
+        $dig_rec = $brw_dig_rec;
+    } elsif ( 'borrower' eq $brn_dig_rec || 'branch' eq $brn_dig_rec ) {
+        $dig_rec = $brn_dig_rec;
+    } elsif ( 'borrower' eq $def_dig_rec || 'branch' eq $def_dig_rec ) {
+        $dig_rec = $def_dig_rec;
+    }
+
+    return $dig_rec;
+}
+
 =head3 getDefaultFormat
 
     my $format = $abstract->getDefaultFormat( {
@@ -391,9 +424,13 @@ sub request {
     # methods from the API or config to extract appropriate & required fields.
     my ( $invalid, $delivery ) = Koha::ILLRequest::Backend::BLDSS->new
         ->validate_delivery_input ( {
-            service  => $params->{transaction},
-            borrower => $brw,
-            branch   => $branch,
+            service           => $params->{transaction},
+            borrower          => $brw,
+            branch            => $branch,
+            digital_recipient => $self->getDigitalRecipient({
+                brw_cat => $brw->categorycode,
+                branch  => $params->{branch},
+            }),
         } );
     return $invalid if ( $invalid );
 
