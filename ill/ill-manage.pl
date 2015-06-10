@@ -61,7 +61,7 @@ if ($request) {
         status  => $request->getStatus,
         manual  => $request->is_manual_request,
         generic => C4::Context->preference('GenericILLModule'),
-        mod     => $request->require_moderation,
+        mod     => $request->requires_moderation,
     } );
     if ( $op eq 'view' ) {
         $template->param(
@@ -292,7 +292,7 @@ if ($request) {
         status  => $request->getStatus,
         manual  => $request->is_manual_request,
         generic => C4::Context->preference('GenericILLModule'),
-        mod     => $request->require_moderation,
+        mod     => $request->requires_moderation,
     } );
 } else {
     $op      = 'message';
@@ -319,16 +319,18 @@ sub build_tabs {
     };
     if ( 'message' ne $op ) {
         $tabs->{edit} = "Edit";
-        $tabs->{moderate} = "Moderation" if ( $params->{mod} );
-        if ( !grep { $params->{status} eq $_ } qw/Requested Queued/ ) {
-            $tabs->{progress} = "Progress" unless ( $params->{manual} );
-            $tabs->{generic_ill} = "Generic ILL" if ( $params->{generic} );
-        }
-        if ( "Requested" eq $params->{status} ) {
+        if ( $params->{mod} ) {
+            $tabs->{moderate} = "Moderation";
+        } elsif ( "Requested" eq $params->{status} ) {
             $tabs->{action_cancel} = "Revert request";
             $tabs->{action_status} = "Request status";
         } else {
-            $tabs->{action_delete} = "Delete request";
+            unless ( grep { $params->{status} eq $_ } qw/Queued/ ) {
+                $tabs->{progress} = "Progress" unless ( $params->{manual} );
+                $tabs->{generic_ill} = "Generic ILL"
+                    if ( $params->{generic} );
+            }
+            {$tabs->{action_delete} = "Delete request";}
         }
     }
     return $tabs;
