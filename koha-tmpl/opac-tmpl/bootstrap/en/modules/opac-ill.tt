@@ -70,7 +70,7 @@
                                 <tr>
                                     [% FOREACH field IN reply.0 %]
                                         [% IF field.key != 'id' %]
-                                            <th id=[% field.key %]>[% field.value.0 %]</th>
+                                            <th class=[% field.key %]>[% field.value.0 %]</th>
                                         [% END %]
                                     [% END %]
                                     <th id="actions">Actions</th>
@@ -81,7 +81,7 @@
                                     <tr>
                                         [% FOREACH field IN summary %]
                                             [% IF field.key != 'id' %]
-                                                <td>
+                                                <td class=[% field.key %]>
                                                     [% IF field.key == 'borrower' %]
                                                         [% brw = field.value.1 %]
                                                         [% brw.firstname _ " " _ brw.surname _ ", " _ brw.cardnumber %]
