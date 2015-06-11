@@ -188,29 +188,28 @@ sub calculatePrice {
     my ( $self, $data, $testData ) = @_;
 
     # testData is used for unit testing only
-    my $prices = $self->_abstract->getPrices;
-    my $xpath = '//format[@id="' . ${$data}{format} . '"]/price[@speed="' .
-      ${$data}{speed} . '" and @quality="' . ${$data}{quality} . '"]';
-    # We have format from before; now we need to retrieve price for display,
-    # as well as service id for eventual request.
-    my $price = $prices->findnodes($xpath);
-    if (@{$price} > 1) {
-        warn "We have more than one result.  This should not have happened.";
+    my $response = $self->_abstract->getPrices;
+    my $result   = $response->result;
+    my $price = 0;
+    my $service = 0;
+    my $services = $result->services;
+    foreach ( @{$services} ) {
+        my $format = $_->get_format($data->{format});
+        if ( $format ) {
+            $price = $format->get_price($data->{speed}, $data->{quality});
+            $service = $_;
+            last;
+        }
     }
-    my $exact = ${$price}[0];
-    my $service = $exact->parentNode->parentNode;
-
     # Currently hard-coded values rather than read from config.
-    my $result = {
-        currency        => [ "Currency", $prices->currency ],
-        region          => [ "Region", $prices->region ],
-        copyrightVat    => [ "CopyrightVat", $prices->copyrightVat ],
-        loanRenewalCost => [ "Loan Renewal Cost", $prices->loanRenewalCost ],
-        price           => [ "Price", $exact->textContent ],
+    return {
+        currency        => [ "Currency", $result->currency ],
+        region          => [ "Region", $result->region ],
+        copyrightVat    => [ "CopyrightVat", $result->copyrightVat ],
+        loanRenewalCost => [ "Loan Renewal Cost", $result->loanRenewalCost ],
+        price           => [ "Price", $price->textContent ],
         service         => [ "Service", $service->{id} ],
     };
-
-    return $result;
 }
 
 =head3 checkSimpleAvailability

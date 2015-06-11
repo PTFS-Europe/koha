@@ -126,10 +126,12 @@ sub get_one_object {
     } else {
         $results = $self->findnodes($xpath);
     }
-    if (@{$results} > 1) {
+    if ( $results->size > 1) {
         die "We have more than one result.  This should not have happened.";
+    } elsif ( $results->size == 0 ) {
+        return 0;
     }
-    return Koha::ILLRequest::XML::BLDSS->rebless(${$results}[0]);
+    return Koha::ILLRequest::XML::BLDSS->rebless($results->shift);
 }
 
 # Stubs
@@ -343,13 +345,6 @@ sub get_format {
     return $self->get_one_object("./format[attribute::id='$id']");
 }
 
-sub prices {
-    my $self = shift;
-    my @prices = map {Koha::ILLRequest::XML::BLDSS->rebless($_)}
-      $self->findnodes("./price");
-    return \@prices;
-}
-
 # Format Object.
 
 package Koha::ILLRequest::XML::BLDSS::Format;
@@ -367,6 +362,22 @@ sub attributes {
 sub new {
     my $class = shift;
     return $class->SUPER::new('format');
+}
+
+sub prices {
+    my $self = shift;
+    my @prices = map {Koha::ILLRequest::XML::BLDSS->rebless($_)}
+      $self->findnodes("./price");
+    return \@prices;
+}
+
+sub get_price {
+    my ($self, $speed, $quality) = @_;
+    die "get_price requires coordinates!"
+        unless ( $speed and $quality );
+    return $self->get_one_object(
+        "./price[attribute::speed='$speed' and attribute::quality='$quality']"
+    );
 }
 
 # Price Object.
