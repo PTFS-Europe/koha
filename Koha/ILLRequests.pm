@@ -337,6 +337,7 @@ sub check_limits {
 
     # Compare and return
     # A limit of -1 means no limit exists.
+    # We return blocked if either branch limit or brw limit is reached.
     if ( ( $branch_limit != -1 && $branch_limit <= $branch_count )
              || ( $brw_limit != -1 && $brw_limit <= $brw_count ) ) {
         return 0;

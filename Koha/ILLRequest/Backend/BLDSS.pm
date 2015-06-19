@@ -93,7 +93,13 @@ sub validate_delivery_input {
 
     if ( 'digital' eq $formats->{$fmt} ) {
         my $target = $brw->email || "";
-        $target = $brn->{branchemail} if ( 'branch' eq $recipient );
+        if ( 'branch' eq $recipient ) {
+            if ( $brn->{branchreplyto} ) {
+                $target = $brn->{branchreplyto};
+            } else {
+                $target = $brn->{branchemail};
+            }
+        }
         die "Digital delivery: invalid $recipient type email address."
             if ( !$target );
         $delivery->{email} = $target;
