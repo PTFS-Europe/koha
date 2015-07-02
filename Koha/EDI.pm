@@ -782,6 +782,8 @@ sub title_level_class {
 }
 
 sub _create_bib_from_quote {
+    #TBD we should flag this for updating from an external source
+    #As biblio (&biblioitems) has no candidates flag in order
     my ( $item, $quote ) = @_;
     my $itemid = $item->item_number_id;
     my $defalt_classification_source =
