@@ -36,6 +36,8 @@ use Koha::Edifact;
 use Log::Log4perl;
 use Text::Unidecode;
 
+use Koha::Edifact::BDS;
+
 our $VERSION = 1.1;
 our @EXPORT_OK =
   qw( process_quote process_invoice create_edi_order get_edifact_ean );
@@ -368,6 +370,7 @@ sub process_quote {
 
     $quote->status('processing');
     $quote->update;
+    my $bds_link = Koha::Edifact::BDS->new();
 
     my $edi = Koha::Edifact->new( { transmission => $quote->raw_msg, } );
 
@@ -407,7 +410,7 @@ sub process_quote {
             my $refnum = $msg->message_refno;
 
             for my $item ( @{$items} ) {
-                if ( !quote_item( $item, $quote, $basketno ) ) {
+                if ( !quote_item( $item, $quote, $basketno, $bds_link ) ) {
                     ++$process_errors;
                 }
             }
@@ -425,7 +428,7 @@ sub process_quote {
 }
 
 sub quote_item {
-    my ( $item, $quote, $basketno ) = @_;
+    my ( $item, $quote, $basketno, $bds ) = @_;
 
     my $schema = Koha::Database->new()->schema();
 
@@ -441,8 +444,17 @@ sub quote_item {
         $bib = {};
         my $bib_record = _create_bib_from_quote( $item, $quote );
         ( $bib->{biblionumber}, $bib->{biblioitemnumber} ) =
-          AddBiblio( $bib_record, q{} );
+          AddBiblio( $bib_record, q{ACQ} );
         $logger->trace("New biblio added $bib->{biblionumber}");
+        if ($bds) {
+            $bds->add_entry(
+                {
+                    biblionumber => $bib->{biblionumber},
+                    ordernumber  => 0,
+                    ean          => $item->item_number_id(),
+                }
+            );
+        }
     }
     else {
         $logger->trace("Match found: $bib->{biblionumber}");
