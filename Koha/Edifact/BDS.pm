@@ -26,8 +26,7 @@ q{insert into edifact_skeleton (biblionumber, ordernumber, ean, status) values (
 
 sub add_entry {
     my ( $self, $args ) = @_;
-    $self->{insert}
-      ->( $args->{biblionumber}, $args->{ordernumber}, $args->{ean} );
+    $self->{insert}->execute( $args->{biblionumber}, $args->{ordernumber}, $args->{ean} );
     return;
 }
 
