@@ -752,11 +752,15 @@ sub _check_for_existing_bib {
 # fact we need this shows what a mess Acq API is
 sub _get_budget {
     my ( $schema, $budget_code ) = @_;
+    my $period_rs = $schema->resultset('Aqbudgetperiod')->search({
+            budget_period_active => 1,
+        });
 
     # db does not ensure budget code is unque
     return $schema->resultset('Aqbudget')->single(
         {
             budget_code => $budget_code,
+            budget_period_id => { -in => $period_rs->get_column('budget_period_id')->as_query },
         }
     );
 }
