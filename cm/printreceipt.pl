@@ -31,9 +31,9 @@ my $input = new CGI;
 
 my ( $template, $loggedinuser, $cookie ) = get_template_and_user(
     {
-        template_name   => "cm/printreceipt.tt",
+        template_name   => 'cm/printreceipt.tt',
         query           => $input,
-        type            => "intranet",
+        type            => 'intranet',
         authnotrequired => 0,
         flagsrequired   => { cashmanage => q{*} },
     }

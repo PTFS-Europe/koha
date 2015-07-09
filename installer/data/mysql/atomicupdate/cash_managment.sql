@@ -1,36 +1,36 @@
 
 create table cash_till (
-	tillid integer(11) auto_increment not null,
-	name varchar(20) not null,
-	description varchar(100) not null,
-	branch varchar(10),
-	primary key (tillid),
+        tillid integer(11) auto_increment not null,
+        name varchar(20) not null,
+        description varchar(100) not null,
+        branch varchar(10),
+        primary key (tillid),
         UNIQUE KEY name_branch (name,branch),
-	foreign key (branch) references branches (branchcode)
+        foreign key (branch) references branches (branchcode)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 create table cash_transcode (
-	code varchar(10) not null,
+        code varchar(10) not null,
         description varchar(100) not null default '',
-	income_group varchar(10),
-	taxrate varchar(10),
-	visible_charge boolean not null default 1,
-    archived boolean not null default 0,
-	primary key (code)
+        income_group varchar(10),
+        taxrate varchar(10),
+        visible_charge boolean not null default 1,
+        archived boolean not null default 0,
+        primary key (code)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- alter table cash_transcode add column visible_charge boolean not null default 1;
 
 create table cash_transaction (
-	id serial not null,
-	created datetime null,
-	amt decimal(12,2) not null,
-	till integer(11) not null,
-	tcode varchar(10) not null,
+        id serial not null,
+        created datetime null,
+        amt decimal(12,2) not null,
+        till integer(11) not null,
+        tcode varchar(10) not null,
         paymenttype varchar(10),
-	primary key (id),
+        primary key (id),
         foreign key (till) references cash_till (tillid),
-	foreign key (tcode ) references cash_transcode( code )
+        foreign key (tcode ) references cash_transcode( code )
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TRIGGER cash_transaction_insert BEFORE INSERT ON `cash_transaction`

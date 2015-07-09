@@ -3,22 +3,22 @@ package Koha::Service::Till;
 use Modern::Perl;
 use CGI::Cookie;
 use JSON;
+use Carp;
 
 use base 'Koha::Service';
 
 use Koha::Database;
-use Data::Dumper;
 
 sub new {
     my ($class) = @_;
 
     return $class->SUPER::new(
         {
-            routes       => [
-                [ qr'GET /(\d*)',    'read' ],
-                [ qr'POST /',        'create' ],
-                [ qr'PUT /(\d+)',    'update' ],
-                [ qr'DELETE /(\d+)', 'delete' ],
+            routes => [
+                [ qr{GET /(\d*)},    'tread' ],
+                [ qr{POST /},        'create' ],
+                [ qr{PUT /(\d+)},    'update' ],
+                [ qr{DELETE /(\d+)}, 'tdelete' ],
             ]
         }
     );
@@ -28,37 +28,37 @@ sub create {
     my ($self) = @_;
 
     my $response = {};
-    my $input  = from_json($self->query->param('POSTDATA'));
+    my $input    = from_json( $self->query->param('POSTDATA') );
 
     my $schema = Koha::Database->new()->schema();
-    my $till = $schema->resultset('CashTill')->create( $input );
+    my $till   = $schema->resultset('CashTill')->create($input);
 
-    unless ( $till ) {
+    if ( !defined $till ) {
         $self->output( $response, { status => '200 OK', type => 'json' } );
         return;
     }
 
     $response = { $till->get_columns };
-    $response->{'branchname'} = $till->branch->get_column('branchname');
+    $response->{branchname} = $till->branch->get_column('branchname');
     $self->output( $response, { status => '200 OK', type => 'json' } );
     return;
 }
 
-sub read {
+sub tread {
     my ( $self, $tillid ) = @_;
 
     my $response = {};
     my $schema   = Koha::Database->new()->schema();
-    my $filter = {};
-    if ( $tillid ) {
-        $filter->{'tillid'} = $tillid;
+    my $filter   = {};
+    if ($tillid) {
+        $filter->{tillid} = $tillid;
         my $till_cookie = CGI::Cookie->new(
-                -name => 'KohaStaffClient',
-                -value => $tillid,
-                -HttpOnly => 1,
-                -expires => '+3y'
-            );
-        $self->cookie([ $self->cookie, $till_cookie ]);
+            -name     => 'KohaStaffClient',
+            -value    => $tillid,
+            -HttpOnly => 1,
+            -expires  => '+3y'
+        );
+        $self->cookie( [ $self->cookie, $till_cookie ] );
     }
     my $tills_rs = $schema->resultset('CashTill')->search(
         $filter,
@@ -69,8 +69,7 @@ sub read {
         }
     );
 
-    $response->{recordsTotal}    = $tills_rs->count;
-    $response->{recordsFiltered} = $tills_rs->count;
+    $response->{recordsTotal} = $response->{recordsFiltered} = $tills_rs->count;
     while ( my $till = $tills_rs->next ) {
         push @{ $response->{data} }, { $till->get_columns };
     }
@@ -81,7 +80,7 @@ sub read {
 
 sub other {
     my ( $self, $tillid ) = @_;
-    warn "Other tillid: " . Dumper($tillid);
+    carp "Other tillid: $tillid";
     return;
 }
 
@@ -93,7 +92,7 @@ sub update {
     my $schema   = Koha::Database->new()->schema();
     my $till = $schema->resultset('CashTill')->find( { tillid => $tillid } );
 
-    unless ($till) {
+    if ( !defined $till ) {
         $self->output( {}, { status => '404', type => 'json' } );
         return;
     }
@@ -105,9 +104,12 @@ sub update {
     return;
 }
 
-sub delete {
+sub tdelete {
     my ( $self, $tillid ) = @_;
 
+    # prob set  a deleted flag
+
+    return;
 }
 
 1;

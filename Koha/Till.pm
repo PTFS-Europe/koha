@@ -12,14 +12,14 @@ sub new {
     my $schema   = Koha::Database->new()->schema();
     my $tills_rs = $schema->resultset('CashTill')->search($params);
 
-    unless ( $tills_rs && $tills_rs->count == '1' ) {
+    if ( $tills_rs->count != 1 ) {
         my $plist = q{};
         foreach my $pkey ( keys %{$params} ) {
-		$plist .= " $pkey:$params->{$pkey}";
-	}
+            $plist .= " $pkey:$params->{$pkey}";
+        }
         carp("Cannot instantiate till ::$plist");
 
-        return undef;
+        return;
     }
 
     my $self = {
@@ -41,7 +41,7 @@ sub payin {
     # dont refuse the payment if we cant identify a transaction for it
     my $tc_rs = $self->{schema}->resultset('CashTranscode')->search(
         {
-            code => $code,
+            code     => $code,
             archived => 0,
         }
     );
@@ -142,7 +142,7 @@ C<$amount> is the amount paid out
 
 C<$code> is the code to be associated with the payment 'REFUND' etc.
 
-=head2 ctltrans : Recoord a control transacton
+=head2 ctltrans : Record a control transacton
 
    $till->ctltrans($code);
 

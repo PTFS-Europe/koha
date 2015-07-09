@@ -2,7 +2,11 @@
 [% INCLUDE 'doc-head-open.inc' %]
 <title>Print Receipt</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<link rel="shortcut icon" href="[% IF ( IntranetFavicon ) %][% IntranetFavicon %][% ELSE %][% interface %]/[% theme %]/img/favicon.ico[% END %]" type="image/x-icon" />
+[% IF IntranetFavicon %]
+i  <link rel="shortcut icon" href="[% IntranetFavicon %]" type="image/x-icon" />
+[% ELSE %]
+  <link rel="shortcut icon" href="[% interface %]/[% theme %]/img/favicon.ico" type="image/x-icon" />
+[% END %]
 <link rel="stylesheet" type="text/css" href="[% themelang %]/css/printreceiptinvoice.css"/>
 [% INCLUDE 'slip-print.inc' #printThenClose %]
 </head>
@@ -76,4 +80,4 @@
             </tfoot>
         </table>
     </div>
-    [% INCLUDE 'intranet-bottom.inc' notill="1" %]
+[% INCLUDE 'intranet-bottom.inc' notill="1" %]

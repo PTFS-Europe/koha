@@ -20,10 +20,9 @@
 use Modern::Perl;
 
 use CGI;
-use autouse 'Data::Dumper' => qw(Dumper);
 
 use C4::Auth;
-use C4::Branch;
+use C4::Branch qw( GetBranchesLoop);
 use C4::Koha;
 use C4::Context;
 use C4::Output;
@@ -31,25 +30,15 @@ use C4::Output;
 my $cgi = CGI->new();
 my ( $template, $borrowernumber, $cookie ) = get_template_and_user(
     {
-        template_name   => "admin/tills.tt",
+        template_name   => 'admin/tills.tt',
         query           => $cgi,
-        type            => "intranet",
+        type            => 'intranet',
         authnotrequired => 0,
         flagsrequired   => { admin => 'edit_tills' },
         debug           => 1,
     }
 );
 
-# Get branches
-my $branches = GetBranches;
-my @branches_loop;
-foreach my $branch (sort keys %$branches) {
-    push @branches_loop, {
-        branchcode => $$branches{$branch}{branchcode},
-        branchname => $$branches{$branch}{branchname},
-    };
-}
-
-$template->param( branches_loop => \@branches_loop, );
+$template->param( branch_list => GetBranchesLoop() );
 
 output_html_with_http_headers $cgi, $cookie, $template->output;

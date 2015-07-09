@@ -94,7 +94,8 @@ $(document).ready(function() {
                         });
                         return JSON.parse(settings.data)[value];
                     }, {
-                        data: '{[% FOREACH branch IN branches_loop %]"[% branch.branchcode %]":"[% branch.branchname %]"[% IF !loop.last %],[% END %][% END %]}',
+                        data: '{[% FOREACH branch IN branch_list -%]
+                             "[% branch.branchcode %]":"[% branch.branchname %]"[% IF !loop.last -%], [% END %][% END %]}',
                         type: 'select',
                         submit: 'OK',
                         tooltip: 'Click to edit...',
@@ -221,7 +222,7 @@ $(document).ready(function() {
                             <li>
                                 <label for="branch">Branch:</label>
                                 <select id="branch" name="branch">
-                                    [% FOREACH branch IN branches_loop %]
+                                    [% FOREACH branch IN branch_list %]
                                     <option value="[% branch.branchcode %]">[% branch.branchname %]</option>
                                     [% END %]
                                 </select>

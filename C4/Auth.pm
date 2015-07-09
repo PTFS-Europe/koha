@@ -374,8 +374,12 @@ sub get_template_and_user {
             persona                      => C4::Context->preference("persona"),
     );
     if ( $in->{'type'} eq "intranet" ) {
-        my $schema   = Koha::Database->new()->schema();
-        my $filter = { branch => C4::Context->userenv?C4::Context->userenv->{"branch"}:undef };
+        my $schema = Koha::Database->new()->schema();
+        my $filter = {
+              branch => C4::Context->userenv
+            ? C4::Context->userenv->{branch}
+            : undef
+        };
         my $tills_rs = $schema->resultset('CashTill')->search(
             $filter,
             {
@@ -384,12 +388,24 @@ sub get_template_and_user {
                 '+as'     => ['branchname']
             }
         );
-        my @tills_loop;
+        my $till_list = [];
         my $current_till;
         while ( my $till = $tills_rs->next ) {
-            push @tills_loop, { tillid => $till->get_column('tillid'), name => $till->get_column('name'), description => $till->get_column('description') };
-            if ( defined($in->{'query'}->cookie("KohaStaffClient")) && $in->{'query'}->cookie("KohaStaffClient") eq $till->get_column('tillid') ) {
-                $current_till = { tillid => $till->get_column('tillid'), name => $till->get_column('name'), description => $till->get_column('description') };
+            push @{$till_list},
+              {
+                tillid      => $till->get_column('tillid'),
+                name        => $till->get_column('name'),
+                description => $till->get_column('description')
+              };
+            if ( defined( $in->{'query'}->cookie("KohaStaffClient") )
+                && $in->{'query'}->cookie("KohaStaffClient") eq
+                $till->get_column('tillid') )
+            {
+                $current_till = {
+                    tillid      => $till->get_column('tillid'),
+                    name        => $till->get_column('name'),
+                    description => $till->get_column('description')
+                };
             }
         }
 
@@ -424,7 +440,7 @@ sub get_template_and_user {
             EnableBorrowerFiles         => C4::Context->preference('EnableBorrowerFiles'),
             UseKohaPlugins              => C4::Context->preference('UseKohaPlugins'),
             UseCourseReserves            => C4::Context->preference("UseCourseReserves"),
-            tills_loop                  => \@tills_loop,
+            till_list                   => $till_list,
             till                        => $current_till,
         );
     }

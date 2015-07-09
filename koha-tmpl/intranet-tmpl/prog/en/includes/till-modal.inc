@@ -46,7 +46,7 @@
                     <li>
                         <label for="till">Choose till:</label>
                         <select name="till" id="till-select">
-                            [% FOREACH till IN tills_loop %]
+                            [% FOREACH till IN till_list %]
                             <option value="[% till.tillid %]">[% till.name %]</option>
                             [% END %]
                         </select>

@@ -52,7 +52,9 @@ function addChargeLines(formObj) {
   var change = document.getElementById('change').innerHTML;
   var tendered = document.getElementById('collected').value;
   var tillid = document.getElementById('till').value;
-  var url="/cgi-bin/koha/cm/printreceipt.pl?tendered="+tendered+"&change="+change+"&amounts="+amounts+"&transcodes="+codes+"&paymenttime=[% paymenttime %]&tillid="+tillid;
+  var dt = new Date();
+  var paymenttime = dt.getTime();
+  var url="/cgi-bin/koha/cm/printreceipt.pl?tendered="+tendered+"&change="+change+"&amounts="+amounts+"&transcodes="+codes+"&paymenttime="+ paymenttime + "&tillid="+tillid;
   var win = window.open(url, '_blank');
   win.focus();
 }
@@ -139,12 +141,11 @@ function moneyFormat(textObj) {
     <div id="yui-main">
       <div class="yui-b">
       <div id="toolbar" class="btn-toolbar">
-         <button class="btn btn-small" id="add_charge" onclick="addCharge(); return false;"><i class="icon-plus"></i> Add Charge</button>
       </div>
 <input type="hidden" data-cmd="charge" class="cmd" value="charge" />
 <table id="charge_table">
 <thead>
-<tr><th>Item</th><th>Amount</th></tr>
+<tr><th>Item</th><th>Amount</th><th>Cmd</th></tr>
 </thead>
 <tbody>
 <tr id="charge_entry">
@@ -159,6 +160,9 @@ function moneyFormat(textObj) {
 </td>
 <td>
 <input type="text" name="amt" id="amt" pattern='^\d+(?:\d{0,2})$' value="0.00" />
+</td>
+<td>
+ <button class="btn btn-small" id="add_charge" onclick="addCharge(); return false;"><i class="icon-plus"></i> Add Charge</button>
 </td>
 </tr>
 </tbody>

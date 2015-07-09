@@ -150,7 +150,6 @@ borrower_add_additional_fields($borrower);
 
 my $schema = Koha::Database->new()->schema();
 my @paymenttypes = $schema->resultset('AuthorisedValue')->search( { category => 'PaymentType', });
-my $timestamp = time;
 
 $template->param(
     borrowernumber => $borrowernumber,    # some templates require global
@@ -160,7 +159,7 @@ $template->param(
     RoutingSerials => C4::Context->preference('RoutingSerials'),
     ExtendedPatronAttributes => C4::Context->preference('ExtendedPatronAttributes'),
     PaymentTypes => \@paymenttypes,
-    PaymentTime  => $timestamp
+    PaymentTime  => time(),
 );
 
 output_html_with_http_headers $input, $cookie, $template->output;
