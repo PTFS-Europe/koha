@@ -23,6 +23,7 @@ use C4::Reserves;
 use C4::Branch qw(GetBranchName);
 use C4::Items qw( GetBarcodeFromItemnumber GetItemnumbersForBiblio);
 use C4::Auth qw(checkpw_hash);
+use C4::Members::Attributes qw( GetBorrowerAttributeValue );
 
 our $VERSION = 3.07.00.049;
 
@@ -338,6 +339,11 @@ sub inet_privileges {
 
 sub parental_permission {
     my $self = shift;
+    my $attribute = 'INTACC';
+    my $attr = GetBorrowerAttributeValue($self->{borrowernumber}, $attribute);
+    if ($attr && $attr == 1) {
+       return 'Y';
+    }
     my %no_permission = (
         J5  => 1,
         J10  => 1,
@@ -356,9 +362,19 @@ sub parental_permission {
         YSEI18  => 1,
         YS18  => 1,
     );
-    if ($self->{category_type} eq 'C' && exists $no_permission{$self->{ptype}} ) {
-        return 'N';
-    }
+    my %permit = (
+		    YEI18 => 1,
+		    YEI18E => 1,
+                    MY18EI => 1,
+                    MY18EIE => 1,
+		 );
+    #if ($self->{category_type} eq 'C' && exists $no_permission{$self->{ptype}} ) {
+	    if ($self->{category_type} eq 'C' ) {
+		    if (exists $permit{$self->{ptype}} ) {
+			    return 'Y';
+		    }
+		    return 'N';
+	    }
     else {
         return 'Y';
     }
