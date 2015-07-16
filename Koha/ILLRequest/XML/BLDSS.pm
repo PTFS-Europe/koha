@@ -373,10 +373,12 @@ sub prices {
 
 sub get_price {
     my ($self, $speed, $quality) = @_;
-    die "get_price requires coordinates!"
-        unless ( $speed and $quality );
+    die "get_price: whilst quality is optional, speed is mandatory!"
+        unless ( $speed );
     return $self->get_one_object(
         "./price[attribute::speed='$speed' and attribute::quality='$quality']"
+    ) || $self->get_one_object(
+        "./price[attribute::speed='$speed']"
     );
 }
 

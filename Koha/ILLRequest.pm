@@ -196,7 +196,8 @@ sub calculatePrice {
     foreach ( @{$services} ) {
         my $format = $_->get_format($data->{format});
         if ( $format ) {
-            $price = $format->get_price($data->{speed}, $data->{quality});
+            $price = $format->get_price($data->{speed}, $data->{quality}) ||
+                $format->get_price($data->{speed});
             $service = $_;
             last;
         }
