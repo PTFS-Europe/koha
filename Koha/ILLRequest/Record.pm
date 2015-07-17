@@ -127,47 +127,6 @@ sub _make_xsor {
     }
 }
 
-=head3 checkAvailability
-
-    my $checkAvailability = $illRequest->checkAvailability();
-
-Use our API to check the current availability of this item and return an
-associative array in the usual style ready for user output.
-
-TODO: Return a record augmented by its availability status.  Availability is a
-transient property, so is not part of the actual record as such.  It is
-unclear whether this augmentation should happen here or at ILLRequest level
-(where it currently happens via hard-coded values.
-
-=cut
-
-sub checkAvailability {
-    my ( $self, $response ) = @_;
-    unless ($response) {        # Response is optional, for unit testing.
-        $response = Koha::ILLRequest::Abstract->new->checkAvailability($self);
-    }
-    return $response
-        if ( 'HASH' eq ref $response and $response->{status} );
-    return $response->result->availability;
-}
-
-=head3 checkPrices
-
-    my $prices = $illRequest->checkPrices();
-
-Use our API to return a generic structure on prices, formats, services and
-delivery times and return it as a suitably formatted associative array.
-
-=cut
-
-sub checkPrices {
-    my ( $self, $response ) = @_;
-    unless ($response) {        # Response is optional, for unit testing.
-        $response = Koha::ILLRequest::Abstract->new()->getPrices();
-    }
-    return $response->result;
-}
-
 sub _parseResponse {
     my ( $self, $chunk, $config, $accum ) = @_;
     # If clause for unit-testing convenience only. Normally relevant *_props

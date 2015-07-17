@@ -224,10 +224,10 @@ this Request.
 
 sub checkSimpleAvailability {
     my ( $self, $testData ) = @_;
-    my $availability = $self->record->checkAvailability($testData);
-    # We have a status message from the API.
-    return $availability
-        if ( 'HASH' eq ref $availability and $availability->{status} );
+    my $response = $self->_abstract->checkAvailability($self->record);
+    return $response
+        if ( 'HASH' eq ref $response and $response->{status} );
+    my $availability = $response->result->availability;
     my @formats;
     foreach my $format (@{$availability->formats}) {
         my @speeds;
