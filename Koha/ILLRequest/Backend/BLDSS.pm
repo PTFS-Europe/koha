@@ -111,7 +111,6 @@ sub validate_delivery_input {
         # Mandatory Fields
         my $mandatory_fields = {
             AddressLine1  => "branchaddress1",
-            AddressLine2  => "branchaddress2",
             TownOrCity    => "branchcity",
             PostOrZipCode => "branchzip",
         };
@@ -122,6 +121,7 @@ sub validate_delivery_input {
         }
         # Optional Fields
         my $optional_fields = {
+            AddressLine2     => "branchaddress2",
             AddressLine3     => "branchaddress3",
             CountyOrState    => "branchstate",
             ProvinceOrRegion => "",
