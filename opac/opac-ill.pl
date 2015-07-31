@@ -47,7 +47,7 @@ my $reply;
 my $illRequests = Koha::ILLRequests->new;
 my $query       = $cgi->param('query_value');
 my $here        = "/cgi-bin/koha/opac-ill.pl";
-my $op          = $cgi->param('op');
+my $op          = $cgi->param('op') || "";
 my ( $error, $message );
 my $borrower    = Koha::Borrowers->new->find($borrowernumber)
     || die "You're logged in as the database user. We don't support that.";

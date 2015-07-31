@@ -382,8 +382,10 @@ sub manual_property {
     my ( $self, $id, $value, $name, $inSummary ) = @_;
     my $result = 0;
     if ( $self->{manual_props}->{$id} ) {
-        # magic command to 'unset' field value.
-        $value = "" if ( 'UNSET' eq $value );
+        # magic command to 'unset' field value.  'UNSET' is a string
+        # we pass to indicate we want $value to be cleared; but it
+        # might not be defined at all if this is not a manual request.
+        $value = "" if ( !$value || 'UNSET' eq $value );
         my $accessor = &{$self->{manual_entry_accessor}}($id);
         return &{$accessor}($value, $name, $inSummary);
     }

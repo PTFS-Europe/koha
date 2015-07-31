@@ -351,7 +351,7 @@ sub _limit_counter {
 
     # Establish parameters of counts
     my $where;
-    if ($method eq 'annual') {
+    if ($method && $method eq 'annual') {
         $where = { "year(placement_date)" => \" = year(now())" };
     } else {                    # assume 'active'
         # FIXME: This status list is ugly. There should be a method in config
@@ -397,9 +397,9 @@ sub _borrower_from_number {
 
     my $borrowers = Koha::Borrowers->new;
     my $brws;
-    if ( 'crd' eq $strategy ) {
+    if ( $strategy && 'crd' eq $strategy ) {
         $brws = $borrowers->search( { cardnumber => $number } );
-    } elsif ( 'brw' eq $strategy) {
+    } elsif ( $strategy && 'brw' eq $strategy) {
         $brws = $borrowers->search( { borrowernumber => $number } );
     } else {
         $brws = $borrowers->search( { borrowernumber => $number } );

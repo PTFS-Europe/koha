@@ -380,8 +380,9 @@ sub _load_configuration {
     };
 
     # Censorship
+    my $staff_comments = $from_xml->{staff_request_comments};
     $configuration->{censorship}->{censor_notes_staff} = 1
-        if ( 'hide' eq $from_xml->{staff_request_comments} );
+        if ( $staff_comments && 'hide' eq $staff_comments );
 
     die "No DEFAULT_FORMATS has been defined in koha-conf.xml, but UNMEDIATEDILL is active."
         if ( $unmediated && !$configuration->{default_formats}->{default} );
@@ -420,7 +421,7 @@ sub _load_unit_config {
 
     # Add library_privilege rules (only per branch).
     # LIBRARY_PRIVILEGE := 1 || 0
-    unless ( 'brw_cat' eq $type ) {
+    unless ( $type && 'brw_cat' eq $type ) {
         if ( $unit->{library_privilege} ) {
             if ( 'default' eq $id ) {
                 $config->{library_privileges}->{$id} =
