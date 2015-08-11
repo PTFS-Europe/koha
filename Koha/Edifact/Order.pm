@@ -336,8 +336,12 @@ sub order_line {
 
     # if theres an ean or issn that probably came from quote
     # otherwise we assume first id in isbn will be valid ean
-    my @identifiers =
-      ( $biblioitem->ean, $biblioitem->issn, $biblioitem->isbn );
+	    my @identifiers;
+    for my $ident ( $biblioitem->ean, $biblioitem->issn, $biblioitem->isbn ) {
+	    if ($ident) {
+		    push  @identifiers, $ident;
+	    }
+    }
     my $id_string = join ' ', @identifiers;
     @identifiers = split /\s+/, $id_string;
     $id_string = shift @identifiers;
