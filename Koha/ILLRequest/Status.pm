@@ -112,7 +112,7 @@ sub getFullStatus {
 
     my $return = {
         id              => [ "Request Number", $self->{id} ],
-        biblionumber    => [ "Item Number", $self->{biblionumber} ],
+        biblionumber    => [ "Biblio Number", $self->{biblionumber} ],
         status          => [ "Status", $self->{status} ],
         placement_date  => [ "Placement Date", $self->{placement_date} ],
         reply_date      => [ "Response Date", $self->{reply_date} ],
@@ -139,7 +139,7 @@ sub getSummary {
     my ( $self, $params ) = @_;
     my $return = {
         id             => [ "Request Number", $self->{id} ],
-        biblionumber   => [ "Item Number", $self->{biblionumber} ],
+        biblionumber   => [ "Biblio Number", $self->{biblionumber} ],
         status         => [ "Status", $self->{status} ],
         reqtype        => [ "Request Type", $self->{reqtype} ],
     };

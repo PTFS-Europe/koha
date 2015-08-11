@@ -77,7 +77,7 @@
                     request = currResult;
                     // This is currently part of an elaborate mock up.
                     // remove once api is working
-                    request['biblionumber'] = [ "Item Number", "" ];
+                    request['biblionumber'] = [ "Biblio Number", "" ];
                     request['borrowernumber'] = [ "Borrower Number", "" ];
                     request['status'] = [ "Status", "new" ];
                     request['reqtype'] = [ "Request Type", "book" ];
