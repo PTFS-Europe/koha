@@ -513,7 +513,7 @@ sub gir_segments {
             $seg .=
               add_gir_identity_number( 'LLO', $item->homebranch->branchcode );
             $seg .= add_gir_identity_number( 'LST', $item->itype );
-            $seg .= add_gir_identity_number( 'LSQ', $item->location );
+            $seg .= add_gir_identity_number( 'LSQ', $item->ccode );
             $seg .= add_gir_identity_number( 'LSM', $item->itemcallnumber );
 
             # itemcallnumber -> shelfmark
