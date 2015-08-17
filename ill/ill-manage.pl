@@ -228,19 +228,21 @@ if ($request) {
         )
 
     } elsif ( $op eq 'progress' ) {
-        my $ill = $request->checkSimpleAvailability;
-        if ( $ill->{status} ) {
+        my $avail = $request->checkSimpleAvailability;
+        if ( $avail->{status} ) {
             $op      = 'message';
             $template->param (
-                message => $ill->{status},
-                whole   => $ill,
+                message => $avail->{status},
+                whole   => $request,
                 forward => $parent,
             );
         } else {
             $template->param(
                 title   => "Availability",
                 forward => 'price',
-                ill     => $ill,
+                ill     => $request->getFullDetails,
+                avail   => $avail,
+
             );
         }
 
@@ -251,7 +253,8 @@ if ($request) {
             quality => $cgi->param('quality'),
         };
         $template->param(
-            ill         => $request->calculatePrice($coordinates),
+            price       => $request->calculatePrice($coordinates),
+            ill         => $request->getFullDetails,
             title       => "Prices",
             forward     => "action_request",
             coordinates => $coordinates,

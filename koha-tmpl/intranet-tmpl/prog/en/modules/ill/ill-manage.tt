@@ -253,13 +253,13 @@
                     </form>
                 [% ELSIF op == 'progress' %]
                     <dl>
-                        <dt id="availableImmediately">[% ill.availableImmediately.0 %]</dt>
-                        <dd>[% ill.availableImmediately.1 %]</dd>
-                        <dt id="copyrightFee">[% ill.copyrightFee.0 %]</dt>
-                        <dd>[% ill.copyrightFee.1 %]</dd>
+                        <dt id="availableImmediately">[% avail.availableImmediately.0 %]</dt>
+                        <dd>[% avail.availableImmediately.1 %]</dd>
+                        <dt id="copyrightFee">[% avail.copyrightFee.0 %]</dt>
+                        <dd>[% avail.copyrightFee.1 %]</dd>
                     </dl>
-                    <h3>[% ill.formats.0 %]</h3>
-                    [% FOREACH format IN ill.formats.1 %]
+                    <h3>[% avail.formats.0 %]</h3>
+                    [% FOREACH format IN avail.formats.1 %]
                         <form method="POST" action=[% here %]>
                             <fieldset id="format">
                                 <input type="hidden" name="format" value=[% format.key.1 %] />
@@ -289,9 +289,9 @@
                     [% END %]
                 [% ELSIF op == 'price' %]
                     <form method="POST" action=[% here %]>
-                        <p>[% ill.price.0 %]: [% ill.currency.1 %] [% ill.price.1 %]</p>
-                        <p>[% ill.copyrightVat.0 %]: [% 100 * ill.copyrightVat.1 %]%</p>
-                        <p>[% ill.loanRenewalCost.0 %]: [% ill.currency.1 %] [% ill.loanRenewalCost.1 %]</p>
+                        <p>[% price.price.0 %]: [% price.currency.1 %] [% price.price.1 %]</p>
+                        <p>[% price.copyrightVat.0 %]: [% 100 * price.copyrightVat.1 %]%</p>
+                        <p>[% price.loanRenewalCost.0 %]: [% price.currency.1 %] [% price.loanRenewalCost.1 %]</p>
                         <input name="format" id="format"
                                value="[% coordinates.format %]" type="hidden"/>
                         <input name="speed" id="speed"
@@ -299,7 +299,7 @@
                         <input name="quality" id="quality"
                                value="[% coordinates.quality %]" type="hidden"/>
                         <input name="service" id="service"
-                               value="[% ill.service.1 %]" type="hidden"/>
+                               value="[% price.service.1 %]" type="hidden"/>
 
                         <input type="hidden" name="op" value=[% forward %] />
                         <input type="hidden" name="rq" value=[% rq %] />
