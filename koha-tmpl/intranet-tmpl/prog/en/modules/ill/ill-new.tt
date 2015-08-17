@@ -236,7 +236,7 @@
                             <a class="cancel" href=[% parent %]>Cancel</a>
                         </fieldset>
                     </form>
-                [% ELSIF query_type == 'search' %]
+                [% ELSIF query_type == 'search' OR query_type == 'search_cont' %]
                     <h2>Search results</h2>
                     [% IF reply.0 %]
                         <p class="bg-info">Results of search for: ”[% search %]“
@@ -273,7 +273,7 @@
                         </table>
                         <p>
                             [% IF previous %]
-                                <a class="nav" title="Next set of results"
+                                <a class="nav" title="Previous set of results"
                                    href=[% here _ previous %]>&lsaquo;&lsaquo; Previous</a>
                             [% ELSE %]
                                 <span> &lsaquo;&lsaquo; Previous</span>

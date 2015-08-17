@@ -48,7 +48,7 @@ $template->param(
     query_value => $query,
     query_type  => $action,
 );
-my ( $brw_count, $brw ) = validate_borrower($input->param('brw'));
+my ( $brw_count, $brw ) = validate_borrower($input->param('brw'), $action);
 
 if ( $input->param('query_type') eq 'manual' ) {
     $reply = $illRequests->prepare_manual_entry;
@@ -79,10 +79,12 @@ if ( $input->param('query_type') eq 'manual' ) {
         forward      => $forward,
         query_value  => $query,
     );
-} elsif ( $action eq 'search' ) {
+} elsif ( $action eq 'search' || $action eq 'search_cont' ) {
     my $opts = {};
     $opts->{keywords} = $query if ( '' ne $query );
-    my $nav_qry = "?query_type=search&query_value=" . uri_escape($query);
+    my $nav_qry = "?query_type=search_cont&query_value=" . uri_escape($query);
+    $nav_qry .= "&brw=" . $brw->borrowernumber;
+    $nav_qry .= "&branch=" . $input->param('branch');
     for my $opt qw( isbn issn title author type start_rec max_results ) {
         my $val = $input->param($opt);
         if ( $val ne '' ) {
@@ -173,11 +175,13 @@ sub fail {
 sub validate_borrower {
     # Perform cardnumber search.  If no results, perform surname search.
     # Return ( 0, undef ), ( 1, $brw ) or ( n, $brws )
-    my $input = shift;
+    my ( $input, $action ) = @_;
     my $borrowers = Koha::Borrowers->new;
     my ( $count, $brw );
+    my $query = { cardnumber => $input };
+    $query = { borrowernumber => $input } if ( $action eq 'search_cont' );
 
-    my $brws = $borrowers->search( { cardnumber => $input } );
+    my $brws = $borrowers->search( $query );
     $count = $brws->count;
     if ( $count == 0 ) {
         $brws = $borrowers->search( { surname => $input } );
