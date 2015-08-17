@@ -55,11 +55,13 @@ Create a new $illRequest.
 =cut
 
 sub new {
-    my ( $class ) = @_;
+    my ( $class, $params ) = @_;
+    my $config = $params->{config} || Koha::ILLRequest::Config->new;
     my $self = {
         record   => {},
         status   => {},
-        abstract => Koha::ILLRequest::Abstract->new,
+        _config  => $config,
+        abstract => Koha::ILLRequest::Abstract->new( { config => $config } ),
     };
 
     bless $self, $class;
@@ -588,7 +590,8 @@ sub seed {
     # Now re-populate our Abstract with our branch configured.
     $self->_abstract(
         Koha::ILLRequest::Abstract->new( {
-            branch => $self->status->getProperty('branch')
+            branch => $self->status->getProperty('branch'),
+            config => $self->{_config},
         } )
     );
 

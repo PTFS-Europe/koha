@@ -81,7 +81,8 @@ sub new {
 
     bless( $self, $class );
 
-    $self->_config(Koha::ILLRequest::Config->new);
+    die "Config required for new Abstract object." unless ( $params->{config} );
+    $self->_config($params->{config});
 
     # This is where we may want to introduce the possibility to choose amongst
     # backends.

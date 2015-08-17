@@ -24,6 +24,7 @@ use Koha::Borrowers;
 use Koha::Database;
 use Koha::ILLRequest;
 use Koha::ILLRequest::Abstract;
+use Koha::ILLRequest::Config;
 use Koha::ILLRequest::Status;
 use URI::Escape;
 
@@ -67,7 +68,11 @@ backends.
 
 sub new {
     my ( $class ) = @_;
+    my $config = Koha::ILLRequest::Config->new;
     my $self = {};
+    $self->{_config} = $config;
+    $self->{_abstract} = Koha::ILLRequest::Abstract
+        ->new( { config => $config } );
 
     bless $self, $class;
 
@@ -86,8 +91,7 @@ can be used for output to the end-user.  For placing the request, the
 
 sub search_api {
     my ( $self, $opts ) = @_;
-    my $records = Koha::ILLRequest::Abstract->new
-        ->search($opts->{keywords}, $opts);
+    my $records = $self->{_abstract}->search($opts->{keywords}, $opts);
     $self->{opts} = $opts;
     $self->{opts}->{max_results} = $opts->{max_results} || 10;
     $self->{opts}->{start_rec}   = $opts->{start_rec}   || 1;
@@ -115,7 +119,7 @@ A procedure to provide the manual_entry_fields from Abstract.
 
 sub prepare_manual_entry {
     my ( $self ) = @_;
-    return Koha::ILLRequest::Abstract->new->manual_entry_fields;
+    return $self->{_abstract}->manual_entry_fields;
 }
 
 =head3 get_pagers
@@ -206,7 +210,8 @@ sub request {
     );
     $opts->{borrower} = $brw;
     $opts->{permitted} = $permitted;
-    my $request = Koha::ILLRequest->new->seed($opts);
+    my $request = Koha::ILLRequest->new( { config => $self->{_config} } )
+        ->seed($opts);
 
     # FIXME: Disable in case of manual creation.
     if ( C4::Context->preference("UnmediatedILL") && $permitted ) {
@@ -266,7 +271,8 @@ sub search {
     my $illRequests = [];
     while ( my $row = $result->next ) {
         push @{$illRequests},
-          Koha::ILLRequest->new->seed( { id => $row->id } );
+            Koha::ILLRequest->new( { config => $self->{_config} } )
+              ->seed( { id => $row->id } );
     }
 
     return $illRequests;
@@ -312,7 +318,7 @@ sub check_limits {
     my $branchcode        = $params->{branch} || $borrower->branchcode;
 
     # Establish rules
-    my $abstract = Koha::ILLRequest::Abstract->new;
+    my $abstract = $self->{_abstract};
     my ( $branch_rules, $brw_rules ) = (
         $abstract->getLimits( {
             type => 'branch',
@@ -376,7 +382,8 @@ Retrieve the ILLREQUEST identified by $ILLREQUESTID.
 
 sub find {
     my ( $self, $illRequestId ) = @_;
-    my $request = Koha::ILLRequest->new->seed( { id => $illRequestId } );
+    my $request = Koha::ILLRequest->new( { config => $self->{_config} } )
+        ->seed( { id => $illRequestId } );
     return $request if $request || 0;
 }
 
