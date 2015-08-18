@@ -85,7 +85,7 @@ if ( $input->param('query_type') eq 'manual' ) {
     my $nav_qry = "?query_type=search_cont&query_value=" . uri_escape($query);
     $nav_qry .= "&brw=" . $brw->borrowernumber;
     $nav_qry .= "&branch=" . $input->param('branch');
-    for my $opt qw( isbn issn title author type start_rec max_results ) {
+    for my $opt (qw( isbn issn title author type start_rec max_results )) {
         my $val = $input->param($opt);
         if ( $val ne '' ) {
             $opts->{$opt} = $val;
