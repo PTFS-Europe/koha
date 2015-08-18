@@ -282,22 +282,24 @@ if ($request) {
             # should just be able to push to DB?
             # Validate Date input
             my $new_vals = \%{$cgi->Vars};
-            my $dt = C4::Dates->new($new_vals->{reply_date}, 'iso')->output('iso');
-            if ( !$dt ) {
-                $op      = 'message';
-                $template->param (
-                    message => 'invalid_date',
-                    whole   => $cgi->param('reply_date'),
-                    forward => $parent,
-                );
-            } else {
-                $new_vals->{reply_date} = $dt;
-                $request->editStatus($new_vals);
-                $template->param(
-                    ill   => $request->getFullDetails( { brw => 1 } ),
-                    title => $tabs->{view},
-                );
+            if ( $new_vals->{reply_date} ) {
+                my $dt = C4::Dates->new($new_vals->{reply_date}, 'iso')->output('iso');
+                if ( !$dt ) {
+                    $op      = 'message';
+                    $template->param (
+                        message => 'invalid_date',
+                        whole   => $cgi->param('reply_date'),
+                        forward => $parent,
+                    );
+                } else {
+                    $new_vals->{reply_date} = $dt;
+                }
             }
+            $request->editStatus($new_vals);
+            $template->param(
+                ill   => $request->getFullDetails( { brw => 1 } ),
+                title => $tabs->{view},
+            );
         }
 
     } else {
