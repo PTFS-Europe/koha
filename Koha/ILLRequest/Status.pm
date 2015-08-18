@@ -65,6 +65,7 @@ sub new {
         ts              => DateTime->now,
         reqtype         => $opts->{reqtype}  || '',
         branch          => $opts->{branch}   || '',
+        completion_date => undef,
     };
 
     bless $self, $class;
@@ -175,7 +176,14 @@ sub update {
 
     foreach my $field ( keys %{$self} ) {
         my $new_value = $new_values->{$field};
-        $self->{$field} = $new_value if $new_value;
+        if ( $new_value ) {
+            if ( 'status' eq $field ) {
+                $self->{completion_date} = DateTime->now
+                    if ( $self->{status} ne $new_value &&
+                         grep { $new_value eq $_ } qw/COMP GENCOMP/ );
+            }
+            $self->{$field} = $new_value;
+        }
     }
 
     $self->{ts} = DateTime->now;
