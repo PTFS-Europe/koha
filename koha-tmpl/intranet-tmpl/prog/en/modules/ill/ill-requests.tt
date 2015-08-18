@@ -53,6 +53,8 @@
                                             title="View borrower details">
                                                 [% brw.firstname _ " " _ brw.surname _ ", " _ brw.cardnumber %]
                                             </a>
+                                        [% ELSIF field.key == 'status' %]
+                                            [% field.value.0 _ ": " _ AuthorisedValues.GetByCode( 'ILLSTATUS', field.value.1 ) %]
                                         [% ELSE %]
                                             [% field.value.0 _ ": " _ field.value.1 %]
                                         [% END %]

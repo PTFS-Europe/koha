@@ -340,11 +340,11 @@ sub build_tabs {
         $tabs->{edit} = "Edit";
         if ( $params->{mod} ) {
             $tabs->{moderate} = "Moderation";
-        } elsif ( "Requested" eq $params->{status} ) {
+        } elsif ( 'REQ' eq $params->{status} ) {
             $tabs->{action_cancel} = "Revert request";
             $tabs->{action_status} = "Request status";
         } else {
-            unless ( grep { $params->{status} eq $_ } qw/Queued/ ) {
+            unless ( grep { $params->{status} eq $_ } qw/QUEUED/ ) {
                 $tabs->{progress} = "Progress" unless ( $params->{manual} );
                 $tabs->{generic_ill} = "Generic ILL"
                     if ( $params->{generic} );

@@ -49,13 +49,23 @@ INSERT INTO authorised_values (category, authorised_value, lib)
 VALUES ('ILLSTATUS', 'CANCREQ', 'Cancellation requested');
 
 INSERT INTO authorised_values (category, authorised_value, lib)
-VALUES ('ILLSTATUS', 'CANC', 'Cancelled');
-
-INSERT INTO authorised_values (category, authorised_value, lib)
 VALUES ('ILLSTATUS', 'COMP', 'Completed');
 
 INSERT INTO authorised_values (category, authorised_value, lib)
 VALUES ('ILLSTATUS', 'NEW', 'New request');
 
 INSERT INTO authorised_values (category, authorised_value, lib)
+VALUES ('ILLSTATUS', 'REQ', 'Requested');
+
+INSERT INTO authorised_values (category, authorised_value, lib)
+VALUES ('ILLSTATUS', 'REQREV', 'Request reverted');
+
+INSERT INTO authorised_values (category, authorised_value, lib)
 VALUES ('ILLSTATUS', 'QUEUED', 'Queued');
+
+-- If you also enable Generic ILL plugin, you will need:
+-- INSERT INTO authorised_values (category, authorised_value, lib)
+-- VALUES ('ILLSTATUS', 'GENCOMP', 'Completed (email request)');
+
+-- INSERT INTO authorised_values (category, authorised_value, lib)
+-- VALUES ('ILLSTATUS', 'GENREQ', 'Requested by email');

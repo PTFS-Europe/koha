@@ -760,7 +760,7 @@ sub place_request {
     $self->cost($success->result->newOrder->totalCost);
     $self->access_url($success->result->newOrder->downloadUrl);
 
-    $self->editStatus( { status => "Requested" } );
+    $self->editStatus( { status => "REQ" } );
     return ( 1, $self );
 }
 
@@ -779,7 +779,7 @@ sub cancel_request {
     } );
     if ( 'cancel_success' eq $result->{status} ) {
         # Succes, change status, remove order_id.
-        $self->editStatus( { status => "Request reverted" } );
+        $self->editStatus( { status => "REQREV" } );
         $self->order_id("UNSET");
     }
     return ( $result, $self );
@@ -836,7 +836,7 @@ sub place_generic_request {
 
     my $result = sendmail(%mail);
     if ( $result ) {
-        $self->editStatus( { status => "Requested by Email" } );
+        $self->editStatus( { status => "GENREQ" } );
         return (1, $params);
     } else {
         carp($Mail::Sendmail::error);
