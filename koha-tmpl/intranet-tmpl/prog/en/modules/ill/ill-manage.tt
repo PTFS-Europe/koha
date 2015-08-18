@@ -1,3 +1,4 @@
+[% USE AuthorisedValues %]
 [% INCLUDE 'doc-head-open.inc' %]
 <title>Koha &rsaquo; ILL requests  &rsaquo;</title>
 [% INCLUDE 'doc-head-close.inc' %]
@@ -72,6 +73,8 @@
                                             </a>
                                         [% ELSIF field.key == 'primary_notes_staff' or field.key == 'primary_notes_opac' %]
                                             <span id="[% field.key %]"><pre>[% field.value.1 %]</pre></span>
+                                        [% ELSIF field.key == 'status' %]
+                                            <span id="[% field.key %]">[% AuthorisedValues.GetByCode( 'ILLSTATUS', field.value.1 ) %]</span>
                                         [% ELSE %]
                                             <span id=[% field.key %]>[% field.value.1 %]</span>
                                         [% END %]
@@ -225,6 +228,8 @@
                                                     id="[% field.key %]"
                                                     type="text"
                                                     value="[% brw.cardnumber %]" />
+                                                [% ELSIF field.key == 'status' %]
+                                                    [% PROCESS 'av-build-dropbox.inc' name="status", category="ILLSTATUS", default=field.value.1 %]
                                                 [% ELSE %]
                                                     <input name="[% field.key %]"
                                                     id="[% field.key %]"

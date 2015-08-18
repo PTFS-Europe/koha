@@ -362,7 +362,7 @@ sub _limit_counter {
     } else {                    # assume 'active'
         # FIXME: This status list is ugly. There should be a method in config
         # to return these.
-        $where = { status => { -not_in => [ 'Queued', 'Completed' ] } };
+        $where = { status => { -not_in => [ 'QUEUED', 'COMP' ] } };
     }
 
     # Create resultset

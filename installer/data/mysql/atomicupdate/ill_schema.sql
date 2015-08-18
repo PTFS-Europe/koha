@@ -43,3 +43,25 @@ CREATE TABLE ill_request_attributes (
     value text NOT NULL,
     FOREIGN KEY(req_id) REFERENCES ill_requests(id)
 );
+
+-- Authorised values in the ILLSTATUS category
+INSERT INTO authorised_values SET 
+    category = 'ILLSTATUS', 
+    authorised_value = 'CANCREQ',
+    lib = 'Cancellation requested'
+);
+INSERT INTO authorised_values SET 
+    category = 'ILLSTATUS', 
+    authorised_value = 'COMP',
+    lib = 'Completed'
+);
+INSERT INTO authorised_values SET 
+    category = 'ILLSTATUS', 
+    authorised_value = 'NEW',
+    lib = 'New request'
+);
+INSERT INTO authorised_values SET 
+    category = 'ILLSTATUS', 
+    authorised_value = 'QUEUED',
+    lib = 'Queued'
+);

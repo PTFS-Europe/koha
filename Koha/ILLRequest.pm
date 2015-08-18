@@ -703,7 +703,7 @@ otherwise.
 sub requires_moderation {
     my ( $self ) = @_;
     my $require_moderation = {
-        'Cancellation Requested' => 'Cancellation Requested',
+        'CANCREQ' => 'CANCREQ',
     };
     return $require_moderation->{$self->status->getProperty('status')};
 }

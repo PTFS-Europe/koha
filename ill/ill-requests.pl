@@ -24,6 +24,7 @@ use CGI;
 use C4::Auth;
 use C4::Branch;
 use C4::Context;
+use C4::Koha;
 use C4::Output;
 use C4::Search qw(GetDistinctValues);
 use Koha::Borrowers;
@@ -99,8 +100,7 @@ $template->param(
     reply       => $reply,
     branches    => GetBranchesLoop,
     types       => [ "Book", "Article", "Journal" ],
-    statuses    => [ "New Request", "Queued", "Completed",
-                     "Cancellation Requested"]
+    statuses    => GetAuthorisedValues( 'ILLSTATUS' ),
 );
 
 output_html_with_http_headers( $input, $cookie, $template->output );

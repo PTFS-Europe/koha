@@ -159,7 +159,7 @@ if ( fail(1) ) {
 
     } elsif ( $op eq 'request_cancellation') {
         my $request = $illRequests->find($query);
-        if (!$request or !$request->editStatus( { status => "Cancellation Requested" } )) {
+        if (!$request or !$request->editStatus( { status => "CANCREQ" } )) {
             $error = { message => 'request_cancellation_fail', action => 'cancellation' };
         } else {
             $message = { message => 'request_cancellation_ok', id => $query };
