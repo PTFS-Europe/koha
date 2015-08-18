@@ -206,7 +206,7 @@ if ($request) {
 
     } elsif ( $op eq 'edit' ) {
         $template->param(
-            branches => GetBranchesLoop,
+            branches => GetBranchesLoop($request->status->getProperty('branch')),
             ill      => $request->getForEditing( { brw => 1 } ),
             title    => $tabs->{$op},
             forward  => "update",
