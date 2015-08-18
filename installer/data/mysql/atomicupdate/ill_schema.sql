@@ -45,23 +45,17 @@ CREATE TABLE ill_request_attributes (
 );
 
 -- Authorised values in the ILLSTATUS category
-INSERT INTO authorised_values SET 
-    category = 'ILLSTATUS', 
-    authorised_value = 'CANCREQ',
-    lib = 'Cancellation requested'
-);
-INSERT INTO authorised_values SET 
-    category = 'ILLSTATUS', 
-    authorised_value = 'COMP',
-    lib = 'Completed'
-);
-INSERT INTO authorised_values SET 
-    category = 'ILLSTATUS', 
-    authorised_value = 'NEW',
-    lib = 'New request'
-);
-INSERT INTO authorised_values SET 
-    category = 'ILLSTATUS', 
-    authorised_value = 'QUEUED',
-    lib = 'Queued'
-);
+INSERT INTO authorised_values (category, authorised_value, lib)
+VALUES ('ILLSTATUS', 'CANCREQ', 'Cancellation requested');
+
+INSERT INTO authorised_values (category, authorised_value, lib)
+VALUES ('ILLSTATUS', 'CANC', 'Cancelled');
+
+INSERT INTO authorised_values (category, authorised_value, lib)
+VALUES ('ILLSTATUS', 'COMP', 'Completed');
+
+INSERT INTO authorised_values (category, authorised_value, lib)
+VALUES ('ILLSTATUS', 'NEW', 'New request');
+
+INSERT INTO authorised_values (category, authorised_value, lib)
+VALUES ('ILLSTATUS', 'QUEUED', 'Queued');
