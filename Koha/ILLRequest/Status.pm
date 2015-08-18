@@ -60,6 +60,7 @@ sub new {
         borrowernumber  => $brwNum || 0,
         biblionumber    => $opts->{biblionumber} || '',
         status          => $status,
+        reply_date      => DateTime->now,
         placement_date  => DateTime->now,
         ts              => DateTime->now,
         reqtype         => $opts->{reqtype}  || '',

@@ -25,6 +25,7 @@ use CGI;
 use C4::Auth;
 use C4::Branch;
 use C4::Context;
+use C4::Dates;
 use C4::Koha;
 use C4::Members;
 use C4::Output;
@@ -279,11 +280,24 @@ if ($request) {
         } else {
             # We should have a complete set of Request properties / attributes, so we
             # should just be able to push to DB?
-            $request->editStatus(\%{$cgi->Vars});
-            $template->param(
-                ill   => $request->getFullDetails( { brw => 1 } ),
-                title => $tabs->{view},
-            );
+            # Validate Date input
+            my $new_vals = \%{$cgi->Vars};
+            my $dt = C4::Dates->new($new_vals->{reply_date}, 'iso')->output('iso');
+            if ( !$dt ) {
+                $op      = 'message';
+                $template->param (
+                    message => 'invalid_date',
+                    whole   => $cgi->param('reply_date'),
+                    forward => $parent,
+                );
+            } else {
+                $new_vals->{reply_date} = $dt;
+                $request->editStatus($new_vals);
+                $template->param(
+                    ill   => $request->getFullDetails( { brw => 1 } ),
+                    title => $tabs->{view},
+                );
+            }
         }
 
     } else {
