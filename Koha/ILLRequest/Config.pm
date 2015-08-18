@@ -332,6 +332,7 @@ sub _load_configuration {
         api_url            => $xml_api_url || 'http://apitest.bldss.bl.uk',
         censorship         => {
             censor_notes_staff => 0,
+            censor_reply_date => 0,
         },
         credentials        => {
             api_application => {},
@@ -383,6 +384,12 @@ sub _load_configuration {
     my $staff_comments = $from_xml->{staff_request_comments};
     $configuration->{censorship}->{censor_notes_staff} = 1
         if ( $staff_comments && 'hide' eq $staff_comments );
+    my $reply_date = $from_xml->{reply_date};
+    if ( 'hide' eq $reply_date ) {
+        $configuration->{censorship}->{censor_reply_date} = 1;
+    } else {
+        $configuration->{censorship}->{censor_reply_date} = $reply_date;
+    }
 
     die "No DEFAULT_FORMATS has been defined in koha-conf.xml, but UNMEDIATEDILL is active."
         if ( $unmediated && !$configuration->{default_formats}->{default} );

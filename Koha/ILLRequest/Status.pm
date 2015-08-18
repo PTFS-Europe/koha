@@ -116,7 +116,6 @@ sub getFullStatus {
         biblionumber    => [ "Biblio Number", $self->{biblionumber} ],
         status          => [ "Status", $self->{status} ],
         placement_date  => [ "Placement Date", $self->{placement_date} ],
-        reply_date      => [ "Response Date", $self->{reply_date} ],
         ts              => [ "Timestamp", $self->{ts} ],
         completion_date => [ "Completion Date", $self->{completion_date} ],
         reqtype         => [ "Request Type", $self->{reqtype} ],
@@ -133,6 +132,10 @@ sub getFullStatus {
     $return->{prefix_id} = [
         "Request Number", $params->{id_prefix} . $self->{id}
     ];
+    # Add Reply Date if it's used
+    $return->{reply_date} = [
+        $params->{display_reply_date}, $self->{reply_date}
+    ] if ( $params->{display_reply_date} );
     return $return;
 }
 

@@ -282,6 +282,24 @@ sub getCensorNotesStaff {
     return $censorship->{censor_notes_staff};
 }
 
+=head3 getDisplayReplyDate
+
+    my $string || 0 = $abstract->getDisplayReplyDate;
+
+Return a string label for the reply_date field, or 0 if we just want to hide it.
+
+=cut
+
+sub getDisplayReplyDate {
+    my ( $self ) = @_;
+    my $censorship = $self->_config->getCensorship;
+    if ( $censorship->{censor_reply_date} == 1 ) {
+        return 0;               # censor is yes, so display is no.
+    } else {
+        return $censorship->{censor_reply_date};
+    }
+}
+
 =head3 getLimits
 
     my $limit_rules = $abstract->getLimits( {

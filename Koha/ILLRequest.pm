@@ -505,7 +505,8 @@ display to the end-user.  It returns a composit of $self's Record and Status
 sub getFullDetails {
     my ( $self, $params ) = @_;
     $params->{id_prefix} = $self->id_prefix;
-    my $record = $self->record->getFullDetails;
+    $params = $self->_censor($params);
+    my $record = $self->record->getFullDetails($params);
     my $status = $self->status->getFullStatus($params);
     my %summary = (%{$record}, %{$status});
 
@@ -528,7 +529,8 @@ The former is for display and should not be edited by hand.  The latter can be e
 sub getForEditing {
     my ( $self, $params ) = @_;
     $params->{id_prefix} = $self->id_prefix;
-    my $record = $self->record->getFullDetails($self->_censor($params));
+    $params = $self->_censor($params);
+    my $record = $self->record->getFullDetails($params);
     my $status = $self->status->getFullStatus($params);
 
     return [ $record, $status ];
@@ -948,6 +950,8 @@ sub _censor {
     my ( $self, $params ) = @_;
     $params->{censor_notes_staff} = $self->_abstract->getCensorNotesStaff
         if ( $params->{opac} );
+    $params->{display_reply_date} = $self->_abstract->getDisplayReplyDate;
+
     return $params;
 }
 
