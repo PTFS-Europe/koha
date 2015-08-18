@@ -1,3 +1,5 @@
+[% USE AuthorisedValues %]
+
 [% INCLUDE 'doc-head-open.inc' %]
 <title>Koha &rsaquo; ILL requests  &rsaquo;</title>
 [% INCLUDE 'doc-head-close.inc' %]
@@ -98,6 +100,8 @@
                                                         title="View borrower details">
                                                         [% brw.firstname _ " " _ brw.surname _ ", " _ brw.cardnumber %]
                                                     </a>
+                                                [% ELSIF field.key == 'status' %]
+                                                    [% AuthorisedValues.GetByCode( 'ILLSTATUS', field.value.1 ) %]
                                                 [% ELSIF field.key == './uin' and query_type == "api" %]
                                                     [% rqc = rq _ field.value.1 %]
                                                     <a href=[% rqc %]>
@@ -137,12 +141,7 @@
                 <ol>
                     <li>
                         <label for="status_filter">Status:</label>
-                        <select id="status_filter" name="status_filter">
-                            <option value="" />
-                            [% FOREACH status IN statuses %]
-                                <option value="[% status %]">[% status %]</option>
-                            [% END %]
-                        </select>
+                        [% PROCESS 'av-build-dropbox.inc' name="status_filter", category="ILLSTATUS" %]
                     </li>
                     <li>
                         <label for="placed_filter">Date placed:</label>

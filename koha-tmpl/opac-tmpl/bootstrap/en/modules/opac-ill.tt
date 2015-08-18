@@ -1,5 +1,6 @@
 [% USE Koha %]
 [% USE KohaDates %]
+[% USE AuthorisedValues %]
 
 [% INCLUDE 'doc-head-open.inc' %]
 [% IF ( LibraryNameTitle ) %][% LibraryNameTitle %][% ELSE %]Koha online[% END %] catalog &rsaquo; Your library home
@@ -85,6 +86,8 @@
                                                     [% IF field.key == 'borrower' %]
                                                         [% brw = field.value.1 %]
                                                         [% brw.firstname _ " " _ brw.surname _ ", " _ brw.cardnumber %]
+                                                    [% ELSIF field.key == 'status' %]
+                                                        [% AuthorisedValues.GetByCode( 'ILLSTATUS', field.value.1 ) %]
                                                     [% ELSE %]
                                                         [% field.value.1 %]
                                                     [% END %]

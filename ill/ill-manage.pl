@@ -217,7 +217,7 @@ if ($request) {
         my $forward = 'view';
         my $back    = $tab_url . "view";
         my $title   = "View";
-        if ($moderation eq "Cancellation Requested") {
+        if ($moderation eq "CANCREQ") {
             $forward = 'action_delete';
             $title   = "Deletion requested";
         }
