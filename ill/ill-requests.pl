@@ -84,7 +84,7 @@ if ( 'manual_action' eq $type ) {
             reqtype         => $input->param('type_filter')        || 0,
         } );
     } else {
-        $requests = $illRequests->search;
+        $requests = $illRequests->search_incomplete;
     }
     foreach my $rq ( @{$requests} ) {
         push @{$reply}, $rq->getSummary( { brw => 1 } );

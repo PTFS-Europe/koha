@@ -228,6 +228,24 @@ sub request {
     }
 }
 
+=head3 search_incomplete
+
+    my $requests = $illRequests->search_incomplete;
+
+A specialised version of `search`, returning all requests currently
+not considered completed.
+
+=cut
+
+sub search_incomplete {
+    my ( $self ) = @_;
+    $self->search( {
+        status => [
+            -and => { '!=', 'COMP' }, { '!=', 'GENCOMP' }
+        ]
+    } );
+}
+
 =head3 search
 
     my $illRequests = $illRequests->search();
