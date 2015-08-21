@@ -563,15 +563,15 @@ sub lin_segment {
     my $item_number = q||;
 
     if ($isbn) {
-        if ( $isbn =~ m/^(978\d{10})/ ) {
-            $isbn = $1;
-        }
-        elsif ( $isbn =~ m/^(\d{9}[\dxX])/ ) {
+        if ( $isbn =~ m/^978/ && $isbn=~m/^(\d{13})/) {
             $isbn = $1;
         }
         elsif ( $isbn =~ m/^(\d{13})/ ) {    # we have 13 digits assume ean
             $item_number = "++$1:EN";
             $isbn        = q{};
+        }
+        elsif ( $isbn =~ m/^(\d{9}[\dxX])/ ) {
+            $isbn = $1;
         }
         else {
             $isbn = q{};
