@@ -143,7 +143,17 @@
                 <ol>
                     <li>
                         <label for="status_filter">Status:</label>
-                        [% PROCESS 'av-build-dropbox.inc' name="status_filter", category="ILLSTATUS" %]
+                        [% SET avs = AuthorisedValues.GetAuthValueDropbox( "ILLSTATUS" ) %]
+                        [% IF avs %]
+                          <select id="status_filter" name="status_filter" >
+                              <option value="" selected="selected">Any status</option>
+                          [% FOR av IN avs %]
+                              <option value="[% av.value %]">[% av.label | html_entity %]</option>
+                          [% END %]
+                          </select>
+                        [% ELSE %]
+                          <span>Missing ILLSTATUS authorised values</span>
+                        [% END %]
                     </li>
                     <li>
                         <label for="placed_filter">Date placed:</label>
