@@ -616,7 +616,7 @@ sub _seed_from_manual_entry {
     $self->record($self->_abstract->manual_entry_build($opts));
     $self->status(
         Koha::ILLRequest::Status->new( {
-            reqtype   => $self->record->getProperty('type'),
+            reqtype   => $opts->{"m./type"},
             borrower  => $opts->{borrower},
             branch    => $opts->{branch},
             permitted => $opts->{permitted},
