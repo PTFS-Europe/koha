@@ -69,7 +69,8 @@ sub do_checkin {
                    . substr( $return_date, 16, 2 );
 
     $debug and warn "do_checkin() calling AddReturn($barcode, $branch)";
-    my ($return, $messages, $issue, $borrower) = AddReturn($barcode, $branch, undef, dt_from_string($return_date));
+#    my ($return, $messages, $issue, $borrower) = AddReturn($barcode, $branch, undef, dt_from_string($return_date));
+    my ($return, $messages, $iteminformation, $borrower) = AddReturn($barcode, $branch);
 
     if ( $checked_in_ok ) {
         delete $messages->{NotIssued};
