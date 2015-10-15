@@ -1,5 +1,4 @@
 <script type="text/javascript">
-    //<![CDATA[
     $(document).ready(function()
     {
         $("#selectTillForm").submit(function()
@@ -10,11 +9,10 @@
             $.ajax(
             {
                 type: "GET",
-                url: "/cgi-bin/koha/svc/tills/" +
-                    tillid,
+                url: "/cgi-bin/koha/svc/tills/" + tillid,
                 success: function(data)
                 {
-                    $('#KohaStaffClient').text(tillname);
+                    $('#KohaStaffClientTill').text(tillname);
                     $('#selectTill').modal('hide');
                 },
                 error: function(data)
@@ -30,7 +28,6 @@
             $("#selectTillForm").submit();
         });
     });
-    //]]>
 </script>
 
 <!-- selectTill Modal -->

@@ -1,9 +1,6 @@
 #!/usr/bin/perl
 
-#writen 3rd May 2010 by kmkale@anantcorp.com adapted from boraccount.pl by chris@katipo.oc.nz
-#script to print fee receipts
-
-# Copyright Koustubha Kale
+# Copyright 2015 PTFS-Europe Ltd
 #
 # This file is part of Koha.
 #
@@ -23,51 +20,43 @@
 use strict;
 use warnings;
 
-use C4::Auth;
+use C4::Auth qw/:DEFAULT get_session/;
 use C4::Output;
 use C4::Dates qw/format_date/;
 use CGI;
-use C4::Members;
-use C4::Branch;
-use C4::Accounts;
+use C4::Members qw( GetMember GetMemberAccountRecords);
+use C4::Branch qw( GetBranch GetBranchName GetBranches);
+use Koha::Till;
 
-my $input = new CGI;
+my $q = CGI->new();
+my $branch = GetBranch( $q, GetBranches() );
 
 my ( $template, $loggedinuser, $cookie ) = get_template_and_user(
     {
-        template_name   => "members/printreciept.tt",
-        query           => $input,
-        type            => "intranet",
+        template_name   => 'members/printreceipt.tt',
+        query           => $q,
+        type            => 'intranet',
         authnotrequired => 0,
         flagsrequired =>
           { borrowers => 1, updatecharges => 'remaining_permissions' },
-        debug => 1,
     }
 );
 
-my $borrowernumber = $input->param('borrowernumber');
-my $action = $input->param('action') || '';
-my $change = $input->param('change');
-my $tendered = $input->param('tendered');
-my $tillid = $input->param('tillid') || $input->cookie("KohaStaffClient");
-my $timestamp = $input->param('paymenttime');
-my $accountlines_id =
-  { map { $_ => 1 } split( /,/, $input->param('accountlines_id') ) };
+my $borrowernumber = $q->param('borrowernumber');
+my $change         = $q->param('change');
+my $tendered       = $q->param('tendered');
+my $tillid         = $q->param('tillid');
+if ( !$tillid ) {
+    my $sessionID = $q->cookie('CGISESSID');
+    my $session   = get_session($sessionID);
+
+    $tillid = Koha::Till->branch_tillid($branch);
+}
+my $timestamp = $q->param('paymenttime');
+my %accts_hash = map { $_ => 1 } split /,/, $q->param('accountlines_id');
 
 #get borrower details
-my $data = GetMember( 'borrowernumber' => $borrowernumber );
-
-if ( $action eq 'print' ) {
-    # Nothing to see here?
-}
-
-if ( $data->{'category_type'} eq 'C' ) {
-    my ( $catcodes, $labels ) =
-      GetborCatFromCatType( 'A', 'WHERE category_type = ?' );
-    my $cnt = scalar(@$catcodes);
-    $template->param( 'CATCODE_MULTI' => 1 ) if $cnt > 1;
-    $template->param( 'catcode' => $catcodes->[0] ) if $cnt == 1;
-}
+my $borrower = GetMember( 'borrowernumber' => $borrowernumber );
 
 #get account details
 my ( $total, $accts, $numaccts ) = GetMemberAccountRecords($borrowernumber);
@@ -75,90 +64,40 @@ my $totalcredit;
 if ( $total <= 0 ) {
     $totalcredit = 1;
 }
-my @accountrows;    # this is for the tmpl-loop
+my $accts_to_print = [];
 
-my $toggle;
-for ( my $i = 0 ; $i < $numaccts ; $i++ ) {
-    if ( exists $accountlines_id->{ $accts->[$i]{'accountlines_id'} } ) {
-        if ( $i % 2 ) {
-            $toggle = 0;
-        }
-        else {
-            $toggle = 1;
-        }
-        $accts->[$i]{'toggle'} = $toggle;
-        $accts->[$i]{'amount'} += 0.00;
-        if ( $accts->[$i]{'amount'} <= 0 ) {
-            $accts->[$i]{'amountcredit'} = 1;
-            $accts->[$i]{'amount'} *= -1.00;
-        }
-        $accts->[$i]{'amountoutstanding'} += 0.00;
-        if ( $accts->[$i]{'amountoutstanding'} <= 0 ) {
-            $accts->[$i]{'amountoutstandingcredit'} = 1;
-        }
-        my %row = (
-            'date'         => format_date( $accts->[$i]{'date'} ),
-            'amountcredit' => $accts->[$i]{'amountcredit'},
-            'amountoutstandingcredit' =>
-              $accts->[$i]{'amountoutstandingcredit'},
-            'toggle'       => $accts->[$i]{'toggle'},
-            'description'  => $accts->[$i]{'description'},
-            'itemnumber'   => $accts->[$i]{'itemnumber'},
-            'biblionumber' => $accts->[$i]{'biblionumber'},
-            'amount'       => sprintf( "%.2f", $accts->[$i]{'amount'} ),
-            'amountoutstanding' =>
-              sprintf( "%.2f", $accts->[$i]{'amountoutstanding'} ),
-            'accountno' => $accts->[$i]{'accountno'},
-            accounttype => $accts->[$i]{accounttype},
-        );
+for my $acctline ( @{$accts} ) {
+    if ( exists $accts_hash{ $acctline->{accountlines_id} } ) {
 
-        if (   $accts->[$i]{'accounttype'} ne 'F'
-            && $accts->[$i]{'accounttype'} ne 'FU' )
-        {
-            $row{'printtitle'} = 1;
-            $row{'title'}      = $accts->[$i]{'title'};
+        my $amountcredit = 0;
+        if ( !defined $acctline->{amount} ) {
+            $acctline->{amount} = 0;
+        }
+        elsif ( $acctline->{amount} < 0 ) {
+            $amountcredit = 1;
+            $acctline->{amount} *= -1;    # display credit as a +ve amt
         }
 
-        push( @accountrows, \%row );
+        push @{$accts_to_print},
+          {
+            date         => format_date( $acctline->{date} ),
+            accounttype  => $acctline->{accountline},
+            description  => $acctline->{description},
+            amountcredit => $amountcredit,
+            amount       => sprintf '%.2f',
+            $acctline->{amount},
+          };
     }
-    else { next; }
 }
 
-$template->param( adultborrower => 1 ) if ( $data->{'category_type'} eq 'A' );
-
-my ( $picture, $dberror ) = GetPatronImage( $data->{'borrowernumber'} );
-$template->param( picture => 1 ) if $picture;
-
-my $session = C4::Context->userenv;
-my $receiptid = $tillid . "-" . $timestamp;
-
 $template->param(
-    finesview      => 1,
-    firstname      => $data->{'firstname'},
-    surname        => $data->{'surname'},
-    borrowernumber => $borrowernumber,
-    cardnumber     => $data->{'cardnumber'},
-    categorycode   => $data->{'categorycode'},
-    category_type  => $data->{'category_type'},
-
-    #   category_description => $data->{'description'},
-    categoryname => $data->{'description'},
-    address      => $data->{'address'},
-    address2     => $data->{'address2'},
-    city         => $data->{'city'},
-    zipcode      => $data->{'zipcode'},
-    country      => $data->{'country'},
-    phone        => $data->{'phone'},
-    email        => $data->{'email'},
-    branchcode   => $data->{'branchcode'},
-    branchname   => GetBranchName( $data->{'branchcode'} ),
-    total        => sprintf( "%.2f", $total ),
-    totalcredit  => $totalcredit,
-    is_child     => ( $data->{'category_type'} eq 'C' ),
-    change       => $change,
-    tendered     => $tendered,
-    accounts     => \@accountrows,
-    receiptid    => $receiptid
+    branchname  => GetBranchName($branch),
+    total       => $total,
+    totalcredit => $totalcredit,
+    change      => $change,
+    tendered    => $tendered,
+    accounts    => $accts_to_print,
+    receiptid   => "$tillid-$timestamp",
 );
 
-output_html_with_http_headers $input, $cookie, $template->output;
+output_html_with_http_headers( $q, $cookie, $template->output );

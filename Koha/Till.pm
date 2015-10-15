@@ -90,6 +90,36 @@ sub ctltrans {
     return;
 }
 
+sub get_till_list {
+    my ( $class, $branch ) = @_;
+
+    # Class method to get a list of tills, if branch passed restrict to
+    # unarchived tills of that branch
+    my $search_parm = {};
+    if ($branch) {
+        $search_parm->{branch}   = $branch;
+        $search_parm->{archived} = 0;
+    }
+    my $schema = Koha::Database->new()->schema();
+    my @tills  = $schema->resultset('CashTill')->search($search_parm);
+
+    return \@tills;
+}
+
+sub branch_tillid {
+    my ( $class, $branch ) = @_;
+
+    # return default counter till for branch
+    if ( !$branch ) {
+        return;
+    }
+    my $dbh = C4::Context->dbh;
+    my ($x) = $dbh->selectrow_array(
+        "select default_till  from branches where branchcode = ?",
+        {}, $branch );
+    return $x;
+}
+
 1;
 __END__
 
@@ -111,7 +141,7 @@ This documentation refers to Koha::Till version 0.0.1
 
 =head1 DESCRIPTION
 
-  payments and payouts are recorded via this module. On instamtiation the recording till is set
+  payments and payouts are recorded via this module. On instantiation the recording till is set
 
 =head1 METHODS
 
@@ -132,7 +162,7 @@ C<$code> is the code to be associated with the payment 'FINE', 'FEE', 'PURCHASE'
 
 C<$payment_type> is the payment type 'CASH', 'CHEQUE', 'CARD' etc.
 
-Records the given payment against the assoiciated till
+Records the given payment against the associated till
 
 =head2 payout : Extract monies from the till
 

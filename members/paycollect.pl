@@ -21,7 +21,7 @@ use strict;
 use warnings;
 use URI::Escape;
 use C4::Context;
-use C4::Auth;
+use C4::Auth qw/:DEFAULT get_session/;
 use C4::Output;
 use CGI;
 use C4::Members;
@@ -30,6 +30,7 @@ use C4::Accounts;
 use C4::Koha;
 use C4::Branch;
 use Koha::Database;
+use Koha::Till;
 
 my $input = CGI->new();
 
@@ -62,10 +63,22 @@ my $select       = $input->param('selected_accts');
 my $payment_note = uri_unescape $input->param('payment_note');
 my $accountno;
 my $accountlines_id;
-my $tillid = $input->param('tillid') || $input->cookie("KohaStaffClient");
+my $tillid = $input->param('tillid');
+my $till_branch = $branch;
+if ( !$tillid ) {
+    my $sessionID = $input->cookie('CGISESSID');
+    my $session   = get_session($sessionID);
+#    $tillid = $session->param("tillid") || -1;
+    $tillid = Koha::Till->branch_tillid( $session->param('branch') );
+    $till_branch = $session->param('branch');
+}
+my $till_list = Koha::Till->get_till_list($till_branch);
+$template->param( tillid => $tillid,
+    till_list => $till_list,
+);
 my $type = $input->param('type');
 my $paymenttime = $input->param('paymenttime');
-my $receiptid = $tillid . "-" . $paymenttime;
+my $receiptid = "$tillid-$paymenttime";
 if ( $individual || $writeoff ) {
     if ($individual) {
         $template->param( pay_individual => 1 );
@@ -132,7 +145,7 @@ if ( $total_paid and $total_paid ne '0.00' ) {
                 recordpayment_selectaccts( $borrowernumber, $total_paid, \@acc, $note, $tillid, $type, $receiptid );
             } else {
                 my $note = $input->param('selected_accts_notes');
-                recordpayment( $borrowernumber, $total_paid, '', $note, $tillid, $type, $receiptid );
+                recordpayment( $borrowernumber, $total_paid, q{}, $note, $tillid, $type, $receiptid );
             }
 
 # recordpayment does not return success or failure so lets redisplay the boraccount

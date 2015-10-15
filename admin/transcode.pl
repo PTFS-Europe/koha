@@ -42,10 +42,15 @@ my $schema = Koha::Database->new()->schema();
 my $function = $cgi->param('op');
 $function ||= 'display';
 
-my @transcodes = $schema->resultset('CashTranscode')->search( undef, { order_by => { -asc => 'code', }});
+my @transcodes = $schema->resultset('CashTranscode')
+  ->search( undef, { order_by => { -asc => 'code', } } );
 
-my @taxrates = $schema->resultset('AuthorisedValue')->search( { category => 'TaxRate', });
-my @groups = $schema->resultset('AuthorisedValue')->search( { category => 'PaymentGroup', });
+my @taxrates =
+  $schema->resultset('AuthorisedValue')->search( { category => 'TaxRate', } );
+my @groups =
+  $schema->resultset('AuthorisedValue')
+  ->search( { category => 'PaymentGroup', },
+    { order_by => { -asc => 'authorised_value', } } );
 
 $template->param(
     transcodes => \@transcodes,

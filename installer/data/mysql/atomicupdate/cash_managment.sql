@@ -68,3 +68,11 @@ insert into authorised_values (category, authorised_value, lib)
 ALTER TABLE accountlines MODIFY accounttype varchar(10);
 
 alter table cash_till add column starting_float decimal(4,2) default 0.0;
+
+alter table cash_till add column archived boolean not null default 0;
+
+-- create table branchtillmap (
+--     branch varchar(10) primary key,
+--     tillid integer,
+--     foreign key btmt_fk (tillid) references cash_till (tillid)
+-- );

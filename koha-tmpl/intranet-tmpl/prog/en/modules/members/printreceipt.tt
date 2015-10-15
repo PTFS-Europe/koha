@@ -1,7 +1,8 @@
-[% USE Koha %] [% INCLUDE 'doc-head-open.inc' %]
+[% USE Koha %]
+[% INCLUDE 'doc-head-open.inc' %]
 <title>Print Receipt for [% cardnumber %]</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<link rel="shortcut icon" href="[% IF ( IntranetFavicon ) %][% IntranetFavicon %][% ELSE %][% interface %]/[% theme %]/img/favicon.ico[% END %]"
+<link rel="shortcut icon" href="[% IF IntranetFavicon %][% IntranetFavicon %][% ELSE %][% interface %]/[% theme %]/img/favicon.ico[% END %]"
 type="image/x-icon" />
 <link rel="stylesheet" type="text/css" href="[% themelang %]/css/printreceiptinvoice.css"/>
 [% INCLUDE 'slip-print.inc' #printThenClose %]
@@ -12,13 +13,6 @@ type="image/x-icon" />
     <div id="receipt">
         <!-- The table with the account items -->
         <table>
-            [% IF ( LibraryName ) %]
-            <tr>
-                <th colspan=3 class="centerednames">
-                    <h3>[% LibraryName %]</h3>
-                </th>
-            </tr>
-            [% END %]
             <tr>
                 <th colspan=3 class="centerednames">
                     <h2><u>Fee receipt</u></h2>
@@ -26,12 +20,13 @@ type="image/x-icon" />
             </tr>
             <tr>
                 <th colspan=3 class="centerednames">
-                    [% IF ( branchname ) %]
-                    <h2>[% branchname %]</h2>[% END %]
+                    [% IF branchname %]
+                    <h2>[% branchname %]</h2>
+                    [% END -%]
                 </th>
             </tr>
             <tr>
-                [% IF ( receiptid ) %]
+                [% IF receiptid %]
                 <td colspan=3 class="centerednames">[% receiptid %]</td>
                 [% END %]
             </tr>
@@ -63,7 +58,7 @@ type="image/x-icon" />
             <tfoot>
                 <tr>
                     <td colspan="2">Total:</td>
-                    <td>[% total %]</td>
+                    <td>[% total | format('%.2f') %]</td>
                 </tr>
                 <tr>
                     <td colspan="2">Tendered:</td>
@@ -75,4 +70,4 @@ type="image/x-icon" />
             </tfoot>
         </table>
     </div>
-    [% INCLUDE 'intranet-bottom.inc' notill="1" %]
+[% INCLUDE 'intranet-bottom.inc' notill="1" %]

@@ -1,0 +1,72 @@
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Koha &rsaquo; Cash management &rsaquo; Set till</title>
+[% INCLUDE 'doc-head-close.inc' %]
+<style type="text/css">
+    .noshow {display: none;}
+</style>
+</head>
+<body id="cm_select_till" class="circ">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'circ-search.inc' %]
+
+<div id="breadcrumbs">
+         <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+&rsaquo; <a href="/cgi-bin/koha/circ/cm-home.pl">Cash management</a>
+&rsaquo; <a href="/cgi-bin/koha/circ/selecttill.pl">Set till</a>
+</div>
+
+<div id="doc" class="yui-t7">
+  <div id="bd">
+    <div id="yui-main">
+      <div class="yui-b">
+
+[% IF updated %]
+<h2>Update succeeded</h2>
+
+<p>Till now set to [% current_till %]</p>
+<form method="post" action="[% referer or "/cgi-bin/koha/circ/circulation.pl" |html %]">
+    <div class="noshow">
+        [% FOREACH recycle_loo IN recycle_loop %]
+        <input type="text" name="[% recycle_loo.param %]" value="[% recycle_loo.value |html %]" />
+        [% END %]
+    </div>
+    <button type="submit">Continue</button>
+:
+
+[% ELSE %]
+
+<!--<form method="post" action="[% referer or "selecttill.pl" |html %]"> -->
+<form method="post" action="selecttill.pl" >
+<fieldset class="rows">
+    <legend>Set till</legend>
+    <ol>
+        <li><label for="till">Choose till:</label>
+        <select name="till" id="till">
+        [% FOREACH till IN till_list %]
+            <option value="[% till.tillid %]"
+            [% IF till.tillid == current_till -%]
+                      selected="selected"
+            [% END -%]>
+           [% till.name %] ([% till.description %])</option>
+        [% END %]
+        </select></li>
+    </ol>
+</fieldset>
+<fieldset class="action">
+    <input type="submit" value="Submit" />
+    <a class="cancel" id="cancel_set_till" h:ref="[% referer or '/cgi-bin/koha/circ/circulation.pl' %]">Cancel</a>
+</fieldset>
+<div class="noshow">
+   [% FOREACH recycle_loo IN recycle_loop %]
+    <input type="text" name="[% recycle_loo.param %]" value="[% recycle_loo.value |html %]" />
+    [% END %]
+
+    <input type="hidden" name="oldreferer" value="[% referer or "/cgi-bin/koha/circ/circulation.pl" |html %]" />
+</div>
+</form>
+[% END %]
+
+      </div>
+    </div>
+  </div>
+[% INCLUDE 'intranet-bottom.inc' %]

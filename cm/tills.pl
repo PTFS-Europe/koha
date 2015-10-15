@@ -40,13 +40,15 @@ my ( $template, $loggedinuser, $cookie, $user_flags ) = get_template_and_user(
     }
 );
 
+my $userenv = C4::Context->userenv;
+
 my $user           = GetMember( 'borrowernumber' => $loggedinuser );
-my $branchname     = GetBranchName( $user->{branchcode} );
+my $branchname     = $userenv->{branchname};
 my @selected_tills = $q->param('selected_till');
 my $till_count     = @selected_tills;
 my $cmd            = $q->param('cmd');
 
-my $tills = get_tills( $user->{branchcode} );
+my $tills = get_tills( $userenv->{branch} );
 
 my $total_paid_in  = 0;
 my $total_paid_out = 0;
@@ -148,7 +150,7 @@ q{select sum(amt) from cash_transaction where till = ? and paymenttype = 'Card' 
 
     # Prepare total line & transcation totals
     foreach my $t ( sort keys %transcodes ) {
-        if ( $t =~ m/^(CASHUP|FLOAT)$/ ) {
+        if ( $t eq 'CASHUP' || $t eq 'FLOAT' ) {
             next;
         }
         if ( $transcodes{$t}->{total} == 0 ) {

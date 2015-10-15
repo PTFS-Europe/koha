@@ -1,5 +1,3 @@
-[% USE EncodeUTF8 %]
-[% USE AuthorisedValues %]
 [% INCLUDE 'doc-head-open.inc' %]
 <title>Koha &rsaquo; Administration &rsaquo; Tills</title>
 [% INCLUDE 'doc-head-close.inc' %]
@@ -7,146 +5,16 @@
 [% INCLUDE 'datatables.inc' %]
 <script type="text/javascript"src="[% interface %]/lib/jquery/plugins/jquery.jeditable.mini.js"></script>
 <script type="text/javascript">
-//<![CDATA[
 $(document).ready(function() {
-    var tillTable = $('#tills_editor').dataTable(
-        $.extend(true, {}, dataTablesDefaults, {
-            "ajax": "/cgi-bin/koha/svc/tills",
-            "columnDefs": [{
-                "targets": 0,
-                "orderable": true,
-                "searchable": false,
-                "data": "tillid",
-                "className": "no_edit"
-            },{
-                "targets": 1,
-                "orderable": true,
-                "searchable": true,
-                "data": "name",
-                "className": "name"
-            },{
-                "targets": 2,
-                "orderable": true,
-                "searchable": true,
-                "data": "description",
-                "className": "desc"
-            },{
-                "targets": 3,
-                "orderable": true,
-                "searchable": true,
-                "data": "branchname",
-                "className": "branch"
-            }],
-            "order": [1, 'asc'],
-            "drawCallback": function(settings) {
-                var api = this.api();
-                // add jEditable handlers
-                $('#tills_editor tbody tr td:not(.no_edit)').editable(
-                    function(value, settings) {
-                        var columnSrc = api.column(tillTable.fnGetPosition(this)[1]).dataSrc();
-                        var tillid = api.row(tillTable.fnGetPosition(this)[0]).data().tillid;
-                        var newData = {};
-                        newData[columnSrc] = value;
-                        console.log(newData);
-                        $.ajax({
-                            type: "PUT",
-                            url: '/cgi-bin/koha/svc/tills/' + tillid,
-                            contentType: 'application/json',
-                            data: JSON.stringify(newData),
-                            dataType: 'json',
-                            success: function(data) {
-                                console.log('success: ' + JSON.stringify(data));
-                                $('#feedback').remove();
-                            },
-                            error: function(data) {
-                                console.log('error: ' + JSON.stringify(data));
-                                result = (this.revert);
-                            }
-                        });
-                        return value;
-                    }, {
-                        tooltip: 'Click to edit...',
-                        callback: function(value, settings) {
-                            $('<img id="feedback" class="pull-right" src="[% interface %]/lib/jquery/plugins/themes/classic/throbber.gif">').appendTo(this);
-                        },
-                    }
-                );
-                $('#tills_editor tbody tr td:not(.no_edit).branch').editable(
-                    function(value, settings) {
-                        var tillid = api.row(tillTable.fnGetPosition(this)[0]).data().tillid;
-                        var newData = {};
-                        newData['branch'] = value;
-                        console.log(newData);
-                        $.ajax({
-                            type: "PUT",
-                            url: '/cgi-bin/koha/svc/tills/' + tillid,
-                            contentType: 'application/json',
-                            data: JSON.stringify(newData),
-                            dataType: 'json',
-                            success: function(data) {
-                                console.log('success: ' + JSON.stringify(data));
-                                $('#feedback').remove();
-                            },
-                            error: function(data) {
-                                console.log('error: ' + JSON.stringify(data));
-                                result = (this.revert);
-                            }
-                        });
-                        return JSON.parse(settings.data)[value];
-                    }, {
-                        data: '{[% FOREACH branch IN branch_list -%]
-                             "[% branch.branchcode %]":"[% branch.branchname %]"[% IF !loop.last -%], [% END %][% END %]}',
-                        type: 'select',
-                        submit: 'OK',
-                        tooltip: 'Click to edit...',
-                        callback: function(value, settings) {
-                            $('<img id="feedback" class="pull-right" src="[% interface %]/lib/jquery/plugins/themes/classic/throbber.gif">').appendTo(this);
-                        },
-                    }
-                );
-
-            },
-        })
-    );
-
-    $("#addTillForm").submit(function() {
-
-        var name = $("input:[name=name]").val();
-        var description = $("input:[name=description]").val();
-        var branch = $('#branch').val();
-        var branchname = $("#branch option:selected").text();
-        var till = { "name": name, "branch": branch, "description": description };
-        $.ajax({
-               type: "POST",
-               url: "/cgi-bin/koha/svc/tills",
-               contentType: 'application/json',
-               data: JSON.stringify(till),
-               dataType: 'json',
-               success: function(data)
-               {
-                   console.log("data returned: " + JSON.stringify(data));
-                   tillTable.api().row.add(data).draw();
-                   $('#addTill').modal('hide');
-               },
-               error: function(data)
-               {
-                   tillTable.api().row.add(till).draw();
-                   $('#addTill').modal('hide');
-               }
-             });
-
-        console.log("description: " + $("input:[name=description]").val());
-        console.log("branchvalue: " + $("#branch").val());
-        console.log("branchoption: " + $("#branch option:selected").text());
-        return false; // avoid to execute the actual submit of the form.
-    });
-
-    $('#addTillSubmit').click(function() {
-        $( "#addTillForm" ).submit();
-    });
+    $("#table_tills").dataTable($.extend(true, {}, dataTablesDefaults, {
+          "aoColumnDefs": [
+              { "aTargets": [ -1, -2 ], "bSortable": false, "bSearchable":false },
+           ],
+           "aaSorting": [[ 1, "asc" ]],
+}));
 });
-//]]>
 </script>
+
 <style type="text/css">
     fieldset.rows div.toptabs li { clear:none;margin-right:.5em;padding-bottom:0;width:auto; }
     fieldset.rows div.toptabs .ui-tabs-nav li.ui-tabs-active {background-color : #F4F8F9; }
@@ -155,43 +23,109 @@ $(document).ready(function() {
 </style>
 </head>
 <body id="admin_tills" class="admin">
-    [% INCLUDE 'header.inc' %]
-    [% INCLUDE 'cat-search.inc' %]
+[% INCLUDE 'header.inc' -%]
+[% INCLUDE 'cat-search.inc' %]
 
-    <div id="breadcrumbs">
+<div id="breadcrumbs">
         <a href="/cgi-bin/koha/mainpage.pl">Home</a>
         &rsaquo; <a href="/cgi-bin/koha/admin/admin-home.pl">Administration</a>
-        &rsaquo; <a href="/cgi-bin/koha/admin/tills.pl">Tills</a>
-    </div>
+        &rsaquo; <a href="/cgi-bin/koha/admin/tills.pl">Cash management</a>
+        &rsaquo; Tills
+</div>
 
-    <div id="doc3" class="yui-t2">
+<div id="doc3" class="yui-t2">
         <div id="bd">
             <div id="yui-main">
                 <div class="yui-b">
-                    <div id="toolbar" class="btn-toolbar">
-                        <a class="btn btn-small" id="add_till" role="button" href="#addTill" data-toggle="modal"><i class="icon-plus"></i> Add till</a>
-                    </div>
-                    <h3>Tills</h3>
-                    <table id="tills_editor" width="100%">
+[% IF add_form %]
+  [% IF till %]
+     <h1>Edit till details</h1>
+  [% ELSE %]
+     <h1>Add new till</h1>
+  [% END %]
+  <form action="/cgi-bin/koha/admin/tills.pl?op=update" name="till_form" method="post" class="validated">
+     <input type="hidden" name="op" value="update" />
+     <input type="hidden" name="tillid" value="[% till.tillid %]" />
+     <fieldset class="rows">
+     <ul>
+           [% IF till %]
+           <li><span class="label">Till Id: <span>[% till.tillid %]</li>
+           [% END %]
+           <li>
+           <label for="name">Name:</label>
+           <input type="text" name="name" id="name" value="[% till.name %]" />
+           </li>
+           <li>
+           <label for="description">Description:</label>
+           <input type="text" name="description" id="description" value="[% till.description %]"/>
+           </li>
+           <li>
+           <label for="branch">Branch:</label>
+           <select id="branch" name="branch">
+              [% FOREACH branch IN branch_list %]
+                [% IF till.branch == branch.branchcode %]
+                <option value="[% branch.branchcode %]" selected="1">[% branch.branchname %]</option>
+                [% ELSE %]
+                <option value="[% branch.branchcode %]">[% branch.branchname %]</option>
+                [% END %]
+              [% END %]
+           </select>
+           </li>
+           <li>
+           <label for="starting_float">Initial float:</label>
+           <input type="text" pattern='^\d+(?:\.\d{0,2})$' name="starting_float" id="starting_float" value="[% till.starting_float %]" />
+           </li>
+       </ul>
+       </fieldset>
+       <fieldset class="action">
+  [% IF till %]
+       <input type="submit" value="Save" />
+  [% ELSE %]
+       <input type="submit" value="Add" />
+  [% END %]
+       <a class=cancel" href="/cgi-bin/koha/admin/tills.pl?op=display">Cancel</a>
+       </fieldset>
+  <form>
+[% ELSE %]
+                 <div id="toolbar" class="btn-toolbar">
+-                        <a class="btn btn-small" id="add_till"  href="/cgi-bin/koha/admin/tills.pl?op=add_form"><i class="icon-plus"></i> Add till</a>
+-                    </div>
+                    <h2>Till definitions</h2>
+                    <table id="table_tills">
                         <thead>
-                            <tr>
-                                <th>
-                                    <span style="cursor: help"onclick="event.stopPropagation();alert(MSG_ID_HELP);">ID</span>
-                                </th>
-                                <th>Name</th>
-                                <th>Description</th>
-                                <th>Branch</th>
-                            </tr>
-                        </thead>
-                        <tbody> <!-- tbody content is generated by DataTables -->
-                            <tr>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td>Loading data... </td>
-                            </tr>
+                            <th>Id</th>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Branch</th>
+                            <th>Initial float</th>
+                            <th>Action</th>
+                            <th>&nbsp;</th>
+                        </thead>:
+                        <tbody>
+                        [% FOREACH till IN till_list %]
+                        <tr>
+                        <!-- [% IF till.archived == 1 %]class="archived"[% END %] -->
+                            <td>[% till.tillid %]</td>
+                            <td>[% till.name %]</td>
+                            <td>[% till.description %]</td>
+                            <td>[% till.branch.branchcode %]</td>
+                            <td>[% till.starting_float %]</td>
+                            [% IF till.archived == '0' %]
+                            <td><a href="tills.pl?op=add_form&amp;tillid=[% till.tillid %]">Edit</a></td>
+                            <td>
+                               <a href="tills.pl?op=archive&amp;tillid=[% till.tillid %]">Archive</a>
+                            </td>
+                            [% ELSE %]
+                            <td> </td>
+                            <td>
+                               <a href="tills.pl?op=unarchive&amp;tillid=[% till.tillid %]">Restore</a>
+                            </td>
+                            [% END %]
+                         </tr>
+                        [% END %]
                         </tbody>
                     </table>
+                        [% END %]
                 </div>
             </div>
             <div class="yui-b">
@@ -199,40 +133,3 @@ $(document).ready(function() {
             </div>
         </div>
         [% INCLUDE 'intranet-bottom.inc' %]
-
-        <!-- AddItem Modal -->
-        <div id="addTill" class="modal hide fade" tabindex="-1" role="dialog">
-            <div class="modal-header">
-                <button type="button" class="closebtn" data-dismiss="modal" aria-hidden="true">x</button>
-                <h3 id="addTillHeader">Add till</h3>
-            </div>
-            <div class="modal-body">
-                <form id="addTillForm">
-                    <fieldset class="rows">
-                        <ol>
-                            <li>
-                                <label for="name">Name:</label>
-                                <input type="text" id="name" name="name">
-                            </li>
-
-                            <li>
-                                <label for="description">Description:</label>
-                                <input type="text" id="description" name="description">
-                            </li>
-                            <li>
-                                <label for="branch">Branch:</label>
-                                <select id="branch" name="branch">
-                                    [% FOREACH branch IN branch_list %]
-                                    <option value="[% branch.branchcode %]">[% branch.branchname %]</option>
-                                    [% END %]
-                                </select>
-                            </li>
-                        </ol>
-                    </fieldset>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-                <button type="submit" id="addTillSubmit" class="btn btn-primary">Add till</button>
-            </div>
-        </div>

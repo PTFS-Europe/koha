@@ -20,7 +20,7 @@
 
 use Modern::Perl;
 use CGI;
-use C4::Auth;
+use C4::Auth qw/:DEFAULT get_session/;
 use C4::Output;
 use C4::Context;
 use Koha::Database;
@@ -49,7 +49,7 @@ my $date;
 my $cmd = $q->param('cmd');
 $cmd ||= 'display';
 if ( $cmd eq 'all' ) {
-    $cmd = 'display',;
+    $cmd = 'display';
 }
 elsif ( $cmd eq 'day' ) {
     $date = $q->param->('date');
@@ -93,13 +93,11 @@ if ($till) {
         my @payment_types = $schema->resultset('AuthorisedValue')
           ->search( { category => 'PaymentType', } )->all();
         foreach my $pt (@payment_types) {
-            my $type = $pt->authorised_value;
-            my $sum_in =
-              sum
+            my $type   = $pt->authorised_value;
+            my $sum_in = sum
               map { $_->{amt} if $_->{paymenttype} eq $type && $_->{amt} > 0 }
               @{$transactions};
-            my $sum_out =
-              sum
+            my $sum_out = sum
               map { $_->{amt} if $_->{paymenttype} eq $type && $_->{amt} < 0 }
               @{$transactions};
             $sum_in  ||= 0;
@@ -137,34 +135,33 @@ $template->param(
 output_html_with_http_headers( $q, $cookie, $template->output );
 
 sub get_till {
-    my ( $schema, $cgi_query ) = @_;
+    my ( $sch, $cgi_query ) = @_;
 
-    my $id = $cgi_query->param('tillid');
-    $id ||= $cgi_query->cookie('KohaStaffClient');
+    my $sessionID = $cgi_query->cookie('CGISESSID');
+    my $session   = get_session($sessionID);
+    my $branch    = $cgi_query->param('branch') || $session->param('branch');
+    my $id = $cgi_query->param('tillid') || Koha::Till->branch_tillid($branch);
 
     if ($id) {
-        return $schema->resultset('CashTill')->find($id);
+        return $sch->resultset('CashTill')->find($id);
     }
-
-    my $rs = $schema->resultset('CashTill')->search( { tillid => $id } );
-    return $rs->single;
 }
 
 sub get_transactions {
-    my ( $till, $cmd, $date ) = @_;
+    my ( $t, $c, $d ) = @_;
     my $sql;
     my @query_parameters;
 
-    if ( $cmd eq 'display' || $cmd eq 'cashup' ) {
+    if ( $c eq 'display' || $c eq 'cashup' ) {
         $sql =
 'select * from cash_transaction where till = ? and datediff( created, NOW()) = 0 order by created';
-        @query_parameters = ($till);
+        @query_parameters = ($t);
     }
-    elsif ( $cmd eq 'day' )
+    elsif ( $c eq 'day' )
     {    # show transactions for a specific date ( not today )
         $sql =
 'select * from cash_transaction where till = ? and DATE( created) = ? order by created';
-        @query_parameters = ( $till, $date );
+        @query_parameters = ( $t, $d );
     }
     my $dbh = C4::Context->dbh;
 

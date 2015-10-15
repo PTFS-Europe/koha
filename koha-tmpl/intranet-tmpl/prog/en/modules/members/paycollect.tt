@@ -130,7 +130,7 @@ function printReceipt(url) {
     </li>
 </ul>
 <div class="tabs-container">
-[% IF ( error_over ) %]
+[% IF error_over %]
     <div id="error_message" class="dialog alert">
     You must pay a value less than or equal to [% total_due | format('%.2f') %].
     </div>
@@ -200,9 +200,12 @@ function printReceipt(url) {
     <li>
         <label for="till">Till: </label>
         <select name="till" id="till">
-            <option value="[% till.name %]" selected="selected">[% till.name %]</option>
-            [% FOREACH till IN till_list %]
-            <option value="[% till.tillid %]">[% till.name %]</option>
+            [% FOREACH t IN till_list %]
+               [% IF t.tillid == tillid %]
+		    <option value="[% t.tillid %]" selected="selected">[% t.name %]</option>
+               [% ELSE %]
+		    <option value="[% t.tillid %]">[% t.name %]</option>
+               [% END %]
             [% END %]
         </select>
     </li>
@@ -291,9 +294,12 @@ function printReceipt(url) {
     <li>
         <label for="till">Till: </label>
         <select name="till" id="till">
-            <option value="[% till.name %]" selected="selected">[% till.name %]</option>
-            [% FOREACH till IN till_list %]
-            <option value="[% till.tillid %]">[% till.name %]</option>
+            [% FOREACH t IN till_list %]
+               [% IF t.tillid == tillid %]
+		    <option value="[% t.tillid %]" selected="selected">[% t.name %]</option>
+               [% ELSE %]
+		    <option value="[% t.tillid %]">[% t.name %]</option>
+               [% END %]
             [% END %]
         </select>
     </li>

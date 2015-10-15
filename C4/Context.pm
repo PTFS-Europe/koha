@@ -1138,6 +1138,15 @@ sub get_shelves_userenv {
 	return ($totshelves, $pubshelves, $barshelves);
 }
 
+sub set_tillid {
+    my $t = shift;
+    if ($t && $context->{activeuser} ) {
+        my $au = $context->{activeuser};
+        $context->{userenv}->{$au}->{tillid} = $t;
+    }
+    return; # no id passed or no activeuser
+}
+
 =head2 _new_userenv
 
   C4::Context->_new_userenv($session);  # FIXME: This calling style is wrong for what looks like an _internal function

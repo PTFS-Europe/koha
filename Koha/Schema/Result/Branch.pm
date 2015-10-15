@@ -128,6 +128,12 @@ __PACKAGE__->table("branches");
   data_type: 'text'
   is_nullable: 1
 
+=head2 default_till
+
+  data_type: 'integer'
+  is_foreign_key: 1
+  is_nullable: 1
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -171,6 +177,8 @@ __PACKAGE__->add_columns(
   { data_type => "mediumtext", is_nullable => 1 },
   "opac_info",
   { data_type => "text", is_nullable => 1 },
+  "default_till",
+  { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -412,6 +420,26 @@ __PACKAGE__->might_have(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 default_till
+
+Type: belongs_to
+
+Related object: L<Koha::Schema::Result::CashTill>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "default_till",
+  "Koha::Schema::Result::CashTill",
+  { tillid => "default_till" },
+  {
+    is_deferrable => 1,
+    join_type     => "LEFT",
+    on_delete     => "RESTRICT",
+    on_update     => "RESTRICT",
+  },
+);
+
 =head2 edifact_eans
 
 Type: has_many
@@ -543,8 +571,8 @@ Composing rels: L</branchrelations> -> categorycode
 __PACKAGE__->many_to_many("categorycodes", "branchrelations", "categorycode");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07033 @ 2014-11-26 11:08:29
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:FjNI9OEpa5OKfwwCkggu0w
+# Created by DBIx::Class::Schema::Loader v0.07042 @ 2015-08-21 14:35:19
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:t4eyA758w/OE8EU/Sh3sGg
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

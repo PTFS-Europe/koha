@@ -20,7 +20,7 @@
 
 use Modern::Perl;
 use CGI;
-use C4::Auth;
+use C4::Auth qw/:DEFAULT get_session/;
 use C4::Output;
 use C4::Context;
 use Koha::Database;
@@ -28,7 +28,10 @@ use C4::Members qw( GetMember );
 use C4::Branch qw( GetBranchName );
 use Koha::Till;
 
-my $q = CGI->new();
+my $q         = CGI->new();
+my $sessionID = $q->cookie('CGISESSID');
+my $session   = get_session($sessionID);
+
 my ( $template, $loggedinuser, $cookie, $user_flags ) = get_template_and_user(
     {
         template_name   => 'cm/pay.tt',
@@ -38,11 +41,15 @@ my ( $template, $loggedinuser, $cookie, $user_flags ) = get_template_and_user(
         flagsrequired   => { cashmanage => q{*} },
     }
 );
+my $branch = $q->param('branch') || $session->param('branch');
 
 my $user = GetMember( 'borrowernumber' => $loggedinuser );
-my $branchname = GetBranchName( $user->{branchcode} );
+my $branchname = GetBranchName($branch);
 
-my $tillid = $q->param('tillid') || $q->cookie('KohaStaffClient');
+my $tillid = $q->param('tillid');
+if ( !$tillid ) {
+    $tillid = $session->param('tillid') || Koha::Till->branch_tillid($branch);
+}
 my $schema = Koha::Database->new()->schema();
 
 my $command = $q->param('cmd');
@@ -58,8 +65,10 @@ my @tills = $schema->resultset('CashTill')->all();
 
 @payment_types = map { $_->authorised_value } @payment_types;
 
-my @transcodes = $schema->resultset('CashTranscode')
-  ->search( { visible_charge => 1, archived => 0 }, { order_by => { -asc => 'code', } } );
+my @transcodes = $schema->resultset('CashTranscode')->search(
+    { visible_charge => 1, archived => 0 },
+    { order_by => { -asc => 'code', } }
+);
 
 # kludge we need to add a typr col so we can select only charges
 @transcodes = grep { $_ if ( $_->code ne 'CASHUP' ) } @transcodes;
@@ -80,13 +89,10 @@ sub do_payment {
     my @amounts = split /,/, $q->param('amounts');
     my @codes   = split /,/, $q->param('codes');
 
-    #    my $amt         = $q->param('amt');
     my $paymenttype = $q->param('paymenttype');
     my $paymenttime = $q->param('paymenttime');
 
-    my $receiptid = $tillid . "-" . $paymenttime;
-
-    #    my $trans_code  = $q->param('trans_code');
+    my $receiptid = "$tillid-$paymenttime";
 
     foreach my $amt (@amounts) {
         my $trans_code = shift @codes;

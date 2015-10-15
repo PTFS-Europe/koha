@@ -32,7 +32,6 @@ use C4::Branch; # GetBranches
 use C4::Search::History;
 use C4::VirtualShelves;
 use Koha::AuthUtils qw(hash_password);
-use Koha::Database;
 use POSIX qw/strftime/;
 use List::MoreUtils qw/ any /;
 
@@ -373,41 +372,10 @@ sub get_template_and_user {
             marcflavour                  => C4::Context->preference("marcflavour"),
             persona                      => C4::Context->preference("persona"),
     );
-    if ( $in->{'type'} eq "intranet" ) {
-        my $schema = Koha::Database->new()->schema();
-        my $filter = {
-              branch => C4::Context->userenv
-            ? C4::Context->userenv->{branch}
-            : undef
-        };
-        my $tills_rs = $schema->resultset('CashTill')->search(
-            $filter,
-            {
-                prefetch  => 'branch',
-                '+select' => ['branch.branchname'],
-                '+as'     => ['branchname']
-            }
-        );
         my $till_list = [];
         my $current_till;
-        while ( my $till = $tills_rs->next ) {
-            push @{$till_list},
-              {
-                tillid      => $till->get_column('tillid'),
-                name        => $till->get_column('name'),
-                description => $till->get_column('description')
-              };
-            if ( defined( $in->{'query'}->cookie("KohaStaffClient") )
-                && $in->{'query'}->cookie("KohaStaffClient") eq
-                $till->get_column('tillid') )
-            {
-                $current_till = {
-                    tillid      => $till->get_column('tillid'),
-                    name        => $till->get_column('name'),
-                    description => $till->get_column('description')
-                };
-            }
-        }
+    if ( $in->{type} eq 'intranet' ) {
+        ($till_list, $current_till) = _get_till_info($in);
 
         $template->param(
             AmazonCoverImages           => C4::Context->preference("AmazonCoverImages"),
@@ -441,7 +409,7 @@ sub get_template_and_user {
             UseKohaPlugins              => C4::Context->preference('UseKohaPlugins'),
             UseCourseReserves            => C4::Context->preference("UseCourseReserves"),
             till_list                   => $till_list,
-            till                        => $current_till,
+            tillid                        => $current_till,
         );
     }
     else {
@@ -570,6 +538,33 @@ sub get_template_and_user {
 
     return ( $template, $borrowernumber, $cookie, $flags);
 }
+
+sub _get_till_info {
+    my $in  = shift;
+    my $dbh = C4::Context->dbh;
+    my $branch =
+        C4::Context->userenv
+      ? C4::Context->userenv->{branch}
+      : undef;
+    my $till_list;
+
+    @{$till_list} = $dbh->selectall_arrayref(
+        'select tillid, name, description from cash_till where branch = ?',
+        { Slice => {} }, $branch );
+
+    # till for tillid
+    my $current_till;
+    if ( defined( $in->{query}->cookie('KohaStaffClientTill') ) ) {
+        my $tillid = $in->{query}->cookie('KohaStaffClientTill');
+        $current_till = $dbh->selectrow_hashref(
+            'select tillid, name, description from cash_till where tillid = ?',
+            {}, $tillid
+        );
+    }
+
+    return ( $till_list, $current_till );
+}
+
 
 =head2 checkauth
 

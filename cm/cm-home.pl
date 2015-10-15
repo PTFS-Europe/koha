@@ -18,15 +18,17 @@
 
 use Modern::Perl;
 use CGI;
-use C4::Auth;
+use C4::Auth qw/:DEFAULT get_session/;
 use C4::Output;
 use C4::Context;
 use Koha::Till;
-use Koha::CM;
 use C4::Members qw( GetMember );
-use C4::Branch qw( GetBranchName );
+use C4::Branch qw( GetBranchName GetBranch );
 
-my $query = CGI->new();
+my $query     = CGI->new();
+my $sessionID = $query->cookie('CGISESSID');
+my $session   = get_session($sessionID);
+
 my ( $template, $loggedinuser, $cookie, $user_flags ) = get_template_and_user(
     {
         template_name   => 'cm/cm-home.tt',
@@ -37,9 +39,15 @@ my ( $template, $loggedinuser, $cookie, $user_flags ) = get_template_and_user(
     }
 );
 
+my $branch = $query->param('branch') || $session->param('branch');
+
 my $user       = GetMember( 'borrowernumber' => $loggedinuser );
-my $branchname = GetBranchName( $user->{branchcode} );
-my $tillid     = $query->param('tillid') || $query->cookie('KohaStaffClient');
+my $branchname = GetBranchName($branch);
+my $tillid     = $query->param('tillid');
+if ( !$tillid ) {
+    $tillid = $session->param('tillid')
+      || Koha::Till->branch_tillid($branch);
+}
 
 # here be tigers
 #

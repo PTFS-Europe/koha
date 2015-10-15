@@ -9,7 +9,6 @@
     tbody tr:nth-child(even) td, tr.highlight.archived td, tr.highlight.archived th, tr.even td, tr.even.highlight td { background-color: FFCCCC; } 
 </style>
 <script type="text/javascript">
-    //<![CDATA[
     $(document).ready(function()
     {
         var trans_table = $('#table_transcodes').dataTable(
@@ -232,7 +231,6 @@
             $("#addCategoryForm").submit();
         });
     });
-    //]]>
 </script>
 </head>
 
@@ -254,7 +252,6 @@
                     <div id="toolbar" class="btn-toolbar">
                         <a class="btn btn-small" id="add_category" role="button" href="#addCategory" data-toggle="modal" data-code="BANG"><i class="icon-plus"></i> New Category</a>
                     </div>
-                    [% END %] [% IF display %]
                     <h2>Transaction categories</h2>
                     <table id="table_transcodes">
                         <thead>

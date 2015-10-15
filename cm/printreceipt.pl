@@ -21,13 +21,15 @@
 use Modern::Perl;
 use DateTime;
 
-use C4::Auth;
+use C4::Auth qw/:DEFAULT get_session/;
 use C4::Output;
+use C4::Branch qw( GetBranches );
 use CGI;
-use Koha::Database;
 use Koha::DateUtils;
+use Koha::Till;
+use List::Util qw( sum );
 
-my $input = new CGI;
+my $input = CGI->new;
 
 my ( $template, $loggedinuser, $cookie ) = get_template_and_user(
     {
@@ -39,47 +41,57 @@ my ( $template, $loggedinuser, $cookie ) = get_template_and_user(
     }
 );
 
-my $now = DateTime->now();
-my $session = C4::Context->userenv;
-my $change = $input->param('change');
-my $tendered = $input->param('tendered');
-my @amounts = split /,/, $input->param('amounts');
+my $now        = DateTime->now();
+my $env        = C4::Context->userenv;
+my $change     = $input->param('change');
+my $tendered   = $input->param('tendered');
+my @amounts    = split /,/, $input->param('amounts');
 my @transcodes = split /,/, $input->param('transcodes');
-my $tillid = $input->param('tillid') || $input->cookie("KohaStaffClient");
+my $tillid     = $input->param('tillid');
+if ( !$tillid ) {
+    my $sessionID = $input->cookie('CGISESSID');
+    my $session   = get_session($sessionID);
+    $tillid = $session->param('tillid')
+      || Koha::Till->branch_tillid( $session->param('branch') );
+}
+
 my $timestamp = $input->param('paymenttime');
 
-my $schema = Koha::Database->new()->schema();
+my %tc_desc = get_transcode_descriptions();
 
-my @receiptrows;    # this is for the tmpl-loop
+my $receiptrows = [];    # this is for the tmpl-loop
 foreach my $amt (@amounts) {
     my $transcode = shift @transcodes;
-    warn "Transcode: " . $transcode;
-    my $description = $schema->resultset('CashTranscode')->find( { code => $transcode } );
 
-    my %row = (
-        'description' => $description->get_column('description'),
-        'amount' => $amt,
-    );
-    push( @receiptrows, \%row );
+    push @{$receiptrows},
+      {
+        description => $tc_desc{$transcode},
+        amount      => $amt,
+      };
 }
 
-my $total = 0;
-for ( @amounts ) {
-    $total += $_;
-}
+my $total = sum @amounts;
 
-my $receiptid = $tillid . "-" . $timestamp;
+my $receiptid = "${tillid}-$timestamp";
 
 $template->param(
-    branchcode   => $session->{'branch'},
-    branchname   => $session->{'branchname'},
-    datetime     => output_pref( $now ),
+    branchcode => $env->{branch},
+    branchname => $env->{branchname},
+    datetime   => output_pref($now),
 
-    total        => sprintf( "%.2f", $total ),
-    change       => $change,
-    tendered     => $tendered,
-    receipts     => \@receiptrows,
-    receiptid    => $receiptid
+    total     => sprintf( '%.2f', $total ),
+    change    => $change,
+    tendered  => $tendered,
+    receipts  => $receiptrows,
+    receiptid => $receiptid
 );
 
 output_html_with_http_headers $input, $cookie, $template->output;
+
+sub get_transcode_descriptions {
+    my $dbh = C4::Context->dbh;
+    my $tc =
+      $dbh->selectall_arrayref('select code, description from cash_transcode');
+    my %descriptions = map { $_->[0] => $_->[1] } @{$tc};
+    return %descriptions;
+}

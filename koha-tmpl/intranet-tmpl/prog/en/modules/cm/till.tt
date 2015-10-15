@@ -56,7 +56,7 @@ $(document).ready(function() {
 <div class="statictabs">
 
       <h1>Cash Management</h1>
-      <h2>Till:[% till.name %] ([% till.description %])</h2>
+      <h2>Till:[% till.name %] ([% till.tillid %]: [% till.description %])</h2>
 <!-- may need a select other till if perm -->
 
          <form action="/cgi-bin/koha/cm/till.pl" method="get">

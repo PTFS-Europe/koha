@@ -3,7 +3,6 @@ package Koha::Service::Till;
 use Modern::Perl;
 use CGI::Cookie;
 use JSON;
-use Carp;
 
 use base 'Koha::Service';
 
@@ -17,8 +16,8 @@ sub new {
             routes => [
                 [ qr{GET /(\d*)},    'tread' ],
                 [ qr{POST /},        'create' ],
-                [ qr{PUT /(\d+)},    'update' ],
-                [ qr{DELETE /(\d+)}, 'tdelete' ],
+                [ qr{PUT /},         'update' ],
+                [ qr{DELETE /(\d+)}, 'archive' ],
             ]
         }
     );
@@ -27,17 +26,17 @@ sub new {
 sub create {
     my ($self) = @_;
 
-    my $response = {};
-    my $input    = from_json( $self->query->param('POSTDATA') );
+    my $input = from_json( $self->query->param('POSTDATA') );
 
     my $schema = Koha::Database->new()->schema();
     my $till   = $schema->resultset('CashTill')->create($input);
 
     if ( !defined $till ) {
-        $self->output( $response, { status => '200 OK', type => 'json' } );
+        $self->output( {}, { status => '200 OK', type => 'json' } );
         return;
     }
 
+    my $response = {};
     $response = { $till->get_columns };
     $response->{branchname} = $till->branch->get_column('branchname');
     $self->output( $response, { status => '200 OK', type => 'json' } );
@@ -47,20 +46,19 @@ sub create {
 sub tread {
     my ( $self, $tillid ) = @_;
 
-    my $response = {};
-    my $schema   = Koha::Database->new()->schema();
-    my $filter   = {};
+    my $schema = Koha::Database->new()->schema();
+    my $filter = {};
     if ($tillid) {
         $filter->{tillid} = $tillid;
         my $till_cookie = CGI::Cookie->new(
-            -name     => 'KohaStaffClient',
+            -name     => 'KohaStaffClientTill',
             -value    => $tillid,
             -HttpOnly => 1,
             -expires  => '+3y'
         );
         $self->cookie( [ $self->cookie, $till_cookie ] );
     }
-    my $tills_rs = $schema->resultset('CashTill')->search(
+    my @tills = $schema->resultset('CashTill')->search(
         $filter,
         {
             prefetch  => 'branch',
@@ -69,10 +67,14 @@ sub tread {
         }
     );
 
-    $response->{recordsTotal} = $response->{recordsFiltered} = $tills_rs->count;
-    while ( my $till = $tills_rs->next ) {
-        push @{ $response->{data} }, { $till->get_columns };
-    }
+    my $response = {
+        recordsTotal => scalar @tills,
+        data         => \@tills,
+    };
+
+    #    while ( my $till = $tills_rs->next ) {
+    #        push @{ $response->{data} }, { $till->get_columns };
+    #    }
 
     $self->output( $response, { status => '200 OK', type => 'json' } );
     return;
@@ -80,7 +82,6 @@ sub tread {
 
 sub other {
     my ( $self, $tillid ) = @_;
-    carp "Other tillid: $tillid";
     return;
 }
 
@@ -107,7 +108,20 @@ sub update {
 sub tdelete {
     my ( $self, $tillid ) = @_;
 
-    # prob set  a deleted flag
+    my $response = {};
+    my $schema   = Koha::Database->new()->schema();
+    my $till =
+      $schema->resultset('CashTill')->find( { tillid => $tillid } );
+
+    if ( !$till ) {
+        $self->output( {}, { status => '404', type => 'json' } );
+        return;
+    }
+
+    my $archive = { archived => '1' };
+    $till->update($archive)->discard_changes();
+    $self->output( { $till->get_columns },
+        { status => '200 OK', type => 'json' } );
 
     return;
 }

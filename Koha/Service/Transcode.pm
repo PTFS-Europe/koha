@@ -6,7 +6,6 @@ use JSON;
 use base 'Koha::Service';
 
 use Koha::Database;
-use Data::Dumper;
 
 sub new {
     my ($class) = @_;
