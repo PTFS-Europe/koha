@@ -228,8 +228,13 @@ sub borrower_add_additional_fields {
     }
 
     # Computes full borrower address
+    if ($borrower->{streettype}) {
     my $roadtype = C4::Koha::GetAuthorisedValueByCode( 'ROADTYPE', $borrower->{streettype} );
     $b_ref->{address} = $borrower->{'streetnumber'} . " $roadtype " . $borrower->{'address'};
+}
+else {
+    $b_ref->{address} = "$borrower->{streetnumber} $borrower->{address}";
+}
 
     if (C4::Context->preference('ExtendedPatronAttributes')) {
         $b_ref->{extendedattributes} = GetBorrowerAttributes($borrowernumber);

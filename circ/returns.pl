@@ -452,7 +452,9 @@ foreach my $code ( keys %$messages ) {
     }
     elsif ( $code eq 'NotIssued' ) {
         $err{notissued} = 1;
-        $err{msg} = $branches->{ $messages->{'IsPermanent'} }->{'branchname'};
+        if ($branches->{ $messages->{IsPermanent} }->{branchname}) {
+        $err{msg} = $branches->{ $messages->{IsPermanent} }->{branchname};
+        }
     }
     elsif ( $code eq 'LocalUse' ) {
         $err{localuse} = 1;
@@ -606,6 +608,8 @@ $template->param(
 $itemnumber = GetItemnumberFromBarcode( $query->param('barcode') );
 if ( $itemnumber ) {
    my ( $holdingBranch, $collectionBranch ) = GetCollectionItemBranches( $itemnumber );
+    $collectionBranch ||= q{};
+    $holdingBranch ||=q{};
     if ( ! ( $holdingBranch eq $collectionBranch ) ) {
         $template->param(
           collectionItemNeedsTransferred => 1,

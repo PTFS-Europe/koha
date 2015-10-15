@@ -194,8 +194,12 @@ sub borrower_add_additional_fields {
 
     # Computes full borrower address
     my $roadtype = C4::Koha::GetAuthorisedValueByCode( 'ROADTYPE', $borrower->{streettype} );
+    if ($roadtype ) {
     $b_ref->{address} = $borrower->{'streetnumber'} . " $roadtype " . $borrower->{'address'};
-
+    }
+    else {
+    $b_ref->{address} = "$borrower->{streetnumber} $borrower->{address}";
+    }
     $b_ref->{branchname} = GetBranchName( $b_ref->{branchcode} );
     return;
 }
