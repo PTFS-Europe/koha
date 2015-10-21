@@ -28,8 +28,9 @@ use C4::Members qw( GetMember GetMemberAccountRecords);
 use C4::Branch qw( GetBranch GetBranchName GetBranches);
 use Koha::Till;
 
-my $q = CGI->new();
-my $branch = GetBranch( $q, GetBranches() );
+my $q       = CGI->new();
+my $session = get_session( $q->cookie('CGISESSID') );
+my $branch  = $session->param('branch');
 
 my ( $template, $loggedinuser, $cookie ) = get_template_and_user(
     {
@@ -47,9 +48,6 @@ my $change         = $q->param('change');
 my $tendered       = $q->param('tendered');
 my $tillid         = $q->param('tillid');
 if ( !$tillid ) {
-    my $sessionID = $q->cookie('CGISESSID');
-    my $session   = get_session($sessionID);
-
     $tillid = Koha::Till->branch_tillid($branch);
 }
 my $timestamp = $q->param('paymenttime');

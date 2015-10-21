@@ -49,15 +49,14 @@ my @amounts    = split /,/, $input->param('amounts');
 my @transcodes = split /,/, $input->param('transcodes');
 my $tillid     = $input->param('tillid');
 if ( !$tillid ) {
-    my $sessionID = $input->cookie('CGISESSID');
-    my $session   = get_session($sessionID);
+    my $session = get_session( $input->cookie('CGISESSID') );
     $tillid = $session->param('tillid')
       || Koha::Till->branch_tillid( $session->param('branch') );
 }
 
 my $timestamp = $input->param('paymenttime');
 
-my %tc_desc = get_transcode_descriptions();
+my $tc_desc = get_transcode_descriptions();
 
 my $receiptrows = [];    # this is for the tmpl-loop
 foreach my $amt (@amounts) {
@@ -65,7 +64,7 @@ foreach my $amt (@amounts) {
 
     push @{$receiptrows},
       {
-        description => $tc_desc{$transcode},
+        description => $tc_desc->{$transcode},
         amount      => $amt,
       };
 }
@@ -79,19 +78,19 @@ $template->param(
     branchname => $env->{branchname},
     datetime   => output_pref($now),
 
-    total     => sprintf( '%.2f', $total ),
+    total     => $total,
     change    => $change,
     tendered  => $tendered,
     receipts  => $receiptrows,
     receiptid => $receiptid
 );
 
-output_html_with_http_headers $input, $cookie, $template->output;
+output_html_with_http_headers( $input, $cookie, $template->output );
 
 sub get_transcode_descriptions {
     my $dbh = C4::Context->dbh;
     my $tc =
       $dbh->selectall_arrayref('select code, description from cash_transcode');
     my %descriptions = map { $_->[0] => $_->[1] } @{$tc};
-    return %descriptions;
+    return \%descriptions;
 }

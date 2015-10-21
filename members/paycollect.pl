@@ -51,7 +51,9 @@ my $borrower       = GetMember( borrowernumber => $borrowernumber );
 my $user           = $input->remote_user;
 
 # get account details
-my $branch = GetBranch( $input, GetBranches() );
+my $session = get_session($input->cookie('CGISESSID'));
+my $branch = $session->param('branch');
+
 
 my ( $total_due, $accts, $numaccts ) = GetMemberAccountRecords($borrowernumber);
 my $total_paid = $input->param('paid');
@@ -66,11 +68,7 @@ my $accountlines_id;
 my $tillid = $input->param('tillid');
 my $till_branch = $branch;
 if ( !$tillid ) {
-    my $sessionID = $input->cookie('CGISESSID');
-    my $session   = get_session($sessionID);
-#    $tillid = $session->param("tillid") || -1;
-    $tillid = Koha::Till->branch_tillid( $session->param('branch') );
-    $till_branch = $session->param('branch');
+    $tillid = Koha::Till->branch_tillid( $branch );
 }
 my $till_list = Koha::Till->get_till_list($till_branch);
 $template->param( tillid => $tillid,
@@ -175,7 +173,7 @@ $template->param(
     PaymentTime  => time(),
 );
 
-output_html_with_http_headers $input, $cookie, $template->output;
+output_html_with_http_headers( $input, $cookie, $template->output);
 
 sub borrower_add_additional_fields {
     my $b_ref = shift;

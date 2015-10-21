@@ -16,7 +16,7 @@ i  <link rel="shortcut icon" href="[% IntranetFavicon %]" type="image/x-icon" />
     <div id="receipt">
         <!-- The table with the receipt items -->
         <table>
-            [% IF ( LibraryName ) %]
+            [% IF LibraryName %]
             <tr>
                 <th colspan="2" class="centerednames">
                     <h3>[% LibraryName %]</h3>
@@ -30,14 +30,14 @@ i  <link rel="shortcut icon" href="[% IntranetFavicon %]" type="image/x-icon" />
             </tr>
             <tr>
                 <th colspan="2" class="centerednames">
-                    [% IF ( branchname ) %]
+                    [% IF branchname %]
                     <h2>[% branchname %]</h2>
                     [% END %]
                 </th>
             </tr>
             <tr>
                 <th colspan="2" class="centerednames">
-                    [% IF ( datetime ) %]
+                    [% IF datetime %]
                     <h3>[% datetime %]</h3>
                     [% END %]
                 </th>
@@ -68,7 +68,7 @@ i  <link rel="shortcut icon" href="[% IntranetFavicon %]" type="image/x-icon" />
             <tfoot>
                 <tr>
                     <td>Total:</td>
-                    <td>[% total %]</td>
+                    <td>[% total | format('%.2f') %]</td>
                 </tr>
                 <tr>
                     <td>Tendered:</td>
