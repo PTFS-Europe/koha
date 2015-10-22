@@ -64,7 +64,7 @@ if ( $till_count == 0 && $cmd eq 'cashup' ) {
 
 if ( $till_count && $cmd eq 'cashup' ) {
 
-    my $cashtime = get_tran_totals(@selected_tills);
+    my $cashtime = get_tran_totals( $template, @selected_tills );
     record_cashup( $cashtime, @selected_tills );
 }
 else {
@@ -89,7 +89,7 @@ sub get_tills {
 }
 
 sub get_tran_totals {
-    my (@tills)      = @_;
+    my ( $template, @tills ) = @_;
     my $cashup_times = [];
     my $dbh          = C4::Context->dbh;
 
