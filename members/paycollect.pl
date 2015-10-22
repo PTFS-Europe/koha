@@ -76,6 +76,9 @@ $template->param( tillid => $tillid,
 );
 my $type = $input->param('type');
 my $paymenttime = $input->param('paymenttime');
+if (!$paymenttime) {
+    $paymenttime = time;
+}
 my $receiptid = "$tillid-$paymenttime";
 if ( $individual || $writeoff ) {
     if ($individual) {
