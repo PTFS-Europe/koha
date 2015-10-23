@@ -99,6 +99,9 @@ sub do_checkout {
              } elsif ($confirmation eq 'PREVISSUE') {
                 $self->screen_msg("This item was previously checked out by you");
                 last;
+            } elsif ($confirmation eq 'TOO_MANY') {
+                $noerror = 0;
+                $self->screen_msg('Too many items on loan. Loan blocked');
             } else {
                 # We've been returned a case other than those above
                 $self->screen_msg("Item cannot be issued: $confirmation");
