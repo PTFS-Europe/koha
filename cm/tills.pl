@@ -84,7 +84,7 @@ sub get_tills {
     my ($branch) = @_;
     my $schema = Koha::Database->new()->schema;
     my @all_tills =
-      $schema->resultset('CashTill')->search( { branch => $branch } );
+      $schema->resultset('CashTill')->search( { branch => $branch, archived => 0, } );
     return \@all_tills;
 }
 
