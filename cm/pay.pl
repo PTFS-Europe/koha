@@ -55,7 +55,7 @@ my $schema = Koha::Database->new()->schema();
 my $command = $q->param('cmd');
 
 if ( $command && $command eq 'committrans' ) {
-    do_payment();
+    do_payment($q);
 }
 
 my @payment_types =
@@ -86,11 +86,12 @@ $template->param(
 output_html_with_http_headers( $q, $cookie, $template->output );
 
 sub do_payment {
-    my @amounts = split /,/, $q->param('amounts');
-    my @codes   = split /,/, $q->param('codes');
+    my $cgi = shift;
+    my @amounts = split /,/, $cgi->param('amounts');
+    my @codes   = split /,/, $cgi->param('codes');
 
-    my $paymenttype = $q->param('paymenttype');
-    my $paymenttime = $q->param('paymenttime');
+    my $paymenttype = $cgi->param('paymenttype');
+    my $paymenttime = $cgi->param('paymenttime');
 
     my $receiptid = "$tillid-$paymenttime";
 
