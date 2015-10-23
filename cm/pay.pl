@@ -50,7 +50,7 @@ my $tillid = $q->param('tillid');
 if ( !$tillid ) {
     $tillid = $session->param('tillid') || Koha::Till->branch_tillid($branch);
 }
-my $schema = Koha::Database->new()->schema();
+our $schema = Koha::Database->new()->schema();
 
 my $command = $q->param('cmd');
 
