@@ -50,12 +50,12 @@ my $tillid = $q->param('tillid');
 if ( !$tillid ) {
     $tillid = $session->param('tillid') || Koha::Till->branch_tillid($branch);
 }
-our $schema = Koha::Database->new()->schema();
+my $schema = Koha::Database->new()->schema();
 
 my $command = $q->param('cmd');
 
 if ( $command && $command eq 'committrans' ) {
-    do_payment($q);
+    do_payment($q, $schema);
 }
 
 my @payment_types =
@@ -87,6 +87,7 @@ output_html_with_http_headers( $q, $cookie, $template->output );
 
 sub do_payment {
     my $cgi = shift;
+    my $schema = shift;
     my @amounts = split /,/, $cgi->param('amounts');
     my @codes   = split /,/, $cgi->param('codes');
 
