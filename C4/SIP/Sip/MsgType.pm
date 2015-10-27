@@ -27,7 +27,7 @@ use vars qw(@ISA $VERSION @EXPORT_OK);
 BEGIN {
     $VERSION = 3.07.00.049;
 	@ISA = qw(Exporter);
-	@EXPORT_OK = qw(handle);
+	@EXPORT_OK = qw(handle login_core);
 }
 
 # Predeclare handler subroutines

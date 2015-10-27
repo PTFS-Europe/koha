@@ -14,7 +14,7 @@ require UNIVERSAL::require;
 use Sip::Constants qw(:all);
 use Sip::Configuration;
 use Sip::Checksum qw(checksum verify_cksum);
-use Sip::MsgType;
+use Sip::MsgType qw(handle login_core);
 
 use base qw(Net::Server::Fork);
 
@@ -28,7 +28,7 @@ my %transports = (
 #
 # Read configuration
 #
-my $config = new Sip::Configuration $ARGV[0];
+my $config = Sip::Configuration->new( $ARGV[0] );
 my @parms;
 
 #
@@ -118,6 +118,7 @@ sub process_request {
     else {
         &$transport($self);
     }
+    return;
 }
 
 #
@@ -221,7 +222,7 @@ sub telnet_transport {
                 length($uid), length($pwd) );
 
             if ( exists( $config->{accounts}->{$uid} )
-                && ( $pwd eq $config->{accounts}->{$uid}->password() ) )
+                && ( $pwd eq $config->{accounts}->{$uid}->{password} ) )
             {
                 $account = $config->{accounts}->{$uid};
                 Sip::MsgType::login_core( $self, $uid, $pwd ) and last;
@@ -278,44 +279,30 @@ sub sip_protocol_loop {
     #
     # In short, we'll take any valid message here.
     #my $expect = SC_STATUS;
-    eval {
-        local $SIG{ALRM} = sub {
-            syslog( 'LOG_DEBUG', "Inactive timed out" );
-            die "Timed Out!\n";
-        };
-        my $timeout = 600;    # 10 mins
 
-        my $previous_alarm = alarm($timeout);
-
-        while ( my $inputbuf = read_request() ) {
-            if ( !defined $inputbuf ) {
-                return;       # EOF
-            }
-            alarm($timeout);
-
-            unless ($inputbuf) {
-                syslog( "LOG_ERR", "sip_protocol_loop: empty input skipped" );
-                print("96$CR");
-                next;
-            }
-
-            # end cheap input hacks
-            my $status = Sip::MsgType::handle( $inputbuf, $self, q{} );
-            if ( !$status ) {
-                syslog(
-                    "LOG_ERR",
-                    "sip_protocol_loop: failed to handle %s",
-                    substr( $inputbuf, 0, 2 )
-                );
-            }
-            next if $status eq REQUEST_ACS_RESEND;
+    while ( my $inputbuf = read_request() ) {
+        if ( !defined $inputbuf ) {
+            return;       # EOF
         }
-        alarm($previous_alarm);
-        return;
-    };
-    if ( $@ =~ m/timed out/i ) {
-        return;
+
+        unless ($inputbuf) {
+            syslog( "LOG_ERR", "sip_protocol_loop: empty input skipped" );
+            print("96$CR");
+            next;
+        }
+
+        # end cheap input hacks
+        my $status = Sip::MsgType::handle( $inputbuf, $self, q{} );
+        if ( !$status ) {
+            syslog(
+                "LOG_ERR",
+                "sip_protocol_loop: failed to handle %s",
+                substr( $inputbuf, 0, 2 )
+            );
+        }
+        next if $status eq REQUEST_ACS_RESEND;
     }
+    return;
 }
 
 sub read_request {
@@ -331,8 +318,7 @@ sub read_request {
         $raw_length = length $buffer;
         $buffer =~ s/^\s*[^A-z0-9]+//s
           ; # Every line must start with a "real" character.  Not whitespace, control chars, etc.
-        $buffer =~ s/[^A-z0-9]+$//s
-          ; # Same for the end.  Note this catches the problem some clients have sending empty fields at the end, like |||
+        $buffer =~ s/[^A-z0-9]+$//s;
         $buffer =~ s/\015?\012//g;    # Extra line breaks must die
         $buffer =~ s/\015?\012//s;    # Extra line breaks must die
         $buffer =~ s/\015*\012*$//s;
