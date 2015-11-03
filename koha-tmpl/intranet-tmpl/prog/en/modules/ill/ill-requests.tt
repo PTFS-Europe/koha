@@ -47,12 +47,16 @@
                                 [% IF field.value.1 and field.key != 'id' %]
                                     <span id="[% field.key %]">
                                         [% IF field.key == 'borrower' %]
+                                            [% IF field.value.1.deleted %]
+                                              Deleted borrower
+                                            [% ELSE %]
                                             [% brw = field.value.1 %]
                                             [% field.value.0 _ ": " %]
                                             <a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% brw.borrowernumber %]"
                                             title="View borrower details">
                                                 [% brw.firstname _ " " _ brw.surname _ ", " _ brw.cardnumber %]
                                             </a>
+                                            [% END %]
                                         [% ELSIF field.key == 'status' %]
                                             [% field.value.0 _ ": " _ AuthorisedValues.GetByCode( 'ILLSTATUS', field.value.1 ) %]
                                         [% ELSE %]
@@ -97,11 +101,15 @@
                                         [% IF field.key != 'id' %]
                                             <td>
                                                 [% IF field.key == 'borrower' %]
+                                                    [% IF field.value.1.deleted %]
+                                                      Deleted borrower
+                                                    [% ELSE %]
                                                     [% brw = field.value.1 %]
                                                     <a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% brw.borrowernumber %]"
                                                         title="View borrower details">
                                                         [% brw.firstname _ " " _ brw.surname _ ", " _ brw.cardnumber %]
                                                     </a>
+                                                    [% END %]
                                                 [% ELSIF field.key == 'status' %]
                                                     [% AuthorisedValues.GetByCode( 'ILLSTATUS', field.value.1 ) %]
                                                 [% ELSIF field.key == './uin' and query_type == "api" %]

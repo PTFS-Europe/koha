@@ -66,11 +66,15 @@
                                     <li>
                                         <label id=[% field.key %]>[% field.value.0 _ ":" %]</label>
                                         [% IF field.key == 'borrower' %]
+                                            [% IF field.value.1.deleted %]
+                                              Deleted borrower
+                                            [% ELSE %]
                                             [% brw = field.value.1 %]
                                             <a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% brw.borrowernumber %]"
                                                title="View borrower details">
                                                 [% brw.firstname _ " " _ brw.surname _ ", " _ brw.cardnumber %]
                                             </a>
+                                            [% END %]
                                         [% ELSIF field.key == 'primary_notes_staff' or field.key == 'primary_notes_opac' %]
                                             <span id="[% field.key %]"><pre>[% field.value.1 %]</pre></span>
                                         [% ELSIF field.key == 'status' %]
@@ -223,11 +227,18 @@
                                                         type="text"
                                                         value="[% field.value.1 %]" />
                                                 [% ELSIF field.key == 'borrower' %]
+                                                    [% IF field.value.1.deleted %]
+                                                    <input name="[% field.key %]"
+                                                    id="[% field.key %]"
+                                                    type="text"
+                                                    value="Deleted borrower" />
+                                                    [% ELSE %]
                                                     [% brw = field.value.1 %]
                                                     <input name="[% field.key %]"
                                                     id="[% field.key %]"
                                                     type="text"
                                                     value="[% brw.cardnumber %]" />
+                                                    [% END %]
                                                 [% ELSIF field.key == 'status' %]
                                                     [% PROCESS 'av-build-dropbox.inc' name="status", category="ILLSTATUS", default=field.value.1 %]
                                                 [% ELSE %]

@@ -281,7 +281,11 @@ sub editStatus {
     my ( $self, $new_values ) = @_;
 
     if ( $new_values->{borrower} ) {
-        my $brw = _borrower_from_number($new_values->{borrower}, 'crd');
+        my $brw = _borrower_from_number({
+            number   => $new_values->{borrower},
+            strategy => 'crd',
+            required => 1,
+        });
         $new_values->{borrowernumber} = $brw->borrowernumber;
         delete $new_values->{borrower};
     }
@@ -678,9 +682,9 @@ sub _seed_from_store {
             $attributes->{ $attribute->get_column('type') }
                 = $attribute->get_column('value');
         }
-        $attributes->{borrower} = _borrower_from_number(
-            $attributes->{borrowernumber}, 'brw'
-        );
+        $attributes->{borrower} = _borrower_from_number({
+            number => $attributes->{borrowernumber}, strategy => 'brw'
+        });
         # XXX: A bit Kludgy.
         my $tmp = $self->_abstract->build($attributes);
         $self->record($tmp->{record});
@@ -897,13 +901,15 @@ resolution depends on $strategy:
 =cut
 
 sub _borrower_from_number {
-    my ( $number, $strategy ) = @_;
+    my ( $params ) = @_;
+    my $number = $params->{number};
+    my $strategy = $params->{strategy};
 
     my $borrowers = Koha::Borrowers->new;
     my $brws;
-    if ( 'crd' eq $strategy ) {
+    if ( $strategy && 'crd' eq $strategy ) {
         $brws = $borrowers->search( { cardnumber => $number } );
-    } elsif ( 'brw' eq $strategy ) {
+    } elsif ( $strategy && 'brw' eq $strategy ) {
         $brws = $borrowers->search( { borrowernumber => $number } );
     } else {
         $brws = $borrowers->search( { borrowernumber => $number } );
@@ -911,9 +917,15 @@ sub _borrower_from_number {
             unless ( $brws->count == 1 );
     }
 
-    die "Invalid borrower: ($number)"
-        unless ( $brws->count == 1 ); # brw fetch did not work
     # we should have a unique brw.
+    die "Invalid borrower" if ( $brws->count > 1 );
+
+    # Check if borrower still exists / has not been deleted.
+    if ( $brws->count == 0 ) {
+        die "Invalid borrower" if ( $params->{required} );
+        # We allow "deleted" borrowers.
+        return { type => "borrower", deleted => 1 };
+    }
     return $brws->next;
 }
 
@@ -930,8 +942,11 @@ file.
 sub id_prefix {
     my ( $self ) = @_;
     my $brw = $self->status->getProperty('borrower');
+    my $brw_cat = "dummy";
+    $brw_cat = $brw->categorycode
+        unless ( 'HASH' eq ref($brw) && $brw->{deleted} );
     my $prefix = $self->_abstract->getPrefix( {
-        brw_cat => $brw->categorycode,
+        brw_cat => $brw_cat,
         branch  => $self->status->getProperty('branch'),
     } );
     $prefix .= "-" if ( $prefix );

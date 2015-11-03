@@ -204,7 +204,9 @@ sub request {
     my ( $self, $opts ) = @_;
 
     # $opts->{borrower} is either a cardnumber or a borrowernumber.
-    my $brw = _borrower_from_number($opts->{borrower});
+    my $brw = _borrower_from_number({
+        number => $opts->{borrower}, required => 1
+    });
     my $permitted = $self->check_limits(
         { borrower => $brw }, { branch => $opts->{branch} }
     );
@@ -267,22 +269,29 @@ sub search {
     my ( $self, $target ) = @_;
     my $result;
 
+    # Three cases: 1) search by arbitrary property.
     if ( $target && ref $target eq 'HASH' ) {
         while ( my ( $column, $value ) = each %{$target} ) {
             delete $target->{$column}
                 if ( !$value || '' eq $value );
         }
         if ( $target->{cardnumber} ) { # translate to borrowernumber
-            my $brw = _borrower_from_number($target->{cardnumber}, 'crd');
+            my $brw = _borrower_from_number({
+                number   => $target->{cardnumber},
+                strategy => 'crd',
+                required => 1,
+            });
             $target->{borrowernumber} = $brw->borrowernumber;
             delete $target->{cardnumber};
         }
         # FIXME: Not implemented yet.
         delete $target->{required_date};
-        $result = $self->_retrieve_requests($target)
+        $result = $self->_retrieve_requests($target);
     } elsif ( !$target ) {
+        # 2) Fetch all requests.
         $result = $self->_retrieve_requests($target)
     } else {
+        # 3) Fetch all requests owned by borrower.
         $result = $self->_retrieve_requests( { borrowernumber => $target } )
     }
 
@@ -418,7 +427,9 @@ resolution depends on $strategy:
 =cut
 
 sub _borrower_from_number {
-    my ( $number, $strategy ) = @_;
+    my ( $params ) = @_;
+    my $number = $params->{number};
+    my $strategy = $params->{strategy};
 
     my $borrowers = Koha::Borrowers->new;
     my $brws;
@@ -432,15 +443,23 @@ sub _borrower_from_number {
             unless ( $brws->count == 1 );
     }
 
-    die "Invalid borrower"
-        unless ( $brws->count == 1 ); # brw fetch did not work
     # we should have a unique brw.
+    die "Invalid borrower" if ( $brws->count > 1 );
+
+    # Check if borrower still exists / has not been deleted.
+    if ( $brws->count == 0 ) {
+        die "Invalid borrower" if ( $params->{required} );
+        # We allow "deleted" borrowers.
+        # FIXME should we return a "mock" borrower here?
+        return 0;
+    }
     return $brws->next;
 }
 
 =head1 AUTHOR
 
 Martin Renvoize <martin.renovize@ptfs-europe.com>
+Alex Sassmannshausen <alex.sassmannshausen@ptfs-europe.com>
 
 =cut
 
