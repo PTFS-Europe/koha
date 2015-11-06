@@ -340,8 +340,7 @@
                                             <select size="5" multiple="true" id="partners"
                                                     name="partners">
                                                 [% FOREACH partner = partners %]
-                                                    <option value=[% partner.email %]
-                                                            selected="selected">
+                                                    <option value=[% partner.email %]>
                                                         [% partner.branchcode _ " - " _ partner.surname %]
                                                     </option>
                                                 [% END %]
