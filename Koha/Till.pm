@@ -111,12 +111,16 @@ sub branch_tillid {
 
     # return default counter till for branch
     if ( !$branch ) {
+        carp('branch_tillid called without a branch value');
         return;
     }
     my $dbh = C4::Context->dbh;
     my ($x) = $dbh->selectrow_array(
-        "select default_till  from branches where branchcode = ?",
+        'select default_till  from branches where branchcode = ?',
         {}, $branch );
+    if (!$x) {
+        carp("branch_tillid unable to return a till for $branch");
+    }
     return $x;
 }
 
