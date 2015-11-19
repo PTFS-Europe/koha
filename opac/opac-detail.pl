@@ -894,6 +894,11 @@ if ( (C4::Context->preference("HTML5MediaEnabled") eq 'both') or (C4::Context->p
     $template->param( C4::HTML5Media->gethtml5media($record));
 }
 
+if ( C4::Context->preference("BDSEnabled") ) {
+    $template->param("BDSEnabled => 1");
+
+}
+
 my $syndetics_elements;
 
 if ( C4::Context->preference("SyndeticsEnabled") ) {
