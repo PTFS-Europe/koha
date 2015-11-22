@@ -249,6 +249,14 @@
                                                             [% END %]
                                                         [% END %]
 
+                                                        [% IF ( ( Koha.Preference( 'BDSEnabled' ) == 1 ) && ( Koha.Preference( 'BDSCovers' ) == 1 ) ) %]
+                                                            [% IF SEARCH_RESULT.bds_cover_url %]
+                                                                <span title="[% SEARCH_RESULT.biblionumber %]" id="bds-thumbnail[% loop.count %]"><img src="https://[% SEARCH_RESULT.bds_cover_url %]" alt="" class="item-thumbnail bds-thumbnail" style="max-width: 74px" /></span>
+                                                            [% ELSE %]
+                                                                <span class="no-image">No cover image available</span>
+                                                            [% END %]
+                                                        [% END %]
+
                                                         [% IF ( GoogleJackets ) %]
                                                             [% IF ( SEARCH_RESULT.normalized_isbn ) %]
                                                                 <span style="block" title="[% SEARCH_RESULT.biblionumber |url %]" class="[% SEARCH_RESULT.normalized_isbn %]" id="gbs-thumbnail[% loop.count %]"></span>
@@ -467,6 +475,12 @@
                                                         [% END %]
                                                     </div> <!-- / .results_summary -->
                                                 [% END # / IF OpacStarRatings %]
+
+                                                [% IF ( ( Koha.Preference( 'BDSEnabled' ) == 1 ) && ( Koha.Preference( 'BDSDescrip' ) == 1 ) ) %]
+                                                [% IF SEARCH_RESULT.bds_descrip %]
+                                                <div><p>Description: [% SEARCH_RESULT.bds_descrip %]</p></div>
+                                                [% END %]
+                                                [% END %]
 
                                                 <div class="actions-menu">
                                                         [% IF Koha.Preference( 'RequestOnOpac' ) == 1 %]

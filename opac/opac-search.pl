@@ -42,6 +42,7 @@ use C4::Branch;    # GetBranches
 use C4::SocialData;
 use C4::Ratings;
 use C4::External::OverDrive;
+use Koha::External::BDS;
 
 use POSIX qw(ceil floor strftime);
 use URI::Escape;
@@ -723,7 +724,7 @@ for ( my $i = 0 ; $i < @servers ; $i++ ) {
                 (
                        C4::Context->preference("Babeltheque")
                     || C4::Context->preference('BDSEnabled')
-                    && C4::Context0 > preference('BDSCovers')
+                    && C4::Context->preference('BDSCovers')
                 )
                 and $res->{normalized_isbn}
               )
@@ -780,10 +781,18 @@ for ( my $i = 0 ; $i < @servers ; $i++ ) {
         }
 
         if (   C4::Context->preference('BDSEnabled')
-            && C4::Context->preference('BDSCovers') )
+            && ( C4::Context->preference('BDSCovers') || C4::Context->preference('BDSDescrip') ) )
         {
             my $bds_results = Koha::External::BDS::fetch($bds_isbns);
-
+            for my $res (@newresults) {
+                if ( my $isbn = Business::ISBN->new( $res->{normalized_isbn} ) )
+                {
+                    $isbn = $isbn->as_isbn13->as_string;
+                    $isbn =~ s/-//g;
+                    $res->{'bds_cover_url'} = $bds_results->{$isbn}->{jacket_l} if $bds_results->{$isbn};
+                    $res->{'bds_descrip'} = $bds_results->{$isbn}->{descrip} if $bds_results->{$isbn};
+                }
+            }
         }
 
         if ( $results_hashref->{$server}->{"hits"} ) {

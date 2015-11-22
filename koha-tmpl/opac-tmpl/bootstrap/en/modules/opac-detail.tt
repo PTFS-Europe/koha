@@ -63,16 +63,11 @@
                         [% END %]
                     [% END %]
 
-                    [% IF ( BDSEnabled && BDSCoverImages ) %]
-                        [% IF ( content_identifier_exists ) %]
-                            [% IF ( using_https ) %]
-                                <img src="https://secure.syndetics.com/index.aspx?isbn=[% normalized_isbn %]/[% SyndeticsCoverImageSize %].GIF&amp;client=[% SyndeticsClientCode %]&amp;type=xw10&amp;upc=[% normalized_upc %]&amp;oclc=[% normalized_oclc %]" alt="" class="thumbnail" />
-                            [% ELSE %]
-                                <img src="http://www.syndetics.com/index.aspx?isbn=[% normalized_isbn %]/[% SyndeticsCoverImageSize %].GIF&amp;client=[% SyndeticsClientCode %]&amp;type=xw10&amp;upc=[% normalized_upc %]&amp;oclc=[% normalized_oclc %]" alt="" class="thumbnail" />
-                            [% END %]
-
+                    [% IF ( ( Koha.Preference( 'BDSEnabled' ) == 1 ) && ( Koha.Preference( 'BDSCovers' ) == 1 ) ) %]
+                        [% IF bds_cover_url %]
+                        <img src="https://[% bds_cover_url %]" alt="" class="thumbnail" style="max-width: 144px" />
                         [% ELSE %]
-                            <span class="no-image">No cover image available</span>
+                        <span class="no-image">No cover image available</span>
                         [% END %]
                     [% END %]
 
@@ -555,13 +550,13 @@
                         [% IF (SeparateHoldings) %]
                             <li><a href="#otherholdings">Other holdings ( [% otheritemloop.size || 0 %] )</a></li>
                         [% END %]
-                        [% IF ( MARCNOTES || notes || ( SyndeticsEnabled && SyndeticsSummary && SYNDETICS_SUMMARY )) %]
+                        [% IF ( MARCNOTES || notes || ( SyndeticsEnabled && SyndeticsSummary && SYNDETICS_SUMMARY ) || ( ( Koha.Preference( 'BDSEnabled' ) == 1 ) && BDSDescription )) %]
                             <li id="tab_descriptions"> <a href="#descriptions">Title notes</a></li>
                         [% END %]
                         [% IF ( SYNDETICS_TOC ) %]
                             <li id="tab_toc"> <a href="#toc">TOC</a></li>
                         [% END %]
-                        [% IF ( SyndeticsEnabled ) %]
+                        [% IF ( SyndeticsEnabled || ( Koha.Preference( 'BDSEnabled' ) == 1 )) %]
                             [% IF ( SyndeticsExcerpt && SYNDETICS_EXCERPT ) %]
                                 <li id="tab_excerpt"> <a href="#excerpt">Excerpt</a></li>
                             [% END %]
@@ -709,13 +704,18 @@
                         </div>
                     [% END # / SeparateHoldings %]
 
-                    [% IF ( MARCNOTES || notes || ( SyndeticsEnabled && SyndeticsSummary && SYNDETICS_SUMMARY )) %]
+                    [% IF ( MARCNOTES || notes || ( SyndeticsEnabled && SyndeticsSummary && SYNDETICS_SUMMARY ) || ( ( Koha.Preference( 'BDSEnabled' ) == 1 ) && BDSDescription )) %]
                         <div id="descriptions">
                             <div class="content_set">
 
                             [% IF ( SyndeticsEnabled && SyndeticsSummary && SYNDETICS_SUMMARY ) %]
                                 <h4>Enhanced descriptions from Syndetics:</h4>
                                 <p>[% SYNDETICS_SUMMARY %]</p>
+                            [% END %]
+
+                            [% IF ( ( Koha.Preference( 'BDSEnabled' ) == 1 ) && BDSDescription ) %]
+                                <h4>Enhanced descriptions from BDS:</h4>
+                                <p>[% BDSDescription %]</p>
                             [% END %]
 
                             [% IF ( MARCNOTES ) %]
