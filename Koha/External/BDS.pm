@@ -23,6 +23,9 @@ use warnings;
 use Mojo::UserAgent;
 
 my $ua = Mojo::UserAgent->new;
+# This is ripe for caching.. the auth token should be cached for the returned timeout period,
+# and the isbn search results should be cached for, say 20 minutes, to catch a browsing around
+# the results session.
 
 sub fetch {
     my ($isbns) = @_;
