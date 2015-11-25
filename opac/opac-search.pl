@@ -24,7 +24,7 @@
 use Modern::Perl;
 
 ## STEP 1. Load things that are used in both search page and
-# results page and decide which template to load, operations
+# results page and decide which template to load, operations 
 # to perform, etc.
 ## load Koha modules
 use C4::Context;
@@ -127,7 +127,7 @@ if($cgi->cookie("bib_list")){
 
 if ($format eq 'rss2' or $format eq 'opensearchdescription' or $format eq 'atom') {
     $template->param($format => 1);
-    $template->param(timestamp => strftime("%Y-%m-%dT%H:%M:%S-00:00", gmtime)) if ($format eq 'atom');
+    $template->param(timestamp => strftime("%Y-%m-%dT%H:%M:%S-00:00", gmtime)) if ($format eq 'atom'); 
     # FIXME - the timestamp is a hack - the biblio update timestamp should be used for each
     # entry, but not sure if that's worth an extra database query for each bib
 }
@@ -163,7 +163,7 @@ if (C4::Context->preference('TagsEnabled')) {
 # Deprecated, but preserved because it's interesting :-)
 # The same thing can be accomplished with mod_rewrite in
 # a more elegant way
-#
+#                  
 #my $rewrite_flag;
 #my $uri = $cgi->url(-base => 1);
 #my $relative_url = $cgi->url(-relative=>1);
@@ -264,7 +264,7 @@ if ( $template_type && $template_type eq 'advsearch' ) {
     # load the servers (used for searching -- to do federated searching, etc.)
     my $primary_servers_loop;# = displayPrimaryServers();
     $template->param(outer_servers_loop =>  $primary_servers_loop,);
-
+    
     my $secondary_servers_loop;
     $template->param(outer_sup_servers_loop => $secondary_servers_loop,);
 
@@ -289,7 +289,7 @@ if ( $template_type && $template_type eq 'advsearch' ) {
                 {
                 scan_index => 1,
                 };
-
+        
         }
         # if it's the last one, show the 'add field' box
         elsif ($i==$search_boxes_count) {
@@ -374,7 +374,7 @@ if (   C4::Context->preference('OPACdefaultSortField')
       . C4::Context->preference('OPACdefaultSortOrder');
 }
 
-my @allowed_sortby = qw /acqdate_asc acqdate_dsc author_az author_za call_number_asc call_number_dsc popularity_asc popularity_dsc pubdate_asc pubdate_dsc relevance title_az title_za/;
+my @allowed_sortby = qw /acqdate_asc acqdate_dsc author_az author_za call_number_asc call_number_dsc popularity_asc popularity_dsc pubdate_asc pubdate_dsc relevance title_az title_za/; 
 @sort_by = $cgi->param('sort_by');
 $sort_by[0] = $default_sort_by if !$sort_by[0] && defined($default_sort_by);
 foreach my $sort (@sort_by) {
@@ -398,7 +398,7 @@ my @operators = $cgi->param('op');
 @operators = map { uri_unescape($_) } @operators;
 
 # indexes are query qualifiers, like 'title', 'author', etc. They
-# can be single or multiple parameters separated by comma: kw,right-Truncation
+# can be single or multiple parameters separated by comma: kw,right-Truncation 
 my @indexes = $cgi->param('idx');
 @indexes = map { uri_unescape($_) } @indexes;
 
@@ -721,7 +721,7 @@ for (my $i=0;$i<@servers;$i++) {
                 print $cgi->redirect("/cgi-bin/koha/opac-MARCdetail.pl?biblionumber=$biblionumber");
             } else {
                 print $cgi->redirect("/cgi-bin/koha/opac-detail.pl?biblionumber=$biblionumber");
-            }
+            } 
             exit;
         }
         if ($hits) {
@@ -841,7 +841,7 @@ for (my $i=0;$i<@servers;$i++) {
                       };
 
                 }
-
+                        
             }
             # now, show twenty pages, with the current one smack in the middle
             else {
@@ -857,7 +857,7 @@ for (my $i=0;$i<@servers;$i++) {
                           };
                     }
                 }
-
+                        
             }
             $template->param(   PAGE_NUMBERS => \@page_numbers,
                                 previous_page_offset => $previous_page_offset) unless $pages < 2;
@@ -941,7 +941,7 @@ $template->param(
 
 my $content_type = ($format eq 'rss' or $format eq 'atom') ? $format : 'html';
 
-# If GoogleIndicTransliteration system preference is On Set paramter to load Google's javascript in OPAC search screens
+# If GoogleIndicTransliteration system preference is On Set paramter to load Google's javascript in OPAC search screens 
 if (C4::Context->preference('GoogleIndicTransliteration')) {
         $template->param('GoogleIndicTransliteration' => 1);
 }
