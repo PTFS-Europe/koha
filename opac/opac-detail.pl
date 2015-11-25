@@ -36,6 +36,7 @@ use C4::Circulation;
 use C4::Tags qw(get_tags);
 use C4::XISBN qw(get_xisbns get_biblionumber_from_isbn);
 use C4::External::Amazon;
+use Koha::External::BDS;
 use C4::External::Syndetics qw(get_syndetics_index get_syndetics_summary get_syndetics_toc get_syndetics_excerpt get_syndetics_reviews get_syndetics_anotes );
 use C4::Review;
 use C4::Ratings;
@@ -892,6 +893,22 @@ if (C4::Context->preference("OPACLocalCoverImages")){
 # HTML5 Media
 if ( (C4::Context->preference("HTML5MediaEnabled") eq 'both') or (C4::Context->preference("HTML5MediaEnabled") eq 'opac') ) {
     $template->param( C4::HTML5Media->gethtml5media($record));
+}
+
+if ( C4::Context->preference("BDSEnabled") ) {
+    if ( my $bds_isbn = Business::ISBN->new($isbn) ) {
+        $bds_isbn = $bds_isbn->as_isbn13->as_string;
+        $bds_isbn =~ s/-//g;
+
+        my $bds_isbns   = [$bds_isbn];
+        my $bds_results = Koha::External::BDS::fetch($bds_isbns);
+        if ( $bds_results->{$bds_isbn} ) {
+            $template->param("bds_cover_url" =>
+              $bds_results->{$bds_isbn}->{jacket_l});
+            $template->param("BDSDescription" =>
+              $bds_results->{$bds_isbn}->{description});
+        }
+    }
 }
 
 my $syndetics_elements;
