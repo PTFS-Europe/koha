@@ -50,6 +50,7 @@ use Koha::Calendar;
 use Koha::Items;
 use Koha::Patrons;
 use Koha::Patron::Debarments;
+use Koha::Patron::CheckPrevIssue qw(WantsCheckPrevIssue CheckPrevIssue);
 use Koha::Database;
 use Koha::Libraries;
 use Koha::Holds;
@@ -907,6 +908,15 @@ sub CanBookBeIssued {
             $issuingimpossible{max_loans_allowed} = $toomany->{max_allowed};
         }
     }
+
+    #
+    # CHECKPREVISSUE: CHECK IF ITEM HAS EVER BEEN LENT TO PATRON
+    #
+    my $wantsCheckPrevIssue = WantsCheckPrevIssue(
+        $borrower, C4::Context->preference("checkPrevIssue")
+    );
+    $needsconfirmation{PREVISSUE} = 1
+        if ($wantsCheckPrevIssue and CheckPrevIssue($borrower, $item));
 
     #
     # ITEM CHECKING

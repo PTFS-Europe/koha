@@ -400,6 +400,17 @@ function validate1(date) {
             <li><span class="label">Activate sync: </span>No</li>
         [% END %]
     [% END %]
+    [% IF ( Koha.Preference('CheckPrevIssue') == 'softyes' || Koha.Preference('CheckPrevIssue') == 'softno' ) %]
+      <li><span class="label">Check previous loans: </span>
+        [% IF ( checkprevissue == 'yes' ) %]
+        Yes
+        [% ELSIF ( checkprevissue == 'no' ) %]
+        No
+        [% ELSE %]
+        Inherited
+        [% END %]
+      </li>
+    [% END %]
 	</ol>
 	</div>
  </div>

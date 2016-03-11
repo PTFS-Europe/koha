@@ -737,7 +737,26 @@ function select_user(borrowernumber, borrower) {
             [% END %]
         </li>
     [% END %]
-	</ol>
+    [% IF ( Koha.Preference('CheckPrevIssue') == 'softyes' || Koha.Preference('CheckPrevIssue') == 'softno' ) %]
+      <li><label for="checkprevissue">Check for previous issues: </label>
+        <select name="checkprevissue" id="checkprevissue">
+        [% IF ( checkprevissue == 'yes' ) %]
+          <option value="yes" selected="selected">Yes if settings allow it</option>
+          <option value="no">No if settings allow it</option>
+          <option value="inherit">Inherit from settings</option>
+        [% ELSIF ( checkprevissue == 'no' ) %]
+          <option value="yes">Yes if settings allow it</option>
+          <option value="no" selected="selected">No if settings allow it</option>
+          <option value="inherit">Inherit from settings</option>
+        [% ELSE %]
+          <option value="yes">Yes if settings allow it</option>
+          <option value="no">No if settings allow it</option>
+          <option value="inherit" selected="selected">Inherit from settings</option>
+        [% END %]
+        </select>
+       </li>
+     [% END %]
+   </ol>
   </fieldset>
     [% UNLESS nodateenrolled &&  noopacnote && noborrowernotes %]
 	<fieldset class="rows" id="memberentry_subscription">
