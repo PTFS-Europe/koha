@@ -90,6 +90,7 @@ elsif ( $op eq 'add_validate' ) {
     my $overduenoticerequired = $input->param('overduenoticerequired');
     my $category_type = $input->param('category_type');
     my $BlockExpiredPatronOpacActions = $input->param('BlockExpiredPatronOpacActions');
+    my $checkPrevIssue = $input->param('checkprevissue');
     my $default_privacy = $input->param('default_privacy');
     my @branches = grep { $_ ne q{} } $input->param('branches');
 
@@ -113,6 +114,7 @@ elsif ( $op eq 'add_validate' ) {
         $category->overduenoticerequired($overduenoticerequired);
         $category->category_type($category_type);
         $category->BlockExpiredPatronOpacActions($BlockExpiredPatronOpacActions);
+        $category->checkprevissue($checkPrevIssue);
         $category->default_privacy($default_privacy);
         eval {
             $category->store;
@@ -138,6 +140,7 @@ elsif ( $op eq 'add_validate' ) {
             overduenoticerequired => $overduenoticerequired,
             category_type => $category_type,
             BlockExpiredPatronOpacActions => $BlockExpiredPatronOpacActions,
+            checkprevissue => $checkPrevIssue,
             default_privacy => $default_privacy,
         });
         eval {
