@@ -1015,6 +1015,7 @@ sub handle_patron_info {
 
         # Custom protocol extension to report patron internet privileges
         $resp .= maybe_add( FID_INET_PROFILE, $patron->inet_privileges, $server );
+        $resp .= maybe_add(FID_PARENTAL_PERMISSION,     $patron->parental_permission, $server);
 
         my $msg = $patron->screen_msg;
         if( defined( $patron_pwd ) && !$password_rc ) {

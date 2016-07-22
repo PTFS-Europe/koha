@@ -23,6 +23,7 @@ use C4::Koha;
 use C4::Members;
 use C4::Reserves;
 use C4::Auth qw(checkpw);
+use C4::Members::Attributes qw( GetBorrowerAttributeValue );
 
 use Koha::Items;
 use Koha::Libraries;
@@ -115,6 +116,7 @@ sub new {
         expired         => $expired,
         fee_limit       => $fee_limit,
         userid          => $kp->{userid},
+        category_type   => $kp->{category_type},
     );
     }
     $debug and warn "patron fines: $ilspatron{fines} ... amountoutstanding: $kp->{amountoutstanding} ... CHARGES->amount: $flags->{CHARGES}->{amount}";
@@ -189,6 +191,8 @@ my %fields = (
     recall_overdue          => 0,   # for patron_status[12]
     too_many_billed         => 0,   # for patron_status[13]
     inet                    => 0,   # EnvisionWare extension
+    getmemberdetails_object => 0,
+    category_type           => 0,
 );
 
 our $AUTOLOAD;
@@ -414,6 +418,41 @@ sub enable {
 sub inet_privileges {
     my $self = shift;
     return $self->{inet} ? 'Y' : 'N';
+}
+
+# Parental Permission is only relevant for child borrowers
+# adults are assumed to always be Y
+sub parental_permission {
+    my $self = shift;
+    if (!$self->{inet} ) {
+        return 'N'; # debarred or expired
+    }
+
+    # If the borrower attribute INTACC has been set then that overrides
+    # any borrower category tests
+    my $attribute = 'INTACC';
+    my $attr = GetBorrowerAttributeValue( $self->{borrowernumber}, $attribute );
+    if ( $attr && $attr == 1 ) {
+        return 'Y';
+    }
+    if ( $self->{category_type} eq 'C' ) {
+
+        # These patron types also have automatic parental permission
+        my %permit = (
+            #            YEI18   => 1,
+            #YEI18E  => 1,
+            #MY18EI  => 1,
+            #MY18EIE => 1,
+        );
+        if ( exists $permit{ $self->{ptype} } ) {
+            return 'Y';
+        }
+        return 'N';    # all other children return no
+    }
+    else {
+        # you are an adult you dont have to ask parental permission
+        return 'Y';
+    }
 }
 
 sub _fee_limit {
