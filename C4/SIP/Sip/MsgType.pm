@@ -1207,9 +1207,9 @@ sub handle_item_information {
         }
         $resp .= maybe_add( FID_OWNER, $item->owner, $server );
 
-        if ( ( $i = scalar @{ $item->hold_queue } ) > 0 ) {
-            $resp .= add_field( FID_HOLD_QUEUE_LEN, $i, $server );
-        }
+#        if ( ( $i = scalar @{ $item->hold_queue } ) > 0 ) {
+#            $resp .= add_field( FID_HOLD_QUEUE_LEN, $i, $server );
+#        }
         if ( $item->due_date ) {
             $resp .= add_field( FID_DUE_DATE, timestamp( $item->due_date ), $server );
         }
