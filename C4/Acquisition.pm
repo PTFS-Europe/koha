@@ -45,7 +45,7 @@ use MARC::Record;
 
 use Time::localtime;
 
-use vars qw(@ISA @EXPORT);
+use vars qw(@ISA @EXPORT @EXPORT_OK);
 
 BEGIN {
     require Exporter;
@@ -96,7 +96,9 @@ BEGIN {
         &get_rounded_price
         &get_rounding_sql
     );
+        @EXPORT_OK = qw( populate_order_with_prices );
 }
+
 
 
 
