@@ -27,7 +27,7 @@ use Business::ISBN;
 use DateTime;
 use C4::Context;
 use Koha::Database;
-use C4::Acquisition qw( NewBasket CloseBasket ModOrder);
+use C4::Acquisition qw( NewBasket CloseBasket ModOrder populate_order_with_prices );
 use C4::Suggestions qw( ModSuggestion );
 use C4::Items qw(AddItem);
 use C4::Biblio qw( AddBiblio TransformKohaToMarc GetMarcBiblio );
@@ -307,6 +307,13 @@ sub process_invoice {
                                 datereceived     => $msg_date,
                             }
                         );
+                        my $p_updates =
+                          update_price_from_invoice( $received_order,
+                            $invoice_message->vendor_id );
+                        if ( keys %{$p_updates} ) {
+                            $received_order->set_columns($p_updates);
+                            $received_order->update;
+                        }
                         transfer_items( $schema, $line, $order,
                             $received_order );
                         receipt_items( $schema, $line,
@@ -318,6 +325,11 @@ sub process_invoice {
                         $order->invoiceid($invoiceid);
                         $order->unitprice($price);
                         $order->orderstatus('complete');
+                        my $p_updates = update_price_from_invoice( $order,
+                            $invoice_message->vendor_id );
+                        foreach my $col ( keys %{$p_updates} ) {
+                            $order->set_column( $col, $p_updates->{$col} );
+                        }
                         $order->update;
                         receipt_items( $schema, $line, $ordernumber );
                     }
@@ -349,6 +361,44 @@ sub _get_invoiced_price {
         }
     }
     return $price;
+}
+
+sub update_price_from_invoice {
+    my $ord          = shift;
+    my $booksellerid = shift;
+
+    # wrapper around populate_order_with_prices as we are using dbic Row objects
+    my $ord_hash_ref = {
+        discount               => $ord->discount,
+        tax_rate_on_receiving  => $ord->tax_rate_on_receiving,
+        tax_value_on_receiving => $ord->tax_value_on_receiving,
+        tax_rate               => $ord->tax_rate_bak,
+        unitprice              => $ord->unitprice,
+        ecost_tax_included     => $ord->ecost_tax_included,
+        ecost_tax_excluded     => $ord->ecost_tax_excluded,
+        unitprice_tax_included => $ord->unitprice_tax_included,
+        unitprice_tax_excluded => $ord->unitprice_tax_excluded,
+        quantity               => $ord->quantity,
+    };
+    my %pre_hash = %{$ord_hash_ref};
+    $ord_hash_ref = populate_order_with_prices(
+        {
+            order        => $ord_hash_ref,
+            booksellerid => $booksellerid,
+            receiving    => 1,
+        }
+    );
+    foreach my $k ( keys %pre_hash ) {
+        if ( !defined $ord_hash_ref->{$k}
+            || $ord_hash_ref->{$k} == $pre_hash{$k} )
+        {
+            delete $ord_hash_ref->{$k};
+        }
+    }
+    delete $ord_hash_ref->{quantity};
+    delete $ord_hash_ref->{discount};
+
+    return $ord_hash_ref;
 }
 
 sub receipt_items {
@@ -592,6 +642,7 @@ sub quote_item {
         order_internalnote => $order_note,
         rrp                => $item->price,
         ecost => _discounted_price( $quote->vendor->discount, $item->price ),
+        discount       => $quote->vendor->discount,
         uncertainprice => 0,
         sort1          => q{},
         sort2          => q{},
@@ -655,6 +706,13 @@ sub quote_item {
 
     if ( !$skip ) {
         $order_hash->{budget_id} = $budget->budget_id;
+        $order_hash = populate_order_with_prices(
+            {
+                order        => $order_hash,
+                booksellerid => $quote->vendor_id,
+                ordering => 1,
+            }
+        );
         my $first_order = $schema->resultset('Aqorder')->create($order_hash);
         my $o           = $first_order->ordernumber();
         $logger->trace("Order created :$o");
