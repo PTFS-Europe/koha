@@ -288,6 +288,7 @@ sub process_invoice {
                     }
 
                     my $price = _get_invoiced_price($line);
+                    my $tax_rate = $line->tax_rate;
 
                     if ( $order->quantity > $line->quantity ) {
                         my $ordered = $order->quantity;
@@ -305,6 +306,7 @@ sub process_invoice {
                                 unitprice        => $price,
                                 invoiceid        => $invoiceid,
                                 datereceived     => $msg_date,
+                                tax_rate_on_receiving => $tax_rate->{rate},
                             }
                         );
                         my $p_updates =
@@ -324,6 +326,7 @@ sub process_invoice {
                         $order->datereceived($msg_date);
                         $order->invoiceid($invoiceid);
                         $order->unitprice($price);
+                        $order->tax_rate_on_receiving($tax_rate->{rate});
                         $order->orderstatus('complete');
                         my $p_updates = update_price_from_invoice( $order,
                             $invoice_message->vendor_id );
