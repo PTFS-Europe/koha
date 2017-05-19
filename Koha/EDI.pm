@@ -717,8 +717,13 @@ sub quote_item {
             $txt .= $si;
             ++$occ;
         }
-        $order_hash->{order_vendornote} = $txt;
+        $order_hash->{order_vendornote} .= "SERVICING:$txt ::";
     }
+    if ($order_note) {
+        $order_hash->{order_vendornote} .= "FTX:$order_note ::";
+    }
+
+
 
     if ( $item->internal_notes() ) {
         if ( $order_hash->{order_internalnote} ) {    # more than ''
