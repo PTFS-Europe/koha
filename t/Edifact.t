@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use FindBin qw( $Bin );
 
-use Test::More tests => 34;
+use Test::More tests => 36;
 
 BEGIN { use_ok('Koha::Edifact') }
 
@@ -51,6 +51,8 @@ my $test_line = $lin->[-1];
 is( $test_line->line_item_number, 18, 'correct line number returned' );
 is( $test_line->item_number_id, '9780273761006', 'correct ean returned' );
 is( $test_line->quantity, 1, 'quantity returned' );
+is( $test_line->price_info, 114.97, 'price returned' );
+is( $test_line->price_info_inclusive, undef, 'discounted price undefined as expected' );
 
 my $test_title = 'International business [electronic resource]';
 my $marcrec    = $test_line->marc_record;
