@@ -801,6 +801,30 @@ sub tax {
     return $self->moa_amt('124');
 }
 
+sub tax_rate {
+    my $self = shift;
+    my $tr = {};
+    foreach my $s ( @{ $self->{segs} } ) {
+        if ( $s->tag eq 'TAX' && $s->elem( 0, 0 ) == 7 ) {
+            $tr->{type} = $s->elem( 1, 0 ); # VAT, GST or IMP
+            $tr->{rate} = $s->elem( 4, 3 ); # percentage
+            # category values may be:
+            # E = exempt from tax
+            # G = export item, tax not charged
+            # H = higher rate
+            # L = lower rate
+            # S = standard rate
+            # Z = zero-rated
+            $tr->{category} = $s->elem( 5, 0 );
+            if (!defined $tr->{rate} && $tr->{category} eq 'Z') {
+                $tr->{rate} = 0;
+            }
+            return $tr;
+        }
+    }
+    return;
+}
+
 sub availability_date {
     my $self = shift;
     if ( exists $self->{availability_date} ) {
