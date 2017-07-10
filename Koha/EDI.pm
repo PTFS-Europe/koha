@@ -315,6 +315,10 @@ sub process_invoice {
                     }
 
                     my ( $price, $price_excl_tax ) = _get_invoiced_price($line, $quantity);
+                    my $tax_rate = $line->tax_rate;
+                    if ($tax_rate && $tax_rate->{rate} != 0) {
+                       $tax_rate->{rate} /= 100;
+                    }
 
                     if ( $order->quantity > $quantity ) {
                         my $ordered = $order->quantity;
@@ -334,6 +338,7 @@ sub process_invoice {
                                 unitprice_tax_excluded => $price_excl_tax,
                                 invoiceid              => $invoiceid,
                                 datereceived           => $msg_date,
+                                tax_rate_on_receiving  => $tax_rate->{rate},
                             }
                         );
                         transfer_items( $schema, $line, $order,
@@ -348,6 +353,7 @@ sub process_invoice {
                         $order->unitprice($price);
                         $order->unitprice_tax_excluded($price_excl_tax);
                         $order->unitprice_tax_included($price);
+                        $order->tax_rate_on_receiving($tax_rate->{rate});
                         $order->orderstatus('complete');
                         $order->update;
                         receipt_items( $schema, $line, $ordernumber, $quantity );
