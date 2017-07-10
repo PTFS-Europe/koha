@@ -1223,10 +1223,13 @@ Koha::EDI
 
 =head2 _discounted_price
 
-      ecost = _discounted_price(discount, item_price)
+      ecost = _discounted_price(discount, item_price, discounted_price)
 
       utility subroutine to return a price calculated from the
       vendors discount and quoted price
+      The optional parameter discounted_price is passed if one occurs
+      in the edifact message. It short circuits the calculation and returns
+      the supplied value
 
 =head2 _check_for_existing_bib
 
@@ -1242,6 +1245,14 @@ Koha::EDI
 
      Returns the Aqbudget object for the active budget given the passed budget_code
      or undefined if one does not exist
+
+=head2 update_price_from_invoice
+
+     $ord_hash_ref = update_price_from_invoice( $order, $booksellerid )
+
+     wrapper around C4::Acquisitions::populate_order_with_prices as it expects an order_hashref
+     we populate a hashref grow the Row object in order to call the routine
+
 
 =head1 AUTHOR
 
