@@ -792,7 +792,7 @@ sub price_info {
 # information price incl tax,allowances, charges
 sub price_info_inclusive {
     my $self = shift;
-    my $p    = $self->pri_price('AAE');
+    my $p    = $self->pri_price('AAF');
     if ( defined $p ) {
         return $p->{price};
     }
