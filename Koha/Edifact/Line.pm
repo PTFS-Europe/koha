@@ -139,10 +139,6 @@ sub _parse_lines {
 
             $d->{monetary_amount} = $s->elem( 0, 1 );
         }
-        elsif ( $s->tag eq 'PRI' ) {
-
-            $d->{price} = $s->elem( 0, 1 );
-        }
         elsif ( $s->tag eq 'RFF' ) {
             my $qualifier = $s->elem( 0, 0 );
             if ( $qualifier eq 'QLI' ) {  # Suppliers unique quotation reference
@@ -377,11 +373,6 @@ sub monetary_amount {
 sub quantity {
     my $self = shift;
     return $self->{quantity};
-}
-
-sub price {
-    my $self = shift;
-    return $self->{price};
 }
 
 sub reference {
@@ -747,6 +738,12 @@ sub amt_lineitem {
 
 sub pri_price {
     my ( $self, $price_qualifier ) = @_;
+            # In practice qualifier is AAE in the quote and AAA & AAB in invoices
+            # but the following are defined
+            # AAA calculation price net (unit price excl tax but incl any allowances or charges)
+            # AAB calculation price gross (unit price excl all taxes, allowances and charges )
+            # AAE information price (incl tax but excl allowances or charges )
+            # AAF information price (including all taxes, allowances or charges)
     foreach my $s ( @{ $self->{segs} } ) {
         if ( $s->tag eq 'PRI' && $s->elem( 0, 0 ) eq $price_qualifier ) {
             return {
