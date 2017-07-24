@@ -344,6 +344,8 @@ sub fine_items {
     my $start = shift;
     my $end = shift;
     my $server = shift;
+    my $x = [];
+    return $x;
 
     my @fees = Koha::Database->new()->schema()->resultset('Accountline')->search(
         {
