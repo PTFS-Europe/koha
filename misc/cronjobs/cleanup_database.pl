@@ -44,7 +44,7 @@ use Koha::UploadedFiles;
 
 sub usage {
     print STDERR <<USAGE;
-Usage: $0 [-h|--help] [--sessions] [--sessdays DAYS] [-v|--verbose] [--zebraqueue DAYS] [-m|--mail] [--merged] [--import DAYS] [--logs DAYS] [--searchhistory DAYS] [--restrictions DAYS] [--all-restrictions] [--fees DAYS] [--temp-uploads] [--temp-uploads-days DAYS] [--uploads-missing 0|1 ] [--statistics DAYS] [--deleted-catalog DAYS] [--deleted-patrons DAYS] [--old-issues DAYS]
+Usage: $0 [-h|--help] [--sessions] [--sessdays DAYS] [-v|--verbose] [--zebraqueue DAYS] [-m|--mail] [--merged] [--import DAYS] [--logs DAYS] [--searchhistory DAYS] [--restrictions DAYS] [--all-restrictions] [--fees DAYS] [--temp-uploads] [--temp-uploads-days DAYS] [--uploads-missing 0|1 ] [--statistics DAYS] [--deleted-catalog DAYS] [--deleted-patrons DAYS] [--old-issues DAYS] [--old-reserves DAYS]
 
    -h --help          prints this help message, and exits, ignoring all
                       other options
@@ -87,6 +87,7 @@ Usage: $0 [-h|--help] [--sessions] [--sessdays DAYS] [-v|--verbose] [--zebraqueu
                            in tables deleteditems, deletedbiblioitems, deletedbiblio_metadata and deletedbiblio
    --deleted-patrons DAYS  Purge deleted patrons older than DAYS days.
    --old-issues DAYS       Purge old issues older than DAYS days.
+   --old-reserves DAYS     Purge old reserves older than DAYS days.
 USAGE
     exit $_[0];
 }
@@ -117,6 +118,7 @@ my $pStatistics;
 my $pDeletedCatalog;
 my $pDeletedPatrons;
 my $pOldIssues;
+my $pOldReserves;
 
 GetOptions(
     'h|help'            => \$help,
@@ -145,6 +147,7 @@ GetOptions(
     'deleted-catalog:i' => \$pDeletedCatalog,
     'deleted-patrons:i' => \$pDeletedPatrons,
     'old-issues:i'      => \$pOldIssues,
+    'old-reserves:i'    => \$pOldReserves,
 ) || usage(1);
 
 # Use default values
@@ -183,6 +186,7 @@ unless ( $sessions
     || $pDeletedCatalog
     || $pDeletedPatrons
     || $pOldIssues
+    || $pOldReserves
 ) {
     print "You did not specify any cleanup work for the script to do.\n\n";
     usage(1);
@@ -422,6 +426,18 @@ if ($pOldIssues) {
     );
     $sth->execute($pOldIssues);
     print "Done with purging old issues.\n" if $verbose;
+}
+
+if ($pOldReserves) {
+    print "Purging old reserves older than $pOldReserves days.\n" if $verbose;
+    $sth = $dbh->prepare(
+        q{
+            DELETE FROM old_reserves
+            WHERE timestamp < DATE_SUB(CURDATE(), INTERVAL ? DAY)
+        }
+    );
+    $sth->execute($pOldReserves);
+    print "Done with purging old reserves.\n" if $verbose;
 }
 
 exit(0);
