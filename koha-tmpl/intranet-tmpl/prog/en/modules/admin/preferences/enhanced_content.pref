@@ -96,6 +96,24 @@ Enhanced Content:
             - pref: BakerTaylorPassword
               class: password
             - .
+    BDS:
+        -
+            - pref: BDSOpacEnable
+              choices:
+                  yes: Show
+                  no:  "Don't show"
+            - BDS enhanced content in the OPAC.
+        -
+            - pref: BDSStaffEnable
+              choices:
+                  yes: Show
+                  no:  "Don't show"
+            - BDS enhanced content in the Staff Interface
+        - 
+            - Enter your unique BDS
+            - pref: DBMCode
+            - DBM code.
+
     Novelist Select:
         -
             - pref: NovelistSelectEnabled

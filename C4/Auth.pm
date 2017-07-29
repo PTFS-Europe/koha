@@ -452,6 +452,8 @@ sub get_template_and_user {
         "BiblioDefaultView" . C4::Context->preference("BiblioDefaultView") => 1,
         EnhancedMessagingPreferences                                       => C4::Context->preference('EnhancedMessagingPreferences'),
         GoogleJackets                                                      => C4::Context->preference("GoogleJackets"),
+        BDSOpacEnable                                                      => C4::Context->preference("BDSOpacEnable"),
+        BDSStaffEnable                                                      => C4::Context->preference("BDSStaffEnable"),
         OpenLibraryCovers                                                  => C4::Context->preference("OpenLibraryCovers"),
         KohaAdminEmailAddress                                              => "" . C4::Context->preference("KohaAdminEmailAddress"),
         LoginBranchcode => ( C4::Context->userenv ? C4::Context->userenv->{"branch"}    : undef ),
