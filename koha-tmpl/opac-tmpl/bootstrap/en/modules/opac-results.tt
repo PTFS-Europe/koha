@@ -238,6 +238,10 @@
                                                                      alt="Adlibris thumbnail for ISBN: [% SEARCH_RESULT.normalized_isbn | html %]" class="adlibris-cover" />
                                                             </span>
                                                         [% END %]
+                                                        [% IF ( BDSOpacEnable ) %]
+                                                         <span title="[% SEARCH_RESULT.biblionumber |url %]" class="[% SEARCH_RESULT.biblionumber %]" id="bds-thumbnail[% loop.count %]"></span>
+                                                         <img src="http://www.bibdsl.co.uk/xmla/image-service.asp?ISBN=[% SEARCH_RESULT.normalized_isbn %]&SIZE=s&DBM=[% (DBMCode) %]" />
+                                                        [% END %]
                                                         [% IF ( OPACAmazonCoverImages ) %]
                                                             [% IF ( SEARCH_RESULT.normalized_isbn ) %]
                                                                     <span title="[% SEARCH_RESULT.biblionumber | html %]" id="amazon-thumbnail[% loop.count | html %]"><img src="https://images-na.ssl-images-amazon.com/images/P/[% SEARCH_RESULT.normalized_isbn | html %].01.TZZZZZZZ.jpg" alt="" class="item-thumbnail" /></span>

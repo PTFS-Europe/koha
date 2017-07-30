@@ -56,6 +56,11 @@
                 <div id="catalogue_detail_biblio" class="maincontent">
 
                     <div id="bookcover">
+                    [% IF ( BDSOpacEnable ) %]
+                    <a href="http://www.bibdsl.co.uk/xmla/image-service.asp?ISBN=[% normalized_isbn %]&SIZE=l&DBM=[% DBMCode %]" />
+                    <img src="http://www.bibdsl.co.uk/xmla/image-service.asp?ISBN=[% normalized_isbn %]&SIZE=s&DBM=[% DBMCode %]" />
+                    </a>
+                    [% END %]
                     [% IF ( OPACLocalCoverImages ) %]
                         <div title="[% biblio.biblionumber | html %]" class="[% biblio.biblionumber | html %]" id="local-thumbnail-preview"></div>
                     [% END %]

@@ -169,6 +169,12 @@ if (C4::Context->preference('BakerTaylorEnabled')) {
     );
 }
 
+if (C4::Context->preference('BDSOpacEnable')) {
+$template->param(DBMCode =>
+C4::Context->preference('DBMCode'), );
+}
+
+
 if (C4::Context->preference('TagsEnabled')) {
     $template->param(TagsEnabled => 1);
     foreach (qw(TagsShowOnList TagsInputOnList)) {

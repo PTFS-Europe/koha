@@ -1048,6 +1048,13 @@ $template->param(NovelistSelectPassword => C4::Context->preference('NovelistSele
 $template->param(NovelistSelectView => C4::Context->preference('NovelistSelectView') ); 
 } 
 
+# BDS Cover images
+if( C4::Context->preference('BDSOpacEnable') )
+{
+$template->param(DBMCode =>
+C4::Context->preference('DBMCode') );
+}
+
 
 # Babelthèque
 if ( C4::Context->preference("Babeltheque") ) {
