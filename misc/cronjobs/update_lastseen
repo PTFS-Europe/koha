@@ -1,0 +1,116 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+use feature qw( say );
+
+use C4::Context;
+
+my $borrower_attribute_code = 'SEEN';
+
+my $dbh = C4::Context->dbh;
+
+my $borrower_sth =
+  $dbh->prepare('SELECT borrowernumber from borrowers where cardnumber = ?');
+
+my $update_sth = $dbh->prepare(
+'update borrower_attributes set attribute = ? where borrowernumber = ? and code = ?'
+);
+
+my $insert_sth = $dbh->prepare(
+'insert into borrower_attributes ( borrowernumber, code, attribute) values ( ?, ?, ?)'
+);
+
+my $read_pref = $dbh->prepare(
+'select attribute from borrower_attributes where borrowernumber = ? and code = ?'
+);
+
+my $updated  = 0;
+my $inserted = 0;
+my $skipped  = 0;
+my %months   = (
+    jan => 1,
+    feb => 2,
+    mar => 3,
+    apr => 4,
+    may => 5,
+    jun => 6,
+    jul => 7,
+    aug => 8,
+    sep => 9,
+    oct => 10,
+    nov => 11,
+    dec => 12,
+);
+
+while (<>) {
+    chomp;
+    my ( $cardnumber, $lastseen ) = split /\t/;
+
+    my $borrowernumber =
+      $dbh->selectrow_array( $borrower_sth, {}, $cardnumber );
+
+    if ($borrowernumber) {
+        my $current_value =
+          $dbh->selectrow_array( $read_pref, {}, $borrowernumber,
+            $borrower_attribute_code );
+        if ($current_value) {
+            if ( check_date( $current_value, $lastseen ) ) {
+                $update_sth->execute( $lastseen, $borrowernumber,
+                    $borrower_attribute_code );
+                ++$updated;
+            }
+        }
+        else {
+            $insert_sth->execute( $borrowernumber, $borrower_attribute_code,
+                $lastseen );
+            ++$inserted;
+        }
+    }
+    else {
+        say STDERR "Skipping invalid cardnumber:$cardnumber";
+        ++$skipped;
+    }
+}
+
+say "$updated borrower last seens updated";
+say "$inserted borrower last seens added";
+say "$skipped lines skipped";
+
+sub check_date {
+    my ( $current, $update ) = @_;
+
+    # Check the update date is more recent than the one on file
+    # return 1 if it is
+    # fmt = day-month-year
+    if ( $current =~ m/^(\d+)-(\w+)-(\d+)/ ) {
+        my ( $cday, $cmonth, $cyear ) = ( $1, $2, $3 );
+        if ( $update =~ m/^(\d+)-(\w+)-(\d+)/ ) {
+            my ( $uday, $umonth, $uyear ) = ( $1, $2, $3 );
+            $umonth = $months{$umonth};
+            $cmonth = $months{$cmonth};
+            if ( $uyear > $cyear ) {
+                return 1;
+            }
+            elsif ( $uyear == $cyear && $umonth > $cmonth ) {
+                return 1;
+            }
+            elsif ( $uyear == $cyear && $umonth == $cmonth && $uday > $cday ) {
+
+                # granularity == days we dont care about h m or s
+                return 1;
+            }
+            return 0;
+        }
+        else {
+            # skip it if update date is screwy
+            return 0;
+        }
+    }
+    else {    # current not a valid date
+        return 1;    # overwrite
+    }
+    return 0;
+}
+
+
