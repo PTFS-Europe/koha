@@ -330,10 +330,10 @@ sub process_invoice {
                             $received_order->set_columns($p_updates);
                             $received_order->update;
                         }
-                        transfer_items( $schema, $line, $order,
-                            $received_order );
-                        receipt_items( $schema, $line,
-                            $received_order->ordernumber );
+                        my @ritems = receipt_items( $schema, $line,
+                            $order->ordernumber );
+                        transfer_items( $schema, $line,
+                            $received_order->ordernumber, \@ritems );
                     }
                     else {    # simple receipt all copies on order
                         $order->quantityreceived( $line->quantity );
@@ -422,6 +422,7 @@ sub receipt_items {
     my ( $schema, $inv_line, $ordernumber ) = @_;
     my $logger   = Log::Log4perl->get_logger();
     my $quantity = $inv_line->quantity;
+    my @received_itemnumbers;
 
     # itemnumber is not a foreign key ??? makes this a bit cumbersome
     my @item_links = $schema->resultset('AqordersItem')->search(
@@ -467,61 +468,33 @@ sub receipt_items {
             }
 
             $item->update;
+            push @received_itemnumbers, $item->itemnumber;
         }
         else {
             $logger->warn("Unmatched item at branch:$branch");
         }
         ++$gir_occurrence;
     }
-    return;
+    return @received_itemnumbers;
 
 }
 
 sub transfer_items {
-    my ( $schema, $inv_line, $order_from, $order_to ) = @_;
+    my ( $schema, $inv_line, $new_ordernumber, $ritems ) = @_;
 
-    # Transfer x items from the orig order to a completed partial order
-    my $quantity = $inv_line->quantity;
-    my $gocc     = 0;
-    my %mapped_by_branch;
-    while ( $gocc < $quantity ) {
-        my $branch = $inv_line->girfield( 'branch', $gocc );
-        if ( !exists $mapped_by_branch{$branch} ) {
-            $mapped_by_branch{$branch} = 1;
-        }
-        else {
-            $mapped_by_branch{$branch}++;
-        }
-        ++$gocc;
-    }
     my $logger = Log::Log4perl->get_logger();
-    my $o1     = $order_from->ordernumber;
-    my $o2     = $order_to->ordernumber;
-    $logger->warn("transferring $quantity copies from order $o1 to order $o2");
+    $logger->warn("Transferring receipted copies to order:$new_ordernumber");
 
-    my @item_links = $schema->resultset('AqordersItem')->search(
-        {
-            ordernumber => $order_from->ordernumber,
-        }
-    );
-    foreach my $ilink (@item_links) {
-        my $ino      = $ilink->itemnumber;
-        my $item     = $schema->resultset('Item')->find( $ilink->itemnumber );
-        my $i_branch = $item->homebranch;
-        if ( exists $mapped_by_branch{$i_branch}
-            && $mapped_by_branch{$i_branch} > 0 )
-        {
-            $ilink->ordernumber( $order_to->ordernumber );
+    foreach my $itemnumber ( @{$ritems} ) {
+        my $ilink = $schema->resultset('AqordersItem')->find($itemnumber);
+        if ($ilink) {
+            $ilink->ordernumber( $new_ordernumber );
             $ilink->update;
-            --$quantity;
-            --$mapped_by_branch{$i_branch};
-            $logger->warn("Transferred item $item");
+            $logger->warn("Transferred item $itemnumber");
         }
         else {
-            $logger->warn("Skipped item $item");
-        }
-        if ( $quantity < 1 ) {
-            last;
+            # this should not happen
+            $logger->warn("Skipped item $itemnumber");
         }
     }
 
