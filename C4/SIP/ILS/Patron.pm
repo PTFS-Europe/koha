@@ -519,7 +519,7 @@ sub _get_address {
     my $patron = shift;
 
     my $address = $patron->{streetnumber} || q{};
-    for my $field (qw( roaddetails address address2 city state zipcode country))
+    for my $field (qw( roaddetails address address2 city state country))
     {
         next unless $patron->{$field};
         if ($address) {
