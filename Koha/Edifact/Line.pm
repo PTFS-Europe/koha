@@ -775,11 +775,11 @@ sub pri_price {
             # AAF information price (including all taxes, allowances or charges)
     foreach my $s ( @{ $self->{segs} } ) {
         if ( $s->tag eq 'PRI' && $s->elem( 0, 0 ) eq $price_qualifier ) {
-            return {
-                price          => $s->elem( 0, 1 ),
-                type           => $s->elem( 0, 2 ),
-                type_qualifier => $s->elem( 0, 3 ),
-            };
+            my $r = {};
+                $r->{price}          = $s->elem( 0, 1 );
+                $r->{type}           = $s->elem( 0, 2 );
+                $r->{type_qualifier} = $s->elem( 0, 3 );
+            return $r;
         }
     }
     return;
