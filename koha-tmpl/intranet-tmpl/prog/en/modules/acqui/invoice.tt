@@ -99,6 +99,7 @@
                 <th>Library</th>
                 <th class="tax_excluded">Actual cost tax exc.</th>
                 <th class="tax_included">Actual cost tax inc.</th>
+                <th class="replacementprice">Replacement price</th>
                 <th>Qty.</th>
                 <th class="tax_excluded">Total tax exc. ([% currency.symbol %])</th>
                 <th class="tax_included">Total tax inc. ([% currency.symbol %])</th>
@@ -129,6 +130,7 @@
                   <td><p>[% order.branchcode %]</p></td>
                   <td class="number tax_excluded">[% order.unitprice_tax_excluded | $Price %]</td>
                   <td class="number tax_included">[% order.unitprice_tax_included | $Price %]</td>
+                  <td class="number replacementprice">[% order.replacementprice | $Price %]</td>
                   <td class="number">[% order.quantity %]</td>
                   <td class="number tax_excluded">[% order.total_tax_excluded | $Price %]</td>
                   <td class="number tax_included">[% order.total_tax_included | $Price %]</td>
@@ -144,6 +146,7 @@
                     <th colspan="2">Total (GST [% tf.tax_rate * 100 %] %)</th>
                     <th class="tax_excluded"></th>
                     <th class="tax_included"></th>
+                    <th class="replacementprice"/>
                     <th>[% tf.quantity %]</th>
                     <th class="tax_excluded">[% tf.total_tax_excluded | $Price %]</th>
                     <th class="tax_included">[% tf.total_tax_included | $Price %]</th>
@@ -156,6 +159,7 @@
                 <th colspan="2">Total ([% currency.symbol %])</th>
                 <th class="tax_excluded"></th>
                 <th class="tax_included"></th>
+                <th class="replacementprice"/>
                 <th>[% total_quantity %]</th>
                 <th class="tax_excluded">[% total_tax_excluded | $Price %]</th>
                 <th class="tax_included">[% total_tax_included | $Price %]</th>
@@ -167,6 +171,7 @@
                 <th colspan="2">Total + Shipment cost ([% currency.symbol %])</th>
                 <th class="tax_excluded"></th>
                 <th class="tax_included"></th>
+                <th class="replacementprice"/>
                 <th>[% total_quantity %]</th>
                 <th class="tax_excluded">[% total_tax_excluded_shipment | $Price %]</th>
                 <th class="tax_included">[% total_tax_included_shipment | $Price %]</th>
