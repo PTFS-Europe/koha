@@ -63,8 +63,11 @@ sub _parse_lines {
         elsif ( $s->tag eq 'IMD' ) {
             push @item_description, $s;
         }
-        elsif ( $s->tag eq 'QTY' ) {
-            $d->{quantity} = $s->elem( 0, 1 );
+	elsif ( $s->tag eq 'QTY' ) {
+		if ( $s->elem( 0, 0 ) == 47 ) {
+			$d->{quantity_invoiced} = $s->elem( 0, 1 );
+		}
+		$d->{quantity} = $s->elem( 0, 1 );
         }
         elsif ( $s->tag eq 'DTM' ) {
             if ( $s->elem( 0, 0 ) eq '44' ) {
@@ -374,6 +377,12 @@ sub quantity {
     my $self = shift;
     return $self->{quantity};
 }
+
+sub quantity_invoiced {
+    my $self = shift;
+    return $self->{quantity_invoiced};
+}
+
 
 sub reference {
     my $self = shift;

@@ -276,7 +276,7 @@ sub process_invoice {
             foreach my $line ( @{$lines} ) {
                 my $ordernumber = $line->ordernumber;
                 $logger->trace( "Receipting order:$ordernumber Qty: ",
-                    $line->quantity );
+                    $line->quantity_invoiced );
 
                 my $order = $schema->resultset('Aqorder')->find($ordernumber);
 
@@ -304,18 +304,18 @@ sub process_invoice {
                        $tax_rate->{rate} /= 100;
                     }
 
-                    if ( $order->quantity > $line->quantity ) {
-                        my $ordered = $order->quantity;
+                    if ( $order->quantity > $line->quantity_invoiced ) {
+                        my $ordered = $order->quantity_invoiced;
 
                         # part receipt
                         $order->orderstatus('partial');
-                        $order->quantity( $ordered - $line->quantity );
+                        $order->quantity( $ordered - $line->quantity_invoiced );
                         $order->update;
                         my $received_order = $order->copy(
                             {
                                 ordernumber      => undef,
-                                quantity         => $line->quantity,
-                                quantityreceived => $line->quantity,
+                                quantity         => $line->quantity_invoiced,
+                                quantityreceived => $line->quantity_invoiced,
                                 orderstatus      => 'complete',
                                 unitprice        => $price,
                                 invoiceid        => $invoiceid,
@@ -336,7 +336,7 @@ sub process_invoice {
                             $received_order->ordernumber, \@ritems );
                     }
                     else {    # simple receipt all copies on order
-                        $order->quantityreceived( $line->quantity );
+                        $order->quantityreceived( $line->quantity_invoiced );
                         $order->datereceived($msg_date);
                         $order->invoiceid($invoiceid);
                         $order->unitprice($price);
@@ -373,8 +373,8 @@ sub _get_invoiced_price {
     my $price = $line->price_net;
     if ( !defined $price ) {  # no net price so generate it from lineitem amount
         $price = $line->amt_lineitem;
-        if ( $price and $line->quantity > 1 ) {
-            $price /= $line->quantity;    # div line cost by qty
+        if ( $price and $line->quantity_invoiced > 1 ) {
+            $price /= $line->quantity_invoiced;    # div line cost by qty
         }
     }
     return $price;
