@@ -852,7 +852,7 @@ subtest 'GetBudgetSpent GetBudgetOrdered tests' => sub {
 
     t::lib::Mocks::mock_preference('OrderPriceRounding','nearest_cent');
     $spent_ordered = GetBudgetOrdered( $spent_order->{budget_id} );
-    is($spent_ordered,'78.80',"We expect the ordered amount to be equal to the estimated price rounded times quantity");
+    is($spent_ordered,'78.8000',"We expect the ordered amount to be equal to the estimated price rounded times quantity");
 
 #Okay, now we can receive the order, giving the price as the user would
 
