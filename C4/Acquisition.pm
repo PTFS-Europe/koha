@@ -2183,11 +2183,10 @@ sub GetLateOrders {
         AND aqbasket.closedate IS NOT NULL
         AND (aqorders.datecancellationprinted IS NULL OR aqorders.datecancellationprinted='0000-00-00')
     ";
-    my ($round_sql_start,$round_sql_end) = _get_rounding_sql();
     if ($dbdriver eq "mysql") {
         $select .= "
         aqorders.quantity - COALESCE(aqorders.quantityreceived,0)                 AS quantity,
-        (aqorders.quantity - COALESCE(aqorders.quantityreceived,0)) * $round_sql_start aqorders.rrp $round_sql_end AS subtotal,
+        (aqorders.quantity - COALESCE(aqorders.quantityreceived,0)) * " . _get_rounding_sql("aqorders.rrp") . " AS subtotal,
         DATEDIFF(CAST(now() AS date),closedate) AS latesince
         ";
         if ( defined $delay ) {
@@ -2199,7 +2198,7 @@ sub GetLateOrders {
         # FIXME: account for IFNULL as above
         $select .= "
                 aqorders.quantity                AS quantity,
-                aqorders.quantity * $round_sql_start aqorders.rrp $round_sql_end AS subtotal,
+                aqorders.quantity * "._get_rounding_sql("aqorders.rrp")." AS subtotal,
                 (CAST(now() AS date) - closedate)            AS latesince
         ";
         if ( defined $delay ) {
