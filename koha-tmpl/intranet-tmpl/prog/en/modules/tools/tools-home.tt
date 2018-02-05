@@ -135,6 +135,8 @@
         </ul>
     </dd>
     [% END %]
+    <dt><a href="/cgi-bin/koha/agrovoc/agrovoc.pl?lang_english=EN&tool=1">Search Agrovoc</a></dt>
+    <dd>Standalone Agrovoc Search</dd>
 
     [% IF ( CAN_user_tools_upload_general_files ) %]
     <dt><a href="/cgi-bin/koha/tools/upload.pl">Upload</a></dt>

@@ -1,0 +1,228 @@
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Koha &rsaquo; Agrovoc Search</title>
+[% INCLUDE 'greybox.inc' %]
+[% INCLUDE 'doc-head-close.inc' %]
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="[% themelang %]/css/agrovoc.css" />
+<style type="text/css">
+    div#searchPane {
+        float: left;
+        width: 45%;
+    }
+
+    input#selectorField {
+        width: 90%;
+    }
+
+    div#searchResultsPane {
+        float: left;
+        width: 45%
+    }
+
+    div#termPane {
+        float: right;
+        width: 53%;
+    }
+
+    div#selectPane {
+        clear: both;
+    }
+</style>
+<script type="text/javascript" src="[% themelang %]/lib/json2.js"></script>
+<script type="text/javascript" src="[% themelang %]/js/agrovoc.js"></script>
+<script type="text/javascript" src="[% themelang %]/js/agrovoc.support.js"></script>
+<style type="text/css">
+   #custom-doc { width:53em;*width:51.72em;min-width:689px; margin:auto; text-align:left; }
+#ss-results { border: 2px inset;
+    height: 400px;
+    overflow: auto;
+    width:500px;
+      z-index: 500;
+   #term_details { float: right; width: 23.3333em; }
+
+</style>
+ <style>
+#savedTerms { list-style-type: none; margin: 0; padding: 0; width: 60%; }
+#savedTerms li { margin: 0 3px 3px 3px; padding: 0.4em; padding-left: 1.5em; font-size: 9pt; height: 18px; }
+#savedTerms li span { position: absolute; margin-left: -1.3em; }
+</style>
+ <script>
+$(function() {
+$( "#savedTerms" ).sortable();
+$( "#savedTerms" ).disableSelection();
+});
+
+$( "#savedTerms .delete").click(function() {
+  $(this).parent().remove();
+});
+</script>
+
+</head>
+<body>
+<div id="breadcrumbs"><a href="/cgi-bin/koha/mainpage.pl">Home</a></div>
+ <div id="pageContainer">
+   <div id="pageContent">
+        <h1>Agrovoc Term Search</h1>
+        <div data-module="Search" data-module-id="searchPane">
+            <form id="agrovocSearch" onSubmit="searchTerm(); return false;" >
+                <label for="searchmode">Search</label><br/>
+                <select name="searchmode" id="searchmode">
+                    <option value="starting">starting with</option>
+                    <option value="containing">containing</option>
+                    <option value="end with">end with</option>
+                    <option value="exact">exact</option>
+                </select>
+                        <input type="text" id="searchstring" name="searchstring" value="[% searchstring | html %]" maxlength="50" size="20" />
+
+                <br/>
+                <label for="lang_english">Search Languages</label>
+                <p>
+                [% IF lang_english %]
+                English: <input type="checkbox" name="lang_english" id="lang_english" value='EN' checked="1" />
+                [% ELSE %]
+                English: <input type="checkbox" name="lang_english" id="lang_english" value='EN'  />
+                [% END %]
+                [% IF lang_french %]
+                French: <input type="checkbox" name="lang_french" id="lang_french" value='FR' checked="1"/>
+                [% ELSE %]
+                French: <input type="checkbox" name="lang_french" id="lang_french" value='FR' />
+                [% END %]
+                [% IF lang_spanish %]
+                Spanish: <input type="checkbox" name="lang_spanish" id="lang_spanish" value='ES' checked="1"  />
+                [% ELSE %]
+                Spanish: <input type="checkbox" name="lang_spanish" id="lang_spanish" value='ES'  />
+                [% END %]
+                </p>
+                <div class="buttonBar">
+<input class="green90x24" type="button" value="search" onclick="searchTerm(); return false;" />
+                </div>
+            </form>
+         </div><!-- searchPane -->
+<!---  TERM PANE -->
+            <div data-module="Related terms" data-module-id="termPane" id="TermPane">
+            <div id="termcodeLabel">
+            <p>
+            [% IF termcode %]
+                        [% termcode %]: <strong>[% labels %]</strong>
+            [% END %]
+            </p>
+            </div>
+<div id='altlang'>
+<!-- Show term in Spanish/French -->
+<ul>
+[% FOR ALTLANG_val IN ALTLANG %]
+<li>
+See in <button type="button" class="termlink" onclick="lookupTerm([% ALTLANG_val.termcode %],'[% ALTLANG_val.langcode %]'); return false;">[% ALTLANG_val.langname %]</button>
+</li>
+[% END %]
+</ul>
+</div>
+<br /\>
+<strong>Use:</strong>
+<div id="USElist">
+<ul>
+[% FOR USE_val IN 'USE' %]
+    <li>
+    [% USE_val.label %]
+    <button type="button" class="termlink" onclick="lookupTerm([% USE_val.termcode %],'[% USE_val.termlang %]'); return false;">[% USE_val.termcode %]</button>
+    </li>
+[% END %]
+</ul>
+</div>
+<br /\>
+<strong>UF:</strong>
+<div id="UFlist">
+<ul>
+[% FOR UF_val IN UF %]
+    <li>
+    [% UF_val.label %]
+    <button type="button" class="termlink" onclick="lookupTerm([% UF_val.termcode %],'[% UF_val.termlang %]'); return false;">[% UF_val.termcode %]</button>
+    </li>
+[% END %]
+</ul>
+</div>
+<br />
+<strong>BT:</strong>
+<div id="BTlist">
+<ul>
+[% FOR BT_val IN BT %]
+<li>
+    [% BT_val.label %]
+    <button type="button" class="termlink" onclick="lookupTerm([% BT_val.termcode %],'[% BT_val.termlang %]'); return false;">[% BT_val.termcode %]</button>
+</li>
+[% END %]
+</ul>
+</div>
+
+<br />
+<strong>NT:</strong>
+<div id="NTlist">
+<ul>
+[% FOR NT_val IN NT %]
+<li>
+    [% NT_val.label %]
+    <button type="button" class="termlink" onclick="lookupTerm([% NT_val.termcode %],'[% NT_val.termlang %]'); return false;">[% NT_val.termcode %]</button>
+</li>
+[% END %]
+</ul>
+</div>
+<br />
+<strong>RT:</strong>
+<div id="RTlist">
+<ul>
+[% FOR RT_val IN RT %]
+<li>
+    [% RT_val.label %]
+    <button type="button" class="termlink" onclick="lookupTerm([% RT_val.termcode %],'[% RT_val.termlang %]'); return false;">[% RT_val.termcode %]</button>
+</li>
+[% END %]
+</ul>
+</div>
+<br />
+<strong>Definitions:</strong><br />
+[% DEF %]
+<br />
+<div class="buttonBar" id="saveButtonBar">
+    [% IF termcode %]
+    <strong>Save As:</strong>
+    <button class="green90x24" onclick="saveTerm(1,[% termcode %],'[% labels %]','[% termlang %]'); return false;">Primary</button>
+    <button class="green90x24" onclick="saveTerm(2,[% termcode %],'[% labels %]','[% termlang %]'); return false;"> Secondary</button>
+    [% END %]
+</div>
+
+</div><!-- termPane -->
+         <div data-module="SearchResults" data-module-id="searchResultsPane">
+            <div id="resultsList">
+            <ul>
+            [% FOR term IN term_array %]
+                <li>
+                [% term.matchedTerm %] ([% term.language %])
+                (<a href="term.pl?termcode=[% term.termcode %]&lang=[% term.language %]">[% term.termcode %]</a>)
+                </li>
+            [% END %]
+            </ul>
+            </div>
+        </div>
+           <div data-module="Selected" data-module-id="selectPane">
+                <ul id="savedTerms">
+                </ul>
+                <form>
+                [% IF tool %]
+
+                <button class="green90x24" onclick="location='/cgi-bin/koha/tools/tools-home.pl'; return false;">Exit</button>
+                <button class="green90x24" onclick="clearSelectedTerms(); return false;">Clear</button>
+                [% ELSE %]
+                [% IF tagindex %]
+                <input type="hidden" name="tagindex" id="tagindex" value="[% tagindex %]" />
+    <a href="javascript:termToTag('[% tagindex %]');">Move To Rec</a>
+                [% END %]
+    <a href="javascript:clearSelectedTerms();">Clear</a>
+    <a class="cancel close" href="#">Cancel</a>
+                [% END %]
+                </form>
+         </div><!-- termPane -->
+
+      </div><!-- pageContent -->
+ </div><!-- pageContainer -->
+
+</body>

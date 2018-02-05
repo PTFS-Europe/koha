@@ -625,6 +625,10 @@ sub build_tabs {
                            $tag_data{indicator1} = format_indicator($field->indicator(1)),
                            $tag_data{indicator2} = format_indicator($field->indicator(2)),
                         }
+                        # hardcode agrovoc for now
+                        if ( $tag == 650 || $tag == 651 ) {
+                            $tag_data{agrovoc} = 1;
+                        }
                         push( @loop_data, \%tag_data );
                     }
                  } # foreach $field end
@@ -670,6 +674,9 @@ sub build_tabs {
                         tagfirstsubfield => $subfields_data[0],
                         fixedfield       => $tag < 10?1:0,
                     );
+                    if ($tag == 650 || $tag == 651 ) {
+                        $tag_data{agrovoc} =1;
+                    }
                     
                     push @loop_data, \%tag_data ;
                 }
