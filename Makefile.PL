@@ -304,6 +304,7 @@ my $target_map = {
   './about.pl'                  => 'INTRANET_CGI_DIR',
   './acqui'                     => 'INTRANET_CGI_DIR',
   './admin'                     => 'INTRANET_CGI_DIR',
+  './agrovoc'                   => 'INTRANET_CGI_DIR',
   './api'                       => { target => 'API_CGI_DIR', trimdir => -1 },
   './app.psgi'                  => 'SCRIPT_DIR',
   './authorities'               => 'INTRANET_CGI_DIR',
