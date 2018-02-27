@@ -326,7 +326,7 @@ sub do_check_for_previous_checkout {
     my ( $self, $item ) = @_;
 
     # Find all items for bib and extract item numbers.
-    my @items = Koha::Items->search({biblionumber => $item->{biblionumber}});
+    my @items = Koha::Items->search({biblionumber => $item->{biblionumber}, deleted_at => undef });
     my @item_nos;
     foreach my $item (@items) {
         push @item_nos, $item->itemnumber;

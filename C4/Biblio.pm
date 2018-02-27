@@ -315,7 +315,7 @@ sub ModBiblio {
     # update biblionumber and biblioitemnumber in MARC
     # FIXME - this is assuming a 1 to 1 relationship between
     # biblios and biblioitems
-    my $sth = $dbh->prepare("select biblioitemnumber from biblioitems where biblionumber=?");
+    my $sth = $dbh->prepare("select biblioitemnumber from biblioitems where biblionumber=? AND deleted_at IS NULL");
     $sth->execute($biblionumber);
     my ($biblioitemnumber) = $sth->fetchrow;
     $sth->finish();
@@ -384,7 +384,7 @@ sub DelBiblio {
     my $error;    # for error handling
 
     # First make sure this biblio has no items attached
-    my $sth = $dbh->prepare("SELECT itemnumber FROM items WHERE biblionumber=?");
+    my $sth = $dbh->prepare("SELECT itemnumber FROM items WHERE biblionumber=? AND deleted_at IS NULL");
     $sth->execute($biblionumber);
     if ( my $itemnumber = $sth->fetchrow ) {
 
@@ -415,7 +415,7 @@ sub DelBiblio {
     ModZebra( $biblionumber, "recordDelete", "biblioserver" );
 
     # delete biblioitems and items from Koha tables and save in deletedbiblioitems,deleteditems
-    $sth = $dbh->prepare("SELECT biblioitemnumber FROM biblioitems WHERE biblionumber=?");
+    $sth = $dbh->prepare("SELECT biblioitemnumber FROM biblioitems WHERE biblionumber=? AND deleted_at IS NULL");
     $sth->execute($biblionumber);
     while ( my $biblioitemnumber = $sth->fetchrow ) {
 
@@ -1138,7 +1138,7 @@ sub GetMarcBiblio {
     }
 
     my $dbh          = C4::Context->dbh;
-    my $sth          = $dbh->prepare("SELECT biblioitemnumber FROM biblioitems WHERE biblionumber=? ");
+    my $sth          = $dbh->prepare("SELECT biblioitemnumber FROM biblioitems WHERE biblionumber=? AND deleted_at IS NULL");
     $sth->execute($biblionumber);
     my $row     = $sth->fetchrow_hashref;
     my $biblioitemnumber = $row->{'biblioitemnumber'};
@@ -2761,7 +2761,7 @@ sub EmbedItemsInMarcBiblio {
 
     # ... and embed the current items
     my $dbh = C4::Context->dbh;
-    my $sth = $dbh->prepare("SELECT itemnumber FROM items WHERE biblionumber = ?");
+    my $sth = $dbh->prepare("SELECT itemnumber FROM items WHERE biblionumber = ? and deleted_at IS NULL");
     $sth->execute($biblionumber);
     my @item_fields;
     my ( $itemtag, $itemsubfield ) = GetMarcFromKohaField( "items.itemnumber", $frameworkcode );
@@ -3091,41 +3091,8 @@ C<$biblionumber> - the biblionumber of the biblio to be deleted
 sub _koha_delete_biblio {
     my ( $dbh, $biblionumber ) = @_;
 
-    # get all the data for this biblio
-    my $sth = $dbh->prepare("SELECT * FROM biblio WHERE biblionumber=?");
-    $sth->execute($biblionumber);
-
-    # FIXME There is a transaction in _koha_delete_biblio_metadata
-    # But actually all the following should be done inside a single transaction
-    if ( my $data = $sth->fetchrow_hashref ) {
-
-        # save the record in deletedbiblio
-        # find the fields to save
-        my $query = "INSERT INTO deletedbiblio SET ";
-        my @bind  = ();
-        foreach my $temp ( keys %$data ) {
-            $query .= "$temp = ?,";
-            push( @bind, $data->{$temp} );
-        }
-
-        # replace the last , by ",?)"
-        $query =~ s/\,$//;
-        my $bkup_sth = $dbh->prepare($query);
-        $bkup_sth->execute(@bind);
-        $bkup_sth->finish;
-
-        _koha_delete_biblio_metadata( $biblionumber );
-
-        # delete the biblio
-        my $sth2 = $dbh->prepare("DELETE FROM biblio WHERE biblionumber=?");
-        $sth2->execute($biblionumber);
-        # update the timestamp (Bugzilla 7146)
-        $sth2= $dbh->prepare("UPDATE deletedbiblio SET timestamp=NOW() WHERE biblionumber=?");
-        $sth2->execute($biblionumber);
-        $sth2->finish;
-    }
-    $sth->finish;
-    return;
+    my $sth = $dbh->prepare("UPDATE biblio SET deleted_at = NOW() WHERE biblionumber=?");
+    return $sth->execute($biblionumber) ? undef : ($DBI::errstr || "unknown error");
 }
 
 =head2 _koha_delete_biblioitems
@@ -3143,38 +3110,8 @@ C<$biblionumber> - the biblioitemnumber of the biblioitem to be deleted
 
 sub _koha_delete_biblioitems {
     my ( $dbh, $biblioitemnumber ) = @_;
-
-    # get all the data for this biblioitem
-    my $sth = $dbh->prepare("SELECT * FROM biblioitems WHERE biblioitemnumber=?");
-    $sth->execute($biblioitemnumber);
-
-    if ( my $data = $sth->fetchrow_hashref ) {
-
-        # save the record in deletedbiblioitems
-        # find the fields to save
-        my $query = "INSERT INTO deletedbiblioitems SET ";
-        my @bind  = ();
-        foreach my $temp ( keys %$data ) {
-            $query .= "$temp = ?,";
-            push( @bind, $data->{$temp} );
-        }
-
-        # replace the last , by ",?)"
-        $query =~ s/\,$//;
-        my $bkup_sth = $dbh->prepare($query);
-        $bkup_sth->execute(@bind);
-        $bkup_sth->finish;
-
-        # delete the biblioitem
-        my $sth2 = $dbh->prepare("DELETE FROM biblioitems WHERE biblioitemnumber=?");
-        $sth2->execute($biblioitemnumber);
-        # update the timestamp (Bugzilla 7146)
-        $sth2= $dbh->prepare("UPDATE deletedbiblioitems SET timestamp=NOW() WHERE biblioitemnumber=?");
-        $sth2->execute($biblioitemnumber);
-        $sth2->finish;
-    }
-    $sth->finish;
-    return;
+    my $sth = $dbh->prepare("UPDATE biblioitems SET deleted_at = NOW() WHERE biblioitemnumber=?");
+    return $sth->execute($biblioitemnumber) ? undef : ($DBI::errstr || 'unknown error');
 }
 
 =head2 _koha_delete_biblio_metadata
@@ -3187,19 +3124,9 @@ C<$biblionumber> - the biblionumber of the biblio metadata to be deleted
 
 sub _koha_delete_biblio_metadata {
     my ($biblionumber) = @_;
-
-    my $dbh    = C4::Context->dbh;
-    my $schema = Koha::Database->new->schema;
-    $schema->txn_do(
-        sub {
-            $dbh->do( q|
-                INSERT INTO deletedbiblio_metadata (biblionumber, format, marcflavour, metadata)
-                SELECT biblionumber, format, marcflavour, metadata FROM biblio_metadata WHERE biblionumber=?
-            |,  undef, $biblionumber );
-            $dbh->do( q|DELETE FROM biblio_metadata WHERE biblionumber=?|,
-                undef, $biblionumber );
-        }
-    );
+    my $dbh = C4::Context->dbh;
+    my $sth = $dbh->prepare("UPDATE biblio_metadata SET deleted_at = NOW() WHERE biblionumber=?");
+    return $sth->execute($biblionumber);
 }
 
 =head1 UNEXPORTED FUNCTIONS

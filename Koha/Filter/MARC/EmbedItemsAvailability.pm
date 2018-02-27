@@ -79,6 +79,7 @@ sub _processrecord {
     my $not_onloan_items = Koha::Items->search({
         biblionumber => $biblionumber,
         onloan => undef,
+        deleted_at => undef,
     })->count;
 
     # check for field 999

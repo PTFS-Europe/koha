@@ -172,7 +172,10 @@ sub calculate {
     my $barcodelike   = @$filters[16];
     my $barcodefilter = @$filters[17];
     my $not;
-    my $itemstable = ($cellvalue eq 'deleteditems') ? 'deleteditems' : 'items';
+    my $itemstable = 'items';
+    my $deleted_where = "items.deleted_at IS NULL";
+    $deleted_where = "1" if $cellvalue eq 'allitems';
+    $deleted_where = "items.deleted_at IS NOT NULL" if $cellvalue eq 'deleteditems';
 
     my $dbh = C4::Context->dbh;
 
@@ -273,12 +276,9 @@ sub calculate {
 
     # 1st, loop rows.
     my $origline = $line;
-    $line =~ s/^items\./deleteditems./ if($cellvalue eq "deleteditems");
     my $linefield;
     if ( ( $line =~ /itemcallnumber/ ) and ($cotedigits) ) {
         $linefield = "left($line,$cotedigits)";
-    } elsif ( $line =~ /^deleteditems\.timestamp$/ ) {
-        $linefield = "DATE($line)";
     } else {
         $linefield = $line;
     }
@@ -286,7 +286,7 @@ sub calculate {
     my $strsth = "SELECT DISTINCTROW $linefield FROM $itemstable
                     LEFT JOIN biblioitems USING (biblioitemnumber)
                     LEFT JOIN biblio ON (biblioitems.biblionumber = biblio.biblionumber)
-                  WHERE 1 ";
+                  WHERE $deleted_where ";
     $strsth .= " AND barcode $not LIKE ? " if ($barcodefilter);
     if (@linefilter) {
         if ( $linefilter[1] ) {
@@ -335,7 +335,6 @@ sub calculate {
 
     # 2nd, loop cols.
     my $origcolumn = $column;
-    $column =~ s/^items\./deleteditems./ if($cellvalue eq "deleteditems");
     my $colfield;
     if ( ( $column =~ /itemcallnumber/ ) and ($cotedigits) ) {
         $colfield = "left($column,$cotedigits)";
@@ -352,7 +351,7 @@ sub calculate {
             USING (biblioitemnumber)
         LEFT JOIN biblio
             ON (biblioitems.biblionumber = biblio.biblionumber)
-        WHERE 1 ";
+        WHERE $deleted_where ";
     $strsth2 .= " AND barcode $not LIKE ?" if $barcodefilter;
 
     if ( (@colfilter) and ( $colfilter[1] ) ) {
@@ -418,7 +417,7 @@ sub calculate {
         FROM $itemstable
         LEFT JOIN biblioitems ON ($itemstable.biblioitemnumber = biblioitems.biblioitemnumber)
         LEFT JOIN biblio ON (biblioitems.biblionumber = biblio.biblionumber)
-        WHERE 1 ";
+        WHERE $deleted_where ";
 
     my @sqlargs;
 
@@ -501,13 +500,13 @@ sub calculate {
         push @sqlargs, @$filters[14];
     }
     if ( $cellvalue eq 'deleteditems' and @$filters[15] ) {
-        $strcalc .= " AND DATE(deleteditems.timestamp) >= ? ";
+        $strcalc .= " AND DATE(deleted_at) >= ? ";
         @$filters[15] =~ s/\*/%/g;
         push @sqlargs, @$filters[15];
     }
     if ( $cellvalue eq 'deleteditems' and @$filters[16] ) {
         @$filters[16] =~ s/\*/%/g;
-        $strcalc .= " AND DATE(deleteditems.timestamp) <= ?";
+        $strcalc .= " AND DATE(deleted_at) <= ?";
         push @sqlargs, @$filters[16];
     }
     $strcalc .= " group by $linefield, $colfield order by $linefield,$colfield";

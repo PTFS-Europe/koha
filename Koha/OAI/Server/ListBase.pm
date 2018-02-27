@@ -68,12 +68,12 @@ sub GetRecords {
 
         if ($include_items) {
             $sql .= "
-                OR biblionumber IN (SELECT biblionumber from deleteditems WHERE timestamp >= ? AND timestamp <= ?)
+                OR biblionumber IN (SELECT biblionumber from items WHERE timestamp >= ? AND timestamp <= ? AND deleted_at IS NOT NULL)
             ";
             push @bind_params, ($token->{'from_arg'}, $token->{'until_arg'});
             if (!$deleted) {
                 $sql .= "
-                    OR biblionumber IN (SELECT biblionumber from items WHERE timestamp >= ? AND timestamp <= ?)
+                    OR biblionumber IN (SELECT biblionumber from items WHERE timestamp >= ? AND timestamp <= ? AND deleted_at IS NULL)
                 ";
                 push @bind_params, ($token->{'from_arg'}, $token->{'until_arg'});
             }
@@ -105,7 +105,7 @@ sub GetRecords {
                 FROM (
                     SELECT timestamp FROM deletedbiblio_metadata WHERE biblionumber = ?
                     UNION
-                    SELECT timestamp FROM deleteditems WHERE biblionumber = ?
+                    SELECT timestamp FROM items WHERE biblionumber = ? AND deleted_at IS NOT NULL
                 ) bis
             ";
         } else {
@@ -114,9 +114,9 @@ sub GetRecords {
                 FROM (
                     SELECT timestamp FROM biblio_metadata WHERE biblionumber = ?
                     UNION
-                    SELECT timestamp FROM deleteditems WHERE biblionumber = ?
+                    SELECT timestamp FROM items WHERE biblionumber = ? AND deleted_at IS NULL
                     UNION
-                    SELECT timestamp FROM items WHERE biblionumber = ?
+                    SELECT timestamp FROM items WHERE biblionumber = ? AND deleted_at IS NOT NULL
                 ) bi
             ";
         }

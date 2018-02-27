@@ -115,6 +115,7 @@ if ( $op eq 'export' ) {
     my $notforloanfilter = $params->{'notforloanfilter'} || undef;
 
     my $params = {
+        deleted_at => undef,
         ( $branchfilter ? ( homebranch => $branchfilter ) : () ),
         (
             $loststatusfilter
