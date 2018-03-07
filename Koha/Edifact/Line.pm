@@ -706,6 +706,9 @@ sub extract_gir {
     while ( my $e = $s->elem($element) ) {
         ++$element;
         if ( exists $qmap{ $e->[1] } ) {
+            if ($e->[1] eq 'LLO' && $e->[0] eq 'GO') {
+               $e->[0] .= 'S';
+            }
             my $qualifier = $qmap{ $e->[1] };
             $gir_element->{$qualifier} = $e->[0];
         }

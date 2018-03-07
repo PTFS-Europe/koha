@@ -560,8 +560,9 @@ sub gir_segments {
             # itemcallnumber -> shelfmark
         }
         else {
-            if ( $item->{branch} ) {
-                $seg .= add_gir_identity_number( 'LLO', $item->{branch} );
+            if ( my $branch = $item->{branch} ) {
+                $branch=~s/^GOS$/GO/;
+                $seg .= add_gir_identity_number( 'LLO', $branch );
             }
             $seg .= add_gir_identity_number( 'LST', $item->{itemtype} );
             $seg .= add_gir_identity_number( 'LSM', $item->{shelfmark} );
