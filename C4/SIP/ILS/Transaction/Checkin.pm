@@ -10,6 +10,7 @@ use strict;
 # use POSIX qw(strftime);
 
 use C4::SIP::ILS::Transaction;
+use C4::SIP::ILS::Bin qw(get_sort_bin);
 
 use C4::Circulation;
 use C4::Debug;
@@ -170,6 +171,11 @@ sub do_checkin {
         $self->alert( !$return || defined $self->alert_type );
     }
 
+    my $sort_bin = get_sort_bin($self->{item}->{itype}, $self->{item}->{homebranch});
+    if ($sort_bin && $sort_bin != 99) {
+        $self->{sort_bin} = $sort_bin;
+    }
+    $self->alert(1) if defined $self->alert_type;  # alert_type could be "00", hypothetically
     $self->ok($return);
 
     return { messages => $messages };

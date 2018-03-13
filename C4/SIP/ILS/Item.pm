@@ -89,6 +89,7 @@ sub new {
     $self->{permanent_location} = $item->homebranch;
     $self->{collection_code}    = $item->ccode;
     $self->{call_number}        = $item->itemcallnumber;
+    $self->{itype}              = $item->itype; 
     $self->{'shelving_location'}           = $item->location;
     $self->{'permanent_shelving_location'} = $item->permanent_location;
 
