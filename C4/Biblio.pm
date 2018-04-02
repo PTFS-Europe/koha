@@ -3090,7 +3090,7 @@ C<$biblionumber> - the biblionumber of the biblio to be deleted
 
 sub _koha_delete_biblio {
     my ( $dbh, $biblionumber ) = @_;
-
+    _koha_delete_biblio_metadata( $biblionumber );
     my $sth = $dbh->prepare("UPDATE biblio SET deleted_at = NOW() WHERE biblionumber=?");
     return $sth->execute($biblionumber) ? undef : ($DBI::errstr || "unknown error");
 }
