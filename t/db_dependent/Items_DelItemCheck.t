@@ -161,7 +161,7 @@ DelItemCheck( $biblio->{biblionumber}, $item->{itemnumber} );
 
 my $test_item = GetItem( $item->{itemnumber} );
 
-is( $test_item->{itemnumber}, undef,
+isnt( $test_item->{deleted_at}, undef,
     "DelItemCheck should delete item if ItemSafeToDelete returns true"
 );
 

@@ -513,7 +513,7 @@ ok((not defined $error), "DelOrder does not fail");
 $order2 = GetOrder($order2->{ordernumber});
 ok((defined $order2->{datecancellationprinted}), "order is cancelled");
 ok((not defined $order2->{cancellationreason}), "order has no cancellation reason");
-ok((not defined Koha::Biblios->find( $order2->{biblionumber} )), "biblio does not exist anymore");
+ok(Koha::Biblios->find($order2->{biblionumber})->deleted_at , "biblio does not exist anymore");
 
 my $order4 = GetOrder($ordernumbers[3]);
 $error = DelOrder($order4->{biblionumber}, $order4->{ordernumber}, 1, "foobar");
@@ -521,7 +521,7 @@ ok((not defined $error), "DelOrder does not fail");
 $order4 = GetOrder($order4->{ordernumber});
 ok((defined $order4->{datecancellationprinted}), "order is cancelled");
 ok(($order4->{cancellationreason} eq "foobar"), "order has cancellation reason \"foobar\"");
-ok((not defined Koha::Biblios->find( $order4->{biblionumber} )), "biblio does not exist anymore");
+ok(Koha::Biblios->find($order4->{biblionumber})->deleted_at, "biblio does not exist anymore");
 
 my $order5 = GetOrder($ordernumbers[4]);
 C4::Items::AddItem( { barcode => '0102030405' }, $order5->{biblionumber} );

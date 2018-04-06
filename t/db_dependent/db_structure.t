@@ -22,9 +22,6 @@ use Koha::Database;
 
 my @modules = (
     [ qw( Borrower Deletedborrower ) ],
-    [ qw( Biblio Deletedbiblio ) ],
-    [ qw( Biblioitem Deletedbiblioitem ) ],
-    [ qw( Item Deleteditem ) ],
 );
 
 my @keys_to_check = qw( size is_nullable data_type accessor datetime_undef_if_invalid default_value );

@@ -470,12 +470,22 @@ sub _gen_default_values {
             debarred       => undef,
             borrowernotes  => '',
         },
+        Biblio => {
+            deleted_at => undef,
+        },
+        Biblioitems => {
+            deleted_at => undef,
+        },
+        BiblioMetadata => {
+            deleted_at => undef,
+        },
         Item => {
             notforloan         => 0,
             itemlost           => 0,
             withdrawn          => 0,
             restricted         => 0,
             more_subfields_xml => undef,
+            deleted_at => undef,
         },
         Category => {
             enrolmentfee => 0,
