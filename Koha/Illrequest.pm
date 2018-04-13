@@ -1,6 +1,6 @@
 package Koha::Illrequest;
 
-# Copyright PTFS Europe 2016
+# Copyright PTFS Europe 2016,2018
 #
 # This file is part of Koha.
 #
@@ -1043,6 +1043,13 @@ EOF
         my $result = sendmail(%mail);
         if ( $result ) {
             $self->status("GENREQ")->store;
+            $self->_backend_capability(
+                'set_requested_partners',
+                {
+                    request => $self,
+                    to => $to
+                }
+            );
             return {
                 error   => 0,
                 status  => '',
@@ -1126,6 +1133,23 @@ sub store {
     return $ret;
 }
 
+=head3 requested_partners
+
+    my $partners_string = $illRequest->requested_partners;
+
+Return the string representing the email addresses of the partners to
+whom a request has been sent
+
+=cut
+
+sub requested_partners {
+    my ( $self ) = @_;
+    return $self->_backend_capability(
+        'get_requested_partners',
+        { request => $self }
+    );
+}
+
 =head3 TO_JSON
 
     $json = $illrequest->TO_JSON
@@ -1160,6 +1184,7 @@ sub _type {
 =head1 AUTHOR
 
 Alex Sassmannshausen <alex.sassmannshausen@ptfs-europe.com>
+Andrew Isherwood <andrew.isherwood@ptfs-europe.com>
 
 =cut
 
