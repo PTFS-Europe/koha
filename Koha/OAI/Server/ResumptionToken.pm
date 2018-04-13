@@ -1,6 +1,6 @@
 # Copyright Tamil s.a.r.l. 2008-2015
 # Copyright Biblibre 2008-2015
-# Copyright The National Library of Finland, University of Helsinki 2016-2017
+# Copyright The National Library of Finland, University of Helsinki 2016-2018
 #
 # This file is part of Koha.
 #
@@ -32,17 +32,15 @@ use base ("HTTP::OAI::ResumptionToken");
 # - from
 # - until
 # - offset
-# - deleted
 
 sub new {
     my ($class, %args) = @_;
 
     my $self = $class->SUPER::new(%args);
 
-    my ($metadata_prefix, $offset, $from, $until, $set, $deleted, $deleted_count);
+    my ($metadata_prefix, $offset, $from, $until, $set);
     if ( $args{ resumptionToken } ) {
-        ($metadata_prefix, $offset, $from, $until, $set, $deleted, $deleted_count)
-            = split( '/', $args{resumptionToken} );
+        ($metadata_prefix, $offset, $from, $until, $set) = split( '/', $args{resumptionToken} );
     }
     else {
         $metadata_prefix = $args{ metadataPrefix };
@@ -57,8 +55,6 @@ sub new {
         $until .= 'T23:59:59Z' if length($until) == 10;
         $offset = $args{ offset } || 0;
         $set = $args{ set } || '';
-        $deleted = defined $args{ deleted } ? $args{ deleted } : 1;
-        $deleted_count = defined $args{ deleted_count } ? $args{ deleted_count } : 0;
     }
 
     $self->{ metadata_prefix } = $metadata_prefix;
@@ -68,11 +64,8 @@ sub new {
     $self->{ set             } = $set;
     $self->{ from_arg        } = _strip_UTC_designators($from);
     $self->{ until_arg       } = _strip_UTC_designators($until);
-    $self->{ deleted         } = $deleted;
-    $self->{ deleted_count   } = $deleted_count;
 
-    $self->resumptionToken(
-        join( '/', $metadata_prefix, $offset, $from, $until, $set, $deleted, $deleted_count ) );
+    $self->resumptionToken( join( '/', $metadata_prefix, $offset, $from, $until, $set ) );
     $self->cursor( $offset );
 
     return $self;
