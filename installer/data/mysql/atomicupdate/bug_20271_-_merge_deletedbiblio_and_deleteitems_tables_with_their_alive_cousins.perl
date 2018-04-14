@@ -6,9 +6,8 @@ if( CheckVersion( $DBversion ) ) {
     $dbh->do( "ALTER TABLE items ADD COLUMN deleted_at datetime DEFAULT NULL" ) or warn $DBI::errstr;
 
     # Need to disable foreign keys on deletedbiblio_metadata to avoid cascading deletes from deletedbiblio
-    # Bug 17196 introduced a mismatch in foreign keys of deletedbiblio_metadata, so dropping would fail
-    $dbh->do( "ALTER TABLE deletedbiblio_metadata DISABLE KEYS" );
-
+    # Bug 17196 introduced a mismatch in foreign keys of deletedbiblio_metadata, so any key must be dropped
+    DropAllForeignKeys('deletedbiblio_metadata');
     $dbh->do( "INSERT IGNORE INTO biblio SELECT *, timestamp AS deleted_at FROM deletedbiblio" ) or warn $DBI::errstr;
     $dbh->do( "INSERT IGNORE INTO biblioitems SELECT *, timestamp AS deleted_at FROM deletedbiblioitems" ) or warn $DBI::errstr;
     $dbh->do( "INSERT IGNORE INTO biblio_metadata SELECT *, timestamp AS deleted_at FROM deletedbiblio_metadata" ) or warn $DBI::errstr;
@@ -22,7 +21,8 @@ if( CheckVersion( $DBversion ) ) {
         $sth->execute();
         my $row = $sth->fetchrow_hashref;
         if ($row->{count}) {
-            warn "There were $row->{count} deleteditems that could not be moved, please check '_deleteditems'.";
+            print "Warning to database administrator:\n"
+                . "There were $row->{count} deleteditems that could not be moved, please check '_deleteditems'.\n";
             $dbh->do("RENAME TABLE deleteditems TO _deleteditems");
         } else {
             $dbh->do("DROP TABLE deleteditems");
@@ -36,24 +36,11 @@ if( CheckVersion( $DBversion ) ) {
         $sth->execute();
         my $row = $sth->fetchrow_hashref;
         if ($row->{count}) {
-            warn "There were $row->{count} deletedbiblio_metadata that could not be moved, please check '_deletedbiblio_metadata'.";
+            print "Warning to database administrator:\n"
+                . "There were $row->{count} deletedbiblio_metadata that could not be moved, please check '_deletedbiblio_metadata'.\n";
             $dbh->do("RENAME TABLE deletedbiblio_metadata TO _deletedbiblio_metadata");
         } else {
             $dbh->do("DROP TABLE deletedbiblio_metadata");
-        }
-    }
-
-    {
-        my $sth = $dbh->prepare("DELETE FROM deletedbiblio WHERE biblionumber IN (SELECT biblionumber FROM biblio)");
-        $sth->execute();
-        $sth = $dbh->prepare("SELECT COUNT(*) AS count FROM deletedbiblio WHERE biblionumber NOT IN (SELECT biblionumber FROM deletedbiblioitems)");
-        $sth->execute();
-        my $row = $sth->fetchrow_hashref;
-        if ($row->{count}) {
-            warn "There were $row->{count} deletedbiblio that could not be moved, please check '_deletedbiblio'.";
-            $dbh->do("RENAME TABLE deletedbiblio TO _deletedbiblio");
-        } else {
-            $dbh->do("DROP TABLE deletedbiblio");
         }
     }
 
@@ -64,13 +51,28 @@ if( CheckVersion( $DBversion ) ) {
         $sth->execute();
         my $row = $sth->fetchrow_hashref;
         if ($row->{count}) {
-            warn "There were $row->{count} deletedbiblioitems that could not be moved, please check '_deletedbiblioitems'.";
+            print "Warning to database administrator:\n"
+                . "There were $row->{count} deletedbiblioitems that could not be moved, please check '_deletedbiblioitems'.\n";
             $dbh->do("RENAME TABLE deletedbiblioitems TO _deletedbiblioitems");
         } else {
             $dbh->do("DROP TABLE deletedbiblioitems");
         }
     }
 
+    {
+        my $sth = $dbh->prepare("DELETE FROM deletedbiblio WHERE biblionumber IN (SELECT biblionumber FROM biblio)");
+        $sth->execute();
+        $sth = $dbh->prepare("SELECT COUNT(*) AS count FROM deletedbiblio");
+        $sth->execute();
+        my $row = $sth->fetchrow_hashref;
+        if ($row->{count}) {
+            print "Warning to database administrator:\n"
+            . "There were $row->{count} deletedbiblio that could not be moved, please check '_deletedbiblio'.\n";
+            $dbh->do("RENAME TABLE deletedbiblio TO _deletedbiblio");
+        } else {
+            $dbh->do("DROP TABLE deletedbiblio");
+        }
+    }
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 20271 - Merge deletedbiblio* and deleteitems tables with their alive cousins)\n";
