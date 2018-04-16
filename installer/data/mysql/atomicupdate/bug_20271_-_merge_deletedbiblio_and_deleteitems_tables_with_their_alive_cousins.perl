@@ -9,9 +9,23 @@ if( CheckVersion( $DBversion ) ) {
     # Bug 17196 introduced a mismatch in foreign keys of deletedbiblio_metadata, so any key must be dropped
     DropAllForeignKeys('deletedbiblio_metadata');
     $dbh->do( "INSERT IGNORE INTO biblio SELECT *, timestamp AS deleted_at FROM deletedbiblio" ) or warn $DBI::errstr;
-    $dbh->do( "INSERT IGNORE INTO biblioitems SELECT *, timestamp AS deleted_at FROM deletedbiblioitems" ) or warn $DBI::errstr;
-    $dbh->do( "INSERT IGNORE INTO biblio_metadata SELECT *, timestamp AS deleted_at FROM deletedbiblio_metadata" ) or warn $DBI::errstr;
-    $dbh->do( "INSERT IGNORE INTO items SELECT *, timestamp AS deleted_at FROM deleteditems" ) or warn $DBI::errstr;
+    # We also need to make sure foreign keys references are in place, as Mysql < 5.7 aborts on foreign key errors
+    $dbh->do( "INSERT IGNORE INTO biblioitems (
+        SELECT *, timestamp AS deleted_at FROM deletedbiblioitems
+        WHERE biblionumber IN (SELECT biblionumber FROM biblio)
+    )" ) or warn $DBI::errstr;
+    # biblio_metadata needs special handling since there is an extra autoincrement id that cannot be moved
+    $dbh->do( "INSERT IGNORE INTO biblio_metadata (biblionumber, format, marcflavour, metadata, timestamp, deleted_at) (
+        SELECT biblionumber, format, marcflavour, metadata, timestamp, timestamp AS deleted_at FROM deletedbiblio_metadata
+        WHERE biblionumber IN (SELECT biblionumber FROM biblio)
+    )" ) or warn $DBI::errstr;
+    $dbh->do( "INSERT IGNORE INTO items (
+        SELECT *, timestamp AS deleted_at FROM deleteditems
+        WHERE biblioitemnumber IN (SELECT biblioitemnumber FROM biblioitems)
+        AND homebranch IN (SELECT homebranch FROM branches)
+        AND holdingbranch IN (SELECT holdingbranch FROM branches)
+        AND biblionumber IN (SELECT biblionumber FROM biblio)
+    )" ) or warn $DBI::errstr;
 
     # Check if any rows could not be moved, if so, rename table with underscore for checking, otherwise drop them
     {
