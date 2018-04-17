@@ -2011,7 +2011,7 @@ returns the correct SQL routine based on OrderPriceRounding system preference.
 =cut
 
 sub _get_rounding_sql {
-    my $round_string = @_;
+    my ( $round_string ) = @_;
     my $rounding_pref = C4::Context->preference('OrderPriceRounding');
     if ( $rounding_pref eq "nearest_cent"  ) { return ("CAST($round_string*100 AS INTEGER)/100"); }
     else                                     { return ("$round_string"); }
@@ -2026,7 +2026,7 @@ returns a price rounded as specified in OrderPriceRounding system preference.
 =cut
 
 sub get_rounded_price {
-    my $price = @_;
+    my ( $price ) =  @_;
     my $rounding_pref = C4::Context->preference('OrderPriceRounding');
     if( $rounding_pref eq 'nearest_cent' ) { return Koha::Number::Price->new( $price )->format(); }
     else                                   { return $price; }
