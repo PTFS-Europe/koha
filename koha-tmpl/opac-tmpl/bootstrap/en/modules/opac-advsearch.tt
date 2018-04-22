@@ -382,28 +382,28 @@
                                     <label for="subtype_additional">Additional content types for books/printed materials</label>
                                     <select id="subtype_additional" name="limit" class="subtype">
                                         <option value="">Any</option>
-                                        <option value="ctype:a">Abstracts/summaries</option>
-                                        <option value="ctype:b">Bibliographies</option>
-                                        <option value="ctype:c">Catalogs</option>
-                                        <option value="ctype:d">Dictionaries</option>
-                                        <option value="ctype:e">Encyclopedias </option>
-                                        <option value="ctype:f">Handbooks</option>
-                                        <option value="ctype:g">Legal articles</option>
-                                        <option value="ctype:i">Indexes</option>
-                                        <option value="ctype:j">Patent document</option>
-                                        <option value="ctype:k">Discographies</option>
-                                        <option value="ctype:l">Legislation</option>
-                                        <option value="ctype:m">Theses</option>
-                                        <option value="ctype:n">Surveys</option>
-                                        <option value="ctype:o">Reviews</option>
-                                        <option value="ctype:p">Programmed texts</option>
-                                        <option value="ctype:q">Filmographies</option>
-                                        <option value="ctype:r">Directories</option>
-                                        <option value="ctype:s">Statistics</option>
-                                        <option value="ctype:t">Technical reports</option>
-                                        <option value="ctype:v">Legal cases and case notes</option>
-                                        <option value="ctype:w">Law reports and digests</option>
-                                        <option value="ctype:z">Treaties </option>
+					<option value="content:Summary" >Abstracts/summaries</option>
+					<option value="content:Bibliography" >Bibliographies</option>
+					<option value="content:Conference" >Conferences</option>
+					<option value="content:Dictionary" >Dictionaries</option>
+					<option value="content:Directory" >Directories</option>
+					<option value="content:Documents" >Documents</option>
+					<option value="content:Handbook" >Handbooks</option>
+					<option value="content:Information" >Information</option>
+					<option value="content:Legislation" >Legislation</option>
+					<option value="content:Main Document" >Main Documents</option>
+					<option value="content:Maps" >Maps</option>
+					<option value="content:Monograph" >Monographs</option>
+					<option value="content:Non-Conventional" >Non-Conventional</option>
+					<option value="content:Numerical Data" >Numerical Data</option>
+					<option value="content:Paper" >Papers</option>
+					<option value="content:Publication" >Publications</option>
+					<option value="content:Report" >Reports</option>
+					<option value="content:Standard" >Standards</option>
+					<option value="content:Thesaurus" >Thesauri</option>
+					<option value="content:Theses" >Thesis</option>
+					<option value="content:Website" >Websites</option>
+					<option value="content:Working Paper" >Working Papers</option>
                                     </select>
                                 </fieldset>
                             </div> <!-- /.advsearch_limit -->
