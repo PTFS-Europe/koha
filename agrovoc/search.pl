@@ -36,7 +36,7 @@ if ($op) {
         $search_params->{searchmode}   = $q->param('searchmode');
         $search_params->{searchstring} = $q->param('searchstring');
 
-        my @languages = $q->param('language');
+        my @languages = $q->multi_param('language');
         $search_params->{languages} = \@languages;
 
         # $search_params->{languages}    = get_set_languages($q);
