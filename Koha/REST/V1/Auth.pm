@@ -21,11 +21,17 @@ use Modern::Perl;
 
 use Mojo::Base 'Mojolicious::Controller';
 
-use C4::Auth qw( check_cookie_auth get_session haspermission );
+use Net::OAuth2::AuthorizationServer;
 
+use C4::Auth qw( check_cookie_auth get_session haspermission );
+use C4::Context;
+
+use Koha::ApiKeys;
 use Koha::Account::Lines;
 use Koha::Checkouts;
 use Koha::Holds;
+use Koha::OAuth;
+use Koha::OAuthAccessTokens;
 use Koha::Old::Checkouts;
 use Koha::Patrons;
 
@@ -110,6 +116,44 @@ sub authenticate_api_request {
 
     my $spec = $c->match->endpoint->pattern->defaults->{'openapi.op_spec'};
     my $authorization = $spec->{'x-koha-authorization'};
+
+    my $authorization_header = $c->req->headers->authorization;
+    if ($authorization_header and $authorization_header =~ /^Bearer /) {
+        my $server = Net::OAuth2::AuthorizationServer->new;
+        my $grant = $server->client_credentials_grant(Koha::OAuth::config);
+        my ($type, $token) = split / /, $authorization_header;
+        my ($valid_token, $error) = $grant->verify_access_token(
+            access_token => $token,
+        );
+
+        if ($valid_token) {
+            my $patron_id   = Koha::ApiKeys->find( $valid_token->{client_id} )->patron_id;
+            my $patron      = Koha::Patrons->find($patron_id);
+            my $permissions = $authorization->{'permissions'};
+            # Check if the patron is authorized
+            if ( haspermission($patron->userid, $permissions)
+                or allow_owner($c, $authorization, $patron)
+                or allow_guarantor($c, $authorization, $patron) ) {
+
+                validate_query_parameters( $c, $spec );
+
+                # Everything is ok
+                return 1;
+            }
+
+            Koha::Exceptions::Authorization::Unauthorized->throw(
+                error => "Authorization failure. Missing required permission(s).",
+                required_permissions => $permissions,
+            );
+        }
+
+        # If we have "Authorization: Bearer" header and oauth authentication
+        # failed, do not try other authentication means
+        Koha::Exceptions::Authentication::Required->throw(
+            error => 'Authentication failure.'
+        );
+    }
+
     my $cookie = $c->cookie('CGISESSID');
     my ($session, $user);
     # Mojo doesn't use %ENV the way CGI apps do

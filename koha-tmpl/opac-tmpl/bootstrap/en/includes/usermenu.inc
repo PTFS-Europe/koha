@@ -1,3 +1,4 @@
+[% USE Koha %]
 [% IF ( ( Koha.Preference( 'opacuserlogin' ) == 1 ) && loggedinusername ) %]
     <div id="menu">
         <h4><a href="#" class="menu-collapse-toggle">Your account menu</a></h4>
@@ -122,6 +123,17 @@
                 [% END %]
                 <a href="/cgi-bin/koha/opac-illrequests.pl">your interlibrary loan requests</a></li>
             [% END %]
+
+
+            [% IF Koha.Preference('AllowPatronsManageAPIKeysInOPAC') %]
+                [% IF apikeysview %]
+                  <li class="active">
+                [% ELSE %]
+                  <li>
+                [% END %]
+                  <a href="/cgi-bin/koha/opac-apikeys.pl">your API keys</a>
+            [% END %]
+            </li>
         </ul>
     </div>
 [% END %]

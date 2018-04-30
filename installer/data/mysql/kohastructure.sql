@@ -1714,6 +1714,26 @@ CREATE TABLE borrower_sync (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
+-- Table structure for table api_keys
+--
+
+DROP TABLE IF EXISTS `api_keys`;
+CREATE TABLE `api_keys` (
+    `client_id`   VARCHAR(191) NOT NULL,           -- API client ID
+    `secret`      VARCHAR(191) NOT NULL,           -- API client secret used for API authentication
+    `description` VARCHAR(255) NOT NULL,           -- API client description
+    `patron_id`   INT(11) NOT NULL,                -- Foreign key to the borrowers table
+    `active`      TINYINT(1) DEFAULT 1 NOT NULL,   -- 0 means this API key is revoked
+    PRIMARY KEY `client_id` (`client_id`),
+    UNIQUE KEY `secret` (`secret`),
+    KEY `patron_id` (`patron_id`),
+    CONSTRAINT `api_keys_fk_patron_id`
+      FOREIGN KEY (`patron_id`)
+      REFERENCES `borrowers` (`borrowernumber`)
+      ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
 -- Table structure for table `issues`
 --
 
@@ -4159,6 +4179,18 @@ CREATE TABLE library_groups (
     FOREIGN KEY (parent_id) REFERENCES library_groups(id) ON UPDATE CASCADE ON DELETE CASCADE,
     FOREIGN KEY (branchcode) REFERENCES branches(branchcode) ON UPDATE CASCADE ON DELETE CASCADE,
     UNIQUE KEY title ( title )
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table 'oauth_access_tokens'
+--
+
+DROP TABLE IF EXISTS `oauth_access_tokens`;
+CREATE TABLE `oauth_access_tokens` (
+    `access_token` VARCHAR(191) NOT NULL, -- generarated access token
+    `client_id`    VARCHAR(191) NOT NULL, -- the client id the access token belongs to
+    `expires`      INT NOT NULL,          -- expiration time in seconds
+    PRIMARY KEY (`access_token`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;

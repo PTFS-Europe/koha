@@ -1,0 +1,111 @@
+[% USE Koha %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Koha &rsaquo; Patrons &rsaquo; API Keys</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+<body id="pat_apikeys" class="pat">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'patron-search.inc' %]
+
+<div id="breadcrumbs">
+    <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+    &rsaquo;
+    <a href="/cgi-bin/koha/members/members-home.pl">Patrons</a>
+    &rsaquo;
+    API Keys for [% INCLUDE 'patron-title.inc' %]
+</div>
+
+<div id="doc3" class="yui-t2">
+    <div id="bd">
+        <div id="yui-main">
+            <div class="yui-b">
+                [% INCLUDE 'members-toolbar.inc' %]
+
+                <h1>API keys for [% INCLUDE 'patron-title.inc' %]</h1>
+                <form id="add-api-key" action="/cgi-bin/koha/members/apikeys.pl" method="post" style="display:none">
+                    <input type="hidden" name="patron_id" value="[% patron.id %]" />
+                    <input type="hidden" name="csrf_token" value="[% csrf_token %]" />
+                    <input type="hidden" name="op" value="generate" />
+                    <fieldset class="brief">
+                        <legend>Generate new client id/secret pair</legend>
+                        <ol>
+                            <li>
+                                <label for="description">Description: </label>
+                                <input type="text" name="description" />
+                                <input type="submit" value="Save" />
+                                <a href="#" class="cancel toggle_element" data-element="#add-api-key">Cancel</a>
+                            </li>
+                        </ol>
+                    </fieldset>
+                </form>
+
+                <div id="keys">
+                    [% IF api_keys && api_keys.size > 0 %]
+                        <p>
+                            <button class="btn btn-default btn-xs toggle_element" type="submit" id="show-api-form" data-element="#add-api-key"><i class="fa fa-plus"></i> Generate a new client id/key pair</button>
+                        </p>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Description</th>
+                                    <th>Client ID</th>
+                                    <th>Secret</th>
+                                    <th>Active</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                [% FOREACH key IN api_keys %]
+                                    <tr>
+                                        <td>[% key.description %]</td>
+                                        <td>[% key.client_id %]</td>
+                                        <td>[% key.secret %]</td>
+                                        <td>[% IF key.active %]Yes[% ELSE %]No[% END %]</td>
+                                        <td>
+                                            <form action="/cgi-bin/koha/members/apikeys.pl" method="post">
+                                                <input type="hidden" name="patron_id" value="[% patron.id %]" />
+                                                <input type="hidden" name="key" value="[% key.id %]" />
+                                                <input type="hidden" name="csrf_token" value="[% csrf_token %]" />
+                                                <input type="hidden" name="op" value="delete" />
+                                                <button class="btn btn-default btn-xs delete" type="submit"><i class="fa fa-trash"></i> Delete</button>
+                                            </form>
+                                            <form action="/cgi-bin/koha/members/apikeys.pl" method="post">
+                                                <input type="hidden" name="patron_id" value="[% patron.id %]" />
+                                                <input type="hidden" name="key" value="[% key.id %]" />
+                                                <input type="hidden" name="csrf_token" value="[% csrf_token %]" />
+                                                [% IF key.active %]
+                                                    <input type="hidden" name="op" value="revoke" />
+                                                    <button class="btn btn-default btn-xs" type="submit"><i class="fa fa-remove"></i> Revoke</button>
+                                                [% ELSE %]
+                                                    <input type="hidden" name="op" value="activate" />
+                                                    <button class="btn btn-default btn-xs" type="submit"><i class="fa fa-play"></i> Activate</button>
+                                                [% END %]
+                                            </form>
+                                        </td>
+                                    </tr>
+                                [% END %]
+                            </tbody>
+                        </table>
+                    [% ELSE %]
+                        <div class="dialog message">No keys defined for the current patron. <a href="#" class="toggle_element" data-element="#add-api-key" id="show-api-form"><i class="fa fa-plus"></i> Generate a new client id/secret pair</div>
+                    [% END %]
+                </div>
+            </div>
+        </div>
+        <div class="yui-b">
+            [% INCLUDE 'circ-menu.inc' %]
+        </div>
+    </div>
+
+[% MACRO jsinclude BLOCK %]
+        <script>
+            $(document).ready(function(){
+                $(".delete").on("click", function(e){
+                    return confirmDelete(_("Are you sure you want to delete this key?"));
+                });
+            });
+        </script>
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' %]
