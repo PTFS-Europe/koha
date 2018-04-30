@@ -325,7 +325,7 @@ function cloneField(index) {
 
     // settings all subfields
     for(var i=0,divslen = divs.length ; i<divslen ; i++){      // foreach div
-        if(divs[i].getAttribute("id").match(/^subfield/)){  // if it s a subfield
+        if(divs[i].getAttribute("class").match(/^subfield_line/) && divs[i].getAttribute("id").match(/^subfield/)){  // if it s a subfield
 
             // set the attribute for the new 'div' subfields
             divs[i].setAttribute('id',divs[i].getAttribute('id')+new_key);
@@ -435,7 +435,7 @@ function cloneField(index) {
             buttonUp.setAttribute('onclick',"upSubfield('" + divs[i].getAttribute('id') + "')");
 
         } else { // it's a indicator div
-            if(divs[i].getAttribute('id').match(/^div_indicator/)){
+            if(divs[i].getAttribute("class").match(/^tag_title/) && divs[i].getAttribute('id').match(/^div_indicator/)){
                 var inputs = divs[i].getElementsByTagName('input');
                 inputs[0].setAttribute('id',inputs[0].getAttribute('id')+new_key);
                 inputs[1].setAttribute('id',inputs[1].getAttribute('id')+new_key);
