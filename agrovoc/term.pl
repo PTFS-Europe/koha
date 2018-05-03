@@ -140,8 +140,13 @@ sub retrieve_concept {
         $concept_hash->{$arr_label} = $tmp_arr;
     }
     $concept_hash->{Definitions} = getDefinitions( $termcode, $language );
-    $concept_hash->{Definitions} =~ s/^\s*//;
-    if ( $concept_hash->{Definitions} eq q{[Scope Note:]} ) {
+    if ( $concept_hash->{Definitions} ) {
+        $concept_hash->{Definitions} =~ s/^\s*//;
+        if ( $concept_hash->{Definitions} eq q{[Scope Note:]} ) {
+            $concept_hash->{Definitions} = q{};
+        }
+    }
+    else {
         $concept_hash->{Definitions} = q{};
     }
 
