@@ -202,6 +202,12 @@ __PACKAGE__->table("biblioitems");
   data_type: 'integer'
   is_nullable: 1
 
+=head2 deleted_at
+
+  data_type: 'datetime'
+  datetime_undef_if_invalid: 1
+  is_nullable: 1
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -279,6 +285,12 @@ __PACKAGE__->add_columns(
   { data_type => "varchar", is_nullable => 1, size => 255 },
   "totalissues",
   { data_type => "integer", is_nullable => 1 },
+  "deleted_at",
+  {
+    data_type => "datetime",
+    datetime_undef_if_invalid => 1,
+    is_nullable => 1,
+  },
 );
 
 =head1 PRIMARY KEY
@@ -326,8 +338,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07042 @ 2018-02-16 17:54:53
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ogVRTKNaUQSI3BE2xC2lww
+# Created by DBIx::Class::Schema::Loader v0.07042 @ 2018-05-11 12:03:24
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:uvdBu01oA3TCk0mm2jlhPA
 
 __PACKAGE__->belongs_to( biblio => "Koha::Schema::Result::Biblio", "biblionumber" );
 
