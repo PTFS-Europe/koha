@@ -109,7 +109,7 @@ if ( $op eq 'add_form' ) {
         {   -or => {
                 holdingbranch => $branchcode,
                 homebranch    => $branchcode,
-                deleted_at    => undef,
+                deleted_on    => undef,
             },
         }
     )->count;

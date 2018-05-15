@@ -46,7 +46,7 @@ my $fullreportname = "reports/catalogue_stats.tt";
 my $do_it       = $input->param('do_it');
 my $line        = $input->param("Line");
 my $column      = $input->param("Column");
-my $cellvalue      = $input->param("Cellvalue"); # one of 'items', 'biblios', 'deleteditems'
+my $cellvalue   = $input->param("Cellvalue"); # one of 'items', 'biblios'
 my @filters     = $input->multi_param("Filter");
 my $cotedigits  = $input->param("cotedigits");
 my $output      = $input->param("output");
@@ -173,9 +173,9 @@ sub calculate {
     my $barcodefilter = @$filters[17];
     my $not;
     my $itemstable = 'items';
-    my $deleted_where = "items.deleted_at IS NULL";
+    my $deleted_where = "items.deleted_on IS NULL";
     $deleted_where = "1" if $cellvalue eq 'allitems';
-    $deleted_where = "items.deleted_at IS NOT NULL" if $cellvalue eq 'deleteditems';
+    $deleted_where = "items.deleted_on IS NOT NULL" if $cellvalue eq 'items';
 
     my $dbh = C4::Context->dbh;
 
@@ -250,8 +250,8 @@ sub calculate {
     $linefilter[0] = @$filters[10] if ( $line =~ /items\.materials/ );
     $linefilter[0] = @$filters[13] if ( $line =~ /items\.dateaccessioned/ );
     $linefilter[1] = @$filters[14] if ( $line =~ /items\.dateaccessioned/ );
-    $linefilter[0] = @$filters[15] if ( $line =~ /deleteditems\.timestamp/ );
-    $linefilter[1] = @$filters[16] if ( $line =~ /deleteditems\.timestamp/ );
+    $linefilter[0] = @$filters[15] if ( $line =~ /items\.deleted_on/ );
+    $linefilter[1] = @$filters[16] if ( $line =~ /items\.deleted_on/ );
 
     my @colfilter;
     $colfilter[0] = @$filters[0] if ( $column =~ /items\.itemcallnumber/ );
@@ -271,8 +271,8 @@ sub calculate {
     $colfilter[0] = @$filters[10] if ( $column =~ /items\.materials/ );
     $colfilter[0] = @$filters[13] if ( $column =~ /items.dateaccessioned/ );
     $colfilter[1] = @$filters[14] if ( $column =~ /items\.dateaccessioned/ );
-    $colfilter[0] = @$filters[15] if ( $column =~ /deleteditems\.timestamp/ );
-    $colfilter[1] = @$filters[16] if ( $column =~ /deleteditems\.timestamp/ );
+    $colfilter[0] = @$filters[15] if ( $column =~ /items\.deleted_on/ );
+    $colfilter[1] = @$filters[16] if ( $column =~ /items\.deleted_on/ );
 
     # 1st, loop rows.
     my $origline = $line;
@@ -338,7 +338,7 @@ sub calculate {
     my $colfield;
     if ( ( $column =~ /itemcallnumber/ ) and ($cotedigits) ) {
         $colfield = "left($column,$cotedigits)";
-    } elsif ( $column =~ /^deleteditems\.timestamp$/ ) {
+    } elsif ( $column =~ /^items\.deleted_on$/ ) {
         $colfield = "DATE($column)";
     } else {
         $colfield = $column;
@@ -499,14 +499,14 @@ sub calculate {
         @$filters[14] =~ s/\*/%/g;
         push @sqlargs, @$filters[14];
     }
-    if ( $cellvalue eq 'deleteditems' and @$filters[15] ) {
-        $strcalc .= " AND DATE(deleted_at) >= ? ";
+    if ( $cellvalue eq 'items' and @$filters[15] ) {
+        $strcalc .= " AND DATE(deleted_on) >= ? ";
         @$filters[15] =~ s/\*/%/g;
         push @sqlargs, @$filters[15];
     }
-    if ( $cellvalue eq 'deleteditems' and @$filters[16] ) {
+    if ( $cellvalue eq 'items' and @$filters[16] ) {
         @$filters[16] =~ s/\*/%/g;
-        $strcalc .= " AND DATE(deleted_at) <= ?";
+        $strcalc .= " AND DATE(deleted_on) <= ?";
         push @sqlargs, @$filters[16];
     }
     $strcalc .= " group by $linefield, $colfield order by $linefield,$colfield";

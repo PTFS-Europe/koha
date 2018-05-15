@@ -451,7 +451,7 @@ subtest 'delete biblio' => sub {
     my $err = C4::Biblio::DelBiblio( $biblionumber );
     is($err, undef, 'Biblio deleted without error');
     my $data = GetBiblioData( $biblionumber );
-    isnt( $data->{deleted_at}, undef, 'Biblio deleted with timestamp' );
+    isnt( $data->{deleted_on}, undef, 'Biblio deleted with timestamp' );
 };
 
 # Cleanup

@@ -229,8 +229,8 @@
             </tr>
             <tr id="removeddatetr">
                 <td>Date deleted (item)</td>
-                <td><input type="radio" name="Line" value="deleteditems.timestamp" /></td>
-                <td><input type="radio" name="Column" value="deleteditems.timestamp" /></td>
+                <td><input type="radio" name="Line" value="items.deleted_on" /></td>
+                <td><input type="radio" name="Column" value="items.deleted_on" /></td>
                 <td>
                     <label for="deldateFrom">From</label>
                     <input type="text" name="Filter" id="deldateFrom" class="datepicker" />
@@ -305,12 +305,12 @@
             var Cellvalue = $("input[name='Cellvalue']:checked").val();
             if(Cellvalue == "deleteditems") {
                 $("#removeddatetr").show();
-                $("input[value='deleteditems.timestamp']").prop('disabled', false);
+                $("input[value='items.deleted_on']").prop('disabled', false);
                 $("#deldateFrom").prop('disabled', false);
                 $("#deldateTo").prop('disabled', false);
             } else {
                 $("#removeddatetr").hide();
-                $("input[value='deleteditems.timestamp']").prop('disabled', true).prop('checked', false);
+                $("input[value='items.deleted_on']").prop('disabled', true).prop('checked', false);
                 $("#deldateFrom").prop('disabled', true).val('');
                 $("#deldateTo").prop('disabled', true).val('');
             }

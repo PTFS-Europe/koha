@@ -286,7 +286,7 @@ if ( $query->param('place_reserve') ) {
         }
 
         unless ( $can_place_hold_if_available_at_pickup ) {
-            my $items_in_this_library = Koha::Items->search({ biblionumber => $biblioNum, holdingbranch => $branch, deleted_at => undef });
+            my $items_in_this_library = Koha::Items->search({ biblionumber => $biblioNum, holdingbranch => $branch, deleted_on => undef });
             my $nb_of_items_issued = $items_in_this_library->search({ 'issue.itemnumber' => { not => undef }}, { join => 'issue' })->count;
             my $nb_of_items_unavailable = $items_in_this_library->search({ -or => { lost => { '!=' => 0 }, damaged => { '!=' => 0 }, } });
             if ( $items_in_this_library->count > $nb_of_items_issued + $nb_of_items_unavailable ) {
@@ -537,7 +537,7 @@ foreach my $biblioNum (@biblionumbers) {
             $numCopiesAvailable++;
 
             unless ( $can_place_hold_if_available_at_pickup ) {
-                my $items_in_this_library = Koha::Items->search({ biblionumber => $itemInfo->{biblionumber}, holdingbranch => $itemInfo->{holdingbranch}, deleted_at => undef });
+                my $items_in_this_library = Koha::Items->search({ biblionumber => $itemInfo->{biblionumber}, holdingbranch => $itemInfo->{holdingbranch}, deleted_on => undef });
                 my $nb_of_items_issued = $items_in_this_library->search({ 'issue.itemnumber' => { not => undef }}, { join => 'issue' })->count;
                 if ( $items_in_this_library->count > $nb_of_items_issued ) {
                     push @not_available_at, $itemInfo->{holdingbranch};

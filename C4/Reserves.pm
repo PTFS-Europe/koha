@@ -1132,7 +1132,7 @@ sub IsAvailableForItemLevelRequest {
         return 1;
     } elsif ( $on_shelf_holds == 2 ) {
         my @items =
-          Koha::Items->search( { biblionumber => $item->{biblionumber}, deleted_at => undef } );
+          Koha::Items->search( { biblionumber => $item->{biblionumber}, deleted_on => undef } );
 
         my $any_available = 0;
 
@@ -2054,7 +2054,7 @@ sub GetMaxPatronHoldsForRecord {
     my ( $borrowernumber, $biblionumber ) = @_;
 
     my $patron = Koha::Patrons->find($borrowernumber);
-    my @items = Koha::Items->search( { biblionumber => $biblionumber, deleted_at => undef } );
+    my @items = Koha::Items->search( { biblionumber => $biblionumber, deleted_on => undef } );
 
     my $controlbranch = C4::Context->preference('ReservesControlBranch');
 

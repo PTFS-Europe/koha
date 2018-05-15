@@ -52,7 +52,7 @@ sub GetRecords {
     my $include_items = $repository->items_included( $format );
 
     my $sql = "
-        SELECT biblionumber, deleted_at
+        SELECT biblionumber, deleted_on
         FROM biblio_metadata
         WHERE (timestamp >= ? AND timestamp <= ?)
     ";
@@ -96,7 +96,7 @@ sub GetRecords {
     my $record_sth = $dbh->prepare( $sql ) || die( 'Could not prepare statement: ' . $dbh->errstr );
 
     $sth->execute( @bind_params ) || die( 'Could not execute statement: ' . $sth->errstr );
-    while ( my ($biblionumber, $deleted_at) = $sth->fetchrow ) {
+    while ( my ($biblionumber, $deleted_on) = $sth->fetchrow ) {
         $count++;
         if ( $count > $max ) {
             $self->resumptionToken(
@@ -120,7 +120,7 @@ sub GetRecords {
             push @setSpecs, $_->{spec};
         }
         if ( $metadata ) {
-            my $marcxml = !$deleted_at ? $repository->get_biblio_marcxml($biblionumber, $format) : undef;
+            my $marcxml = !$deleted_on ? $repository->get_biblio_marcxml($biblionumber, $format) : undef;
             if ( $marcxml ) {
                 $self->record( Koha::OAI::Server::Record->new(
                     $repository, $marcxml, $timestamp, \@setSpecs,
@@ -138,7 +138,7 @@ sub GetRecords {
             $self->identifier( new HTTP::OAI::Header(
                 identifier => $repository->{ koha_identifier} . ':' . $biblionumber,
                 datestamp  => $timestamp,
-                status     => $deleted_at ? 'deleted' : undef
+                status     => $deleted_on ? 'deleted' : undef
             ) );
         }
     }

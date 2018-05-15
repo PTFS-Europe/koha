@@ -471,13 +471,13 @@ sub _gen_default_values {
             borrowernotes  => '',
         },
         Biblio => {
-            deleted_at => undef,
+            deleted_on => undef,
         },
         Biblioitems => {
-            deleted_at => undef,
+            deleted_on => undef,
         },
         BiblioMetadata => {
-            deleted_at => undef,
+            deleted_on => undef,
         },
         Item => {
             notforloan         => 0,
@@ -485,7 +485,7 @@ sub _gen_default_values {
             withdrawn          => 0,
             restricted         => 0,
             more_subfields_xml => undef,
-            deleted_at => undef,
+            deleted_on => undef,
         },
         Category => {
             enrolmentfee => 0,

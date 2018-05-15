@@ -838,7 +838,7 @@ sub GetItemsForInventory {
         FROM items
         LEFT JOIN biblio ON items.biblionumber = biblio.biblionumber
         LEFT JOIN biblioitems on items.biblionumber = biblioitems.biblionumber
-        WHERE (items.deleted_at IS NULL AND biblio.deleted_at IS NULL AND biblioitems.deleted_at IS NULL)
+        WHERE (items.deleted_on IS NULL AND biblio.deleted_on IS NULL AND biblioitems.deleted_on IS NULL)
     };
     if ($statushash){
         for my $authvfield (keys %$statushash){
@@ -945,7 +945,7 @@ Called by C<C4::XISBN>
 sub GetItemsByBiblioitemnumber {
     my ( $bibitem ) = @_;
     my $dbh = C4::Context->dbh;
-    my $sth = $dbh->prepare("SELECT * FROM items WHERE items.biblioitemnumber = ? AND items.deleted_at IS NULL") || die $dbh->errstr;
+    my $sth = $dbh->prepare("SELECT * FROM items WHERE items.biblioitemnumber = ? AND items.deleted_on IS NULL") || die $dbh->errstr;
     # Get all items attached to a biblioitem
     my $i = 0;
     my @results;
@@ -1069,7 +1069,7 @@ sub GetItemsInfo {
         FROM items
         LEFT JOIN branches AS holding ON items.holdingbranch = holding.branchcode
         LEFT JOIN branches AS home ON items.homebranch=home.branchcode
-        LEFT JOIN biblio      ON      biblio.biblionumber     = items.biblionumber AND biblio.deleted_at IS NULL
+        LEFT JOIN biblio      ON      biblio.biblionumber     = items.biblionumber AND biblio.deleted_on IS NULL
         LEFT JOIN biblioitems ON biblioitems.biblioitemnumber = items.biblioitemnumber
         LEFT JOIN issues USING (itemnumber)
         LEFT JOIN borrowers USING (borrowernumber)
@@ -1083,7 +1083,7 @@ sub GetItemsInfo {
             AND localization.lang = ?
     |;
 
-    $query .= " WHERE items.biblionumber = ? AND items.deleted_at IS NULL ORDER BY home.branchname, items.enumchron, LPAD( items.copynumber, 8, '0' ), items.dateaccessioned DESC" ;
+    $query .= " WHERE items.biblionumber = ? AND items.deleted_on IS NULL ORDER BY home.branchname, items.enumchron, LPAD( items.copynumber, 8, '0' ), items.dateaccessioned DESC" ;
     my $sth = $dbh->prepare($query);
     $sth->execute($language, $biblionumber);
     my $i = 0;
@@ -1190,7 +1190,7 @@ sub GetItemsLocationInfo {
                 location, itemcallnumber, cn_sort
                 FROM items, branches as a, branches as b
                 WHERE homebranch = a.branchcode AND holdingbranch = b.branchcode
-                AND biblionumber = ? AND deleted_at IS NULL
+                AND biblionumber = ? AND deleted_on IS NULL
                 ORDER BY cn_sort ASC";
     my $sth = $dbh->prepare($query);
         $sth->execute($biblionumber);
@@ -1261,7 +1261,7 @@ sub  GetLastAcquisitions {
     my $number_of_branches = @{$data->{branches}};
     my $number_of_itemtypes   = @{$data->{itemtypes}};
 
-    my @where = ('WHERE (items.deleted_at IS NULL AND biblio.deleted_at IS NULL AND biblioitems.deleted_at IS NULL)');
+    my @where = ('WHERE (items.deleted_on IS NULL AND biblio.deleted_on IS NULL AND biblioitems.deleted_on IS NULL)');
     $number_of_branches and push @where
        , 'AND holdingbranch IN ('
        , join(',', ('?') x $number_of_branches )
@@ -1308,7 +1308,7 @@ sub GetItemnumbersForBiblio {
     my $biblionumber = shift;
     my @items;
     my $dbh = C4::Context->dbh;
-    my $sth = $dbh->prepare("SELECT itemnumber FROM items WHERE biblionumber = ? AND deleted_at IS NULL");
+    my $sth = $dbh->prepare("SELECT itemnumber FROM items WHERE biblionumber = ? AND deleted_on IS NULL");
     $sth->execute($biblionumber);
     while (my $result = $sth->fetchrow_hashref) {
         push @items, $result->{'itemnumber'};
@@ -2084,7 +2084,7 @@ sub _koha_delete_item {
 
     my $dbh = C4::Context->dbh;
 
-    my $sth = $dbh->prepare("UPDATE items SET deleted_at = NOW() WHERE itemnumber = ?");
+    my $sth = $dbh->prepare("UPDATE items SET deleted_on = NOW() WHERE itemnumber = ?");
     my $deleted = $sth->execute($itemnum);
     return ( $deleted == 1 ) ? 1 : 0;
 }
@@ -2449,7 +2449,7 @@ sub SearchItems {
             LEFT JOIN biblio ON biblio.biblionumber = items.biblionumber
             LEFT JOIN biblioitems ON biblioitems.biblioitemnumber = items.biblioitemnumber
             LEFT JOIN biblio_metadata ON biblio_metadata.biblionumber = biblio.biblionumber
-            WHERE items.deleted_at IS NULL
+            WHERE items.deleted_on IS NULL
     };
     if (defined $where_str and $where_str ne '') {
         $query .= qq{ AND $where_str };
@@ -2800,7 +2800,7 @@ sub ToggleNewStatus {
             SELECT items.biblionumber, items.itemnumber
             FROM items
             LEFT JOIN biblioitems ON biblioitems.biblionumber = items.biblionumber
-            WHERE items.deleted_at IS NULL
+            WHERE items.deleted_on IS NULL
         |;
         for my $condition ( @$conditions ) {
             if (

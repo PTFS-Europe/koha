@@ -250,7 +250,7 @@ or list of Koha::Item objects in list context.
 sub items {
     my ($self) = @_;
 
-    $self->{_items} ||= Koha::Items->search( { biblionumber => $self->biblionumber(), deleted_at => undef } );
+    $self->{_items} ||= Koha::Items->search( { biblionumber => $self->biblionumber(), deleted_on => undef } );
 
     return wantarray ? $self->{_items}->as_list : $self->{_items};
 }

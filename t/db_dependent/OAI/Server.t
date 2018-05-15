@@ -65,9 +65,6 @@ my $dbh = C4::Context->dbh;
 $dbh->do("SET time_zone='+00:00'");
 $dbh->do('DELETE FROM issues');
 $dbh->do('DELETE FROM biblio');
-$dbh->do('DELETE FROM deletedbiblio');
-$dbh->do('DELETE FROM deletedbiblioitems');
-$dbh->do('DELETE FROM deleteditems');
 $dbh->do('DELETE FROM oai_sets');
 
 set_fixed_time(CORE::time());

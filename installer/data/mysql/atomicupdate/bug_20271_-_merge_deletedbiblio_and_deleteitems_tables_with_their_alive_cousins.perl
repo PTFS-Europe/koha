@@ -1,26 +1,26 @@
 $DBversion = 'XXX';  # will be replaced by the RM
 if( CheckVersion( $DBversion ) ) {
-    $dbh->do( "ALTER TABLE biblio ADD COLUMN deleted_at datetime DEFAULT NULL" ) or warn $DBI::errstr;
-    $dbh->do( "ALTER TABLE biblioitems ADD COLUMN deleted_at datetime DEFAULT NULL" ) or warn $DBI::errstr;
-    $dbh->do( "ALTER TABLE biblio_metadata ADD COLUMN deleted_at datetime DEFAULT NULL" ) or warn $DBI::errstr;
-    $dbh->do( "ALTER TABLE items ADD COLUMN deleted_at datetime DEFAULT NULL" ) or warn $DBI::errstr;
+    $dbh->do( "ALTER TABLE biblio ADD COLUMN deleted_on datetime DEFAULT NULL" ) or warn $DBI::errstr;
+    $dbh->do( "ALTER TABLE biblioitems ADD COLUMN deleted_on datetime DEFAULT NULL" ) or warn $DBI::errstr;
+    $dbh->do( "ALTER TABLE biblio_metadata ADD COLUMN deleted_on datetime DEFAULT NULL" ) or warn $DBI::errstr;
+    $dbh->do( "ALTER TABLE items ADD COLUMN deleted_on datetime DEFAULT NULL" ) or warn $DBI::errstr;
 
     # Need to disable foreign keys on deletedbiblio_metadata to avoid cascading deletes from deletedbiblio
     # Bug 17196 introduced a mismatch in foreign keys of deletedbiblio_metadata, so any key must be dropped
     DropAllForeignKeys('deletedbiblio_metadata');
-    $dbh->do( "INSERT IGNORE INTO biblio SELECT *, timestamp AS deleted_at FROM deletedbiblio" ) or warn $DBI::errstr;
+    $dbh->do( "INSERT IGNORE INTO biblio SELECT *, timestamp AS deleted_on FROM deletedbiblio" ) or warn $DBI::errstr;
     # We also need to make sure foreign keys references are in place, as Mysql < 5.7 aborts on foreign key errors
     $dbh->do( "INSERT IGNORE INTO biblioitems (
-        SELECT *, timestamp AS deleted_at FROM deletedbiblioitems
+        SELECT *, timestamp AS deleted_on FROM deletedbiblioitems
         WHERE biblionumber IN (SELECT biblionumber FROM biblio)
     )" ) or warn $DBI::errstr;
     # biblio_metadata needs special handling since there is an extra autoincrement id that cannot be moved
-    $dbh->do( "INSERT IGNORE INTO biblio_metadata (biblionumber, format, marcflavour, metadata, timestamp, deleted_at) (
-        SELECT biblionumber, format, marcflavour, metadata, timestamp, timestamp AS deleted_at FROM deletedbiblio_metadata
+    $dbh->do( "INSERT IGNORE INTO biblio_metadata (biblionumber, format, marcflavour, metadata, timestamp, deleted_on) (
+        SELECT biblionumber, format, marcflavour, metadata, timestamp, timestamp AS deleted_on FROM deletedbiblio_metadata
         WHERE biblionumber IN (SELECT biblionumber FROM biblio)
     )" ) or warn $DBI::errstr;
     $dbh->do( "INSERT IGNORE INTO items (
-        SELECT *, timestamp AS deleted_at FROM deleteditems
+        SELECT *, timestamp AS deleted_on FROM deleteditems
         WHERE biblioitemnumber IN (SELECT biblioitemnumber FROM biblioitems)
         AND homebranch IN (SELECT homebranch FROM branches)
         AND holdingbranch IN (SELECT holdingbranch FROM branches)

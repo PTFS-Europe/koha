@@ -441,14 +441,6 @@ if (  C4::Context->preference('WebBasedSelfCheck')
         q|select b.borrowernumber from borrowers b join deletedborrowers db on b.borrowernumber=db.borrowernumber|,
         { Slice => {} }
     );
-    my $biblios = $dbh->selectall_arrayref(
-        q|select b.biblionumber from biblio b join deletedbiblio db on b.biblionumber=db.biblionumber|,
-        { Slice => {} }
-    );
-    my $items = $dbh->selectall_arrayref(
-        q|select i.itemnumber from items i join deleteditems di on i.itemnumber=di.itemnumber|,
-        { Slice => {} }
-    );
     my $checkouts = $dbh->selectall_arrayref(
         q|select i.issue_id from issues i join old_issues oi on i.issue_id=oi.issue_id|,
         { Slice => {} }
@@ -461,8 +453,6 @@ if (  C4::Context->preference('WebBasedSelfCheck')
         $template->param(
             has_ai_issues => 1,
             ai_patrons    => $patrons,
-            ai_biblios    => $biblios,
-            ai_items      => $items,
             ai_checkouts  => $checkouts,
             ai_holds      => $holds,
         );

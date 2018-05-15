@@ -140,7 +140,7 @@ CREATE TABLE `biblio` ( -- table that stores bibliographic information
   `timestamp` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP, -- date and time this record was last touched
   `datecreated` DATE NOT NULL, -- the date this record was added to Koha
   `abstract` LONGTEXT, -- summary from the MARC record (520$a in MARC21)
-  `deleted_at` datetime DEFAULT NULL, -- timestamp of deletion
+  `deleted_on` datetime DEFAULT NULL, -- timestamp of deletion
   PRIMARY KEY  (`biblionumber`),
   KEY `blbnoidx` (`biblionumber`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -194,7 +194,7 @@ CREATE TABLE `biblioitems` ( -- information related to bibliographic records in 
   `cn_sort` varchar(255) default NULL, -- normalized version of the call number used for sorting
   `agerestriction` varchar(255) default NULL, -- target audience/age restriction from the bib record (MARC21 521$a)
   `totalissues` int(10),
-  `deleted_at` datetime DEFAULT NULL, -- timestamp of deletion
+  `deleted_on` datetime DEFAULT NULL, -- timestamp of deletion
   PRIMARY KEY  (`biblioitemnumber`),
   KEY `bibinoidx` (`biblioitemnumber`),
   KEY `bibnoidx` (`biblionumber`),
@@ -800,7 +800,7 @@ CREATE TABLE `items` ( -- holdings/item information
   `copynumber` varchar(32) default NULL, -- copy number (MARC21 952$t)
   `stocknumber` varchar(32) default NULL, -- inventory number (MARC21 952$i)
   `new_status` VARCHAR(32) DEFAULT NULL, -- 'new' value, you can put whatever free-text information. This field is intented to be managed by the automatic_item_modification_by_age cronjob.
-  `deleted_at` datetime DEFAULT NULL, -- timestamp of deletion
+  `deleted_on` datetime DEFAULT NULL, -- timestamp of deletion
   PRIMARY KEY  (`itemnumber`),
   UNIQUE KEY `itembarcodeidx` (`barcode`),
   KEY `itemstocknumberidx` (`stocknumber`),
@@ -3833,7 +3833,7 @@ CREATE TABLE biblio_metadata (
     `marcflavour` VARCHAR(16) NOT NULL,
     `metadata` LONGTEXT NOT NULL,
     `timestamp` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
-    `deleted_at` datetime DEFAULT NULL, -- timestamp of deletion
+    `deleted_on` datetime DEFAULT NULL, -- timestamp of deletion
     PRIMARY KEY(id),
     UNIQUE KEY `biblio_metadata_uniq_key` (`biblionumber`,`format`,`marcflavour`),
     CONSTRAINT `record_metadata_fk_1` FOREIGN KEY (biblionumber) REFERENCES biblio (biblionumber) ON DELETE CASCADE ON UPDATE CASCADE,

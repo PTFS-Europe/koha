@@ -39,7 +39,7 @@ sub new {
     my $sql = "
         SELECT timestamp
         FROM   biblioitems
-        WHERE  biblionumber=? AND deleted_at IS NULL
+        WHERE  biblionumber=? AND deleted_on IS NULL
     ";
     my @bind_params = ($biblionumber);
     if ( $items_included ) {
@@ -63,7 +63,7 @@ sub new {
         $sql = "
             SELECT timestamp
             FROM biblio
-            WHERE biblionumber=? AND deleted_at IS NOT NULL
+            WHERE biblionumber=? AND deleted_on IS NOT NULL
         ";
         @bind_params = ($biblionumber);
 
@@ -72,7 +72,7 @@ sub new {
             $sql .= "
                 UNION
                 SELECT timestamp from items
-                WHERE biblionumber=? AND deleted_at IS NULL
+                WHERE biblionumber=? AND deleted_on IS NULL
             ";
             push @bind_params, $biblionumber;
             $sql = "

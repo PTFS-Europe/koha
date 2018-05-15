@@ -110,7 +110,7 @@ if ( $record_type eq 'bibs' ) {
         };
     } else {
         my $conditions = {
-            deleted_at => undef,
+            deleted_on => undef,
             ( $starting_biblionumber or $ending_biblionumber )
                 ? (
                     "me.biblionumber" => {
@@ -182,7 +182,7 @@ if ($deleted_barcodes) {
         my $barcode = $dbh->selectall_arrayref(q|
             SELECT DISTINCT barcode
             FROM items
-            WHERE deleteditems.biblionumber = ? AND deleted_at IS NOT NULL
+            WHERE biblionumber = ? AND deleted_on IS NOT NULL
         |, { Slice => {} }, $record_id );
         say $_->{barcode} for @$barcode;
     }

@@ -315,7 +315,7 @@ sub ModBiblio {
     # update biblionumber and biblioitemnumber in MARC
     # FIXME - this is assuming a 1 to 1 relationship between
     # biblios and biblioitems
-    my $sth = $dbh->prepare("select biblioitemnumber from biblioitems where biblionumber=? AND deleted_at IS NULL");
+    my $sth = $dbh->prepare("select biblioitemnumber from biblioitems where biblionumber=? AND deleted_on IS NULL");
     $sth->execute($biblionumber);
     my ($biblioitemnumber) = $sth->fetchrow;
     $sth->finish();
@@ -384,7 +384,7 @@ sub DelBiblio {
     my $error;    # for error handling
 
     # First make sure this biblio has no items attached
-    my $sth = $dbh->prepare("SELECT itemnumber FROM items WHERE biblionumber=? AND deleted_at IS NULL");
+    my $sth = $dbh->prepare("SELECT itemnumber FROM items WHERE biblionumber=? AND deleted_on IS NULL");
     $sth->execute($biblionumber);
     if ( my $itemnumber = $sth->fetchrow ) {
 
@@ -415,7 +415,7 @@ sub DelBiblio {
     ModZebra( $biblionumber, "recordDelete", "biblioserver" );
 
     # mark biblioitems and items as deleted
-    $sth = $dbh->prepare("SELECT biblioitemnumber FROM biblioitems WHERE biblionumber=? AND deleted_at IS NULL");
+    $sth = $dbh->prepare("SELECT biblioitemnumber FROM biblioitems WHERE biblionumber=? AND deleted_on IS NULL");
     $sth->execute($biblionumber);
     while ( my $biblioitemnumber = $sth->fetchrow ) {
 
@@ -1133,7 +1133,7 @@ sub GetMarcBiblio {
     }
 
     my $dbh          = C4::Context->dbh;
-    my $sth          = $dbh->prepare("SELECT biblioitemnumber FROM biblioitems WHERE biblionumber=? AND deleted_at IS NULL");
+    my $sth          = $dbh->prepare("SELECT biblioitemnumber FROM biblioitems WHERE biblionumber=? AND deleted_on IS NULL");
     $sth->execute($biblionumber);
     my $row     = $sth->fetchrow_hashref;
     my $biblioitemnumber = $row->{'biblioitemnumber'};
@@ -2756,7 +2756,7 @@ sub EmbedItemsInMarcBiblio {
 
     # ... and embed the current items
     my $dbh = C4::Context->dbh;
-    my $sth = $dbh->prepare("SELECT itemnumber FROM items WHERE biblionumber = ? and deleted_at IS NULL");
+    my $sth = $dbh->prepare("SELECT itemnumber FROM items WHERE biblionumber = ? and deleted_on IS NULL");
     $sth->execute($biblionumber);
     my @item_fields;
     my ( $itemtag, $itemsubfield ) = GetMarcFromKohaField( "items.itemnumber", $frameworkcode );
@@ -3086,7 +3086,7 @@ C<$biblionumber> - the biblionumber of the biblio (and metadata) to be marked as
 sub _koha_delete_biblio {
     my ( $dbh, $biblionumber ) = @_;
     _koha_delete_biblio_metadata( $biblionumber );
-    my $sth = $dbh->prepare("UPDATE biblio SET deleted_at = NOW() WHERE biblionumber=?");
+    my $sth = $dbh->prepare("UPDATE biblio SET deleted_on = NOW() WHERE biblionumber=?");
     return $sth->execute($biblionumber) ? undef : ($DBI::errstr || "unknown error");
 }
 
@@ -3105,7 +3105,7 @@ C<$biblionumber> - the biblioitemnumber of the biblioitem to be  marked as delet
 
 sub _koha_delete_biblioitems {
     my ( $dbh, $biblioitemnumber ) = @_;
-    my $sth = $dbh->prepare("UPDATE biblioitems SET deleted_at = NOW() WHERE biblioitemnumber=?");
+    my $sth = $dbh->prepare("UPDATE biblioitems SET deleted_on = NOW() WHERE biblioitemnumber=?");
     return $sth->execute($biblioitemnumber) ? undef : ($DBI::errstr || 'unknown error');
 }
 
@@ -3120,7 +3120,7 @@ C<$biblionumber> - the biblionumber of the biblio metadata to be  marked as dele
 sub _koha_delete_biblio_metadata {
     my ($biblionumber) = @_;
     my $dbh = C4::Context->dbh;
-    my $sth = $dbh->prepare("UPDATE biblio_metadata SET deleted_at = NOW() WHERE biblionumber=?");
+    my $sth = $dbh->prepare("UPDATE biblio_metadata SET deleted_on = NOW() WHERE biblionumber=?");
     return $sth->execute($biblionumber);
 }
 
