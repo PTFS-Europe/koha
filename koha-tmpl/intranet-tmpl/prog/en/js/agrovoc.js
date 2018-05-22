@@ -62,7 +62,7 @@ function addTermSaveButton(termcode, labels, language) {
     var div = document.getElementById('saveButtonBar');
     var b = document.createElement("button");
     var oldb   = div.getElementsByTagName("button");
-    var scriptTxt = 'saveTerm(' + termcode + ",'";
+    var scriptTxt = "saveTerm('" + termcode + "','";
     scriptTxt += escape(labels) + "','";
     scriptTxt += language + "'); return false;";
 
@@ -149,7 +149,7 @@ function replaceAltLang(termcode, langList)
 function termlinkButton(termcode, language, termtext)
 {
     var b = document.createElement("button");
-    var scriptTxt = 'lookupTerm(' + termcode + ",'";
+    var scriptTxt = "lookupTerm('" + termcode + "','";
     scriptTxt += language + "'); return false;";
     b.className = 'termlink';
     b.type = 'button'; // to ensure it dosent default to submit
@@ -162,7 +162,7 @@ function termlinkButton(termcode, language, termtext)
 function langButton(termcode, language, languageLabel)
 {
     var b = document.createElement("button");
-    var scriptTxt = 'lookupTerm(' + termcode + ",'";
+    var scriptTxt = "lookupTerm('" + termcode + "','";
     scriptTxt += language + "'); return false;";
     b.className = 'termlink';
     b.type = 'button'; // to ensure it dosent default to submit
@@ -206,7 +206,7 @@ function selectCheckbox(termcode, label, language)
 function selectCheckboxLeft(termcode, label, language)
 {
     var b = document.createElement("button");
-    var scriptTxt = 'saveTermLeft(' + termcode + ",'";
+    var scriptTxt = "saveTermLeft('" + termcode + "','";
     scriptTxt += escape(label) + "','";
     scriptTxt += language + "'); return false;";
 

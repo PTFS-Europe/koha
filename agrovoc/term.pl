@@ -78,7 +78,8 @@ sub retrieve_concept {
 
     my $concept_hash = {};
     $concept_hash->{termcode} = shift @concept_array;
-    $concept_hash->{termcode} =~ s/\D//g;    # remove surrounding [ ]
+    $concept_hash->{termcode} =~ s/^\[//;    # remove surrounding [ ]
+    $concept_hash->{termcode} =~ s/\]$//;
     my $other_avail_lang = {};
 
     my $labels  = shift @concept_array;
@@ -122,6 +123,15 @@ sub retrieve_concept {
         my $tmp_arr = [];   # cannot do this in place as we need to remove terms
                             # which lack a label in the interface language
         foreach my $tc ( @{ $concept_hash->{$arr_label} } ) {
+            if ($tc!~/^\d+$/) {
+                push @{$tmp_arr},
+                {
+                    termcode => $tc,
+                    label    => 'CANNOT RETRIEVE',
+                    language => $language,
+                };
+                next;
+            }
             my $term_label;
             eval { $term_label = getTermByLanguage( $tc, $language ); };
             if ($@) {
