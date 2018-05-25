@@ -63,10 +63,7 @@ print $json_text;
 sub retrieve_concept {
     my $termcode = shift;
     my $language = shift;
-    if ( $termcode && $termcode =~ m/(\d+)/ ) {
-        $termcode = $1;
-    }
-    else {
+    if (!$termcode) {
         return;
     }
     my %lang_map = (
