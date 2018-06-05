@@ -208,7 +208,7 @@
                                             [% ELSE %]
                                             <option value="[% alias.id %]">
                                             [% END %]
-                                                [% alias.authorised_value | html %]
+                                                [% alias.lib | html %]
                                             </option>
                                         [% END %]
                                     </select>
@@ -346,7 +346,7 @@
                                     <li class="status">
                                         <span class="label status">Status:</span>
                                         [% IF request.statusalias %]
-                                            [% request.statusalias.authorised_value | html %]
+                                            [% request.statusalias.lib | html %]
                                         [% ELSE %]
                                             [% request.capabilities.$req_status.name | html%]
                                         [% END %]
@@ -766,7 +766,7 @@
             // Render function for request status
             var createStatus = function(data, type, row, meta) {
                 if (row.status_alias) {
-                    return row.status_alias.authorised_value;
+                    return row.status_alias.lib;
                 } else {
                     var origData = meta.settings.oInit.originalData;
                     if (origData.length > 0) {
