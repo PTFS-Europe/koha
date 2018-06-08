@@ -101,7 +101,7 @@ Counts up the number of biblioitems and items with itemtype (code) and hands bac
 
 sub can_be_deleted {
     my ($self) = @_;
-    my $nb_items = Koha::Items->search( { itype => $self->itemtype, deleted_at => undef } )->count;
+    my $nb_items = Koha::Items->search( { itype => $self->itemtype, deleted_on => undef } )->count;
     my $nb_biblioitems = Koha::Biblioitems->search( { itemtype => $self->itemtype } )->count;
     return $nb_items + $nb_biblioitems == 0 ? 1 : 0;
 }
