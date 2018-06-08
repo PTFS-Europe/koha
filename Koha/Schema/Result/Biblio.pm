@@ -89,7 +89,7 @@ __PACKAGE__->table("biblio");
   data_type: 'longtext'
   is_nullable: 1
 
-=head2 deleted_at
+=head2 deleted_on
 
   data_type: 'datetime'
   datetime_undef_if_invalid: 1
@@ -127,7 +127,7 @@ __PACKAGE__->add_columns(
   { data_type => "date", datetime_undef_if_invalid => 1, is_nullable => 0 },
   "abstract",
   { data_type => "longtext", is_nullable => 1 },
-  "deleted_at",
+  "deleted_on",
   {
     data_type => "datetime",
     datetime_undef_if_invalid => 1,
@@ -360,7 +360,7 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07042 @ 2018-05-11 12:03:24
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:L2njvoe0LRdIdDsAEaye9w
+# Created by DBIx::Class::Schema::Loader v0.07042 @ 2018-06-08 09:34:53
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Gvv2jiMzhIa2osCaj3Ow6g
 
 1;

@@ -286,7 +286,7 @@ __PACKAGE__->table("items");
   is_nullable: 1
   size: 32
 
-=head2 deleted_at
+=head2 deleted_on
 
   data_type: 'datetime'
   datetime_undef_if_invalid: 1
@@ -412,7 +412,7 @@ __PACKAGE__->add_columns(
   { data_type => "varchar", is_nullable => 1, size => 32 },
   "new_status",
   { data_type => "varchar", is_nullable => 1, size => 32 },
-  "deleted_at",
+  "deleted_on",
   {
     data_type => "datetime",
     datetime_undef_if_invalid => 1,
@@ -699,8 +699,8 @@ __PACKAGE__->might_have(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07042 @ 2018-05-11 12:03:24
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:sTN/r9L4MvFONFQnopRNrg
+# Created by DBIx::Class::Schema::Loader v0.07042 @ 2018-06-08 09:34:53
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:mNzP0a/eqWMygxD2VfAAkA
 
 __PACKAGE__->belongs_to( biblioitem => "Koha::Schema::Result::Biblioitem", "biblioitemnumber" );
 
