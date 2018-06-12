@@ -88,6 +88,11 @@ if( CheckVersion( $DBversion ) ) {
         }
     }
 
+    {
+        my $sth = $dbh->prepare("UPDATE systempreferences SET options='Koha\'s deleted biblios will never be removed (persistent), might be removed (transient), or will always be removed (no)' WHERE variable='OAI-PMH:DeletedRecord'");
+        $sth->execute();
+    }
+
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 20271 - Merge deletedbiblio* and deleteitems tables with their alive cousins)\n";
 }
