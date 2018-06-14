@@ -443,16 +443,15 @@ subtest 'IsMarcStructureInternal' => sub {
     is( grep( /^ind2_defaultvalue$/, @internals ), 1, 'check indicator 2 default value' );
 };
 
-subtest 'deletedbiblio_metadata' => sub {
+subtest 'delete biblio' => sub {
     plan tests => 2;
 
     my ($biblionumber, $biblioitemnumber) = AddBiblio(MARC::Record->new, '');
     my $biblio_metadata = C4::Biblio::GetXmlBiblio( $biblionumber );
-    C4::Biblio::DelBiblio( $biblionumber );
-    my ( $moved ) = $dbh->selectrow_array(q|SELECT biblionumber FROM deletedbiblio WHERE biblionumber=?|, undef, $biblionumber);
-    is( $moved, $biblionumber, 'Found in deletedbiblio' );
-    ( $moved ) = $dbh->selectrow_array(q|SELECT biblionumber FROM deletedbiblio_metadata WHERE biblionumber=?|, undef, $biblionumber);
-    is( $moved, $biblionumber, 'Found in deletedbiblio_metadata' );
+    my $err = C4::Biblio::DelBiblio( $biblionumber );
+    is($err, undef, 'Biblio deleted without error');
+    my $data = GetBiblioData( $biblionumber );
+    isnt( $data->{deleted_on}, undef, 'Biblio deleted with timestamp' );
 };
 
 # Cleanup

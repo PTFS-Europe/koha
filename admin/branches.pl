@@ -108,7 +108,8 @@ if ( $op eq 'add_form' ) {
     my $items_count = Koha::Items->search(
         {   -or => {
                 holdingbranch => $branchcode,
-                homebranch    => $branchcode
+                homebranch    => $branchcode,
+                deleted_on    => undef,
             },
         }
     )->count;

@@ -65,9 +65,6 @@ my $dbh = C4::Context->dbh;
 $dbh->do("SET time_zone='+00:00'");
 $dbh->do('DELETE FROM issues');
 $dbh->do('DELETE FROM biblio');
-$dbh->do('DELETE FROM deletedbiblio');
-$dbh->do('DELETE FROM deletedbiblioitems');
-$dbh->do('DELETE FROM deleteditems');
 $dbh->do('DELETE FROM oai_sets');
 
 set_fixed_time(CORE::time());
@@ -201,7 +198,7 @@ test_query('ListIdentifiers', {verb => 'ListIdentifiers', metadataPrefix => 'mar
     ListIdentifiers => {
         header => [ @header[0..2] ],
         resumptionToken => {
-            content => "marcxml/3/1970-01-01T00:00:00Z/$date_to//0/0",
+            content => "marcxml/3/1970-01-01T00:00:00Z/$date_to/",
             cursor  => 3,
         },
     },
@@ -211,7 +208,7 @@ test_query('ListIdentifiers', {verb => 'ListIdentifiers', metadataPrefix => 'mar
     ListIdentifiers => {
         header => [ @header[0..2] ],
         resumptionToken => {
-            content => "marcxml/3/1970-01-01T00:00:00Z/$date_to//0/0",
+            content => "marcxml/3/1970-01-01T00:00:00Z/$date_to/",
             cursor  => 3,
         },
     },
@@ -224,7 +221,7 @@ test_query(
         ListIdentifiers => {
             header => [ @header[3..5] ],
             resumptionToken => {
-              content => "marcxml/6/1970-01-01T00:00:00Z/$date_to//0/0",
+              content => "marcxml/6/1970-01-01T00:00:00Z/$date_to/",
               cursor  => 6,
             },
           },
@@ -238,7 +235,7 @@ test_query(
         ListIdentifiers => {
             header => [ @header[6..8] ],
             resumptionToken => {
-              content => "marcxml/9/1970-01-01T00:00:00Z/$date_to//0/0",
+              content => "marcxml/9/1970-01-01T00:00:00Z/$date_to/",
               cursor  => 9,
             },
           },
@@ -247,7 +244,7 @@ test_query(
 
 test_query(
     'ListIdentifiers with resumptionToken 3, response without resumption',
-    { verb => 'ListIdentifiers', resumptionToken => "marcxml/9/1970-01-01T00:00:00Z/$date_to//0/0" },
+    { verb => 'ListIdentifiers', resumptionToken => "marcxml/9/1970-01-01T00:00:00Z/$date_to/" },
     {
         ListIdentifiers => {
             header => $header[9],
@@ -266,7 +263,7 @@ test_query('ListRecords marcxml', {verb => 'ListRecords', metadataPrefix => 'mar
     ListRecords => {
         record => [ @marcxml[0..2] ],
         resumptionToken => {
-          content => "marcxml/3/1970-01-01T00:00:00Z/$date_to//0/0",
+          content => "marcxml/3/1970-01-01T00:00:00Z/$date_to/",
           cursor  => 3,
         },
     },
@@ -274,11 +271,11 @@ test_query('ListRecords marcxml', {verb => 'ListRecords', metadataPrefix => 'mar
 
 test_query(
     'ListRecords marcxml with resumptionToken 1',
-    { verb => 'ListRecords', resumptionToken => "marcxml/3/1970-01-01T00:00:00Z/$date_to//0/0" },
+    { verb => 'ListRecords', resumptionToken => "marcxml/3/1970-01-01T00:00:00Z/$date_to/" },
     { ListRecords => {
         record => [ @marcxml[3..5] ],
         resumptionToken => {
-          content => "marcxml/6/1970-01-01T00:00:00Z/$date_to//0/0",
+          content => "marcxml/6/1970-01-01T00:00:00Z/$date_to/",
           cursor  => 6,
         },
     },
@@ -286,11 +283,11 @@ test_query(
 
 test_query(
     'ListRecords marcxml with resumptionToken 2',
-    { verb => 'ListRecords', resumptionToken => "marcxml/6/1970-01-01T00:00:00Z/$date_to//0/0" },
+    { verb => 'ListRecords', resumptionToken => "marcxml/6/1970-01-01T00:00:00Z/$date_to/" },
     { ListRecords => {
         record => [ @marcxml[6..8] ],
         resumptionToken => {
-          content => "marcxml/9/1970-01-01T00:00:00Z/$date_to//0/0",
+          content => "marcxml/9/1970-01-01T00:00:00Z/$date_to/",
           cursor  => 9,
         },
     },
@@ -299,7 +296,7 @@ test_query(
 # Last record, so no resumption token
 test_query(
     'ListRecords marcxml with resumptionToken 3, response without resumption',
-    { verb => 'ListRecords', resumptionToken => "marcxml/9/1970-01-01T00:00:00Z/$date_to//0/0" },
+    { verb => 'ListRecords', resumptionToken => "marcxml/9/1970-01-01T00:00:00Z/$date_to/" },
     { ListRecords => {
         record => $marcxml[9],
     },
@@ -309,7 +306,7 @@ test_query('ListRecords oai_dc', {verb => 'ListRecords', metadataPrefix => 'oai_
     ListRecords => {
         record => [ @oaidc[0..2] ],
         resumptionToken => {
-          content => "oai_dc/3/1970-01-01T00:00:00Z/$date_to//0/0",
+          content => "oai_dc/3/1970-01-01T00:00:00Z/$date_to/",
           cursor  => 3,
         },
     },
@@ -317,11 +314,11 @@ test_query('ListRecords oai_dc', {verb => 'ListRecords', metadataPrefix => 'oai_
 
 test_query(
     'ListRecords oai_dc with resumptionToken 1',
-    { verb => 'ListRecords', resumptionToken => "oai_dc/3/1970-01-01T00:00:00Z/$date_to//0/0" },
+    { verb => 'ListRecords', resumptionToken => "oai_dc/3/1970-01-01T00:00:00Z/$date_to/" },
     { ListRecords => {
         record => [ @oaidc[3..5] ],
         resumptionToken => {
-          content => "oai_dc/6/1970-01-01T00:00:00Z/$date_to//0/0",
+          content => "oai_dc/6/1970-01-01T00:00:00Z/$date_to/",
           cursor  => 6,
         },
     },
@@ -329,11 +326,11 @@ test_query(
 
 test_query(
     'ListRecords oai_dc with resumptionToken 2',
-    { verb => 'ListRecords', resumptionToken => "oai_dc/6/1970-01-01T00:00:00Z/$date_to//0/0" },
+    { verb => 'ListRecords', resumptionToken => "oai_dc/6/1970-01-01T00:00:00Z/$date_to/" },
     { ListRecords => {
         record => [ @oaidc[6..8] ],
         resumptionToken => {
-          content => "oai_dc/9/1970-01-01T00:00:00Z/$date_to//0/0",
+          content => "oai_dc/9/1970-01-01T00:00:00Z/$date_to/",
           cursor  => 9,
         },
     },
@@ -342,7 +339,7 @@ test_query(
 # Last record, so no resumption token
 test_query(
     'ListRecords oai_dc with resumptionToken 3, response without resumption',
-    { verb => 'ListRecords', resumptionToken => "oai_dc/9/1970-01-01T00:00:00Z/$date_to//0/0" },
+    { verb => 'ListRecords', resumptionToken => "oai_dc/9/1970-01-01T00:00:00Z/$date_to/" },
     { ListRecords => {
         record => $oaidc[9],
     },

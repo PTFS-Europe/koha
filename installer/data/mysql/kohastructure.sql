@@ -140,6 +140,7 @@ CREATE TABLE `biblio` ( -- table that stores bibliographic information
   `timestamp` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP, -- date and time this record was last touched
   `datecreated` DATE NOT NULL, -- the date this record was added to Koha
   `abstract` LONGTEXT, -- summary from the MARC record (520$a in MARC21)
+  `deleted_on` datetime DEFAULT NULL, -- timestamp of deletion
   PRIMARY KEY  (`biblionumber`),
   KEY `blbnoidx` (`biblionumber`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -193,6 +194,7 @@ CREATE TABLE `biblioitems` ( -- information related to bibliographic records in 
   `cn_sort` varchar(255) default NULL, -- normalized version of the call number used for sorting
   `agerestriction` varchar(255) default NULL, -- target audience/age restriction from the bib record (MARC21 521$a)
   `totalissues` int(10),
+  `deleted_on` datetime DEFAULT NULL, -- timestamp of deletion
   PRIMARY KEY  (`biblioitemnumber`),
   KEY `bibinoidx` (`biblioitemnumber`),
   KEY `bibnoidx` (`biblionumber`),
@@ -463,76 +465,6 @@ CREATE TABLE `currency` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Table structure for table `deletedbiblio`
---
-
-DROP TABLE IF EXISTS `deletedbiblio`;
-CREATE TABLE `deletedbiblio` ( -- stores information about bibliographic records that have been deleted
-  `biblionumber` int(11) NOT NULL auto_increment, -- unique identifier assigned to each bibliographic record
-  `frameworkcode` varchar(4) NOT NULL default '', -- foriegn key from the biblio_framework table to identify which framework was used in cataloging this record
-  `author` LONGTEXT, -- statement of responsibility from MARC record (100$a in MARC21)
-  `title` LONGTEXT, -- title (without the subtitle) from the MARC record (245$a in MARC21)
-  `unititle` LONGTEXT, -- uniform title (without the subtitle) from the MARC record (240$a in MARC21)
-  `notes` LONGTEXT, -- values from the general notes field in the MARC record (500$a in MARC21) split by bar (|)
-  `serial` tinyint(1) default NULL, -- Boolean indicating whether biblio is for a serial
-  `seriestitle` LONGTEXT,
-  `copyrightdate` smallint(6) default NULL, -- publication or copyright date from the MARC record
-  `timestamp` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP, -- date and time this record was last touched
-  `datecreated` DATE NOT NULL, -- the date this record was added to Koha
-  `abstract` LONGTEXT, -- summary from the MARC record (520$a in MARC21)
-  PRIMARY KEY  (`biblionumber`),
-  KEY `blbnoidx` (`biblionumber`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Table structure for table `deletedbiblioitems`
---
-
-DROP TABLE IF EXISTS `deletedbiblioitems`;
-CREATE TABLE `deletedbiblioitems` ( -- information about bibliographic records that have been deleted
-  `biblioitemnumber` int(11) NOT NULL default 0, -- primary key, unique identifier assigned by Koha
-  `biblionumber` int(11) NOT NULL default 0, -- foreign key linking this table to the biblio table
-  `volume` LONGTEXT,
-  `number` LONGTEXT,
-  `itemtype` varchar(10) default NULL, -- biblio level item type (MARC21 942$c)
-  `isbn` LONGTEXT default NULL, -- ISBN (MARC21 020$a)
-  `issn` LONGTEXT default NULL, -- ISSN (MARC21 022$a)
-  `ean` LONGTEXT default NULL,
-  `publicationyear` MEDIUMTEXT,
-  `publishercode` varchar(255) default NULL, -- publisher (MARC21 260$b)
-  `volumedate` date default NULL,
-  `volumedesc` MEDIUMTEXT, -- volume information (MARC21 362$a)
-  `collectiontitle` LONGTEXT default NULL,
-  `collectionissn` MEDIUMTEXT default NULL,
-  `collectionvolume` LONGTEXT default NULL,
-  `editionstatement` MEDIUMTEXT default NULL,
-  `editionresponsibility` MEDIUMTEXT default NULL,
-  `timestamp` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
-  `illus` varchar(255) default NULL, -- illustrations (MARC21 300$b)
-  `pages` varchar(255) default NULL, -- number of pages (MARC21 300$c)
-  `notes` LONGTEXT,
-  `size` varchar(255) default NULL, -- material size (MARC21 300$c)
-  `place` varchar(255) default NULL, -- publication place (MARC21 260$a)
-  `lccn` varchar(25) default NULL, -- library of congress control number (MARC21 010$a)
-  `url` MEDIUMTEXT default NULL, -- url (MARC21 856$u)
-  `cn_source` varchar(10) default NULL, -- classification source (MARC21 942$2)
-  `cn_class` varchar(30) default NULL,
-  `cn_item` varchar(10) default NULL,
-  `cn_suffix` varchar(10) default NULL,
-  `cn_sort` varchar(255) default NULL, -- normalized version of the call number used for sorting
-  `agerestriction` varchar(255) default NULL, -- target audience/age restriction from the bib record (MARC21 521$a)
-  `totalissues` int(10),
-  PRIMARY KEY  (`biblioitemnumber`),
-  KEY `bibinoidx` (`biblioitemnumber`),
-  KEY `bibnoidx` (`biblionumber`),
-  KEY `itemtype_idx` (`itemtype`),
-  KEY `isbn` (`isbn`(255)),
-  KEY `ean` (`ean`(255)),
-  KEY `publishercode` (`publishercode` (191)),
-  KEY `timestamp` (`timestamp`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
 -- Table structure for table `deletedborrowers`
 --
 
@@ -615,68 +547,6 @@ CREATE TABLE `deletedborrowers` ( -- stores data related to the patrons/borrower
   KEY borrowernumber (borrowernumber),
   KEY `cardnumber` (`cardnumber`),
   KEY `sms_provider_id` (`sms_provider_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Table structure for table `deleteditems`
---
-
-DROP TABLE IF EXISTS `deleteditems`;
-CREATE TABLE `deleteditems` (
-  `itemnumber` int(11) NOT NULL default 0, -- primary key and unique identifier added by Koha
-  `biblionumber` int(11) NOT NULL default 0, -- foreign key from biblio table used to link this item to the right bib record
-  `biblioitemnumber` int(11) NOT NULL default 0, -- foreign key from the biblioitems table to link to item to additional information
-  `barcode` varchar(20) default NULL, -- item barcode (MARC21 952$p)
-  `dateaccessioned` date default NULL, -- date the item was acquired or added to Koha (MARC21 952$d)
-  `booksellerid` LONGTEXT default NULL, -- where the item was purchased (MARC21 952$e)
-  `homebranch` varchar(10) default NULL, -- foreign key from the branches table for the library that owns this item (MARC21 952$a)
-  `price` decimal(8,2) default NULL, -- purchase price (MARC21 952$g)
-  `replacementprice` decimal(8,2) default NULL, -- cost the library charges to replace the item if it has been marked lost (MARC21 952$v)
-  `replacementpricedate` date default NULL, -- the date the price is effective from (MARC21 952$w)
-  `datelastborrowed` date default NULL, -- the date the item was last checked out
-  `datelastseen` date default NULL, -- the date the item was last see (usually the last time the barcode was scanned or inventory was done)
-  `stack` tinyint(1) default NULL,
-  `notforloan` tinyint(1) NOT NULL default 0, -- authorized value defining why this item is not for loan (MARC21 952$7)
-  `damaged` tinyint(1) NOT NULL default 0, -- authorized value defining this item as damaged (MARC21 952$4)
-  `damaged_on` datetime DEFAULT NULL, -- the date and time an item was last marked as damaged, NULL if not damaged
-  `itemlost` tinyint(1) NOT NULL default 0, -- authorized value defining this item as lost (MARC21 952$1)
-  `itemlost_on` datetime DEFAULT NULL, -- the date and time an item was last marked as lost, NULL if not lost
-  `withdrawn` tinyint(1) NOT NULL default 0, -- authorized value defining this item as withdrawn (MARC21 952$0)
-  `withdrawn_on` datetime DEFAULT NULL, -- the date and time an item was last marked as withdrawn, NULL if not withdrawn
-  `itemcallnumber` varchar(255) default NULL, -- call number for this item (MARC21 952$o)
-  `coded_location_qualifier` varchar(10) default NULL, -- coded location qualifier(MARC21 952$f)
-  `issues` smallint(6) default NULL, -- number of times this item has been checked out
-  `renewals` smallint(6) default NULL, -- number of times this item has been renewed
-  `reserves` smallint(6) default NULL, -- number of times this item has been placed on hold/reserved
-  `restricted` tinyint(1) default NULL, -- authorized value defining use restrictions for this item (MARC21 952$5)
-  `itemnotes` LONGTEXT, -- public notes on this item (MARC21 952$x)
-  `itemnotes_nonpublic` LONGTEXT default NULL,
-  `holdingbranch` varchar(10) default NULL, -- foreign key from the branches table for the library that is currently in possession item (MARC21 952$b)
-  `paidfor` LONGTEXT,
-  `timestamp` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP, -- date and time this item was last altered
-  `location` varchar(80) default NULL, -- authorized value for the shelving location for this item (MARC21 952$c)
-  `permanent_location` varchar(80) default NULL, -- linked to the CART and PROC temporary locations feature, stores the permanent shelving location
-  `onloan` date default NULL, -- defines if item is checked out (NULL for not checked out, and due date for checked out)
-  `cn_source` varchar(10) default NULL, -- classification source used on this item (MARC21 952$2)
-  `cn_sort` varchar(255) default NULL, -- normalized form of the call number (MARC21 952$o) used for sorting
-  `ccode` varchar(10) default NULL, -- authorized value for the collection code associated with this item (MARC21 952$8)
-  `materials` MEDIUMTEXT default NULL, -- materials specified (MARC21 952$3)
-  `uri` varchar(255) default NULL, -- URL for the item (MARC21 952$u)
-  `itype` varchar(10) default NULL, -- foreign key from the itemtypes table defining the type for this item (MARC21 952$y)
-  `more_subfields_xml` LONGTEXT default NULL, -- additional 952 subfields in XML format
-  `enumchron` MEDIUMTEXT default NULL, -- serial enumeration/chronology for the item (MARC21 952$h)
-  `copynumber` varchar(32) default NULL, -- copy number (MARC21 952$t)
-  `stocknumber` varchar(32) default NULL, -- inventory number (MARC21 952$i)
-  `new_status` VARCHAR(32) DEFAULT NULL, -- 'new' value, you can put whatever free-text information. This field is intented to be managed by the automatic_item_modification_by_age cronjob.
-  PRIMARY KEY  (`itemnumber`),
-  KEY `delitembarcodeidx` (`barcode`),
-  KEY `delitemstocknumberidx` (`stocknumber`),
-  KEY `delitembinoidx` (`biblioitemnumber`),
-  KEY `delitembibnoidx` (`biblionumber`),
-  KEY `delhomebranch` (`homebranch`),
-  KEY `delholdingbranch` (`holdingbranch`),
-  KEY `itype_idx` (`itype`),
-  KEY `timestamp` (`timestamp`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -930,6 +800,7 @@ CREATE TABLE `items` ( -- holdings/item information
   `copynumber` varchar(32) default NULL, -- copy number (MARC21 952$t)
   `stocknumber` varchar(32) default NULL, -- inventory number (MARC21 952$i)
   `new_status` VARCHAR(32) DEFAULT NULL, -- 'new' value, you can put whatever free-text information. This field is intented to be managed by the automatic_item_modification_by_age cronjob.
+  `deleted_on` datetime DEFAULT NULL, -- timestamp of deletion
   PRIMARY KEY  (`itemnumber`),
   UNIQUE KEY `itembarcodeidx` (`barcode`),
   KEY `itemstocknumberidx` (`stocknumber`),
@@ -3962,27 +3833,10 @@ CREATE TABLE biblio_metadata (
     `marcflavour` VARCHAR(16) NOT NULL,
     `metadata` LONGTEXT NOT NULL,
     `timestamp` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
+    `deleted_on` datetime DEFAULT NULL, -- timestamp of deletion
     PRIMARY KEY(id),
     UNIQUE KEY `biblio_metadata_uniq_key` (`biblionumber`,`format`,`marcflavour`),
     CONSTRAINT `record_metadata_fk_1` FOREIGN KEY (biblionumber) REFERENCES biblio (biblionumber) ON DELETE CASCADE ON UPDATE CASCADE,
-    KEY `timestamp` (`timestamp`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Table structure for table `deletedbiblio_metadata`
---
-
-DROP TABLE IF EXISTS `deletedbiblio_metadata`;
-CREATE TABLE deletedbiblio_metadata (
-    `id` INT(11) NOT NULL AUTO_INCREMENT,
-    `biblionumber` INT(11) NOT NULL,
-    `format` VARCHAR(16) NOT NULL,
-    `marcflavour` VARCHAR(16) NOT NULL,
-    `metadata` LONGTEXT NOT NULL,
-    `timestamp` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
-    PRIMARY KEY(id),
-    UNIQUE KEY `deletedbiblio_metadata_uniq_key` (`biblionumber`,`format`,`marcflavour`),
-    CONSTRAINT `deletedrecord_metadata_fk_1` FOREIGN KEY (biblionumber) REFERENCES deletedbiblio (biblionumber) ON DELETE CASCADE ON UPDATE CASCADE,
     KEY `timestamp` (`timestamp`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

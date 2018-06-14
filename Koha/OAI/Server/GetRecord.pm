@@ -39,20 +39,16 @@ sub new {
     my $sql = "
         SELECT timestamp
         FROM   biblioitems
-        WHERE  biblionumber=?
+        WHERE  biblionumber=? AND deleted_on IS NULL
     ";
     my @bind_params = ($biblionumber);
     if ( $items_included ) {
         # Take latest timestamp of biblio and any items
         $sql .= "
             UNION
-            SELECT timestamp from deleteditems
-            WHERE biblionumber=?
-            UNION
             SELECT timestamp from items
             WHERE biblionumber=?
         ";
-        push @bind_params, $biblionumber;
         push @bind_params, $biblionumber;
         $sql = "
             SELECT max(timestamp)
@@ -66,8 +62,8 @@ sub new {
     unless ( ($timestamp = $sth->fetchrow) ) {
         $sql = "
             SELECT timestamp
-            FROM deletedbiblio
-            WHERE biblionumber=?
+            FROM biblio
+            WHERE biblionumber=? AND deleted_on IS NOT NULL
         ";
         @bind_params = ($biblionumber);
 
@@ -75,8 +71,8 @@ sub new {
             # Take latest timestamp among biblio and items
             $sql .= "
                 UNION
-                SELECT timestamp from deleteditems
-                WHERE biblionumber=?
+                SELECT timestamp from items
+                WHERE biblionumber=? AND deleted_on IS NULL
             ";
             push @bind_params, $biblionumber;
             $sql = "

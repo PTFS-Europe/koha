@@ -88,7 +88,7 @@ if ($merge) {
 
     # Moving items from the other record to the reference record
     foreach my $biblionumber (@biblionumbers) {
-        my $items = Koha::Items->search({ biblionumber => $biblionumber });
+        my $items = Koha::Items->search({ biblionumber => $biblionumber, deleted_on => undef });
         while ( my $item = $items->next) {
             my $res = MoveItemFromBiblio( $item->itemnumber, $biblionumber, $ref_biblionumber );
             if ( not defined $res ) {

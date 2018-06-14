@@ -81,7 +81,7 @@ subtest 'General Add, Get and Del tests' => sub {
     # Delete item.
     DelItem({ biblionumber => $bibnum, itemnumber => $itemnumber });
     my $getdeleted = GetItem($itemnumber);
-    is($getdeleted->{'itemnumber'}, undef, "Item deleted as expected.");
+    isnt($getdeleted->{'deleted_on'}, undef, "Item deleted as expected.");
 
     ($item_bibnum, $item_bibitemnum, $itemnumber) = AddItem({ homebranch => $library->{branchcode}, holdingbranch => $library->{branchcode}, location => $location, permanent_location => 'my permanent location', itype => $itemtype->{itemtype} } , $bibnum);
     $getitem = GetItem($itemnumber);

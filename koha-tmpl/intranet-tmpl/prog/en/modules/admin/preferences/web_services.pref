@@ -40,12 +40,12 @@ Web services:
                   no: Disable
             - automatic update of OAI-PMH sets when a bibliographic record is created or updated
         -
-            - Koha's deletedbiblio table
+            - Koha deleted records
             - pref: "OAI-PMH:DeletedRecord"
               choices:
                   persistent: will never be emptied or truncated (persistent)
                   transient: might be emptied or truncated at some point (transient)
-                  no: will never have any data in it (no)
+                  no: will not be persisted (no)
             - "."
     ILS-DI:
         -

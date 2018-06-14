@@ -2307,10 +2307,10 @@ sub GetHistory {
     my $dbh   = C4::Context->dbh;
     my $query ="
         SELECT
-            COALESCE(biblio.title,     deletedbiblio.title)     AS title,
-            COALESCE(biblio.author,    deletedbiblio.author)    AS author,
-            COALESCE(biblioitems.isbn, deletedbiblioitems.isbn) AS isbn,
-            COALESCE(biblioitems.ean,  deletedbiblioitems.ean)  AS ean,
+            biblio.title,
+            biblio.author,
+            biblioitems.isbn,
+            biblioitems.ean,
             aqorders.basketno,
             aqbasket.basketname,
             aqbasket.basketgroupid,
@@ -2342,8 +2342,6 @@ sub GetHistory {
         LEFT JOIN biblio ON biblio.biblionumber=aqorders.biblionumber
         LEFT JOIN aqbudgets ON aqorders.budget_id=aqbudgets.budget_id
         LEFT JOIN aqinvoices ON aqorders.invoiceid = aqinvoices.invoiceid
-        LEFT JOIN deletedbiblio ON deletedbiblio.biblionumber=aqorders.biblionumber
-        LEFT JOIN deletedbiblioitems ON deletedbiblioitems.biblionumber=aqorders.biblionumber
         LEFT JOIN borrowers ON aqbasket.authorisedby=borrowers.borrowernumber
         ";
 

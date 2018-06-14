@@ -89,6 +89,12 @@ __PACKAGE__->table("biblio");
   data_type: 'longtext'
   is_nullable: 1
 
+=head2 deleted_on
+
+  data_type: 'datetime'
+  datetime_undef_if_invalid: 1
+  is_nullable: 1
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -121,6 +127,12 @@ __PACKAGE__->add_columns(
   { data_type => "date", datetime_undef_if_invalid => 1, is_nullable => 0 },
   "abstract",
   { data_type => "longtext", is_nullable => 1 },
+  "deleted_on",
+  {
+    data_type => "datetime",
+    datetime_undef_if_invalid => 1,
+    is_nullable => 1,
+  },
 );
 
 =head1 PRIMARY KEY
@@ -348,7 +360,7 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07042 @ 2018-02-16 17:54:53
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:bUv00JjY09Hj2Zj4klqyxA
+# Created by DBIx::Class::Schema::Loader v0.07042 @ 2018-06-08 09:34:53
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Gvv2jiMzhIa2osCaj3Ow6g
 
 1;
