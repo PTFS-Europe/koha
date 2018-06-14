@@ -1806,9 +1806,6 @@ sub AddReturn {
     unless ($item) {
         return ( 0, { BadBarcode => $barcode } );    # no barcode means no item or borrower.  bail out.
     }
-    if ($item->{deleted_on}) {
-        return ( 0, { BadBarcode => $barcode } );
-    }
 
     my $itemnumber = $item->{ itemnumber };
     my $itemtype = $item->{itype}; # GetItem called effective_itemtype

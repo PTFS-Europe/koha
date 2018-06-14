@@ -146,6 +146,8 @@ Return item information, for a given itemnumber or barcode.
 The return value is a hashref mapping item column
 names to values.  If C<$serial> is true, include serial publication data.
 
+This accessor will not return deleted items.
+
 =cut
 
 sub GetItem {
@@ -160,6 +162,7 @@ sub GetItem {
     }
 
     return unless ( $item );
+    return if ( $item->deleted_on );
 
     my $data = $item->unblessed();
     $data->{itype} = $item->effective_itemtype(); # set the correct itype

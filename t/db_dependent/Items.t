@@ -45,7 +45,7 @@ my $location = 'My Location';
 
 subtest 'General Add, Get and Del tests' => sub {
 
-    plan tests => 16;
+    plan tests => 17;
 
     $schema->storage->txn_begin;
 
@@ -80,8 +80,10 @@ subtest 'General Add, Get and Del tests' => sub {
 
     # Delete item.
     DelItem({ biblionumber => $bibnum, itemnumber => $itemnumber });
+    my $deletedItem = Koha::Items->find({ itemnumber => $itemnumber });
+    isnt($deletedItem->deleted_on, undef, "Item marked deleted as expected.");
     my $getdeleted = GetItem($itemnumber);
-    isnt($getdeleted->{'deleted_on'}, undef, "Item deleted as expected.");
+    is($getdeleted->{'itemnumber'}, undef, "Item not returned by GetItem as expected.");
 
     ($item_bibnum, $item_bibitemnum, $itemnumber) = AddItem({ homebranch => $library->{branchcode}, holdingbranch => $library->{branchcode}, location => $location, permanent_location => 'my permanent location', itype => $itemtype->{itemtype} } , $bibnum);
     $getitem = GetItem($itemnumber);
