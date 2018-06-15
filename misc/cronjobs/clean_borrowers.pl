@@ -123,9 +123,23 @@ my $where = {
     ]
 };
 
+my $joined_issues = 0;
+
+# Limit to patrons not issued to for at least X days
+if ($issued) {
+    my $issued_before = $now->clone->subtract( days => $issued );
+    push @{ $attr->{'join'} }, ( 'issues', 'old_issues' );
+    push @{ $attr->{'+select'} },
+      { max => 'old_issues.timestamp', '-as' => 'lastissue' };
+    push @{ $attr->{'+as'} }, 'lastissue';
+    push @{ $attr->{'having'}->{'-and'} },
+      { 'lastissue' => { '<' => $dtf->format_datetime($issued_before) } };
+    $joined_issues++;
+}
+
 # Limit to patrons without any current issues
 if ( !$issues ) {
-    push @{ $attr->{'join'} }, ( 'issues' );
+    push @{ $attr->{'join'} }, ( 'issues' ) unless $joined_issues;
     push @{ $attr->{'+select'} },
       { max => 'issues.timestamp', '-as' => 'currentissue' };
     push @{ $attr->{'+as'} }, 'currentissue';
@@ -137,17 +151,6 @@ if ($expired) {
     my $expired_before = $now->clone->subtract( days => $expired );
     push @{ $where->{'-and'} },
       { 'dateexpiry' => { '<' => $dtf->format_datetime($expired_before) } };
-}
-
-# Limit to patrons not issued to for at least X days
-if ($issued) {
-    my $issued_before = $now->clone->subtract( days => $issued );
-    push @{ $attr->{'join'} }, ( 'issues', 'old_issues' );
-    push @{ $attr->{'+select'} },
-      { max => 'old_issues.timestamp', '-as' => 'lastissue' };
-    push @{ $attr->{'+as'} }, 'lastissue';
-    push @{ $attr->{'having'}->{'-and'} },
-      { 'lastissue' => { '<' => $dtf->format_datetime($issued_before) } };
 }
 
 # Limit to patrons not owing more than X in fines
