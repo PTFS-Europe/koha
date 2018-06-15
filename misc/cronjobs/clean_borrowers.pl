@@ -52,6 +52,7 @@ Usage: $0  --days_since_expired DAYS  [-h|--help]
    --in_category CODE            delete patrons only if they belong to category with CODE
    -m --mode archive|delete      specifies action to take, defaults to archive if not set
    -v --verbose                  gives a little more information
+   -c --confirm                  actually carry out the delete/archive rather than just dry running
    -h --help                     prints this help message, and exits, ignoring all
                                  other options
 USAGE
