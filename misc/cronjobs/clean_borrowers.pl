@@ -124,6 +124,7 @@ my $where = {
 
 # Limit to patrons without any current issues
 if ( !$issues ) {
+    push @{ $attr->{'join'} }, ( 'issues' );
     push @{ $attr->{'+select'} },
       { max => 'issues.timestamp', '-as' => 'currentissue' };
     push @{ $attr->{'+as'} }, 'currentissue';
