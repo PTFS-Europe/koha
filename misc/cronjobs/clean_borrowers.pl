@@ -60,7 +60,7 @@ USAGE
 
 my (
     $help,   $expired,  $outstanding, $issued,  $seen,
-    $branch, $category, $list,        $confirm, $verbose
+    $branch, @categories, $list,        $confirm, $verbose
 );
 my $mode   = 'archive';
 my $issues = 0;
@@ -74,11 +74,12 @@ GetOptions(
     'zero_current_issues:i' => \$issues,
     'owes_less_than:i'      => \$outstanding,
     'at_branch:s'           => \$branch,
-    'in_category:s'         => \$category,
+    'in_category:s'         => \@categories,
     'm|mode:s'              => \$mode,
     'c|confirm'             => \$confirm,
     'v|verbose'             => \$verbose,
 ) || usage(1);
+@categories = split(/,/,join(',',@categories));
 
 if ($help) {
     usage(0);
@@ -90,7 +91,7 @@ if (   !$expired
     && !$outstanding
     && !$issues
     && !$branch
-    && !$category )
+    && !@categories )
 {
     print "At least one filter parameter should be specified.\n\n";
     usage(1);
@@ -169,9 +170,9 @@ if ($branch) {
     push @{ $where->{'-and'} }, { branchcode => $branch };
 }
 
-# Limit to patrons belonging to category X
-if ($category) {
-    push @{ $where->{'-and'} }, { categorycode => $category };
+# Limit to patrons belonging to categories specified
+if (@categories) {
+    push @{ $where->{'-and'} }, { categorycode => \@categories };
 }
 
 # Limit to patrons on patron list X
