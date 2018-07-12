@@ -297,6 +297,60 @@ modules:
           cannot_be_toggled: 1
           cannot_be_modified: 1
 
+  illrequests:
+    ill-requests:
+      ill-requests:
+        -
+          columnname: illrequest_id
+        -
+          columnname: metadata_Author
+        -
+          columnname: metadata_Title
+        -
+          columnname: metadata_Item_part_title
+        -
+          columnname: metadata_Issue
+        -
+          columnname: metadata_Volume
+        -
+          columnname: metadata_Year
+        -
+          columnname: metadata_Item_part_pages
+        -
+          columnname: metadata_Type
+        -
+          columnname: orderid
+        -
+          columnname: biblio_id
+        -
+          columnname: borrowernumber
+        -
+          columnname: library_branchname
+        -
+          columnname: status
+        -
+          columnname: placed
+        -
+          columnname: replied
+        -
+          columnname: updated
+        -
+          columnname: completed
+        -
+          columnname: accessurl
+        -
+          columnname: cost
+        -
+          columnname: notesopac
+        -
+          columnname: notesstaff
+        -
+          columnname: backend
+        -
+          columnname: action
+          cannot_be_toggled: 1
+          cannot_be_modified: 1
+
   members:
     fines:
       account-fines:
