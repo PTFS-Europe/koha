@@ -6,6 +6,7 @@
 [% USE Price %]
 [% SET footerjs = 1 %]
 [% USE AuthorisedValues %]
+[% USE ColumnsSettings %]
 
 [% INCLUDE 'doc-head-open.inc' %]
 <title>Koha &rsaquo; ILL requests</title>
@@ -500,20 +501,33 @@
                         <table id="ill-requests">
                             <thead>
                                 <tr id="illview-header">
-                                    <th>Author</th>
-                                    <th>Title</th>
-                                    <th>Patron</th>
-                                    <th>Bibliographic record ID</th>
-                                    <th>Library</th>
-                                    <th>Status</th>
-                                    <th class="placed">&nbsp;</th>
-                                    <th class="placed_formatted">Date placed</th>
-                                    <th class="updated">&nbsp;</th>
-                                    <th class="updated_formatted">Updated on</th>
-                                    <th>Request number</th>
-                                    <th>Comments</th>
+                                    <th scope="col">Request ID</th>
+                                    <th scope="col">Author</th>
+                                    <th scope="col">Title</th>
+                                    <th scope="col">Article title</th>
+                                    <th scope="col">Issue</th>
+                                    <th scope="col">Volume</th>
+                                    <th scope="col">Year</th>
+                                    <th scope="col">Pages</th>
+                                    <th scope="col">Type</th>
+                                    <th scope="col">Order ID</th>
+                                    <th scope="col">Biblio ID</th>
+                                    <th scope="col">Patron</th>
                                     <th class="patron_cardnumber">Patron barcode</th>
-                                    <th class="actions"></th>
+                                    <th scope="col">Branch</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col" class="placed">&nbsp;</th>
+                                    <th scope="col" class="placed_formatted">Placed on</th>
+                                    <th scope="col">Replied</th>
+                                    <th scope="col" class="updated">&nbsp;</th>
+                                    <th scope="col" class="updated_formatted">Updated on</th>
+                                    <th scope="col">Completed on</th>
+                                    <th scope="col">Access URL</th>
+                                    <th scope="col">Cost</th>
+                                    <th scope="col">OPAC notes</th>
+                                    <th scope="col">Staff notes</th>
+                                    <th scope="col">Backend</th>
+                                    <th scope="col" class="actions"></th>
                                 </tr>
                             </thead>
                             <tbody id="illview-body">
@@ -553,6 +567,7 @@
 
 [% MACRO jsinclude BLOCK %]
     [% INCLUDE 'datatables.inc' %]
+    [% INCLUDE 'columns_settings.inc' %]
     [% INCLUDE 'calendar.inc' %]
     [% Asset.js("lib/jquery/plugins/jquery.checkboxes.min.js") | $raw %]
     <script>
@@ -560,29 +575,18 @@
 
             // Illview Datatable setup
 
+            var columns_settings = [% ColumnsSettings.GetColumns( 'illrequests', 'ill-requests', 'ill-requests', 'json' ) %];
+
             var table;
 
             // Filters that are active
             var activeFilters = {};
 
-            // Fields we don't want to display
-            var ignore = [
-                'accessurl',
-                'backend',
-                'branchcode',
-                'completed',
-                'capabilities',
-                'cost',
-                'medium',
-                'notesopac',
-                'notesstaff',
-                'replied'
-            ];
-
             // Fields we need to expand (flatten)
             var expand = [
                 'metadata',
-                'patron'
+                'patron',
+                'library'
             ];
 
             // Expanded fields
@@ -708,17 +712,6 @@
                 }
             };
 
-            // Remove any fields we're ignoring
-            var removeIgnore = function(dataObj) {
-                dataObj.forEach(function(thisRow) {
-                    ignore.forEach(function(thisIgnore) {
-                        if (thisRow.hasOwnProperty(thisIgnore)) {
-                            delete thisRow[thisIgnore];
-                        }
-                    });
-                });
-            };
-
             // Expand any fields we're expanding
             var expandExpand = function(row) {
                 expand.forEach(function(thisExpand) {
@@ -729,7 +722,7 @@
                         var expandObj = row[thisExpand];
                         Object.keys(expandObj).forEach(
                             function(thisExpandCol) {
-                                var expColName = thisExpand + '_' + thisExpandCol;
+                                var expColName = thisExpand + '_' + thisExpandCol.replace(/\s/g,'_');
                                 // Keep a list of fields that have been expanded
                                 // so we can create toggle links for them
                                 if (expanded[thisExpand].indexOf(expColName) == -1) {
@@ -745,12 +738,6 @@
                     }
                 });
             };
-
-            // Build a de-duped list of all column names
-            var allCols = {};
-            core.map(function(thisCore) {
-                allCols[thisCore] = 1;
-            });
 
             // Strip the expand prefix if it exists, we do this for display
             var stripPrefix = function(value) {
@@ -769,7 +756,8 @@
                     if ( row.patron_firstname ) {
                         patronLink = patronLink + row.patron_firstname + ' ';
                     }
-                    patronLink = patronLink + row.patron_surname + '</a>';
+                    patronLink = patronLink + row.patron_surname +
+                        ' [' + row.patron_cardnumber + ' ]</a>';
                 return patronLink;
             };
 
@@ -791,6 +779,18 @@
             // Render function for request ID
             var createRequestId = function(data, type, row) {
                 return row.id_prefix + row.illrequest_id;
+            };
+
+            // Render function for type
+            var createType = function(data, type, row) {
+                if (!row.hasOwnProperty('metadata_Type') || !row.metadata_Type) {
+                    if (row.hasOwnProperty('medium') && row.medium) {
+                        row.metadata_Type = row.medium;
+                    } else {
+                        row.metadata_Type = null;
+                    }
+                }
+                return row.metadata_Type;
             };
 
             // Render function for request status
@@ -847,28 +847,23 @@
             // Columns that require special treatment
             var specialCols = {
                 action: {
-                    name: '',
                     func: createActionLink
                 },
-                borrowername: {
-                    name: _("Patron"),
+                borrowernumber: {
                     func: createPatronLink
                 },
                 illrequest_id: {
-                    name: _("Request number"),
                     func: createRequestId
                 },
                 status: {
-                    name: _("Status"),
                     func: createStatus
                 },
                 biblio_id: {
                 name: _("Bibliographic record ID"),
                 func: createBiblioLink
                 },
-                library: {
-                    name: _("Library"),
-                    func: createLibrary
+                metadata_Type: {
+                    func: createType
                 },
                 updated: {
                     name: _("Updated on"),
@@ -928,8 +923,6 @@
                     // Make a copy, we'll be removing columns next and need
                     // to be able to refer to data that has been removed
                     var dataCopy = $.extend(true, [], data);
-                    // Remove all columns we're not interested in
-                    removeIgnore(dataCopy);
                     // Expand columns that need it and create an array
                     // of all column names
                     $.each(dataCopy, function(k, row) {
@@ -949,28 +942,36 @@
                     // Assemble an array of column definitions for passing
                     // to datatables
                     var colData = [];
-                    Object.keys(allCols).forEach(function(thisCol) {
+                    columns_settings.forEach(function(thisCol) {
+                        var colName = thisCol.columnname;
                         // Create the base column object
-                        var colObj = {
-                            name: thisCol,
-                            className: thisCol,
-                            defaultContent: ''
-                        };
+                        var colObj = $.extend({}, thisCol);
+                        colObj.name = colName;
+                        colObj.className = colName;
+
                         // We may need to process the data going in this
                         // column, so do it if necessary
                         if (
-                            specialCols.hasOwnProperty(thisCol) &&
-                            specialCols[thisCol].hasOwnProperty('func')
+                            specialCols.hasOwnProperty(colName) &&
+                            specialCols[colName].hasOwnProperty('func')
                         ) {
-                            colObj.render = specialCols[thisCol].func;
+                            colObj.render = specialCols[colName].func;
                         } else {
-                            colObj.data = thisCol;
+                            colObj.data = colName;
                         }
+                        // Make sure properties that aren't present in the API
+                        // response are populated with null to avoid Datatables
+                        // choking on their absence
+                        dataCopy.forEach(function(thisData) {
+                            if (!thisData.hasOwnProperty(colName)) {
+                                thisData[colName] = null;
+                            }
+                        });
                         colData.push(colObj);
                     });
 
                     // Initialise the datatable
-                    table = $('#ill-requests').DataTable($.extend(true, {}, dataTablesDefaults, {
+                    var illTable = KohaTable("ill-requests", {
                         'aoColumnDefs': [
                             { // Last column shouldn't be sortable or searchable
                                 'aTargets': [ 'actions' ],
@@ -1017,7 +1018,7 @@
                             }
 
                         }
-                    }));
+                    }, columns_settings);
 
                     // Custom date range filtering
                     $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
