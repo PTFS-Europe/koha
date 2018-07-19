@@ -44,7 +44,7 @@ use Koha::UploadedFiles;
 
 sub usage {
     print STDERR <<USAGE;
-Usage: $0 [-h|--help] [--sessions] [--sessdays DAYS] [-v|--verbose] [--zebraqueue DAYS] [-m|--mail] [--merged] [--import DAYS] [--logs DAYS] [--searchhistory DAYS] [--restrictions DAYS] [--all-restrictions] [--fees DAYS] [--temp-uploads] [--temp-uploads-days DAYS] [--uploads-missing 0|1 ]
+Usage: $0 [-h|--help] [--sessions] [--sessdays DAYS] [-v|--verbose] [--zebraqueue DAYS] [-m|--mail] [--merged] [--import DAYS] [--logs DAYS] [--searchhistory DAYS] [--restrictions DAYS] [--all-restrictions] [--fees DAYS] [--temp-uploads] [--temp-uploads-days DAYS] [--uploads-missing 0|1 ] [--statistics DAYS] [--deleted-catalog DAYS] [--deleted-patrons DAYS] [--old-issues DAYS] [--old-reserves DAYS] [--transfers DAYS]
 
    -h --help          prints this help message, and exits, ignoring all
                       other options
@@ -82,6 +82,13 @@ Usage: $0 [-h|--help] [--sessions] [--sessdays DAYS] [-v|--verbose] [--zebraqueu
    --temp-uploads-days DAYS Override the corresponding preference value.
    --uploads-missing FLAG Delete upload records for missing files when FLAG is true, count them otherwise
    --oauth-tokens     Delete expired OAuth2 tokens
+   --statistics DAYS       Purge entries from statistics older than DAYS days.
+   --deleted-catalog  DAYS Purge deleted catalog older than DAYS
+                           in tables deleteditems, deletedbiblioitems, deletedbiblio_metadata and deletedbiblio
+   --deleted-patrons DAYS  Purge deleted patrons older than DAYS days.
+   --old-issues DAYS       Purge old issues older than DAYS days.
+   --old-reserves DAYS     Purge old reserves older than DAYS days.
+   --transfers DAYS        Purge arrived items transfers older than DAYS days.
 USAGE
     exit $_[0];
 }
@@ -108,6 +115,12 @@ my $temp_uploads;
 my $temp_uploads_days;
 my $uploads_missing;
 my $oauth_tokens;
+my $pStatistics;
+my $pDeletedCatalog;
+my $pDeletedPatrons;
+my $pOldIssues;
+my $pOldReserves;
+my $pTransfers;
 
 GetOptions(
     'h|help'            => \$help,
@@ -132,6 +145,12 @@ GetOptions(
     'temp-uploads-days:i' => \$temp_uploads_days,
     'uploads-missing:i' => \$uploads_missing,
     'oauth-tokens'      => \$oauth_tokens,
+    'statistics:i'      => \$pStatistics,
+    'deleted-catalog:i' => \$pDeletedCatalog,
+    'deleted-patrons:i' => \$pDeletedPatrons,
+    'old-issues:i'      => \$pOldIssues,
+    'old-reserves:i'    => \$pOldReserves,
+    'transfers:i'    => \$pTransfers,
 ) || usage(1);
 
 # Use default values
@@ -166,6 +185,12 @@ unless ( $sessions
     || $temp_uploads
     || defined $uploads_missing
     || $oauth_tokens
+    || $pStatistics
+    || $pDeletedCatalog
+    || $pDeletedPatrons
+    || $pOldIssues
+    || $pOldReserves
+    || $pTransfers
 ) {
     print "You did not specify any cleanup work for the script to do.\n\n";
     usage(1);
@@ -342,6 +367,93 @@ if ($oauth_tokens) {
 
     my $count = int Koha::OAuthAccessTokens->search({ expires => { '<=', time } })->delete;
     say "Removed $count expired OAuth2 tokens" if $verbose;
+}
+
+if ($pStatistics) {
+    print "Purging statistics older than $pStatistics days.\n" if $verbose;
+    $sth = $dbh->prepare(
+        q{
+            DELETE FROM statistics
+            WHERE datetime < DATE_SUB(CURDATE(), INTERVAL ? DAY)
+        }
+    );
+    $sth->execute($pStatistics);
+    print "Done with purging statistics.\n" if $verbose;
+}
+
+if ($pDeletedCatalog) {
+    print "Purging deleted catalog older than $pDeletedCatalog days.\n" if $verbose;
+    my $sth1 = $dbh->prepare(
+        q{
+            DELETE FROM deleteditems
+            WHERE timestamp < DATE_SUB(CURDATE(), INTERVAL ? DAY)
+        }
+    );
+    my $sth2 = $dbh->prepare(
+        q{
+            DELETE FROM deletedbiblioitems
+            WHERE timestamp < DATE_SUB(CURDATE(), INTERVAL ? DAY)
+        }
+    );
+    my $sth3 = $dbh->prepare(
+        q{
+            DELETE FROM deletedbiblio
+            WHERE timestamp < DATE_SUB(CURDATE(), INTERVAL ? DAY)
+        }
+    );
+    # deletedbiblio_metadata is managed by FK with deletedbiblio
+    $sth1->execute($pDeletedCatalog);
+    $sth2->execute($pDeletedCatalog);
+    $sth3->execute($pDeletedCatalog);
+    print "Done with purging deleted catalog.\n" if $verbose;
+}
+
+if ($pDeletedPatrons) {
+    print "Purging deleted patrons older than $pDeletedPatrons days.\n" if $verbose;
+    $sth = $dbh->prepare(
+        q{
+            DELETE FROM deletedborrowers
+            WHERE updated_on < DATE_SUB(CURDATE(), INTERVAL ? DAY)
+        }
+    );
+    $sth->execute($pDeletedPatrons);
+    print "Done with purging deleted patrons.\n" if $verbose;
+}
+
+if ($pOldIssues) {
+    print "Purging old issues older than $pOldIssues days.\n" if $verbose;
+    $sth = $dbh->prepare(
+        q{
+            DELETE FROM old_issues
+            WHERE timestamp < DATE_SUB(CURDATE(), INTERVAL ? DAY)
+        }
+    );
+    $sth->execute($pOldIssues);
+    print "Done with purging old issues.\n" if $verbose;
+}
+
+if ($pOldReserves) {
+    print "Purging old reserves older than $pOldReserves days.\n" if $verbose;
+    $sth = $dbh->prepare(
+        q{
+            DELETE FROM old_reserves
+            WHERE timestamp < DATE_SUB(CURDATE(), INTERVAL ? DAY)
+        }
+    );
+    $sth->execute($pOldReserves);
+    print "Done with purging old reserves.\n" if $verbose;
+}
+
+if ($pTransfers) {
+    print "Purging arrived item transfers older than $pTransfers days.\n" if $verbose;
+    $sth = $dbh->prepare(
+        q{
+            DELETE FROM branchtransfers
+            WHERE datearrived < DATE_SUB(CURDATE(), INTERVAL ? DAY)
+        }
+    );
+    $sth->execute($pTransfers);
+    print "Done with purging transfers.\n" if $verbose;
 }
 
 exit(0);
