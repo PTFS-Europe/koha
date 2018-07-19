@@ -152,6 +152,12 @@ __PACKAGE__->table("aqorders");
   is_nullable: 1
   size: [13,2]
 
+=head2 replacementprice
+
+  data_type: 'decimal'
+  is_nullable: 1
+  size: [28,6]
+
 =head2 rrp_tax_excluded
 
   data_type: 'decimal'
@@ -370,6 +376,8 @@ __PACKAGE__->add_columns(
   },
   "rrp",
   { data_type => "decimal", is_nullable => 1, size => [13, 2] },
+  "replacementprice",
+  { data_type => "decimal", is_nullable => 1, size => [28, 6] },
   "rrp_tax_excluded",
   { data_type => "decimal", is_nullable => 1, size => [28, 6] },
   "rrp_tax_included",
