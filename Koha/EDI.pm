@@ -314,6 +314,8 @@ sub process_invoice {
                                 quantityreceived => $line->quantity,
                                 orderstatus      => 'complete',
                                 unitprice        => $price,
+                                unitprice_tax_excluded        => $price,
+                                unitprice_tax_included        => $price,
                                 invoiceid        => $invoiceid,
                                 datereceived     => $msg_date,
                             }
@@ -328,6 +330,8 @@ sub process_invoice {
                         $order->datereceived($msg_date);
                         $order->invoiceid($invoiceid);
                         $order->unitprice($price);
+                        $order->unitprice_tax_included($price);
+                        $order->unitprice_tax_excluded($price);
                         $order->orderstatus('complete');
                         $order->update;
                         receipt_items( $schema, $line, $ordernumber );
