@@ -394,7 +394,7 @@ sub update_price_from_invoice {
     my $ord          = shift;
     my $booksellerid = shift;
 
-    # wrapper around populate_order_with_prices as we are using dbic Row objects
+    # set prices in one place as we are using dbic Row objects
     my $ord_hash_ref = {
         discount               => $ord->discount,
         tax_rate_on_receiving  => $ord->tax_rate_on_receiving,
@@ -403,8 +403,8 @@ sub update_price_from_invoice {
         unitprice              => $ord->unitprice,
         ecost_tax_included     => $ord->ecost_tax_included,
         ecost_tax_excluded     => $ord->ecost_tax_excluded,
-        unitprice_tax_included => $ord->unitprice_tax_included,
-        unitprice_tax_excluded => $ord->unitprice_tax_excluded,
+        unitprice_tax_included => $ord->unitprice,
+        unitprice_tax_excluded => $ord->unitprice,
         quantity               => $ord->quantity,
     };
     my %pre_hash = %{$ord_hash_ref};
