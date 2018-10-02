@@ -32,6 +32,7 @@ use Koha::Exceptions::Ill;
 use Koha::Illcomments;
 use Koha::Illrequestattributes;
 use Koha::AuthorisedValue;
+use Koha::Illrequest::Logger;
 use Koha::Patron;
 
 use base qw(Koha::Object);
@@ -149,6 +150,16 @@ sub illcomments {
     );
 }
 
+=head3 logs
+
+=cut
+
+sub logs {
+    my ( $self ) = @_;
+    my $logger = Koha::Illrequest::Logger->new;
+    return $logger->get_request_logs($self);
+}
+
 =head3 patron
 
 =cut
@@ -162,18 +173,37 @@ sub patron {
 
 =head3 status
 
+    $Illrequest->status('CANREQ');
+
 Overloaded getter/setter for request status,
-also nullifies status_alias
+also nullifies status_alias and records the fact that the status has changed
 
 =cut
 
 sub status {
-    my ( $self, $newval) = @_;
-    if ($newval) {
-        $self->status_alias(undef);
-        return $self->SUPER::status($newval);
+    my ( $self, $new_status) = @_;
+
+    my $current_status = $self->SUPER::status;
+
+    if ($new_status) {
+        # Keep a record of the previous status before we change it,
+        # we might need it
+        $self->{previous_status} = $current_status;
+        my $ret = $self->SUPER::status($new_status)->store;
+        if ($ret) {
+            $self->status_alias(undef);
+            my $logger = Koha::Illrequest::Logger->new;
+            $logger->log_status_change(
+                $self,
+                $new_status
+            );
+        } else {
+            delete $self->{previous_status};
+        }
+        return $ret;
+    } else {
+        return $current_status;
     }
-    return $self->SUPER::status;
 }
 
 =head3 load_backend
@@ -197,7 +227,10 @@ sub load_backend {
     my $location = join "/", @raw, $backend_name, "Base.pm";    # File to load
     my $backend_class = join "::", @raw, $backend_name, "Base"; # Package name
     require $location;
-    $self->{_my_backend} = $backend_class->new({ config => $self->_config });
+    $self->{_my_backend} = $backend_class->new({
+        config => $self->_config,
+        logger => Koha::Illrequest::Logger->new
+    });
     return $self;
 }
 
@@ -1051,6 +1084,30 @@ sub _censor {
     $params->{display_reply_date} = ( $censorship->{censor_reply_date} ) ? 0 : 1;
 
     return $params;
+}
+
+=head3 store
+
+    $Illrequest->store;
+
+Overloaded I<store> method that, in addition to performing the 'store',
+possibly records the fact that something happened
+
+=cut
+
+sub store {
+    my ( $self, $attrs ) = @_;
+
+    my $ret = $self->SUPER::store;
+
+    $attrs->{log_origin} = 'core';
+
+    if ($ret && defined $attrs) {
+        my $logger = Koha::Illrequest::Logger->new;
+        $logger->log_maybe($self, $attrs);
+    }
+
+    return $ret;
 }
 
 =head3 TO_JSON

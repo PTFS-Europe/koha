@@ -312,6 +312,10 @@
                             <span class="fa fa-eye"></span>
                             Display supplier metadata
                         </a>
+                        <a title="Display request log" id="ill-request-display-log" class="btn btn-sm btn-default pull-right" href="#">
+                            <span class="fa fa-calendar"></span>
+                            Display request log
+                        </a>
                     </div>
                     <div class="ill-view-panel panel panel-default">
                         <div class="panel-heading">
@@ -422,6 +426,30 @@
                         </div>
                     </div>
 
+                    <div id="requestLog" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="dataPreviewLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="closebtn" data-dismiss="modal" aria-hidden="true">×</button>
+                                    <h3 id="requestLogLabel"> Request log</h3>
+                                </div>
+                                <div class="modal-body">
+                                [% IF request.logs.size > 0 %]
+                                    [% FOREACH log IN request.logs %]
+                                        [% tpl = log.template %]
+                                        [% INCLUDE $tpl %]
+                                    [% END %]
+                                [% ELSE %]
+                                    There are no recorded logs for this request
+                                [% END %]
+                                </div>
+                                <div class="modal-footer">
+                                    <button class="btn btn-default" data-dismiss="modal" aria-hidden="true">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="ill-view-panel panel panel-default">
                         <div class="panel-heading">
                             <h3>[% request.illcomments.count | html %] comments</h3>
@@ -460,7 +488,7 @@
                                         </form>
                                     </div>
                                 </div>
-                            </div>
+                        </div>
                     </div>
 
                 [% ELSIF query_type == 'illlist' %]
@@ -849,6 +877,12 @@
                     name: _("Patron barcode")
                 }
             };
+
+            // Display the modal containing request supplier metadata
+            $('#ill-request-display-log').on('click', function(e) {
+                e.preventDefault();
+                $('#requestLog').modal({show:true});
+            });
 
             // Toggle request attributes in Illview
             $('#toggle_requestattributes').on('click', function(e) {
