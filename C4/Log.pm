@@ -142,6 +142,7 @@ sub GetLogStatus {
     $hash{CataloguingLog}  = C4::Context->preference("CataloguingLog");
     $hash{HoldsLog}        = C4::Context->preference("HoldsLog");
     $hash{IssueLog}        = C4::Context->preference("IssueLog");
+    $hash{IllLog}          = C4::Context->preference("IllLog");
     $hash{ReturnLog}       = C4::Context->preference("ReturnLog");
     $hash{SubscriptionLog} = C4::Context->preference("SubscriptionLog");
     $hash{LetterLog}       = C4::Context->preference("LetterLog");
