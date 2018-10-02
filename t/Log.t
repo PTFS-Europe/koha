@@ -16,6 +16,7 @@ BEGIN {
 t::lib::Mocks::mock_preference('BorrowersLog', 1);
 t::lib::Mocks::mock_preference('CataloguingLog', 1);
 t::lib::Mocks::mock_preference('IssueLog', 1);
+t::lib::Mocks::mock_preference('IllLog', 1);
 t::lib::Mocks::mock_preference('ReturnLog', 1);
 t::lib::Mocks::mock_preference('SubscriptionLog', 1);
 t::lib::Mocks::mock_preference('LetterLog', 1);
