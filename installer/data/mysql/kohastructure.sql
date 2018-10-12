@@ -4196,7 +4196,7 @@ CREATE TABLE illrequests (
     CONSTRAINT `illrequests_safk`
       FOREIGN KEY (`status_alias`)
       REFERENCES `authorised_values` (`id`)
-      ON DELETE SET NULL
+      ON UPDATE CASCADE ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
