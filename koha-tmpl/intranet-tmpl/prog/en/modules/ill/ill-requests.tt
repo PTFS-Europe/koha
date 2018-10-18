@@ -511,9 +511,10 @@
                                     <th scope="col">Pages</th>
                                     <th scope="col">Type</th>
                                     <th scope="col">Order ID</th>
+                                    <th scope="col">Patron ID</th>
+                                    <th scope="col" class="patron_cardnumber">Patron barcode</th>
                                     <th scope="col">Biblio ID</th>
                                     <th scope="col">Patron</th>
-                                    <th class="patron_cardnumber">Patron barcode</th>
                                     <th scope="col">Branch</th>
                                     <th scope="col">Status</th>
                                     <th scope="col" class="placed">&nbsp;</th>

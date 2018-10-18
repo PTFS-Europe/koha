@@ -128,9 +128,10 @@ sub list {
         foreach my $p(@{$patron_arr}) {
             if ($p->{borrowernumber} == $req->borrowernumber) {
                 $to_push->{patron} = {
-                    firstname  => $p->{firstname},
-                    surname    => $p->{surname},
-                    cardnumber => $p->{cardnumber}
+                    borrowernumber => $p->{borrowernumber},
+                    firstname      => $p->{firstname},
+                    surname        => $p->{surname},
+                    cardnumber     => $p->{cardnumber}
                 };
                 last;
             }
