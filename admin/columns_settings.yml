@@ -321,6 +321,10 @@ modules:
         -
           columnname: orderid
         -
+          columnname: patron_borrowernumber
+        -
+          columnname: patron_cardnumber
+        -
           columnname: biblio_id
         -
           columnname: borrowernumber
