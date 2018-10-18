@@ -19,6 +19,7 @@ package Koha::Illrequest::Logger;
 
 use Modern::Perl;
 use JSON qw( to_json from_json );
+use Time::Piece;
 
 use C4::Context;
 use C4::Templates;
@@ -228,7 +229,8 @@ sub get_request_logs {
         );
     }
 
-    my @sorted = sort {$$b{'timestamp'} <=> $$a{'timestamp'}} @{$logs};
+    my $format = '%Y-%m-%d %H:%M:%S';
+    my @sorted = sort {Time::Piece->strptime($$b{'timestamp'}, $format)->epoch <=> Time::Piece->strptime($$a{'timestamp'}, $format)->epoch} @{$logs};
 
     return \@sorted;
 }
