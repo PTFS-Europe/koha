@@ -121,8 +121,7 @@ __PACKAGE__->table("auth_subfield_structure");
 =head2 frameworkcode
 
   data_type: 'varchar'
-  default_value: (empty string)
-  is_nullable: 0
+  is_nullable: 1
   size: 10
 
 =head2 defaultvalue
@@ -170,7 +169,7 @@ __PACKAGE__->add_columns(
   "kohafield",
   { data_type => "varchar", default_value => "", is_nullable => 1, size => 45 },
   "frameworkcode",
-  { data_type => "varchar", default_value => "", is_nullable => 0, size => 10 },
+  { data_type => "varchar", is_nullable => 1, size => 10 },
   "defaultvalue",
   { data_type => "mediumtext", is_nullable => 1 },
 );
@@ -209,8 +208,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07042 @ 2018-02-16 17:54:53
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:5Prv/DCQk32mTQaqtYhUuA
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2018-11-08 11:09:51
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:htwTatj58OlWarcF1/9pSA
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

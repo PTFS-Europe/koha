@@ -150,12 +150,6 @@ __PACKAGE__->table("items");
   is_nullable: 1
   size: 255
 
-=head2 coded_location_qualifier
-
-  data_type: 'varchar'
-  is_nullable: 1
-  size: 10
-
 =head2 issues
 
   data_type: 'smallint'
@@ -280,11 +274,19 @@ __PACKAGE__->table("items");
   is_nullable: 1
   size: 32
 
+stores the inventory number
+
 =head2 new_status
 
   data_type: 'varchar'
   is_nullable: 1
   size: 32
+
+=head2 coded_location_qualifier
+
+  data_type: 'varchar'
+  is_nullable: 1
+  size: 10
 
 =cut
 
@@ -353,8 +355,6 @@ __PACKAGE__->add_columns(
   },
   "itemcallnumber",
   { data_type => "varchar", is_nullable => 1, size => 255 },
-  "coded_location_qualifier",
-  { data_type => "varchar", is_nullable => 1, size => 10 },
   "issues",
   { data_type => "smallint", is_nullable => 1 },
   "renewals",
@@ -406,6 +406,8 @@ __PACKAGE__->add_columns(
   { data_type => "varchar", is_nullable => 1, size => 32 },
   "new_status",
   { data_type => "varchar", is_nullable => 1, size => 32 },
+  "coded_location_qualifier",
+  { data_type => "varchar", is_nullable => 1, size => 10 },
 );
 
 =head1 PRIMARY KEY
@@ -667,21 +669,6 @@ Related object: L<Koha::Schema::Result::Reserve>
 __PACKAGE__->has_many(
   "reserves",
   "Koha::Schema::Result::Reserve",
-  { "foreign.itemnumber" => "self.itemnumber" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
-=head2 serialitem
-
-Type: might_have
-
-Related object: L<Koha::Schema::Result::Serialitem>
-
-=cut
-
-__PACKAGE__->might_have(
-  "serialitem",
-  "Koha::Schema::Result::Serialitem",
   { "foreign.itemnumber" => "self.itemnumber" },
   { cascade_copy => 0, cascade_delete => 0 },
 );

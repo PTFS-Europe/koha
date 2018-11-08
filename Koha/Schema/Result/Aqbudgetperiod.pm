@@ -52,12 +52,6 @@ __PACKAGE__->table("aqbudgetperiods");
   data_type: 'longtext'
   is_nullable: 1
 
-=head2 budget_period_total
-
-  data_type: 'decimal'
-  is_nullable: 1
-  size: [28,6]
-
 =head2 budget_period_locked
 
   data_type: 'tinyint'
@@ -75,6 +69,12 @@ __PACKAGE__->table("aqbudgetperiods");
   is_nullable: 1
   size: 10
 
+=head2 budget_period_total
+
+  data_type: 'decimal'
+  is_nullable: 1
+  size: [28,6]
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -88,14 +88,14 @@ __PACKAGE__->add_columns(
   { data_type => "tinyint", default_value => 0, is_nullable => 1 },
   "budget_period_description",
   { data_type => "longtext", is_nullable => 1 },
-  "budget_period_total",
-  { data_type => "decimal", is_nullable => 1, size => [28, 6] },
   "budget_period_locked",
   { data_type => "tinyint", is_nullable => 1 },
   "sort1_authcat",
   { data_type => "varchar", is_nullable => 1, size => 10 },
   "sort2_authcat",
   { data_type => "varchar", is_nullable => 1, size => 10 },
+  "budget_period_total",
+  { data_type => "decimal", is_nullable => 1, size => [28, 6] },
 );
 
 =head1 PRIMARY KEY
@@ -110,9 +110,26 @@ __PACKAGE__->add_columns(
 
 __PACKAGE__->set_primary_key("budget_period_id");
 
+=head1 RELATIONS
 
-# Created by DBIx::Class::Schema::Loader v0.07042 @ 2018-02-16 17:54:53
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:M13qdhmXgKilais2IFkXFw
+=head2 aqbudgets
+
+Type: has_many
+
+Related object: L<Koha::Schema::Result::Aqbudget>
+
+=cut
+
+__PACKAGE__->has_many(
+  "aqbudgets",
+  "Koha::Schema::Result::Aqbudget",
+  { "foreign.budget_period_id" => "self.budget_period_id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2018-11-08 11:09:51
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:V7R0Zdn1ZrQoRIcib6LUIw
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

@@ -42,17 +42,17 @@ __PACKAGE__->table("cities");
   is_nullable: 1
   size: 100
 
-=head2 city_country
-
-  data_type: 'varchar'
-  is_nullable: 1
-  size: 100
-
 =head2 city_zipcode
 
   data_type: 'varchar'
   is_nullable: 1
   size: 20
+
+=head2 city_country
+
+  data_type: 'varchar'
+  is_nullable: 1
+  size: 100
 
 =cut
 
@@ -63,10 +63,10 @@ __PACKAGE__->add_columns(
   { data_type => "varchar", default_value => "", is_nullable => 0, size => 100 },
   "city_state",
   { data_type => "varchar", is_nullable => 1, size => 100 },
-  "city_country",
-  { data_type => "varchar", is_nullable => 1, size => 100 },
   "city_zipcode",
   { data_type => "varchar", is_nullable => 1, size => 20 },
+  "city_country",
+  { data_type => "varchar", is_nullable => 1, size => 100 },
 );
 
 =head1 PRIMARY KEY
@@ -82,8 +82,8 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key("cityid");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07025 @ 2013-10-14 20:56:21
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:zEjfS65sp13yF7dH8/ojZQ
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2018-11-08 11:09:51
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:aOIpsiZF15Qzurb4NNUZZQ
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

@@ -73,7 +73,6 @@ __PACKAGE__->table("aqinvoices");
 =head2 message_id
 
   data_type: 'integer'
-  is_foreign_key: 1
   is_nullable: 1
 
 =cut
@@ -96,7 +95,7 @@ __PACKAGE__->add_columns(
   "shipmentcost_budgetid",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
   "message_id",
-  { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
+  { data_type => "integer", is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -158,26 +157,6 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 1, on_delete => "CASCADE", on_update => "CASCADE" },
 );
 
-=head2 message
-
-Type: belongs_to
-
-Related object: L<Koha::Schema::Result::EdifactMessage>
-
-=cut
-
-__PACKAGE__->belongs_to(
-  "message",
-  "Koha::Schema::Result::EdifactMessage",
-  { id => "message_id" },
-  {
-    is_deferrable => 1,
-    join_type     => "LEFT",
-    on_delete     => "SET NULL",
-    on_update     => "RESTRICT",
-  },
-);
-
 =head2 shipmentcost_budgetid
 
 Type: belongs_to
@@ -199,8 +178,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07042 @ 2018-07-16 13:50:45
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:mpdxTbkz/8WInG5Wp4q7Ug
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2018-11-08 11:09:51
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Vt50GepELpI7iE49C9dTJA
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

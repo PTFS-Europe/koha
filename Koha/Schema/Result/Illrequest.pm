@@ -54,6 +54,12 @@ __PACKAGE__->table("illrequests");
   is_nullable: 1
   size: 50
 
+=head2 status_alias
+
+  data_type: 'integer'
+  is_foreign_key: 1
+  is_nullable: 1
+
 =head2 placed
 
   data_type: 'date'
@@ -97,12 +103,6 @@ __PACKAGE__->table("illrequests");
   is_nullable: 1
   size: 20
 
-=head2 price_paid
-
-  data_type: 'varchar'
-  is_nullable: 1
-  size: 20
-
 =head2 notesopac
 
   data_type: 'mediumtext'
@@ -120,6 +120,12 @@ __PACKAGE__->table("illrequests");
   size: 50
 
 =head2 backend
+
+  data_type: 'varchar'
+  is_nullable: 1
+  size: 20
+
+=head2 price_paid
 
   data_type: 'varchar'
   is_nullable: 1
@@ -143,6 +149,8 @@ __PACKAGE__->add_columns(
   { data_type => "varchar", is_foreign_key => 1, is_nullable => 0, size => 50 },
   "status",
   { data_type => "varchar", is_nullable => 1, size => 50 },
+  "status_alias",
+  { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
   "placed",
   { data_type => "date", datetime_undef_if_invalid => 1, is_nullable => 1 },
   "replied",
@@ -162,8 +170,6 @@ __PACKAGE__->add_columns(
   { data_type => "varchar", is_nullable => 1, size => 500 },
   "cost",
   { data_type => "varchar", is_nullable => 1, size => 20 },
-  "price_paid",
-  { data_type => "varchar", is_nullable => 1, size => 20 },
   "notesopac",
   { data_type => "mediumtext", is_nullable => 1 },
   "notesstaff",
@@ -171,6 +177,8 @@ __PACKAGE__->add_columns(
   "orderid",
   { data_type => "varchar", is_nullable => 1, size => 50 },
   "backend",
+  { data_type => "varchar", is_nullable => 1, size => 20 },
+  "price_paid",
   { data_type => "varchar", is_nullable => 1, size => 20 },
 );
 
@@ -253,9 +261,29 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 status_alias
 
-# Created by DBIx::Class::Schema::Loader v0.07042 @ 2018-10-27 13:16:48
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:rv6QyhxEah2r/rDcz3aOOw
+Type: belongs_to
+
+Related object: L<Koha::Schema::Result::AuthorisedValue>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "status_alias",
+  "Koha::Schema::Result::AuthorisedValue",
+  { id => "status_alias" },
+  {
+    is_deferrable => 1,
+    join_type     => "LEFT",
+    on_delete     => "SET NULL",
+    on_update     => "CASCADE",
+  },
+);
+
+
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2018-11-08 11:09:51
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:kib9BcMRy/expyGSm9sMbQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

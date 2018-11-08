@@ -35,43 +35,9 @@ __PACKAGE__->table("suggestions");
   default_value: 0
   is_nullable: 0
 
-=head2 suggesteddate
-
-  data_type: 'date'
-  datetime_undef_if_invalid: 1
-  is_nullable: 0
-
 =head2 managedby
 
   data_type: 'integer'
-  is_nullable: 1
-
-=head2 manageddate
-
-  data_type: 'date'
-  datetime_undef_if_invalid: 1
-  is_nullable: 1
-
-=head2 acceptedby
-
-  data_type: 'integer'
-  is_nullable: 1
-
-=head2 accepteddate
-
-  data_type: 'date'
-  datetime_undef_if_invalid: 1
-  is_nullable: 1
-
-=head2 rejectedby
-
-  data_type: 'integer'
-  is_nullable: 1
-
-=head2 rejecteddate
-
-  data_type: 'date'
-  datetime_undef_if_invalid: 1
   is_nullable: 1
 
 =head2 STATUS
@@ -168,6 +134,40 @@ __PACKAGE__->table("suggestions");
   is_nullable: 1
   size: 10
 
+=head2 acceptedby
+
+  data_type: 'integer'
+  is_nullable: 1
+
+=head2 accepteddate
+
+  data_type: 'date'
+  datetime_undef_if_invalid: 1
+  is_nullable: 1
+
+=head2 suggesteddate
+
+  data_type: 'date'
+  datetime_undef_if_invalid: 1
+  is_nullable: 0
+
+=head2 manageddate
+
+  data_type: 'date'
+  datetime_undef_if_invalid: 1
+  is_nullable: 1
+
+=head2 rejectedby
+
+  data_type: 'integer'
+  is_nullable: 1
+
+=head2 rejecteddate
+
+  data_type: 'date'
+  datetime_undef_if_invalid: 1
+  is_nullable: 1
+
 =head2 collectiontitle
 
   data_type: 'mediumtext'
@@ -209,20 +209,8 @@ __PACKAGE__->add_columns(
   { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
   "suggestedby",
   { data_type => "integer", default_value => 0, is_nullable => 0 },
-  "suggesteddate",
-  { data_type => "date", datetime_undef_if_invalid => 1, is_nullable => 0 },
   "managedby",
   { data_type => "integer", is_nullable => 1 },
-  "manageddate",
-  { data_type => "date", datetime_undef_if_invalid => 1, is_nullable => 1 },
-  "acceptedby",
-  { data_type => "integer", is_nullable => 1 },
-  "accepteddate",
-  { data_type => "date", datetime_undef_if_invalid => 1, is_nullable => 1 },
-  "rejectedby",
-  { data_type => "integer", is_nullable => 1 },
-  "rejecteddate",
-  { data_type => "date", datetime_undef_if_invalid => 1, is_nullable => 1 },
   "STATUS",
   {
     accessor => "status",
@@ -266,6 +254,18 @@ __PACKAGE__->add_columns(
   { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
   "branchcode",
   { data_type => "varchar", is_nullable => 1, size => 10 },
+  "acceptedby",
+  { data_type => "integer", is_nullable => 1 },
+  "accepteddate",
+  { data_type => "date", datetime_undef_if_invalid => 1, is_nullable => 1 },
+  "suggesteddate",
+  { data_type => "date", datetime_undef_if_invalid => 1, is_nullable => 0 },
+  "manageddate",
+  { data_type => "date", datetime_undef_if_invalid => 1, is_nullable => 1 },
+  "rejectedby",
+  { data_type => "integer", is_nullable => 1 },
+  "rejecteddate",
+  { data_type => "date", datetime_undef_if_invalid => 1, is_nullable => 1 },
   "collectiontitle",
   { data_type => "mediumtext", is_nullable => 1 },
   "itemtype",
@@ -315,8 +315,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07042 @ 2018-02-16 17:54:54
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:dOt4/U4rLcXq+aACRwcpYw
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2018-11-08 11:09:51
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:9ovjDSyWFUtxt4qShR1RiA
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

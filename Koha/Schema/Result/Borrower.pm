@@ -89,7 +89,7 @@ __PACKAGE__->table("borrowers");
 
 =head2 state
 
-  data_type: 'mediumtext'
+  data_type: 'longtext'
   is_nullable: 1
 
 =head2 zipcode
@@ -170,7 +170,7 @@ __PACKAGE__->table("borrowers");
 =head2 B_state
 
   accessor: 'b_state'
-  data_type: 'mediumtext'
+  data_type: 'longtext'
   is_nullable: 1
 
 =head2 B_zipcode
@@ -291,6 +291,18 @@ __PACKAGE__->table("borrowers");
   is_nullable: 1
   size: 100
 
+=head2 ethnicity
+
+  data_type: 'varchar'
+  is_nullable: 1
+  size: 50
+
+=head2 ethnotes
+
+  data_type: 'varchar'
+  is_nullable: 1
+  size: 255
+
 =head2 sex
 
   data_type: 'varchar'
@@ -369,7 +381,7 @@ __PACKAGE__->table("borrowers");
 
 =head2 altcontactstate
 
-  data_type: 'mediumtext'
+  data_type: 'longtext'
   is_nullable: 1
 
 =head2 altcontactzipcode
@@ -425,7 +437,7 @@ __PACKAGE__->table("borrowers");
   data_type: 'timestamp'
   datetime_undef_if_invalid: 1
   default_value: current_timestamp
-  is_nullable: 0
+  is_nullable: 1
 
 =head2 lastseen
 
@@ -443,7 +455,6 @@ __PACKAGE__->table("borrowers");
 =head2 login_attempts
 
   data_type: 'integer'
-  default_value: 0
   is_nullable: 1
 
 =head2 overdrive_auth_token
@@ -479,7 +490,7 @@ __PACKAGE__->add_columns(
   "city",
   { data_type => "longtext", is_nullable => 1 },
   "state",
-  { data_type => "mediumtext", is_nullable => 1 },
+  { data_type => "longtext", is_nullable => 1 },
   "zipcode",
   { data_type => "varchar", is_nullable => 1, size => 25 },
   "country",
@@ -522,7 +533,7 @@ __PACKAGE__->add_columns(
   "B_city",
   { accessor => "b_city", data_type => "longtext", is_nullable => 1 },
   "B_state",
-  { accessor => "b_state", data_type => "mediumtext", is_nullable => 1 },
+  { accessor => "b_state", data_type => "longtext", is_nullable => 1 },
   "B_zipcode",
   {
     accessor => "b_zipcode",
@@ -580,6 +591,10 @@ __PACKAGE__->add_columns(
   { data_type => "longtext", is_nullable => 1 },
   "relationship",
   { data_type => "varchar", is_nullable => 1, size => 100 },
+  "ethnicity",
+  { data_type => "varchar", is_nullable => 1, size => 50 },
+  "ethnotes",
+  { data_type => "varchar", is_nullable => 1, size => 255 },
   "sex",
   { data_type => "varchar", is_nullable => 1, size => 1 },
   "password",
@@ -607,7 +622,7 @@ __PACKAGE__->add_columns(
   "altcontactaddress3",
   { data_type => "varchar", is_nullable => 1, size => 255 },
   "altcontactstate",
-  { data_type => "mediumtext", is_nullable => 1 },
+  { data_type => "longtext", is_nullable => 1 },
   "altcontactzipcode",
   { data_type => "varchar", is_nullable => 1, size => 50 },
   "altcontactcountry",
@@ -634,7 +649,7 @@ __PACKAGE__->add_columns(
     data_type => "timestamp",
     datetime_undef_if_invalid => 1,
     default_value => \"current_timestamp",
-    is_nullable => 0,
+    is_nullable => 1,
   },
   "lastseen",
   {
@@ -650,7 +665,7 @@ __PACKAGE__->add_columns(
     size => 25,
   },
   "login_attempts",
-  { data_type => "integer", default_value => 0, is_nullable => 1 },
+  { data_type => "integer", is_nullable => 1 },
   "overdrive_auth_token",
   { data_type => "mediumtext", is_nullable => 1 },
 );
@@ -680,18 +695,6 @@ __PACKAGE__->set_primary_key("borrowernumber");
 =cut
 
 __PACKAGE__->add_unique_constraint("cardnumber", ["cardnumber"]);
-
-=head2 C<userid>
-
-=over 4
-
-=item * L</userid>
-
-=back
-
-=cut
-
-__PACKAGE__->add_unique_constraint("userid", ["userid"]);
 
 =head1 RELATIONS
 

@@ -113,15 +113,15 @@ __PACKAGE__->table("subscription");
   data_type: 'integer'
   is_nullable: 1
 
+=head2 lastvalue2
+
+  data_type: 'integer'
+  is_nullable: 1
+
 =head2 innerloop1
 
   data_type: 'integer'
   default_value: 0
-  is_nullable: 1
-
-=head2 lastvalue2
-
-  data_type: 'integer'
   is_nullable: 1
 
 =head2 innerloop2
@@ -130,15 +130,15 @@ __PACKAGE__->table("subscription");
   default_value: 0
   is_nullable: 1
 
-=head2 lastvalue3
-
-  data_type: 'integer'
-  is_nullable: 1
-
 =head2 innerloop3
 
   data_type: 'integer'
   default_value: 0
+  is_nullable: 1
+
+=head2 lastvalue3
+
+  data_type: 'integer'
   is_nullable: 1
 
 =head2 firstacquidate
@@ -304,16 +304,16 @@ __PACKAGE__->add_columns(
   { data_type => "varchar", default_value => "", is_nullable => 0, size => 100 },
   "lastvalue1",
   { data_type => "integer", is_nullable => 1 },
-  "innerloop1",
-  { data_type => "integer", default_value => 0, is_nullable => 1 },
   "lastvalue2",
   { data_type => "integer", is_nullable => 1 },
+  "innerloop1",
+  { data_type => "integer", default_value => 0, is_nullable => 1 },
   "innerloop2",
+  { data_type => "integer", default_value => 0, is_nullable => 1 },
+  "innerloop3",
   { data_type => "integer", default_value => 0, is_nullable => 1 },
   "lastvalue3",
   { data_type => "integer", is_nullable => 1 },
-  "innerloop3",
-  { data_type => "integer", default_value => 0, is_nullable => 1 },
   "firstacquidate",
   { data_type => "date", datetime_undef_if_invalid => 1, is_nullable => 1 },
   "manualhistory",
@@ -429,24 +429,9 @@ __PACKAGE__->belongs_to(
   },
 );
 
-=head2 subscriptionroutinglists
 
-Type: has_many
-
-Related object: L<Koha::Schema::Result::Subscriptionroutinglist>
-
-=cut
-
-__PACKAGE__->has_many(
-  "subscriptionroutinglists",
-  "Koha::Schema::Result::Subscriptionroutinglist",
-  { "foreign.subscriptionid" => "self.subscriptionid" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
-
-# Created by DBIx::Class::Schema::Loader v0.07042 @ 2018-02-16 17:54:54
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ZRLfM/4h8VMLTgW7LkUYYA
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2018-11-08 11:09:51
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:YEnhBEHShtX7EOGZ72E3tg
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration
