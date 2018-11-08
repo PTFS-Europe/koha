@@ -44,7 +44,7 @@ __PACKAGE__->table("marc_modification_template_actions");
 
   data_type: 'enum'
   extra: {list => ["delete_field","add_field","update_field","move_field","copy_field","copy_and_replace_field"]}
-  is_nullable: 0
+  is_nullable: 1
 
 =head2 field_number
 
@@ -161,7 +161,7 @@ __PACKAGE__->add_columns(
         "copy_and_replace_field",
       ],
     },
-    is_nullable => 0,
+    is_nullable => 1,
   },
   "field_number",
   { data_type => "smallint", default_value => 0, is_nullable => 0 },
@@ -235,8 +235,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07042 @ 2018-07-19 17:32:57
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:dAUr9aGlNZleldYbjJHdmw
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2018-11-08 11:09:51
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:l5ezpD4DzfzsLV+WhOYpAQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

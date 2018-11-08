@@ -41,13 +41,6 @@ __PACKAGE__->table("oai_sets_mappings");
   is_nullable: 0
   size: 1
 
-=head2 operator
-
-  data_type: 'varchar'
-  default_value: 'equal'
-  is_nullable: 0
-  size: 8
-
 =head2 marcvalue
 
   data_type: 'varchar'
@@ -63,13 +56,6 @@ __PACKAGE__->add_columns(
   { data_type => "char", is_nullable => 0, size => 3 },
   "marcsubfield",
   { data_type => "char", is_nullable => 0, size => 1 },
-  "operator",
-  {
-    data_type => "varchar",
-    default_value => "equal",
-    is_nullable => 0,
-    size => 8,
-  },
   "marcvalue",
   { data_type => "varchar", is_nullable => 0, size => 80 },
 );
@@ -92,8 +78,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07025 @ 2013-10-14 20:56:21
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:A2fchnI85JftSuruZ1CykQ
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2018-11-08 11:09:51
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ISJose/oSjtuVo3EXLzPxA
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

@@ -223,7 +223,7 @@ __PACKAGE__->belongs_to(
   {
     is_deferrable => 1,
     join_type     => "LEFT",
-    on_delete     => "RESTRICT",
+    on_delete     => "SET NULL",
     on_update     => "CASCADE",
   },
 );
@@ -309,8 +309,8 @@ Composing rels: L</aqbasketusers> -> borrowernumber
 __PACKAGE__->many_to_many("borrowernumbers", "aqbasketusers", "borrowernumber");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07042 @ 2018-02-16 17:54:53
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:gSw/f4JmMBzEssEFRg2fAQ
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2018-11-08 11:09:51
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:j41n7K4Pygo6KvdmRKaggA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

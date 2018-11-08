@@ -26,6 +26,7 @@ __PACKAGE__->table("patronimage");
 =head2 borrowernumber
 
   data_type: 'integer'
+  default_value: 0
   is_foreign_key: 1
   is_nullable: 0
 
@@ -44,7 +45,12 @@ __PACKAGE__->table("patronimage");
 
 __PACKAGE__->add_columns(
   "borrowernumber",
-  { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
+  {
+    data_type      => "integer",
+    default_value  => 0,
+    is_foreign_key => 1,
+    is_nullable    => 0,
+  },
   "mimetype",
   { data_type => "varchar", is_nullable => 0, size => 15 },
   "imagefile",
@@ -81,8 +87,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07025 @ 2013-10-14 20:56:21
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:uuRGyWlemwOH1PCkvhqxdQ
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2018-11-08 11:09:51
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:FlZ4R0S51TTSASvOPzqmrg
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

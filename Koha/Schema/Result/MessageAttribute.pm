@@ -32,8 +32,7 @@ __PACKAGE__->table("message_attributes");
 =head2 message_name
 
   data_type: 'varchar'
-  default_value: (empty string)
-  is_nullable: 0
+  is_nullable: 1
   size: 40
 
 =head2 takes_days
@@ -48,7 +47,7 @@ __PACKAGE__->add_columns(
   "message_attribute_id",
   { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
   "message_name",
-  { data_type => "varchar", default_value => "", is_nullable => 0, size => 40 },
+  { data_type => "varchar", is_nullable => 1, size => 40 },
   "takes_days",
   { data_type => "tinyint", default_value => 0, is_nullable => 0 },
 );
@@ -112,8 +111,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07025 @ 2013-10-14 20:56:21
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:N033AvWwG2CDBDuTj2unqQ
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2018-11-08 11:09:51
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:0UOXJDFio/WUDUbc67P1WQ
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

@@ -26,7 +26,6 @@ __PACKAGE__->table("authorised_value_categories");
 =head2 category_name
 
   data_type: 'varchar'
-  default_value: (empty string)
   is_nullable: 0
   size: 32
 
@@ -34,7 +33,7 @@ __PACKAGE__->table("authorised_value_categories");
 
 __PACKAGE__->add_columns(
   "category_name",
-  { data_type => "varchar", default_value => "", is_nullable => 0, size => 32 },
+  { data_type => "varchar", is_nullable => 0, size => 32 },
 );
 
 =head1 PRIMARY KEY
@@ -97,8 +96,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07045 @ 2016-08-30 11:59:31
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:6vToj9pUcIv8Jio38rNE4g
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2018-11-08 11:09:51
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:mEZUVKQXHKTLVfXoeMHosw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

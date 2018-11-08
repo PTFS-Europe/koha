@@ -152,12 +152,6 @@ __PACKAGE__->table("aqorders");
   is_nullable: 1
   size: [13,2]
 
-=head2 replacementprice
-
-  data_type: 'decimal'
-  is_nullable: 1
-  size: [28,6]
-
 =head2 rrp_tax_excluded
 
   data_type: 'decimal'
@@ -230,12 +224,6 @@ __PACKAGE__->table("aqorders");
   is_nullable: 1
   size: [6,4]
 
-=head2 budget_id
-
-  data_type: 'integer'
-  is_foreign_key: 1
-  is_nullable: 0
-
 =head2 budgetdate
 
   data_type: 'date'
@@ -254,6 +242,17 @@ __PACKAGE__->table("aqorders");
   is_nullable: 1
   size: 80
 
+=head2 uncertainprice
+
+  data_type: 'tinyint'
+  is_nullable: 1
+
+=head2 budget_id
+
+  data_type: 'integer'
+  is_foreign_key: 1
+  is_nullable: 0
+
 =head2 sort1_authcat
 
   data_type: 'varchar'
@@ -265,11 +264,6 @@ __PACKAGE__->table("aqorders");
   data_type: 'varchar'
   is_nullable: 1
   size: 10
-
-=head2 uncertainprice
-
-  data_type: 'tinyint'
-  is_nullable: 1
 
 =head2 claims_count
 
@@ -283,12 +277,6 @@ __PACKAGE__->table("aqorders");
   datetime_undef_if_invalid: 1
   is_nullable: 1
 
-=head2 subscriptionid
-
-  data_type: 'integer'
-  is_foreign_key: 1
-  is_nullable: 1
-
 =head2 parent_ordernumber
 
   data_type: 'integer'
@@ -300,6 +288,12 @@ __PACKAGE__->table("aqorders");
   default_value: 'new'
   is_nullable: 1
   size: 16
+
+=head2 subscriptionid
+
+  data_type: 'integer'
+  is_foreign_key: 1
+  is_nullable: 1
 
 =head2 line_item_id
 
@@ -323,6 +317,12 @@ __PACKAGE__->table("aqorders");
 
   data_type: 'mediumtext'
   is_nullable: 1
+
+=head2 replacementprice
+
+  data_type: 'decimal'
+  is_nullable: 1
+  size: [28,6]
 
 =cut
 
@@ -376,8 +376,6 @@ __PACKAGE__->add_columns(
   },
   "rrp",
   { data_type => "decimal", is_nullable => 1, size => [13, 2] },
-  "replacementprice",
-  { data_type => "decimal", is_nullable => 1, size => [28, 6] },
   "rrp_tax_excluded",
   { data_type => "decimal", is_nullable => 1, size => [28, 6] },
   "rrp_tax_included",
@@ -402,26 +400,24 @@ __PACKAGE__->add_columns(
   { data_type => "decimal", is_nullable => 1, size => [28, 6] },
   "discount",
   { data_type => "float", is_nullable => 1, size => [6, 4] },
-  "budget_id",
-  { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
   "budgetdate",
   { data_type => "date", datetime_undef_if_invalid => 1, is_nullable => 1 },
   "sort1",
   { data_type => "varchar", is_nullable => 1, size => 80 },
   "sort2",
   { data_type => "varchar", is_nullable => 1, size => 80 },
+  "uncertainprice",
+  { data_type => "tinyint", is_nullable => 1 },
+  "budget_id",
+  { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
   "sort1_authcat",
   { data_type => "varchar", is_nullable => 1, size => 10 },
   "sort2_authcat",
   { data_type => "varchar", is_nullable => 1, size => 10 },
-  "uncertainprice",
-  { data_type => "tinyint", is_nullable => 1 },
   "claims_count",
   { data_type => "integer", default_value => 0, is_nullable => 1 },
   "claimed_date",
   { data_type => "date", datetime_undef_if_invalid => 1, is_nullable => 1 },
-  "subscriptionid",
-  { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
   "parent_ordernumber",
   { data_type => "integer", is_nullable => 1 },
   "orderstatus",
@@ -431,6 +427,8 @@ __PACKAGE__->add_columns(
     is_nullable => 1,
     size => 16,
   },
+  "subscriptionid",
+  { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
   "line_item_id",
   { data_type => "varchar", is_nullable => 1, size => 35 },
   "suppliers_reference_number",
@@ -439,6 +437,8 @@ __PACKAGE__->add_columns(
   { data_type => "varchar", is_nullable => 1, size => 3 },
   "suppliers_report",
   { data_type => "mediumtext", is_nullable => 1 },
+  "replacementprice",
+  { data_type => "decimal", is_nullable => 1, size => [28, 6] },
 );
 
 =head1 PRIMARY KEY
@@ -551,7 +551,7 @@ __PACKAGE__->belongs_to(
     is_deferrable => 1,
     join_type     => "LEFT",
     on_delete     => "SET NULL",
-    on_update     => "CASCADE",
+    on_update     => "SET NULL",
   },
 );
 
@@ -661,8 +661,8 @@ Composing rels: L</aqorder_users> -> borrowernumber
 __PACKAGE__->many_to_many("borrowernumbers", "aqorder_users", "borrowernumber");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07042 @ 2018-08-31 11:51:37
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:GQEXetlivZm7buQohl8m4A
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2018-11-08 11:09:51
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:y7OfxpCVrDFw2JQU4SErew
 
 sub koha_objects_class {
     'Koha::Acquisition::Orders';

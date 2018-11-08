@@ -66,7 +66,7 @@ __PACKAGE__->table("aqbasketgroups");
 =head2 billingplace
 
   data_type: 'varchar'
-  is_nullable: 1
+  is_nullable: 0
   size: 10
 
 =cut
@@ -87,7 +87,7 @@ __PACKAGE__->add_columns(
   "deliverycomment",
   { data_type => "varchar", is_nullable => 1, size => 255 },
   "billingplace",
-  { data_type => "varchar", is_nullable => 1, size => 10 },
+  { data_type => "varchar", is_nullable => 0, size => 10 },
 );
 
 =head1 PRIMARY KEY
@@ -135,8 +135,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07042 @ 2018-02-16 17:54:53
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:9cEWAMwcFKPYPEG1CaaD3w
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2018-11-08 11:09:51
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:LE9jdrqhTciPR6UG+PnIXQ
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

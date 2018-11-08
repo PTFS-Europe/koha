@@ -43,7 +43,6 @@ __PACKAGE__->table("subscriptionroutinglist");
 =head2 subscriptionid
 
   data_type: 'integer'
-  is_foreign_key: 1
   is_nullable: 0
 
 =cut
@@ -56,7 +55,7 @@ __PACKAGE__->add_columns(
   "ranking",
   { data_type => "integer", is_nullable => 1 },
   "subscriptionid",
-  { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
+  { data_type => "integer", is_nullable => 0 },
 );
 
 =head1 PRIMARY KEY
@@ -104,24 +103,9 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 1, on_delete => "CASCADE", on_update => "CASCADE" },
 );
 
-=head2 subscriptionid
 
-Type: belongs_to
-
-Related object: L<Koha::Schema::Result::Subscription>
-
-=cut
-
-__PACKAGE__->belongs_to(
-  "subscriptionid",
-  "Koha::Schema::Result::Subscription",
-  { subscriptionid => "subscriptionid" },
-  { is_deferrable => 1, on_delete => "CASCADE", on_update => "CASCADE" },
-);
-
-
-# Created by DBIx::Class::Schema::Loader v0.07025 @ 2013-10-14 20:56:21
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:AK595c56vgTa7ZjwZjberw
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2018-11-08 11:09:51
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:AWnpmHLU+knqkuZiPbiWxQ
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration
