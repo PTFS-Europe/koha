@@ -303,21 +303,21 @@ modules:
         -
           columnname: illrequest_id
         -
-          columnname: metadata_Author
+          columnname: metadata_author
         -
-          columnname: metadata_Title
+          columnname: metadata_title
         -
-          columnname: metadata_Item_part_title
+          columnname: metadata_item_part_title
         -
-          columnname: metadata_Issue
+          columnname: metadata_issue
         -
-          columnname: metadata_Volume
+          columnname: metadata_volume
         -
-          columnname: metadata_Year
+          columnname: metadata_year
         -
-          columnname: metadata_Item_part_pages
+          columnname: metadata_item_part_pages
         -
-          columnname: metadata_Type
+          columnname: metadata_type
         -
           columnname: orderid
         -
@@ -325,19 +325,29 @@ modules:
         -
           columnname: patron_cardnumber
         -
-          columnname: biblio_id
+          columnname: patron
         -
-          columnname: borrowernumber
+          columnname: biblio_id
         -
           columnname: library_branchname
         -
           columnname: status
         -
           columnname: placed
+          cannot_be_toggled: 1
+          cannot_be_modified: 1
+          is_hidden: 1
         -
-          columnname: replied
+          columnname: placed_formatted
         -
           columnname: updated
+          cannot_be_toggled: 1
+          cannot_be_modified: 1
+          is_hidden: 1
+        -
+          columnname: updated_formatted
+        -
+          columnname: replied
         -
           columnname: completed
         -
