@@ -1,0 +1,36 @@
+<table id="ill-requests"[% IF prefilters.length > 0 %] data-prefilters="[% prefilters %]"[% END %]>
+    <thead>
+        <tr id="illview-header">
+            <th scope="col">Request ID</th>
+            <th scope="col">Author</th>
+            <th scope="col">Title</th>
+            <th scope="col">Article title</th>
+            <th scope="col">Issue</th>
+            <th scope="col">Volume</th>
+            <th scope="col">Year</th>
+            <th scope="col">Pages</th>
+            <th scope="col">Type</th>
+            <th scope="col">Order ID</th>
+            <th scope="col">Patron ID</th>
+            <th scope="col" class="patron_cardnumber">Patron barcode</th>
+            <th scope="col">Patron</th>
+            <th scope="col">Biblio ID</th>
+            <th scope="col">Branch</th>
+            <th scope="col">Status</th>
+            <th scope="col" class="placed">&nbsp;</th>
+            <th scope="col" class="placed_formatted">Placed on</th>
+            <th scope="col" class="updated">&nbsp;</th>
+            <th scope="col" class="updated_formatted">Updated on</th>
+            <th scope="col">Replied</th>
+            <th scope="col">Completed on</th>
+            <th scope="col">Access URL</th>
+            <th scope="col">Cost</th>
+            <th scope="col">OPAC notes</th>
+            <th scope="col">Staff notes</th>
+            <th scope="col">Backend</th>
+            <th scope="col" class="actions"></th>
+        </tr>
+    </thead>
+    <tbody id="illview-body">
+    </tbody>
+</table>
