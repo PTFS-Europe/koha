@@ -139,10 +139,6 @@ sub _parse_lines {
 
             $d->{monetary_amount} = $s->elem( 0, 1 );
         }
-        elsif ( $s->tag eq 'PRI' ) {
-
-            $d->{price} = $s->elem( 0, 1 );
-        }
         elsif ( $s->tag eq 'RFF' ) {
             my $qualifier = $s->elem( 0, 0 );
             if ( $qualifier eq 'QLI' ) {  # Suppliers unique quotation reference
@@ -377,11 +373,6 @@ sub monetary_amount {
 sub quantity {
     my $self = shift;
     return $self->{quantity};
-}
-
-sub price {
-    my $self = shift;
-    return $self->{price};
 }
 
 sub reference {
@@ -747,6 +738,12 @@ sub amt_lineitem {
 
 sub pri_price {
     my ( $self, $price_qualifier ) = @_;
+            # In practice qualifier is AAE in the quote and AAA & AAB in invoices
+            # but the following are defined
+            # AAA calculation price net (unit price excl tax but incl any allowances or charges)
+            # AAB calculation price gross (unit price excl all taxes, allowances and charges )
+            # AAE information price (incl tax but excl allowances or charges )
+            # AAF information price (including all taxes, allowances or charges)
     foreach my $s ( @{ $self->{segs} } ) {
         if ( $s->tag eq 'PRI' && $s->elem( 0, 0 ) eq $price_qualifier ) {
             return {
@@ -792,7 +789,7 @@ sub price_info {
 # information price incl tax,allowances, charges
 sub price_info_inclusive {
     my $self = shift;
-    my $p    = $self->pri_price('AAE');
+    my $p    = $self->pri_price('AAF');
     if ( defined $p ) {
         return $p->{price};
     }
@@ -802,6 +799,30 @@ sub price_info_inclusive {
 sub tax {
     my $self = shift;
     return $self->moa_amt('124');
+}
+
+sub tax_rate {
+    my $self = shift;
+    my $tr = {};
+    foreach my $s ( @{ $self->{segs} } ) {
+        if ( $s->tag eq 'TAX' && $s->elem( 0, 0 ) == 7 ) {
+            $tr->{type} = $s->elem( 1, 0 ); # VAT, GST or IMP
+            $tr->{rate} = $s->elem( 4, 3 ); # percentage
+            # category values may be:
+            # E = exempt from tax
+            # G = export item, tax not charged
+            # H = higher rate
+            # L = lower rate
+            # S = standard rate
+            # Z = zero-rated
+            $tr->{category} = $s->elem( 5, 0 );
+            if (!defined $tr->{rate} && $tr->{category} eq 'Z') {
+                $tr->{rate} = 0;
+            }
+            return $tr;
+        }
+    }
+    return;
 }
 
 sub availability_date {
