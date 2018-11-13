@@ -301,6 +301,7 @@ sub beginning_of_message {
   # If the order is in response to a quote
     my %bic_sans = (
         '5013546025065' => 'Peters',
+        '5013546025078' => 'Bertrams Library Services',
         '9377779308820' => 'Bolinda',
     );
 
