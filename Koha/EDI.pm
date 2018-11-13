@@ -27,7 +27,7 @@ use Business::ISBN;
 use DateTime;
 use C4::Context;
 use Koha::Database;
-use C4::Acquisition qw( NewBasket CloseBasket ModOrder populate_order_with_prices );
+use C4::Acquisition qw( NewBasket CloseBasket ModOrder );
 use C4::Suggestions qw( ModSuggestion );
 use C4::Items qw(AddItem);
 use C4::Biblio qw( AddBiblio TransformKohaToMarc GetMarcBiblio );
@@ -408,7 +408,7 @@ sub update_price_from_invoice {
         quantity               => $ord->quantity,
     };
     my %pre_hash = %{$ord_hash_ref};
-    $ord_hash_ref = populate_order_with_prices(
+    $ord_hash_ref = _populate_order_with_prices(
         {
             order        => $ord_hash_ref,
             booksellerid => $booksellerid,
@@ -1070,6 +1070,69 @@ sub _create_item_from_quote {
     my $branch = $item->girfield('branch');
     $item_hash->{holdingbranch} = $item_hash->{homebranch} = $branch;
     return $item_hash;
+}
+
+# This routine duplicates logic from C4::Acquisitions populate_order_with_prices
+# The logic is deeply flawed and this should be replaced by something more reliable
+sub _populate_order_with_prices {
+    my ($params) = @_;
+
+    use Koha::Acquisition::Bookseller;
+    my $order        = $params->{order};
+    my $invoice_includes_tax = 0;
+    if ($params->{booksellerid}) {
+
+        my $bookseller =
+        Koha::Acquisition::Bookseller->fetch( { id => $params->{booksellerid} } );
+        $invoice_includes_tax = $bookseller->{invoiceincgst};
+    }
+    my $discount = $order->{discount};
+    if ($discount > 1) {
+        $discount /= 100;
+    }
+
+    # == receiving logic
+    $order->{tax_rate_on_receiving} //= $order->{tax_rate};
+    if ( $invoice_includes_tax ) {
+
+# Trick for unitprice. If the unit price rounded value is the same as the ecost rounded value
+# we need to keep the exact ecost value
+        if ( Koha::Number::Price->new( $order->{unitprice} )->round ==
+            Koha::Number::Price->new( $order->{ecost_tax_included} )->round )
+        {
+            $order->{unitprice} = $order->{ecost_tax_included};
+        }
+
+        # The user entered the unit price tax included
+        $order->{unitprice_tax_included} = $order->{unitprice};
+
+        # unit price tax excluded = unit price tax included / ( 1 + tax rate )
+        $order->{unitprice_tax_excluded} = $order->{unitprice_tax_included} /
+          ( 1 + $order->{tax_rate_on_receiving} );
+    }
+    else {
+# Trick for unitprice. If the unit price rounded value is the same as the ecost rounded value
+# we need to keep the exact ecost value
+        if ( Koha::Number::Price->new( $order->{unitprice} )->round ==
+            Koha::Number::Price->new( $order->{ecost_tax_excluded} )->round )
+        {
+            $order->{unitprice} = $order->{ecost_tax_excluded};
+        }
+
+        # The user entered the unit price tax excluded
+        $order->{unitprice_tax_excluded} = $order->{unitprice};
+
+        # unit price tax included = unit price tax included * ( 1 + tax rate )
+        $order->{unitprice_tax_included} = $order->{unitprice_tax_excluded} *
+          ( 1 + $order->{tax_rate_on_receiving} );
+    }
+
+    # tax value = quantity * unit price tax excluded * tax rate
+    $order->{tax_value_on_receiving} =
+      $order->{quantity} *
+      $order->{unitprice_tax_excluded} *
+      $order->{tax_rate_on_receiving};
+    return $order;
 }
 
 1;
