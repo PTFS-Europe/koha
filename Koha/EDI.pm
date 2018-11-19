@@ -328,6 +328,8 @@ sub process_invoice {
                                 quantityreceived => $line->quantity,
                                 orderstatus      => 'complete',
                                 unitprice        => $price,
+                                unitprice_tax_included        => $price,
+                                unitprice_tax_excluded        => $price,
                                 invoiceid        => $invoiceid,
                                 datereceived     => $msg_date,
                                 tax_rate_on_receiving => $tax_rate->{rate},
@@ -350,6 +352,8 @@ sub process_invoice {
                         $order->datereceived($msg_date);
                         $order->invoiceid($invoiceid);
                         $order->unitprice($price);
+                        $order->unitprice_tax_included($price);
+                        $order->unitprica_tax_excluded($price);
                         $order->tax_rate_on_receiving($tax_rate->{rate});
                         $order->orderstatus('complete');
                         my $p_updates = update_price_from_invoice( $order,
