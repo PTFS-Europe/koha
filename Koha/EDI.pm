@@ -647,6 +647,7 @@ sub quote_item {
         rrp_tax_excluded   => $item->price_info,
         ecost              => $ecost,
         ecost_tax_included => $ecost,
+        ecost_tax_excluded => $ecost,
         discount => $quote->vendor->discount,
         uncertainprice => 0,
         sort1          => q{},
