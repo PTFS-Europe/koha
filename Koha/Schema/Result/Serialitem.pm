@@ -26,6 +26,7 @@ __PACKAGE__->table("serialitems");
 =head2 itemnumber
 
   data_type: 'integer'
+  is_foreign_key: 1
   is_nullable: 0
 
 =head2 serialid
@@ -38,7 +39,7 @@ __PACKAGE__->table("serialitems");
 
 __PACKAGE__->add_columns(
   "itemnumber",
-  { data_type => "integer", is_nullable => 0 },
+  { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
   "serialid",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
 );
@@ -57,6 +58,21 @@ __PACKAGE__->set_primary_key("itemnumber");
 
 =head1 RELATIONS
 
+=head2 itemnumber
+
+Type: belongs_to
+
+Related object: L<Koha::Schema::Result::Item>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "itemnumber",
+  "Koha::Schema::Result::Item",
+  { itemnumber => "itemnumber" },
+  { is_deferrable => 1, on_delete => "CASCADE", on_update => "CASCADE" },
+);
+
 =head2 serialid
 
 Type: belongs_to
@@ -73,8 +89,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07046 @ 2018-11-08 11:09:51
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:qAF0pJF5e8AJzxaZqlg13w
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2018-12-10 10:47:08
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:RdU4ksX24X27dXmhVN+uzw
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

@@ -119,6 +119,21 @@ __PACKAGE__->set_primary_key("id");
 
 =head1 RELATIONS
 
+=head2 aqinvoices
+
+Type: has_many
+
+Related object: L<Koha::Schema::Result::Aqinvoice>
+
+=cut
+
+__PACKAGE__->has_many(
+  "aqinvoices",
+  "Koha::Schema::Result::Aqinvoice",
+  { "foreign.message_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 basketno
 
 Type: belongs_to
@@ -134,8 +149,8 @@ __PACKAGE__->belongs_to(
   {
     is_deferrable => 1,
     join_type     => "LEFT",
-    on_delete     => "RESTRICT",
-    on_update     => "RESTRICT",
+    on_delete     => "CASCADE",
+    on_update     => "CASCADE",
   },
 );
 
@@ -154,8 +169,8 @@ __PACKAGE__->belongs_to(
   {
     is_deferrable => 1,
     join_type     => "LEFT",
-    on_delete     => "RESTRICT",
-    on_update     => "RESTRICT",
+    on_delete     => "CASCADE",
+    on_update     => "CASCADE",
   },
 );
 
@@ -174,14 +189,14 @@ __PACKAGE__->belongs_to(
   {
     is_deferrable => 1,
     join_type     => "LEFT",
-    on_delete     => "RESTRICT",
-    on_update     => "RESTRICT",
+    on_delete     => "CASCADE",
+    on_update     => "CASCADE",
   },
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07046 @ 2018-11-08 11:09:51
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:f90XogVNxT1OZtN5s02KAQ
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2018-12-10 10:47:07
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:nhKwj/kDyrRWKWp5t8xNpQ
 
 
 1;

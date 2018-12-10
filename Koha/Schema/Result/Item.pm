@@ -150,6 +150,12 @@ __PACKAGE__->table("items");
   is_nullable: 1
   size: 255
 
+=head2 coded_location_qualifier
+
+  data_type: 'varchar'
+  is_nullable: 1
+  size: 10
+
 =head2 issues
 
   data_type: 'smallint'
@@ -274,19 +280,11 @@ __PACKAGE__->table("items");
   is_nullable: 1
   size: 32
 
-stores the inventory number
-
 =head2 new_status
 
   data_type: 'varchar'
   is_nullable: 1
   size: 32
-
-=head2 coded_location_qualifier
-
-  data_type: 'varchar'
-  is_nullable: 1
-  size: 10
 
 =cut
 
@@ -355,6 +353,8 @@ __PACKAGE__->add_columns(
   },
   "itemcallnumber",
   { data_type => "varchar", is_nullable => 1, size => 255 },
+  "coded_location_qualifier",
+  { data_type => "varchar", is_nullable => 1, size => 10 },
   "issues",
   { data_type => "smallint", is_nullable => 1 },
   "renewals",
@@ -406,8 +406,6 @@ __PACKAGE__->add_columns(
   { data_type => "varchar", is_nullable => 1, size => 32 },
   "new_status",
   { data_type => "varchar", is_nullable => 1, size => 32 },
-  "coded_location_qualifier",
-  { data_type => "varchar", is_nullable => 1, size => 10 },
 );
 
 =head1 PRIMARY KEY
@@ -673,6 +671,21 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 serialitem
+
+Type: might_have
+
+Related object: L<Koha::Schema::Result::Serialitem>
+
+=cut
+
+__PACKAGE__->might_have(
+  "serialitem",
+  "Koha::Schema::Result::Serialitem",
+  { "foreign.itemnumber" => "self.itemnumber" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 stockrotationitem
 
 Type: might_have
@@ -704,8 +717,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07046 @ 2019-05-14 18:14:09
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:wDXcErUYqg0aoQkzz3P5vg
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2018-12-10 10:47:08
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:/PMp54+DzDdDvzMA0pNp0w
 
 __PACKAGE__->belongs_to( biblioitem => "Koha::Schema::Result::Biblioitem", "biblioitemnumber" );
 

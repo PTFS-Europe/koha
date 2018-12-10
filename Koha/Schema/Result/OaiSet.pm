@@ -125,19 +125,9 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 biblionumbers
 
-Type: many_to_many
-
-Composing rels: L</oai_sets_biblios> -> biblionumber
-
-=cut
-
-__PACKAGE__->many_to_many("biblionumbers", "oai_sets_biblios", "biblionumber");
-
-
-# Created by DBIx::Class::Schema::Loader v0.07046 @ 2018-11-08 11:09:51
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:7zp9hrwat3SmXgRedYcXgQ
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2018-12-10 10:47:08
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:0qJNLN6hb7MPJGTufMmbpg
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

@@ -242,21 +242,6 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 oai_sets_biblios
-
-Type: has_many
-
-Related object: L<Koha::Schema::Result::OaiSetsBiblio>
-
-=cut
-
-__PACKAGE__->has_many(
-  "oai_sets_biblios",
-  "Koha::Schema::Result::OaiSetsBiblio",
-  { "foreign.biblionumber" => "self.biblionumber" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
 =head2 old_reserves
 
 Type: has_many
@@ -362,18 +347,8 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 sets
 
-Type: many_to_many
-
-Composing rels: L</oai_sets_biblios> -> set
-
-=cut
-
-__PACKAGE__->many_to_many("sets", "oai_sets_biblios", "set");
-
-
-# Created by DBIx::Class::Schema::Loader v0.07046 @ 2018-11-08 11:09:51
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:blPsfdnQ/MXZMBtIhnjKJg
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2018-12-10 10:47:07
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:lSmtVOKTgJDCDr7mvun7mw
 
 1;

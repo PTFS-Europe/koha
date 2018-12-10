@@ -306,18 +306,6 @@ __PACKAGE__->table("borrower_modifications");
   is_nullable: 1
   size: 100
 
-=head2 ethnicity
-
-  data_type: 'varchar'
-  is_nullable: 1
-  size: 50
-
-=head2 ethnotes
-
-  data_type: 'varchar'
-  is_nullable: 1
-  size: 255
-
 =head2 sex
 
   data_type: 'varchar'
@@ -566,10 +554,6 @@ __PACKAGE__->add_columns(
   { data_type => "longtext", is_nullable => 1 },
   "relationship",
   { data_type => "varchar", is_nullable => 1, size => 100 },
-  "ethnicity",
-  { data_type => "varchar", is_nullable => 1, size => 50 },
-  "ethnotes",
-  { data_type => "varchar", is_nullable => 1, size => 255 },
   "sex",
   { data_type => "varchar", is_nullable => 1, size => 1 },
   "password",

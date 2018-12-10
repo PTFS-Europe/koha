@@ -23,24 +23,28 @@ __PACKAGE__->table("aqbudgets");
 
 =head1 ACCESSORS
 
+=head2 budget_id
+
+  data_type: 'integer'
+  is_auto_increment: 1
+  is_nullable: 0
+
+=head2 budget_parent_id
+
+  data_type: 'integer'
+  is_nullable: 1
+
 =head2 budget_code
 
   data_type: 'varchar'
   is_nullable: 1
   size: 30
 
-=head2 budget_amount
+=head2 budget_name
 
-  data_type: 'decimal'
-  default_value: 0.000000
-  is_nullable: 0
-  size: [28,6]
-
-=head2 budget_id
-
-  data_type: 'integer'
-  is_auto_increment: 1
-  is_nullable: 0
+  data_type: 'varchar'
+  is_nullable: 1
+  size: 80
 
 =head2 budget_branchcode
 
@@ -48,16 +52,12 @@ __PACKAGE__->table("aqbudgets");
   is_nullable: 1
   size: 10
 
-=head2 budget_parent_id
+=head2 budget_amount
 
-  data_type: 'integer'
+  data_type: 'decimal'
+  default_value: 0.000000
   is_nullable: 1
-
-=head2 budget_name
-
-  data_type: 'varchar'
-  is_nullable: 1
-  size: 80
+  size: [28,6]
 
 =head2 budget_encumb
 
@@ -88,7 +88,6 @@ __PACKAGE__->table("aqbudgets");
 =head2 budget_period_id
 
   data_type: 'integer'
-  is_foreign_key: 1
   is_nullable: 1
 
 =head2 sort1_authcat
@@ -117,23 +116,23 @@ __PACKAGE__->table("aqbudgets");
 =cut
 
 __PACKAGE__->add_columns(
+  "budget_id",
+  { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
+  "budget_parent_id",
+  { data_type => "integer", is_nullable => 1 },
   "budget_code",
   { data_type => "varchar", is_nullable => 1, size => 30 },
+  "budget_name",
+  { data_type => "varchar", is_nullable => 1, size => 80 },
+  "budget_branchcode",
+  { data_type => "varchar", is_nullable => 1, size => 10 },
   "budget_amount",
   {
     data_type => "decimal",
     default_value => "0.000000",
-    is_nullable => 0,
+    is_nullable => 1,
     size => [28, 6],
   },
-  "budget_id",
-  { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
-  "budget_branchcode",
-  { data_type => "varchar", is_nullable => 1, size => 10 },
-  "budget_parent_id",
-  { data_type => "integer", is_nullable => 1 },
-  "budget_name",
-  { data_type => "varchar", is_nullable => 1, size => 80 },
   "budget_encumb",
   {
     data_type => "decimal",
@@ -158,7 +157,7 @@ __PACKAGE__->add_columns(
     is_nullable => 0,
   },
   "budget_period_id",
-  { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
+  { data_type => "integer", is_nullable => 1 },
   "sort1_authcat",
   { data_type => "varchar", is_nullable => 1, size => 80 },
   "sort2_authcat",
@@ -258,26 +257,6 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 budget_period
-
-Type: belongs_to
-
-Related object: L<Koha::Schema::Result::Aqbudgetperiod>
-
-=cut
-
-__PACKAGE__->belongs_to(
-  "budget_period",
-  "Koha::Schema::Result::Aqbudgetperiod",
-  { budget_period_id => "budget_period_id" },
-  {
-    is_deferrable => 1,
-    join_type     => "LEFT",
-    on_delete     => "CASCADE",
-    on_update     => "CASCADE",
-  },
-);
-
 =head2 suggestions
 
 Type: has_many
@@ -319,8 +298,8 @@ Composing rels: L</aqbudgetborrowers> -> borrowernumber
 __PACKAGE__->many_to_many("borrowernumbers", "aqbudgetborrowers", "borrowernumber");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07046 @ 2018-11-08 11:09:51
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:oAGvpiU7zjOnpWEfpOMmDw
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2018-12-10 10:47:07
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:TI5kmdkr2b7E1C3PslYnwg
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration
