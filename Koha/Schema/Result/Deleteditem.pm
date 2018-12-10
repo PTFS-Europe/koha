@@ -276,8 +276,6 @@ __PACKAGE__->table("deleteditems");
   is_nullable: 1
   size: 32
 
-stores the inventory number of deleted items
-
 =head2 new_status
 
   data_type: 'varchar'
@@ -408,23 +406,9 @@ __PACKAGE__->add_columns(
 
 __PACKAGE__->set_primary_key("itemnumber");
 
-=head1 UNIQUE CONSTRAINTS
 
-=head2 C<deleteditemsstocknumberidx>
-
-=over 4
-
-=item * L</stocknumber>
-
-=back
-
-=cut
-
-__PACKAGE__->add_unique_constraint("deleteditemsstocknumberidx", ["stocknumber"]);
-
-
-# Created by DBIx::Class::Schema::Loader v0.07046 @ 2018-11-08 11:09:51
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:lvAfwRdG2uylRDO5dxJEdQ
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2018-12-10 10:47:07
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:b/XgesRtZDmN81Nv4y6qjg
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

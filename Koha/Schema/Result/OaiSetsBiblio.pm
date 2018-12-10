@@ -26,7 +26,6 @@ __PACKAGE__->table("oai_sets_biblios");
 =head2 biblionumber
 
   data_type: 'integer'
-  is_foreign_key: 1
   is_nullable: 0
 
 =head2 set_id
@@ -39,7 +38,7 @@ __PACKAGE__->table("oai_sets_biblios");
 
 __PACKAGE__->add_columns(
   "biblionumber",
-  { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
+  { data_type => "integer", is_nullable => 0 },
   "set_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
 );
@@ -60,21 +59,6 @@ __PACKAGE__->set_primary_key("biblionumber", "set_id");
 
 =head1 RELATIONS
 
-=head2 biblionumber
-
-Type: belongs_to
-
-Related object: L<Koha::Schema::Result::Biblio>
-
-=cut
-
-__PACKAGE__->belongs_to(
-  "biblionumber",
-  "Koha::Schema::Result::Biblio",
-  { biblionumber => "biblionumber" },
-  { is_deferrable => 1, on_delete => "CASCADE", on_update => "CASCADE" },
-);
-
 =head2 set
 
 Type: belongs_to
@@ -91,8 +75,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07046 @ 2018-11-08 11:09:51
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:X8R6Odd2qZpvrY09Z3LOhw
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2018-12-10 10:47:08
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:70l19kE4F5AKnW8gNSPgKA
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

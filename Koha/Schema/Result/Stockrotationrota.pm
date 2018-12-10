@@ -38,7 +38,7 @@ __PACKAGE__->table("stockrotationrotas");
 =head2 description
 
   data_type: 'text'
-  is_nullable: 1
+  is_nullable: 0
 
 =head2 cyclical
 
@@ -60,7 +60,7 @@ __PACKAGE__->add_columns(
   "title",
   { data_type => "varchar", is_nullable => 0, size => 100 },
   "description",
-  { data_type => "text", is_nullable => 1 },
+  { data_type => "text", is_nullable => 0 },
   "cyclical",
   { data_type => "tinyint", default_value => 0, is_nullable => 0 },
   "active",
@@ -78,20 +78,6 @@ __PACKAGE__->add_columns(
 =cut
 
 __PACKAGE__->set_primary_key("rota_id");
-
-=head1 UNIQUE CONSTRAINTS
-
-=head2 C<stockrotationrotas_title>
-
-=over 4
-
-=item * L</title>
-
-=back
-
-=cut
-
-__PACKAGE__->add_unique_constraint("stockrotationrotas_title", ["title"]);
 
 =head1 RELATIONS
 
@@ -111,8 +97,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07046 @ 2018-11-08 11:09:51
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:HrZO2r+/Warg22jZTBH6YQ
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2018-12-10 10:47:08
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:mQYACdvTMA3mXWIoITbmfg
 
 __PACKAGE__->add_columns(
   '+cyclical' => { is_boolean => 1 },

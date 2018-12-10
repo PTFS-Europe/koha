@@ -42,7 +42,7 @@ __PACKAGE__->table("default_circ_rules");
 
 =head2 holdallowed
 
-  data_type: 'tinyint'
+  data_type: 'integer'
   is_nullable: 1
 
 =head2 hold_fulfillment_policy
@@ -73,7 +73,7 @@ __PACKAGE__->add_columns(
   "maxonsiteissueqty",
   { data_type => "integer", is_nullable => 1 },
   "holdallowed",
-  { data_type => "tinyint", is_nullable => 1 },
+  { data_type => "integer", is_nullable => 1 },
   "hold_fulfillment_policy",
   {
     data_type => "enum",
@@ -98,8 +98,8 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key("singleton");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07046 @ 2018-11-08 11:09:51
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ttOioXaCXJKF52QQcOUlOQ
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2018-12-10 10:47:07
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:mww2vUbXYfVx7yAZdd3U0g
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

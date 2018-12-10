@@ -95,18 +95,19 @@ __PACKAGE__->table("categories");
   default_value: 0
   is_nullable: 0
 
-=head2 illlimit
-
-  data_type: 'smallint'
-  default_value: 0
-  is_nullable: 1
-
 =head2 category_type
 
   data_type: 'varchar'
   default_value: 'A'
   is_nullable: 0
   size: 1
+
+=head2 BlockExpiredPatronOpacActions
+
+  accessor: 'block_expired_patron_opac_actions'
+  data_type: 'tinyint'
+  default_value: -1
+  is_nullable: 0
 
 =head2 default_privacy
 
@@ -121,13 +122,6 @@ __PACKAGE__->table("categories");
   default_value: 'inherit'
   is_nullable: 0
   size: 7
-
-=head2 BlockExpiredPatronOpacActions
-
-  accessor: 'block_expired_patron_opac_actions'
-  data_type: 'tinyint'
-  default_value: -1
-  is_nullable: 0
 
 =cut
 
@@ -158,10 +152,15 @@ __PACKAGE__->add_columns(
   { data_type => "decimal", is_nullable => 1, size => [28, 6] },
   "hidelostitems",
   { data_type => "tinyint", default_value => 0, is_nullable => 0 },
-  "illlimit",
-  { data_type => "smallint", default_value => 0, is_nullable => 1 },
   "category_type",
   { data_type => "varchar", default_value => "A", is_nullable => 0, size => 1 },
+  "BlockExpiredPatronOpacActions",
+  {
+    accessor      => "block_expired_patron_opac_actions",
+    data_type     => "tinyint",
+    default_value => -1,
+    is_nullable   => 0,
+  },
   "default_privacy",
   {
     data_type => "enum",
@@ -175,13 +174,6 @@ __PACKAGE__->add_columns(
     default_value => "inherit",
     is_nullable => 0,
     size => 7,
-  },
-  "BlockExpiredPatronOpacActions",
-  {
-    accessor      => "block_expired_patron_opac_actions",
-    data_type     => "tinyint",
-    default_value => -1,
-    is_nullable   => 0,
   },
 );
 
@@ -198,21 +190,6 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key("categorycode");
 
 =head1 RELATIONS
-
-=head2 borrower_attribute_types
-
-Type: has_many
-
-Related object: L<Koha::Schema::Result::BorrowerAttributeType>
-
-=cut
-
-__PACKAGE__->has_many(
-  "borrower_attribute_types",
-  "Koha::Schema::Result::BorrowerAttributeType",
-  { "foreign.category_code" => "self.categorycode" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
 
 =head2 borrower_message_preferences
 
@@ -305,8 +282,8 @@ __PACKAGE__->might_have(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07046 @ 2018-11-08 11:09:51
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:L6F4lG7nQiXzCz5Eee0mtw
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2018-12-10 10:47:07
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:sO25HI2PAp19742il1cISA
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

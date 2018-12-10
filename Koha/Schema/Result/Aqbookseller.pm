@@ -73,7 +73,8 @@ __PACKAGE__->table("aqbooksellers");
 =head2 currency
 
   data_type: 'varchar'
-  is_nullable: 1
+  default_value: (empty string)
+  is_nullable: 0
   size: 10
 
 =head2 booksellerfax
@@ -141,6 +142,12 @@ __PACKAGE__->table("aqbooksellers");
   data_type: 'tinyint'
   is_nullable: 1
 
+=head2 tax_rate
+
+  data_type: 'decimal'
+  is_nullable: 1
+  size: [6,4]
+
 =head2 discount
 
   data_type: 'float'
@@ -152,12 +159,6 @@ __PACKAGE__->table("aqbooksellers");
   data_type: 'varchar'
   is_nullable: 1
   size: 50
-
-=head2 tax_rate
-
-  data_type: 'decimal'
-  is_nullable: 1
-  size: [6,4]
 
 =head2 deliverytime
 
@@ -186,7 +187,7 @@ __PACKAGE__->add_columns(
   "othersupplier",
   { data_type => "longtext", is_nullable => 1 },
   "currency",
-  { data_type => "varchar", is_nullable => 1, size => 10 },
+  { data_type => "varchar", default_value => "", is_nullable => 0, size => 10 },
   "booksellerfax",
   { data_type => "longtext", is_nullable => 1 },
   "notes",
@@ -211,12 +212,12 @@ __PACKAGE__->add_columns(
   { data_type => "tinyint", is_nullable => 1 },
   "invoiceincgst",
   { data_type => "tinyint", is_nullable => 1 },
+  "tax_rate",
+  { data_type => "decimal", is_nullable => 1, size => [6, 4] },
   "discount",
   { data_type => "float", is_nullable => 1, size => [6, 4] },
   "fax",
   { data_type => "varchar", is_nullable => 1, size => 50 },
-  "tax_rate",
-  { data_type => "decimal", is_nullable => 1, size => [6, 4] },
   "deliverytime",
   { data_type => "integer", is_nullable => 1 },
 );
@@ -381,8 +382,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07046 @ 2018-11-08 11:09:51
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:i1MBNQ/K1Rh4wMZDnFCEzw
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2018-12-10 10:47:07
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:maDk7MfrHsD5vUeSwPxI7g
 
 __PACKAGE__->add_columns(
     '+active' => { is_boolean => 1 },

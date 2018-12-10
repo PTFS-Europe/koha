@@ -152,12 +152,12 @@ __PACKAGE__->belongs_to(
   "message_transport_type",
   "Koha::Schema::Result::MessageTransportType",
   { message_transport_type => "message_transport_type" },
-  { is_deferrable => 1, on_delete => "RESTRICT", on_update => "RESTRICT" },
+  { is_deferrable => 1, on_delete => "CASCADE", on_update => "CASCADE" },
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07046 @ 2018-11-08 11:09:51
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:XDq2o0wNUEkPuLtfPZiomA
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2018-12-10 10:47:08
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:JapZ3PFrFVlPfIjc+VXS7g
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

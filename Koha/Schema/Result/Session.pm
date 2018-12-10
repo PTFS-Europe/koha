@@ -32,7 +32,7 @@ __PACKAGE__->table("sessions");
 =head2 a_session
 
   data_type: 'longtext'
-  is_nullable: 1
+  is_nullable: 0
 
 =cut
 
@@ -40,7 +40,7 @@ __PACKAGE__->add_columns(
   "id",
   { data_type => "varchar", is_nullable => 0, size => 32 },
   "a_session",
-  { data_type => "longtext", is_nullable => 1 },
+  { data_type => "longtext", is_nullable => 0 },
 );
 
 =head1 PRIMARY KEY
@@ -56,8 +56,8 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key("id");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07046 @ 2018-11-08 11:09:51
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Y/66MvcHQG0Urlv4Q+7ItQ
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2018-12-10 10:47:08
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:VTKI5dVj8dRyKc/hGqb29A
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration
