@@ -353,7 +353,7 @@ sub process_invoice {
                         $order->invoiceid($invoiceid);
                         $order->unitprice($price);
                         $order->unitprice_tax_included($price);
-                        $order->unitprica_tax_excluded($price);
+                        $order->unitprice_tax_excluded($price);
                         $order->tax_rate_on_receiving($tax_rate->{rate});
                         $order->orderstatus('complete');
                         my $p_updates = update_price_from_invoice( $order,
@@ -384,9 +384,9 @@ sub process_invoice {
 
 sub _get_invoiced_price {
     my $line  = shift;
-    my $price = $line->price_net;
+    my $price = $line->amt_lineitem;
     if ( !defined $price ) {  # no net price so generate it from lineitem amount
-        $price = $line->amt_lineitem;
+        $price = $line->price_net;
         if ( $price and $line->quantity > 1 ) {
             $price /= $line->quantity;    # div line cost by qty
         }
