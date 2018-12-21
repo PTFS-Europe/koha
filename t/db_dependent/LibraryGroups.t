@@ -4,9 +4,10 @@ use Modern::Perl;
 
 use List::MoreUtils 'any';
 
-use Test::More tests => 19;
+use Test::More tests => 20;
 
 use t::lib::TestBuilder;
+use Koha::Database;
 
 BEGIN {
     use FindBin;
@@ -15,9 +16,9 @@ BEGIN {
     use_ok('Koha::Library::Groups');
 }
 
-our $dbh = C4::Context->dbh;
-$dbh->{AutoCommit} = 0;
-$dbh->{RaiseError} = 1;
+my $schema = Koha::Database->new->schema;
+$schema->storage->txn_begin;
+my $dbh = C4::Context->dbh;
 
 $dbh->do(q|DELETE FROM issues|);
 $dbh->do(q|DELETE FROM library_groups|);
@@ -105,6 +106,23 @@ subtest 'Koha::Library::Group->has_child' => sub {
     # FIXME At the time of writing this test fails because the ->children methods does not return more than 1 level of depth
     # See Bug 15707 comments 166-170+
     #is( $groupA->has_child( $groupA1_library2->branchcode ), 1, 'groupA1_library2 should be considered as a child of groupA (it is a grandchild)' );
+};
+
+subtest 'Koha::Library::Group->get_search_groups' => sub {
+    plan tests => 2;
+
+    #Enable as search groups
+    $groupA->ft_search_groups_opac(1)->store();
+    $groupB->ft_search_groups_staff(1)->store();
+
+    #Update the objects
+    $groupA = Koha::Library::Groups->find( $groupA->id );
+    $groupB = Koha::Library::Groups->find( $groupB->id );
+
+    my @groups = Koha::Library::Groups->get_search_groups({ interface => 'opac' });
+    is_deeply( $groups[0]->unblessed, $groupA->unblessed, 'Get search groups opac should return enabled group' );
+    @groups = Koha::Library::Groups->get_search_groups({ interface => 'staff' });
+    is_deeply( $groups[0]->unblessed, $groupB->unblessed, 'Get search groups staff should return enabled group' );
 };
 
 my $groupX = Koha::Library::Group->new( { title => "Group X" } )->store();

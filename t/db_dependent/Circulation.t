@@ -16,6 +16,7 @@
 # along with Koha; if not, see <http://www.gnu.org/licenses>.
 
 use Modern::Perl;
+use utf8;
 
 use Test::More tests => 122;
 
@@ -2053,7 +2054,7 @@ subtest '_FixAccountForLostAndReturned' => sub {
         my $lost_fee_line = $lost_fee_lines->next;
         is( $lost_fee_line->amount + 0, $replacement_amount, 'The right L amount is generated' );
         is( $lost_fee_line->amountoutstanding + 0,
-            $replacement_amount, 'The right L amountountstanding is generated' );
+            $replacement_amount, 'The right L amountoutstanding is generated' );
 
         my $account = $patron->account;
         my $debts   = $account->outstanding_debits;
@@ -2148,7 +2149,7 @@ subtest '_FixAccountForLostAndReturned' => sub {
 
     subtest 'Test without payment or write off' => sub {
 
-        plan tests => 10;
+        plan tests => 12;
 
         my $patron = $builder->build_object( { class => 'Koha::Patrons' } );
         my $barcode = 'KD123456791';
@@ -2187,7 +2188,11 @@ subtest '_FixAccountForLostAndReturned' => sub {
             $replacement_amount, 'The right L amountountstanding is generated' );
 
         my $credit_return_id = C4::Circulation::_FixAccountForLostAndReturned( $item_id, $patron->id );
-        is( $credit_return_id, undef, 'No CR account line added' );
+        my $credit_return = Koha::Account::Lines->find($credit_return_id);
+
+        is( $credit_return->accounttype, 'CR', 'An account line of type CR is added' );
+        is( $credit_return->amount + 0, -99.00, 'The account line of type CR has an amount of -99' );
+        is( $credit_return->amountoutstanding + 0, 0, 'The account line of type CR has an amountoutstanding of 0' );
 
         $lost_fee_line->discard_changes;
         is( $lost_fee_line->amountoutstanding + 0, 0, 'Lost fee has no outstanding amount' );
@@ -2263,25 +2268,29 @@ subtest '_FixAccountForLostAndReturned' => sub {
             'Payment and write off applied'
         );
 
+        # Store the amountoutstanding value
+        $lost_fee_line->discard_changes;
+        my $outstanding = $lost_fee_line->amountoutstanding;
+
         my $credit_return_id = C4::Circulation::_FixAccountForLostAndReturned( $item_id, $patron->id );
         my $credit_return = Koha::Account::Lines->find($credit_return_id);
 
         is( $account->balance, $processfee_amount - $payment_amount, 'Balance is PF - payment (CR)' );
 
+        $lost_fee_line->discard_changes;
+        is( $lost_fee_line->amountoutstanding + 0, 0, 'Lost fee has no outstanding amount' );
+        is( $lost_fee_line->accounttype,
+            'LR', 'Lost fee now has account type of LR ( Lost Returned )' );
+
         is( $credit_return->accounttype, 'CR', 'An account line of type CR is added' );
         is( $credit_return->amount + 0,
-            $payment_amount * -1,
-            'The account line of type CR has an amount equal to the payment'
+            ($payment_amount + $outstanding ) * -1,
+            'The account line of type CR has an amount equal to the payment + outstanding'
         );
         is( $credit_return->amountoutstanding + 0,
             $payment_amount * -1,
             'The account line of type CR has an amountoutstanding equal to the payment'
         );
-
-        $lost_fee_line->discard_changes;
-        is( $lost_fee_line->amountoutstanding + 0, 0, 'Lost fee has no outstanding amount' );
-        is( $lost_fee_line->accounttype,
-            'LR', 'Lost fee now has account type of LR ( Lost Returned )' );
 
         is( $account->balance,
             $processfee_amount - $payment_amount,
@@ -2291,7 +2300,7 @@ subtest '_FixAccountForLostAndReturned' => sub {
 };
 
 subtest '_FixOverduesOnReturn' => sub {
-    plan tests => 6;
+    plan tests => 10;
 
     # Generate test biblio
     my $title  = 'Koha for Dummies';
@@ -2344,9 +2353,12 @@ subtest '_FixOverduesOnReturn' => sub {
     C4::Circulation::_FixOverduesOnReturn( $patron->{borrowernumber}, $itemnumber, 1 );
 
     $accountline->_result()->discard_changes();
+    my $offset = Koha::Account::Offsets->search({ debit_id => $accountline->id, type => 'Forgiven' })->next();
 
     is( $accountline->amountoutstanding + 0, 0, 'Fine has been reduced to 0' );
     is( $accountline->accounttype, 'FFOR', 'Open fine ( account type FU ) has been set to fine forgiven ( account type FFOR )');
+    is( ref $offset, "Koha::Account::Offset", "Found matching offset for fine reduction via forgiveness" );
+    is( $offset->amount, '-99.000000', "Amount of offset is correct" );
 
     ## Run again, with dropbox mode enabled
     $accountline->set(
@@ -2359,9 +2371,12 @@ subtest '_FixOverduesOnReturn' => sub {
     C4::Circulation::_FixOverduesOnReturn( $patron->{borrowernumber}, $itemnumber, 0, 1 );
 
     $accountline->_result()->discard_changes();
+    $offset = Koha::Account::Offsets->search({ debit_id => $accountline->id, type => 'Dropbox' })->next();
 
     is( $accountline->amountoutstanding + 0, 90, 'Fine has been reduced to 90' );
     is( $accountline->accounttype, 'F', 'Open fine ( account type FU ) has been closed out ( account type F )');
+    is( ref $offset, "Koha::Account::Offset", "Found matching offset for fine reduction via dropbox" );
+    is( $offset->amount, '-9.000000', "Amount of offset is correct" );
 };
 
 subtest 'Set waiting flag' => sub {

@@ -331,8 +331,7 @@ foreach my $tag (sort keys %{$tagslib}) {
 	$subfield_data{mandatory}  = $tagslib->{$tag}->{$subfield}->{mandatory};
 	$subfield_data{repeatable} = $tagslib->{$tag}->{$subfield}->{repeatable};
 	my ($x,$value);
-	$value =~ s/"/&quot;/g;
-   if ( !$value && $use_default_values) {
+   if ( $use_default_values) {
 	    $value = $tagslib->{$tag}->{$subfield}->{defaultvalue};
 	    # get today date & replace YYYY, MM, DD if provided in the default value
             my $today = dt_from_string;
@@ -389,7 +388,7 @@ foreach my $tag (sort keys %{$tagslib}) {
       else {
           push @authorised_values, ""; # unless ( $tagslib->{$tag}->{$subfield}->{mandatory} );
 
-          my @avs = Koha::AuthorisedValues->search({ category => $tagslib->{$tag}->{$subfield}->{authorised_value}, branchcode => $branch_limit });
+          my @avs = Koha::AuthorisedValues->search({ category => $tagslib->{$tag}->{$subfield}->{authorised_value}, branchcode => $branch_limit },{order_by=>'lib'});
           for my $av ( @avs ) {
               push @authorised_values, $av->authorised_value;
               $authorised_lib{$av->authorised_value} = $av->lib;

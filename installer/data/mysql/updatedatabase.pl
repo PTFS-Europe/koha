@@ -12320,9 +12320,6 @@ if ( $column_has_been_used ) {
 
 $DBversion = "3.23.00.050";
 if ( CheckVersion($DBversion) ) {
-    use Koha::SearchMarcMaps;
-    use Koha::SearchFields;
-    use Koha::SearchEngine::Elasticsearch;
 
     $dbh->do(q|INSERT IGNORE INTO systempreferences (variable,value,explanation,options,type)
                     VALUES('SearchEngine','Zebra','Choose Search Engine','','Choice')|);
@@ -12384,12 +12381,10 @@ $dbh->do(q|
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
         |);
 
-        # Insert default mappings
-        Koha::SearchEngine::Elasticsearch->reset_elasticsearch_mappings;
-
-print "Upgrade to $DBversion done (Bug 12478 - Elasticsearch support for Koha)\n";
+    print "WARNING: If you plan to use Elasticsearch you should go to 'Home › Administration › Search engine configuration' and reset the mappings\n";
+    print "Upgrade to $DBversion done (Bug 12478 - Elasticsearch support for Koha)\n";
     SetVersion($DBversion);
-    }
+}
 
 
 $DBversion = "3.23.00.051";
@@ -17133,6 +17128,81 @@ $DBversion = '18.11.00.000';
 if( CheckVersion( $DBversion ) ) {
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (18.11.00 release)\n";
+}
+
+$DBversion = '18.11.00.001';
+if( CheckVersion( $DBversion ) ) {
+    $dbh->do(q{
+        UPDATE permissions SET code = 'manage_didyoumean' WHERE code = 'manage_didyouean';
+    });
+    $dbh->do(q{
+        UPDATE user_permissions SET code = 'manage_didyoumean' WHERE code = 'manage_didyouean';
+    });
+    SetVersion( $DBversion );
+    print "Upgrade to $DBversion (Bug 21961 - Fix typo in manage_didyoumean permission)\n";
+}
+
+$DBversion = '18.11.00.002';
+if( CheckVersion( $DBversion ) ) {
+    my $sth = $dbh->prepare(q|SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS WHERE CONSTRAINT_NAME='accountlines_ibfk_1'|);
+    $sth->execute;
+    if ($sth->fetchrow_hashref) {
+        $dbh->do(q|
+            ALTER TABLE accountlines DROP FOREIGN KEY accountlines_ibfk_1;
+        |);
+        $dbh->do(q|
+            ALTER TABLE accountlines CHANGE COLUMN borrowernumber borrowernumber INT(11) DEFAULT NULL;
+        |);
+        $dbh->do(q|
+            ALTER TABLE accountlines ADD CONSTRAINT accountlines_ibfk_borrowers FOREIGN KEY (borrowernumber) REFERENCES borrowers (borrowernumber) ON DELETE SET NULL ON UPDATE CASCADE;
+        |);
+    }
+    SetVersion( $DBversion );
+    print "Upgrade to $DBversion done (Bug 21065 - Set ON DELETE SET NULL on accountlines.borrowernumber)\n";
+}
+
+$DBversion = '18.11.00.003';
+if( CheckVersion( $DBversion ) ) {
+    # On a new installation the class_sources.sql will have failed, so we need to add all missing data
+    my( $sort_cnt ) = $dbh->selectrow_array( q|SELECT COUNT(*) FROM class_sort_rules|);
+    if( !$sort_cnt ) {
+        $dbh->do(q|INSERT INTO `class_sort_rules` (`class_sort_rule`, `description`, `sort_routine`) VALUES
+                               ('dewey', 'Default filing rules for DDC', 'Dewey'),
+                               ('lcc', 'Default filing rules for LCC', 'LCC'),
+                               ('generic', 'Generic call number filing rules', 'Generic')
+            |);
+    }
+
+    my ( $split_cnt ) = $dbh->selectrow_array( q|SELECT COUNT(*) FROM class_split_rules|);
+    if( !$split_cnt ) {
+        $dbh->do(q|INSERT INTO `class_split_rules` (`class_split_rule`, `description`, `split_routine`) VALUES
+                               ('dewey', 'Default splitting rules for DDC', 'Dewey'),
+                               ('lcc', 'Default splitting rules for LCC', 'LCC'),
+                               ('generic', 'Generic call number splitting rules', 'Generic')
+            |);
+    }
+
+    my( $source_cnt ) = $dbh->selectrow_array( q|SELECT COUNT(*) FROM class_sources|);
+    if( !$source_cnt ) {
+        $dbh->do(q|INSERT INTO `class_sources` (`cn_source`, `description`, `used`, `class_sort_rule`, `class_split_rule`) VALUES
+                            ('ddc', 'Dewey Decimal Classification', 1, 'dewey', 'dewey'),
+                            ('lcc', 'Library of Congress Classification', 1, 'lcc', 'lcc'),
+                            ('udc', 'Universal Decimal Classification', 0, 'generic', 'generic'),
+                            ('sudocs', 'SuDoc Classification (U.S. GPO)', 0, 'generic', 'generic'),
+                            ('anscr', 'ANSCR (Sound Recordings)', 0, 'generic', 'generic'),
+                            ('z', 'Other/Generic Classification Scheme', 0, 'generic', 'generic')
+            |);
+
+    }
+
+    SetVersion( $DBversion );
+    print "Upgrade to $DBversion done (Bug 22024 - Add missing splitting rule definitions)\n";
+}
+
+$DBversion = "18.11.01.000";
+if ( CheckVersion($DBversion) ) {
+    print "Upgrade to $DBversion done (18.11.01 release)\n";
+    SetVersion($DBversion);
 }
 
 # SEE bug 13068
