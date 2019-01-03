@@ -634,21 +634,21 @@ sub quote_item {
     }
     my $vendor = $schema->resultset('Aqbookseller')->find( $quote->vendor_id );
     my $ecost = _discounted_price( $quote->vendor->discount,
-            $item->price_info, $item->price_info_inclusive );
+            $item->price_info ? $item->price_info : $item->price_gross ? $item->price_gross : undef, $item->price_info_inclusive ? $item->price_info_inclusive : $item->price_net ? $item->price_net : undef );
 
     # database definitions should set some of these defaults but dont
     my $order_hash = {
         biblionumber       => $bib->{biblionumber},
         entrydate          => DateTime->now( time_zone => 'local' )->ymd(),
         basketno           => $basketno,
-        listprice          => $item->price_info,
+        listprice          => $item->price_info ? $item->price_info : $item->price_gross ? $item->price_gross : undef,
         quantity           => $order_quantity,
         quantityreceived   => 0,
         order_vendornote   => q{},
         order_internalnote => $order_note,
-        rrp                => $item->price_info,
-        rrp_tax_included   => $item->price_info,
-        rrp_tax_excluded   => $item->price_info,
+        rrp                => $item->price_info ? $item->price_info : $item->price_gross ? $item->price_gross : undef,
+        rrp_tax_included   => $item->price_info_inclusive ? $item->price_info_inclusive : $item->price_net ? $item->price_net : undef,
+        rrp_tax_excluded   => $item->price_info ? $item->price_info : $item->price_gross ? $item->price_gross : undef,
         ecost              => $ecost,
         ecost_tax_included => $ecost,
         ecost_tax_excluded => $ecost,
