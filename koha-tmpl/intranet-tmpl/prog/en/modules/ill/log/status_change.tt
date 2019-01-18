@@ -1,7 +1,7 @@
 <p>
 [% log.timestamp | $KohaDates with_hours => 1 %] : <b>Status changed </b>
 [% IF log.info.status_before %]
-from &quot;[% request.capabilities(log.info.status_before).name %]&quot;
+from &quot;[% request.capabilities(log.info.status_before).name | html %]&quot;
 [% END %]
-to &quot;[% request.capabilities(log.info.status_after).name %]&quot;
+to &quot;[% request.capabilities(log.info.status_after).name | html %]&quot;
 </p>
