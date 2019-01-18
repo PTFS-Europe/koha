@@ -525,8 +525,8 @@
             metric: 'dd/mm/yy',
             us: 'mm/dd/yy'
         };
-        var dateFormat = dateMap['[% Koha.Preference('dateformat') %]'];
-        var prefilters = '[% prefilters %]';
+        var dateFormat = dateMap['[% Koha.Preference('dateformat') | html %]'];
+        var prefilters = '[% prefilters | html %]';
         // Set column settings
         var columns_settings = [% ColumnsSettings.GetColumns( 'illrequests', 'ill-requests', 'ill-requests', 'json' ) %];
     </script>
