@@ -13,7 +13,7 @@
 [% Asset.css("css/datatables.css") %]
 </head>
 
-<body id="pat_ill_requests">
+<body>
     [% INCLUDE 'header.inc' %]
     [% INCLUDE 'patron-search.inc' %]
 
