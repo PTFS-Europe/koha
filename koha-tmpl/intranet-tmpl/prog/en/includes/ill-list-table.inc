@@ -1,6 +1,6 @@
 <div>
     [% IF prefilters.length > 0 %]
-    <table id="ill-requests" data-prefilters="[% prefilters %]">
+    <table id="ill-requests" data-prefilters="[% prefilters | html %]">
     [% ELSE %]
     <table id="ill-requests">
     [% END %]
