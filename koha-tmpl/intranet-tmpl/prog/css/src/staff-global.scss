@@ -1006,7 +1006,7 @@ fieldset {
             border-top-right-radius: 0;
             margin: 0;
             padding: 0;
-            width: auto;
+            width: 100%;
 
             table {
                 margin: 0;
@@ -3880,6 +3880,15 @@ span {
     label {
         font-weight: bold;
     }
+}
+
+
+.form-message {
+    background-color: #FFF;
+    border: 1px solid #A4BEDD;
+    border-radius: 5px;
+    margin: 1em;
+    padding: .5em;
 }
 
 .modal-textarea {

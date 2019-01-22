@@ -423,38 +423,44 @@ sub balance {
 
 my $lines = Koha::Account->new({ patron_id => $patron_id })->outstanding_debits;
 
+It returns the debit lines with outstanding amounts for the patron.
+
+In scalar context, it returns a Koha::Account::Lines iterator. In list context, it will
+return a list of Koha::Account::Line objects.
+
 =cut
 
 sub outstanding_debits {
     my ($self) = @_;
 
-    my $lines = $self->lines->search(
+    return $self->lines->search(
         {
             amount            => { '>' => 0 },
             amountoutstanding => { '>' => 0 }
         }
     );
-
-    return $lines;
 }
 
 =head3 outstanding_credits
 
 my $lines = Koha::Account->new({ patron_id => $patron_id })->outstanding_credits;
 
+It returns the credit lines with outstanding amounts for the patron.
+
+In scalar context, it returns a Koha::Account::Lines iterator. In list context, it will
+return a list of Koha::Account::Line objects.
+
 =cut
 
 sub outstanding_credits {
     my ($self) = @_;
 
-    my $lines = $self->lines->search(
+    return $self->lines->search(
         {
             amount            => { '<' => 0 },
             amountoutstanding => { '<' => 0 }
         }
     );
-
-    return $lines;
 }
 
 =head3 non_issues_charges
