@@ -355,6 +355,8 @@ modules:
         -
           columnname: cost
         -
+          columnname: comments
+        -
           columnname: notesopac
         -
           columnname: notesstaff
