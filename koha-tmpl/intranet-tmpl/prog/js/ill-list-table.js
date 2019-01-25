@@ -31,10 +31,15 @@ $(document).ready(function() {
             prep: function(tableData, oData) {
                 var uniques = {};
                 tableData.forEach(function(row) {
-                    var resolvedName = getStatusName(
-                        oData[0].capabilities[row.status].name,
-                        row
-                    );
+                    var resolvedName;
+                    if (row.status_alias) {
+                        resolvedName = row.status_alias.lib;
+                    } else {
+                        resolvedName = getStatusName(
+                            oData[0].capabilities[row.status].name,
+							row
+                        );
+                    }
                     uniques[resolvedName] = 1
                 });
                 Object.keys(uniques).sort().forEach(function(unique) {
