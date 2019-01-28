@@ -21,6 +21,7 @@ use Modern::Perl;
 use JSON qw( to_json from_json );
 use Time::Piece;
 
+use C4::Koha;
 use C4::Context;
 use C4::Templates;
 use C4::Log qw( logaction GetLogs );
@@ -218,7 +219,14 @@ sub get_request_logs {
         undef,
         undef
     );
+    # Populate a lookup table for status aliases
+    my $aliases = GetAuthorisedValues('ILLSTATUS');
+    my $alias_hash;
+    foreach my $alias(@{$aliases}) {
+        $alias_hash->{$alias->{id}} = $alias;
+    }
     foreach my $log(@{$logs}) {
+        $log->{aliases} = $alias_hash;
         $log->{info} = from_json($log->{info});
         $log->{template} = $self->get_log_template(
         $request,

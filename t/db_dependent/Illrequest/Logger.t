@@ -57,7 +57,7 @@ use_ok('Koha::Illrequest::Logger');
 
 subtest 'Basics' => sub {
 
-    plan tests => 10;
+    plan tests => 9;
 
     $schema->storage->txn_begin;
 
@@ -119,35 +119,6 @@ subtest 'Basics' => sub {
         'base/status_change.tt',
         'get_log_template() fetches correct core template'
     );
-
-    # get_request_logs
-    #
-    my $res_obj = [
-        {
-            'template' => 'mock',
-            'info' => { 'log_origin' => 'core' },
-            'timestamp' => 1538478752,
-            'action' => 'STATUS_CHANGE'
-        },
-        {
-            'template' => 'mock',
-            'action' => 'STATUS_CHANGE',
-            'timestamp' => 1538478742,
-            'info' => { 'log_origin' => 'core' }
-        },
-        {
-            'template' => 'mock',
-            'action' => 'STATUS_CHANGE',
-            'info' => { 'log_origin' => 'core' },
-            'timestamp' => 1538478732
-        }
-    ];
-    my $me_mock = Test::MockModule->new('Koha::Illrequest::Logger');
-    $me_mock->mock('get_log_template', sub { return 'mock'; });
-    my $mock_req = Test::MockObject->new();
-    $mock_req->mock('id', sub { 1 });
-    is_deeply($logger->get_request_logs($mock_req), $res_obj,
-		'get_request_logs() returns logs property structured and sorted');
 
     $schema->storage->txn_rollback;
 };

@@ -171,6 +171,42 @@ sub patron {
     );
 }
 
+=head3 status_alias
+
+    $Illrequest->status_alias(143);
+
+Overloaded getter/setter for request status_alias,
+also records the fact that the status has changed
+
+=cut
+
+sub status_alias {
+    my ($self, $new_status_alias) = @_;
+
+    my $current_status_alias = $self->SUPER::status_alias;
+
+    if ($new_status_alias) {
+        # Keep a record of the previous status before we change it,
+        # we might need it
+        $self->{previous_status} = $current_status_alias ?
+            $current_status_alias :
+            scalar $self->status;
+        my $ret = $self->SUPER::status_alias($new_status_alias)->store;
+        if ($ret) {
+            my $logger = Koha::Illrequest::Logger->new;
+            $logger->log_status_change(
+                $self,
+                $new_status_alias
+            );
+        } else {
+            delete $self->{previous_status};
+        }
+        return $ret;
+    } else {
+        return $current_status_alias;
+    }
+}
+
 =head3 status
 
     $Illrequest->status('CANREQ');
@@ -184,14 +220,17 @@ sub status {
     my ( $self, $new_status) = @_;
 
     my $current_status = $self->SUPER::status;
+    my $current_status_alias = $self->SUPER::status_alias;
 
     if ($new_status) {
         # Keep a record of the previous status before we change it,
         # we might need it
-        $self->{previous_status} = $current_status;
+        $self->{previous_status} = $current_status_alias ?
+            $current_status_alias :
+            $current_status;
         my $ret = $self->SUPER::status($new_status)->store;
         if ($ret) {
-            $self->status_alias(undef);
+            $self->SUPER::status_alias(undef);
             my $logger = Koha::Illrequest::Logger->new;
             $logger->log_status_change(
                 $self,
