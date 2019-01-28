@@ -1,7 +1,19 @@
 <p>
 [% log.timestamp | $KohaDates with_hours => 1 %] : <b>Status changed </b>
 [% IF log.info.status_before %]
-from &quot;[% request.capabilities(log.info.status_before).name | html %]&quot;
+[% before = log.info.status_before %]
+[%
+    display_before = log.info.status_before.match('^\d+$') ?
+        log.aliases.$before.lib :
+        request.capabilities.$before.name
+%]
+from &quot;[% display_before %]&quot;
 [% END %]
-to &quot;[% request.capabilities(log.info.status_after).name | html %]&quot;
+[% after = log.info.status_after %]
+[%
+    display_after = log.info.status_after.match('^\d+$') ?
+        log.aliases.$after.lib :
+        request.capabilities.$after.name;
+%]
+to &quot;[% display_after | html %]&quot;
 </p>
