@@ -40,7 +40,7 @@ my $t              = Test::Mojo->new('Koha::REST::V1');
 
 subtest 'list() tests' => sub {
 
-    plan tests => 18;
+    plan tests => 19;
 
     # Mock ILLBackend (as object)
     my $backend = Test::MockObject->new;
