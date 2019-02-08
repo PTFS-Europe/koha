@@ -269,7 +269,8 @@ $(document).ready(function() {
     // Columns that require special treatment
     var specialCols = {
         action: {
-            func: createActionLink
+            func: createActionLink,
+            skipSanitize: true
         },
         patron: {
             func: createPatronLink
@@ -282,7 +283,8 @@ $(document).ready(function() {
         },
         biblio_id: {
             name: _("Bibliograpic record ID"),
-            func: createBiblioLink
+            func: createBiblioLink,
+            skipSanitize: true
         },
         metadata_Type: {
             func: createType
@@ -292,6 +294,9 @@ $(document).ready(function() {
         },
         patron_cardnumber: {
             name: _("Patron barcode")
+        },
+        patron: {
+            skipSanitize: true
         }
     };
 
@@ -336,6 +341,21 @@ $(document).ready(function() {
         $('#dataPreview').modal({show:true});
     });
 
+	// Allow us to chain Datatable render helpers together, so we
+	// can use our custom functions and render.text(), which
+	// provides us with data sanitization
+	$.fn.dataTable.render.multi = function(renderArray) {
+		return function(d, type, row, meta) {
+			for(var r = 0; r < renderArray.length; r++) {
+				var toCall = renderArray[r].hasOwnProperty('display') ?
+				renderArray[r].display :
+				renderArray[r];
+				d = toCall(d, type, row, meta);
+			}
+			return d;
+		}
+	}
+
     // Get our data from the API and process it prior to passing
     // it to datatables
     var filterParam = prefilters ? '&' + prefilters : '';
@@ -370,9 +390,21 @@ $(document).ready(function() {
                     specialCols.hasOwnProperty(colName) &&
                     specialCols[colName].hasOwnProperty('func')
                 ) {
-                    colObj.render = specialCols[colName].func;
+					var renderArray = [
+						specialCols[colName].func
+					];
+					if (!specialCols[colName].skipSanitize) {
+						renderArray.push(
+							$.fn.dataTable.render.text()
+						);
+					}
+
+					colObj.render = $.fn.dataTable.render.multi(
+						renderArray
+					);
                 } else {
                     colObj.data = colName;
+					colObj.render = $.fn.dataTable.render.text();
                 }
                 // Make sure properties that aren't present in the API
                 // response are populated with null to avoid Datatables
