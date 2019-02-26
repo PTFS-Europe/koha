@@ -68,7 +68,7 @@
 [% END %]
 
 [% IF ( alert.OTHER_CHARGES ) %]
-    <div class="dialog message">The patron has unpaid charges for holds, rentals etc of [% alert.OTHER_CHARGES | html %]</div>
+    <div class="dialog message">The patron has unpaid charges for holds, rentals etc of [% alert.OTHER_CHARGES | $Price %]</div>
 [% END %]
 
 [% IF alert.HIGHHOLDS %]
@@ -107,7 +107,7 @@
 [% END %]
 
 [% IF ( RENTALCHARGE && RENTALCHARGE > 0 ) %]
-    <li>Rental charge for this item: [% RENTALCHARGE | html %]</li>
+    <li>Rental charge for this item: [% RENTALCHARGE | $Price %]</li>
 [% END %]
 
 [% IF ( RENEW_ISSUE ) %]
@@ -155,8 +155,8 @@
     [% IF ( itemtype_notforloan ) %]
         Item type is normally not for loan.
     [% ELSIF ( item_notforloan ) %]
-        [% item_notforloan_lib = AuthorisedValues.GetByCode( authvalcode_notforloan, item_notforloan, 0 ) %]
-        Item is normally not for loan [% IF (item_notforloan_lib) %]([% item_notforloan_lib | html %])[% END %].
+        [% item_notforloan_lib = AuthorisedValues.GetDescriptionByKohaField( kohafield => 'items.notforloan', authorised_value => item.notforloan ) %]
+        Item is normally not for loan[% IF (item_notforloan_lib) %] ([% item_notforloan_lib | html %])[% END %].
     [% END %]
       [% IF CAN_user_circulate_force_checkout %]
         Check out anyway?
@@ -341,14 +341,18 @@
             [% IF ( itemtype_notforloan ) %]
                 Item type not for loan.
             [% ELSIF ( item_notforloan ) %]
-                [% item_notforloan_lib = AuthorisedValues.GetByCode( authvalcode_notforloan, item_notforloan, 0 ) %]
-                Item not for loan [% IF (item_notforloan_lib) %]([% item_notforloan_lib | html %])[% END %].
+                [% item_notforloan_lib = AuthorisedValues.GetDescriptionByKohaField( kohafield => 'items.notforloan', authorised_value => item.notforloan ) %]
+                Item not for loan[% IF (item_notforloan_lib) %] ([% item_notforloan_lib | html %])[% END %].
             [% END %]
             </li>
         [% END %]
 
         [% IF ( WTHDRAWN ) %]
-            <li>Item has been withdrawn</li>
+            <li>
+                <span>Item has been withdrawn</span>
+                [% item_withdrawn_lib = AuthorisedValues.GetDescriptionByKohaField( kohafield => 'items.withdrawn', authorised_value => item.withdrawn ) %]
+                [% IF (item_withdrawn_lib) %]<span class="co-withdrawn">([% item_withdrawn_lib | html %])</span>[% END %]
+            </li>
         [% END %]
 
         [% IF ( RESTRICTED ) %]

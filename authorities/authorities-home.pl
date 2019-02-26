@@ -17,8 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Koha; if not, see <http://www.gnu.org/licenses>.
 
-use strict;
-use warnings;
+use Modern::Perl;
 
 use CGI qw ( -utf8 );
 use URI::Escape;
@@ -61,10 +60,11 @@ if ( $op eq "delete" ) {
         }
     );
 
-    die "Wrong CSRF token" unless Koha::Token->new->check_csrf({
-        session_id => scalar $query->cookie('CGISESSID'),
-        token  => scalar $query->param('csrf_token'),
-    });
+    output_and_exit( $query, $cookie, $template, 'wrong_csrf_token' )
+        unless Koha::Token->new->check_csrf({
+            session_id => scalar $query->cookie('CGISESSID'),
+            token  => scalar $query->param('csrf_token'),
+        });
 
     DelAuthority({ authid => $authid });
 

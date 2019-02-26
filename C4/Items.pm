@@ -220,14 +220,14 @@ sub AddItemFromMarc {
     my $dbh = C4::Context->dbh;
 
     # parse item hash from MARC
-    my $frameworkcode = C4::Biblio::GetFrameworkCode( $biblionumber );
-    my ($itemtag,$itemsubfield)=C4::Biblio::GetMarcFromKohaField("items.itemnumber",$frameworkcode);
+    my $frameworkcode = C4::Biblio::GetFrameworkCode($biblionumber);
+    my ( $itemtag, $itemsubfield ) = C4::Biblio::GetMarcFromKohaField( "items.itemnumber", $frameworkcode );
 
-    my $localitemmarc=MARC::Record->new;
-    $localitemmarc->append_fields($source_item_marc->field($itemtag));
-    my $item = TransformMarcToKoha( $localitemmarc, $frameworkcode ,'items');
-    my $unlinked_item_subfields = _get_unlinked_item_subfields($localitemmarc, $frameworkcode);
-    return AddItem($item, $biblionumber, $dbh, $frameworkcode, $unlinked_item_subfields);
+    my $localitemmarc = MARC::Record->new;
+    $localitemmarc->append_fields( $source_item_marc->field($itemtag) );
+    my $item = C4::Biblio::TransformMarcToKoha( $localitemmarc, $frameworkcode, 'items' );
+    my $unlinked_item_subfields = _get_unlinked_item_subfields( $localitemmarc, $frameworkcode );
+    return AddItem( $item, $biblionumber, $dbh, $frameworkcode, $unlinked_item_subfields );
 }
 
 =head2 AddItem
@@ -284,7 +284,7 @@ sub AddItem {
 
     $item->{'itemnumber'} = $itemnumber;
 
-    ModZebra( $item->{biblionumber}, "specialUpdate", "biblioserver" );
+    C4::Biblio::ModZebra( $item->{biblionumber}, "specialUpdate", "biblioserver" );
 
     logaction( "CATALOGUING", "ADD", $itemnumber, "item" )
       if C4::Context->preference("CataloguingLog");
@@ -511,8 +511,7 @@ ModItem(
     }
 );
 
-Change one or more columns in an item record and update
-the MARC representation of the item.
+Change one or more columns in an item record.
 
 The first argument is a hashref mapping from item column
 names to the new values.  The second and third arguments
@@ -624,7 +623,7 @@ sub ModItemTransfer {
         VALUES (?, ?, NOW(), ?)");
     $sth->execute($itemnumber, $frombranch, $tobranch);
 
-    ModItem({ holdingbranch => $tobranch }, undef, $itemnumber);
+    ModItem({ holdingbranch => $tobranch }, undef, $itemnumber, { log_action => 0 });
     ModDateLastSeen($itemnumber);
     return;
 }
@@ -804,6 +803,7 @@ sub GetItemsForInventory {
     my ( $parameters ) = @_;
     my $minlocation  = $parameters->{'minlocation'}  // '';
     my $maxlocation  = $parameters->{'maxlocation'}  // '';
+    my $class_source = $parameters->{'class_source'}  // C4::Context->preference('DefaultClassificationSource');
     my $location     = $parameters->{'location'}     // '';
     my $itemtype     = $parameters->{'itemtype'}     // '';
     my $ignoreissued = $parameters->{'ignoreissued'} // '';
@@ -817,6 +817,9 @@ sub GetItemsForInventory {
 
     my $dbh = C4::Context->dbh;
     my ( @bind_params, @where_strings );
+
+    my $min_cnsort = GetClassSort($class_source,undef,$minlocation);
+    my $max_cnsort = GetClassSort($class_source,undef,$maxlocation);
 
     my $select_columns = q{
         SELECT items.itemnumber, barcode, itemcallnumber, title, author, biblio.biblionumber, biblio.frameworkcode, datelastseen, homebranch, location, notforloan, damaged, itemlost, withdrawn, stocknumber
@@ -837,13 +840,13 @@ sub GetItemsForInventory {
     }
 
     if ($minlocation) {
-        push @where_strings, 'itemcallnumber >= ?';
-        push @bind_params, $minlocation;
+        push @where_strings, 'items.cn_sort >= ?';
+        push @bind_params, $min_cnsort;
     }
 
     if ($maxlocation) {
-        push @where_strings, 'itemcallnumber <= ?';
-        push @bind_params, $maxlocation;
+        push @where_strings, 'items.cn_sort <= ?';
+        push @bind_params, $max_cnsort;
     }
 
     if ($datelastseen) {
@@ -2032,7 +2035,7 @@ sub _get_unlinked_item_subfields {
     my $original_item_marc = shift;
     my $frameworkcode = shift;
 
-    my $marcstructure = GetMarcStructure(1, $frameworkcode, { unsafe => 1 });
+    my $marcstructure = C4::Biblio::GetMarcStructure(1, $frameworkcode, { unsafe => 1 });
 
     # assume that this record has only one field, and that that
     # field contains only the item information

@@ -19,13 +19,14 @@
 
 use Modern::Perl;
 
-use Test::More tests => 7;
+use Test::More tests => 9;
 use t::lib::TestBuilder;
 
 use List::MoreUtils qw( any none );
 
 use C4::Biblio qw(AddBiblio);
 use C4::Reserves;
+use C4::ClassSource;
 use Koha::AuthorisedValues;
 use Koha::Biblios;
 use Koha::Database;
@@ -127,9 +128,61 @@ subtest 'Skip items with waiting holds' => sub {
     $schema->storage->txn_rollback;
 };
 
-sub OldWay {
-    my ($tdbh)       = @_;
-    my $ldbh         = $tdbh;
+subtest 'Verify results with OldWay' => sub {
+    $schema->storage->txn_begin;
+    plan tests => 1;
+
+    my ($oldResults, $oldCount) = OldWay();
+    my ($newResults, $newCount) = GetItemsForInventory();
+    is_deeply($newResults,$oldResults,"Inventory results unchanged.");
+    $schema->storage->txn_rollback;
+};
+
+subtest 'Use cn_sort rather than callnumber to determine correct location' => sub {
+    $schema->storage->txn_begin;
+    plan tests => 1;
+
+    my $builder = t::lib::TestBuilder->new;
+
+    my $class_rule = $builder->build({
+        source => 'ClassSortRule',
+        value => { sort_routine => "LCC" }
+    });
+    my $class_source = $builder->build({
+        source => 'ClassSource',
+        value => {
+            class_sort_rule => $class_rule->{class_sort_rule},
+        }
+    });
+
+    #Find if we have any items in our test range before we start
+    my( undef, $pre_item_count) = GetItemsForInventory({
+        maxlocation => 'GT100',
+        minlocation => 'GT90',
+        class_source => $class_source->{cn_source},
+    });
+
+    my $item_1 = $builder->build({
+            source => 'Item',
+            value  => {
+                itemcallnumber => 'GT95',
+                cn_sort => GetClassSort($class_source->{cn_source},undef,'GT95'),
+            }
+    });
+
+    my( undef, $item_count) = GetItemsForInventory({
+        maxlocation => 'GT100',
+        minlocation => 'GT90',
+        class_source => $class_source->{cn_source},
+    });
+    is($item_count,$pre_item_count + 1,"We should return GT95 as between GT90 and GT100");
+    $schema->storage->txn_rollback;
+
+};
+
+sub OldWay { # FIXME Do we really still need so much code to check results ??
+    my $ldbh = C4::Context->dbh;
+
     my $minlocation  = '';
     my $maxlocation  = '';
     my $location     = '';

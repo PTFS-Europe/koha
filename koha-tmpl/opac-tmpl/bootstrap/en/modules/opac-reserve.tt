@@ -112,6 +112,11 @@
                             </li>
                         [% END %]
 
+                        [% IF ( no_pickup_locations ) %]
+                            <li id="no_pickup_locations">
+                                None of the libraries are available for pickup location.
+                            </li>
+                        [% END %]
                     [% ELSE %]
 
                         [% IF ( none_available && multi_hold ) %]
@@ -130,9 +135,9 @@
                         [% IF (RESERVE_CHARGE) %]
                             <div class="alert" id="reserve_fee">
                                 [% IF Koha.Preference('HoldFeeMode') == 'any_time_is_collected' %]
-                                    You will be charged a hold fee of [% RESERVE_CHARGE | html %] when you collect this item
+                                    You will be charged a hold fee of [% RESERVE_CHARGE | $Price %] when you collect this item
                                 [% ELSE %]
-                                    You will be charged a hold fee of [% RESERVE_CHARGE | html %] for placing this hold
+                                    You will be charged a hold fee of [% RESERVE_CHARGE | $Price %] for placing this hold
                                 [% END %]
                             </div>
                         [% END %]
@@ -220,14 +225,13 @@
                                                         </li>
                                                     [% END %]
 
-
                                                     [% UNLESS ( singleBranchMode ) %]
                                                         [% IF ( bibitemloo.holdable && Koha.Preference('OPACAllowUserToChooseBranch')) %]
                                                             <li class="branch">
                                                                 <label for="branch_[% bibitemloo.biblionumber | html %]">Pick up location:</label>
                                                                 [% UNLESS ( bibitemloo.holdable ) %]
                                                                     <select name="branch" id="branch_[% bibitemloo.biblionumber | html %]" disabled="disabled">
-                                                                        [% PROCESS options_for_libraries libraries => Branches.all({ search_params => { pickup_location => 1 }, selected => branch }) %]
+                                                                        [% PROCESS options_for_libraries libraries => Branches.pickup_locations( biblio => bibitemloo.biblionumber, selected => branch ) %]
                                                                     </select>
                                                                 [% ELSE %]
                                                                     [% SET at_least_one_library_not_available_for_pickup = 0 %]
@@ -353,7 +357,7 @@
                                                                         [% ELSE %]
                                                                             <input disabled="disabled" type="radio" class="checkitem" name="checkitem" value="[% itemLoo.itemnumber | html %]"
                                                                                    style="display:none;" />
-                                                                            <img src="[% interface | html %]/lib/famfamfam/silk/cross.png" alt="Cannot be put on hold" title="Cannot be put on hold" />
+                                                                            <img src="[% interface | html %]/lib/famfamfam/cross.png" alt="Cannot be put on hold" title="Cannot be put on hold" />
                                                                         [% END %]
 
                                                                         [% IF ( itemLoo.copynumber ) %]

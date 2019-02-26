@@ -11,7 +11,305 @@
 <title>Koha &rsaquo; ILL requests</title>
 [% INCLUDE 'doc-head-close.inc' %]
 [% Asset.css("css/datatables.css") | $raw %]
-</head>
+[% INCLUDE 'datatables.inc' %]
+<script>
+    //<![CDATA[
+    $(document).ready(function() {
+
+        // Illview Datatable setup
+
+        // Fields we don't want to display
+        var ignore = [
+            'accessurl',
+            'backend',
+            'branchcode',
+            'completed',
+            'capabilities',
+            'cost',
+            'medium',
+            'notesopac',
+            'notesstaff',
+            'placed',
+            'replied'
+        ];
+
+        // Fields we need to expand (flatten)
+        var expand = [
+            'metadata',
+            'patron'
+        ];
+
+        // Expanded fields
+        // This is auto populated
+        var expanded = {};
+
+        // The core fields that should be displayed first
+        var core = [
+            'metadata_author',
+            'metadata_title',
+            'borrowername',
+            'biblio_id',
+            'library',
+            'status',
+            'updated',
+            'illrequest_id',
+            'comments',
+            'action' // Action should always be last
+        ];
+
+        // Remove any fields we're ignoring
+        var removeIgnore = function(dataObj) {
+            dataObj.forEach(function(thisRow) {
+                ignore.forEach(function(thisIgnore) {
+                    if (thisRow.hasOwnProperty(thisIgnore)) {
+                        delete thisRow[thisIgnore];
+                    }
+                });
+            });
+        };
+
+        // Expand any fields we're expanding
+        var expandExpand = function(row) {
+            expand.forEach(function(thisExpand) {
+                if (row.hasOwnProperty(thisExpand)) {
+                    if (!expanded.hasOwnProperty(thisExpand)) {
+                        expanded[thisExpand] = [];
+                    }
+                    var expandObj = row[thisExpand];
+                    Object.keys(expandObj).forEach(
+                        function(thisExpandCol) {
+                            var expColName = thisExpand + '_' + thisExpandCol;
+                            // Keep a list of fields that have been expanded
+                            // so we can create toggle links for them
+                            if (expanded[thisExpand].indexOf(expColName) == -1) {
+                                expanded[thisExpand].push(expColName);
+                            }
+                            expandObj[expColName] =
+                                expandObj[thisExpandCol];
+                            delete expandObj[thisExpandCol];
+                        }
+                    );
+                    $.extend(true, row, expandObj);
+                    delete row[thisExpand];
+                }
+            });
+        };
+
+        // Build a de-duped list of all column names
+        var allCols = {};
+        core.map(function(thisCore) {
+            allCols[thisCore] = 1;
+        });
+
+        // Strip the expand prefix if it exists, we do this for display
+        var stripPrefix = function(value) {
+            expand.forEach(function(thisExpand) {
+                var regex = new RegExp(thisExpand + '_', 'g');
+                value = value.replace(regex, '');
+            });
+            return value;
+        };
+
+        // Our 'render' function for borrowerlink
+        var createPatronLink = function(data, type, row) {
+            var patronLink = '<a title="' + _("View borrower details") + '" ' +
+                'href="/cgi-bin/koha/members/moremember.pl?' +
+                'borrowernumber='+row.borrowernumber+'">';
+                if ( row.patron_firstname ) {
+                    patronLink = patronLink + row.patron_firstname + ' ';
+                }
+                patronLink = patronLink + row.patron_surname + '</a>';
+            return patronLink
+        };
+
+        // Our 'render' function for biblio_id
+        var createBiblioLink = function(data, type, row) {
+            return (row.biblio_id) ?
+                '<a title="' + _("View biblio details") + '" ' +
+                'href="/cgi-bin/koha/catalogue/detail.pl?biblionumber=' +
+                row.biblio_id + '">' +
+                row.biblio_id +
+                '</a>' : '';
+        };
+
+        // Our 'render' function for the library name
+        var createLibrary = function(data, type, row) {
+            return row.library.branchname;
+        };
+
+        // Render function for request ID
+        var createRequestId = function(data, type, row) {
+            return row.id_prefix + row.illrequest_id;
+        };
+
+        // Render function for request status
+        var createStatus = function(data, type, row, meta) {
+            var origData = meta.settings.oInit.originalData;
+            if (origData.length > 0) {
+                var status_name = meta.settings.oInit.originalData[0].capabilities[
+                    row.status
+                ].name;
+                switch( status_name ) {
+                    case "New request":
+                        return _("New request");
+                    case "Requested":
+                        return _("Requested");
+                    case "Requested from partners":
+                        return _("Requested from partners");
+                    case "Request reverted":
+                        return _("Request reverted");
+                    case "Queued request":
+                        return _("Queued request");
+                    case "Cancellation requested":
+                        return _("Cancellation requested");
+                    case "Completed":
+                        return _("Completed");
+                    case "Delete request":
+                        return _("Delete request");
+                    default:
+                        return status_name;
+                }
+            } else {
+                return '';
+            }
+        };
+
+        // Render function for creating a row's action link
+        var createActionLink = function(data, type, row) {
+            return '<a class="btn btn-default btn-sm" ' +
+                'href="/cgi-bin/koha/ill/ill-requests.pl?' +
+                'method=illview&amp;illrequest_id=' +
+                row.illrequest_id +
+                '">' + _("Manage request") + '</a>';
+        };
+
+        // Columns that require special treatment
+        var specialCols = {
+            action: {
+                name: '',
+                func: createActionLink
+            },
+            borrowername: {
+                name: _("Patron"),
+                func: createPatronLink
+            },
+            illrequest_id: {
+                name: _("Request number"),
+                func: createRequestId
+            },
+            status: {
+                name: _("Status"),
+                func: createStatus
+            },
+            biblio_id: {
+                name: _("Bibliographic record ID"),
+                func: createBiblioLink
+            },
+            library: {
+                name: _("Library"),
+                func: createLibrary
+            }
+        };
+
+        // Toggle request attributes in Illview
+        $('#toggle_requestattributes').on('click', function(e) {
+            e.preventDefault();
+            $('#requestattributes').toggleClass('content_hidden');
+        });
+
+        // Toggle new comment form in Illview
+        $('#toggle_addcomment').on('click', function(e) {
+            e.preventDefault();
+            $('#addcomment').toggleClass('content_hidden');
+        });
+
+        // Filter partner list
+        $('#partner_filter').keyup(function() {
+            var needle = $('#partner_filter').val();
+            $('#partners > option').each(function() {
+                var regex = new RegExp(needle, 'i');
+                if (
+                    needle.length == 0 ||
+                    $(this).is(':selected') ||
+                    $(this).text().match(regex)
+                ) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        });
+
+        // Display the modal containing request supplier metadata
+        $('#ill-request-display-metadata').on('click', function(e) {
+            e.preventDefault();
+            $('#dataPreview').modal({show:true});
+        });
+
+        // Get our data from the API and process it prior to passing
+        // it to datatables
+        var ajax = $.ajax(
+            '/api/v1/illrequests?embed=metadata,patron,capabilities,library,comments'
+            ).done(function() {
+                var data = JSON.parse(ajax.responseText);
+                // Make a copy, we'll be removing columns next and need
+                // to be able to refer to data that has been removed
+                var dataCopy = $.extend(true, [], data);
+                // Remove all columns we're not interested in
+                removeIgnore(dataCopy);
+                // Expand columns that need it and create an array
+                // of all column names
+                $.each(dataCopy, function(k, row) {
+                    expandExpand(row);
+                });
+
+                // Assemble an array of column definitions for passing
+                // to datatables
+                var colData = [];
+                Object.keys(allCols).forEach(function(thisCol) {
+                    // Create the base column object
+                    var colObj = {
+                        name: thisCol,
+                        className: thisCol
+                    };
+                    // We may need to process the data going in this
+                    // column, so do it if necessary
+                    if (
+                        specialCols.hasOwnProperty(thisCol) &&
+                        specialCols[thisCol].hasOwnProperty('func')
+                    ) {
+                        colObj.render = specialCols[thisCol].func;
+                    } else {
+                        colObj.data = thisCol;
+                    }
+                    colData.push(colObj);
+                });
+
+                // Initialise the datatable
+                $('#ill-requests').DataTable($.extend(true, {}, dataTablesDefaults, {
+                    'aoColumnDefs': [  // Last column shouldn't be sortable or searchable
+                        {
+                            'aTargets': [ 'actions' ],
+                            'bSortable': false,
+                            'bSearchable': false
+                        },
+                    ],
+                    'aaSorting': [[ 6, 'desc' ]], // Default sort, updated descending
+                    'processing': true, // Display a message when manipulating
+                    'iDisplayLength': 10, // 10 results per page
+                    'sPaginationType': "full_numbers", // Pagination display
+                    'deferRender': true, // Improve performance on big datasets
+                    'data': dataCopy,
+                    'columns': colData,
+                    'originalData': data // Enable render functions to access
+                                       // our original data
+                }));
+            }
+        );
+
+    });
+    //]]>
+</script>
 
 <body id="illrequests" class="ill">
 [% INCLUDE 'header.inc' %]

@@ -121,6 +121,36 @@ Returns:
 sub store {
     my ($self) = @_;
 
+    my $columns_info = $self->_result->result_source->columns_info;
+
+    # Handle not null and default values for integers and dates
+    foreach my $col ( keys %{$columns_info} ) {
+        # Integers
+        if ( _numeric_column_type( $columns_info->{$col}->{data_type} ) ) {
+            # Has been passed but not a number, usually an empty string
+            if ( defined $self->$col and not looks_like_number( $self->$col ) ) {
+                if ( $columns_info->{$col}->{is_nullable} ) {
+                    # If nullable, default to null
+                    $self->$col(undef);
+                } else {
+                    # If cannot be null, get the default value
+                    # What if cannot be null and does not have a default value? Possible?
+                    $self->$col($columns_info->{$col}->{default_value});
+                }
+            }
+        }
+        elsif ( _date_or_datetime_column_type( $columns_info->{$col}->{data_type} ) ) {
+            # Set to null if an empty string (or == 0 but should not happen)
+            if ( defined $self->$col and not $self->$col ) {
+                if ( $columns_info->{$col}->{is_nullable} ) {
+                    $self->$col(undef);
+                } else {
+                    $self->$col($columns_info->{$col}->{default_value});
+                }
+            }
+        }
+    }
+
     try {
         return $self->_result()->update_or_insert() ? $self : undef;
     }
@@ -141,6 +171,13 @@ sub store {
                 Koha::Exceptions::Object::DuplicateID->throw(
                     error => 'Duplicate ID',
                     duplicate_id => $+{key}
+                );
+            }
+            elsif( $_->{msg} =~ /Incorrect (?<type>\w+) value: '(?<value>.*)' for column '(?<property>\w+)'/ ) {
+                Koha::Exceptions::Object::BadValue->throw(
+                    type     => $+{type},
+                    value    => $+{value},
+                    property => $+{property}
                 );
             }
         }
@@ -275,6 +312,17 @@ sub TO_JSON {
     return $unblessed;
 }
 
+sub _date_or_datetime_column_type {
+    my ($column_type) = @_;
+
+    my @dt_types = (
+        'timestamp',
+        'date',
+        'datetime'
+    );
+
+    return ( grep { $column_type eq $_ } @dt_types) ? 1 : 0;
+}
 sub _datetime_column_type {
     my ($column_type) = @_;
 

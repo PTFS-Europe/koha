@@ -192,29 +192,6 @@ sub store {
 
             $self->trim_whitespaces;
 
-            # We don't want invalid dates in the db (mysql has a bad habit of inserting 0000-00-00)
-            $self->dateofbirth(undef)  unless $self->dateofbirth;
-            $self->debarred(undef)     unless $self->debarred;
-            $self->date_renewed(undef) unless $self->date_renewed;
-            $self->lastseen(undef)     unless $self->lastseen;
-
-            if ( defined $self->updated_on and not $self->updated_on ) {
-                $self->updated_on(undef);
-            }
-
-            # Set default values if not set
-            $self->sms_provider_id(undef) unless $self->sms_provider_id;
-            $self->guarantorid(undef)     unless $self->guarantorid;
-
-            # If flags == 0 or flags == '' => no permission
-            $self->flags(undef) unless $self->flags;
-
-            # tinyint or int
-            $self->gonenoaddress(0)  unless $self->gonenoaddress;
-            $self->login_attempts(0) unless $self->login_attempts;
-            $self->privacy_guarantor_checkouts(0) unless $self->privacy_guarantor_checkouts;
-            $self->lost(0)           unless $self->lost;
-
             unless ( $self->in_storage ) {    #AddMember
 
                 # Generate a valid userid/login if needed
@@ -240,9 +217,6 @@ sub store {
                   :                                                   undef;
                 $self->privacy($default_privacy);
 
-                unless ( defined $self->privacy_guarantor_checkouts ) {
-                    $self->privacy_guarantor_checkouts(0);
-                }
 
                 # Make a copy of the plain text password for later use
                 $self->plain_text_password( $self->password );
@@ -262,11 +236,6 @@ sub store {
                   if C4::Context->preference("BorrowersLog");
             }
             else {    #ModMember
-
-                # Come from ModMember, but should not be possible (?)
-                $self->dateenrolled(undef) unless $self->dateenrolled;
-                $self->dateexpiry(undef)   unless $self->dateexpiry;
-
 
                 my $self_from_storage = $self->get_from_storage;
                 # FIXME We should not deal with that here, callers have to do this job
@@ -670,13 +639,15 @@ sub update_password {
 
 =head3 set_password
 
-    $patron->set_password( $plain_text_password );
+    $patron->set_password({ password => $plain_text_password [, skip_validation => 1 ] });
 
 Set the patron's password.
 
 =head4 Exceptions
 
 The passed string is validated against the current password enforcement policy.
+Validation can be skipped by passing the I<skip_validation> parameter.
+
 Exceptions are thrown if the password is not good enough.
 
 =over 4
@@ -692,24 +663,28 @@ Exceptions are thrown if the password is not good enough.
 =cut
 
 sub set_password {
-    my ( $self, $password ) = @_;
+    my ( $self, $args ) = @_;
 
-    my ( $is_valid, $error ) = Koha::AuthUtils::is_password_valid( $password );
+    my $password = $args->{password};
 
-    if ( !$is_valid ) {
-        if ( $error eq 'too_short' ) {
-            my $min_length = C4::Context->preference('minPasswordLength');
-            $min_length = 3 if not $min_length or $min_length < 3;
+    unless ( $args->{skip_validation} ) {
+        my ( $is_valid, $error ) = Koha::AuthUtils::is_password_valid( $password );
 
-            my $password_length = length($password);
-            Koha::Exceptions::Password::TooShort->throw(
-                length => $password_length, min_length => $min_length );
-        }
-        elsif ( $error eq 'has_whitespaces' ) {
-            Koha::Exceptions::Password::WhitespaceCharacters->throw();
-        }
-        elsif ( $error eq 'too_weak' ) {
-            Koha::Exceptions::Password::TooWeak->throw();
+        if ( !$is_valid ) {
+            if ( $error eq 'too_short' ) {
+                my $min_length = C4::Context->preference('minPasswordLength');
+                $min_length = 3 if not $min_length or $min_length < 3;
+
+                my $password_length = length($password);
+                Koha::Exceptions::Password::TooShort->throw(
+                    length => $password_length, min_length => $min_length );
+            }
+            elsif ( $error eq 'has_whitespaces' ) {
+                Koha::Exceptions::Password::WhitespaceCharacters->throw();
+            }
+            elsif ( $error eq 'too_weak' ) {
+                Koha::Exceptions::Password::TooWeak->throw();
+            }
         }
     }
 

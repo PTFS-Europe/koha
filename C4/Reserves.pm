@@ -304,6 +304,7 @@ sub CanBookBeReserved{
          { status => notReservable },   if holds on this item are not allowed
          { status => libraryNotFound },   if given branchcode is not an existing library
          { status => libraryNotPickupLocation },   if given branchcode is not configured to be a pickup location
+         { status => cannotBeTransferred }, if branch transfer limit applies on given item and branchcode
 
 =cut
 
@@ -474,11 +475,15 @@ sub CanItemBeReserved {
         my $destination = Koha::Libraries->find({
             branchcode => $pickup_branchcode,
         });
+
         unless ($destination) {
             return { status => 'libraryNotFound' };
         }
         unless ($destination->pickup_location) {
             return { status => 'libraryNotPickupLocation' };
+        }
+        unless ($item->can_be_transferred({ to => $destination })) {
+            return 'cannotBeTransferred';
         }
     }
 

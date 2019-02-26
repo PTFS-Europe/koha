@@ -27,8 +27,7 @@
 
 # NOTE: Please keep the version in kohaversion.pl up-to-date!
 
-use strict;
-use warnings;
+use Modern::Perl;
 
 use feature 'say';
 
@@ -17228,6 +17227,24 @@ if( CheckVersion( $DBversion ) ) {
 $DBversion = "18.11.02.000";
 if ( CheckVersion($DBversion) ) {
     print "Upgrade to $DBversion done (18.11.02 release)\n";
+    SetVersion($DBversion);
+}
+
+$DBversion = '18.11.02.001';
+if( CheckVersion( $DBversion ) ) {
+    $dbh->do(q{
+        INSERT IGNORE INTO systempreferences
+            (variable, value, options, explanation, type )
+        VALUES
+            ('RESTBasicAuth','0',NULL,'If enabled, Basic authentication is enabled for the REST API.','YesNo')
+    });
+    SetVersion( $DBversion );
+    print "Upgrade to $DBversion done (Bug 22132 - Add Basic authentication)\n";
+}
+
+$DBversion = "18.11.03.000";
+if ( CheckVersion($DBversion) ) {
+    print "Upgrade to $DBversion done (18.11.03 release)\n";
     SetVersion($DBversion);
 }
 

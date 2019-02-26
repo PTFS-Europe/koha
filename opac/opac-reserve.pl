@@ -101,7 +101,7 @@ if ( $patron->category->effective_BlockExpiredPatronOpacActions ) {
 # Pass through any reserve charge
 my $reservefee = $patron->category->reservefee;
 if ( $reservefee > 0){
-    $template->param( RESERVE_CHARGE => sprintf("%.2f",$reservefee));
+    $template->param( RESERVE_CHARGE => $reservefee);
 }
 
 my $itemtypes = { map { $_->{itemtype} => $_ } @{ Koha::ItemTypes->search_with_localization->unblessed } };
@@ -173,6 +173,7 @@ foreach my $biblioNumber (@biblionumbers) {
 
     # Compute the priority rank.
     my $biblio = Koha::Biblios->find( $biblioNumber );
+    $biblioData->{object} = $biblio;
     my $holds = $biblio->holds;
     my $rank = $holds->count;
     $biblioData->{reservecount} = 1;    # new reserve
@@ -385,11 +386,11 @@ my $itemdata_enumchron = 0;
 my $itemdata_ccode = 0;
 my $anyholdable = 0;
 my $itemLevelTypes = C4::Context->preference('item-level_itypes');
+my $pickup_locations = Koha::Libraries->search({ pickup_location => 1 });
 $template->param('item_level_itypes' => $itemLevelTypes);
 
 foreach my $biblioNum (@biblionumbers) {
 
-    my @not_available_at = ();
     my $record = GetMarcBiblio({ biblionumber => $biblioNum });
     # Init the bib item with the choices for branch pickup
     my %biblioLoopIter;
@@ -399,6 +400,12 @@ foreach my $biblioNum (@biblionumbers) {
     if (! $biblioData) {
         $template->param(message=>1, bad_biblionumber=>$biblioNum);
         &get_out($query, $cookie, $template->output);
+    }
+
+    my @not_available_at = ();
+    my $biblio = $biblioData->{object};
+    foreach my $library ( $pickup_locations->as_list ) {
+        push( @not_available_at, $library->branchcode ) unless $biblio->can_be_transferred({ to => $library });
     }
 
     my $frameworkcode = GetFrameworkCode( $biblioData->{biblionumber} );
@@ -614,6 +621,14 @@ foreach my $biblioNum (@biblionumbers) {
     $anyholdable = 1 if $biblioLoopIter{holdable};
 }
 
+unless ($pickup_locations->count) {
+    $numBibsAvailable = 0;
+    $anyholdable = 0;
+    $template->param(
+        message => 1,
+        no_pickup_locations => 1
+    );
+}
 
 if ( $numBibsAvailable == 0 || $anyholdable == 0) {
     $template->param( none_available => 1 );

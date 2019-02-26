@@ -62,7 +62,7 @@ my $add = $input->param('add');
 
 if ($add){
 
-    die "Wrong CSRF token"
+    output_and_exit( $input, $cookie, $template, 'wrong_csrf_token' )
         unless Koha::Token->new->check_csrf( {
             session_id => scalar $input->cookie('CGISESSID'),
             token  => scalar $input->param('csrf_token'),
@@ -81,10 +81,13 @@ if ($add){
     my $amount      = $input->param('amount') || 0;
     my $type        = $input->param('type');
 
+    my $library_id = C4::Context->userenv ? C4::Context->userenv->{'branch'} : undef;
+
     $patron->account->add_credit({
         amount      => $amount,
         description => $description,
         item_id     => $item_id,
+        library_id  => $library_id,
         note        => $note,
         type        => $type,
         user_id     => $logged_in_user->id

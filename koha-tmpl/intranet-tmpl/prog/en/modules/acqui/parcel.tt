@@ -183,7 +183,7 @@
 				</td>
 				<td>
                         [% IF ( loop_order.left_holds_on_order ) %]
-                        <span class="button" title="Can't cancel order, ([% loop_order.holds_on_order | html %]) holds are linked with this order cancel holds first">Can't cancel order</span><br>
+                        <span class="button" title="Can't cancel order, ([% loop_order.holds_on_order | html %]) holds are linked with this order. Cancel holds first">Can't cancel order</span><br>
                         [% ELSE %]
                         <a href="/cgi-bin/koha/acqui/cancelorder.pl?ordernumber=[% loop_order.ordernumber | uri %]&biblionumber=[% loop_order.biblionumber | uri %]&referrer=[% "/cgi-bin/koha/acqui/parcel.pl?invoiceid=$invoiceid" | uri %]">Cancel order</a><br />
                         [% END %]
@@ -404,19 +404,19 @@
     <h4>Filter</h4>
     <ol>
       <li>
-        <label for="summaryfilter">ISBN, author or title :</label>
+        <label for="summaryfilter">ISBN, author or title:</label>
         <input type="text" name="summaryfilter" id="summaryfilter" value="[% summaryfilter | html %]"/>
       </li>
       <li>
-        <label for="basketfilter">Basket :</label>
+        <label for="basketfilter">Basket:</label>
         <input type="text" name="basketfilter" id="basketfilter" value="[% basketfilter | html %]"/>
       </li>
       <li>
-          <label for="basketgroupnamefilter">Basket group name :</label>
+          <label for="basketgroupnamefilter">Basket group name:</label>
           <input type="text" name="basketgroupnamefilter" id="basketgroupnamefilter" value="[% basketgroupnamefilter | html %]" />
       </li>
       <li>
-        <label for="orderfilter">Order line :</label>
+        <label for="orderfilter">Order line:</label>
         <input type="text" name="orderfilter" id="orderfilter" value="[% orderfilter | html %]"/>
       </li>
       [% IF (UNIMARC) %]
