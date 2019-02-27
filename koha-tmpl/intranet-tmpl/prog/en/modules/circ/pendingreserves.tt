@@ -90,7 +90,9 @@
         [% END %]
         <td>
             [% FOREACH holdingbranch IN reserveloo.holdingbranches %]
-                [% Branches.GetName ( holdingbranch ) | html %]
+#Attempt to reapply call 1013247
+#                [% Branches.GetName ( holdingbranch ) | html %]
+                 [% ( holdingbranch ) | html %]
             [% END %]
         </td>
         <td><p>[% reserveloo.itemcallnumber | html %]</p></td>
