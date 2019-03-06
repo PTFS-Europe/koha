@@ -747,6 +747,7 @@ sub backend_create {
                 method  => 'create',
                 stage   => 'copyrightclearance',
                 value   => {
+                    other   => $params,
                     backend => $self->_backend->name
                 }
             };
