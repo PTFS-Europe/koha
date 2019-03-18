@@ -8,6 +8,14 @@
         request.capabilities.$before.name
 %]
 from &quot;[% display_before %]&quot;
+[% IF log.info.additional.partner_email_previous %]
+    (
+    [% FOREACH add IN log.info.additional.partner_email_previous.split('; ') %]
+        [% borrowernumber = log.requested_partners.$add.borrowernumber %]
+        <a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% borrowernumber | html %]">[% add | url %]</a>
+    [% END %]
+    )
+[% END %]
 [% END %]
 [% after = log.info.status_after %]
 [%
@@ -16,4 +24,12 @@ from &quot;[% display_before %]&quot;
         request.capabilities.$after.name;
 %]
 to &quot;[% display_after | html %]&quot;
+[% IF log.info.additional.partner_email_now %]
+    (
+    [% FOREACH add IN log.info.additional.partner_email_now.split('; ') %]
+        [% borrowernumber = log.requested_partners.$add.borrowernumber %]
+        <a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% borrowernumber | html %]">[% add | url %]</a>
+    [% END %]
+    )
+[% END %]
 </p>
