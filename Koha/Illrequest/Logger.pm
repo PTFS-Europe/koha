@@ -25,6 +25,7 @@ use C4::Koha;
 use C4::Context;
 use C4::Templates;
 use C4::Log qw( logaction GetLogs );
+use Koha::Patron;
 
 =head1 NAME
 
@@ -113,17 +114,57 @@ Log a request's status change
 sub log_status_change {
     my ( $self, $req, $new_status ) = @_;
 
+    my $infos = {
+        log_origin    => 'core',
+        status_before => $req->{previous_status},
+        status_after  => $new_status->{status}
+    };
+
+    if (defined $new_status->{additional} && $new_status->{additional}) {
+        $infos->{additional} = $new_status->{additional};
+    }
+
     $self->set_data({
         actionname   => 'STATUS_CHANGE',
         objectnumber => $req->id,
-        infos        => to_json({
-            log_origin    => 'core',
-            status_before => $req->{previous_status},
-            status_after  => $new_status
-        })
+        infos        => to_json($infos)
     });
 
     $self->log_something();
+}
+
+=head3 logged_requested_partners
+
+    Koha::Illrequest::Logger->logged_requested_partners($log);
+
+Receive an request's log and return a hashref of all
+patron objects associated with it, keyed on email
+address. This enables us to display full information about them
+and link to their patron page
+
+=cut
+
+sub _logged_requested_partners {
+    my ( $params ) = @_;
+	my @to = ();
+	my @potential = ('partner_email_previous', 'partner_email_now');
+	foreach my $partner(@potential) {
+		my @addresses = split(/; /, $params->{info}->{additional}->{$partner});
+		push @to, @addresses if scalar @addresses > 0;
+	}
+	my $to_return = {};
+	if (scalar @to > 0) {
+		my $patrons = Koha::Patrons->search({
+			email => { -in => \@to },
+			categorycode => $params->{request}->_config->partner_code
+		})->unblessed;
+		foreach my $patron(@{$patrons}) {
+			$to_return->{$patron->{email}} = $patron;
+		}
+		return $to_return;
+	} else {
+		return {};
+	}
 }
 
 =head3 log_something
@@ -228,8 +269,13 @@ sub get_request_logs {
     foreach my $log(@{$logs}) {
         $log->{aliases} = $alias_hash;
         $log->{info} = from_json($log->{info});
+        my $full_partners = _logged_requested_partners({
+			info => $log->{info},
+			request => $request
+		});
+        $log->{requested_partners} = $full_partners if keys %{$full_partners};
         $log->{template} = $self->get_log_template(
-        $request,
+            $request,
             {
                 origin => $log->{info}->{log_origin},
                 action => $log->{action}

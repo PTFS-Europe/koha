@@ -356,8 +356,12 @@
                                             [% request.statusalias.lib | html %]
                                         [% ELSE %]
                                             [% request.capabilities.$req_status.name | html%]
-                                            [% IF request.requested_partners.length > 0 %]
-                                                ([% request.requested_partners | html %])
+                                            [% IF request.status == 'GENREQ' && request.requested_partners.length > 0 %]
+                                            :
+                                                [% FOREACH partner IN request.requested_partners(1) %]
+                                                    <a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% partner.borrowernumber %]">[% partner.email %] ([% partner.cardnumber %])</a>
+                                                    [% IF loop.index() < loop.size() - 1 %];[% END %]
+                                                [% END %]
                                             [% END %]
                                         [% END %]
                                     </li>
@@ -441,7 +445,7 @@
                                 [% IF request.logs.size > 0 %]
                                     [% FOREACH log IN request.logs %]
                                         [% tpl = log.template %]
-                                        [% INCLUDE $tpl %]
+                                        [% INCLUDE $tpl request=request %]
                                     [% END %]
                                 [% ELSE %]
                                     There are no recorded logs for this request
