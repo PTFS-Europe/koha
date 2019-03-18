@@ -5,8 +5,24 @@
 [% before = log.info.status_before %]
 [% display_before = log.aliases.$before ? log.aliases.$before.lib : request.capabilities.$before.name %]
 from &quot;[% display_before | html %]&quot;
+[% IF before == "GENREQ" && log.info.additional.partner_email_previous %]
+     (
+     [% FOREACH add IN log.info.additional.partner_email_previous.split('; ') %]
+         [% borrowernumber = log.requested_partners.$add.borrowernumber %]
+         <a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% borrowernumber | html %]">[% add | url %]</a>
+     [% END %]
+     )
+[% END %]
 [% END %]
 [% after = log.info.status_after %]
 [% display_after = log.aliases.$after ? log.aliases.$after.lib : request.capabilities.$after.name %]
 to &quot;[% display_after | html %]&quot;
+[% IF after == "GENREQ" && log.info.additional.partner_email_now %]
+    (
+    [% FOREACH add IN log.info.additional.partner_email_now.split('; ') %]
+        [% borrowernumber = log.requested_partners.$add.borrowernumber %]
+        <a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% borrowernumber | html %]">[% add | url %]</a>
+    [% END %]
+    )
+[% END %]
 </p>

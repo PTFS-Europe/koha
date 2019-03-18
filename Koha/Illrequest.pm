@@ -205,11 +205,33 @@ sub status_alias {
     my $current_status_alias = $self->SUPER::status_alias;
 
     if ($new_status_alias) {
+        # $new_status_alias may be one of two things, it may be a simple string
+        # thereby just a drop in replacement for the native status_alias
+        # method, but it may also be a hashref, as per:
+        #
+        # { status => '<new_status>', additional => {<arbitrary_hashref} }
+        #
+        # The purpose of 'additional' is to allow additional data to be
+        # sent for logging when the status change is logged, in addition to
+        # the new status. I'm not 100% happy with this solution, but since
+        # we implcitly log when $request->status_alias(123) is called, I'm not
+        # sure how else we can achieve it without explicitly calling logging
+        # each time a status is changed, which would be grim
+        #
         # Keep a record of the previous status before we change it,
         # we might need it
         $self->{previous_status} = $current_status_alias ?
             $current_status_alias :
             scalar $self->status;
+        my $actual_status_alias;
+        my $additional;
+        if (ref $new_status_alias eq 'HASH') {
+            $actual_status_alias = $new_status_alias->{status};
+            $additional = $new_status_alias->{additional}
+                if exists $new_status_alias->{additional};
+        } else {
+            $actual_status_alias = $new_status_alias;
+        }
         # This is hackery to enable us to undefine
         # status_alias, since we need to have an overloaded
         # status_alias method to get us around the problem described
@@ -217,14 +239,17 @@ sub status_alias {
         # https://bugs.koha-community.org/bugzilla3/show_bug.cgi?id=20581#c156
         # We need a way of accepting implied undef, so we can nullify
         # the status_alias column, when called from $self->status
-        my $val = $new_status_alias eq "-1" ? undef : $new_status_alias;
+        my $val = $actual_status_alias eq "-1" ? undef : $actual_status_alias;
         my $ret = $self->SUPER::status_alias($val);
-        my $val_to_log = $val ? $new_status_alias : scalar $self->status;
+        my $val_to_log = $val ? $actual_status_alias : scalar $self->status;
         if ($ret) {
             my $logger = Koha::Illrequest::Logger->new;
             $logger->log_status_change({
                 request => $self,
-                value   => $val_to_log
+                value   => {
+                    status => $val_to_log,
+                    additional => $additional
+                }
             });
         } else {
             delete $self->{previous_status};
@@ -262,17 +287,38 @@ and sends a notice if appropriate
 
 sub status {
     my ( $self, $new_status) = @_;
-
     my $current_status = $self->SUPER::status;
     my $current_status_alias = $self->SUPER::status_alias;
 
     if ($new_status) {
+        # $new_status may be one of two things, it may be a simple string
+        # thereby just a drop in replacement for the native status method,
+        # but it may also be a hashref, as per:
+        #
+        # { status => '<new_status>', additional => {<arbitrary_hashref} }
+        #
+        # The purpose of 'additional' is to allow additional data to be
+        # sent for logging when the status change is logged, in addition to
+        # the new status. I'm not 100% happy with this solution, but since
+        # we implcitly log when $request->status('XYZ') is called, I'm not
+        # sure how else we can achieve it without explicitly calling logging
+        # each time a status is changed, which would be grim
+        #
         # Keep a record of the previous status before we change it,
         # we might need it
         $self->{previous_status} = $current_status_alias ?
             $current_status_alias :
             $current_status;
-        my $ret = $self->SUPER::status($new_status)->store;
+        my $actual_status;
+        my $additional;
+        if (ref $new_status eq 'HASH') {
+            $actual_status = $new_status->{status};
+            $additional = $new_status->{additional}
+                if exists $new_status->{additional};
+        } else {
+            $actual_status = $new_status;
+        }
+        my $ret = $self->SUPER::status($actual_status)->store;
         if ($current_status_alias) {
             # This is hackery to enable us to undefine
             # status_alias, since we need to have an overloaded
@@ -281,12 +327,18 @@ sub status {
             # https://bugs.koha-community.org/bugzilla3/show_bug.cgi?id=20581#c156
             # We need a way of passing implied undef to nullify status_alias
             # so we pass -1, which is special cased in the overloaded setter
-            $self->status_alias("-1");
+            $self->status_alias({
+                status     => "-1",
+                additional => $additional
+            });
         } else {
             my $logger = Koha::Illrequest::Logger->new;
             $logger->log_status_change({
                 request => $self,
-                value   => $new_status
+                value   => {
+                    status     => $actual_status,
+                    additional => $additional
+                }
             });
         }
         delete $self->{previous_status};
@@ -448,12 +500,12 @@ sub _core_status_graph {
             ui_method_icon => 'fa-check',
         },
         GENREQ => {
-            prev_actions   => [ 'NEW', 'REQREV' ],
+            prev_actions   => [ 'NEW', 'REQREV', 'GENREQ' ],
             id             => 'GENREQ',
             name           => 'Requested from partners',
             ui_method_name => 'Place request with partners',
             method         => 'generic_confirm',
-            next_actions   => [ 'COMP', 'CHK' ],
+            next_actions   => [ 'COMP', 'CHK', 'GENREQ' ],
             ui_method_icon => 'fa-send-o',
         },
         REQREV => {
@@ -1653,16 +1705,26 @@ sub store {
     my $partners_string = $illRequest->requested_partners;
 
 Return the string representing the email addresses of the partners to
-whom a request has been sent
+whom a request has been sent or, alternatively, the full (unblessed)
+patron objects in an arrayref
 
 =cut
 
 sub requested_partners {
-    my ( $self ) = @_;
-    return $self->_backend_capability(
+    my ( $self, $full ) = @_;
+    my $email = $self->_backend_capability(
         'get_requested_partners',
         { request => $self }
     );
+    return $email if (!$full);
+
+    # The string may contain multiple addressed delimited by '; '
+    my @email_split = split(/; /, $email);
+    # Get the appropriate patron objects
+    return Koha::Patrons->search({
+        email => { -in => \@email_split },
+        categorycode => $self->_config->partner_code
+    })->unblessed;
 }
 
 =head3 TO_JSON
