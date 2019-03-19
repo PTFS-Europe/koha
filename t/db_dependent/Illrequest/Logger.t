@@ -24,8 +24,10 @@ use Test::More tests => 2;
 use Test::MockModule;
 use Test::MockObject;
 use t::lib::Mocks;
+use t::lib::TestBuilder;
 
 my $schema = Koha::Database->new->schema;
+my $builder = t::lib::TestBuilder->new;
 
 # Mock the modules we use
 my $c4_log = Test::MockModule->new('C4::Log');
@@ -38,7 +40,7 @@ use_ok('Koha::Illrequest::Logger');
 
 subtest 'Basics' => sub {
 
-    plan tests => 7;
+    plan tests => 9;
 
     $schema->storage->txn_begin;
 
@@ -92,6 +94,42 @@ subtest 'Basics' => sub {
         'base/status_change.tt',
         'get_log_template() fetches correct core template'
     );
+
+    # logged_requested_partners
+    my $categorycode = $builder->build({ source => 'Category' })->{categorycode};
+    my $branchcode = $builder->build({ source => 'Branch' })->{branchcode};
+    my $illrq = $builder->build_object({
+        class => 'Koha::Illrequests',
+        value => { borrowernumber => 123 }
+    });
+    my $config = Test::MockObject->new;
+    $config->set_always('partner_code', $categorycode);
+    $illrq->_config($config);
+    Koha::Patron->new(
+        {
+            surname      => 'Test 1',
+            email        => 'me@nowhere.com',
+            categorycode => $categorycode,
+            branchcode   => $branchcode
+        }
+    )->store();
+    my $returned = Koha::Illrequest::Logger::_logged_requested_partners({
+        request => $illrq,
+        info => {
+            log_origin => "core",
+            status_before => "GENREQ",
+            status_after => "GENREQ",
+            additional => {
+                partner_email_previous => 'me@nowhere.com',
+                partner_email_now => 'you@nowhere.com'
+            }
+        }
+    });
+    isa_ok($returned, 'HASH',
+        'logged_requested_partners returns a hasref'
+    );
+    is($returned->{'me@nowhere.com'}->{surname}, 'Test 1',
+        'logged_requested_partners returns full patron objects');
 
     $schema->storage->txn_rollback;
 };

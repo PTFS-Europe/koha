@@ -50,7 +50,7 @@ use_ok('Koha::Illrequests');
 
 subtest 'Basic object tests' => sub {
 
-    plan tests => 24;
+    plan tests => 26;
 
     $schema->storage->txn_begin;
 
@@ -121,6 +121,14 @@ subtest 'Basic object tests' => sub {
 
     is(Koha::Illrequests->search->count, 0,
        "No illrequest found after delete.");
+
+    $illrq_obj->status('REQ');
+    is($illrq_obj->status, 'REQ',
+        "status correctly handles strings");
+
+    $illrq_obj->status({ status => 'NEW', additional => 'add'});
+    is($illrq_obj->status, 'NEW',
+        "status correctly handles hashrefs");
 
     $schema->storage->txn_rollback;
 };
@@ -373,7 +381,7 @@ subtest 'Status Graph tests' => sub {
 
 subtest 'Backend testing (mocks)' => sub {
 
-    plan tests => 13;
+    plan tests => 16;
 
     $schema->storage->txn_begin;
 
@@ -381,7 +389,9 @@ subtest 'Backend testing (mocks)' => sub {
     # the Dummy plugin installed.  load_backend & available_backends don't
     # currently have tests as a result.
 
-    t::lib::Mocks->mock_config('interlibrary_loans', { backend_dir => 'a_dir' }  );
+    my $categorycode = $builder->build({ source => 'Category' })->{categorycode};
+    my $branchcode = $builder->build({ source => 'Branch' })->{branchcode};
+
     my $backend = Test::MockObject->new;
     $backend->set_isa('Koha::Illbackends::Mock');
     $backend->set_always('name', 'Mock');
@@ -391,7 +401,12 @@ subtest 'Backend testing (mocks)' => sub {
         class => 'Koha::Illrequests',
     });
 
+    my $config = Test::MockObject->new;
+    $config->set_always('partner_code', $categorycode);
+    $config->set_always('backend_dir', 'a_dir');
+
     $illrq->_backend($backend);
+    $illrq->_config($config);
 
     isa_ok($illrq->_backend, 'Koha::Illbackends::Mock',
            "OK accessing mocked backend.");
@@ -437,6 +452,44 @@ subtest 'Backend testing (mocks)' => sub {
         },
         "Test metadata."
     );
+
+    $backend->mock(
+        'capabilities',
+        sub {
+            my ($self, $name) = @_;
+            if ($name eq 'get_requested_partners') {
+                return sub {
+                    return 'me@nowhere.com; you@nowhere.com';
+                }
+            }
+        }
+    );
+    is($illrq->requested_partners, 'me@nowhere.com; you@nowhere.com',
+        "requested_partners returns string by default");
+
+    Koha::Patron->new(
+        {
+            surname      => 'Test 1',
+            email        => 'me@nowhere.com',
+            categorycode => $categorycode,
+            branchcode   => $branchcode
+        }
+    )->store();
+
+    Koha::Patron->new(
+        {
+            surname      => 'Test 2',
+            email        => 'you@nowhere.com',
+            categorycode => $categorycode,
+            branchcode   => $branchcode
+        }
+    )->store();
+
+	my $part = $illrq->requested_partners(1);
+    isa_ok($part, 'ARRAY',
+           "requested_partners returns array when requested");
+    isa_ok(@{$part}[0], 'HASH',
+           "requested_partners return array contains unblessed Koha patrons");
 
     # capabilities:
 
@@ -1222,7 +1275,7 @@ subtest 'Checking Limits' => sub {
 
 subtest 'Custom statuses' => sub {
 
-    plan tests => 3;
+    plan tests => 5;
 
     $schema->storage->txn_begin;
 
@@ -1269,6 +1322,16 @@ subtest 'Custom statuses' => sub {
     $ill_req->status("COMP");
     is($ill_req->statusalias, undef,
         "Koha::Illrequest->status overloading resetting status_alias");
+
+    $ill_req->status_alias($av->authorised_value);
+    is($ill_req->status_alias, $av->authorised_value,
+        "Koha::Illrequest->status_alias correctly handling string");
+
+    $ill_req->status_alias(
+        { status => $av->authorised_value, additional => 'xyz' }
+    );
+    is($ill_req->status_alias, $av->authorised_value,
+        "Koha::Illrequest->status_alias correctly handling hashref");
 
     $schema->storage->txn_rollback;
 };
