@@ -468,6 +468,8 @@ sub emit {
                 }
             }
             else {
+		$addressee ||= q{};
+                $params->{admin_email} ||= q{};
                 my $email =
                   "-------- Email message --------" . "\n\n" . "To: "
                   . defined($addressee)               ? $addressee
