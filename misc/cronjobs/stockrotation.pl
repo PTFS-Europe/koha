@@ -473,10 +473,8 @@ sub emit {
                 }
             }
             else {
-                $addressee ||=
-                  defined( $params->{admin_email} )
-                  ? $params->{admin_email} . "\n"
-                  : 'No recipient found' . "\n";
+		$addressee ||= q{};
+                $params->{admin_email} ||= q{};
                 my $email =
                   "-------- Email message --------" . "\n\n";
                 $email .= "To: $addressee\n";
