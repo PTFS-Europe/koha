@@ -3,11 +3,19 @@ package t::lib::TestBuilder;
 use Modern::Perl;
 
 use Koha::Database;
+use C4::Biblio;
+use C4::Items;
+use Koha::Biblios;
+use Koha::Items;
 
 use Bytes::Random::Secure;
 use Carp;
 use Module::Load;
 use String::Random;
+
+use constant {
+    SIZE_BARCODE => 20, # Not perfect but avoid to fetch the value when creating a new item
+};
 
 sub new {
     my ($class) = @_;
@@ -123,6 +131,61 @@ sub build {
         source => $source,
         values => $col_values,
     });
+}
+
+sub build_sample_biblio {
+    my ( $self, $args ) = @_;
+
+    my $title  = $args->{title}  || 'Some boring read';
+    my $author = $args->{author} || 'Some boring author';
+    my $frameworkcode = $args->{frameworkcode} || '';
+    my $itemtype = $args->{itemtype}
+      || $self->build_object( { class => 'Koha::ItemTypes' } )->itemtype;
+
+    my $marcflavour = C4::Context->preference('marcflavour');
+
+    my $record = MARC::Record->new();
+    my ( $tag, $subfield ) = $marcflavour eq 'UNIMARC' ? ( 200, 'a' ) : ( 245, 'a' );
+    $record->append_fields(
+        MARC::Field->new( $tag, ' ', ' ', $subfield => $title ),
+    );
+
+    ( $tag, $subfield ) = $marcflavour eq 'UNIMARC' ? ( 200, 'f' ) : ( 100, 'a' );
+    $record->append_fields(
+        MARC::Field->new( $tag, ' ', ' ', $subfield => $author ),
+    );
+
+    ( $tag, $subfield ) = $marcflavour eq 'UNIMARC' ? ( 995, 'r' ) : ( 942, 'c' );
+    $record->append_fields(
+        MARC::Field->new( $tag, ' ', ' ', $subfield => $itemtype )
+    );
+
+    my ($biblio_id) = C4::Biblio::AddBiblio( $record, $frameworkcode );
+    return Koha::Biblios->find($biblio_id);
+}
+
+sub build_sample_item {
+    my ( $self, $args ) = @_;
+
+    my $biblionumber =
+      delete $args->{biblionumber} || $self->build_sample_biblio->biblionumber;
+    my $library = delete $args->{library}
+      || $self->build_object( { class => 'Koha::Libraries' } )->branchcode;
+
+    my $itype = delete $args->{itype}
+      || $self->build_object( { class => 'Koha::ItemTypes' } )->itemtype;
+
+    my ( undef, undef, $itemnumber ) = C4::Items::AddItem(
+        {
+            homebranch    => $library,
+            holdingbranch => $library,
+            barcode       => $self->_gen_text( { info => { size => SIZE_BARCODE } } ),
+            itype         => $itype,
+            %$args,
+        },
+        $biblionumber
+    );
+    return Koha::Items->find($itemnumber);
 }
 
 # ------------------------------------------------------------------------------

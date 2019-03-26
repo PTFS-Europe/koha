@@ -19,8 +19,8 @@ use Pod::Usage;
 use Getopt::Long;
 use C4::Log;
 
-use File::Basename qw( dirname );
 use Koha::DateUtils;
+use Koha::Util::OpenDocument;
 use MIME::Lite;
 
 my (
@@ -181,7 +181,7 @@ sub print_notices {
                 filepath => $filepath,
             });
         } elsif ( $format eq 'ods' ) {
-            generate_ods ({
+            _generate_ods ({
                 messages => $branch_messages,
                 filepath => $filepath,
             });
@@ -249,55 +249,35 @@ sub generate_csv {
     }
 }
 
-sub generate_ods {
+sub _generate_ods {
     my ( $params ) = @_;
     my $messages = $params->{messages};
-    my $filepath = $params->{filepath};
+    my $ods_filepath = $params->{filepath};
 
-    use OpenOffice::OODoc;
-    my $tmpdir = dirname $filepath;
-    odfWorkingDirectory( $tmpdir );
-    my $container = odfContainer( $filepath, create => 'spreadsheet' );
-    my $doc = odfDocument (
-        container => $container,
-        part      => 'content'
-    );
-    my $table = $doc->getTable(0);
-
-    my @headers;
-    my ( $nb_rows, $nb_cols, $i ) = ( scalar(@$messages), 0, 0 );
+    # Prepare sheet
+    my $ods_content;
+    my $has_headers;
     foreach my $message ( @$messages ) {
-        my @lines = split /\n/, $message->{content};
-        chomp for @lines;
-
-        # We don't have headers, get them
-        unless ( @headers ) {
-            @headers = split $delimiter, $lines[0];
-
-            $nb_cols = @headers;
-            $doc->expandTable( $table, $nb_rows + 1, $nb_cols );
-            my $row = $doc->getRow( $table, 0 );
-            my $j = 0;
-            for my $header ( @headers ) {
-                $doc->cellValue( $row, $j, Encode::encode( 'UTF8', $header ) );
-                $j++;
-            }
-            $i = 1;
+        my @message_lines = split /\n/, $message->{content};
+        chomp for @message_lines;
+        # Get headers from first message
+        if ($has_headers) {
+            shift @message_lines;
+        } else {
+            $has_headers = 1;
         }
-
-        shift @lines; # remove headers
-        for my $line ( @lines ) {
-            my @row_data = split $delimiter, $line;
-            my $row = $doc->getRow( $table, $i );
-            # Note scalar(@$row_data) should be equal to $nb_cols
-            for ( my $j = 0 ; $j < scalar(@row_data) ; $j++ ) {
-                my $value = Encode::encode( 'UTF8', $row_data[$j] );
-                $doc->cellValue( $row, $j, $value );
+        foreach my $message_line ( @message_lines ) {
+            my @content_row;
+            my @message_cells = split $delimiter, $message_line;
+            foreach ( @message_cells ) {
+                push @content_row, Encode::encode( 'UTF8', $_ );
             }
-            $i++;
+            push @$ods_content, \@content_row;
         }
     }
-    $doc->save();
+
+    # Process
+    generate_ods($ods_filepath, $ods_content);
 }
 
 sub send_files {

@@ -24,6 +24,7 @@ use Koha::Database;
 use Koha::Patrons;
 use Koha::Acquisition::Invoice::Adjustments;
 use C4::Debug;
+use C4::Acquisition;
 use vars qw(@ISA @EXPORT);
 
 BEGIN {
@@ -208,23 +209,26 @@ sub SetOwnerToFundHierarchy {
 
 # -------------------------------------------------------------------
 sub GetBudgetsPlanCell {
-    my ( $cell, $period, $budget ) = @_;
+    my ( $cell, $period, $budget ) = @_; #FIXME we don't use $period
     my ($actual, $sth);
     my $dbh = C4::Context->dbh;
+    my $roundsql = C4::Acquisition::get_rounding_sql(qq|ecost_tax_included|);
     if ( $cell->{'authcat'} eq 'MONTHS' ) {
         # get the actual amount
+        # FIXME we should consider quantity
         $sth = $dbh->prepare( qq|
 
-            SELECT SUM(ecost_tax_included) AS actual FROM aqorders
+            SELECT SUM(| .  $roundsql . qq|) AS actual FROM aqorders
                 WHERE    budget_id = ? AND
                 entrydate like "$cell->{'authvalue'}%"  |
         );
         $sth->execute( $cell->{'budget_id'} );
     } elsif ( $cell->{'authcat'} eq 'BRANCHES' ) {
         # get the actual amount
+        # FIXME we should consider quantity
         $sth = $dbh->prepare( qq|
 
-            SELECT SUM(ecost_tax_included) FROM aqorders
+            SELECT SUM(| . $roundsql . qq|) FROM aqorders
                 LEFT JOIN aqorders_items
                 ON (aqorders.ordernumber = aqorders_items.ordernumber)
                 LEFT JOIN items
@@ -236,7 +240,7 @@ sub GetBudgetsPlanCell {
         # get the actual amount
         $sth = $dbh->prepare(  qq|
 
-            SELECT SUM( ecost_tax_included *  quantity) AS actual
+            SELECT SUM( | . $roundsql . qq| *  quantity) AS actual
                 FROM aqorders JOIN biblioitems
                 ON (biblioitems.biblionumber = aqorders.biblionumber )
                 WHERE aqorders.budget_id = ? and itemtype  = ? |
@@ -249,7 +253,7 @@ sub GetBudgetsPlanCell {
         # get the actual amount
         $sth = $dbh->prepare( qq|
 
-        SELECT  SUM(ecost_tax_included * quantity) AS actual
+        SELECT  SUM(| . $roundsql . qq| * quantity) AS actual
             FROM aqorders
             JOIN aqbudgets ON (aqbudgets.budget_id = aqorders.budget_id )
             WHERE  aqorders.budget_id = ? AND
@@ -333,7 +337,7 @@ sub GetBudgetSpent {
     # unitprice_tax_included should always been set here
     # we should not need to retrieve ecost_tax_included
     my $sth = $dbh->prepare(qq|
-        SELECT SUM( COALESCE(unitprice_tax_included, ecost_tax_included) * quantity ) AS sum FROM aqorders
+        SELECT SUM( | . C4::Acquisition::get_rounding_sql("COALESCE(unitprice_tax_included, ecost_tax_included)") . qq| * quantity ) AS sum FROM aqorders
             WHERE budget_id = ? AND
             quantityreceived > 0 AND
             datecancellationprinted IS NULL
@@ -364,7 +368,7 @@ sub GetBudgetOrdered {
 	my ($budget_id) = @_;
 	my $dbh = C4::Context->dbh;
 	my $sth = $dbh->prepare(qq|
-        SELECT SUM(ecost_tax_included *  quantity) AS sum FROM aqorders
+        SELECT SUM(| . C4::Acquisition::get_rounding_sql(qq|ecost_tax_included|) . qq| *  quantity) AS sum FROM aqorders
             WHERE budget_id = ? AND
             quantityreceived = 0 AND
             datecancellationprinted IS NULL
@@ -558,14 +562,14 @@ sub GetBudgetHierarchy {
     # Get all the budgets totals in as few queries as possible
     my $hr_budget_spent = $dbh->selectall_hashref(q|
         SELECT aqorders.budget_id, aqbudgets.budget_parent_id,
-               SUM( COALESCE(unitprice_tax_included, ecost_tax_included) * quantity ) AS budget_spent
+               SUM( | . C4::Acquisition::get_rounding_sql(qq|COALESCE(unitprice_tax_included, ecost_tax_included)|) . q| * quantity ) AS budget_spent
         FROM aqorders JOIN aqbudgets USING (budget_id)
         WHERE quantityreceived > 0 AND datecancellationprinted IS NULL
         GROUP BY budget_id, budget_parent_id
         |, 'budget_id');
     my $hr_budget_ordered = $dbh->selectall_hashref(q|
         SELECT aqorders.budget_id, aqbudgets.budget_parent_id,
-               SUM(ecost_tax_included *  quantity) AS budget_ordered
+               SUM( | . C4::Acquisition::get_rounding_sql(qq|ecost_tax_included|) . q| *  quantity) AS budget_ordered
         FROM aqorders JOIN aqbudgets USING (budget_id)
         WHERE quantityreceived = 0 AND datecancellationprinted IS NULL
         GROUP BY budget_id, budget_parent_id
@@ -584,27 +588,45 @@ sub GetBudgetHierarchy {
         WHERE closedate IS NULL
         GROUP BY shipmentcost_budgetid
         |, 'budget_id');
+    my $hr_budget_spent_adjustment = $dbh->selectall_hashref(q|
+        SELECT budget_id,
+               SUM(adjustment) as adjustments
+        FROM aqinvoice_adjustments
+        JOIN aqinvoices USING (invoiceid)
+        WHERE closedate IS NOT NULL
+        GROUP BY budget_id
+        |, 'budget_id');
+    my $hr_budget_ordered_adjustment = $dbh->selectall_hashref(q|
+        SELECT budget_id,
+               SUM(adjustment) as adjustments
+        FROM aqinvoice_adjustments
+        JOIN aqinvoices USING (invoiceid)
+        WHERE closedate IS NULL AND encumber_open = 1
+        GROUP BY budget_id
+        |, 'budget_id');
 
 
     foreach my $budget (@sort) {
         if ( not defined $budget->{budget_parent_id} ) {
-            _recursiveAdd( $budget, undef, $hr_budget_spent, $hr_budget_spent_shipment, $hr_budget_ordered, $hr_budget_ordered_shipment );
+            _recursiveAdd( $budget, undef, $hr_budget_spent, $hr_budget_spent_shipment, $hr_budget_ordered, $hr_budget_ordered_shipment, $hr_budget_spent_adjustment, $hr_budget_ordered_adjustment );
         }
     }
     return \@sort;
 }
 
 sub _recursiveAdd {
-    my ($budget, $parent, $hr_budget_spent, $hr_budget_spent_shipment, $hr_budget_ordered, $hr_budget_ordered_shipment ) = @_;
+    my ($budget, $parent, $hr_budget_spent, $hr_budget_spent_shipment, $hr_budget_ordered, $hr_budget_ordered_shipment, $hr_budget_spent_adjustment, $hr_budget_ordered_adjustment ) = @_;
 
     foreach my $child (@{$budget->{children}}){
-        _recursiveAdd($child, $budget, $hr_budget_spent, $hr_budget_spent_shipment, $hr_budget_ordered, $hr_budget_ordered_shipment );
+        _recursiveAdd($child, $budget, $hr_budget_spent, $hr_budget_spent_shipment, $hr_budget_ordered, $hr_budget_ordered_shipment, $hr_budget_spent_adjustment, $hr_budget_ordered_adjustment );
     }
 
     $budget->{budget_spent} += $hr_budget_spent->{$budget->{budget_id}}->{budget_spent};
     $budget->{budget_spent} += $hr_budget_spent_shipment->{$budget->{budget_id}}->{shipmentcost};
+    $budget->{budget_spent} += $hr_budget_spent_adjustment->{$budget->{budget_id}}->{adjustments};
     $budget->{budget_ordered} += $hr_budget_ordered->{$budget->{budget_id}}->{budget_ordered};
     $budget->{budget_ordered} += $hr_budget_ordered_shipment->{$budget->{budget_id}}->{shipmentcost};
+    $budget->{budget_ordered} += $hr_budget_ordered_adjustment->{$budget->{budget_id}}->{adjustments};
 
     $budget->{total_spent} += $budget->{budget_spent};
     $budget->{total_ordered} += $budget->{budget_ordered};

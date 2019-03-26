@@ -13036,7 +13036,7 @@ if ( CheckVersion($DBversion) ) {
         INSERT IGNORE INTO systempreferences (variable,value,explanation,options,type) VALUES ('TrackLastPatronActivity', '0', 'If set, the field borrowers.lastseen will be updated everytime a patron is seen', NULL, 'YesNo');
     });
 
-    print "Upgrade to $DBversion done (Bug 16274 - Make the selfregistration branchcode selection configurable)\n";
+    print "Upgrade to $DBversion done (Bug 16276: Add a new pref TrackLastPatronActivity and new column borrowers.lastseen)\n";
     SetVersion($DBversion);
 }
 
@@ -17081,9 +17081,16 @@ if( CheckVersion( $DBversion ) ) {
             ADD COLUMN class_split_rule varchar(10) NOT NULL default ''
             AFTER class_sort_rule
         |);
+
         $dbh->do(q|
             UPDATE class_sources
             SET class_split_rule = class_sort_rule
+        |);
+
+        $dbh->do(q|
+            UPDATE class_sources
+            SET class_split_rule = 'generic'
+            WHERE class_split_rule NOT IN('dewey', 'generic', 'lcc')
         |);
 
         $dbh->do(q|
@@ -17245,6 +17252,101 @@ if( CheckVersion( $DBversion ) ) {
 $DBversion = "18.11.03.000";
 if ( CheckVersion($DBversion) ) {
     print "Upgrade to $DBversion done (18.11.03 release)\n";
+    SetVersion($DBversion);
+}
+
+$DBversion = '18.11.03.001';
+if( CheckVersion( $DBversion ) ) {
+    unless( foreign_key_exists( 'messages', 'messages_borrowernumber' ) ) {
+        $dbh->do(q|
+            DELETE m FROM messages m
+            LEFT JOIN borrowers b ON m.borrowernumber=b.borrowernumber
+            WHERE b.borrowernumber IS NULL
+        |);
+        $dbh->do(q|
+            ALTER TABLE messages
+            ADD CONSTRAINT messages_borrowernumber
+            FOREIGN KEY (borrowernumber) REFERENCES borrowers (borrowernumber) ON DELETE CASCADE ON UPDATE CASCADE
+        |);
+    }
+    SetVersion( $DBversion );
+    print "Upgrade to $DBversion done (Bug 13515 - Add a FOREIGN KEY constaint on messages.borrowernumber)\n";
+}
+
+$DBversion = '18.11.03.002';
+if( CheckVersion( $DBversion ) ) {
+  $dbh->do( "UPDATE `search_field` SET `name` = 'date-of-publication', `label` = 'date-of-publication' WHERE `name` = 'pubdate'" );
+  $dbh->do( "UPDATE `search_field` SET `name` = 'title-series', `label` = 'title-series' WHERE `name` = 'se'" );
+  $dbh->do( "UPDATE `search_field` SET `name` = 'identifier-standard', `label` = 'identifier-standard' WHERE `name` = 'identifier-standard'" );
+  $dbh->do( "UPDATE `search_field` SET `name` = 'author', `label` = 'author' WHERE `name` = 'author'" );
+  $dbh->do( "UPDATE `search_field` SET `name` = 'control-number', `label` = 'control-number' WHERE `name` = 'control-number'" );
+  $dbh->do( "UPDATE `search_field` SET `name` = 'place-of-publication', `label` = 'place-of-publication' WHERE `name` = 'place'" );
+  $dbh->do( "UPDATE `search_field` SET `name` = 'date-of-acquisition', `label` = 'date-of-acquisition' WHERE `name` = 'acqdate'" );
+  $dbh->do( "UPDATE `search_field` SET `name` = 'isbn', `label` = 'isbn' WHERE `name` = 'isbn'" );
+  $dbh->do( "UPDATE `search_field` SET `name` = 'koha-auth-number', `label` = 'koha-auth-number' WHERE `name` = 'an'" );
+  $dbh->do( "UPDATE `search_field` SET `name` = 'subject', `label` = 'subject' WHERE `name` = 'subject'" );
+  $dbh->do( "UPDATE `search_field` SET `name` = 'publisher', `label` = 'publisher' WHERE `name` = 'publisher'" );
+  $dbh->do( "UPDATE `search_field` SET `name` = 'record-source', `label` = 'record-source' WHERE `name` = 'record-source'" );
+  $dbh->do( "UPDATE `search_field` SET `name` = 'title', `label` = 'title' WHERE `name` = 'title'" );
+  $dbh->do( "UPDATE `search_field` SET `name` = 'local-classification', `label` = 'local-classification' WHERE `name` = 'local-classification'" );
+  $dbh->do( "UPDATE `search_field` SET `name` = 'bib-level', `label` = 'bib-level' WHERE `name` = 'bib-level'" );
+  $dbh->do( "UPDATE `search_field` SET `name` = 'microform-generation', `label` = 'microform-generation' WHERE `name` = 'microform-generation'" );
+  $dbh->do( "UPDATE `search_field` SET `name` = 'material-type', `label` = 'material-type' WHERE `name` = 'material-type'" );
+  $dbh->do( "UPDATE `search_field` SET `name` = 'bgf-number', `label` = 'bgf-number' WHERE `name` = 'bgf-number'" );
+  $dbh->do( "UPDATE `search_field` SET `name` = 'number-db', `label` = 'number-db' WHERE `name` = 'number-db'" );
+  $dbh->do( "UPDATE `search_field` SET `name` = 'number-natl-biblio', `label` = 'number-natl-biblio' WHERE `name` = 'number-natl-biblio'" );
+  $dbh->do( "UPDATE `search_field` SET `name` = 'number-legal-deposit', `label` = 'number-legal-deposit' WHERE `name` = 'number-legal-deposit'" );
+  $dbh->do( "UPDATE `search_field` SET `name` = 'issn', `label` = 'issn' WHERE `name` = 'issn'" );
+  $dbh->do( "UPDATE `search_field` SET `name` = 'local-number', `label` = 'local-number' WHERE `name` = 'local-number'" );
+  $dbh->do( "UPDATE `search_field` SET `name` = 'suppress', `label` = 'supress' WHERE `name` = 'suppress'" );
+  $dbh->do( "UPDATE `search_field` SET `name` = 'bnb-card-number', `label` = 'bnb-card-number' WHERE `name` = 'bnb-card-number'" );
+  $dbh->do( "UPDATE `search_field` SET `name` = 'date/time-last-modified', `label` = 'date/time-last-modified' WHERE `name` = 'date-time-last-modified'" );
+  $dbh->do( "DELETE FROM `search_field` WHERE `name` = 'lc-cardnumber'" );
+  $dbh->do( "DELETE FROM `search_marc_map` WHERE `id` NOT IN(SELECT `search_marc_map_id` FROM `search_marc_to_field`)" );
+  SetVersion( $DBversion );
+  print "Upgrade to $DBversion done (Bug 19575 - Use canonical field names and resolve aliased fields)\n";
+}
+
+$DBversion = '18.11.03.003';
+if( CheckVersion( $DBversion ) ) {
+
+    $dbh->do('SET FOREIGN_KEY_CHECKS=0');
+
+    # Change columns accordingly
+    $dbh->do(q{
+        ALTER TABLE tags_index
+            MODIFY COLUMN term VARCHAR(191) COLLATE utf8mb4_bin NOT NULL;
+    });
+
+    $dbh->do(q{
+        ALTER TABLE tags_approval
+            MODIFY COLUMN term VARCHAR(191) COLLATE utf8mb4_bin NOT NULL;
+    });
+
+    $dbh->do(q{
+        ALTER TABLE tags_all
+            MODIFY COLUMN term VARCHAR(191) COLLATE utf8mb4_bin NOT NULL;
+    });
+
+    $dbh->do('SET FOREIGN_KEY_CHECKS=1');
+
+    SetVersion( $DBversion );
+    print "Upgrade to $DBversion done (Bug 21846 - Using emoji as tags has broken weights)\n";
+    my $maintenance_script = C4::Context->config("intranetdir") . "/misc/maintenance/fix_tags_weight.pl";
+    print "WARNING: (Bug 21846) You need to manually run $maintenance_script to fix possible issues with tags.\n";
+}
+
+$DBversion = '18.11.03.004';
+if( CheckVersion( $DBversion ) ) {
+    $dbh->do( "INSERT IGNORE INTO systempreferences (variable,value,explanation,options,type) VALUES ('OrderPriceRounding',NULL,'Local preference for rounding orders before calculations to ensure correct calculations','|nearest_cent','Choice')" );
+
+    SetVersion( $DBversion );
+    print "Upgrade to $DBversion done (Bug 18736 - Add syspref to control order rounding)\n";
+}
+
+$DBversion = "18.11.04.000";
+if ( CheckVersion($DBversion) ) {
+    print "Upgrade to $DBversion done (18.11.04 release)\n";
     SetVersion($DBversion);
 }
 

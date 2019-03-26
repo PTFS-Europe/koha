@@ -679,8 +679,8 @@ CREATE TABLE `deleteditems` (
   `renewals` smallint(6) default NULL, -- number of times this item has been renewed
   `reserves` smallint(6) default NULL, -- number of times this item has been placed on hold/reserved
   `restricted` tinyint(1) default NULL, -- authorized value defining use restrictions for this item (MARC21 952$5)
-  `itemnotes` LONGTEXT, -- public notes on this item (MARC21 952$x)
-  `itemnotes_nonpublic` LONGTEXT default NULL,
+  `itemnotes` LONGTEXT, -- public notes on this item (MARC21 952$z)
+  `itemnotes_nonpublic` LONGTEXT default NULL, -- non-public notes on this item (MARC21 952$x)
   `holdingbranch` varchar(10) default NULL, -- foreign key from the branches table for the library that is currently in possession item (MARC21 952$b)
   `paidfor` LONGTEXT,
   `timestamp` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP, -- date and time this item was last altered
@@ -943,8 +943,8 @@ CREATE TABLE `items` ( -- holdings/item information
   `renewals` smallint(6) default NULL, -- number of times this item has been renewed
   `reserves` smallint(6) default NULL, -- number of times this item has been placed on hold/reserved
   `restricted` tinyint(1) default NULL, -- authorized value defining use restrictions for this item (MARC21 952$5)
-  `itemnotes` LONGTEXT, -- public notes on this item (MARC21 952$x)
-  `itemnotes_nonpublic` LONGTEXT default NULL,
+  `itemnotes` LONGTEXT, -- public notes on this item (MARC21 952$z)
+  `itemnotes_nonpublic` LONGTEXT default NULL, -- non-public notes on this item (MARC21 952$x)
   `holdingbranch` varchar(10) default NULL, -- foreign key from the branches table for the library that is currently in possession item (MARC21 952$b)
   `paidfor` LONGTEXT,
   `timestamp` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP, -- date and time this item was last altered
@@ -2204,7 +2204,7 @@ CREATE TABLE `tags_all` ( -- all of the tags
   `tag_id`         int(11) NOT NULL auto_increment, -- unique id and primary key
   `borrowernumber` int(11) DEFAULT NULL, -- the patron who added the tag (borrowers.borrowernumber)
   `biblionumber`   int(11) NOT NULL, -- the bib record this tag was left on (biblio.biblionumber)
-  `term`      varchar(255) NOT NULL, -- the tag
+  `term`      varchar(191) NOT NULL COLLATE utf8mb4_bin, -- the tag
   `language`       int(4) default NULL, -- the language the tag was left in
   `date_created` datetime  NOT NULL, -- the date the tag was added
   PRIMARY KEY  (`tag_id`),
@@ -2222,7 +2222,7 @@ CREATE TABLE `tags_all` ( -- all of the tags
 
 DROP TABLE IF EXISTS `tags_approval`;
 CREATE TABLE `tags_approval` ( -- approved tags
-  `term`   varchar(191) NOT NULL, -- the tag
+  `term`   varchar(191) NOT NULL COLLATE utf8mb4_bin, -- the tag
   `approved`     int(1) NOT NULL default '0', -- whether the tag is approved or not (1=yes, 0=pending, -1=rejected)
   `date_approved` datetime       default NULL, -- the date this tag was approved
   `approved_by` int(11)          default NULL, -- the librarian who approved the tag (borrowers.borrowernumber)
@@ -2239,7 +2239,7 @@ CREATE TABLE `tags_approval` ( -- approved tags
 
 DROP TABLE IF EXISTS `tags_index`;
 CREATE TABLE `tags_index` ( -- a weighted list of all tags and where they are used
-  `term`    varchar(191) NOT NULL, -- the tag
+  `term`    varchar(191) NOT NULL COLLATE utf8mb4_bin, -- the tag
   `biblionumber` int(11) NOT NULL, -- the bib record this tag was used on (biblio.biblionumber)
   `weight`        int(9) NOT NULL default '1', -- the number of times this term was used on this bib record
   PRIMARY KEY  (`term`,`biblionumber`),
@@ -2694,7 +2694,8 @@ CREATE TABLE `messages` ( -- circulation messages left via the patron's check ou
   `message_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- the date and time the message was written
   `manager_id` int(11) default NULL, -- creator of message
   PRIMARY KEY (`message_id`),
-  CONSTRAINT `messages_ibfk_1` FOREIGN KEY (`manager_id`) REFERENCES `borrowers` (`borrowernumber`) ON DELETE SET NULL
+  CONSTRAINT `messages_ibfk_1` FOREIGN KEY (`manager_id`) REFERENCES `borrowers` (`borrowernumber`) ON DELETE SET NULL,
+  CONSTRAINT `messages_borrowernumber` FOREIGN KEY (`borrowernumber`) REFERENCES `borrowers` (`borrowernumber`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --

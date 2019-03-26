@@ -165,21 +165,21 @@ my $total_tax_value = 0;
 foreach my $order (@$orders) {
     my $line = get_infos( $order, $bookseller);
 
-    $line->{total_tax_excluded} = $line->{unitprice_tax_excluded} * $line->{quantity};
-    $line->{total_tax_included} = $line->{unitprice_tax_included} * $line->{quantity};
+    $line->{total_tax_excluded} = get_rounded_price($line->{unitprice_tax_excluded}) * $line->{quantity};
+    $line->{total_tax_included} = get_rounded_price($line->{unitprice_tax_included}) * $line->{quantity};
 
     $line->{tax_value} = $line->{tax_value_on_receiving};
     $line->{tax_rate} = $line->{tax_rate_on_receiving};
 
     $foot{$$line{tax_rate}}{tax_rate} = $$line{tax_rate};
-    $foot{$$line{tax_rate}}{tax_value} += $$line{tax_value};
+    $foot{$$line{tax_rate}}{tax_value} += get_rounded_price($$line{tax_value});
     $total_tax_value += $$line{tax_value};
     $foot{$$line{tax_rate}}{quantity}  += $$line{quantity};
     $total_quantity += $$line{quantity};
-    $foot{$$line{tax_rate}}{total_tax_excluded} += $$line{total_tax_excluded};
-    $total_tax_excluded += $$line{total_tax_excluded};
-    $foot{$$line{tax_rate}}{total_tax_included} += $$line{total_tax_included};
-    $total_tax_included += $$line{total_tax_included};
+    $foot{$$line{tax_rate}}{total_tax_excluded} += get_rounded_price($$line{total_tax_excluded});
+    $total_tax_excluded += get_rounded_price($$line{total_tax_excluded});
+    $foot{$$line{tax_rate}}{total_tax_included} += get_rounded_price($$line{total_tax_included});
+    $total_tax_included += get_rounded_price($$line{total_tax_included});
 
     $line->{orderline} = $line->{parent_ordernumber};
     push @orders_loop, $line;
@@ -187,43 +187,55 @@ foreach my $order (@$orders) {
 
 push @foot_loop, map {$_} values %foot;
 
-my $budgets = GetBudgets();
-my @budgets_loop;
 my $shipmentcost_budgetid = $details->{shipmentcost_budgetid};
-foreach my $budget (@$budgets) {
-    next unless CanUserUseBudget( $loggedinuser, $budget, $flags );
-    my %line = %{$budget};
-    if (    $shipmentcost_budgetid
-        and $budget->{budget_id} == $shipmentcost_budgetid )
-    {
-        $line{selected} = 1;
+
+# build budget list
+my $budget_loop = [];
+my $budgets     = GetBudgetHierarchy();
+foreach my $r ( @{$budgets} ) {
+    next unless ( CanUserUseBudget( $loggedinuser, $r, $flags ) );
+
+    if ( !defined $r->{budget_amount} || $r->{budget_amount} == 0 ) {
+        next;
     }
-    push @budgets_loop, \%line;
+
+    my $selected = $shipmentcost_budgetid ? $r->{budget_id} eq $shipmentcost_budgetid : 0;
+
+    push @{$budget_loop},
+      {
+        b_id     => $r->{budget_id},
+        b_txt    => $r->{budget_name},
+        b_active => $r->{budget_period_active},
+        selected => $selected,
+      };
 }
+
+@{$budget_loop} =
+  sort { uc( $a->{b_txt} ) cmp uc( $b->{b_txt} ) } @{$budget_loop};
 
 my $adjustments = Koha::Acquisition::Invoice::Adjustments->search({ invoiceid => $details->{'invoiceid'} });
 if ( $adjustments ) { $template->param( adjustments => $adjustments ); }
 
 $template->param(
-    invoiceid        => $details->{'invoiceid'},
-    invoicenumber    => $details->{'invoicenumber'},
-    suppliername     => $details->{'suppliername'},
-    booksellerid     => $details->{'booksellerid'},
-    shipmentdate     => $details->{'shipmentdate'},
-    billingdate      => $details->{'billingdate'},
-    invoiceclosedate => $details->{'closedate'},
-    shipmentcost     => $shipmentcost,
-    orders_loop      => \@orders_loop,
-    foot_loop        => \@foot_loop,
-    total_quantity   => $total_quantity,
-    total_tax_excluded => $total_tax_excluded,
-    total_tax_included => $total_tax_included,
-    total_tax_value  => $total_tax_value,
+    invoiceid                   => $details->{'invoiceid'},
+    invoicenumber               => $details->{'invoicenumber'},
+    suppliername                => $details->{'suppliername'},
+    booksellerid                => $details->{'booksellerid'},
+    shipmentdate                => $details->{'shipmentdate'},
+    billingdate                 => $details->{'billingdate'},
+    invoiceclosedate            => $details->{'closedate'},
+    shipmentcost                => $shipmentcost,
+    orders_loop                 => \@orders_loop,
+    foot_loop                   => \@foot_loop,
+    total_quantity              => $total_quantity,
+    total_tax_excluded          => $total_tax_excluded,
+    total_tax_included          => $total_tax_included,
+    total_tax_value             => $total_tax_value,
     total_tax_excluded_shipment => $total_tax_excluded + $shipmentcost,
     total_tax_included_shipment => $total_tax_included + $shipmentcost,
-    invoiceincgst    => $bookseller->invoiceincgst,
-    currency         => Koha::Acquisition::Currencies->get_active,
-    budgets_loop     => \@budgets_loop,
+    invoiceincgst               => $bookseller->invoiceincgst,
+    currency                    => Koha::Acquisition::Currencies->get_active,
+    budgets                     => $budget_loop,
 );
 
 defined( $invoice_files ) && $template->param( files => $invoice_files->GetFilesInfo() );

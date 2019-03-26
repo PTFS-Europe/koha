@@ -822,9 +822,9 @@ sub GetItemsForInventory {
     my $max_cnsort = GetClassSort($class_source,undef,$maxlocation);
 
     my $select_columns = q{
-        SELECT items.itemnumber, barcode, itemcallnumber, title, author, biblio.biblionumber, biblio.frameworkcode, datelastseen, homebranch, location, notforloan, damaged, itemlost, withdrawn, stocknumber
+        SELECT DISTINCT(items.itemnumber), barcode, itemcallnumber, title, author, biblio.biblionumber, biblio.frameworkcode, datelastseen, homebranch, location, notforloan, damaged, itemlost, withdrawn, stocknumber
     };
-    my $select_count = q{SELECT COUNT(*)};
+    my $select_count = q{SELECT COUNT(DISTINCT(items.itemnumber))};
     my $query = q{
         FROM items
         LEFT JOIN biblio ON items.biblionumber = biblio.biblionumber
@@ -1050,8 +1050,8 @@ sub GetItemsInfo {
 
         # get restricted status and description if applicable
         $descriptions = Koha::AuthorisedValues->get_description_by_koha_field({frameworkcode => $data->{frameworkcode}, kohafield => 'items.restricted', authorised_value => $data->{restricted} });
-        $data->{restricted}     = $descriptions->{lib} // '';
-        $data->{restrictedopac} = $descriptions->{opac_description} // '';
+        $data->{restrictedvalue}     = $descriptions->{lib} // '';
+        $data->{restrictedvalueopac} = $descriptions->{opac_description} // '';
 
         # my stack procedures
         $descriptions = Koha::AuthorisedValues->get_description_by_koha_field({frameworkcode => $data->{frameworkcode}, kohafield => 'items.stack', authorised_value => $data->{stack} });
@@ -1199,8 +1199,12 @@ references on array of itemnumbers.
 
 sub get_hostitemnumbers_of {
     my ($biblionumber) = @_;
-    my $marcrecord = C4::Biblio::GetMarcBiblio({ biblionumber => $biblionumber });
 
+    if( !C4::Context->preference('EasyAnalyticalRecords') ) {
+        return ();
+    }
+
+    my $marcrecord = C4::Biblio::GetMarcBiblio({ biblionumber => $biblionumber });
     return unless $marcrecord;
 
     my ( @returnhostitemnumbers, $tag, $biblio_s, $item_s );
@@ -2464,6 +2468,8 @@ sub PrepareItemrecordDisplay {
                     $defaultvalue =~ s/"/&quot;/g;
                 }
 
+                my $maxlength = $tagslib->{$tag}->{$subfield}->{maxlength};
+
                 # search for itemcallnumber if applicable
                 if ( $tagslib->{$tag}->{$subfield}->{kohafield} eq 'items.itemcallnumber'
                     && C4::Context->preference('itemcallnumber') ) {
@@ -2601,17 +2607,17 @@ sub PrepareItemrecordDisplay {
                         my $tab= $plugin->noclick? '-1': '';
                         my $class= $plugin->noclick? ' disabled': '';
                         my $title= $plugin->noclick? 'No popup': 'Tag editor';
-                        $subfield_data{marc_value} = qq[<input type="text" id="$subfield_data{id}" name="field_value" class="input_marceditor" size="50" maxlength="255" value="$defaultvalue" /><a href="#" id="buttonDot_$subfield_data{id}" tabindex="$tab" class="buttonDot $class" title="$title">...</a>\n].$plugin->javascript;
+                        $subfield_data{marc_value} = qq[<input type="text" id="$subfield_data{id}" name="field_value" class="input_marceditor" size="50" maxlength="$maxlength" value="$defaultvalue" /><a href="#" id="buttonDot_$subfield_data{id}" tabindex="$tab" class="buttonDot $class" title="$title">...</a>\n].$plugin->javascript;
                     } else {
                         warn $plugin->errstr;
-                        $subfield_data{marc_value} = qq(<input type="text" id="$subfield_data{id}" name="field_value" class="input_marceditor" size="50" maxlength="255" value="$defaultvalue" />); # supply default input form
+                        $subfield_data{marc_value} = qq(<input type="text" id="$subfield_data{id}" name="field_value" class="input_marceditor" size="50" maxlength="$maxlength" value="$defaultvalue" />); # supply default input form
                     }
                 }
                 elsif ( $tag eq '' ) {       # it's an hidden field
-                    $subfield_data{marc_value} = qq(<input type="hidden" tabindex="1" id="$subfield_data{id}" name="field_value" class="input_marceditor" size="50" maxlength="255" value="$defaultvalue" />);
+                    $subfield_data{marc_value} = qq(<input type="hidden" tabindex="1" id="$subfield_data{id}" name="field_value" class="input_marceditor" size="50" maxlength="$maxlength" value="$defaultvalue" />);
                 }
                 elsif ( $tagslib->{$tag}->{$subfield}->{'hidden'} ) {   # FIXME: shouldn't input type be "hidden" ?
-                    $subfield_data{marc_value} = qq(<input type="text" tabindex="1" id="$subfield_data{id}" name="field_value" class="input_marceditor" size="50" maxlength="255" value="$defaultvalue" />);
+                    $subfield_data{marc_value} = qq(<input type="text" tabindex="1" id="$subfield_data{id}" name="field_value" class="input_marceditor" size="50" maxlength="$maxlength" value="$defaultvalue" />);
                 }
                 elsif ( length($defaultvalue) > 100
                             or (C4::Context->preference("marcflavour") eq "UNIMARC" and
@@ -2620,9 +2626,9 @@ sub PrepareItemrecordDisplay {
                                   500 <= $tag && $tag < 600                     )
                           ) {
                     # oversize field (textarea)
-                    $subfield_data{marc_value} = qq(<textarea tabindex="1" id="$subfield_data{id}" name="field_value" class="input_marceditor" size="50" maxlength="255">$defaultvalue</textarea>\n");
+                    $subfield_data{marc_value} = qq(<textarea tabindex="1" id="$subfield_data{id}" name="field_value" class="input_marceditor" size="50" maxlength="$maxlength">$defaultvalue</textarea>\n");
                 } else {
-                    $subfield_data{marc_value} = "<input type=\"text\" name=\"field_value\" value=\"$defaultvalue\" size=\"50\" maxlength=\"255\" />";
+                    $subfield_data{marc_value} = "<input type=\"text\" name=\"field_value\" value=\"$defaultvalue\" size=\"50\" maxlength=\"$maxlength\" />";
                 }
                 push( @loop_data, \%subfield_data );
             }

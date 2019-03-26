@@ -1,6 +1,7 @@
 [% USE Koha %]
 [% USE Branches %]
 [% USE Categories %]
+[% PROCESS 'html_helpers.inc' %]
 <div class="gradient">
 <h1 id="logo"><a href="/cgi-bin/koha/mainpage.pl">[% LibraryName | html %]</a></h1><!-- Begin Patrons Resident Search Box -->
 <div id="header_search">
@@ -85,18 +86,12 @@
 
         <p>
             <label for="branchcode">Library: </label>
-            [% SET branches = Branches.all( selected => branchcode_filter, only_my_group => 1 ) %]
+            [% SET branches = Branches.all( selected => branchcode_filter, only_from_group => 1 ) %]
             <select name="branchcode_filter" id="branchcode">
                 [% IF branches.size != 1 %]
                   <option value="">Any</option>
                 [% END %]
-                [% FOREACH b IN branches %]
-                    [% IF b.selected %]
-                        <option value="[% b.branchcode | html %]" selected="selected">[% b.branchname | html %]</option>
-                    [% ELSE %]
-                        <option value="[% b.branchcode | html %]">[% b.branchname | html %]</option>
-                    [% END %]
-                [% END %]
+                [% PROCESS options_for_libraries libraries => branches %]
             </select>
         </p>
 

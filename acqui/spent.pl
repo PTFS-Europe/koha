@@ -34,6 +34,7 @@ use C4::Auth;
 use C4::Output;
 use Modern::Perl;
 use CGI qw ( -utf8 );
+use C4::Acquisition;
 use Koha::Acquisition::Invoice::Adjustments;
 
 my $dbh      = C4::Context->dbh;
@@ -83,7 +84,19 @@ WHERE
     (datecancellationprinted IS NULL OR
         datecancellationprinted='0000-00-00') AND
     datereceived IS NOT NULL
-    GROUP BY aqorders.ordernumber
+    GROUP BY aqorders.biblionumber, aqorders.basketno, aqorders.ordernumber,
+             tleft,
+             ecost, budgetdate, entrydate,
+             aqbasket.booksellerid,
+             itype,
+             title,
+             aqorders.invoiceid,
+             aqinvoices.invoicenumber,
+             quantityreceived,
+             unitprice,
+             datereceived,
+             aqbooksellers.name
+
 EOQ
 my $sth = $dbh->prepare($query);
 $sth->execute($bookfund);
@@ -95,7 +108,7 @@ my @spent;
 while ( my $data = $sth->fetchrow_hashref ) {
     my $recv = $data->{'quantityreceived'};
     if ( $recv > 0 ) {
-        my $rowtotal = $recv * $data->{'unitprice_tax_included'};
+        my $rowtotal = $recv * get_rounded_price($data->{'unitprice_tax_included'});
         $data->{'rowtotal'}  = sprintf( "%.2f", $rowtotal );
         $data->{'unitprice_tax_included'} = sprintf( "%.2f", $data->{'unitprice_tax_included'} );
         $subtotal += $rowtotal;

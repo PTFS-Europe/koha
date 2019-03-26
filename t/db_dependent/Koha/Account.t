@@ -19,17 +19,34 @@
 
 use Modern::Perl;
 
-use Test::More tests => 5;
+use Test::More tests => 6;
+use Test::Exception;
 
 use Koha::Account;
 use Koha::Account::Lines;
 use Koha::Account::Offsets;
+
 
 use t::lib::Mocks;
 use t::lib::TestBuilder;
 
 my $schema  = Koha::Database->new->schema;
 my $builder = t::lib::TestBuilder->new;
+
+subtest 'new' => sub {
+
+    plan tests => 2;
+
+    $schema->storage->txn_begin;
+
+    throws_ok { Koha::Account->new(); } qr/No patron id passed in!/, 'Croaked on bad call to new';
+
+    my $patron  = $builder->build_object({ class => 'Koha::Patrons' });
+    my $account = Koha::Account->new( { patron_id => $patron->borrowernumber } );
+    is( defined $account, 1, "Account is defined" );
+
+    $schema->storage->txn_rollback;
+};
 
 subtest 'outstanding_debits() tests' => sub {
 
@@ -60,7 +77,6 @@ subtest 'outstanding_debits() tests' => sub {
         is( ref($lines_arr[$i]), 'Koha::Account::Line', 'outstanding_debits returns a list of Koha::Account::Line objects in list context' );
         $i++;
     }
-
     my $patron_2 = $builder->build_object({ class => 'Koha::Patrons' });
     Koha::Account::Line->new({ borrowernumber => $patron_2->id, amountoutstanding => -2 })->store;
     my $just_one = Koha::Account::Line->new({ borrowernumber => $patron_2->id, amount => 3, amountoutstanding =>  3 })->store;

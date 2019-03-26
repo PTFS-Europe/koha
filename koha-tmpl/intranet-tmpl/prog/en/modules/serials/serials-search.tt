@@ -9,7 +9,7 @@
 <title>Koha &rsaquo; Serials [% biblionumber | html %]</title>
 [% INCLUDE 'doc-head-close.inc' %]
 [% Asset.css("css/datatables.css") | $raw %]
-<style type="text/css">input.dt-filter { width : 100%; font-size : 85%; }</style>
+<style>input.dt-filter { width : 100%; font-size : 85%; }</style>
 </head>
 
 <body id="ser_serials-home" class="ser">
@@ -21,7 +21,7 @@
 [% url_params = [] %]
 [% FOREACH param IN CGI.params.pairs %]
     [% escaped_value = BLOCK %][% param.value | uri %][% END %]
-    [% url_params.push(param.key _ '=' _ escaped_value) | html %]
+    [% url_params.push(param.key _ '=' _ escaped_value) %]
 [% END %]
 [% SET referrer = '/cgi-bin/koha/serials/serials-search.pl?' %]
 [% referrer = BLOCK %][% referrer | url %][% url_params.join("&amp;") |uri %][% END %]
@@ -445,6 +445,7 @@
         $(document).ready(function() {
             var osrlt = $("#opened table").dataTable($.extend(true, {}, dataTablesDefaults, {
                 "sPaginationType": "four_button",
+                "order": [[ 2, "asc" ]],
                 "aoColumnDefs": [
                     { 'bSortable': false, "bSearchable": false, 'aTargets': [ 'NoSort' ] },
                     { "sType": "title-string", "aTargets" : [ "title-string" ] },
@@ -454,6 +455,7 @@
 
             var csrlt = $("#closed table").dataTable($.extend(true, {}, dataTablesDefaults, {
                 // FIXME sort function of additional_fields!
+                "order": [[ 2, "asc" ]],
                 "sPaginationType": "four_button",
                 "aoColumnDefs": [
                     { 'bSortable': false, 'aTargets': [ 'NoSort' ] },

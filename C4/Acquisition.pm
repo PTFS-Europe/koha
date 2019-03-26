@@ -92,6 +92,9 @@ BEGIN {
         &NotifyOrderUsers
 
         &FillWithDefaultValues
+
+        &get_rounded_price
+        &get_rounding_sql
     );
 }
 
@@ -1452,16 +1455,20 @@ sub ModReceiveOrder {
         );
 
         if ( not $order->{subscriptionid} && defined $order->{order_internalnote} ) {
-            $dbh->do(q|UPDATE aqorders
-                SET order_internalnote = ?|, {}, $order->{order_internalnote});
+            $dbh->do(
+                q|UPDATE aqorders
+                SET order_internalnote = ?
+                WHERE ordernumber = ?|, {},
+                $order->{order_internalnote}, $order->{ordernumber}
+            );
         }
 
         # Recalculate tax_value
         $dbh->do(q|
             UPDATE aqorders
             SET
-                tax_value_on_ordering = quantity * ecost_tax_excluded * tax_rate_on_ordering,
-                tax_value_on_receiving = quantity * unitprice_tax_excluded * tax_rate_on_receiving
+                tax_value_on_ordering = quantity * | . get_rounding_sql(q|ecost_tax_excluded|) . q| * tax_rate_on_ordering,
+                tax_value_on_receiving = quantity * | . get_rounding_sql(q|unitprice_tax_excluded|) . q| * tax_rate_on_receiving
             WHERE ordernumber = ?
         |, undef, $order->{ordernumber});
 
@@ -1473,8 +1480,8 @@ sub ModReceiveOrder {
         $order->{tax_rate_on_ordering} //= 0;
         $order->{unitprice_tax_excluded} //= 0;
         $order->{tax_rate_on_receiving} //= 0;
-        $order->{tax_value_on_ordering} = $order->{quantity} * $order->{ecost_tax_excluded} * $order->{tax_rate_on_ordering};
-        $order->{tax_value_on_receiving} = $order->{quantity} * $order->{unitprice_tax_excluded} * $order->{tax_rate_on_receiving};
+        $order->{tax_value_on_ordering} = $order->{quantity} * get_rounded_price($order->{ecost_tax_excluded}) * $order->{tax_rate_on_ordering};
+        $order->{tax_value_on_receiving} = $order->{quantity} * get_rounded_price($order->{unitprice_tax_excluded}) * $order->{tax_rate_on_receiving};
         $order->{datereceived} = $datereceived;
         $order->{invoiceid} = $invoice->{invoiceid};
         $order->{orderstatus} = 'complete';
@@ -1644,8 +1651,8 @@ sub CancelReceipt {
         $dbh->do(q|
             UPDATE aqorders
             SET
-                tax_value_on_ordering = quantity * ecost_tax_excluded * tax_rate_on_ordering,
-                tax_value_on_receiving = quantity * unitprice_tax_excluded * tax_rate_on_receiving
+                tax_value_on_ordering = quantity * | . get_rounding_sql(q|ecost_tax_excluded|) . q| * tax_rate_on_ordering,
+                tax_value_on_receiving = quantity * | . get_rounding_sql(q|unitprice_tax_excluded|) . q| * tax_rate_on_receiving
             WHERE ordernumber = ?
         |, undef, $parent_ordernumber);
 
@@ -1996,6 +2003,41 @@ sub TransferOrder {
 
     return $newordernumber;
 }
+
+=head3 get_rounding_sql
+
+    $rounding_sql = get_rounding_sql($column_name);
+
+returns the correct SQL routine based on OrderPriceRounding system preference.
+
+=cut
+
+sub get_rounding_sql {
+    my ( $round_string ) = @_;
+    my $rounding_pref = C4::Context->preference('OrderPriceRounding') // q{};
+    if ( $rounding_pref eq "nearest_cent"  ) {
+        return "CAST($round_string*100 AS SIGNED)/100";
+    }
+    return $round_string;
+}
+
+=head3 get_rounded_price
+
+    $rounded_price = get_rounded_price( $price );
+
+returns a price rounded as specified in OrderPriceRounding system preference.
+
+=cut
+
+sub get_rounded_price {
+    my ( $price ) =  @_;
+    my $rounding_pref = C4::Context->preference('OrderPriceRounding') // q{};
+    if( $rounding_pref eq 'nearest_cent' ) {
+        return Koha::Number::Price->new( $price )->round();
+    }
+    return $price;
+}
+
 
 =head2 FUNCTIONS ABOUT PARCELS
 
@@ -2952,8 +2994,38 @@ sub GetBiblioCountByBasketno {
     return $sth->fetchrow;
 }
 
-# Note this subroutine should be moved to Koha::Acquisition::Order
-# Will do when a DBIC decision will be taken.
+=head3 populate_order_with_prices
+
+$order = populate_order_with_prices({
+    order        => $order #a hashref with the order values
+    booksellerid => $booksellerid #FIXME - should obtain from order basket
+    receiving    => 1 # boolean representing order stage, should pass only this or ordering
+    ordering     => 1 # boolean representing order stage
+});
+
+
+Sets calculated values for an order - all values are stored with pull precision regardless of rounding preference except fot
+tax value which is calculated on rounded values if requested
+
+For ordering the values set are:
+    rrp_tax_included
+    rrp_tax_excluded
+    ecost_tax_included
+    ecost_tax_excluded
+    tax_value_on_ordering
+For receiving the value set are:
+    unitprice_tax_included
+    unitprice_tax_excluded
+    tax_value_on_receiving
+
+Note: When receiving if the rounded value of the unitprice matches the rounded value of the ecost then then ecost (full precision) is used.
+
+Returns a hashref of the order
+
+FIXME: Move this to Koha::Acquisition::Order.pm
+
+=cut
+
 sub populate_order_with_prices {
     my ($params) = @_;
 
@@ -2977,11 +3049,15 @@ sub populate_order_with_prices {
             # rrp tax excluded = rrp tax included / ( 1 + tax rate )
             $order->{rrp_tax_excluded} = $order->{rrp_tax_included} / ( 1 + $order->{tax_rate_on_ordering} );
 
+            # ecost tax included = rrp tax included  ( 1 - discount )
+            $order->{ecost_tax_included} = $order->{rrp_tax_included} * ( 1 - $discount );
+
             # ecost tax excluded = rrp tax excluded * ( 1 - discount )
             $order->{ecost_tax_excluded} = $order->{rrp_tax_excluded} * ( 1 - $discount );
 
-            # ecost tax included = rrp tax included  ( 1 - discount )
-            $order->{ecost_tax_included} = $order->{rrp_tax_included} * ( 1 - $discount );
+            # tax value = quantity * ecost tax excluded * tax rate
+            $order->{tax_value_on_ordering} = ( get_rounded_price($order->{ecost_tax_included}) - get_rounded_price($order->{ecost_tax_excluded}) ) * $order->{quantity};
+
         }
         else {
             # The user entered the rrp tax excluded
@@ -2993,16 +3069,12 @@ sub populate_order_with_prices {
             # ecost tax excluded = rrp tax excluded * ( 1 - discount )
             $order->{ecost_tax_excluded} = $order->{rrp_tax_excluded} * ( 1 - $discount );
 
-            # ecost tax included = rrp tax excluded * ( 1 + tax rate ) * ( 1 - discount )
-            $order->{ecost_tax_included} =
-                $order->{rrp_tax_excluded} *
-                ( 1 + $order->{tax_rate_on_ordering} ) *
-                ( 1 - $discount );
-        }
+            # ecost tax included = rrp tax excluded * ( 1 + tax rate ) * ( 1 - discount ) = ecost tax excluded * ( 1 + tax rate )
+            $order->{ecost_tax_included} = $order->{ecost_tax_excluded} * ( 1 + $order->{tax_rate_on_ordering} );
 
-        # tax value = quantity * ecost tax excluded * tax rate
-        $order->{tax_value_on_ordering} =
-            $order->{quantity} * $order->{ecost_tax_excluded} * $order->{tax_rate_on_ordering};
+            # tax value = quantity * ecost tax included * tax rate
+            $order->{tax_value_on_ordering} = $order->{quantity} * get_rounded_price($order->{ecost_tax_excluded}) * $order->{tax_rate_on_ordering};
+        }
     }
 
     if ($receiving) {
@@ -3036,7 +3108,7 @@ sub populate_order_with_prices {
         }
 
         # tax value = quantity * unit price tax excluded * tax rate
-        $order->{tax_value_on_receiving} = $order->{quantity} * $order->{unitprice_tax_excluded} * $order->{tax_rate_on_receiving};
+        $order->{tax_value_on_receiving} = $order->{quantity} * get_rounded_price($order->{unitprice_tax_excluded}) * $order->{tax_rate_on_receiving};
     }
 
     return $order;

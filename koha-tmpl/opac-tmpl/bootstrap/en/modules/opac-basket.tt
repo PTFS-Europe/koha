@@ -7,7 +7,7 @@
 [% INCLUDE 'doc-head-open.inc' %]
 <title>[% IF ( LibraryNameTitle ) %][% LibraryNameTitle | html %][% ELSE %]Koha online[% END %] catalog &rsaquo; Your cart</title>
 [% INCLUDE 'doc-head-close.inc' %]
-[% BLOCK cssinclude %]<style type="text/css">.item-status, .dt-buttons { display: inline; } @media print { body { height: 99%; } }</style>[% END %]
+[% BLOCK cssinclude %]<style>.item-status, .dt-buttons { display: inline; } @media print { body { height: 99%; } }</style>[% END %]
 </head>
 [% INCLUDE 'bodytag.inc' bodyid='basket' %]
     <div class="main">
@@ -219,7 +219,8 @@
                                                     <ul>
                                                         [% FOREACH ITEM_RESULT IN BIBLIO_RESULT.ITEM_RESULTS %]
                                                             <li>
-                                                                <strong>[% ITEM_RESULT.branchname | html %]</strong>[% IF ( ITEM_RESULT.location_opac ) %], [% ITEM_RESULT.location_opac | html %][% END %]
+                                                                <strong>[% ITEM_RESULT.branchname | html %]</strong>
+                                                                [% IF ( ITEM_RESULT.location_opac ) %]<span class="shelvingloc">[% ITEM_RESULT.location_opac | html %]</span>[% END %]
                                                                 [% IF ( ITEM_RESULT.itemcallnumber ) %]
                                                                     ([% ITEM_RESULT.itemcallnumber | html %])
                                                                 [% END %]
@@ -273,7 +274,8 @@
                                             </td>
                                             <td>[% IF ( BIBLIO_RESULT.ITEM_RESULTS ) %]<ul>[% FOREACH ITEM_RESULT IN BIBLIO_RESULT.ITEM_RESULTS %]
                                                 <li>
-                                                    [% ITEM_RESULT.branchname | html %][% IF ( ITEM_RESULT.location_opac ) %], [% ITEM_RESULT.location_opac | html %][% END %]
+                                                    [% ITEM_RESULT.branchname | html %]
+                                                    [% IF ( ITEM_RESULT.location_opac ) %]<span class="shelvingloc">[% ITEM_RESULT.location_opac | html %]</span>[% END %]
                                                     [% IF ( ITEM_RESULT.itemcallnumber ) %]
                                                         ([% ITEM_RESULT.itemcallnumber | html %])
                                                     [% END %]

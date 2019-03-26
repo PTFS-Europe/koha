@@ -149,19 +149,20 @@ my $reserve_id = C4::Reserves::AddReserve($branchcode, $patron_1->borrowernumber
 my $reserve_id2 = C4::Reserves::AddReserve($branchcode, $patron_2->borrowernumber,
     $biblionumber, undef, 2, undef, undef, undef, '', $itemnumber);
 
-my $suspend_until = DateTime->now->add(days => 10)->ymd;
-my $expirationdate = DateTime->now->add(days => 10)->ymd;
+my $suspended_until = DateTime->now->add(days => 10)->truncate( to => 'day' );
+my $expiration_date = DateTime->now->add(days => 10)->truncate( to => 'day' );
 
 my $post_data = {
-    borrowernumber => int($patron_1->borrowernumber),
-    biblionumber => int($biblionumber),
-    itemnumber => int($itemnumber),
-    branchcode => $branchcode,
-    expirationdate => $expirationdate,
+    patron_id => int($patron_1->borrowernumber),
+    biblio_id => int($biblionumber),
+    item_id => int($itemnumber),
+    pickup_library_id => $branchcode,
+    expiration_date => output_pref({ dt => $expiration_date, dateformat => 'rfc3339', dateonly => 1 }),
+    priority => 2,
 };
 my $put_data = {
     priority => 2,
-    suspend_until => $suspend_until,
+    suspended_until => output_pref({ dt => $suspended_until, dateformat => 'rfc3339' }),
 };
 
 subtest "Test endpoints without authentication" => sub {
@@ -180,11 +181,11 @@ subtest "Test endpoints without authentication" => sub {
 subtest "Test endpoints without permission" => sub {
     plan tests => 10;
 
-    $tx = $t->ua->build_tx(GET => "/api/v1/holds?borrowernumber=" . $patron_1->borrowernumber);
+    $tx = $t->ua->build_tx(GET => "/api/v1/holds?patron_id=" . $patron_1->borrowernumber);
     $tx->req->cookies({name => 'CGISESSID', value => $session_nopermission->id});
     $t->request_ok($tx) # no permission
       ->status_is(403);
-    $tx = $t->ua->build_tx(GET => "/api/v1/holds?borrowernumber=" . $patron_1->borrowernumber);
+    $tx = $t->ua->build_tx(GET => "/api/v1/holds?patron_id=" . $patron_1->borrowernumber);
     $tx->req->cookies({name => 'CGISESSID', value => $session3->id});
     $t->request_ok($tx) # reserveforothers permission
       ->status_is(403);
@@ -201,47 +202,10 @@ subtest "Test endpoints without permission" => sub {
     $t->request_ok($tx) # no permission
       ->status_is(403);
 };
-subtest "Test endpoints without permission, but accessing own object" => sub {
-    plan tests => 16;
-
-    my $borrno_tmp = $post_data->{'borrowernumber'};
-    $post_data->{'borrowernumber'} = int $nopermission->{'borrowernumber'};
-    $tx = $t->ua->build_tx(POST => "/api/v1/holds" => json => $post_data);
-    $tx->req->cookies({name => 'CGISESSID', value => $session_nopermission->id});
-    $t->request_ok($tx) # create hold to myself
-      ->status_is(201)
-      ->json_has('/reserve_id');
-
-    $post_data->{'borrowernumber'} = $borrno_tmp;
-    $tx = $t->ua->build_tx(GET => "/api/v1/holds?borrowernumber=".$nopermission-> { borrowernumber });
-    $tx->req->cookies({name => 'CGISESSID', value => $session_nopermission->id});
-    $t->request_ok($tx) # get my own holds
-      ->status_is(200)
-      ->json_is('/0/borrowernumber', $nopermission->{ borrowernumber })
-      ->json_is('/0/biblionumber', $biblionumber)
-      ->json_is('/0/itemnumber', $itemnumber)
-      ->json_is('/0/expirationdate', $expirationdate)
-      ->json_is('/0/branchcode', $branchcode);
-
-    my $reserve_id3 = Koha::Holds->find({ borrowernumber => $nopermission->{borrowernumber} })->reserve_id;
-    $tx = $t->ua->build_tx(PUT => "/api/v1/holds/$reserve_id3" => json => $put_data);
-    $tx->req->cookies({name => 'CGISESSID', value => $session_nopermission->id});
-    $t->request_ok($tx)    # create hold to myself
-      ->status_is(200)->json_is( '/reserve_id', $reserve_id3 )->json_is(
-        '/suspend_until',
-        output_pref(
-            {
-                dateformat => 'rfc3339',
-                dt => dt_from_string( $suspend_until . ' 00:00:00', 'sql' )
-            }
-        )
-      )
-      ->json_is( '/priority',   2 )
-      ->json_is( '/itemnumber', $itemnumber );
-};
 
 subtest "Test endpoints with permission" => sub {
-    plan tests => 45;
+
+    plan tests => 44;
 
     $tx = $t->ua->build_tx(GET => '/api/v1/holds');
     $tx->req->cookies({name => 'CGISESSID', value => $session->id});
@@ -249,28 +213,21 @@ subtest "Test endpoints with permission" => sub {
       ->status_is(200)
       ->json_has('/0')
       ->json_has('/1')
-      ->json_has('/2')
-      ->json_hasnt('/3');
+      ->json_hasnt('/2');
 
     $tx = $t->ua->build_tx(GET => '/api/v1/holds?priority=2');
     $tx->req->cookies({name => 'CGISESSID', value => $session->id});
     $t->request_ok($tx)
       ->status_is(200)
-      ->json_is('/0/borrowernumber', $nopermission->{borrowernumber})
+      ->json_is('/0/patron_id', $patron_2->borrowernumber)
       ->json_hasnt('/1');
 
     $tx = $t->ua->build_tx(PUT => "/api/v1/holds/$reserve_id" => json => $put_data);
     $tx->req->cookies({name => 'CGISESSID', value => $session3->id});
-    $t->request_ok($tx)->status_is(200)->json_is( '/reserve_id', $reserve_id )
-      ->json_is(
-        '/suspend_until',
-        output_pref(
-            {
-                dateformat => 'rfc3339',
-                dt => dt_from_string( $suspend_until . ' 00:00:00', 'sql' )
-            }
-        )
-      )
+    $t->request_ok($tx)
+      ->status_is(200)
+      ->json_is( '/hold_id', $reserve_id )
+      ->json_is( '/suspended_until', output_pref({ dt => $suspended_until, dateformat => 'rfc3339' }) )
       ->json_is( '/priority', 2 );
 
     $tx = $t->ua->build_tx(DELETE => "/api/v1/holds/$reserve_id");
@@ -290,14 +247,14 @@ subtest "Test endpoints with permission" => sub {
       ->status_is(404)
       ->json_has('/error');
 
-    $tx = $t->ua->build_tx(GET => "/api/v1/holds?borrowernumber=" . $patron_1->borrowernumber);
+    $tx = $t->ua->build_tx(GET => "/api/v1/holds?patron_id=" . $patron_1->borrowernumber);
     $tx->req->cookies({name => 'CGISESSID', value => $session2->id}); # get with borrowers flag
     $t->request_ok($tx)
       ->status_is(200)
       ->json_is([]);
 
     my $inexisting_borrowernumber = $patron_2->borrowernumber * 2;
-    $tx = $t->ua->build_tx(GET => "/api/v1/holds?borrowernumber=$inexisting_borrowernumber");
+    $tx = $t->ua->build_tx(GET => "/api/v1/holds?patron_id=$inexisting_borrowernumber");
     $tx->req->cookies({name => 'CGISESSID', value => $session->id});
     $t->request_ok($tx)
       ->status_is(200)
@@ -312,16 +269,16 @@ subtest "Test endpoints with permission" => sub {
     $tx->req->cookies({name => 'CGISESSID', value => $session3->id});
     $t->request_ok($tx)
       ->status_is(201)
-      ->json_has('/reserve_id');
-    $reserve_id = $t->tx->res->json->{reserve_id};
+      ->json_has('/hold_id');
+    $reserve_id = $t->tx->res->json->{hold_id};
 
-    $tx = $t->ua->build_tx(GET => "/api/v1/holds?borrowernumber=" . $patron_1->borrowernumber);
+    $tx = $t->ua->build_tx(GET => "/api/v1/holds?patron_id=" . $patron_1->borrowernumber);
     $tx->req->cookies({name => 'CGISESSID', value => $session->id});
     $t->request_ok($tx)
       ->status_is(200)
-      ->json_is('/0/reserve_id', $reserve_id)
-      ->json_is('/0/expirationdate', $expirationdate)
-      ->json_is('/0/branchcode', $branchcode);
+      ->json_is('/0/hold_id', $reserve_id)
+      ->json_is('/0/expiration_date', output_pref({ dt => $expiration_date, dateformat => 'rfc3339', dateonly => 1 }))
+      ->json_is('/0/pickup_library_id', $branchcode);
 
     $tx = $t->ua->build_tx(POST => "/api/v1/holds" => json => $post_data);
     $tx->req->cookies({name => 'CGISESSID', value => $session3->id});
@@ -335,18 +292,17 @@ subtest "Test endpoints with permission" => sub {
     $tx->req->cookies({name => 'CGISESSID', value => $session3->id});
     $t->request_ok($tx)
       ->status_is(403)
-      ->json_like('/error', qr/tooManyReserves/);
+      ->json_like('/error', qr/itemAlreadyOnHold/);
 };
-
 
 subtest 'Reserves with itemtype' => sub {
     plan tests => 9;
 
     my $post_data = {
-        borrowernumber => int($patron_1->borrowernumber),
-        biblionumber => int($biblionumber),
-        branchcode => $branchcode,
-        itemtype => $itemtype,
+        patron_id => int($patron_1->borrowernumber),
+        biblio_id => int($biblionumber),
+        pickup_library_id => $branchcode,
+        item_type => $itemtype,
     };
 
     $tx = $t->ua->build_tx(DELETE => "/api/v1/holds/$reserve_id");
@@ -358,19 +314,96 @@ subtest 'Reserves with itemtype' => sub {
     $tx->req->cookies({name => 'CGISESSID', value => $session3->id});
     $t->request_ok($tx)
       ->status_is(201)
-      ->json_has('/reserve_id');
+      ->json_has('/hold_id');
 
-    $reserve_id = $t->tx->res->json->{reserve_id};
+    $reserve_id = $t->tx->res->json->{hold_id};
 
-    $tx = $t->ua->build_tx(GET => "/api/v1/holds?borrowernumber=" . $patron_1->borrowernumber);
+    $tx = $t->ua->build_tx(GET => "/api/v1/holds?patron_id=" . $patron_1->borrowernumber);
     $tx->req->cookies({name => 'CGISESSID', value => $session->id});
     $t->request_ok($tx)
       ->status_is(200)
-      ->json_is('/0/reserve_id', $reserve_id)
-      ->json_is('/0/itemtype', $itemtype);
+      ->json_is('/0/hold_id', $reserve_id)
+      ->json_is('/0/item_type', $itemtype);
 };
 
 $schema->storage->txn_rollback;
+
+subtest 'suspend and resume tests' => sub {
+
+    plan tests => 21;
+
+    $schema->storage->txn_begin;
+
+    my $password = 'AbcdEFG123';
+
+    my $patron = $builder->build_object(
+        { class => 'Koha::Patrons', value => { userid => 'tomasito', flags => 1 } } );
+    $patron->set_password({ password => $password, skip_validation => 1 });
+    my $userid = $patron->userid;
+
+    # Disable logging
+    t::lib::Mocks::mock_preference( 'HoldsLog',      0 );
+    t::lib::Mocks::mock_preference( 'RESTBasicAuth', 1 );
+
+    my $hold = $builder->build_object(
+        {   class => 'Koha::Holds',
+            value => { suspend => 0, suspend_until => undef, waitingdate => undef }
+        }
+    );
+
+    ok( !$hold->is_suspended, 'Hold is not suspended' );
+    $t->post_ok( "//$userid:$password@/api/v1/holds/" . $hold->id . "/suspension" )
+        ->status_is( 201, 'Hold suspension created' );
+
+    $hold->discard_changes;    # refresh object
+
+    ok( $hold->is_suspended, 'Hold is suspended' );
+    $t->json_is(
+        '/end_date',
+        output_pref(
+            {   dt         => dt_from_string( $hold->suspend_until ),
+                dateformat => 'rfc3339',
+                dateonly   => 1
+            }
+        )
+    );
+
+    $t->delete_ok( "//$userid:$password@/api/v1/holds/" . $hold->id . "/suspension" )
+      ->status_is( 204, "Correct status when deleting a resource" )
+      ->json_is( undef );
+
+    # Pass a an expiration date for the suspension
+    my $date = dt_from_string()->add( days => 5 );
+    $t->post_ok(
+              "//$userid:$password@/api/v1/holds/"
+            . $hold->id
+            . "/suspension" => json => {
+            end_date =>
+                output_pref( { dt => $date, dateformat => 'rfc3339', dateonly => 1 } )
+            }
+    )->status_is( 201, 'Hold suspension created' )
+        ->json_is( '/end_date',
+        output_pref( { dt => $date, dateformat => 'rfc3339', dateonly => 1 } ) )
+        ->header_is( Location => "/api/v1/holds/" . $hold->id . "/suspension", 'The Location header is set' );
+
+    $t->delete_ok( "//$userid:$password@/api/v1/holds/" . $hold->id . "/suspension" )
+      ->status_is( 204, "Correct status when deleting a resource" )
+      ->json_is( undef );
+
+    $hold->set_waiting->discard_changes;
+
+    $t->post_ok( "//$userid:$password@/api/v1/holds/" . $hold->id . "/suspension" )
+      ->status_is( 400, 'Cannot suspend waiting hold' )
+      ->json_is( '/error', 'Found hold cannot be suspended. Status=W' );
+
+    $hold->set_waiting(1)->discard_changes;
+
+    $t->post_ok( "//$userid:$password@/api/v1/holds/" . $hold->id . "/suspension" )
+      ->status_is( 400, 'Cannot suspend waiting hold' )
+      ->json_is( '/error', 'Found hold cannot be suspended. Status=T' );
+
+    $schema->storage->txn_rollback;
+};
 
 sub create_biblio {
     my ($title) = @_;

@@ -33,6 +33,7 @@ use CGI qw ( -utf8 );
 use C4::Auth;
 use C4::Output;
 use Koha::Acquisition::Invoice::Adjustments;
+use C4::Acquisition;
 
 my $dbh     = C4::Context->dbh;
 my $input   = new CGI;
@@ -74,7 +75,13 @@ WHERE
     (datecancellationprinted IS NULL OR
         datecancellationprinted='0000-00-00') AND
     (quantity > quantityreceived OR quantityreceived IS NULL)
-    GROUP BY aqorders.ordernumber
+    GROUP BY aqorders.biblionumber, aqorders.basketno, aqorders.ordernumber,
+             tleft,
+             ecost, budgetdate, entrydate,
+             aqbasket.booksellerid,
+             aqbooksellers.name,
+             itype,
+             title
 EOQ
 
 my $sth = $dbh->prepare($query);
@@ -92,7 +99,7 @@ while ( my $data = $sth->fetchrow_hashref ) {
         $left = $data->{'quantity'};
     }
     if ( $left && $left > 0 ) {
-        my $subtotal = $left * $data->{'ecost_tax_included'};
+        my $subtotal = get_rounded_price( $left * $data->{'ecost_tax_included'} );
         $data->{subtotal} = sprintf( "%.2f", $subtotal );
         $data->{'left'} = $left;
         push @ordered, $data;

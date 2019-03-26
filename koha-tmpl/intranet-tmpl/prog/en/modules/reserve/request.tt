@@ -543,7 +543,7 @@
                             [% SET branchcodes = [] %]
 
                             [% FOREACH h IN biblioloo.reserveloop %]
-                                [% branchcodes.push( h.branchcode ) | $raw %]
+                                [% branchcodes.push( h.branchcode ) %]
                             [% END %]
                             [% branchcodes = branchcodes.unique %]
 
@@ -551,7 +551,7 @@
                                 [% SET holds_by_branch = [] %]
                                 [% FOREACH h IN biblioloo.reserveloop %]
                                     [% IF h.branchcode == b %]
-                                        [% holds_by_branch.push( h ) | $raw %]
+                                        [% holds_by_branch.push( h ) %]
                                     [% END %]
                                 [% END %]
                                 <fieldset>
@@ -564,7 +564,7 @@
 
                             [% FOREACH h IN biblioloo.reserveloop %]
                                 [% SET hold_itemtype = h.object.item.effective_itemtype || h.itemtype %]
-                                [% itemtypes.push( hold_itemtype ) | $raw %]
+                                [% itemtypes.push( hold_itemtype ) %]
                             [% END %]
                             [% itemtypes = itemtypes.unique %]
 
@@ -573,7 +573,7 @@
                                 [% FOREACH h IN biblioloo.reserveloop %]
                                     [% SET hold_itemtype = h.object.item.effective_itemtype || h.itemtype %]
                                     [% IF hold_itemtype == i %]
-                                        [% holds_by_itemtype.push( h ) | $raw %]
+                                        [% holds_by_itemtype.push( h ) %]
                                     [% END %]
                                 [% END %]
 
@@ -590,7 +590,7 @@
                             [% SET branchcodes = [] %]
 
                             [% FOREACH h IN biblioloo.reserveloop %]
-                                [% branchcodes.push( h.branchcode ) | $raw %]
+                                [% branchcodes.push( h.branchcode ) %]
                             [% END %]
                             [% branchcodes = branchcodes.unique %]
 
@@ -600,14 +600,14 @@
                                     [% SET holds_by_branch = [] %]
                                     [% FOREACH h IN biblioloo.reserveloop %]
                                         [% IF h.branchcode == b %]
-                                            [% holds_by_branch.push( h ) | $raw %]
+                                            [% holds_by_branch.push( h ) %]
                                         [% END %]
                                     [% END %]
 
                                     [% SET itemtypes = [] %]
                                     [% FOREACH h IN holds_by_branch %]
                                         [% SET hold_itemtype = h.object.item.effective_itemtype || h.itemtype %]
-                                        [% itemtypes.push( hold_itemtype ) | $raw %]
+                                        [% itemtypes.push( hold_itemtype ) %]
                                     [% END %]
                                     [% itemtypes = itemtypes.unique %]
 
@@ -623,7 +623,7 @@
                                             [% FOREACH h IN holds_by_branch %]
                                                 [% SET hold_itemtype = h.object.item.effective_itemtype || h.itemtype %]
                                                 [% IF hold_itemtype == i %]
-                                                    [% holds_by_itemtype.push( h ) | $raw %]
+                                                    [% holds_by_itemtype.push( h ) %]
                                                 [% END %]
                                             [% END %]
                                             [% INCLUDE holds_table.inc holds=holds_by_itemtype %]
@@ -659,6 +659,7 @@
 [% MACRO jsinclude BLOCK %]
     [% INCLUDE 'datatables.inc' %]
     [% INCLUDE 'calendar.inc' %]
+    [% INCLUDE 'columns_settings.inc' %]
     [% Asset.js("js/circ-patron-search-results.js") | $raw %]
     <script>
         var MSG_CONFIRM_DELETE_HOLD   = _("Are you sure you want to cancel this hold?");
@@ -671,6 +672,7 @@
             [% END %][% END %][% END %]
         };
         var MSG_NO_ITEMS_AVAILABLE = _("A hold cannot be requested on any of these items.");
+        columns_settings_borrowers_table = [% ColumnsSettings.GetColumns( 'circ', 'circulation', 'table_borrowers', 'json' ) | $raw %]
 
         $(document).ready(function() {
             function ToggleHoldsToPlace() {

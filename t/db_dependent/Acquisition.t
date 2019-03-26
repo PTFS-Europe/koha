@@ -19,7 +19,7 @@ use Modern::Perl;
 
 use POSIX qw(strftime);
 
-use Test::More tests => 73;
+use Test::More tests => 74;
 use t::lib::Mocks;
 use Koha::Database;
 
@@ -414,8 +414,7 @@ $order2->{order_internalnote} = "my notes";
         quantityreceived => 2,
         invoice          => $invoice,
     }
-)
-;
+);
 $order2 = GetOrder( $ordernumbers[1] );
 is( $order2->{'quantityreceived'},
     0, 'Splitting up order did not receive any on original order' );
@@ -424,6 +423,12 @@ is( $order2->{'budget_id'}, $budgetid,
     'Budget on original order is unchanged' );
 is( $order2->{order_internalnote}, "my notes",
     'ModReceiveOrder and GetOrder deal with internal notes' );
+my $order1 = GetOrder( $ordernumbers[0] );
+is(
+    $order1->{order_internalnote},
+    "internal note",
+    "ModReceiveOrder only changes the supplied orders internal notes"
+);
 
 $neworder = GetOrder($new_ordernumber);
 is( $neworder->{'quantity'}, 2, '2 items on new order' );
@@ -505,7 +510,7 @@ $nonexistent_order = GetOrder( 424242424242 );
 is( $nonexistent_order, undef, 'GetOrder returns undef if a nonexistent ordernumber is given' );
 
 # Tests for DelOrder
-my $order1 = GetOrder($ordernumbers[0]);
+$order1 = GetOrder($ordernumbers[0]);
 my $error = DelOrder($order1->{biblionumber}, $order1->{ordernumber});
 ok((not defined $error), "DelOrder does not fail");
 $order1 = GetOrder($order1->{ordernumber});

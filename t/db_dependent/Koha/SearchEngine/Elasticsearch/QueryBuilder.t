@@ -144,7 +144,7 @@ subtest 'build_authorities_query_compat() tests' => sub {
         $query->{sort},
         [
             {
-                'Heading__sort.phrase' => 'asc'
+                'heading__sort' => 'asc'
             }
         ],
         "ascending sort parameter properly formed"
@@ -154,7 +154,7 @@ subtest 'build_authorities_query_compat() tests' => sub {
         $query->{sort},
         [
             {
-                'Heading__sort.phrase' => 'desc'
+                'heading__sort' => 'desc'
             }
         ],
         "descending sort parameter properly formed"
@@ -288,29 +288,29 @@ subtest 'build_query tests' => sub {
     ( undef, $query ) = $qb->build_query_compat( undef, ['Local-number:"123456"'] );
     is(
         $query->{query}{query_string}{query},
-        '(Local-number:"123456")',
-        "query of specific field including hyphen and quoted is not truncated"
+        '(local-number:"123456")',
+        "query of specific field including hyphen and quoted is not truncated, field name is converted to lower case"
     );
 
     ( undef, $query ) = $qb->build_query_compat( undef, ['Local-number:123456'] );
     is(
         $query->{query}{query_string}{query},
-        '(Local-number:123456*)',
-        "query of specific field including hyphen and not quoted is truncated"
+        '(local-number:123456*)',
+        "query of specific field including hyphen and not quoted is truncated, field name is converted to lower case"
     );
 
     ( undef, $query ) = $qb->build_query_compat( undef, ['Local-number.raw:123456'] );
     is(
         $query->{query}{query_string}{query},
-        '(Local-number.raw:123456*)',
-        "query of specific field including period and not quoted is truncated"
+        '(local-number.raw:123456*)',
+        "query of specific field including period and not quoted is truncated, field name is converted to lower case"
     );
 
     ( undef, $query ) = $qb->build_query_compat( undef, ['Local-number.raw:"123456"'] );
     is(
         $query->{query}{query_string}{query},
-        '(Local-number.raw:"123456")',
-        "query of specific field including period and quoted is not truncated"
+        '(local-number.raw:"123456")',
+        "query of specific field including period and quoted is not truncated, field name is converted to lower case"
     );
 
     ( undef, $query ) = $qb->build_query_compat( undef, ['J.R.R'] );
@@ -428,7 +428,7 @@ subtest "_convert_sort_fields() tests" => sub {
     is_deeply(
         \@sort_by,
         [
-            { field => 'callnum', direction => 'asc' },
+            { field => 'local-classification', direction => 'asc' },
             { field => 'author',  direction => 'desc' }
         ],
         'sort fields should have been split correctly'
@@ -439,7 +439,7 @@ subtest "_convert_sort_fields() tests" => sub {
     is_deeply(
         \@sort_by,
         [
-            { field => 'callnum', direction => 'asc' },
+            { field => 'local-classification', direction => 'asc' },
             { field => 'author',  direction => 'desc' }
         ],
         'sort fields should have been split correctly'

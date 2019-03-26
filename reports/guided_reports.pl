@@ -23,7 +23,6 @@ use Text::CSV::Encoded;
 use Encode qw( decode );
 use URI::Escape;
 use File::Temp;
-use File::Basename qw( dirname );
 use C4::Reports::Guided;
 use Koha::Reports;
 use C4::Auth qw/:DEFAULT get_session/;
@@ -38,6 +37,7 @@ use Koha::AuthorisedValues;
 use Koha::BiblioFrameworks;
 use Koha::Libraries;
 use Koha::Patron::Categories;
+use Koha::Util::OpenDocument;
 
 =head1 NAME
 
@@ -904,39 +904,26 @@ elsif ($phase eq 'Export'){
                 $type = 'application/vnd.oasis.opendocument.spreadsheet';
                 my $ods_fh = File::Temp->new( UNLINK => 0 );
                 my $ods_filepath = $ods_fh->filename;
+                my $ods_content;
 
-                use OpenOffice::OODoc;
-                my $tmpdir = dirname $ods_filepath;
-                odfWorkingDirectory( $tmpdir );
-                my $container = odfContainer( $ods_filepath, create => 'spreadsheet' );
-                my $doc = odfDocument (
-                    container => $container,
-                    part      => 'content'
-                );
-                my $table = $doc->getTable(0);
-                my @headers = header_cell_values( $sth );
-                my $rows = $sth->fetchall_arrayref();
-                my ( $nb_rows, $nb_cols ) = ( 0, 0 );
-                $nb_rows = @$rows;
-                $nb_cols = @headers;
-                $doc->expandTable( $table, $nb_rows + 1, $nb_cols );
+                # First line is headers
+                my @headers = header_cell_values($sth);
+                push @$ods_content, \@headers;
 
-                my $row = $doc->getRow( $table, 0 );
-                my $j = 0;
-                for my $header ( @headers ) {
-                    $doc->cellValue( $row, $j, $header );
-                    $j++;
-                }
-                my $i = 1;
-                for ( @$rows ) {
-                    $row = $doc->getRow( $table, $i );
-                    for ( my $j = 0 ; $j < $nb_cols ; $j++ ) {
-                        my $value = Encode::encode( 'UTF8', $rows->[$i - 1][$j] );
-                        $doc->cellValue( $row, $j, $value );
+                # Other line in Unicode
+                my $sql_rows = $sth->fetchall_arrayref();
+                foreach my $sql_row ( @$sql_rows ) {
+                    my @content_row;
+                    foreach my $sql_cell ( @$sql_row ) {
+                        push @content_row, Encode::encode( 'UTF8', $sql_cell );
                     }
-                    $i++;
+                    push @$ods_content, \@content_row;
                 }
-                $doc->save();
+
+                # Process
+                generate_ods($ods_filepath, $ods_content);
+
+                # Output
                 binmode(STDOUT);
                 open $ods_fh, '<', $ods_filepath;
                 $content .= $_ while <$ods_fh>;
