@@ -87,12 +87,11 @@ sub InIndependentBranchesMode {
 
 sub pickup_locations {
     my ( $self, $params ) = @_;
-    $params->{search_params} ||= {};
-    $params->{search_params}->{pickup_location} = 1;
-    return $self->all($params);
 
-    my $selected  = $params->{selected};
-    my $libraries = Koha::Libraries->pickup_locations($params);
+    my $search_params = $params->{search_params} || {};
+    my $selected      = $params->{selected};
+    my $libraries     = Koha::Libraries->pickup_locations($search_params);
+
     for my $l (@$libraries) {
         if ( defined $selected and $l->{branchcode} eq $selected
             or not defined $selected

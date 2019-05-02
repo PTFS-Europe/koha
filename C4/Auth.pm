@@ -190,7 +190,7 @@ sub get_template_and_user {
         if (
 # If the user logged in is the SCO user and they try to go out of the SCO module,
 # log the user out removing the CGISESSID cookie
-               $in->{template_name} !~ m|sco/|
+            $in->{template_name} !~ m|sco/| && $in->{template_name} !~ m|errors/errorpage.tt|
             && C4::Context->preference('AutoSelfCheckID')
             && $user eq C4::Context->preference('AutoSelfCheckID')
           )
@@ -1774,6 +1774,7 @@ sub checkpw {
 
     my @return;
     my $patron = Koha::Patrons->find({ userid => $userid });
+    $patron = Koha::Patrons->find({ cardnumber => $userid }) unless $patron;
     my $check_internal_as_fallback = 0;
     my $passwd_ok = 0;
     # Note: checkpw_* routines returns:

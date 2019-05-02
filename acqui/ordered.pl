@@ -77,7 +77,7 @@ WHERE
     (quantity > quantityreceived OR quantityreceived IS NULL)
     GROUP BY aqorders.biblionumber, aqorders.basketno, aqorders.ordernumber,
              tleft,
-             ecost, budgetdate, entrydate,
+             ecost_tax_included, budgetdate, entrydate,
              aqbasket.booksellerid,
              aqbooksellers.name,
              itype,
@@ -107,7 +107,7 @@ while ( my $data = $sth->fetchrow_hashref ) {
     }
 }
 
-my $adjustments = Koha::Acquisition::Invoice::Adjustments->search({budget_id => $fund_id, closedate => undef, encumber_open => 1 }, { join => 'invoiceid' } );
+my $adjustments = Koha::Acquisition::Invoice::Adjustments->search({budget_id => $fund_id, closedate => undef, encumber_open => 1 }, { prefetch => 'invoiceid' } );
 while ( my $adj = $adjustments->next ){
     $total += $adj->adjustment;
 }

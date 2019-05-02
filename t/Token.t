@@ -20,7 +20,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 use Modern::Perl;
-use Test::More tests => 10;
+use Test::More tests => 11;
+use Test::Exception;
 use Time::HiRes qw|usleep|;
 use C4::Context;
 use Koha::Token;
@@ -88,4 +89,15 @@ subtest 'Same logged in user with another session (cookie CGISESSID)' => sub {
         session_id => $id, token => $csrftoken,
     });
     is( $result, '', "CSRF token is not verified if another session is used" );
+};
+
+subtest 'Pattern parameter' => sub {
+    plan tests => 5;
+    my $id = $tokenizer->generate({ pattern => '\d\d', length => 8 });
+    is( length($id), 2, 'Pattern overrides length' );
+    ok( $id =~ /\d{2}/, 'Two digits found' );
+    $id = $tokenizer->generate({ pattern => '[A-Z]{10}' });
+    is( length($id), 10, 'Check length again' );
+    ok( $id !~ /[^A-Z]/, 'Only uppercase letters' );
+    throws_ok( sub { $tokenizer->generate({ pattern => 'abc{d,e}', }) }, 'Koha::Exceptions::Token::BadPattern', 'Exception should be thrown when wrong pattern is used');
 };

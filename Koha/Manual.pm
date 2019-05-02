@@ -19,7 +19,7 @@ sub _get_help_version {
 sub _get_base_url {
     my ( $preferred_language ) = @_;
 
-    my @available_languages = qw( en ar cs es fr it pt_BZ tz zh_TW );
+    my @available_languages = qw( en ar cs es fr it pt_BR tz zh_TW );
 
     my ( $language ) = grep {
         my $preferred_short = substr $preferred_language, 0, 2;
@@ -111,6 +111,7 @@ our $mapping = {
     'cataloguing/linkitem'                     => '/cataloging.html#adding-analytic-records',
     'cataloguing/merge'                        => '/cataloging.html#merging-records',
     'cataloguing/moveitem'                     => '/cataloging.html#moving-items',
+    'circ/article-requests'                    => '/circulation.html#article-requests',
     'circ/branchoverdues'                      => '/circulation.html#overdues-with-fines',
     'circ/branchtransfers'                     => '/circulation.html#transfers',
     'circ/circulation-home'                    => '/circulation.html',
@@ -141,6 +142,7 @@ our $mapping = {
     'labels/label-manage'                      => '/tools.html#batches',
     'labels/spinelabel-home'                   => '/tools.html#quick-spine-label-creator',
     'mainpage'                                 => '/',
+    'members/apikeys'                          => '/webservices.html#api-key-management-interface-for-patrons',
     'members/boraccount'                       => '/patrons.html#fines',
     'members/discharge'                        => '/patrons.html#patron-discharges',
     'members/files'                            => '/patrons.html#files',

@@ -86,14 +86,14 @@ WHERE
     datereceived IS NOT NULL
     GROUP BY aqorders.biblionumber, aqorders.basketno, aqorders.ordernumber,
              tleft,
-             ecost, budgetdate, entrydate,
+             budgetdate, entrydate,
              aqbasket.booksellerid,
              itype,
              title,
              aqorders.invoiceid,
              aqinvoices.invoicenumber,
              quantityreceived,
-             unitprice,
+             unitprice_tax_included,
              datereceived,
              aqbooksellers.name
 
@@ -135,7 +135,7 @@ while (my $data = $sth->fetchrow_hashref) {
 }
 $sth->finish;
 
-my $adjustments = Koha::Acquisition::Invoice::Adjustments->search({budget_id => $bookfund, closedate => { '!=' => undef } }, { join => 'invoiceid' } );
+my $adjustments = Koha::Acquisition::Invoice::Adjustments->search({budget_id => $bookfund, closedate => { '!=' => undef } }, { prefetch => 'invoiceid' },  );
 while ( my $adj = $adjustments->next ){
     $total += $adj->adjustment;
 }

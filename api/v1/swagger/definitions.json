@@ -11,6 +11,12 @@
   "hold": {
     "$ref": "definitions/hold.json"
   },
+  "checkouts": {
+    "$ref": "definitions/checkouts.json"
+  },
+  "checkout": {
+    "$ref": "definitions/checkout.json"
+  },
   "holds": {
     "$ref": "definitions/holds.json"
   },
@@ -28,5 +34,8 @@
   },
   "vendor": {
     "$ref": "definitions/vendor.json"
+  },
+  "fund": {
+    "$ref": "definitions/fund.json"
   }
 }

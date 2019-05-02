@@ -95,7 +95,7 @@ if ( $src eq 'circ' ) {
 $template->param(
     debug => $debug,
     C4::Search::enabled_staff_search_views,
-    subscriptionsnumber => CountSubscriptionFromBiblionumber($input->param('object')),
+    subscriptionsnumber => CountSubscriptionFromBiblionumber(scalar $input->param('object')),
     object => $object,
 );
 
@@ -103,6 +103,7 @@ if ($do_it) {
 
     my @data;
     my ( $results, $modules, $actions, $interfaces );
+    if ( grep { $_ eq 'RENEW' } @actions ) { push @actions, 'RENEWAL' }; # Circulation uses 'RENEWAL', Patrons uses 'RENEW'
     if ( defined $actions[0] && $actions[0] ne '' ) { $actions  = \@actions; }     # match All means no limit
     if ( $modules[0] ne '' ) { $modules = \@modules; }    # match All means no limit
     if ( defined $interfaces[0] && $interfaces[0] ne '' ) { $interfaces = \@interfaces; }    # match All means no limit

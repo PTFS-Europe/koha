@@ -1525,7 +1525,7 @@ CREATE TABLE `search_marc_map` (
   id int(11) NOT NULL AUTO_INCREMENT,
   index_name ENUM('biblios','authorities') NOT NULL COMMENT 'what storage index this map is for',
   marc_type ENUM('marc21', 'unimarc', 'normarc') NOT NULL COMMENT 'what MARC type this map is for',
-  marc_field VARCHAR(255) NOT NULL COMMENT 'the MARC specifier for this field',
+  marc_field VARCHAR(255) NOT NULL COLLATE utf8mb4_bin COMMENT 'the MARC specifier for this field',
   PRIMARY KEY(`id`),
   UNIQUE key `index_name` (`index_name`, `marc_field` (191), `marc_type`),
   INDEX (`index_name`)
@@ -1761,7 +1761,7 @@ CREATE TABLE `issues` ( -- information related to check outs or issues
   `branchcode` varchar(10) default NULL, -- foreign key, linking to the branches table for the location the item was checked out
   `returndate` datetime default NULL, -- date the item was returned, will be NULL until moved to old_issues
   `lastreneweddate` datetime default NULL, -- date the item was last renewed
-  `renewals` tinyint(4) default NULL, -- lists the number of times the item was renewed
+  `renewals` tinyint(4) NOT NULL default 0, -- lists the number of times the item was renewed
   `auto_renew` BOOLEAN default FALSE, -- automatic renewal
   `auto_renew_error` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL, -- automatic renewal error
   `timestamp` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP, -- the date and time this record was last touched
@@ -1793,7 +1793,7 @@ CREATE TABLE `old_issues` ( -- lists items that were checked out and have been r
   `branchcode` varchar(10) default NULL, -- foreign key, linking to the branches table for the location the item was checked out
   `returndate` datetime default NULL, -- date the item was returned
   `lastreneweddate` datetime default NULL, -- date the item was last renewed
-  `renewals` tinyint(4) default NULL, -- lists the number of times the item was renewed
+  `renewals` tinyint(4) NOT NULL default 0, -- lists the number of times the item was renewed
   `auto_renew` BOOLEAN default FALSE, -- automatic renewal
   `auto_renew_error` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL, -- automatic renewal error
   `timestamp` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP, -- the date and time this record was last touched
@@ -4293,7 +4293,8 @@ CREATE TABLE `circulation_rules` (
 -- Table structure for table `stockrotationrotas`
 --
 
-CREATE TABLE IF NOT EXISTS stockrotationrotas (
+DROP TABLE IF EXISTS stockrotationrotas;
+CREATE TABLE stockrotationrotas (
     rota_id int(11) auto_increment,         -- Stockrotation rota ID
     title varchar(100) NOT NULL,            -- Title for this rota
     description text NOT NULL,              -- Description for this rota
@@ -4306,7 +4307,8 @@ CREATE TABLE IF NOT EXISTS stockrotationrotas (
 -- Table structure for table `stockrotationstages`
 --
 
-CREATE TABLE IF NOT EXISTS stockrotationstages (
+DROP TABLE IF EXISTS stockrotationstages;
+CREATE TABLE stockrotationstages (
     stage_id int(11) auto_increment,     -- Unique stage ID
     position int(11) NOT NULL,           -- The position of this stage within its rota
     rota_id int(11) NOT NULL,            -- The rota this stage belongs to
@@ -4327,7 +4329,8 @@ CREATE TABLE IF NOT EXISTS stockrotationstages (
 -- Table structure for table `stockrotationitems`
 --
 
-CREATE TABLE IF NOT EXISTS stockrotationitems (
+DROP TABLE IF EXISTS stockrotationitems;
+CREATE TABLE stockrotationitems (
     itemnumber_id int(11) NOT NULL,         -- Itemnumber to link to a stage & rota
     stage_id int(11) NOT NULL,              -- stage ID to link the item to
     indemand tinyint(1) NOT NULL default 0, -- Should this item be skipped for rotation?

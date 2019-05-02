@@ -489,16 +489,19 @@ sub build_tabs {
     my @BIG_LOOP;
     my %seen;
     my @tab_data; # all tags to display
-    
+
+    my $max_num_tab=-1;
+    my ( $itemtag, $itemsubfield ) = GetMarcFromKohaField( "items.itemnumber" );
     foreach my $used ( @$usedTagsLib ){
+
         push @tab_data,$used->{tagfield} if not $seen{$used->{tagfield}};
         $seen{$used->{tagfield}}++;
-    }
-        
-    my $max_num_tab=-1;
-    foreach(@$usedTagsLib){
-        if($_->{tab} > -1 && $_->{tab} >= $max_num_tab && $_->{tagfield} != '995'){ # FIXME : MARC21 ?
-            $max_num_tab = $_->{tab}; 
+
+        if (   $used->{tab} > -1
+            && $used->{tab} >= $max_num_tab
+            && $used->{tagfield} ne $itemtag )
+        {
+            $max_num_tab = $used->{tab};
         }
     }
     if($max_num_tab >= 9){
@@ -738,7 +741,7 @@ if ($frameworkcode eq 'FA'){
     # Only use the advanced editor for non-fast-cataloging.
     # breedingid is not handled because those would only come off a Z39.50
     # search initiated by the basic editor.
-    print $input->redirect( '/cgi-bin/koha/cataloguing/editor.pl' . ( $biblionumber ? ( '#catalog/' . $biblionumber ) : '' ) );
+    print $input->redirect( '/cgi-bin/koha/cataloguing/editor.pl' . ( $biblionumber ? ( ($op eq 'duplicate'?'#duplicate/':'#catalog/') . $biblionumber ) : '' ) );
     exit;
 }
 

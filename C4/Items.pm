@@ -1008,6 +1008,7 @@ sub GetItemsInfo {
            holding.opac_info as holding_branch_opac_info,
            home.opac_info as home_branch_opac_info
     ";
+    $query .= ",IF(tmp_holdsqueue.itemnumber,1,0) AS pending_hold" if !C4::Context->preference('AllowItemsOnHoldCheckout');
     $query .= "
      FROM items
      LEFT JOIN branches AS holding ON items.holdingbranch = holding.branchcode
@@ -1020,6 +1021,8 @@ sub GetItemsInfo {
      LEFT JOIN serial USING (serialid)
      LEFT JOIN itemtypes   ON   itemtypes.itemtype         = "
      . (C4::Context->preference('item-level_itypes') ? 'items.itype' : 'biblioitems.itemtype');
+    $query .= "
+    LEFT JOIN tmp_holdsqueue USING (itemnumber)" if !C4::Context->preference('AllowItemsOnHoldCheckout');
     $query .= q|
     LEFT JOIN localization ON itemtypes.itemtype = localization.code
         AND localization.entity = 'itemtypes'
@@ -2660,6 +2663,9 @@ sub ToggleNewStatus {
         my $age = $rule->{age};
         my $conditions = $rule->{conditions};
         my $substitutions = $rule->{substitutions};
+        foreach ( @$substitutions ) {
+            ( $_->{item_field} ) = ( $_->{field} =~ /items\.(.*)/ );
+        }
         my @params;
 
         my $query = q|
@@ -2697,7 +2703,8 @@ sub ToggleNewStatus {
             my $item = C4::Items::GetItem( $itemnumber );
             for my $substitution ( @$substitutions ) {
                 next unless $substitution->{field};
-                C4::Items::ModItem( {$substitution->{field} => $substitution->{value}}, $biblionumber, $itemnumber )
+                next if ( $item->{ $substitution->{item_field} } eq $substitution->{value} );
+                C4::Items::ModItem( { $substitution->{item_field} => $substitution->{value} }, $biblionumber, $itemnumber )
                     unless $report_only;
                 push @{ $report->{$itemnumber} }, $substitution;
             }

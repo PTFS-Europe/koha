@@ -27,6 +27,7 @@ use Koha::SearchFields;
 use Koha::SearchMarcMaps;
 
 use Carp;
+use Clone qw(clone);
 use JSON;
 use Modern::Perl;
 use Readonly;
@@ -86,12 +87,7 @@ sub get_elasticsearch {
     my $self = shift @_;
     unless (defined $self->{elasticsearch}) {
         my $conf = $self->get_elasticsearch_params();
-        $self->{elasticsearch} = Search::Elasticsearch->new(
-            client => "5_0::Direct",
-            nodes => $conf->{nodes},
-            cxn_pool => 'Sniff',
-            request_timeout => 60
-        );
+        $self->{elasticsearch} = Search::Elasticsearch->new($conf);
     }
     return $self->{elasticsearch};
 }
@@ -141,12 +137,16 @@ sub get_elasticsearch_params {
     else {
         die "No elasticsearch servers were specified in koha-conf.xml.\n";
     }
-    die "No elasticserver index_name was specified in koha-conf.xml.\n"
+    die "No elasticsearch index_name was specified in koha-conf.xml.\n"
       if ( !$es->{index_name} );
     # Append the name of this particular index to our namespace
     $es->{index_name} .= '_' . $self->index;
 
     $es->{key_prefix} = 'es_';
+    $es->{client} //= '5_0::Direct';
+    $es->{cxn_pool} //= 'Sniff';
+    $es->{request_timeout} //= 60;
+
     return $es;
 }
 
@@ -193,13 +193,15 @@ sub get_elasticsearch_mappings {
 
     if (!defined $all_mappings{$self->index}) {
         $sort_fields{$self->index} = {};
+        # Clone the general mapping to break ties with the original hash
         my $mappings = {
-            data => scalar _get_elasticsearch_mapping('general', '')
+            data => clone(_get_elasticsearch_field_config('general', ''))
         };
         my $marcflavour = lc C4::Context->preference('marcflavour');
         $self->_foreach_mapping(
             sub {
                 my ( $name, $type, $facet, $suggestible, $sort, $marc_type ) = @_;
+
                 return if $marc_type ne $marcflavour;
                 # TODO if this gets any sort of complexity to it, it should
                 # be broken out into its own function.
@@ -215,19 +217,19 @@ sub get_elasticsearch_mappings {
                     $es_type = 'stdno';
                 }
 
-                $mappings->{data}{properties}{$name} = _get_elasticsearch_mapping('search', $es_type);
+                $mappings->{data}{properties}{$name} = _get_elasticsearch_field_config('search', $es_type);
 
                 if ($facet) {
-                    $mappings->{data}{properties}{ $name . '__facet' } = _get_elasticsearch_mapping('facet', $es_type);
+                    $mappings->{data}{properties}{ $name . '__facet' } = _get_elasticsearch_field_config('facet', $es_type);
                 }
                 if ($suggestible) {
-                    $mappings->{data}{properties}{ $name . '__suggestion' } = _get_elasticsearch_mapping('suggestible', $es_type);
+                    $mappings->{data}{properties}{ $name . '__suggestion' } = _get_elasticsearch_field_config('suggestible', $es_type);
                 }
                 # Sort is a bit special as it can be true, false, undef.
                 # We care about "true" or "undef",
                 # "undef" means to do the default thing, which is make it sortable.
                 if (!defined $sort || $sort) {
-                    $mappings->{data}{properties}{ $name . '__sort' } = _get_elasticsearch_mapping('sort', $es_type);
+                    $mappings->{data}{properties}{ $name . '__sort' } = _get_elasticsearch_field_config('sort', $es_type);
                     $sort_fields{$self->index}{$name} = 1;
                 }
             }
@@ -239,15 +241,15 @@ sub get_elasticsearch_mappings {
     return $all_mappings{$self->index};
 }
 
-=head2 _get_elasticsearch_mapping
+=head2 _get_elasticsearch_field_config
 
-Get the Elasticsearch mappings for the given purpose and data type.
+Get the Elasticsearch field config for the given purpose and data type.
 
-$mapping = _get_elasticsearch_mapping('search', 'text');
+$mapping = _get_elasticsearch_field_config('search', 'text');
 
 =cut
 
-sub _get_elasticsearch_mapping {
+sub _get_elasticsearch_field_config {
 
     my ( $purpose, $type ) = @_;
 
@@ -595,8 +597,8 @@ An optional range as a string in the format "<START>-<END>" or "<START>",
 where "<START>" and "<END>" are integers specifying a range that will be used
 for extracting a substring from MARC data as Elasticsearch field target value.
 
-The first character position is "1", and the range is inclusive,
-so "1-3" means the first three characters of MARC data.
+The first character position is "0", and the range is inclusive,
+so "0-2" means the first three characters of MARC data.
 
 If only "<START>" is provided only one character at position "<START>" will
 be extracted.
@@ -611,7 +613,7 @@ sub _field_mappings {
     my @mappings;
 
     my $substr_args = undef;
-    if ($range) {
+    if (defined $range) {
         # TODO: use value_callback instead?
         my ($start, $end) = map(int, split /-/, $range, 2);
         $substr_args = [$start];

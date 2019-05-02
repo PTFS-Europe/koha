@@ -1,0 +1,96 @@
+{
+  "/checkouts": {
+    "get": {
+      "x-mojo-to": "Checkouts#list",
+      "operationId": "listCheckouts",
+      "tags": ["patrons", "checkouts"],
+      "parameters": [{
+        "$ref": "../parameters.json#/patron_id_qp"
+      }],
+      "produces": [
+        "application/json"
+      ],
+      "responses": {
+        "200": {
+          "description": "A list of checkouts",
+          "schema": {
+            "$ref": "../definitions.json#/checkouts"
+          }
+        },
+        "403": {
+          "description": "Access forbidden",
+          "schema": { "$ref": "../definitions.json#/error" }
+        },
+        "404": {
+          "description": "Patron not found",
+          "schema": { "$ref": "../definitions.json#/error" }
+        }
+      },
+      "x-koha-authorization": {
+        "permissions": {
+          "circulate": "circulate_remaining_permissions"
+        }
+      }
+    }
+  },
+  "/checkouts/{checkout_id}": {
+    "get": {
+      "x-mojo-to": "Checkouts#get",
+      "operationId": "getCheckout",
+      "tags": ["patrons", "checkouts"],
+      "parameters": [{
+        "$ref": "../parameters.json#/checkout_id_pp"
+      }],
+      "produces": ["application/json"],
+      "responses": {
+        "200": {
+          "description": "Updated borrower's checkout",
+          "schema": { "$ref": "../definitions.json#/checkout" }
+        },
+        "403": {
+          "description": "Access forbidden",
+          "schema": { "$ref": "../definitions.json#/error" }
+        },
+        "404": {
+          "description": "Checkout not found",
+          "schema": { "$ref": "../definitions.json#/error" }
+        }
+      },
+      "x-koha-authorization": {
+        "permissions": {
+          "circulate": "circulate_remaining_permissions"
+        }
+      }
+    }
+  },
+  "/checkouts/{checkout_id}/renewal": {
+    "post": {
+      "x-mojo-to": "Checkouts#renew",
+      "operationId": "renewCheckout",
+      "tags": ["patrons", "checkouts"],
+      "parameters": [{
+        "$ref": "../parameters.json#/checkout_id_pp"
+      }],
+      "produces": ["application/json"],
+      "responses": {
+        "201": {
+          "description": "Updated borrower's checkout",
+          "schema": { "$ref": "../definitions.json#/checkout" }
+        },
+        "403": {
+          "description": "Cannot renew checkout",
+          "schema": { "$ref": "../definitions.json#/error" }
+        },
+        "404": {
+          "description": "Checkout not found",
+          "schema": { "$ref": "../definitions.json#/error" }
+        }
+      },
+      "x-koha-authorization": {
+        "permissions": {
+          "circulate": "circulate_remaining_permissions"
+        }
+      }
+    }
+  }
+}

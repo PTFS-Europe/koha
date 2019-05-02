@@ -16128,7 +16128,8 @@ if( CheckVersion( $DBversion ) ) {
         unless ( foreign_key_exists('aqorders', 'aqorders_created_by') ) {
             $dbh->do( "ALTER TABLE aqorders ADD CONSTRAINT aqorders_created_by FOREIGN KEY (created_by) REFERENCES borrowers (borrowernumber) ON DELETE SET NULL ON UPDATE CASCADE;" );
         }
-        $dbh->do( "UPDATE aqorders, aqbasket SET aqorders.created_by = aqbasket.authorisedby  WHERE aqorders.basketno = aqbasket.basketno AND aqorders.created_by IS NULL;" );
+        $dbh->do( "UPDATE aqbasket LEFT JOIN borrowers ON ( aqbasket.authorisedby = borrowers.borrowernumber ) SET aqbasket.authorisedby = NULL WHERE borrowers.borrowernumber IS NULL;" );
+        $dbh->do( "UPDATE aqorders LEFT JOIN aqbasket ON ( aqorders.basketno = aqbasket.basketno ) SET aqorders.created_by = aqbasket.authorisedby WHERE aqorders.created_by IS NULL;" );
     }
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 12395 - Save order line's creator)\n";
@@ -17350,6 +17351,107 @@ if ( CheckVersion($DBversion) ) {
     SetVersion($DBversion);
 }
 
+$DBversion = '18.11.04.001';
+if( CheckVersion( $DBversion ) ) {
+
+    $dbh->do( "UPDATE issues SET renewals = 0 WHERE renewals IS NULL" );
+    $dbh->do( "UPDATE old_issues SET renewals = 0 WHERE renewals IS NULL" );
+
+    $dbh->do( "ALTER TABLE issues MODIFY COLUMN renewals tinyint(4) NOT NULL default 0");
+    $dbh->do( "ALTER TABLE old_issues MODIFY COLUMN renewals tinyint(4) NOT NULL default 0");
+
+    # Always end with this (adjust the bug info)
+    SetVersion( $DBversion );
+    print "Upgrade to $DBversion done (Bug 22607 - Set default value of issues.renewals to 0)\n";
+}
+
+$DBversion = '18.11.04.002';
+if( CheckVersion( $DBversion ) ) {
+    my $table_sth = $dbh->prepare('SHOW CREATE TABLE `search_marc_map`');
+    $table_sth->execute();
+    my @table = $table_sth->fetchrow_array();
+    unless ( $table[1] =~ /`marc_field`.*COLLATE utf8mb4_bin/ ) { #catches utf8mb4 collated tables
+        $dbh->do("ALTER TABLE `search_marc_map` MODIFY `marc_field` VARCHAR(255) NOT NULL COLLATE utf8mb4_bin COMMENT 'the MARC specifier for this field'");
+    }
+
+    # Always end with this (adjust the bug info)
+    SetVersion( $DBversion );
+	print "Upgrade to $DBversion done (Bug 19670 - Change collation of marc_field to allow mixed case search field mappings)\n";
+}
+
+$DBversion = '18.11.04.003';
+if( CheckVersion( $DBversion ) ) {
+    $dbh->do( q{
+        INSERT IGNORE INTO systempreferences (variable,value,explanation,options,type)
+        VALUES ('NoRenewalBeforePrecision', 'exact_time', 'Calculate "No renewal before" based on date or exact time. Only relevant for loans calculated in days, hourly loans are not affected.', 'date|exact_time', 'Choice');
+    });
+    $dbh->do("UPDATE systempreferences SET value='exact_time' WHERE variable='NoRenewalBeforePrecision' AND value IS NULL;" );
+    SetVersion( $DBversion );
+    print "Upgrade to $DBversion done (Bug 22044 - Set a default value for NoRenewalBeforePrecision)\n";
+}
+
+$DBversion = '18.11.04.004';
+if( CheckVersion( $DBversion ) ) {
+    $dbh->do( q|
+        UPDATE search_marc_map SET marc_field='007_/0'
+          WHERE marc_type IN ('marc21', 'normarc') AND marc_field='007_/1' AND id IN
+            (SELECT search_marc_map_id FROM search_marc_to_field WHERE search_field_id IN
+              (SELECT id FROM search_field WHERE label='ff7-00')
+            )
+    |);
+
+    $dbh->do( q|
+        UPDATE search_marc_map SET marc_field='007_/1'
+          WHERE marc_type IN ('marc21', 'normarc') AND marc_field='007_/2' AND id IN
+            (SELECT search_marc_map_id FROM search_marc_to_field WHERE search_field_id IN
+              (SELECT id FROM search_field WHERE label='ff7-01')
+            )
+    |);
+
+    $dbh->do( q|
+        UPDATE search_marc_map SET marc_field='007_/2'
+          WHERE marc_type IN ('marc21', 'normarc') AND marc_field='007_/3' AND id IN
+            (SELECT search_marc_map_id FROM search_marc_to_field WHERE search_field_id IN
+              (SELECT id FROM search_field WHERE label='ff7-02')
+            )
+    |);
+
+    # N.B. ff7-01-02 really is 00-01!
+    $dbh->do( q|
+        UPDATE search_marc_map SET marc_field='007_/0-1'
+          WHERE marc_type IN ('marc21', 'normarc') AND marc_field='007_/1-2' AND id IN
+            (SELECT search_marc_map_id FROM search_marc_to_field WHERE search_field_id IN
+              (SELECT id FROM search_field WHERE label='ff7-01-02')
+            )
+    |);
+
+    $dbh->do( q|
+        UPDATE search_marc_map SET marc_field='008_/0-5'
+          WHERE marc_type IN ('marc21', 'normarc') AND marc_field='008_/1-5' AND id IN
+            (SELECT search_marc_map_id FROM search_marc_to_field WHERE search_field_id IN
+              (SELECT id FROM search_field WHERE label='date-entered-on-file')
+            )
+    |);
+
+    $dbh->do( q|
+        UPDATE search_marc_map SET marc_field='leader_/0-4'
+          WHERE marc_type IN ('marc21', 'normarc') AND marc_field='leader_/1-5' AND id IN
+            (SELECT search_marc_map_id FROM search_marc_to_field WHERE search_field_id IN
+              (SELECT id FROM search_field WHERE label='llength')
+            )
+    |);
+
+    # Always end with this (adjust the bug info)
+    SetVersion( $DBversion );
+    print "Upgrade to $DBversion done (Bug 22339 - Fix search field mappings of MARC fixed fields)\n";
+}
+
+$DBversion = "18.11.05.000";
+if ( CheckVersion($DBversion) ) {
+    print "Upgrade to $DBversion done (18.11.05 release)\n";
+    SetVersion($DBversion);
+}
+
 # SEE bug 13068
 # if there is anything in the atomicupdate, read and execute it.
 
@@ -17370,21 +17472,6 @@ foreach my $file ( sort readdir $dirh ) {
 }
 
 =head1 FUNCTIONS
-
-=head2 TableExists($table)
-
-=cut
-
-sub TableExists {
-    my $table = shift;
-    eval {
-                local $dbh->{PrintError} = 0;
-                local $dbh->{RaiseError} = 1;
-                $dbh->do(qq{SELECT * FROM $table WHERE 1 = 0 });
-            };
-    return 1 unless $@;
-    return 0;
-}
 
 =head2 DropAllForeignKeys($table)
 

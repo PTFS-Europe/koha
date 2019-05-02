@@ -17,6 +17,9 @@
   "vendoridPathParam": {
     "$ref": "parameters/vendor.json#/vendoridPathParam"
   },
+  "checkout_id_pp": {
+    "$ref": "parameters/checkout.json#/checkout_id_pp"
+  },
   "match": {
     "name": "_match",
     "in": "query",
@@ -54,5 +57,8 @@
     "required": false,
     "description": "Page size, for paginated object listing",
     "type": "integer"
-   }
+   },
+  "fundidPathParam": {
+    "$ref": "parameters/fund.json#/fundidPathParam"
+  }
 }
