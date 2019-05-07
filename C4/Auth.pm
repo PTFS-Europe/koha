@@ -1058,6 +1058,23 @@ sub checkauth {
                 }
             }
 
+            # If shib configured and shibOnly enabled, we should ignore anything other than a shibboleth type login.
+            if (
+                   $shib
+                && !$shibSuccess
+                && (
+                    (
+                        ( $type eq 'opac' )
+                        && C4::Context->preference('opacShibOnly')
+                    )
+                    || ( ( $type ne 'opac' )
+                        && C4::Context->preference('staffShibOnly') )
+                )
+              )
+            {
+                $return = 0;
+            }
+
             # $return: 1 = valid user
             if ($return) {
 

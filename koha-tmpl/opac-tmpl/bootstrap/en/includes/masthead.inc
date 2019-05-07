@@ -71,6 +71,8 @@
                                         [% IF Koha.Preference('casAuthentication') %]
                                             [%# CAS authentication is too complicated for modal window %]
                                             <li role="presentation"><a href="/cgi-bin/koha/opac-user.pl" tabindex="-1" class="menu-inactive" role="menuitem">Log in to create your own lists</a></li>
+                                        [% ELSIF shibbolethAuthentication && Koha.Preference('opacShibOnly') %]
+                                            <li role="presentation"><a href="/cgi-bin/koha/opac-user.pl" tabindex="-1" class="menu-inactive" role="menuitem">Log in to create your own lists</a></li>
                                         [% ELSE %]
                                             <li role="presentation"><a href="/cgi-bin/koha/opac-user.pl" tabindex="-1" class="menu-inactive loginModal-trigger" role="menuitem">Log in to create your own lists</a></li>
                                         [% END %]
@@ -99,9 +101,11 @@
                                         [% ELSE %]
                                             [% IF Koha.Preference('casAuthentication') %]
                                                 [%# CAS authentication is too complicated for modal window %]
-                                                    <a class="login-link" href="/cgi-bin/koha/opac-user.pl"><i class="fa fa-user fa-icon-white fa-fw"></i> <span class="userlabel">Log in to your account</span></a>
+                                                <a class="login-link" href="/cgi-bin/koha/opac-user.pl"><i class="fa fa-user fa-icon-white fa-fw"></i> <span class="userlabel">Log in to your account</span></a>
                                             [% ELSIF ( Koha.Preference('GoogleOpenIDConnect') == 1 ) %]
                                                 <a class="login-link" href="/cgi-bin/koha/svc/auth/googleopenidconnect" role="button" data-toggle="modal"><i class="fa fa-user fa-icon-white fa-fw"></i> <span class="userlabel">Log in to your account</span></a>
+                                            [% ELSIF shibbolethAuthentication && Koha.Preference('opacShibOnly') %]
+                                                <a class="login-link" href="/cgi-bin/koha/opac-user.pl"><i class="fa fa-user fa-icon-white fa-fw"></i> <span class="userlabel">Log in to your account</span></a>
                                             [% ELSE %]
                                                 <a href="/cgi-bin/koha/opac-user.pl" class="login-link loginModal-trigger" role="button" data-toggle="modal"><i class="fa fa-user fa-icon-white fa-fw"></i> <span class="userlabel">Log in to your account</span></a>
                                             [% END %]
