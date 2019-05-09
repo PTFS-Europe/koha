@@ -1853,7 +1853,7 @@ subtest 'AddReturn + suspension_chargeperiod' => sub {
 };
 
 subtest 'AddReturn | is_overdue' => sub {
-    plan tests => 7;
+    plan tests => 8;
 
     t::lib::Mocks::mock_preference('CalculateFinesOnReturn', 1);
     t::lib::Mocks::mock_preference('finesMode', 'production');
