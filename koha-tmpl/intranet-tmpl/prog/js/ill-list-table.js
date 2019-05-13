@@ -273,7 +273,8 @@ $(document).ready(function() {
             skipSanitize: true
         },
         patron: {
-            func: createPatronLink
+            func: createPatronLink,
+            skipSanitize: true
         },
         illrequest_id: {
             func: createRequestId
@@ -294,9 +295,6 @@ $(document).ready(function() {
         },
         patron_cardnumber: {
             name: _("Patron barcode")
-        },
-        patron: {
-            skipSanitize: true
         }
     };
 
