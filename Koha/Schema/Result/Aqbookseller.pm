@@ -382,8 +382,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07046 @ 2018-12-10 10:47:07
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:maDk7MfrHsD5vUeSwPxI7g
+# Created by DBIx::Class::Schema::Loader v0.07042 @ 2018-02-16 17:54:53
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:DyaF9RbcNAOjPQ1lrxHV3A
 
 __PACKAGE__->add_columns(
     '+active' => { is_boolean => 1 },
