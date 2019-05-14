@@ -309,8 +309,8 @@ Composing rels: L</aqbasketusers> -> borrowernumber
 __PACKAGE__->many_to_many("borrowernumbers", "aqbasketusers", "borrowernumber");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07046 @ 2018-12-10 10:47:07
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:FoONKTl7g7jAEPBW/FQfXQ
+# Created by DBIx::Class::Schema::Loader v0.07042 @ 2018-02-16 17:54:53
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:gSw/f4JmMBzEssEFRg2fAQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
