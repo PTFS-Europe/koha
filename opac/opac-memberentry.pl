@@ -118,6 +118,7 @@ if ( $action eq 'create' ) {
 
     my @empty_mandatory_fields = CheckMandatoryFields( \%borrower, $action );
     my $invalidformfields = CheckForInvalidFields(\%borrower);
+    my $email_exists = CheckEmailExists(\%borrower);
     delete $borrower{'password2'};
     my $cardnumber_error_code;
     if ( !grep { $_ eq 'cardnumber' } @empty_mandatory_fields ) {
@@ -136,6 +137,7 @@ if ( $action eq 'create' ) {
         $template->param(
             empty_mandatory_fields => \@empty_mandatory_fields,
             invalid_form_fields    => $invalidformfields,
+            email_exists           => $email_exists,
             borrower               => \%borrower
         );
         $template->param( patron_attribute_classes => GeneratePatronAttributesForm( undef, $attributes ) );
@@ -254,14 +256,16 @@ elsif ( $action eq 'update' ) {
     my @empty_mandatory_fields =
       CheckMandatoryFields( \%borrower_changes, $action );
     my $invalidformfields = CheckForInvalidFields(\%borrower);
+    my $email_exists;
 
     # Send back the data to the template
     %borrower = ( %$borrower, %borrower );
 
-    if (@empty_mandatory_fields || @$invalidformfields) {
+    if (@empty_mandatory_fields || @$invalidformfields || $email_exists) {
         $template->param(
             empty_mandatory_fields => \@empty_mandatory_fields,
             invalid_form_fields    => $invalidformfields,
+            email_exists           => $email_exists,
             borrower               => \%borrower,
             csrf_token             => Koha::Token->new->generate_csrf({
                 session_id => scalar $cgi->cookie('CGISESSID'),
@@ -418,9 +422,9 @@ sub CheckForInvalidFields {
                     )
                 }
             )->count;
-            if ( $patrons_with_same_email ) {
-                push @invalidFields, "duplicate_email";
-            }
+            #if ( $patrons_with_same_email ) {
+            #    push @invalidFields, "duplicate_email";
+            #}
         }
     }
     if ($borrower->{'emailpro'}) {
@@ -444,6 +448,23 @@ sub CheckForInvalidFields {
     }
 
     return \@invalidFields;
+}
+
+sub CheckEmailExists {
+    my ($borrower) = @_;
+    my $whereCond = [
+        email    => $borrower->{email},
+        emailpro => $borrower->{email},
+    ];
+    if ( $borrower->{emailpro} ) {
+        push @{$whereCond},
+            { email    => $borrower->{emailpro} },
+            { emailpro => $borrower->{emailpro} };
+    }
+    # Search database by primary or secondary email.
+    my $patrons = Koha::Patrons->search({ -or => $whereCond });
+
+    return $patrons->count;
 }
 
 sub ParseCgiForBorrower {

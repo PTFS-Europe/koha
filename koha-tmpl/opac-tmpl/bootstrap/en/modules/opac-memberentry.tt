@@ -34,6 +34,10 @@
 
     <div class="container-fluid">
         <div class="row-fluid">
+            <div id="nojs">
+                <div class="alert alert-error" style="text-align:center;">Javascript is disabled in your browser. To continue registration please enable javascript and refresh the page to continue.</div>
+            </div>
+            <div id="hasjs" style="display:none;">
             <div class="span2">
                 <div id="navigation">
                     [% INCLUDE 'navigation.inc' IsPatronPage=1 %]
@@ -96,6 +100,12 @@
                     </div>
                 [% END %]
 
+                [% IF email_exists %]
+                    <div class="alert alert-error">
+                        <a href="#borrower_email"><strong>The entered primary or secondary email address is already registered on the system. Please login using that account or correct the email address.</strong></a>
+                    </div>
+                [% END %]
+
                 [% IF failed_captcha %]
                     <div class="alert">You typed in the wrong characters in the box before submitting. Please try again.</div>
                 [% END %]
@@ -132,101 +142,33 @@
                 <form method="post" action="/cgi-bin/koha/opac-memberentry.pl" id="memberentry-form" autocomplete="off">
 
                 [%# Following on one line for translatability %]
-                [% UNLESS ( hidden.defined('cardnumber') || ( !borrower && Koha.Preference('autoMemberNum') ) ) && hidden.defined('dateexpiry') && hidden.defined('branchcode') && hidden.defined('categorycode') %]
-                    <fieldset class="rows" id="memberentry_library">
-
-                        <legend id="library_legend">Library</legend>
-                            <ol>
-                                [% UNLESS hidden.defined('cardnumber') || ( !borrower && Koha.Preference('autoMemberNum') ) %]
-                                <li>
-                                    [% IF mandatory.defined('cardnumber') %]
-                                        <label for="borrower_cardnumber" class="required">Library card number:</label>
-                                    [% ELSE %]
-                                        <label for="borrower_cardnumber">Library card number:</label>
-                                    [% END %]
-                                    [% IF borrower && !(cardnumber_wrong_length || cardnumber_already_exists) %]
-                                        [% borrower.cardnumber | html %]
-                                    [% ELSE %]
-                                        [% IF minlength_cardnumber == maxlength_cardnumber %]
-                                            <input type="text" id="borrower_cardnumber" name="borrower_cardnumber" size="20" value="[% borrower.cardnumber | html %]" minlength="[% minlength_cardnumber | html %]" maxlength="[% maxlength_cardnumber | html %]" />
-                                            [% IF ( mandatory.defined('cardnumber') ) %]<span class="required">Required</span>[% END %]
-                                            <div class="hint">Card number must be exactly [% minlength_cardnumber | html %] characters.</div>
-                                        [% ELSIF minlength_cardnumber && maxlength_cardnumber %]
-                                            <input type="text" id="borrower_cardnumber" name="borrower_cardnumber" size="20" value="[% borrower.cardnumber | html %]" minlength="[% minlength_cardnumber | html %]" maxlength="[% maxlength_cardnumber | html %]" />
-                                            [% IF ( mandatory.defined('cardnumber') ) %]<span class="required">Required</span>[% END %]
-                                            <div class="hint">Card number must be between [% minlength_cardnumber | html %] and [% maxlength_cardnumber | html %] characters.</div>
-                                        [% ELSIF maxlength_cardnumber %]
-                                            <input type="text" id="borrower_cardnumber" name="borrower_cardnumber" size="20" value="[% borrower.cardnumber | html %]" maxlength="[% maxlength_cardnumber | html %]" />
-                                            [% IF ( mandatory.defined('cardnumber') ) %]<span class="required">Required</span>[% END %]
-                                            <div class="hint">Card number can be up to [% maxlength_cardnumber | html %] characters.</div>
-                                        [% ELSE %]
-                                            <input type="text" id="borrower_cardnumber" name="borrower_cardnumber" size="20" value="[% borrower.cardnumber | html %]" />
-                                            [% IF ( mandatory.defined('cardnumber') ) %]<span class="required">Required</span>[% END %]
-                                            <div class="hint">There is no minimum or maximum character length.</div>
-                                        [% END %]
-                                    [% END %]
-                                </li>
-                                [% END %]
-
-                                [% UNLESS hidden.defined('dateexpiry') %]
-                                <li>
-                                    <label>Expiration date:</label>
-                                    [% borrower.dateexpiry | $KohaDates  %]
-                                </li>
-                                [% END %]
-
-                                [% UNLESS hidden.defined('branchcode') %]
-                                    <li>
-                                        [% IF mandatory.defined('branchcode') %]
-                                            <label for="borrower_branchcode" class="required">Home library:</label>
-                                        [% ELSE %]
-                                            <label for="borrower_branchcode">Home library:</label>
-                                        [% END %]
-
-                                        <select id="borrower_branchcode" name="borrower_branchcode">
-                                            [% FOREACH l IN libraries %]
-                                                [% IF l.branchcode == borrower.branchcode %]
-                                                    <option value="[% l.branchcode | html %]" selected="selected">[% l.branchname | html %]</option>
-                                                [% ELSE %]
-                                                    <option value="[% l.branchcode | html %]">[% l.branchname | html %]</option>
-                                                [% END %]
-                                            [% END %]
-                                        </select>
-                                    </li>
-                                [% END %]
-
-                                [% UNLESS hidden.defined('categorycode') %]
-                                    <li>
-                                        <label for="borrower_categorycode">
-                                        Category:</label>
-
-                                        [% IF borrower %]
-                                            [% Categories.GetName( borrower.categorycode ) | html %]
-                                            <input type="hidden" name="borrower_categorycode" value="[% borrower.categorycode | html %]" />
-                                        [% ELSE %]
-                                            <select id="borrower_categorycode" name="borrower_categorycode">
-                                                [% FOREACH c IN Categories.all() %]
-                                                    [% IF c.categorycode == Koha.Preference('PatronSelfRegistrationDefaultCategory') %]
-                                                        <option value="[% c.categorycode | html %]" selected="selected">[% c.description | html %]</option>
-                                                    [% ELSE %]
-                                                        <option value="[% c.categorycode | html %]">[% c.description | html %]</option>
-                                                    [% END %]
-                                                [% END %]
-                                            </select>
-                                        [% END %]
-                                    </li>
-                                [% END %]
-                            </ol>
-                        </fieldset>
-                [% END # / defined 'branchcode' %]
-
-                [%# Following on one line for translatability %]
                 [% UNLESS hidden.defined('title') && hidden.defined('surname') && hidden.defined('firstname') && hidden.defined('dateofbirth') && hidden.defined('initials') && hidden.defined('othernames') && hidden.defined('sex') %]
                     <div class="row-fluid">
                         [% IF ( display_patron_image ) %]
                             <div class="span8">
                         [% ELSE %]
                             <div class="span12">
+                        [% END %]
+                        	[% UNLESS action == 'edit' %]
+                            <h1>Apply for New Library Membership Only</h1>
+                            <p>
+                               If you have one of the cards below, you don't need to register! Simply contact your <a href="https://base-library.nhs.uk/?page_id=145" target="_blank">home library</a> if you need to update or find out your membership details.
+                            </p>
+                            <table width="100%">
+                                <tr>
+                                    <td>
+                                        <img src="/opac-tmpl/bootstrap/images/base-library-card-current.jpg" height="153" width="250" />
+                                    </td>
+                                    <td>
+                                        <img src="/opac-tmpl/bootstrap/images/base-library-card-previous-design.jpg" height="153" width="250" />
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <p>&nbsp;</p>
+                            <p>If you are not already registered with BASE libraries you will need a current, active institutional email address ending in '.nhs.uk', '.nhs.net', 'ac.uk', 'gov.uk' or '.gov'</p>
+                            <p>Who can register online? <a href="https://base-library.nhs.uk/?page_id=3768" target=_blank">https://base-library.nhs.uk/?page_id=3768</a></p>
+                            <p>Guidance for completing the online form <a href="https://base-library.nhs.uk/?page_id=3898" target=_blank">https://base-library.nhs.uk/?page_id=3898</a></p>
                         [% END %]
                             <fieldset class="rows" id="memberentry_identity">
                                 <legend id="identity_legend">Identity</legend>
@@ -805,6 +747,95 @@
                     </fieldset>
                 [% END %]
 
+                [%# Following on one line for translatability %]
+                [% UNLESS ( hidden.defined('cardnumber') || ( !borrower && Koha.Preference('autoMemberNum') ) ) && hidden.defined('dateexpiry') && hidden.defined('branchcode') && hidden.defined('categorycode') %]
+                    <fieldset class="rows" id="memberentry_library">
+
+                        <legend id="library_legend">Library</legend>
+                            <ol>
+                                [% UNLESS hidden.defined('cardnumber') || ( !borrower && Koha.Preference('autoMemberNum') ) %]
+                                <li>
+                                    [% IF mandatory.defined('cardnumber') %]
+                                        <label for="borrower_cardnumber" class="required">Library card number:</label>
+                                    [% ELSE %]
+                                        <label for="borrower_cardnumber">Library card number:</label>
+                                    [% END %]
+                                    [% IF borrower && !(cardnumber_wrong_length || cardnumber_already_exists) %]
+                                        [% borrower.cardnumber | html %]
+                                    [% ELSE %]
+                                        [% IF minlength_cardnumber == maxlength_cardnumber %]
+                                            <input type="text" id="borrower_cardnumber" name="borrower_cardnumber" size="20" value="[% borrower.cardnumber | html %]" minlength="[% minlength_cardnumber | html %]" maxlength="[% maxlength_cardnumber | html %]" />
+                                            [% IF ( mandatory.defined('cardnumber') ) %]<span class="required">Required</span>[% END %]
+                                            <div class="hint">Card number must be exactly [% minlength_cardnumber | html %] characters.</div>
+                                        [% ELSIF minlength_cardnumber && maxlength_cardnumber %]
+                                            <input type="text" id="borrower_cardnumber" name="borrower_cardnumber" size="20" value="[% borrower.cardnumber | html %]" minlength="[% minlength_cardnumber | html %]" maxlength="[% maxlength_cardnumber | html %]" />
+                                            [% IF ( mandatory.defined('cardnumber') ) %]<span class="required">Required</span>[% END %]
+                                            <div class="hint">Card number must be between [% minlength_cardnumber | html %] and [% maxlength_cardnumber | html %] characters.</div>
+                                        [% ELSIF maxlength_cardnumber %]
+                                            <input type="text" id="borrower_cardnumber" name="borrower_cardnumber" size="20" value="[% borrower.cardnumber | html %]" maxlength="[% maxlength_cardnumber | html %]" />
+                                            [% IF ( mandatory.defined('cardnumber') ) %]<span class="required">Required</span>[% END %]
+                                            <div class="hint">Card number can be up to [% maxlength_cardnumber | html %] characters.</div>
+                                        [% ELSE %]
+                                            <input type="text" id="borrower_cardnumber" name="borrower_cardnumber" size="20" value="[% borrower.cardnumber | html %]" />
+                                            [% IF ( mandatory.defined('cardnumber') ) %]<span class="required">Required</span>[% END %]
+                                            <div class="hint">There is no minimum or maximum character length.</div>
+                                        [% END %]
+                                    [% END %]
+                                </li>
+                                [% END %]
+
+                                [% UNLESS hidden.defined('dateexpiry') %]
+                                <li>
+                                    <label>Expiration date:</label>
+                                    [% borrower.dateexpiry | $KohaDates  %]
+                                </li>
+                                [% END %]
+
+                                [% UNLESS hidden.defined('branchcode') %]
+                                    <li>
+                                        [% IF mandatory.defined('branchcode') %]
+                                            <label for="borrower_branchcode" class="required">Home library:</label>
+                                        [% ELSE %]
+                                            <label for="borrower_branchcode">Home library:</label>
+                                        [% END %]
+
+                                        <select id="borrower_branchcode" name="borrower_branchcode">
+                                            [% FOREACH l IN libraries %]
+                                                [% IF l.branchcode == borrower.branchcode %]
+                                                    <option value="[% l.branchcode | html %]" selected="selected">[% l.branchname | html %]</option>
+                                                [% ELSE %]
+                                                    <option value="[% l.branchcode | html %]">[% l.branchname | html %]</option>
+                                                [% END %]
+                                            [% END %]
+                                        </select>
+                                    </li>
+                                [% END %]
+
+                                [% UNLESS hidden.defined('categorycode') %]
+                                    <li>
+                                        <label for="borrower_categorycode">
+                                        Category:</label>
+
+                                        [% IF borrower %]
+                                            [% Categories.GetName( borrower.categorycode ) | html %]
+                                            <input type="hidden" name="borrower_categorycode" value="[% borrower.categorycode | html %]" />
+                                        [% ELSE %]
+                                            <select id="borrower_categorycode" name="borrower_categorycode">
+                                                [% FOREACH c IN Categories.all() %]
+                                                    [% IF c.categorycode == Koha.Preference('PatronSelfRegistrationDefaultCategory') %]
+                                                        <option value="[% c.categorycode | html %]" selected="selected">[% c.description | html %]</option>
+                                                    [% ELSE %]
+                                                        <option value="[% c.categorycode | html %]">[% c.description | html %]</option>
+                                                    [% END %]
+                                                [% END %]
+                                            </select>
+                                        [% END %]
+                                    </li>
+                                [% END %]
+                            </ol>
+                        </fieldset>
+                [% END # / defined 'branchcode' %]
+
                 [% UNLESS action == 'edit' || hidden.defined('password') %]
                     <fieldset class="rows" id="memberentry_password">
                         <legend id="contact_legend">Password</legend>
@@ -913,7 +944,7 @@
                             <li>
                                 <label for="captcha" class="required">Verification:</label>
 
-                                <input type="text" name="captcha" id="captcha" />
+                                <input type="text" name="captcha" id="captcha" />&nbsp;<span class="required">Required</span>
                                 <input type="hidden" name="captcha_digest" value="[% captcha_digest | html %]" />
 
                                 <span class="hint">Please type the following characters into the preceding box: <strong>[% captcha | html %]</strong></span>
@@ -933,7 +964,7 @@
                 [% ELSE %]
                     <fieldset class="action">
                         <input type="hidden" name="action" value="create" />
-                        <input type="submit" class="btn" value="Submit" />
+                        <input type="submit" class="btn" value="Submit" />&nbsp;&nbsp;&nbsp;<em>By submitting this form, you agree to the following <a href="https://base-library.nhs.uk/?page_id=3388" target="_blank">terms and conditions</a></em>
                     </fieldset>
                 [% END %]
 
@@ -942,6 +973,7 @@
                     </div><!--/div id="update-account" -->
                 </div>
             </div>
+        </div>
         </div>
     </div>
 
@@ -962,16 +994,20 @@
                 $('label.required').removeClass('required');
             [% END %]
 
+            $.validator.addMethod( "email_extension", function( value, element, param ) {
+              param = typeof param === "string" ? param.replace( /,/g, "|" ) : "ac.uk|gov|gov.uk|nhs.net|nhs.uk";
+              return this.optional( element ) || value.match( new RegExp( "\(" + param + ")$", "i" ) );
+          }, $.validator.format( "Only nhs.uk, nhs.net, ac.uk, gov.uk and gov email addresses are permitted." ) );
+
             $("#memberentry-form").validate({
                 rules: {
                     borrower_email: {
-                        email: true
-                    },
-                    borrower_emailpro: {
-                        email: true
+                        email: true,
+                        email_extension: true
                     },
                     borrower_B_email: {
-                        email: true
+                        email: true,
+                        email_extension: true
                     },
                     borrower_password: {
                         [% IF mandatory.defined('password') %]
@@ -1025,6 +1061,8 @@
                      });
                 });
             [% END %]
+            document.getElementById('hasjs').style.display = 'block';
+            document.getElementById('nojs').style.display = 'none';
 
             $(".patron-attributes").on( 'click', '.clear-attribute', function() {
                 $(this).parent()
