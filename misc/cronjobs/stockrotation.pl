@@ -352,7 +352,7 @@ sub _report_per_branch {
         return {
             letter        => $letter,
             email_address => $branch->{email},
-            $status
+            status        => $status
         };
     }
     return;
