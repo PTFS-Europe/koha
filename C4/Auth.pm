@@ -47,7 +47,8 @@ use List::MoreUtils qw/ any /;
 use Encode qw( encode is_utf8);
 use C4::Auth_with_shibboleth;
 use Net::CIDR;
-use C4::Log qw/logaction/;
+use C4::Log qw( logaction );
+use Koha::Token;
 
 # use utf8;
 use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS $debug $ldap $cas $caslogout);
@@ -293,6 +294,7 @@ sub get_template_and_user {
         $template->param( loggedinusernumber => $borrowernumber ); # FIXME Should be replaced with logged_in_user.borrowernumber
         $template->param( logged_in_user     => $patron );
         $template->param( sessionID          => $sessionID );
+        $template->param( csrf_token => Koha::Token->new->generate_csrf({ session_id => scalar $sessionID }));
 
         if ( $in->{'type'} eq 'opac' ) {
             require Koha::Virtualshelves;

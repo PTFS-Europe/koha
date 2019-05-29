@@ -142,6 +142,8 @@ if ( $op eq 'add_form' ) {
 #End Edit
 } elsif ( $op eq 'add_validate' ) {
 #we are confirming the changes, save the basket
+#we are checking CSRF Token. Module CSRF_TOKEN_CHECK indicate for CSRF token checking,
+    output_and_exit_if_error( $input, $input->cookie('CGISESSID'), $template, { module => 'CSRF_TOKEN_CHECK', csrf_token => $input->param('csrf_token') } );
     if ( $is_an_edit ) {
         ModBasketHeader(
             $basketno,
