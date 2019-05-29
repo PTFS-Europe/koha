@@ -61,7 +61,6 @@ if ( $logged_in_user->can_see_patron_infos($patron) ) {
             token      => scalar $input->param('csrf_token'),
             }
         );
-
         $dateexpiry = $patron->renew_account;
     } else {
         my $sth = $dbh->prepare("UPDATE borrowers SET debarred = ?, debarredcomment = '' WHERE borrowernumber = ?");
