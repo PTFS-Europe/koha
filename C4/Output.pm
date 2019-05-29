@@ -332,31 +332,32 @@ Others will be added here depending on the needs (for instance biblio does not e
 sub output_and_exit_if_error {
     my ( $query, $cookie, $template, $params ) = @_;
     my $error;
-    if ($params->{module} eq 'CSRF_TOKEN_CHECK') {
-        my $csrfcheck = Koha::Token->new->check_csrf( {
-            session_id => scalar $cookie,
-            token  => scalar $params->{csrf_token},
-        });
-        unless ($csrfcheck) {
-            $error = 'wrong_csrf_token';
-        }
-
-    } else {
-        if ( $params and exists $params->{module} ) {
-            if ( $params->{module} eq 'members' ) {
-                my $logged_in_user = $params->{logged_in_user};
-                my $current_patron = $params->{current_patron};
-                if ( not $current_patron ) {
-                    $error = 'unknown_patron';
-                }
-                elsif( not $logged_in_user->can_see_patron_infos( $current_patron ) ) {
-                    $error = 'cannot_see_patron_infos';
-                }
+    if ( $params and exists $params->{module} ) {
+        if ( $params->{module} eq 'members' ) {
+            my $logged_in_user = $params->{logged_in_user};
+            my $current_patron = $params->{current_patron};
+            if ( not $current_patron ) {
+                $error = 'unknown_patron';
             }
-        } elsif ( $params->{module} eq 'cataloguing' ) {
+            elsif ( not $logged_in_user->can_see_patron_infos($current_patron) )
+            {
+                $error = 'cannot_see_patron_infos';
+            }
+        }
+        elsif ( $params->{module} eq 'cataloguing' ) {
             # We are testing the record to avoid additem to fetch the Koha::Biblio
             # But in the long term we will want to get a biblio in parameter
             $error = 'unknown_biblio' unless $params->{record};
+        }
+        elsif ( $params->{module} eq 'CSRF_TOKEN_CHECK' ) {
+            $error = 'wrong_csrf_token'
+              unless Koha::Token->new->check_csrf(
+                {
+                    session_id => scalar $query->cookie('CGISESSID'),
+                    token      => scalar $query->param('csrf_token'),
+                }
+              );
+            }
         }
     }
     output_and_exit( $query, $cookie, $template, $error ) if $error;
