@@ -321,9 +321,17 @@ sub is_ajax {
 To executed at the beginning of scripts to stop the script at this point if
 some errors are found.
 
-Tests for module 'members':
-* patron is not defined (we are looking for a patron that does no longer exist/never existed)
-* The logged in user cannot see patron's infos (feature 'cannot_see_patron_infos')
+A serie of tests can be run for a given module, or a specific check.
+Params "module" and "check" are mutually exclusive.
+
+Tests for modules:
+* members:
+    - Patron is not defined (we are looking for a patron that does no longer exist/never existed)
+    - The logged in user cannot see patron's infos (feature 'cannot_see_patron_infos')
+
+Tests for specific check:
+* csrf_token
+    will test if the csrf_token CGI param is valid
 
 Others will be added here depending on the needs (for instance biblio does not exist will be useful).
 
