@@ -349,16 +349,15 @@ sub output_and_exit_if_error {
             # But in the long term we will want to get a biblio in parameter
             $error = 'unknown_biblio' unless $params->{record};
         }
-        elsif ( $params->{module} eq 'CSRF_TOKEN_CHECK' ) {
-            $error = 'wrong_csrf_token'
-              unless Koha::Token->new->check_csrf(
-                {
-                    session_id => scalar $query->cookie('CGISESSID'),
-                    token      => scalar $query->param('csrf_token'),
-                }
-              );
+    }
+    elsif ( $params->{check} eq 'csrf_token' ) {
+        $error = 'wrong_csrf_token'
+          unless Koha::Token->new->check_csrf(
+            {
+                session_id => scalar $query->cookie('CGISESSID'),
+                token      => scalar $query->param('csrf_token'),
             }
-        }
+          );
     }
     output_and_exit( $query, $cookie, $template, $error ) if $error;
     return;
