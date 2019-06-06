@@ -127,7 +127,7 @@ if ( $action eq 'create' ) {
         $cardnumber_error_code = checkcardnumber( $borrower{cardnumber}, $borrower{borrowernumber} );
     }
 
-    if ( @empty_mandatory_fields || @$invalidformfields || $cardnumber_error_code || $conflicting_attribute ) {
+    if ( @empty_mandatory_fields || @$invalidformfields || $cardnumber_error_code || $conflicting_attribute || $email_exists ) {
         if ( $cardnumber_error_code == 1 ) {
             $template->param( cardnumber_already_exists => 1 );
         } elsif ( $cardnumber_error_code == 2 ) {
@@ -456,15 +456,24 @@ sub CheckEmailExists {
         email    => $borrower->{email},
         emailpro => $borrower->{email},
     ];
-    if ( $borrower->{emailpro} ) {
+    if ( $borrower->{email} ) {
+        push @{$whereCond},
+            { email    => $borrower->{email} },
+            { emailpro => $borrower->{email} };
+   }
+   if ( $borrower->{emailpro} ) {
         push @{$whereCond},
             { email    => $borrower->{emailpro} },
             { emailpro => $borrower->{emailpro} };
     }
     # Search database by primary or secondary email.
     my $patrons = Koha::Patrons->search({ -or => $whereCond });
-
-    return $patrons->count;
+    if ($patrons->count > 0) {
+        return 1;
+    } else {
+        return 0;
+    }
+    #return $patrons->count;
 }
 
 sub ParseCgiForBorrower {
