@@ -154,7 +154,11 @@
                             <p>
                                If you have one of the cards below, you don't need to register! Simply contact your <a href="https://base-library.nhs.uk/?page_id=145" target="_blank">home library</a> if you need to update or find out your membership details.
                             </p>
-                            <table width="100%">
+                            <div id="mobile-cards">
+                                <div><img src="/opac-tmpl/bootstrap/images/base-library-card-current.jpg" height="153" width="250" /></div>
+                                <div><img src="/opac-tmpl/bootstrap/images/base-library-card-previous-design.jpg" height="153" width="250" /></div>
+                            </div>
+                            <table width="100%" id="desktop-cards">
                                 <tr>
                                     <td>
                                         <img src="/opac-tmpl/bootstrap/images/base-library-card-current.jpg" height="153" width="250" />
