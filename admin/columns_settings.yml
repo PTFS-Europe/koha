@@ -307,7 +307,7 @@ modules:
         -
           columnname: metadata_title
         -
-          columnname: metadata_item_part_title
+          columnname: metadata_article_title
         -
           columnname: metadata_issue
         -
@@ -315,7 +315,7 @@ modules:
         -
           columnname: metadata_year
         -
-          columnname: metadata_item_part_pages
+          columnname: metadata_pages
         -
           columnname: metadata_type
         -
