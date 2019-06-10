@@ -33,6 +33,20 @@ Koha::Item::Transfer - Koha Item Transfer Object class
 
 =cut
 
+=head3 item
+
+  my $item = Koha::Library->item;
+
+Returns the associated item for this transfer.
+
+=cut
+
+sub item {
+    my ( $self ) = @_;
+    my $rs = $self->_result->itemnumber;
+    return Koha::Item->_new_from_dbic( $rs );
+}
+
 =head3 type
 
 =cut

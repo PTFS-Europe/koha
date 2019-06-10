@@ -94,6 +94,9 @@
                         </li>
                     [% END %]
                     <li>
+                        <a class="circ-button" href="/cgi-bin/koha/circ/transferstosend.pl"><i class="fa fa-sign-out"></i> Transfers to send</a>
+                    </li>
+                    <li>
                         <a class="circ-button" href="/cgi-bin/koha/circ/transferstoreceive.pl"><i class="fa fa-sign-in"></i> Transfers to receive</a>
                     </li>
                 </ul>
