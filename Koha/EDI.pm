@@ -1082,14 +1082,14 @@ sub _create_item_from_quote {
 sub _populate_order_with_prices {
     my ($params) = @_;
 
-    use Koha::Acquisition::Bookseller;
     my $order        = $params->{order};
     my $invoice_includes_tax = 0;
     if ($params->{booksellerid}) {
 
         my $bookseller =
-        Koha::Acquisition::Bookseller->fetch( { id => $params->{booksellerid} } );
+        Koha::Acquisition::Booksellers->find( $params->{booksellerid} );
         $invoice_includes_tax = $bookseller->{invoiceincgst};
+        $invoice_includes_tax ||= 0;
     }
     my $discount = $order->{discount};
     if ($discount > 1) {
