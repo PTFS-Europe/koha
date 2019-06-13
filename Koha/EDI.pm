@@ -421,7 +421,7 @@ sub update_price_from_invoice {
     );
     foreach my $k ( keys %pre_hash ) {
         if ( !defined $ord_hash_ref->{$k}
-            || $ord_hash_ref->{$k} == $pre_hash{$k} )
+            || (defined $pre_hash{$k} && $ord_hash_ref->{$k} == $pre_hash{$k}) )
         {
             delete $ord_hash_ref->{$k};
         }
@@ -858,7 +858,7 @@ sub quote_item {
                     );
                 }
 
-                if ( $basket->effective_create_item eq 'ordering' ) {
+                if ( C4::Context->preference('AcqCreateItem') eq 'ordering' ) {
                     my $new_item = {
                         notforloan       => -1,
                         cn_sort          => q{},
