@@ -93,7 +93,7 @@
                <ul>
                     [% FOREACH holdingbranch IN reserveloo.holdingbranches %]
                         <li>
-                            [% Branches.GetName ( holdingbranch ) | html %]
+                            [% ( holdingbranch ) | html %]
                         </li>
                     [% END %]
                </ul>
