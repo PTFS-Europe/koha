@@ -93,8 +93,8 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key("isbn");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07046 @ 2018-12-10 10:47:08
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:nqQSvy41x7yYnuQJgbOuBQ
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2019-05-10 12:02:53
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:zu/RochQZmZJZHQJnkLQvg
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

@@ -1916,6 +1916,13 @@ sub searchResults {
     my $lang   = $xslfile ? C4::Languages::getlanguage()  : undef;
     my $sysxml = $xslfile ? C4::XSLT::get_xslt_sysprefs() : undef;
 
+    my $userenv = C4::Context->userenv;
+    my $logged_in_user
+        = ( defined $userenv and $userenv->{number} )
+        ? Koha::Patrons->find( $userenv->{number} )
+        : undef;
+    my $patron_category_hide_lost_items = ($logged_in_user) ? $logged_in_user->category->hidelostitems : 0;
+
     # loop through all of the records we've retrieved
     for ( my $i = $offset ; $i <= $times - 1 ; $i++ ) {
 
@@ -1950,7 +1957,6 @@ sub searchResults {
         # add imageurl to itemtype if there is one
         $oldbiblio->{imageurl} = getitemtypeimagelocation( $search_context, $itemtypes{ $oldbiblio->{itemtype} }->{imageurl} );
 
-        $oldbiblio->{'authorised_value_images'}  = ($search_context->{'interface'} eq 'opac' && C4::Context->preference('AuthorisedValueImages')) || ($search_context->{'interface'} eq 'intranet' && C4::Context->preference('StaffAuthorisedValueImages')) ? C4::Items::get_authorised_value_images( C4::Biblio::get_biblio_authorised_values( $oldbiblio->{'biblionumber'}, $marcrecord ) ) : [];
 		$oldbiblio->{normalized_upc}  = GetNormalizedUPC(       $marcrecord,$marcflavour);
 		$oldbiblio->{normalized_ean}  = GetNormalizedEAN(       $marcrecord,$marcflavour);
 		$oldbiblio->{normalized_oclc} = GetNormalizedOCLCNumber($marcrecord,$marcflavour);
@@ -2106,11 +2112,9 @@ sub searchResults {
 
 			my $prefix = $item->{$hbranch} . '--' . $item->{location} . $item->{itype} . $item->{itemcallnumber};
 # For each grouping of items (onloan, available, unavailable), we build a key to store relevant info about that item
-            my $userenv = C4::Context->userenv;
             if ( $item->{onloan}
-                && $userenv
-                && $userenv->{number}
-                && !( Koha::Patrons->find($userenv->{number})->category->hidelostitems && $item->{itemlost} ) )
+                and $logged_in_user
+                and !( $patron_category_hide_lost_items and $item->{itemlost} ) )
             {
                 $onloan_count++;
                 my $key = $prefix . $item->{onloan} . $item->{barcode};

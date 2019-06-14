@@ -28,6 +28,7 @@ use C4::Output;
 use C4::Debug;
 use C4::Letters;
 use Koha::DateUtils;
+use Koha::Suggestions;
 
 use List::MoreUtils qw(any);
 use base qw(Exporter);
@@ -435,26 +436,12 @@ Insert a new suggestion on database with value given on input arg.
 sub NewSuggestion {
     my ($suggestion) = @_;
 
-    for my $field ( qw(
-        suggestedby
-        managedby
-        manageddate
-        acceptedby
-        accepteddate
-        rejectedby
-        rejecteddate
-        budgetid
-    ) ) {
-        # Set the fields to NULL if not given.
-        $suggestion->{$field} ||= undef;
-    }
-
     $suggestion->{STATUS} = "ASKED" unless $suggestion->{STATUS};
 
     $suggestion->{suggesteddate} = dt_from_string unless $suggestion->{suggesteddate};
 
-    my $rs = Koha::Database->new->schema->resultset('Suggestion');
-    return $rs->create($suggestion)->id;
+    my $suggestion_object = Koha::Suggestion->new( $suggestion )->store;
+    return $suggestion_object->suggestionid;
 }
 
 =head2 ModSuggestion
@@ -474,29 +461,11 @@ sub ModSuggestion {
     my ($suggestion) = @_;
     return unless( $suggestion and defined($suggestion->{suggestionid}) );
 
-    for my $field ( qw(
-        suggestedby
-        managedby
-        manageddate
-        acceptedby
-        accepteddate
-        rejectedby
-        rejecteddate
-        budgetid
-    ) ) {
-        # Set the fields to NULL if not given.
-        $suggestion->{$field} = undef
-          if exists $suggestion->{$field}
-          and ($suggestion->{$field} eq '0'
-            or $suggestion->{$field} eq '' );
-    }
-
-    my $rs = Koha::Database->new->schema->resultset('Suggestion')->find($suggestion->{suggestionid});
-    my $status_update_table = 1;
-    eval {
-        $rs->update($suggestion);
+    my $suggestion_object = Koha::Suggestions->find( $suggestion->{suggestionid} );
+    eval { # FIXME Must raise an exception instead
+        $suggestion_object->set($suggestion)->store;
     };
-    $status_update_table = 0 if( $@ );
+    return 0 if $@;
 
     if ( $suggestion->{STATUS} ) {
 
@@ -529,7 +498,7 @@ sub ModSuggestion {
             ) or warn "can't enqueue letter $letter";
         }
     }
-    return $status_update_table;
+    return 1; # No useful if the exception is raised earlier
 }
 
 =head2 ConnectSuggestionAndBiblio

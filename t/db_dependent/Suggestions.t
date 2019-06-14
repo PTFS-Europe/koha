@@ -18,7 +18,7 @@
 use Modern::Perl;
 
 use DateTime::Duration;
-use Test::More tests => 103;
+use Test::More tests => 104;
 use Test::Warn;
 
 use t::lib::Mocks;
@@ -88,6 +88,7 @@ my $my_suggestion = {
     manageddate   => '',
     accepteddate  => dt_from_string,
     note          => 'my note',
+    quantity      => '', # Insert an empty string into int to catch strict SQL modes errors
 };
 
 my $budgetperiod_id = AddBudgetPeriod({
@@ -196,6 +197,10 @@ is( @$messages, 1, 'ModSuggestion sends an email if the status is updated' );
 
 is( CountSuggestion('CHECKED'), 1, 'CountSuggestion returns the correct number of suggestions' );
 
+$messages = C4::Letters::GetQueuedMessages({
+    borrowernumber => $borrowernumber
+});
+is (scalar(@$messages), 1, 'No new letter should have been generated if the update raised an error');
 
 is( GetSuggestionInfo(), undef, 'GetSuggestionInfo without the suggestion id returns undef' );
 $suggestion = GetSuggestionInfo($my_suggestionid);

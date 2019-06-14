@@ -785,8 +785,6 @@ sub GetLatestSerials {
     my @serials;
     while ( my $line = $sth->fetchrow_hashref ) {
         $line->{ "status" . $line->{status} } = 1;                        # fills a "statusX" value, used for template status select list
-        $line->{planneddate}   = output_pref( { dt => dt_from_string( $line->{planneddate} ),   dateonly => 1 } );
-        $line->{publisheddate} = output_pref( { dt => dt_from_string( $line->{publisheddate} ), dateonly => 1 } );
         push @serials, $line;
     }
 
@@ -1371,32 +1369,49 @@ sub NewSubscription {
     ) = @_;
     my $dbh = C4::Context->dbh;
 
-    #save subscription (insert into database)
-    my $query = qq|
-        INSERT INTO subscription
-            (librarian, branchcode, aqbooksellerid, cost, aqbudgetid,
-            biblionumber, startdate, periodicity, numberlength, weeklength,
-            monthlength, lastvalue1, innerloop1, lastvalue2, innerloop2,
-            lastvalue3, innerloop3, status, notes, letter, firstacquidate,
-            irregularity, numberpattern, locale, callnumber,
-            manualhistory, internalnotes, serialsadditems, staffdisplaycount,
-            opacdisplaycount, graceperiod, location, enddate, skip_serialseq,
-            itemtype, previousitemtype)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
-        |;
-    my $sth = $dbh->prepare($query);
-    $sth->execute(
-        $auser, $branchcode, $aqbooksellerid, $cost, $aqbudgetid, $biblionumber,
-        $startdate, $periodicity, $numberlength, $weeklength,
-        $monthlength, $lastvalue1, $innerloop1, $lastvalue2, $innerloop2,
-        $lastvalue3, $innerloop3, $status, $notes, $letter,
-        $firstacquidate, $irregularity, $numberpattern, $locale, $callnumber,
-        $manualhistory, $internalnotes, $serialsadditems, $staffdisplaycount,
-        $opacdisplaycount, $graceperiod, $location, $enddate, $skip_serialseq,
-        $itemtype, $previousitemtype
-    );
-
-    my $subscriptionid = $dbh->{'mysql_insertid'};
+    my $subscription = Koha::Subscription->new(
+        {
+            librarian         => $auser,
+            branchcode        => $branchcode,
+            aqbooksellerid    => $aqbooksellerid,
+            cost              => $cost,
+            aqbudgetid        => $aqbudgetid,
+            biblionumber      => $biblionumber,
+            startdate         => $startdate,
+            periodicity       => $periodicity,
+            numberlength      => $numberlength,
+            weeklength        => $weeklength,
+            monthlength       => $monthlength,
+            lastvalue1        => $lastvalue1,
+            innerloop1        => $innerloop1,
+            lastvalue2        => $lastvalue2,
+            innerloop2        => $innerloop2,
+            lastvalue3        => $lastvalue3,
+            innerloop3        => $innerloop3,
+            status            => $status,
+            notes             => $notes,
+            letter            => $letter,
+            firstacquidate    => $firstacquidate,
+            irregularity      => $irregularity,
+            numberpattern     => $numberpattern,
+            locale            => $locale,
+            callnumber        => $callnumber,
+            manualhistory     => $manualhistory,
+            internalnotes     => $internalnotes,
+            serialsadditems   => $serialsadditems,
+            staffdisplaycount => $staffdisplaycount,
+            opacdisplaycount  => $opacdisplaycount,
+            graceperiod       => $graceperiod,
+            location          => $location,
+            enddate           => $enddate,
+            skip_serialseq    => $skip_serialseq,
+            itemtype          => $itemtype,
+            previousitemtype  => $previousitemtype,
+        }
+    )->store;
+    $subscription->discard_changes;
+    my $subscriptionid = $subscription->subscriptionid;
+    my ( $query, $sth );
     unless ($enddate) {
         $enddate = GetExpirationDate( $subscriptionid, $startdate );
         $query = qq|
@@ -1418,7 +1433,7 @@ sub NewSubscription {
     $sth->execute( $biblionumber, $subscriptionid, $startdate);
 
     # reread subscription to get a hash (for calculation of the 1st issue number)
-    my $subscription = GetSubscription($subscriptionid);
+    $subscription = GetSubscription($subscriptionid); # We should not do that
     my $pattern = C4::Serials::Numberpattern::GetSubscriptionNumberpattern($subscription->{numberpattern});
 
     # calculate issue number
@@ -1879,7 +1894,7 @@ sub check_routing {
     my $sth              = $dbh->prepare(
         "SELECT count(routingid) routingids FROM subscription LEFT JOIN subscriptionroutinglist 
                               ON subscription.subscriptionid = subscriptionroutinglist.subscriptionid
-                              WHERE subscription.subscriptionid = ? ORDER BY ranking ASC
+                              WHERE subscription.subscriptionid = ? GROUP BY routingid ORDER BY ranking ASC
                               "
     );
     $sth->execute($subscriptionid);

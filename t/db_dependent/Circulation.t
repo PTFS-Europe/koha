@@ -48,6 +48,11 @@ $schema->storage->txn_begin;
 my $builder = t::lib::TestBuilder->new;
 my $dbh = C4::Context->dbh;
 
+# Prevent random failures by mocking ->now
+my $now_value       = DateTime->now();
+my $mocked_datetime = Test::MockModule->new('DateTime');
+$mocked_datetime->mock( 'now', sub { return $now_value->clone; } );
+
 # Start transaction
 $dbh->{RaiseError} = 1;
 
@@ -2819,7 +2824,7 @@ subtest 'AddRenewal and AddIssuingCharge tests' => sub {
     AddIssue( $patron->unblessed, $item->barcode );
 
     t::lib::Mocks::mock_preference( 'RenewalLog', 0 );
-    my $date = output_pref( { dt => dt_from_string(), datenonly => 1, dateformat => 'iso' } );
+    my $date = output_pref( { dt => dt_from_string(), dateonly => 1, dateformat => 'iso' } );
     my $old_log_size = scalar( @{ GetLogs( $date, $date, undef, ["CIRCULATION"], ["RENEWAL"] ) } );
     AddRenewal( $patron->id, $item->id, $library->id );
     my $new_log_size = scalar( @{ GetLogs( $date, $date, undef, ["CIRCULATION"], ["RENEWAL"] ) } );
@@ -2830,7 +2835,7 @@ subtest 'AddRenewal and AddIssuingCharge tests' => sub {
     unlike ( $checkouts->next->lastreneweddate, qr/00:00:00/, 'AddRenewal should set the renewal date with the time part');
 
     t::lib::Mocks::mock_preference( 'RenewalLog', 1 );
-    $date = output_pref( { dt => dt_from_string(), datenonly => 1, dateformat => 'iso' } );
+    $date = output_pref( { dt => dt_from_string(), dateonly => 1, dateformat => 'iso' } );
     $old_log_size = scalar( @{ GetLogs( $date, $date, undef, ["CIRCULATION"], ["RENEWAL"] ) } );
     AddRenewal( $patron->id, $item->id, $library->id );
     $new_log_size = scalar( @{ GetLogs( $date, $date, undef, ["CIRCULATION"], ["RENEWAL"] ) } );

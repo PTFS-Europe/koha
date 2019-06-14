@@ -242,6 +242,7 @@ if ($op eq ""){
             for (my $i = 0; $i < $count; $i++) {
                 $budget_hash->{$budget_codes[$i]}->{quantity} += 1;
                 $budget_hash->{$budget_codes[$i]}->{price} = $itemprices[$i];
+                $budget_hash->{$budget_codes[$i]}->{replacementprice} = $replacementprices[$i];
                 $budget_hash->{$budget_codes[$i]}->{itemnumbers} //= [];
                 push @{ $budget_hash->{$budget_codes[$i]}->{itemnumbers} }, $itemnumbers[$i];
             }
@@ -258,7 +259,6 @@ if ($op eq ""){
                     );
 
                     my $price = $infos->{price};
-                    my $replacementprice = $infos->{replacementprice};
                     if ($price){
                         # in France, the cents separator is the , but sometimes, ppl use a .
                         # in this case, the price will be x100 when unformatted ! Replace the . by a , to get a proper price calculation
@@ -280,7 +280,7 @@ if ($op eq ""){
                     } else {
                         $orderinfo{listprice} = 0;
                     }
-                    $orderinfo{replacementprice} = $replacementprice || 0;
+                    $orderinfo{replacementprice} = $infos->{replacementprice} || 0;
 
                     # remove uncertainprice flag if we have found a price in the MARC record
                     $orderinfo{uncertainprice} = 0 if $orderinfo{listprice};
