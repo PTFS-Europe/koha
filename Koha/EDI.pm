@@ -376,12 +376,14 @@ sub process_invoice {
 
 sub _get_invoiced_price {
     my $line  = shift;
-    my $price = $line->price_net;
+# This reverses the usual logic in order to suit Bertrams
+# as net does not include service charges
+    my $price = $line->amt_lineitem;
+    if ( $price and $line->quantity_invoiced > 1 ) {
+	    $price /= $line->quantity_invoiced;    # div line cost by qty
+    }
     if ( !defined $price ) {  # no net price so generate it from lineitem amount
-        $price = $line->amt_lineitem;
-        if ( $price and $line->quantity_invoiced > 1 ) {
-            $price /= $line->quantity_invoiced;    # div line cost by qty
-        }
+	    $price = $line->price_net;
     }
     return $price;
 }
