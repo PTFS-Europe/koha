@@ -530,6 +530,7 @@ sub gir_segments {
     my @segments;
     my $sequence_no = 1;
     foreach my $item (@onorderitems) {
+        my $seg2;
         my $seg = sprintf 'GIR+%03d', $sequence_no;
         $seg .= add_gir_identity_number( 'LFN', $budget_code );
         if ( $basket->effective_create_items eq 'ordering' ) {
@@ -549,11 +550,23 @@ sub gir_segments {
             $seg .= add_gir_identity_number( 'LSM', $item->{shelfmark} );
         }
         if ( $orderfields->{servicing_instruction} ) {
-            $seg .= add_gir_identity_number( 'LVT',
-                $orderfields->{servicing_instruction} );
+            my $c = () = $seg=~/[:]L/g;
+            if ($c < 5) {
+                $seg .= add_gir_identity_number( 'LVT',
+                    $orderfields->{servicing_instruction} );
+            }
+            else {
+                $seg2 = substr $seg, 0, 7;
+                $seg2 .= add_gir_identity_number( 'LVT',
+                    $orderfields->{servicing_instruction} );
+            }
+
         }
         $sequence_no++;
         push @segments, $seg;
+        if ($seg2) {
+            push @segments, $seg2;
+        }
     }
     return @segments;
 }
