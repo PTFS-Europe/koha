@@ -44,25 +44,24 @@
                             <h3>Log in to your account</h3>
 
                             [% IF ( timed_out ) %]
-                                <!-- This is what is displayed if login has timed out -->
-                                <div class="alert alert-info">
-                                    <p>Sorry, your session has timed out. Please log in again.</p>
-                                </div>
+                            <!-- This is what is displayed if login has timed out -->
+                            <div class="alert alert-info">
+                                <p>Sorry, your session has timed out. Please log in again.</p>
+                            </div>
                             [% END %]
 
                             [% IF ( different_ip ) %]
-                                <!-- This is what is displayed if user doesn't have permission -->
-                                <div class="alert alert-info">
-                                    <p>You are logging from a different IP address. Please log in again.</p>
-                                </div>
+                            <!-- This is what is displayed if user doesn't have permission -->
+                            <div class="alert alert-info">
+                                <p>You are logging from a different IP address. Please log in again.</p>
+                            </div>
                             [% END %]
 
-
                             [% IF invalid_username_or_password || too_many_login_attempts %]
-                                <!-- This is what is displayed if user doesn't have permission or account is locked. (Do not expose more information than needed.) -->
-                                <div class="alert alert-info">
-                                    <p>You entered an incorrect username or password. Please try again! But note that passwords are case sensitive[% IF Koha.Preference('FailedLoginAttempts') %] and that your account will be locked out after a fixed number of failed login attempts[% END %]. Please contact a library staff member if you continue to have problems.</p>
-                                </div>
+                            <!-- This is what is displayed if user doesn't have permission or account is locked. (Do not expose more information than needed.) -->
+                            <div class="alert alert-info">
+                                <p>You entered an incorrect username or password. Please try again! But note that passwords are case sensitive[% IF Koha.Preference('FailedLoginAttempts') %] and that your account will be locked out after a fixed number of failed login attempts[% END %]. Please contact a library staff member if you continue to have problems.</p>
+                            </div>
                             [% END %]
 
                             [% IF ( shibbolethAuthentication ) %]
@@ -70,94 +69,114 @@
                                     <!-- This is what is displayed if shibboleth login has failed to match a koha user -->
                                     <div class="alert alert-info">
                                     <p>Sorry, your Shibboleth identity does not match a valid library identity.</p>
-                                    [% IF ( casAuthentication ) %]
-                                        [% IF ( invalidCasLogin ) %]
-                                            <!-- This is what is displayed if cas login has failed -->
-                                            <p>Sorry, the CAS login also failed. If you have a local login you may use that below.</p>
+                                    [% UNLESS ( Koha.Preference('opacShibOnly') ) %]
+                                        [% IF ( casAuthentication ) %]
+                                            [% IF ( invalidCasLogin ) %]
+                                                <!-- This is what is displayed if cas login has failed -->
+                                                <p>Sorry, the CAS login also failed. If you have a local login you may use that below.</p>
+                                            [% ELSE %]
+                                                <p>If you have a CAS account, you may use that below.</p>
+                                            [% END %]
                                         [% ELSE %]
-                                            <p>If you have a CAS account, you may use that below.</p>
+                                            <p>If you have a local account, you may use that below.</p>
                                         [% END %]
-                                    [% ELSE %]
-                                        <p>If you have a local account, you may use that below.</p>
                                     [% END %]
                                     </div>
-                            [% ELSE %]
-                                <h4>Shibboleth Login</h4>
-                                <p><a href="[% shibbolethLoginUrl | $raw %]">If you have a Shibboleth account, please click here to log in.</a></p>
-                            [% END %]
-                            [% IF ( casAuthentication ) %]
-                                <h4>CAS login</h4>
-                                <p>If you do not have a Shibboleth account, but you do have a CAS account, you can use CAS.</p>
-                            [% ELSE %]
-                                <h4>Local login</h4>
-                                <p>If you do not have a Shibboleth account, but you do have a local login, then you may login below.</p>
-                            [% END %]
-
-                        [% END %]
-
-                        [% IF ( casAuthentication ) %]
-                            [% IF ( shibbolethAuthentication ) %]
-                                [% IF ( casServerUrl ) %]
-                                    <p><a href="[% casServerUrl | $raw %]">Please click here to log in.</a><p>
+                                [% ELSE %]
+                                    <h4>Shibboleth Login</h4>
+                                    <p><a href="[% shibbolethLoginUrl | url %]">If you have a Shibboleth account, please click here to log in.</a></p>
                                 [% END %]
+                                [% UNLESS ( Koha.Preference('opacShibOnly') ) %]
+                                    [% IF ( casAuthentication ) %]
+                                    <h4>CAS login</h4>
+                                    <p>If you do not have a Shibboleth account, but you do have a CAS account, you can use CAS.</p>
+                                    [% ELSE %]
+                                    <h4>Local login</h4>
+                                    <p>If you do not have a Shibboleth account, but you do have a local login, then you may login below.</p>
+                                    [% END %]
+                                [% END %]
+                            [% END # / IF shibbolethAuthentication %]
 
-                                [% IF ( casServersLoop ) %]
-                                    <p>Please choose against which one you would like to authenticate: </p>
-                                    <ul>
-                                        [% FOREACH casServer IN casServersLoop %]
-                                            <li><a href="[% casServer.value | $raw %]">[% casServer.name | html %]</a></li>
+                            [% UNLESS ( Koha.Preference('opacShibOnly') ) %]
+                                [% IF ( casAuthentication ) %]
+                                    [% IF ( shibbolethAuthentication ) %]
+                                        [% IF ( casServerUrl ) %]
+                                            <p><a href="[% casServerUrl | $raw %]">Please click here to log in.</a><p>
                                         [% END %]
-                                    </ul>
-                                [% END %]
-                            [% ELSE %]
-                                <h4>CAS login</h4>
 
-                                [% IF ( invalidCasLogin ) %]
-                                    <!-- This is what is displayed if cas login has failed -->
-                                    <p>Sorry, the CAS login failed.</p>
-                                [% END %]
-
-                                [% IF ( casServerUrl ) %]
-                                   <p><a href="[% casServerUrl | $raw %]">If you have a CAS account, please click here to log in.</a><p>
-                                [% END %]
-
-                                [% IF ( casServersLoop ) %]
-                                    <p>If you have a CAS account, please choose against which one you would like to authenticate:</p>
-                                    <ul>
-                                        [% FOREACH casServer IN casServersLoop %]
-                                        <li><a href="[% casServer.value | $raw %]">[% casServer.name | html %]</a></li>
+                                        [% IF ( casServersLoop ) %]
+                                            <p>Please choose against which one you would like to authenticate: </p>
+                                            <ul>
+                                                [% FOREACH casServer IN casServersLoop %]
+                                                    <li><a href="[% casServer.value | $raw %]">[% casServer.name | html %]</a></li>
+                                                [% END %]
+                                            </ul>
                                         [% END %]
-                                    </ul>
+                                    [% ELSE %]
+                                        <h4>CAS login</h4>
+
+                                        [% IF ( invalidCasLogin ) %]
+                                            <!-- This is what is displayed if cas login has failed -->
+                                            <p>Sorry, the CAS login failed.</p>
+                                        [% END %]
+
+                                        [% IF ( casServerUrl ) %]
+                                           <p><a href="[% casServerUrl | $raw %]">If you have a CAS account, please click here to log in.</a><p>
+                                        [% END %]
+
+                                        [% IF ( casServersLoop ) %]
+                                            <p>If you have a CAS account, please choose against which one you would like to authenticate:</p>
+                                            <ul>
+                                                [% FOREACH casServer IN casServersLoop %]
+                                                <li><a href="[% casServer.value | $raw %]">[% casServer.name | html %]</a></li>
+                                                [% END %]
+                                            </ul>
+                                        [% END %]
+                                    [% END %]
+
+                                    [% IF ( shibbolethAuthentication ) %]
+                                        <p>Nothing</p>
+                                    [% ELSE %]
+                                        <h4>Local login</h4>
+                                        <p>If you do not have a CAS account, but do have a local account, you can still log in: </p>
+                                    [% END %]
+                                [% END # / IF casAuthentication %]
+
+                                [% IF ( Koha.Preference('GoogleOpenIDConnect') == 1 ) %]
+                                    [% IF ( invalidGoogleOpenIDConnectLogin ) %]
+                                        <h4>Google login</h4>
+                                        <p>Sorry, your Google login failed. <span class="error">[% invalidGoogleOpenIDConnectLogin | html %]</span></p>
+                                        <p>Please note that the Google login will only work if you are using the e-mail address registered with this library.</p>
+                                        <p>If you want to, you can try to <a href="/cgi-bin/koha/svc/auth/googleopenidconnect?reauthenticate=select_account">log in using a different account</a>
+                                    [% END %]
+                                        <a href="/cgi-bin/koha/svc/auth/googleopenidconnect" class="btn btn-primary" id="openid_connect">Log in with Google</a>
+                                        <p>If you do not have a Google account, but do have a local account, you can still log in: </p>
+                                [% END # / IF GoogleOpenIdConnect %]
+                            [% END # / UNLESS opacShibOnly %]
+
+                            [% IF SCO_login or SCI_login %]
+                                [% IF SCO_login %]
+                                <form action="/cgi-bin/koha/sco/sco-main.pl" name="auth" id="auth" method="post" autocomplete="off">
+                                [% ELSIF SCI_login %]
+                                <form action="/cgi-bin/koha/sci/sci-main.pl" name="auth" id="auth" method="post" autocomplete="off">
                                 [% END %]
-                            [% END %]
+                                <input type="hidden" name="koha_login_context" value="opac" />
+                                <fieldset class="brief">
+                                [% FOREACH INPUT IN INPUTS %]
+                                    <input type="hidden" name="[% INPUT.name | html %]" value="[% INPUT.value | html %]" />
+                                [% END %]
+                                <label for="userid">Login</label>
+                                <input type="text"  size="25" id="userid"  name="userid" />
+                                <label for="password">Password</label><input type="password"  size="25" id="password"  name="password" />
+                                </fieldset>
 
-                            [% IF ( shibbolethAuthentication ) %]
-                                <p>Nothing</p>
-                            [% ELSE %]
-                                <h4>Local login</h4>
-                                <p>If you do not have a CAS account, but do have a local account, you can still log in: </p>
-                            [% END %]
+                                <input type="submit" value="Log in" class="btn" />
+                                </div>
+                                </form>
 
-                        [% END # / IF casAuthentication %]
-
-                        [% IF ( Koha.Preference('GoogleOpenIDConnect') == 1 ) %]
-                            [% IF ( invalidGoogleOpenIDConnectLogin ) %]
-                                <h4>Google login</h4>
-                                <p>Sorry, your Google login failed. <span class="error">[% invalidGoogleOpenIDConnectLogin | html %]</span></p>
-                                <p>Please note that the Google login will only work if you are using the e-mail address registered with this library.</p>
-                                <p>If you want to, you can try to <a href="/cgi-bin/koha/svc/auth/googleopenidconnect?reauthenticate=select_account">log in using a different account</a>
-                            [% END %]
-                                <a href="/cgi-bin/koha/svc/auth/googleopenidconnect" class="btn btn-primary" id="openid_connect">Log in with Google</a>
-                                <p>If you do not have a Google account, but do have a local account, you can still log in: </p>
-                        [% END %]
-
-                        [% IF SCO_login %]
-                            <form action="/cgi-bin/koha/sco/sco-main.pl" name="auth" id="auth" method="post" autocomplete="off">
-                        [% ELSIF SCI_login %]
-                            <form action="/cgi-bin/koha/sci/sci-main.pl" name="auth" id="auth" method="post" autocomplete="off">
-                        [% ELSE %]
+                            [% ELSE # / IF SCO_login or SCI_login %]
+                            [% UNLESS ( Koha.Preference('opacShibOnly') ) %]
                             <form action="[% script_name | html %]" name="auth" id="auth" method="post" autocomplete="off">
-                        [% END %]
                             <input type="hidden" name="koha_login_context" value="opac" />
                             <fieldset class="brief">
                             [% FOREACH INPUT IN INPUTS %]
@@ -175,6 +194,8 @@
                                     <a href="/cgi-bin/koha/opac-password-recovery.pl">Forgot your password?</a>
                                 </div>
                             [% END %]
+                            </form>
+                            [% END # / UNLESS opacShibOnly %]
                             <div id="nologininstructions">
                             [% IF Koha.Preference('OpacLoginInstructions') %]
                                 [% Koha.Preference('OpacLoginInstructions') | $raw %]
@@ -185,10 +206,9 @@
                                 <p>If you don't have a library card, stop by your local library to sign up.</p>
                             [% END # / IF Koha.Preference('OpacLoginInstructions') %]
 
-                            [% IF PatronSelfRegistration && PatronSelfRegistrationDefaultCategory %]<span id="registrationinstructions"><a href="/cgi-bin/koha/opac-memberentry.pl">You may register here.</a></span>
-                            [% END %]
+                            [% IF PatronSelfRegistration && PatronSelfRegistrationDefaultCategory %]<span id="registrationinstructions"><a href="/cgi-bin/koha/opac-memberentry.pl">You may register here.</a></span>[% END %]
                             </div>
-                            </form>
+                            [% END # / IF SCO_login or SCI_login %]
                         [% END # / IF loginprompt %]
 
                     [% ELSE %]
