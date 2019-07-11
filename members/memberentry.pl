@@ -221,7 +221,7 @@ if ( $op eq 'insert' || $op eq 'modify' || $op eq 'save' || $op eq 'duplicate' )
         qr/^\d+-DAYS/,
         qr/^patron_attr_/,
         qr/^csrf_token$/,
-        qr/^add_debarment$/, qr/^debarred_expiration$/, # We already dealt with debarments previously
+        qr/^add_debarment$/, qr/^debarred_expiration$/, qr/^remove_debarment$/, # We already dealt with debarments previously
         qr/^housebound_chooser$/, qr/^housebound_deliverer$/,
         qr/^select_city$/,
     );
@@ -743,8 +743,7 @@ foreach (qw(dateenrolled dateexpiry dateofbirth)) {
 }
 
 if (C4::Context->preference('ExtendedPatronAttributes')) {
-    $template->param(ExtendedPatronAttributes => 1);
-    patron_attributes_form($template, $borrowernumber);
+    patron_attributes_form($template, $borrowernumber, $op);
 }
 
 if (C4::Context->preference('EnhancedMessagingPreferences')) {
@@ -843,6 +842,7 @@ sub  parse_extended_patron_attributes {
 sub patron_attributes_form {
     my $template = shift;
     my $borrowernumber = shift;
+    my $op = shift;
 
     my @types = C4::Members::AttributeTypes::GetAttributeTypes();
     if (scalar(@types) == 0) {
@@ -882,6 +882,7 @@ sub patron_attributes_form {
                     $newentry->{auth_val_loop} = GetAuthorisedValues($attr_type->authorised_value_category(), $attr->{value});
                 }
                 $i++;
+                undef $newentry->{value} if ($attr_type->unique_id() && $op eq 'duplicate');
                 $newentry->{form_id} = "patron_attr_$i";
                 push @{$items_by_class{$attr_type->class()}}, $newentry;
             }

@@ -1,6 +1,7 @@
 /* global borrowernumber advsearch dateformat _ CAN_user_borrowers_edit_borrowers number_of_adult_categories destination Sticky MSG_DATE_FORMAT_US MSG_DATE_FORMAT_ISO MSG_DATE_FORMAT_METRIC MSG_DATE_FORMAT_DMYDOT MSG_CONFIRM_UPDATE_CHILD MSG_CONFIRM_RENEW_PATRON */
 
 $(document).ready(function(){
+
     $("#filteraction_off, #filteraction_on").on('click', function(e) {
         e.preventDefault();
         $('#filters').toggle();
@@ -12,22 +13,14 @@ $(document).ready(function(){
     } else {
         $("#filteraction_off").toggle();
     }
+
+    searchfield_date_tooltip("");
+    searchfield_date_tooltip('_filter');
     $("#searchfieldstype").change(function() {
-        var MSG_DATE_FORMAT = "";
-        if ( $(this).val() == 'dateofbirth' ) {
-            if( dateformat == 'us' ){
-                MSG_DATE_FORMAT = MSG_DATE_FORMAT_US;
-            } else if( dateformat == 'iso' ){
-                MSG_DATE_FORMAT = MSG_DATE_FORMAT_ISO;
-            } else if( dateformat == 'metric' ){
-                MSG_DATE_FORMAT = MSG_DATE_FORMAT_METRIC;
-            } else if( dateformat == 'dmydot' ){
-                MSG_DATE_FORMAT = MSG_DATE_FORMAT_DMYDOT;
-            }
-            $('#searchmember').attr("title", MSG_DATE_FORMAT).tooltip('show');
-        } else {
-            $('#searchmember').tooltip('destroy');
-        }
+        searchfield_date_tooltip("");
+    });
+    $("#searchfieldstype_filter").change(function() {
+        searchfield_date_tooltip('_filter');
     });
 
     if( CAN_user_borrowers_edit_borrowers ){
@@ -83,6 +76,26 @@ $(document).ready(function(){
         $("#borrower_message").val( $(this).val() );
     });
 });
+
+function searchfield_date_tooltip(filter) {
+    var field = "#searchmember" + filter;
+    var type = "#searchfieldstype" + filter;
+    if ( $(type).val() == 'dateofbirth' ) {
+        var MSG_DATE_FORMAT = "";
+        if( dateformat == 'us' ){
+            MSG_DATE_FORMAT = MSG_DATE_FORMAT_US;
+        } else if( dateformat == 'iso' ){
+            MSG_DATE_FORMAT = MSG_DATE_FORMAT_ISO;
+        } else if( dateformat == 'metric' ){
+            MSG_DATE_FORMAT = MSG_DATE_FORMAT_METRIC;
+        } else if( dateformat == 'dmydot' ){
+            MSG_DATE_FORMAT = MSG_DATE_FORMAT_DMYDOT;
+        }
+        $(field).attr("title", MSG_DATE_FORMAT).tooltip('show');
+    } else {
+        $(field).tooltip('destroy');
+    }
+}
 
 function confirm_updatechild() {
     var is_confirmed = window.confirm( MSG_CONFIRM_UPDATE_CHILD );

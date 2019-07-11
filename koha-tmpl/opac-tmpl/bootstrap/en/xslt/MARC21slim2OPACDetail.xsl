@@ -945,7 +945,22 @@
             <xsl:attribute name="href">/cgi-bin/koha/tracklinks.pl?uri=<xsl:value-of select="str:encode-uri(marc:subfield[@code='u'], true())"/>&amp;biblionumber=<xsl:value-of select="$biblionumber"/></xsl:attribute>
 	      </xsl:when>
 	      <xsl:otherwise>
-                <xsl:attribute name="href"><xsl:value-of select="marc:subfield[@code='u']"/></xsl:attribute>
+              <xsl:attribute name="href">
+                  <xsl:if test="not(contains(marc:subfield[@code='u'],'://'))">
+                      <xsl:choose>
+                          <xsl:when test="@ind1=7">
+                              <xsl:value-of select="marc:subfield[@code='2']"/><xsl:text>://</xsl:text>
+                          </xsl:when>
+                          <xsl:when test="@ind1=1">
+                              <xsl:text>ftp://</xsl:text>
+                          </xsl:when>
+                          <xsl:otherwise>
+                              <xsl:text>http://</xsl:text>
+                          </xsl:otherwise>
+                      </xsl:choose>
+                  </xsl:if>
+                  <xsl:value-of select="marc:subfield[@code='u']"/>
+              </xsl:attribute>
 	      </xsl:otherwise>
 	    </xsl:choose>
             <xsl:if test="$OPACURLOpenInNewWindow='1'">
@@ -1174,12 +1189,42 @@
 
         <!-- 866 textual holdings -->
         <xsl:if test="marc:datafield[@tag=866]">
-            <span class="results_summary holdings_note"><span class="label">Holdings note: </span>
+            <span class="results_summary holdings_note basic_bibliographic_unit"><span class="label">Holdings: </span>
                 <xsl:for-each select="marc:datafield[@tag=866]">
-                    <xsl:call-template name="subfieldSelect">
-                        <xsl:with-param name="codes">az</xsl:with-param>
-                    </xsl:call-template>
-                    <xsl:choose><xsl:when test="position()=last()"><xsl:text></xsl:text></xsl:when><xsl:otherwise><xsl:text>; </xsl:text></xsl:otherwise></xsl:choose>
+                    <span class="holdings_note_data">
+                        <xsl:call-template name="subfieldSelect">
+                            <xsl:with-param name="codes">az</xsl:with-param>
+                        </xsl:call-template>
+                        <xsl:choose><xsl:when test="position()=last()"><xsl:text></xsl:text></xsl:when><xsl:otherwise><xsl:text>; </xsl:text></xsl:otherwise></xsl:choose>
+                    </span>
+                </xsl:for-each>
+            </span>
+        </xsl:if>
+
+        <!-- 867 textual holdings -->
+        <xsl:if test="marc:datafield[@tag=867]">
+            <span class="results_summary holdings_note supplementary_material"><span class="label">Supplements: </span>
+                <xsl:for-each select="marc:datafield[@tag=867]">
+                    <span class="holdings_note_data">
+                        <xsl:call-template name="subfieldSelect">
+                            <xsl:with-param name="codes">az</xsl:with-param>
+                        </xsl:call-template>
+                        <xsl:choose><xsl:when test="position()=last()"><xsl:text></xsl:text></xsl:when><xsl:otherwise><xsl:text>; </xsl:text></xsl:otherwise></xsl:choose>
+                    </span>
+                </xsl:for-each>
+            </span>
+        </xsl:if>
+
+        <!-- 868 textual holdings -->
+        <xsl:if test="marc:datafield[@tag=868]">
+            <span class="results_summary holdings_note indexes"><span class="label">Indexes: </span>
+                <xsl:for-each select="marc:datafield[@tag=868]">
+                    <span class="holdings_note_data">
+                        <xsl:call-template name="subfieldSelect">
+                            <xsl:with-param name="codes">az</xsl:with-param>
+                        </xsl:call-template>
+                        <xsl:choose><xsl:when test="position()=last()"><xsl:text></xsl:text></xsl:when><xsl:otherwise><xsl:text>; </xsl:text><br /></xsl:otherwise></xsl:choose>
+                    </span>
                 </xsl:for-each>
             </span>
         </xsl:if>
