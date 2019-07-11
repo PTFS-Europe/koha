@@ -3772,6 +3772,21 @@ input.renew {
         top: 50%;
         transform: translateY(-50%);
     }
+
+    #generic_confirm_search {
+        display: block;
+        visibility: hidden;
+        margin: 1em 0 1em 10em;
+    }
+
+    #partnerSearch {
+        .modal-dialog {
+            width: 50vw;
+        }
+        .modal-body {
+            max-height: 70vh;
+        }
+    }
 }
 
 .ill-view-panel {
@@ -3802,6 +3817,10 @@ input.renew {
     .biblio-title {
         font-weight: bold;
     }
+}
+
+.ill_availability_sourcename {
+    margin-top: 20px;
 }
 
 #stockrotation {
