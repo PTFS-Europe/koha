@@ -1,6 +1,7 @@
 INSERT INTO account_offset_types ( type ) VALUES
 ('Writeoff'),
 ('Payment'),
+('Purchase'),
 ('Lost Item'),
 ('Lost Item Found'),
 ('Processing Fee'),
