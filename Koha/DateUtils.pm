@@ -254,13 +254,8 @@ sub output_pref {
           : $dt->strftime("%Y-%m-%d $time");
     }
     elsif ( $pref =~ m/^rfc3339/ ) {
-        if (!$dateonly) {
-            $date = $dt->strftime('%FT%T%z');
-            substr($date, -2, 0, ':'); # timezone "HHmm" => "HH:mm"
-        }
-        else {
-            $date = $dt->strftime("%Y-%m-%d");
-        }
+        $date = $dt->strftime('%FT%T%z');
+        substr($date, -2, 0, ':'); # timezone "HHmm" => "HH:mm"
     }
     elsif ( $pref =~ m/^metric/ ) {
         $date = $dateonly
