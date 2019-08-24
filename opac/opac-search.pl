@@ -566,7 +566,7 @@ unless ( $cgi->param('advsearch') ) {
 sub _input_cgi_parse {
     my @elements;
     my $query_cgi = shift or return @elements;
-    for my $this_cgi ( split('&',$query_cgi) ) {
+    for my $this_cgi ( split('&amp;',$query_cgi) ) {
         next unless $this_cgi;
         $this_cgi =~ /(.*?)=(.*)/;
         push @elements, { input_name => $1, input_value => Encode::decode_utf8( uri_unescape($2) ) };
@@ -592,7 +592,7 @@ my $results_hashref;
 my @coins;
 
 if ($tag) {
-    $query_cgi = "tag=" .$tag . "&" . $query_cgi;
+    $query_cgi = "tag=" .  uri_escape_utf8( $tag ) . "&amp;" . $query_cgi;
     my $taglist = get_tags({term=>$tag, approved=>1});
     $results_hashref->{biblioserver}->{hits} = scalar (@$taglist);
     my @marclist = map { C4::Biblio::GetXmlBiblio( $_->{biblionumber} ) } @$taglist;
@@ -729,7 +729,7 @@ for (my $i=0;$i<@servers;$i++) {
                 my $path_info = $cgi->url(-path_info=>1);
                 my $query_cgi_history = $cgi->url(-query=>1);
                 $query_cgi_history =~ s/^$path_info\?//;
-                $query_cgi_history =~ s/;/&/g;
+                $query_cgi_history =~ s/;/&amp;/g;
                 my $query_desc_history = join ", ", grep { defined $_ } $query_desc, $limit_desc;
 
                 unless ( $borrowernumber ) {
