@@ -1354,7 +1354,7 @@ sub checkauth {
         #If shibOnly is enabled just go ahead and redirect directly
         if ( (($type eq 'opac') && C4::Context->preference('opacShibOnly')) || (($type ne 'opac') && C4::Context->preference('staffShibOnly')) ) {
             my $redirect_url = login_shib_url( $query );
-            print $query->redirect($redirect_url);
+            print $query->redirect( -uri => "$redirect_url", -status => 303 );
             safe_exit;
         }
 
