@@ -967,7 +967,9 @@ sub _check_for_existing_bib {
         if ( $isbn =~ m/(\d{13})/xms ) {
             my $b_isbn = Business::ISBN->new($1);
             if ( $b_isbn && $b_isbn->is_valid ) {
+                if ( defined $b_isbn->as_isbn10 ) {
                 $search_isbn = $b_isbn->as_isbn10->as_string( [] );
+                }
             }
 
         }
