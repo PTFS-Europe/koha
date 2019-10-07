@@ -579,7 +579,8 @@ if [ "$op" = create ] || [ "$op" = request ] || [ "$op" = use ]
 then
     if [ "$mysqlpwd" = "" ]
     then
-        mysqlpwd="$(pwgen -s 16 1)"
+        mysqlpwd="$(pwgen -s 15 1)"
+        mysqlpwd="$mysqlpwd@"
     fi
 else
     mysqlpwd="$(getinstancemysqlpassword $name)"
