@@ -531,11 +531,12 @@ sub _UpdateCourseItem {
       unless ($course_item);
     $ci_id = $course_item->{'ci_id'} unless ($ci_id);
 
-
-    my %mod_params;
-    foreach (@FIELDS) {
-        $mod_params{$_} = $params{$_};
-    }
+    my %mod_params =
+      map {
+        defined $params{$_} && $params{$_} ne ''
+          ? ( $_ => $params{$_} )
+          : ()
+      } @FIELDS;
 
     ModItem( \%mod_params, undef, $course_item->{'itemnumber'} );
 }
@@ -589,6 +590,7 @@ sub _RevertFields {
 
     my $mod_item_params;
     foreach my $field ( @FIELDS ) {
+        next unless defined $course_item->{$field};
         $mod_item_params->{$field} = $course_item->{$field};
     }
 

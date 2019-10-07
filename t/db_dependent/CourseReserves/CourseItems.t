@@ -23,7 +23,7 @@ use C4::CourseReserves qw/ModCourseItem ModCourseReserve DelCourseReserve GetCou
 use C4::Context;
 use Koha::Items;
 
-use Test::More tests => 27;
+use Test::More tests => 29;
 
 BEGIN {
     require_ok('C4::CourseReserves');
@@ -148,7 +148,17 @@ ModCourseReserve(
 );
 
 $item = Koha::Items->find($itemnumber);
-is($item->ccode, 'DVD', 'Item ccode should be BOOK');
+is($item->ccode, 'DVD', 'Item ccode should be DVD');
+
+ModCourseItem(
+    itemnumber    => $itemnumber,
+    itype         => 'BK',
+    ccode         => 'BOOK',
+    holdingbranch => '', # LEAVE UNCHANGED
+    location      => 'TH',
+);
+$item = Koha::Items->find($itemnumber);
+is($item->ccode, 'BOOK', 'Item ccode should be BOOK');
 
 $course_item2 = GetCourseItem( ci_id => $ci_id2 );
 is($course_item2->{ccode}, '', 'Course item ccode should be empty');
@@ -156,6 +166,75 @@ is($course_item2->{ccode}, '', 'Course item ccode should be empty');
 DelCourseReserve( cr_id => $cr_id2 );
 $item = Koha::Items->find($itemnumber);
 is($item->ccode, '', 'Item ccode should be set back to empty');
+
+subtest 'Ensure item info is preserved' => sub {
+    plan tests => 8;
+
+    my $course = $builder->build({
+        source => 'Course',
+        value => {
+            enabled => 'no',
+        }
+    });
+    my $item = $builder->build_sample_item({ ccode=>"grasshopper", location=>"transylvania"});
+    #Add course item but change nothing
+    my $course_item_id = ModCourseItem(
+        itemnumber    => $item->itemnumber,
+        itype         => '',
+        ccode         => '',
+        holdingbranch => '',
+        location      => '',
+    );
+    #Add course reserve
+    my $course_reserve_id = ModCourseReserve(
+        course_id   => $course->{course_id},
+        ci_id       => $course_item_id,
+        staff_note  => '',
+        public_note => '',
+    );
+    #Remove course reservei
+    DelCourseReserve( cr_id => $course_reserve_id );
+    my $item_after = Koha::Items->find( $item->itemnumber );
+    is( $item->itype, $item_after->itype, "Itemtype is unchanged after adding to and removing from course reserves for inactive course");
+    is( $item->location, $item_after->location, "Location is unchanged after adding to and removing from course reserves for inactive course");
+    is( $item->holdingbranch, $item_after->holdingbranch, "Holdingbranch is unchanged after adding to and removing from course reserves for inactive course");
+    is( $item->ccode, $item_after->ccode, "Collection is unchanged after adding to and removing from course reserves for inactive course");
+
+    $course = $builder->build({
+        source => 'Course',
+        value => {
+            enabled => 'yes',
+        }
+    });
+    $item = $builder->build_sample_item({ ccode=>"grasshopper", location=>"transylvania"});
+    #Add course item but change nothing
+    $course_item_id = ModCourseItem(
+        itemnumber    => $item->itemnumber,
+        itype         => '',
+        ccode         => '',
+        holdingbranch => '',
+        location      => '',
+    );
+    #Add course reserve
+    $course_reserve_id = ModCourseReserve(
+        course_id   => $course->{course_id},
+        ci_id       => $course_item_id,
+        staff_note  => '',
+        public_note => '',
+    );
+    #Remove course reserve
+    DelCourseReserve( cr_id => $course_reserve_id );
+    $item_after = Koha::Items->find( $item->itemnumber );
+    is( $item->itype, $item_after->itype, "Itemtype is unchanged after adding to and removing from course reserves for inactive course");
+    is( $item->location, $item_after->location, "Location is unchanged after adding to and removing from course reserves for inactive course");
+    is( $item->holdingbranch, $item_after->holdingbranch, "Holdingbranch is unchanged after adding to and removing from course reserves for inactive course");
+    is( $item->ccode, $item_after->ccode, "Collection is unchanged after adding to and removing from course reserves for inactive course");
+
+};
+
+
+
+
 
 $schema->storage->txn_rollback;
 

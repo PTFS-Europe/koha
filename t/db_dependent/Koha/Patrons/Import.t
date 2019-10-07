@@ -18,7 +18,7 @@
 # along with Koha; if not, see <http://www.gnu.org/licenses>.
 
 use Modern::Perl;
-use Test::More tests => 155;
+use Test::More tests => 157;
 use Test::Warn;
 
 # To be replaced by t::lib::Mock
@@ -375,6 +375,59 @@ like($result_7->{feedback}->[1]->{value}, qr/^Christina \/ \d+/, 'Got the expect
 is($result_7->{imported}, 1, 'Got the expected 1 imported result from import patrons for dates tests');
 is($result_7->{invalid}, 1, 'Got the expected 1 invalid result from import patrons for dates tests');
 is($result_7->{overwritten}, 0, 'Got the expected 0 overwritten result from import patrons for dates tests');
+
+subtest 'test_import_without_cardnumber' => sub {
+    plan tests => 2;
+
+    #Remove possible existing user with a "" as cardnumber
+    my $blank_card = Koha::Patrons->find({ cardnumber => '' });
+    $blank_card->delete if $blank_card;
+
+    my $branchcode = $builder->build({ source => "Branch"})->{branchcode};
+    my $categorycode = $builder->build({ source => "Category"})->{categorycode};
+    my $csv_headers  = 'surname, branchcode, categorycode';
+    my $res_headers  = 'surname, branchcode, categorycode';
+    my $csv_nocard_1 = "Squarepants,$branchcode,$categorycode";
+    my $csv_nocard_2 = "Star,$branchcode,$categorycode";
+
+    my $filename_1 = make_csv($temp_dir, $csv_headers, $csv_nocard_1, $csv_nocard_2);
+    open(my $handle_1, "<", $filename_1) or die "cannot open < $filename_1: $!";
+    my $params_1 = { file => $handle_1, };
+
+    my $defaults = { cardnumber => "" }; #currently all the defaults come as "" if not filled
+
+    my $result = $patrons_import->import_patrons($params_1, $defaults);
+    like($result->{feedback}->[1]->{value}, qr/^Squarepants \/ \d+/, 'First borrower imported as expected');
+    like($result->{feedback}->[2]->{value}, qr/^Star \/ \d+/, 'Second borrower imported as expected');
+
+};
+
+subtest 'test_import_with_cardnumber_0' => sub {
+    plan tests => 2;
+
+    #Remove possible existing user with a "" as cardnumber
+    my $zero_card = Koha::Patrons->find({ cardnumber => 0 });
+    $zero_card->delete if $zero_card;
+
+    my $branchcode = $builder->build({ source => "Branch"})->{branchcode};
+    my $categorycode = $builder->build({ source => "Category"})->{categorycode};
+    my $csv_headers  = 'cardnumber,surname, branchcode, categorycode';
+    my $res_headers  = 'cardnumber,surname, branchcode, categorycode';
+    my $csv_nocard_1 = "0,Squarepants,$branchcode,$categorycode";
+
+    my $filename_1 = make_csv($temp_dir, $csv_headers, $csv_nocard_1);
+    open(my $handle_1, "<", $filename_1) or die "cannot open < $filename_1: $!";
+    my $params_1 = { file => $handle_1, };
+
+    my $defaults = { cardnumber => "" }; #currently all the defaults come as "" if not filled
+
+    my $result = $patrons_import->import_patrons($params_1, $defaults);
+    like($result->{feedback}->[1]->{value}, qr/^Squarepants \/ \d+/, 'First borrower imported as expected');
+    $zero_card = Koha::Patrons->find({ cardnumber => 0 });
+    is($zero_card->surname.$zero_card->branchcode.$zero_card->categorycode,'Squarepants'.$branchcode.$categorycode,"Patron with cardnumber 0 is the imported patron");
+
+};
+
 
 subtest 'test_prepare_columns' => sub {
     plan tests => 16;

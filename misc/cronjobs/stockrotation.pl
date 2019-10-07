@@ -124,20 +124,25 @@ my $ok = GetOptions(
     'admin-email|a=s' => \$admin_email,
     'branchcode|b=s'  => sub {
         my ( $opt_name, $opt_value ) = @_;
-        my $branches = Koha::Libraries->search( {},
-            { order_by => { -asc => 'branchname' } } );
-        my $brnch = $branches->find($opt_value);
-        if ($brnch) {
-            $branch = $brnch;
-            return $brnch;
+        if ( $opt_value eq 'all' ) {
+            $branch = 0;
         }
         else {
-            printf("Option $opt_name should be one of (name -> code):\n");
-            while ( my $candidate = $branches->next ) {
-                printf( "  %-40s  ->  %s\n",
-                    $candidate->branchname, $candidate->branchcode );
+            my $branches = Koha::Libraries->search( {},
+                { order_by => { -asc => 'branchname' } } );
+            my $brnch = $branches->find($opt_value);
+            if ($brnch) {
+                $branch = $brnch;
+                return $brnch;
             }
-            exit 1;
+            else {
+                printf("Option $opt_name should be one of (name -> code):\n");
+                while ( my $candidate = $branches->next ) {
+                    printf( "  %-40s  ->  %s\n",
+                        $candidate->branchname, $candidate->branchcode );
+                }
+                exit 1;
+            }
         }
     },
     'execute|x'  => \$execute,
@@ -158,6 +163,11 @@ my $ok = GetOptions(
 exit 1 unless ($ok);
 
 $send_email++ if ($send_all);    # if we send all, then we must want emails.
+
+if ( $send_email && !$admin_email && ($report eq 'full')) {
+    printf("Sending the full report by email requires --admin-email.\n");
+    exit 1;
+}
 
 =head2 Helpers
 
@@ -218,7 +228,7 @@ sub report_full {
     # Summary
     $header .= "STOCKROTATION REPORT\n";
     $header .= "--------------------\n";
-    $body .= sprintf "
+    $body   .= sprintf "
   Total number of rotas:         %5u
     Inactive rotas:              %5u
     Active rotas:                %5u
@@ -271,23 +281,28 @@ sub report_full {
     ];
 }
 
-=head3 report_email
+=head3 report_by_branch
 
-  my $email_report = report_email($report);
+  my $email_report = report_by_branch($report, [$branch]);
 
 Returns an arrayref containing a header string, with basic report information,
 and any number of 'per_branch' strings, containing a detailed report about the
 current state of the stockrotation subsystem, from the perspective of those
 individual branches.
 
-$REPORT should be the return value of `investigate`, and $BRANCH should be
-either 0 (to indicate 'all'), or a specific Koha::Library object.
+=over 2
+
+=item $report should be the return value of `investigate`
+
+=item $branch is optional and should be either 0 (to indicate 'all'), or a specific Koha::Library object.
+
+=back
 
 No data in the database is manipulated by this procedure.
 
 =cut
 
-sub report_email {
+sub report_by_branch {
     my ( $data, $branch ) = @_;
 
     my $out    = [];
@@ -321,12 +336,12 @@ sub report_email {
 
 =head3 _report_per_branch
 
-  my $branch_string = _report_per_branch($branch_details, $branchcode, $branchname);
+  my $branch_string = _report_per_branch($branch_details);
 
 return a string containing details about the stockrotation items and their
 status for the branch identified by $BRANCHCODE.
 
-This helper procedure is only used from within `report_email`.
+This helper procedure is only used from within `report_by_branch`.
 
 No data in the database is manipulated by this procedure.
 
@@ -344,15 +359,16 @@ sub _report_per_branch {
         my $letter = C4::Letters::GetPreparedLetter(
             module                 => 'circulation',
             letter_code            => "SR_SLIP",
+            branchcode             => $branch->{code},
             message_transport_type => 'email',
-            substitute             => $branch
+            substitute             => { branch => $branch }
         )
       )
     {
         return {
             letter        => $letter,
             email_address => $branch->{email},
-            $status
+            status        => $status
         };
     }
     return;
@@ -429,14 +445,12 @@ sub emit {
             # We have a report to send, or we want to send even empty
             # reports.
 
-            # Send to branch
+            # Select email address to send to
             my $addressee;
             if ( $part->{email_address} ) {
                 $addressee = $part->{email_address};
             }
             elsif ( !$part->{no_branch_email} ) {
-
-#push @emails, "***We tried to send a branch report, but we have no email address for this branch.***\n\n";
                 $addressee = C4::Context->preference('KohaAdminEmailAddress')
                   if ( C4::Context->preference('KohaAdminEmailAddress') );
             }
@@ -464,16 +478,16 @@ sub emit {
                         }
                       )
                       or warn
-"can't enqueue letter $part->{letter} for $params->{admin_email}";
+                      "can't enqueue letter $part->{letter} for $params->{admin_email}";
                 }
             }
             else {
                 my $email =
-                  "-------- Email message --------" . "\n\n" . "To: "
-                  . defined($addressee)               ? $addressee
-                  : defined( $params->{admin_email} ) ? $params->{admin_email}
-                  : '' . "\n"
-                  . "Subject: "
+                  "-------- Email message --------" . "\n\n";
+                $email .= "To: $addressee\n";
+                $email .= "Cc: " . $params->{admin_email} . "\n"
+                  if ( $params->{admin_email} );
+                $email .= "Subject: "
                   . $part->{letter}->{title} . "\n\n"
                   . $part->{letter}->{content};
                 push @emails, $email;
@@ -506,7 +520,7 @@ execute($data) if ($execute);
 
 # Emit Reports
 my $out_report = {};
-$out_report = report_email( $data, $branch ) if $report eq 'email';
+$out_report = report_by_branch( $data, $branch ) if $report eq 'email';
 $out_report = report_full( $data, $branch ) if $report eq 'full';
 emit(
     {
