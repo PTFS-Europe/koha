@@ -26,6 +26,7 @@ our @EXPORT = qw(
   remove_spaces
   upper_case
   lower_case
+  ISBN
 );
 
 =head1 NAME
@@ -97,6 +98,27 @@ sub lower_case {
     $string = lc $string;
 
     return $string;
+}
+
+=head2 ISBN
+
+Normalization function converting ISBN strings to ISBN13
+If string is not a valid ISBN we pass it through unaltered
+
+=cut
+
+sub ISBN {
+    my ( $string ) = @_;
+    return if !defined( $string );
+
+    my $isbn = C4::Koha::NormalizeISBN({
+        isbn => $string,
+        format => 'ISBN-13',
+        strip_hyphens  => 1,
+        return_invalid => 1,
+    });
+
+    return $isbn;
 }
 
 1;

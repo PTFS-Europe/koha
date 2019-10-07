@@ -61,8 +61,11 @@
                 <xsl:when test="$leader6='o' or $leader6='p'">MX</xsl:when>
                 <xsl:when test="$leader6='m'">CF</xsl:when>
                 <xsl:when test="$leader6='e' or $leader6='f'">MP</xsl:when>
-                <xsl:when test="$leader6='g' or $leader6='k' or $leader6='r'">VM</xsl:when>
-                <xsl:when test="$leader6='i' or $leader6='j'">MU</xsl:when>
+                <xsl:when test="$leader6='g'">VM</xsl:when>
+                <xsl:when test="$leader6='k'">PK</xsl:when>
+                <xsl:when test="$leader6='r'">OB</xsl:when>
+                <xsl:when test="$leader6='i'">SO</xsl:when>
+                <xsl:when test="$leader6='j'">MU</xsl:when>
                 <xsl:when test="$leader6='c' or $leader6='d'">PR</xsl:when>
             </xsl:choose>
         </xsl:variable>
@@ -82,11 +85,13 @@
                     </xsl:choose>
                 </xsl:when>
                 <xsl:when test="$leader6='t'">Book</xsl:when>
-                <xsl:when test="$leader6='o'">Kit</xsl:when>				
+                <xsl:when test="$leader6='o'">Kit</xsl:when>
                 <xsl:when test="$leader6='p'">Mixed materials</xsl:when>
                 <xsl:when test="$leader6='m'">Computer file</xsl:when>
                 <xsl:when test="$leader6='e' or $leader6='f'">Map</xsl:when>
-                <xsl:when test="$leader6='g' or $leader6='k' or $leader6='r'">Visual material</xsl:when>
+                <xsl:when test="$leader6='g'">Film</xsl:when>
+                <xsl:when test="$leader6='k'">Picture</xsl:when>
+                <xsl:when test="$leader6='r'">Object</xsl:when>
                 <xsl:when test="$leader6='j'">Music</xsl:when>
                 <xsl:when test="$leader6='i'">Sound</xsl:when>
                 <xsl:when test="$leader6='c' or $leader6='d'">Score</xsl:when>
@@ -233,6 +238,17 @@
                             </xsl:call-template>
                         </a>
                     </xsl:when>
+                    <xsl:when test="marc:subfield[@code=9] and $UseAuthoritiesForTracings='1'">
+                        <a><xsl:attribute name="href">/cgi-bin/koha/catalogue/search.pl?q=an:<xsl:value-of select="str:encode-uri(marc:subfield[@code=9], true())"/></xsl:attribute>
+                            <xsl:call-template name="chopPunctuation">
+                                <xsl:with-param name="chopString">
+                                    <xsl:call-template name="subfieldSelect">
+                                        <xsl:with-param name="codes">a_t</xsl:with-param>
+                                    </xsl:call-template>
+                                </xsl:with-param>
+                            </xsl:call-template>
+                        </a>
+                    </xsl:when>
                     <xsl:otherwise>
                         <a><xsl:attribute name="href">/cgi-bin/koha/catalogue/search.pl?q=se,phr:"<xsl:value-of select="str:encode-uri(marc:subfield[@code='t'], true())"/>"&amp;q=au:"<xsl:value-of select="str:encode-uri(marc:subfield[@code='a'], true())"/>"</xsl:attribute>
                             <xsl:call-template name="chopPunctuation">
@@ -255,6 +271,17 @@
                 <xsl:choose>
                     <xsl:when test="$UseControlNumber = '1' and marc:subfield[@code='w']">
                         <a href="/cgi-bin/koha/catalogue/search.pl?q=rcn:{marc:subfield[@code='w']}">
+                            <xsl:call-template name="chopPunctuation">
+                                <xsl:with-param name="chopString">
+                                    <xsl:call-template name="subfieldSelect">
+                                        <xsl:with-param name="codes">a_t</xsl:with-param>
+                                    </xsl:call-template>
+                                </xsl:with-param>
+                            </xsl:call-template>
+                        </a>
+                    </xsl:when>
+                    <xsl:when test="marc:subfield[@code=9] and $UseAuthoritiesForTracings='1'">
+                        <a><xsl:attribute name="href">/cgi-bin/koha/catalogue/search.pl?q=an:<xsl:value-of select="str:encode-uri(marc:subfield[@code=9], true())"/></xsl:attribute>
                             <xsl:call-template name="chopPunctuation">
                                 <xsl:with-param name="chopString">
                                     <xsl:call-template name="subfieldSelect">

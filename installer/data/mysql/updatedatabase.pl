@@ -14348,32 +14348,40 @@ if( CheckVersion( $DBversion ) ) {
 $DBversion = '16.12.00.032';
 if( CheckVersion( $DBversion ) ) {
     require Koha::Calendar;
-    require Koha::Holds;
 
     $dbh->do(q{
         INSERT IGNORE INTO systempreferences (variable,value,explanation,options,type) 
         VALUES ('ExcludeHolidaysFromMaxPickUpDelay', '0', 'If ON, reserves max pickup delay takes into account the closed days.', NULL, 'Integer');
     });
 
-    my $waiting_holds = Koha::Holds->search({ found => 'W', priority => 0 });
+    my $waiting_holds = $dbh->selectall_arrayref(q|
+        SELECT expirationdate, waitingdate, branchcode
+        FROM reserves
+        WHERE found = 'W' AND priority = 0
+    |);
+    my $update_sth = $dbh->prepare(q|
+        UPDATE reserves
+        SET expirationdate = ?
+        WHERE reserve_id = ?
+    |);
     my $max_pickup_delay = C4::Context->preference("ReservesMaxPickUpDelay");
-    while ( my $hold = $waiting_holds->next ) {
+    for my $hold ( @$waiting_holds ) {
 
         my $requested_expiration;
-        if ($hold->expirationdate) {
-            $requested_expiration = dt_from_string($hold->expirationdate);
+        if ($hold->{expirationdate}) {
+            $requested_expiration = dt_from_string($hold->{expirationdate});
         }
 
-        my $expirationdate = dt_from_string($hold->waitingdate);
+        my $expirationdate = dt_from_string($hold->{waitingdate});
         if ( C4::Context->preference("ExcludeHolidaysFromMaxPickUpDelay") ) {
-            my $calendar = Koha::Calendar->new( branchcode => $hold->branchcode );
+            my $calendar = Koha::Calendar->new( branchcode => $hold->{branchcode} );
             $expirationdate = $calendar->days_forward( $expirationdate, $max_pickup_delay );
         } else {
             $expirationdate->add( days => $max_pickup_delay );
         }
 
         my $cmp = $requested_expiration ? DateTime->compare($requested_expiration, $expirationdate) : 0;
-        $hold->expirationdate($cmp == -1 ? $requested_expiration->ymd : $expirationdate->ymd)->store;
+        $update_sth->execute($cmp == -1 ? $requested_expiration->ymd : $expirationdate->ymd, $hold->{reserve_id});
     }
 
     SetVersion( $DBversion );
@@ -17522,6 +17530,33 @@ if ( CheckVersion($DBversion) ) {
 $DBversion = "18.11.09.000";
 if ( CheckVersion($DBversion) ) {
         print "Upgrade to $DBversion done (18.11.09 release)\n";
+            SetVersion ($DBversion);
+}
+
+
+$DBversion = '18.11.09.001';
+if( CheckVersion( $DBversion ) ) {
+    $dbh->do( "UPDATE `search_field` SET `name` = 'date-time-last-modified', `label` = 'date-time-last-modified' WHERE `name` = 'date/time-last-modified'" );
+
+    # Always end with this (adjust the bug info)
+    SetVersion( $DBversion );
+    print "Upgrade to $DBversion done (Bug 22524 - Fix date/time-last-modified search with Elasticsearch)\n";
+}
+
+$DBversion = '18.11.09.002';
+if( CheckVersion( $DBversion ) ) {
+
+    $dbh->do(q|
+        ALTER TABLE marc_subfield_structure CHANGE COLUMN hidden hidden TINYINT(1) DEFAULT 8 NOT NULL;
+    |);
+    # Always end with this (adjust the bug info)
+    SetVersion( $DBversion );
+    print "Upgrade to $DBversion done (Bug 23309 - Can't add new subfields to bibliographic frameworks in strict mode)\n";
+}
+
+$DBversion = "18.11.10.000";
+if ( CheckVersion($DBversion) ) {
+        print "Upgrade to $DBversion done (18.11.10 release)\n";
             SetVersion ($DBversion);
 }
 

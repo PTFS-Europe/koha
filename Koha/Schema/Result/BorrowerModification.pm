@@ -40,7 +40,7 @@ __PACKAGE__->table("borrower_modifications");
 =head2 changed_fields
 
   data_type: 'mediumtext'
-  is_nullable: 1
+  is_nullable: 0
 
 =head2 borrowernumber
 
@@ -439,7 +439,7 @@ __PACKAGE__->add_columns(
   "verification_token",
   { data_type => "varchar", default_value => "", is_nullable => 0, size => 255 },
   "changed_fields",
-  { data_type => "mediumtext", is_nullable => 1 },
+  { data_type => "mediumtext", is_nullable => 0 },
   "borrowernumber",
   { data_type => "integer", default_value => 0, is_nullable => 0 },
   "cardnumber",
