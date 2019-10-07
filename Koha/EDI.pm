@@ -633,18 +633,19 @@ sub quote_item {
             $item->price_info, $item->price_info_inclusive );
 
     # database definitions should set some of these defaults but dont
+    my $price_info = $item->price_info || 0;
     my $order_hash = {
         biblionumber       => $bib->{biblionumber},
         entrydate          => DateTime->now( time_zone => 'local' )->ymd(),
         basketno           => $basketno,
-        listprice          => $item->price_info,
+        listprice          => $price_info,
         quantity           => $order_quantity,
         quantityreceived   => 0,
         order_vendornote   => q{},
         order_internalnote => $order_note,
-        rrp                => $item->price_info,
-        rrp_tax_included   => $item->price_info,
-        rrp_tax_excluded   => $item->price_info,
+        rrp                => $price_info,
+        rrp_tax_included   => $price_info,
+        rrp_tax_excluded   => $price_info,
         ecost              => $ecost,
         ecost_tax_included => $ecost,
         ecost_tax_excluded => $ecost,
