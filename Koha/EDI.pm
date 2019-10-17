@@ -213,21 +213,21 @@ sub process_invoice {
 
     my $plugin = $invoice_message->edi_acct()->plugin();
     my $edi_plugin;
-    if ( $plugin ) {
+    if ($plugin) {
         $edi_plugin = Koha::Plugins::Handler->run(
             {
                 class  => $plugin,
                 method => 'edifact',
                 params => {
                     invoice_message => $invoice_message,
-                    transmission => $invoice_message->raw_msg,
+                    transmission    => $invoice_message->raw_msg,
                 }
             }
         );
     }
 
-    my $edi = $edi_plugin ||
-      Koha::Edifact->new( { transmission => $invoice_message->raw_msg, } );
+    my $edi = $edi_plugin
+      || Koha::Edifact->new( { transmission => $invoice_message->raw_msg, } );
 
     my $messages = $edi->message_array();
 
@@ -298,7 +298,7 @@ sub process_invoice {
                         );
                     }
 
-                    my $price = _get_invoiced_price($line);
+                    my ( $price, $price_excl_tax ) = _get_invoiced_price($line);
                     my $tax_rate = $line->tax_rate;
                     if ($tax_rate && $tax_rate->{rate} != 0) {
                        $tax_rate->{rate} /= 100;
@@ -323,6 +323,8 @@ sub process_invoice {
                                 quantityreceived => $line->quantity_invoiced,
                                 orderstatus      => 'complete',
                                 unitprice        => $price,
+                                unitprice_tax_included => $price,
+                                unitprice_tax_excluded => $price_excl_tax,
                                 invoiceid        => $invoiceid,
                                 datereceived     => $msg_date,
                                 tax_rate_on_receiving => $tax_rate->{rate},
@@ -347,6 +349,8 @@ sub process_invoice {
                         $order->invoiceid($invoiceid);
                         $order->unitprice($price);
                         $order->tax_rate_on_receiving($tax_rate->{rate});
+                        $order->unitprice_tax_excluded($price_excl_tax);
+                        $order->unitprice_tax_included($price);
                         $order->orderstatus('complete');
                         my $p_updates = update_price_from_invoice( $order,
                             $invoice_message->vendor_id );
@@ -375,17 +379,28 @@ sub process_invoice {
 }
 
 sub _get_invoiced_price {
-    my $line  = shift;
-# This reverses the usual logic in order to suit Bertrams
-# as net does not include service charges
-    my $price = $line->amt_lineitem;
-    if ( $price and $line->quantity_invoiced > 1 ) {
-	    $price /= $line->quantity_invoiced;    # div line cost by qty
+    my $line       = shift;
+    my $qty        = $line->quantity;
+    my $line_total = $line->amt_total;
+    my $excl_tax   = $line->amt_lineitem;
+
+    # If no tax some suppliers omit the total owed
+    # If no total given calculate from cost exclusive of tax
+    # + tax amount (if present, sometimes omitted if 0 )
+    if ( !defined $line_total ) {
+        my $x = $line->amt_taxoncharge;
+        if ( !defined $x ) {
+            $x = 0;
+        }
+        $line_total = $excl_tax + $x;
     }
-    if ( !defined $price ) {  # no net price so generate it from lineitem amount
-	    $price = $line->price_net;
+
+    # invoices give amounts per orderline, Koha requires that we store
+    # them per item
+    if ( $qty != 1 ) {
+        return ( $line_total / $qty, $excl_tax / $qty );
     }
-    return $price;
+    return ( $line_total, $excl_tax );    # return as is for most common case
 }
 
 sub update_price_from_invoice {
@@ -456,7 +471,7 @@ sub receipt_items {
     my $gir_occurrence = 0;
     while ( $gir_occurrence < $quantity ) {
         my $branch = $inv_line->girfield( 'branch', $gir_occurrence );
-        my $item = shift @{ $branch_map{$branch} };
+        my $item   = shift @{ $branch_map{$branch} };
         if ($item) {
             my $barcode = $inv_line->girfield( 'barcode', $gir_occurrence );
             if ( $barcode && !$item->barcode ) {
@@ -597,8 +612,8 @@ sub quote_item {
 
     # $basketno is the return from AddBasket in the calling routine
     # So this call should not fail unless that has
-    my $basket = Koha::Acquisition::Baskets->find( $basketno );
-    unless ( $basket ) {
+    my $basket = Koha::Acquisition::Baskets->find($basketno);
+    unless ($basket) {
         $logger->error('Skipping order creation no valid basketno');
         return;
     }
@@ -628,12 +643,11 @@ sub quote_item {
         }
         $order_quantity = 1;    # attempts to create an orderline for each gir
     }
-    my $vendor = $schema->resultset('Aqbookseller')->find( $quote->vendor_id );
-    my $ecost = _discounted_price( $quote->vendor->discount,
-            $item->price_info, $item->price_info_inclusive );
-    if ($ecost == 0 && $item->price_gross) {
-       $ecost = $item->price_gross;
-    }
+    my $price  = $item->price_info;
+    my $vendor = Koha::Acquisition::Booksellers->find( $quote->vendor_id );
+
+    # NB quote will not include tax info it only contains the list price
+    my $ecost = _discounted_price( $vendor->discount, $price );
 
     # database definitions should set some of these defaults but dont
     my $price_info = $item->price_info || 0;
@@ -641,23 +655,24 @@ sub quote_item {
         biblionumber       => $bib->{biblionumber},
         entrydate          => DateTime->now( time_zone => 'local' )->ymd(),
         basketno           => $basketno,
-        listprice          => $price_info,
+        listprice          => $price,
         quantity           => $order_quantity,
         quantityreceived   => 0,
         order_vendornote   => q{},
         order_internalnote => $order_note,
-        replacementprice   => $price_info,
-        rrp                => $price_info,
-        rrp_tax_included   => $price_info,
-        rrp_tax_excluded   => $price_info,
+        replacementprice   => $price,
+        rrp_tax_included   => $price,
+        rrp_tax_excluded   => $price,
+        rrp                => $price,
+        replacementprice   => $price,
         ecost              => $ecost,
         ecost_tax_included => $ecost,
         ecost_tax_excluded => $ecost,
         discount => $quote->vendor->discount,
-        uncertainprice => 0,
-        sort1          => q{},
-        sort2          => q{},
-        currency       => $vendor->listprice->currency,
+        uncertainprice     => 0,
+        sort1              => q{},
+        sort2              => q{},
+        currency       => $vendor->listprice(),
         tax_value_bak  => 0,
         tax_value_on_ordering => 0,
         tax_rate_bak   => 0,
@@ -769,7 +784,7 @@ sub quote_item {
                 carp 'Skipping line with no budget info';
                 $logger->trace(
                     "girfield skipped for invalid budget:$bad_budget");
-                ++$occurrence;    ## lets look at the next one not this one again
+                ++$occurrence;   ## lets look at the next one not this one again
                 next;
             }
 
@@ -870,8 +885,8 @@ sub quote_item {
                         notforloan       => -1,
                         cn_sort          => q{},
                         cn_source        => 'ddc',
-                        price            => $item->price_info,
-                        replacementprice => $item->price_info,
+                        price            => $price,
+                        replacementprice => $price,
                         itype =>
                           $item->girfield( 'stock_category', $occurrence ),
                         location =>
@@ -1213,9 +1228,10 @@ Koha::EDI
 
 =head2 _get_invoiced_price
 
-      _get_invoiced_price(line_object)
+      (price, price_tax_excluded) = _get_invoiced_price(line_object)
 
-      Returns the net price or an equivalent calculated from line cost / qty
+      Returns an array of unitprice and unitprice_tax_excluded derived from the lineitem
+      monetary fields
 
 =head2 _discounted_price
 

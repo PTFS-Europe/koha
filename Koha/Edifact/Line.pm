@@ -716,6 +716,22 @@ sub moa_amt {
     }
     return;
 }
+sub moa_multiple_amt {
+    my ( $self, $qualifier ) = @_;
+    # return a repeatable MOA field
+    my $amt   = 0;
+    my $found = 0;
+    foreach my $s ( @{ $self->{segs} } ) {
+        if ( $s->tag eq 'MOA' && $s->elem( 0, 0 ) eq $qualifier ) {
+            $amt += $s->elem( 0, 1 );
+            $found = 1;
+        }
+    }
+    if ($found) {
+        return $amt;
+    }
+    return;
+}
 
 sub amt_discount {
     my $self = shift;
@@ -743,6 +759,10 @@ sub amt_unitprice {
 sub amt_lineitem {
     my $self = shift;
     return $self->moa_amt('203');
+}
+sub amt_taxoncharge {
+    my $self = shift;
+    return $self->moa_multiple_amt('124');
 }
 
 sub pri_price {
