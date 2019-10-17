@@ -664,7 +664,6 @@ sub quote_item {
         rrp_tax_included   => $price,
         rrp_tax_excluded   => $price,
         rrp                => $price,
-        replacementprice   => $price,
         ecost              => $ecost,
         ecost_tax_included => $ecost,
         ecost_tax_excluded => $ecost,
