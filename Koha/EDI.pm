@@ -631,6 +631,9 @@ sub quote_item {
     my $vendor = $schema->resultset('Aqbookseller')->find( $quote->vendor_id );
     my $ecost = _discounted_price( $quote->vendor->discount,
             $item->price_info, $item->price_info_inclusive );
+    if ($ecost == 0 && $item->price_gross) {
+       $ecost = $item->price_gross;
+    }
 
     # database definitions should set some of these defaults but dont
     my $price_info = $item->price_info || 0;
