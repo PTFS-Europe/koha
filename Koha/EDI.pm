@@ -646,6 +646,7 @@ sub quote_item {
         quantityreceived   => 0,
         order_vendornote   => q{},
         order_internalnote => $order_note,
+        replacementprice   => $price_info,
         rrp                => $price_info,
         rrp_tax_included   => $price_info,
         rrp_tax_excluded   => $price_info,
