@@ -19,7 +19,7 @@
 
 use Modern::Perl;
 
-use Test::More tests => 2;
+use Test::More tests => 3;
 
 use Koha::Item::Transfer;
 use Koha::Item::Transfers;
@@ -66,3 +66,42 @@ is( $retrieved_transfer_1->itemnumber, $new_transfer_1->itemnumber, 'Find a tran
 
 $schema->storage->txn_rollback;
 
+subtest 'item() tests' => sub {
+
+    plan tests => 2;
+
+    $schema->storage->txn_begin;
+
+    my $library_from = $builder->build( { source => 'Branch' } );
+    my $library_to   = $builder->build( { source => 'Branch' } );
+    my $item         = $builder->build(
+        {
+            source => 'Item',
+            value  => {
+                holding_branch => $library_from->{branchcode},
+                homebranch     => $library_to->{branchcode}
+            }
+        }
+    );
+
+    my $transfer = Koha::Item::Transfer->new(
+        {
+            itemnumber  => $item->{itemnumber},
+            frombranch  => $library_from->{branchcode},
+            tobranch    => $library_to->{branchcode},
+            datearrived => dt_from_string,
+            datesent    => dt_from_string,
+        }
+    )->store;
+
+    my $transfer_item = $transfer->item;
+    is( ref($transfer_item), 'Koha::Item',
+        'Koha::Item::Transfer->item should return a Koha::Item' );
+    is(
+        $transfer->itemnumber,
+        $transfer_item->itemnumber,
+        'Koha::Item::Transfer->item should return the correct item'
+    );
+
+    $schema->storage->txn_rollback;
+};
