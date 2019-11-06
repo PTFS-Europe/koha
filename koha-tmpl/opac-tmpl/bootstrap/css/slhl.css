@@ -1,0 +1,8 @@
+#logo {
+    background: url("../images/nhs.gif") no-repeat scroll 0 center transparent;
+    width: 310px;
+    height:90px;
+}
+#opac-main-search select {
+    max-width: 18em;
+}

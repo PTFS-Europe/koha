@@ -1,0 +1,18 @@
+#logo {
+    background: url("../images/OX_KS.gif") no-repeat scroll 0 center transparent;
+    width: 350px;
+    height:90px;
+}
+#opac-main-search select {
+    max-width: 18em;
+}
+.navbar-inverse .navbar-inner {
+    background-image: none;
+    background-color: #7C60A0;
+    border-color: none;
+}
+.navbar-inverse .divider-vertical {
+    border-left-color: #7C60A0;
+    border-right-color: #7C60A0;
+}
+
