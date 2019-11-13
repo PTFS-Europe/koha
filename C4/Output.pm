@@ -321,7 +321,7 @@ sub is_ajax {
 To executed at the beginning of scripts to stop the script at this point if
 some errors are found.
 
-A serie of tests can be run for a given module, or a specific check.
+A series of tests can be run for a given module, or a specific check.
 Params "module" and "check" are mutually exclusive.
 
 Tests for modules:
