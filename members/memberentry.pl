@@ -102,6 +102,7 @@ my $step          = $input->param('step') || 0;
 my @errors;
 my $borrower_data;
 my $NoUpdateLogin;
+my $NoUpdateEmail;
 my $userenv = C4::Context->userenv;
 
 ## Deal with guarantor stuff
@@ -166,6 +167,11 @@ if ( $op eq 'modify' or $op eq 'save' or $op eq 'duplicate' ) {
     my $logged_in_user = Koha::Patrons->find( $loggedinuser ) or die "Not logged in";
     output_and_exit_if_error( $input, $cookie, $template, { module => 'members', logged_in_user => $logged_in_user, current_patron => $patron } );
 
+    # check permission to modify email info.
+    if ( $patron->is_superlibrarian && !$logged_in_user->is_superlibrarian ) {
+        $NoUpdateEmail = 1;
+    }
+
     $borrower_data = $patron->unblessed;
     $borrower_data->{category_type} = $patron->category->category_type;
 }
@@ -206,7 +212,8 @@ if ( $op eq 'insert' || $op eq 'modify' || $op eq 'save' || $op eq 'duplicate' )
             push(@errors,"ERROR_$_");
         }
     }
-  # check permission to modify login info.
+
+    # check permission to modify login info.
     if (ref($borrower_data) && ($borrower_data->{'category_type'} eq 'S') && ! (C4::Auth::haspermission($userenv->{'id'},{'staffaccess'=>1})) )  {
         $NoUpdateLogin = 1;
     }
@@ -795,6 +802,7 @@ $template->param(
   modify          => $modify,
   nok     => $nok,#flag to know if an error
   NoUpdateLogin =>  $NoUpdateLogin,
+  NoUpdateEmail =>  $NoUpdateEmail,
   );
 
 # Generate CSRF token
