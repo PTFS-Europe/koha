@@ -18,4 +18,5 @@ INSERT INTO account_offset_types ( type ) VALUES
 ('OVERDUE'),
 ('Void Payment'),
 ('Credit Applied'),
-('PAYOUT');
+('PAYOUT'),
+('REFUND');
