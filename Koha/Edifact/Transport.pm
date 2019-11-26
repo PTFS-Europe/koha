@@ -136,7 +136,8 @@ sub sftp_download {
     my $sftp = Net::SFTP::Foreign->new(
         host     => $self->{account}->host,
         user     => $self->{account}->username,
-        password => $self->{account}->password,
+#        password => $self->{account}->password,
+        more     => [qw(-o PreferredAuthentications=publickey)],
         timeout  => 10,
     );
     if ( $sftp->error ) {
@@ -284,8 +285,10 @@ sub sftp_upload {
     my $sftp = Net::SFTP::Foreign->new(
         host     => $self->{account}->host,
         user     => $self->{account}->username,
-        password => $self->{account}->password,
+#        password => $self->{account}->password,
         timeout  => 10,
+        more     => '-v',
+        
     );
     $sftp->die_on_error("Cannot ssh to $self->{account}->host");
     $sftp->setcwd( $self->{account}->upload_directory )
