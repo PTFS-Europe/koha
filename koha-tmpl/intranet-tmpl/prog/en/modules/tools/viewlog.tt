@@ -74,6 +74,10 @@ fieldset.rows label.viewlog {
 [%        CASE 'ADDCIRCMESSAGE' %]Add circulation message
 [%        CASE 'DELCIRCMESSAGE' %]Delete circulation message
 [%        CASE 'STATUS_CHANGE'  %]Change ILL request status
+[%        CASE 'ADD_BASKET' %]Create an acquisitions basket
+[%        CASE 'MODIFY_BASKET' %]Modify an acquisitions basket
+[%        CASE 'CLOSE_BASKET' %]Close an acquisitions basket
+[%        CASE 'APPROVE_BASKET' %]Approve an acquisitions basket
 [%        CASE 'Run'    %]Run
 [%        CASE %][% action | html %]
 [%    END %]
@@ -146,7 +150,7 @@ fieldset.rows label.viewlog {
                                         <label for="actionALL" class="viewlog"><input type="checkbox" id="actionALL" name="actions" value=""> All</label>
                                     [% END %]
 
-                                    [% FOREACH actx IN [ 'ADD' 'DELETE' 'MODIFY' 'ISSUE' 'RETURN' 'RENEW' 'CREATE' 'CANCEL' 'SUSPEND' 'RESUME' 'ADDCIRCMESSAGE' 'DELCIRCMESSAGE' 'STATUS_CHANGE' 'CHANGE PASS' 'Run' ] %]
+                                    [% FOREACH actx IN [ 'ADD' 'DELETE' 'MODIFY' 'ISSUE' 'RETURN' 'RENEW' 'CREATE' 'CANCEL' 'SUSPEND' 'RESUME' 'ADDCIRCMESSAGE' 'DELCIRCMESSAGE' 'STATUS_CHANGE' 'CHANGE PASS' 'Run' 'ADD_BASKET' 'MODIFY_BASKET' 'CLOSE_BASKET' 'APPROVE_BASKET' ] %]
                                         [% IF actions.grep(actx).size %]
                                             <label for="action[% actx | html %]" class="viewlog"><input type="checkbox" id="action[% actx | html %]" name="actions" value="[% actx | html %]" checked="checked"> [% PROCESS translate_log_action action=actx %]</label>
                                         [% ELSE %]
