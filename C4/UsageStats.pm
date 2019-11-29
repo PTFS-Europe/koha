@@ -218,6 +218,7 @@ sub BuildReport {
         TagsEnabled
         CalendarFirstDayOfWeek
         opaclanguagesdisplay
+        AcqLog
         AuthoritiesLog
         BorrowersLog
         CataloguingLog
