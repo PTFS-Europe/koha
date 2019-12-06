@@ -576,7 +576,7 @@ sub process_quote {
             );
             # Close the basket, passing a flag indicating that this action
             # originated from an approval
-            CloseBasket($b, undef, 1);
+            CloseBasket($b, 1);
         }
     }
 
