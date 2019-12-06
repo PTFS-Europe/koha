@@ -224,7 +224,7 @@ close a basket (becomes unmodifiable, except for receives)
 =cut
 
 sub CloseBasket {
-    my ($basketno, $user, $edi_approval) = @_;
+    my ($basketno, $edi_approval) = @_;
     my $dbh        = C4::Context->dbh;
     $dbh->do('UPDATE aqbasket SET closedate=now() WHERE basketno=?', {}, $basketno );
 
@@ -236,12 +236,10 @@ q{UPDATE aqorders SET orderstatus = 'ordered' WHERE basketno = ? AND orderstatus
     # Log the closure
     if (C4::Context->preference("AcqLog")) {
         my $action = $edi_approval ? 'APPROVE_BASKET' : 'CLOSE_BASKET';
-        my $infos = $user ? sprintf("%010d", $user) : undef;
         logaction(
             'ACQUISITIONS',
             $action,
-            $basketno,
-            $infos
+            $basketno
         );
     }
 
@@ -570,14 +568,10 @@ sub ModBasket {
 
     # Log the basket update
     if (C4::Context->preference("AcqLog")) {
-        my $infos = $basketinfo->{borrowernumber} ?
-            sprintf("%010d", $basketinfo->{borrowernumber}) :
-            undef;
         logaction(
             'ACQUISITIONS',
             'MODIFY_BASKET',
-            $basketinfo->{'basketno'},
-            $infos
+            $basketinfo->{'basketno'}
         );
     }
 
@@ -620,7 +614,7 @@ case the AcqCreateItem syspref takes precedence).
 =cut
 
 sub ModBasketHeader {
-    my ($basketno, $basketname, $note, $booksellernote, $contractnumber, $booksellerid, $deliveryplace, $billingplace, $is_standing, $create_items, $borrowernumber) = @_;
+    my ($basketno, $basketname, $note, $booksellernote, $contractnumber, $booksellerid, $deliveryplace, $billingplace, $is_standing, $create_items) = @_;
 
     $is_standing ||= 0;
     my $query = qq{
