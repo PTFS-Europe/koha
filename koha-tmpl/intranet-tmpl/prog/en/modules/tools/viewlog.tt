@@ -136,8 +136,6 @@
 [%        CASE 'CREATE_FUND' %]Create a fund
 [%        CASE 'MODIFY_FUND' %]Modify a fund
 [%        CASE 'DELETE_FUND' %]Delete a fund
-[%        CASE 'CLOSE_BASKET' %]Close an acquisitions basket
-[%        CASE 'APPROVE_BASKET' %]Approve an acquisitions basket
 [%        CASE 'Run'    %]Run
 [%        CASE 'EDIT_MAPPINGS' %]Edit mappings
 [%        CASE 'RESET_MAPPINGS' %]Reset mappings
