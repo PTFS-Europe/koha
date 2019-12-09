@@ -20,7 +20,9 @@ package Koha::Patron;
 
 use Modern::Perl;
 
+use Authen::OATH;
 use Carp;
+use Convert::Base32 qw( decode_base32 );
 use List::MoreUtils qw( any uniq );
 use JSON qw( to_json );
 use Text::Unaccent qw( unac_string );
@@ -256,6 +258,10 @@ sub store {
                     ? Koha::AuthUtils::hash_password( $self->password )
                     : '!' );
 
+                # Generate a user secret
+                my $new_secret = Koha::AuthUtils::generate_salt( 'weak', 16 );
+                $self->login_secret($new_secret);
+
                 $self->borrowernumber(undef);
 
                 $self = $self->SUPER::store;
@@ -277,6 +283,9 @@ sub store {
 
                 # Password must be updated using $self->set_password
                 $self->password($self_from_storage->password);
+
+                # Secret must be updated using $self->get_secret('reset')
+                $self->login_secret($self_from_storage->login_secret);
 
                 if ( $self->category->categorycode ne
                     $self_from_storage->category->categorycode )
@@ -782,6 +791,44 @@ sub set_password {
     return $self;
 }
 
+=head3 get_secret
+
+ my $secret = $patron->get_secret();
+ my $secret = $patron->get_secret('reset');
+
+Fetch (or reset) the current users login secret
+
+=cut
+
+sub get_secret {
+    my ( $self, $reset ) = @_;
+
+    if ( $reset eq 'reset' ) {
+        my $new_secret = Koha::AuthUtils::generate_salt( 'weak', 16 );
+        $self->login_secret($new_secret);
+        $self->SUPER::store;
+    }
+
+    return $self->login_secret;
+}
+
+=head3 verify_presence
+
+  my $errors = $patron->verify_presence($passcode);
+
+Verify a users presence by checking their OTP (One Time Password). This is for users using 2FA via an authenticator app (Authy or Google Authenticator for example)
+
+=cut
+
+sub verify_presence {
+    my ($self, $passcode) = @_;
+
+    my $oath = Authen::OATH->new;
+    my $otp = $oath->totp( decode_base32( $self->get_secret ) );
+
+    return 1 if $otp eq $passcode;
+    return 0;
+}
 
 =head3 renew_account
 
