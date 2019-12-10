@@ -918,6 +918,16 @@ our $PERL_DEPS = {
         'required' => '0',
         'min_ver'  => '1.15',
     },
+    'Authen::OATH' => {
+        'usage'    => 'Authentication',
+        'required' => '0',
+        'min_ver'  => '2.0.1'
+    },
+    'Convert::Base32' => {
+        'usage'    => 'Authentication',
+        'required' => '0',
+        'min_ver'  => '0.06'
+    },
 };
 
 1;
