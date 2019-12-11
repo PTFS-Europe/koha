@@ -297,11 +297,32 @@ if ( $query->param('place_reserve') ) {
         }
 
         unless ( $can_place_hold_if_available_at_pickup ) {
+            # Search for libraries where the hold cannot be picked up at
             my $items_in_this_library = Koha::Items->search({ biblionumber => $biblioNum, holdingbranch => $branch });
-            my $nb_of_items_issued = $items_in_this_library->search({ 'issue.itemnumber' => { not => undef }}, { join => 'issue' })->count;
-            my $nb_of_items_unavailable = $items_in_this_library->search({ -or => { lost => { '!=' => 0 }, damaged => { '!=' => 0 }, } });
-            if ( $items_in_this_library->count > $nb_of_items_issued + $nb_of_items_unavailable ) {
+            my @availables_for_hold;
+            # The hold avaibility has not been calculated before, we must call CanItemBeReserved here.
+            # Note that the complexity is quite bad here, but until we store the avaibility we will have to calculate it!
+            while ( my $item = $items_in_this_library->next ) {
+                push @availables_for_hold, $item
+                    if CanItemBeReserved( $borrowernumber, $item->itemnumber, $branch )->{status} eq 'OK'
+            }
+
+            if ( @availables_for_hold > 0 ) {
+                my $items = Koha::Items->search(
+                    {
+                        'me.itemnumber' => {
+                            -in =>
+                              [ map { $_->itemnumber } @availables_for_hold ]
+                        }
+                    }
+                );
+                my $checked_out_items = $items->search(
+                    { 'issue.itemnumber' => { not => undef }, },
+                    { join => 'issue', },
+                );
+                # If there are not all checked out, the hold cannot be picked at this library
                 $canreserve = 0
+                    if $items->count > $checked_out_items->count;
             }
         }
 
@@ -478,6 +499,7 @@ foreach my $biblioNum (@biblionumbers) {
         my $item = $visible_items->{$itemNum};
         my $itemLoopIter = {};
 
+        $itemLoopIter->{item} = $item;
         $itemLoopIter->{itemnumber} = $itemNum;
         $itemLoopIter->{barcode} = $itemInfo->{barcode};
         $itemLoopIter->{homeBranchName} = $itemInfo->{homebranch};
@@ -572,14 +594,6 @@ foreach my $biblioNum (@biblionumbers) {
                 $biblioLoopIter{force_hold} = 1 if $opac_hold_policy eq 'F';
             }
             $numCopiesAvailable++;
-
-            unless ( $can_place_hold_if_available_at_pickup ) {
-                my $items_in_this_library = Koha::Items->search({ biblionumber => $itemInfo->{biblionumber}, holdingbranch => $itemInfo->{holdingbranch} });
-                my $nb_of_items_issued = $items_in_this_library->search({ 'issue.itemnumber' => { not => undef }}, { join => 'issue' })->count;
-                if ( $items_in_this_library->count > $nb_of_items_issued ) {
-                    push @not_available_at, $itemInfo->{holdingbranch};
-                }
-            }
         }
 
         $itemLoopIter->{imageurl} = getitemtypeimagelocation( 'opac', $itemtypes->{ $itemInfo->{itype} }{imageurl} );
@@ -595,6 +609,7 @@ foreach my $biblioNum (@biblionumbers) {
 
         push @{$biblioLoopIter{itemLoop}}, $itemLoopIter;
     }
+
     $template->param(
         itemdata_enumchron => $itemdata_enumchron,
         itemdata_ccode     => $itemdata_ccode,
@@ -611,14 +626,43 @@ foreach my $biblioNum (@biblionumbers) {
         $biblioLoopIter{itemholdable} = undef;
     }
     if ( $biblioLoopIter{holdable} ) {
-        @not_available_at = uniq @not_available_at;
-        $biblioLoopIter{not_available_at} = \@not_available_at ;
-    }
+        unless ($can_place_hold_if_available_at_pickup) {
+            # Search for libraries where the hold cannot be picked up at
+            my @branchcodes = uniq map { $_->{item}->holdingbranch } @{ $biblioLoopIter{itemLoop} };
+            for my $branchcode (@branchcodes) {
+                # The hold avaibility has been calculated before, retrieving the items
+                my @availables_for_hold_in_this_library = map {
+                    $_->{item}->holdingbranch eq $branchcode
+                      && exists $_->{available} && $_->{available}
+                      ? $_->{item}
+                      : ()
+                } @{ $biblioLoopIter{itemLoop} };
 
-    unless ( $can_place_hold_if_available_at_pickup ) {
+                if ( @availables_for_hold_in_this_library > 0 ) {
+                    # Searching for items available for hold but that are not checked out
+                    my $items_in_this_library = Koha::Items->search(
+                        {
+                            'me.itemnumber' => {
+                                -in => [
+                                    map { $_->itemnumber } @availables_for_hold_in_this_library
+                                ]
+                            }
+                        }
+                    );
+                    my $checked_out_items = $items_in_this_library->search(
+                        { 'issue.itemnumber' => { not => undef } },
+                        { join               => 'issue' } );
+                    # If there are not all checked out, the library cannot be used to pickup the hold
+                    push @not_available_at, $branchcode
+                        if $items_in_this_library->count > $checked_out_items->count;
+                }
+            }
+        }
+
         @not_available_at = uniq @not_available_at;
         $biblioLoopIter{not_available_at} = \@not_available_at ;
-        # The record is not holdable is not available at any of the libraries
+
+        # The record is not holdable if not available at any of the libraries
         if ( Koha::Libraries->search->count == @not_available_at ) {
             $biblioLoopIter{holdable} = 0;
         }
