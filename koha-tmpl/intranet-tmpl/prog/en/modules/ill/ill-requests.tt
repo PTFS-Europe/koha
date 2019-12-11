@@ -523,31 +523,26 @@
             </div>
         </div>
     </div>
-
-[% MACRO jsinclude BLOCK %]
-    [% INCLUDE 'datatables.inc' %]
-    [% INCLUDE 'columns_settings.inc' %]
-    [% INCLUDE 'calendar.inc' %]
-    [% Asset.js("lib/jquery/plugins/jquery.checkboxes.min.js") | $raw %]
-    <script>
-        // Date format for datepickers
-        var dateMap = {
-            dmydot: 'dd.mm.yy',
-            iso: 'yy-mm-dd',
-            metric: 'dd/mm/yy',
-            us: 'mm/dd/yy'
-        };
-        var dateFormat = dateMap['[% Koha.Preference('dateformat') | html %]'];
-        var prefilters = '[% prefilters | html %]';
-        // Set column settings
-        var columns_settings = [% ColumnsSettings.GetColumns( 'illrequests', 'ill-requests', 'ill-requests', 'json' ) %];
-    </script>
-    [% IF query_type == 'illlist' %]
-    [% INCLUDE 'ill-list-table-strings.inc' %]
-    [% Asset.js("js/ill-list-table.js") | $raw %]
-    [% END %]
-[% END %]
-
+	[% MACRO jsinclude BLOCK %]
+		[% INCLUDE 'datatables.inc' %]
+		[% INCLUDE 'columns_settings.inc' %]
+		[% INCLUDE 'calendar.inc' %]
+		[% Asset.js("lib/jquery/plugins/jquery.checkboxes.min.js") | $raw %]
+		<script>
+			// Date format for datepickers
+			var dateMap = {
+				dmydot: 'dd.mm.yy',
+				iso: 'yy-mm-dd',
+				metric: 'dd/mm/yy',
+				us: 'mm/dd/yy'
+			};
+			var dateFormat = dateMap['[% Koha.Preference('dateformat') | html %]'];
+			var prefilters = '[% prefilters | html %]';
+			// Set column settings
+			var columns_settings = [% ColumnsSettings.GetColumns( 'illrequests', 'ill-requests', 'ill-requests', 'json' ) %];
+		</script>
+		[% Asset.js("js/ill-list-table.js") | $raw %]
+	[% END %]
 [% TRY %]
 [% PROCESS backend_jsinclude %]
 [% CATCH %]
