@@ -20,6 +20,7 @@ package Koha::Acquisition::Basket;
 use Modern::Perl;
 
 use Koha::Database;
+use Koha::DateUtils qw( dt_from_string );
 use Koha::Acquisition::BasketGroups;
 
 use base qw( Koha::Object Koha::Object::Mixin::AdditionalFields );
@@ -69,6 +70,103 @@ sub effective_create_items {
     my ( $self ) = @_;
 
     return $self->create_items || C4::Context->preference('AcqCreateItem');
+}
+
+=head3 estimated_delivery_date
+
+my $estimated_delivery_date = $basket->estimated_delivery_date;
+
+Return the estimated delivery date for this basket.
+
+It is calculated adding the delivery time of the vendor to the close date of this basket.
+
+Return implicit undef if the basket is not closed, or the vendor does not have a delivery time.
+
+=cut
+
+sub estimated_delivery_date {
+    my ( $self ) = @_;
+    return unless $self->closedate and $self->bookseller->deliverytime;
+    return dt_from_string($self->closedate)->add( days => $self->bookseller->deliverytime);
+}
+
+=head3 late_since_days
+
+my $number_of_days_late = $basket->late_since_days;
+
+Return the number of days the basket is late.
+
+Return implicit undef if the basket is not closed.
+
+=cut
+
+sub late_since_days {
+    my ( $self ) = @_;
+    return unless $self->closedate;
+    return dt_from_string->delta_days(dt_from_string($self->closedate))->delta_days();
+}
+
+=head3 authorizer
+
+my $authorizer = $basket->authorizer;
+
+Returns the patron who authorized/created this basket.
+
+=cut
+
+sub authorizer {
+    my ($self) = @_;
+    # FIXME We should use a DBIC rs, but the FK is missing
+    return unless $self->authorisedby;
+    return scalar Koha::Patrons->find($self->authorisedby);
+}
+
+
+=head3 to_api
+
+    my $json = $basket->to_api;
+
+Overloaded method that returns a JSON representation of the Koha::Acquisition::Basket object,
+suitable for API output.
+
+=cut
+
+sub to_api {
+    my ( $self, $params ) = @_;
+
+    my $json = $self->SUPER::to_api( $params );
+
+    $json->{closed} = ( $self->closedate )
+                                    ? Mojo::JSON->true
+                                    : Mojo::JSON->false;
+
+    return $json;
+}
+
+=head3 to_api_mapping
+
+This method returns the mapping for representing a Koha::Acquisition::Basket object
+on the API.
+
+=cut
+
+sub to_api_mapping {
+    return {
+        basketno                => 'basket_id',
+        basketname              => 'name',
+        booksellernote          => 'vendor_note',
+        contractnumber          => 'contract_id',
+        creationdate            => 'creation_date',
+        closedate               => 'close_date',
+        booksellerid            => 'vendor_id',
+        authorisedby            => 'creator_id',
+        booksellerinvoicenumber => undef,
+        basketgroupid           => 'basket_group_id',
+        deliveryplace           => 'delivery_library_id',
+        billingplace            => 'billing_library_id',
+        branch                  => 'library_id',
+        is_standing             => 'standing'
+    };
 }
 
 =head2 Internal methods
