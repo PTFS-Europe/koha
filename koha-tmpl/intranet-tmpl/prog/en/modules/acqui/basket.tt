@@ -212,8 +212,18 @@
                 <div class="rows">
                 <div class="col-sm-6">
                 <ol>
-                [% IF ( basketnote ) %]<li><span class="label">Internal note:</span> [% basketnote | html %]</li>[% END %]
-                [% IF ( basketbooksellernote ) %]<li><span class="label">Vendor note:</span> [% basketbooksellernote | html %]</li>[% END %]
+                [% IF ( basketnote ) %]
+                    <li>
+                        <span class="label">Internal note:</span> [% basketnote | html %]
+                        [% INCLUDE 'mod-notes-form.inc' type="internal" note="$basketnote" %]
+                    </li>
+                [% END %]
+                [% IF ( basketbooksellernote ) %]
+                    <li>
+                        <span class="label">Vendor note:</span> [% basketbooksellernote | html %]
+                        [% INCLUDE 'mod-notes-form.inc' type="vendor" note="$basketbooksellernote" %]
+                    </li>
+                [% END %]
                 [% IF ( basketcontractno ) %]
                     <li><span class="label">Contract name:</span> <a href="../admin/aqcontract.pl?op=add_form&amp;contractnumber=[% basketcontractno | uri %]&amp;booksellerid=[% booksellerid | uri %]">[% basketcontractname | html %]</a></li>
                 [% END %]
@@ -780,6 +790,7 @@
 
 [% MACRO jsinclude BLOCK %]
     [% Asset.js("js/acquisitions-menu.js") | $raw %]
+    [% Asset.js("js/mod-notes.js") | $raw %]
     [% INCLUDE 'datatables.inc' %]
     [% INCLUDE 'columns_settings.inc' %]
     [% Asset.js("lib/hc-sticky.js") | $raw %]
