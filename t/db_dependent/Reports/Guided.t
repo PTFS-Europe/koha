@@ -18,12 +18,13 @@
 
 use Modern::Perl;
 
-use Test::More tests => 9;
+use Test::More tests => 10;
 use Test::Warn;
 
 use t::lib::TestBuilder;
 use C4::Context;
 use Koha::Database;
+use Koha::Items;
 use Koha::Reports;
 
 use_ok('C4::Reports::Guided');
@@ -356,6 +357,39 @@ count(h.reservedate) AS 'holds'
 };
 
 $schema->storage->txn_rollback;
+
+subtest 'nb_rows() tests' => sub {
+
+    plan tests => 3;
+
+    $schema->storage->txn_begin;
+
+    my $items_count = Koha::Items->search->count;
+    $builder->build_object({ class => 'Koha::Items' });
+    $builder->build_object({ class => 'Koha::Items' });
+    $items_count += 2;
+
+    my $query = q{
+        SELECT * FROM items xxx
+    };
+
+    my $nb_rows = nb_rows( $query );
+
+    is( $nb_rows, $items_count, 'nb_rows returns the right value' );
+
+    my $bad_query = q{
+        SELECT * items xxx
+    };
+
+    warning_like
+        { $nb_rows = nb_rows( $bad_query ) }
+        qr/^DBD::mysql::st execute failed:/,
+        'Bad queries raise a warning';
+
+    is( $nb_rows, 0, 'nb_rows returns 0 on bad queries' );
+
+    $schema->storage->txn_rollback;
+};
 
 sub trim {
     my ($s) = @_;

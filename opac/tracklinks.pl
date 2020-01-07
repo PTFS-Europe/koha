@@ -25,57 +25,58 @@ use C4::Biblio;
 use Koha::Items;
 use Koha::Linktracker;
 use CGI qw ( -utf8 );
+use List::MoreUtils qw(any);
 
 my $cgi = new CGI;
 my $uri = $cgi->param('uri') || '';
+my $biblionumber = $cgi->param('biblionumber') || 0;
+my $itemnumber   = $cgi->param('itemnumber')   || 0;
 
+my $tracking_method = C4::Context->preference('TrackClicks');
+unless ( $tracking_method ) {
+    output_error( $cgi, '404' );
+    exit;
+}
 my $tracker = Koha::Linktracker->new(
-    { trackingmethod => C4::Context->preference('TrackClicks') } );
+    { trackingmethod => $tracking_method } );
+if ($uri && ($biblionumber || $itemnumber) ) {
+    my $borrowernumber = 0;
 
-if ($uri) {
-    if (   $tracker->trackingmethod() eq 'track'
-        || $tracker->trackingmethod() eq 'anonymous' )
-    {
-        my $borrowernumber = 0;
+    # we have a uri and we want to track
+    if ( $tracker->trackingmethod() eq 'track' ) {
+        my ( $user, $cookie, $sessionID, $flags ) =
+          checkauth( $cgi, 1, {}, 'opac' );
+        my $userenv = C4::Context->userenv;
 
-        # we have a uri and we want to track
-        if ( $tracker->trackingmethod() eq 'track' ) {
-            my ( $user, $cookie, $sessionID, $flags ) =
-              checkauth( $cgi, 1, {}, 'opac' );
-            my $userenv = C4::Context->userenv;
-
-            if (   defined($userenv)
-                && ref($userenv) eq 'HASH'
-                && $userenv->{number} )
-            {
-                $borrowernumber = $userenv->{number};
-            }
-
-            # get borrower info
-        }
-        my $biblionumber = $cgi->param('biblionumber') || 0;
-        my $itemnumber   = $cgi->param('itemnumber')   || 0;
-
-        my $record = C4::Biblio::GetMarcBiblio({ biblionumber => $biblionumber });
-        my $marc_urls = C4::Biblio::GetMarcUrls($record, C4::Context->preference('marcflavour'));
-        if ( ( grep { $_ eq $uri } map { $_->{MARCURL} } @$marc_urls )
-            || Koha::Items->search( { itemnumber => $itemnumber, uri => $uri } )->count )
+        if (   defined($userenv)
+            && ref($userenv) eq 'HASH'
+            && $userenv->{number} )
         {
-            $tracker->trackclick(
-                {
-                    uri            => $uri,
-                    biblionumber   => $biblionumber,
-                    borrowernumber => $borrowernumber,
-                    itemnumber     => $itemnumber
-                }
-            );
-            print $cgi->redirect($uri);
-            exit;
+            $borrowernumber = $userenv->{number};
         }
-    }
-    else {
 
-        # We have a valid url, but we shouldn't track it, just redirect
+        # get borrower info
+    }
+
+    my $record = C4::Biblio::GetMarcBiblio({ biblionumber => $biblionumber });
+    my $marc_urls = $record ? C4::Biblio::GetMarcUrls($record, C4::Context->preference('marcflavour')) : [];
+    my $search_crit = { uri => $uri };
+    if( $itemnumber ) { # itemnumber is leading over biblionumber
+        $search_crit->{itemnumber} = $itemnumber;
+    } elsif( $biblionumber ) {
+        $search_crit->{biblionumber} = $biblionumber;
+    }
+    if ( ( any { $_ eq $uri } map { $_->{MARCURL} } @$marc_urls )
+        || Koha::Items->search( $search_crit )->count )
+    {
+        $tracker->trackclick(
+            {
+                uri            => $uri,
+                biblionumber   => $biblionumber,
+                borrowernumber => $borrowernumber,
+                itemnumber     => $itemnumber
+            }
+        ) if (   $tracker->trackingmethod() eq 'track' || $tracker->trackingmethod() eq 'anonymous' );
         print $cgi->redirect($uri);
         exit;
     }

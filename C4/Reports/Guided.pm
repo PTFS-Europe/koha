@@ -413,10 +413,26 @@ sub get_criteria {
 
 sub nb_rows {
     my $sql = shift or return;
-    my $sth = C4::Context->dbh->prepare($sql);
+
+    my $derived_name = 'xxx';
+    # make sure the derived table name is not already used
+    while ( $sql =~ m/$derived_name/ ) {
+        $derived_name .= 'x';
+    }
+
+    my $sth = C4::Context->dbh->prepare(qq{
+        SELECT COUNT(*) FROM
+        ( $sql ) $derived_name
+    });
+
     $sth->execute();
-    my $rows = $sth->fetchall_arrayref();
-    return scalar (@$rows);
+
+    if ( $sth->errstr ) {
+        return 0;
+    }
+    else {
+       return $sth->fetch->[0];
+    }
 }
 
 =head2 execute_query

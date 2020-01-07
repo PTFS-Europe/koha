@@ -65,8 +65,13 @@ sub new {
     $dob and $dob =~ s/-//g;    # YYYYMMDD
     my $dexpiry     = $kp->{dateexpiry};
     $dexpiry and $dexpiry =~ s/-//g;    # YYYYMMDD
-    my $fines_amount = $patron->account->balance;
+
+    # Get fines and add fines for guarantees (depends on preference NoIssuesChargeGuarantees)
+    my $fines_amount = $flags->{CHARGES}->{amount};
     $fines_amount = ($fines_amount and $fines_amount > 0) ? $fines_amount : 0;
+    my $guarantees_fines_amount = $flags->{CHARGES_GUARANTEES} ? $flags->{CHARGES_GUARANTEES}->{amount} : 0;
+    $fines_amount += $guarantees_fines_amount;
+
     my $fee_limit = _fee_limit();
     my $fine_blocked = $fines_amount > $fee_limit;
     my $circ_blocked =( C4::Context->preference('OverduesBlockCirc') ne "noblock" &&  defined $flags->{ODUES}->{itemlist} ) ? 1 : 0;

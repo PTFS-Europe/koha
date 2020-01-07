@@ -169,8 +169,9 @@ sub get_template_and_user {
     }
 
     # If we enforce GDPR and the user did not consent, redirect
+    # Exceptions for consent page itself and SCI/SCO system
     if( $in->{type} eq 'opac' && $user &&
-        $in->{'template_name'} !~ /opac-patron-consent/ &&
+        $in->{'template_name'} !~ /^(opac-patron-consent|sc[io]\/)/ &&
         C4::Context->preference('GDPR_Policy') eq 'Enforced' )
     {
         my $consent = Koha::Patron::Consents->search({
@@ -1201,6 +1202,18 @@ sub checkauth {
                 -value    => '',
                 -HttpOnly => 1
             );
+        }
+
+        # In case, that this request was a login attempt, we want to prevent that users can repost the opac login
+        # request. We therefore redirect the user to the requested page again without the login parameters.
+        # See Post/Redirect/Get (PRG) design pattern: https://en.wikipedia.org/wiki/Post/Redirect/Get
+        if ( $type eq "opac" && $query->param('koha_login_context') && $query->param('koha_login_context') ne 'sco' && $query->param('password') && $query->param('userid') ) {
+            my $uri = URI->new($query->url(-relative=>1, -query_string=>1));
+            $uri->query_param_delete('userid');
+            $uri->query_param_delete('password');
+            $uri->query_param_delete('koha_login_context');
+            print $query->redirect(-uri => $uri->as_string, -cookie => $cookie, -status=>'303 See other');
+            exit;
         }
 
         track_login_daily( $userid );
