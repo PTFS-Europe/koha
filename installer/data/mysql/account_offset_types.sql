@@ -19,4 +19,5 @@ INSERT INTO account_offset_types ( type ) VALUES
 ('Void Payment'),
 ('Credit Applied'),
 ('PAYOUT'),
+('DISOUNT'),
 ('REFUND');
