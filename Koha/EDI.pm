@@ -644,6 +644,9 @@ sub quote_item {
         $order_quantity = 1;    # attempts to create an orderline for each gir
     }
     my $price  = $item->price_info;
+    if (!$price) {
+        $price = $item->price_gross;
+    }
     my $vendor = Koha::Acquisition::Booksellers->find( $quote->vendor_id );
 
     # NB quote will not include tax info it only contains the list price
