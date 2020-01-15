@@ -310,7 +310,7 @@ sub process_invoice {
                     }
 
                     if ( $order->quantity > $line->quantity_invoiced ) {
-                        my $ordered = $line->quantity_invoiced;
+                        my $ordered = $order->quantity;
 
                         # part receipt
                         $order->orderstatus('partial');
