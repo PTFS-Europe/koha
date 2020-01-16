@@ -115,7 +115,6 @@ BEGIN {
 		&transferbook
 		&GetTransfers
 		&GetTransfersFromTo
-		&updateWrongTransfer
 		&DeleteTransfer
                 &IsBranchTransferAllowed
                 &CreateBranchTransferLimit
@@ -3466,31 +3465,6 @@ sub SendCirculationAlert {
     }
 
     return;
-}
-
-=head2 updateWrongTransfer
-
-  $items = updateWrongTransfer($itemNumber,$borrowernumber,$waitingAtLibrary,$FromLibrary);
-
-This function validate the line of brachtransfer but with the wrong destination (mistake from a librarian ...), and create a new line in branchtransfer from the actual library to the original library of reservation 
-
-=cut
-
-sub updateWrongTransfer {
-	my ( $itemNumber,$waitingAtLibrary,$FromLibrary ) = @_;
-	my $dbh = C4::Context->dbh;	
-# first step validate the actual line of transfert .
-	my $sth =
-        	$dbh->prepare(
-			"update branchtransfers set datearrived = now(),tobranch=?,comments='wrongtransfer' where itemnumber= ? AND datearrived IS NULL"
-          	);
-        	$sth->execute($FromLibrary,$itemNumber);
-
-# second step create a new line of branchtransfer to the right location .
-	ModItemTransfer($itemNumber, $FromLibrary, $waitingAtLibrary);
-
-#third step changing holdingbranch of item
-	UpdateHoldingbranch($FromLibrary,$itemNumber);
 }
 
 =head2 UpdateHoldingbranch

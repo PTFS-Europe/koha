@@ -142,11 +142,6 @@ foreach ( $query->param ) {
 
 ############
 # Deal with the requests....
-
-if ($query->param('WT-itemNumber')){
-	updateWrongTransfer ($query->param('WT-itemNumber'),$query->param('WT-waitingAt'),$query->param('WT-From'));
-}
-
 if ( $query->param('reserve_id') ) {
     my $itemnumber     = $query->param('itemnumber');
     my $borrowernumber = $query->param('borrowernumber');
