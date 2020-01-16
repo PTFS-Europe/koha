@@ -232,7 +232,8 @@ if ($dotransfer){
 # An item has been returned to a branch other than the homebranch, and the librarian has chosen to initiate a transfer
     my $transferitem = $query->param('transferitem');
     my $tobranch     = $query->param('tobranch');
-    ModItemTransfer($transferitem, $userenv_branch, $tobranch);
+    my $trigger      = $query->param('trigger');
+    ModItemTransfer($transferitem, $userenv_branch, $tobranch, $trigger);
 }
 
 if ($canceltransfer){
@@ -371,6 +372,7 @@ if ( $messages->{'NeedsTransfer'} ){
     $template->param(
         found          => 1,
         needstransfer  => $messages->{'NeedsTransfer'},
+        trigger        => $messages->{'TransferTrigger'},
         itemnumber     => $itemnumber,
     );
 }
