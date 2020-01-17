@@ -20,6 +20,7 @@ use Modern::Perl;
 use Carp;
 
 use Koha::Database;
+use Koha::DateUtils;
 
 use base qw(Koha::Object);
 
@@ -45,6 +46,20 @@ sub item {
     my ( $self ) = @_;
     my $rs = $self->_result->itemnumber;
     return Koha::Item->_new_from_dbic( $rs );
+}
+
+=head3 transit
+
+Set the transfer as in transit by updateing the datesent time.
+
+=cut
+
+sub transit {
+    my ($self, $date) = @_;
+
+    $date //= dt_from_string;
+    $self->set({datesent => $date})->store;
+    return $self;
 }
 
 =head3 type
