@@ -173,7 +173,7 @@ subtest "Tests for needs_advancing." => sub {
         'itemnumber'  => $dbitem->itemnumber_id,
         'frombranch'  => $dbitem->stage->branchcode_id,
         'tobranch'    => $dbitem->stage->branchcode_id,
-        'datesent'    => DateTime->now,
+        'daterequested'    => DateTime->now,
         'datearrived' => undef,
         'reason'      => "StockrotationAdvance",
     })->store;
@@ -194,7 +194,7 @@ subtest "Tests for needs_advancing." => sub {
     $dbitem->fresh(0)->store;
 
     # Test item will be advanced if it has spent enough time.
-    $dbtransfer->datesent(      # Item was sent 100 days ago...
+    $dbtransfer->daterequested(      # Item was sent 100 days ago...
         DateTime->now - DateTime::Duration->new( days => 100 )
     )->store;
     $dbtransfer->datearrived(   # And arrived 75 days ago.
@@ -305,7 +305,7 @@ subtest "Tests for investigate (singular)." => sub {
         'itemnumber'  => $dbitem->itemnumber_id,
         'frombranch'  => $dbitem->itemnumber->homebranch,
         'tobranch'    => $dbitem->itemnumber->homebranch,
-        'datesent'    => DateTime->now,
+        'daterequested'    => DateTime->now,
         'datearrived' => DateTime->now,
         'reason'      => "StockrotationAdvance",
     })->store;
@@ -321,7 +321,7 @@ subtest "Tests for investigate (singular)." => sub {
         'itemnumber'  => $dbitem->itemnumber_id,
         'frombranch'  => $dbitem->itemnumber->homebranch,
         'tobranch'    => $dbitem->stage->branchcode_id,
-        'datesent'    => DateTime->now,
+        'daterequested'    => DateTime->now,
         'datearrived' => DateTime->now,
         'reason'      => "StockrotationAdvance",
     })->store;
@@ -340,7 +340,7 @@ subtest "Tests for investigate (singular)." => sub {
         'itemnumber'  => $dbitem->itemnumber_id,
         'frombranch'  => $dbitem->itemnumber->homebranch,
         'tobranch'    => $dbitem->stage->branchcode_id,
-        'datesent'    => DateTime->now - $sent_duration,
+        'daterequested'    => DateTime->now - $sent_duration,
         'datearrived' => DateTime->now - $arrived_duration,
         'reason'      => "StockrotationAdvance",
     })->store;
@@ -360,7 +360,7 @@ subtest "Tests for investigate (singular)." => sub {
         'itemnumber'  => $dbitem->itemnumber_id,
         'frombranch'  => $dbitem->itemnumber->homebranch,
         'tobranch'    => $dbitem->stage->branchcode_id,
-        'datesent'    => DateTime->now - $sent_duration,
+        'daterequested'    => DateTime->now - $sent_duration,
         'datearrived' => DateTime->now - $arrived_duration,
         'reason'      => "StockrotationAdvance",
     })->store;
@@ -380,7 +380,7 @@ subtest "Tests for investigate (singular)." => sub {
         'itemnumber'  => $dbitem->itemnumber_id,
         'frombranch'  => $dbitem->itemnumber->homebranch,
         'tobranch'    => $dbitem->stage->branchcode_id,
-        'datesent'    => DateTime->now - $sent_duration,
+        'daterequested'    => DateTime->now - $sent_duration,
         'datearrived' => DateTime->now - $arrived_duration,
         'reason'      => "StockrotationAdvance",
     })->store;

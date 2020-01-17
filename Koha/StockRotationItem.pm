@@ -152,12 +152,12 @@ sub repatriate {
     my ( $self, $msg ) = @_;
     # Create the transfer.
     my $transfer_stored = Koha::Item::Transfer->new({
-        'itemnumber' => $self->itemnumber_id,
-        'frombranch' => $self->itemnumber->holdingbranch,
-        'tobranch'   => $self->stage->branchcode_id,
-        'datesent'   => DateTime->now,
-        'comments'   => $msg,
-        'reason'     => "StockrotationRepatriation"
+        'itemnumber'    => $self->itemnumber_id,
+        'frombranch'    => $self->itemnumber->holdingbranch,
+        'tobranch'      => $self->stage->branchcode_id,
+        'daterequested' => DateTime->now,
+        'comments'      => $msg,
+        'reason'        => "StockrotationRepatriation"
     })->store;
     $self->itemnumber->homebranch($self->stage->branchcode_id)->store;
     return $transfer_stored;
@@ -183,10 +183,10 @@ sub advance {
     my ( $self ) = @_;
     my $item = $self->itemnumber;
     my $transfer = Koha::Item::Transfer->new({
-        'itemnumber' => $self->itemnumber_id,
-        'frombranch' => $item->holdingbranch,
-        'datesent'   => DateTime->now,
-        'reason'     => "StockrotationAdvance"
+        'itemnumber'    => $self->itemnumber_id,
+        'frombranch'    => $item->holdingbranch,
+        'daterequested' => DateTime->now,
+        'reason'        => "StockrotationAdvance"
     });
 
     if ( $self->indemand && !$self->fresh ) {
