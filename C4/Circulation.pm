@@ -1848,7 +1848,6 @@ sub AddReturn {
     my $messages;
     my $patron;
     my $doreturn       = 1;
-    my $validTransfert = 0;
     my $stat_type = 'return';
 
     # get information on item
@@ -1991,7 +1990,7 @@ sub AddReturn {
     ModDateLastSeen( $item->itemnumber, $leave_item_lost );
 
     # check if we have a transfer for this document
-    my ($datesent,$frombranch,$tobranch) = GetTransfers( $item->itemnumber );
+    my ($datesent,$frombranch,$tobranch,$daterequested) = GetTransfers( $item->itemnumber );
 
     # if we have a transfer to do, we update the line of transfers with the datearrived
     my $is_in_rotating_collection = C4::RotatingCollections::isItemInAnyCollection( $item->itemnumber );
@@ -2007,7 +2006,17 @@ sub AddReturn {
             $messages->{'WrongTransfer'}     = $tobranch;
             $messages->{'WrongTransferItem'} = $item->itemnumber;
         }
-        $validTransfert = 1;
+    } elsif ($daterequested) {
+        if ( $tobranch eq $branch ) {
+            my $sth = C4::Context->dbh->prepare(
+                "UPDATE branchtransfers SET datearrived = now() WHERE itemnumber= ? AND datearrived IS NULL"
+            );
+            $sth->execute( $item->itemnumber );
+        } else {
+            # FIXME: This should not be WrongTransfer but TransferFound or something like that
+            $messages->{'WrongTransfer'}     = $tobranch;
+            $messages->{'WrongTransferItem'} = $item->itemnumber;
+        }
     }
 
     # fix up the accounts.....
@@ -3317,7 +3326,8 @@ sub GetTransfers {
         SELECT datesent,
                frombranch,
                tobranch,
-               branchtransfer_id
+               branchtransfer_id,
+               daterequested
         FROM branchtransfers
         WHERE itemnumber = ?
           AND datearrived IS NULL
