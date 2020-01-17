@@ -566,7 +566,8 @@ sub GetOtherReserves {
             C4::Items::ModItemTransfer(
                 $itemnumber,
                 $item->holdingbranch,
-                $checkreserves->{'branchcode'}
+                $checkreserves->{'branchcode'},
+                'Reserve'
               ),
               ;
         }
