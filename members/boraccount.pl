@@ -70,12 +70,14 @@ output_and_exit_if_error( $input, $cookie, $template, { module => 'members', log
 my $registerid = $input->param('registerid');
 
 if ( $action eq 'void' ) {
+    output_and_exit_if_error($input, $cookie, $template, { check => 'csrf_token' });
     my $payment_id = scalar $input->param('accountlines_id');
     my $payment    = Koha::Account::Lines->find( $payment_id );
     $payment->void();
 }
 
 if ( $action eq 'payout' ) {
+    output_and_exit_if_error($input, $cookie, $template, { check => 'csrf_token' });
     my $payment_id        = scalar $input->param('accountlines_id');
     my $payment           = Koha::Account::Lines->find($payment_id);
     my $amount           = scalar $input->param('amount');
@@ -97,9 +99,10 @@ if ( $action eq 'payout' ) {
 }
 
 if ( $action eq 'refund' ) {
-    my $charge_id        = scalar $input->param('accountlines_id');
-    my $charge           = Koha::Account::Lines->find($charge_id);
-    my $amount           = scalar $input->param('amount');
+    output_and_exit_if_error($input, $cookie, $template, { check => 'csrf_token' });
+    my $charge_id   = scalar $input->param('accountlines_id');
+    my $charge      = Koha::Account::Lines->find($charge_id);
+    my $amount      = scalar $input->param('amount');
     my $refund_type = scalar $input->param('refund_type');
     $schema->txn_do(
         sub {
@@ -130,6 +133,7 @@ if ( $action eq 'refund' ) {
 }
 
 if ( $action eq 'discount' ) {
+    output_and_exit_if_error($input, $cookie, $template, { check => 'csrf_token' });
     my $charge_id        = scalar $input->param('accountlines_id');
     my $charge           = Koha::Account::Lines->find($charge_id);
     my $amount           = scalar $input->param('amount');

@@ -68,6 +68,7 @@
             Suggestions management
         [% END %]
     </div> <!-- /.breadcrumbs -->
+    [% INCLUDE 'blocking_errors.inc' %]
 
     [% IF ( op == 'show' ) %]
         <div class="main container-fluid">
@@ -310,6 +311,7 @@
             [% END %]
 
             <form id="add_edit" action="suggestion.pl" method="post" class="validated">
+                [% INCLUDE 'csrf-token.inc' %]
                 <input type="hidden" name="redirect" id="redirect" value="[% redirect | html %]" />
                 <input type="hidden" name="borrowernumber" id="borrowernumber" value="[% borrowernumber | html %]" />
                 [% IF ( suggestionid ) %]
@@ -681,6 +683,7 @@
             [% FOREACH suggestion IN suggestions %]
                 <div id="[% suggestion.suggestiontype | html %]">
                     <form class="update_suggestions" name="f" method="post" action="/cgi-bin/koha/suggestion/suggestion.pl#[% suggestion.suggestiontype| uri %]">
+                        [% INCLUDE 'csrf-token.inc' %]
 
                         [% IF ( suggestion.suggestions_loop ) %]
                             <p>
@@ -800,9 +803,9 @@
                                             </td>
                                             <td class="actions">
                                                 <div class="btn-group dropup">
-                                                    <a class="btn btn-default btn-xs" role="button" href="suggestion.pl?suggestionid=[% suggestions_loo.suggestionid | html %]&amp;op=edit"><i class="fa fa-pencil"></i> Edit</a><a class="btn btn-default btn-xs dropdown-toggle" id="more_actions_[% suggestions_loo.suggestionid | html %]" role="button" data-toggle="dropdown" href="#"><b class="caret"></b></a>
+                                                    <a class="btn btn-default btn-xs" role="button" href="suggestion.pl?suggestionid=[% suggestions_loo.suggestionid | html %]&amp;csrf_token=[% csrf_token | html %]&amp;op=edit"><i class="fa fa-pencil"></i> Edit</a><a class="btn btn-default btn-xs dropdown-toggle" id="more_actions_[% suggestions_loo.suggestionid | html %]" role="button" data-toggle="dropdown" href="#"><b class="caret"></b></a>
                                                     <ul class="dropdown-menu pull-right" role="menu" aria-labelledby="more_actions_[% suggestions_loo.suggestionid | html %]">
-                                                        <li><a class="deletesuggestion" href="suggestion.pl?op=delete&amp;suggestionid=[% suggestions_loo.suggestionid | html %]"><i class="fa fa-trash"></i> Delete</a></li>
+                                                        <li><a class="deletesuggestion" href="suggestion.pl?op=delete&amp;suggestionid=[% suggestions_loo.suggestionid | html %]&amp;csrf_token=[% csrf_token | html %]"><i class="fa fa-trash"></i> Delete</a></li>
                                                         [% UNLESS suggestions_loo.archived %]
                                                             <li><a class="archivesuggestion" href="suggestion.pl?op=archive&amp;suggestionid=[% suggestions_loo.suggestionid | html %]"><i class="fa fa-archive"></i> Archive</a></li>
                                                         [% ELSE %]
@@ -941,6 +944,7 @@
                 <div class="col-sm-2 col-sm-pull-10">
                     <aside>
                         <form name="suggestionfilter" action="suggestion.pl" method="get">
+                            [% INCLUDE 'csrf-token.inc' %]
                             <input type="hidden" name="branchcode" value="[% branchfilter | html %]" />
                             <fieldset class="brief">
                                 <ol style="display:block;">

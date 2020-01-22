@@ -128,6 +128,7 @@ my $branchfilter = $input->param('branchcode') || C4::Context->userenv->{'branch
 ##
 
 if ( $op =~ /save/i ) {
+    output_and_exit_if_error($input, $cookie, $template, { check => 'csrf_token' });
     my @messages;
     my $biblio = MarcRecordFromNewSuggestion({
             title => $suggestion_only->{title},
@@ -245,7 +246,8 @@ elsif ($op=~/add/) {
     $op ='save';
 }
 elsif ($op=~/edit/) {
-    #Edit suggestion  
+    #Edit suggestion
+    output_and_exit_if_error($input, $cookie, $template, { check => 'csrf_token' });
     $suggestion_ref=&GetSuggestion($$suggestion_ref{'suggestionid'});
     $suggestion_ref->{reasonsloop} = $reasonsloop;
     my $other_reason = 1;
@@ -260,7 +262,7 @@ elsif ($op=~/edit/) {
     $op ='save';
 }  
 elsif ($op eq "update_status" ) {
-
+    output_and_exit_if_error($input, $cookie, $template, { check => 'csrf_token' });
     my $suggestion;
     # set accepted/rejected/managed informations if applicable
     # ie= if the librarian has chosen some action on the suggestions
@@ -297,6 +299,7 @@ elsif ($op eq "update_status" ) {
     }
     redirect_with_params($input);
 }elsif ($op eq "delete" ) {
+    output_and_exit_if_error($input, $cookie, $template, { check => 'csrf_token' });
     foreach my $delete_field (@editsuggestions) {
         &DelSuggestion( $borrowernumber, $delete_field,'intranet' );
     }
