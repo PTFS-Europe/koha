@@ -103,6 +103,7 @@
             [% END %]
         </ol>
     </nav> <!-- /.breadcrumbs -->
+    [% INCLUDE 'blocking_errors.inc' %]
 
     [% INCLUDE 'blocking_errors.inc' %]
 
