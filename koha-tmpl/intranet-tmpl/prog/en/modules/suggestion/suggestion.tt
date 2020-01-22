@@ -103,6 +103,7 @@
             [% END %]
         </ol>
     </nav> <!-- /.breadcrumbs -->
+    [% INCLUDE 'blocking_errors.inc' %]
 
     [% IF ( op == 'show' ) %]
         <div class="main container-fluid">
@@ -345,6 +346,7 @@
             [% END %]
 
             <form id="add_edit" action="suggestion.pl" method="post" class="validated">
+                [% INCLUDE 'csrf-token.inc' %]
                 <input type="hidden" name="redirect" id="redirect" value="[% redirect | html %]" />
                 <input type="hidden" name="borrowernumber" id="borrowernumber" value="[% borrowernumber | html %]" />
                 [% IF ( suggestionid ) %]
@@ -716,6 +718,7 @@
             [% FOREACH suggestion IN suggestions %]
                 <div id="[% suggestion.suggestiontype | html %]">
                     <form class="update_suggestions" name="f" method="post" action="/cgi-bin/koha/suggestion/suggestion.pl#[% suggestion.suggestiontype| uri %]">
+                        [% INCLUDE 'csrf-token.inc' %]
 
                         [% IF ( suggestion.suggestions_loop ) %]
                             <p>
@@ -986,6 +989,7 @@
                 <div class="col-sm-2 col-sm-pull-10">
                     <aside>
                         <form name="suggestionfilter" action="suggestion.pl" method="get">
+                            [% INCLUDE 'csrf-token.inc' %]
                             <input type="hidden" name="branchcode" value="[% branchfilter | html %]" />
                             <fieldset class="brief">
                                 <ol style="display:block;">
