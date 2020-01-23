@@ -24,6 +24,7 @@
            [%- CASE 'RENT_DAILY_RENEW' -%]Renewal of daily rental item
            [%- CASE 'RESERVE'          -%]Hold fee
            [%- CASE 'RESERVE_EXPIRED'  -%]Hold waiting too long
+           [%- CASE 'Payout'           -%]Payout
            [%- CASE                    -%][% account.debit_type.description | html %]
        [%- END -%]
     [%- END -%]
