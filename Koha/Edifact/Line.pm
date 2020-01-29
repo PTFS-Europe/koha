@@ -158,6 +158,9 @@ sub _parse_lines {
             {    # Suppliers unique order line reference number
                 $d->{orderline_reference_number} = $s->elem( 0, 1 );
             }
+            elsif ( $qualifier eq 'AE' ) {
+                $d->{authorisation} =  $s->elem( 0, 1 );
+            }
         }
     }
     $d->{item_description} = _format_item_description(@item_description);
@@ -875,6 +878,15 @@ sub availability_date {
     }
     return;
 }
+
+sub authorisation_for_expense {
+    my $self = shift;
+    if ( exists $self->{authorisation} ) {
+        return $self->{authorisation};
+    }
+    return;
+}
+
 
 # return text string representing action code
 sub _translate_action {
