@@ -275,10 +275,20 @@ sub process_invoice {
 
             foreach my $line ( @{$lines} ) {
                 my $ordernumber = $line->ordernumber;
+                if (!$ordernumber ) {
+                   $logger->trace( "Skipping invoice line no associated ordernumber" );
+                   next;
+                }
+
                 $logger->trace( "Receipting order:$ordernumber Qty: ",
                     $line->quantity );
 
                 my $order = $schema->resultset('Aqorder')->find($ordernumber);
+                if ($order->biblionumber->biblionumber) {
+                    my $b = $order->biblionumber->biblionumber;
+                    my $id = $line->item_number_id;
+                    $logger->trace("Updating bib:$b id:$id");
+                }
 
       # ModReceiveOrder does not validate that $ordernumber exists validate here
                 if ($order) {
@@ -298,7 +308,7 @@ sub process_invoice {
                         );
                     }
 
-                    my $price = _get_invoiced_price($line);
+                    my ( $price, $price_excl_tax ) = _get_invoiced_price($line);
 
                     if ( $order->quantity > $line->quantity ) {
                         my $ordered = $order->quantity;
@@ -309,13 +319,15 @@ sub process_invoice {
                         $order->update;
                         my $received_order = $order->copy(
                             {
-                                ordernumber      => undef,
-                                quantity         => $line->quantity,
-                                quantityreceived => $line->quantity,
-                                orderstatus      => 'complete',
-                                unitprice        => $price,
-                                invoiceid        => $invoiceid,
-                                datereceived     => $msg_date,
+                                ordernumber            => undef,
+                                quantity               => $line->quantity,
+                                quantityreceived       => $line->quantity,
+                                orderstatus            => 'complete',
+                                unitprice              => $price,
+                                unitprice_tax_included => $price,
+                                unitprice_tax_excluded => $price_excl_tax,
+                                invoiceid              => $invoiceid,
+                                datereceived           => $msg_date,
                             }
                         );
                         transfer_items( $schema, $line, $order,
@@ -328,6 +340,8 @@ sub process_invoice {
                         $order->datereceived($msg_date);
                         $order->invoiceid($invoiceid);
                         $order->unitprice($price);
+                        $order->unitprice_tax_excluded($price_excl_tax);
+                        $order->unitprice_tax_included($price);
                         $order->orderstatus('complete');
                         $order->update;
                         receipt_items( $schema, $line, $ordernumber );
@@ -351,15 +365,28 @@ sub process_invoice {
 }
 
 sub _get_invoiced_price {
-    my $line  = shift;
-    my $price = $line->price_net;
-    if ( !defined $price ) {  # no net price so generate it from lineitem amount
-        $price = $line->amt_lineitem;
-        if ( $price and $line->quantity > 1 ) {
-            $price /= $line->quantity;    # div line cost by qty
+    my $line       = shift;
+    my $qty        = $line->quantity;
+    my $line_total = $line->amt_total;
+    my $excl_tax   = $line->amt_lineitem;
+
+    # If no tax some suppliers omit the total owed
+    # If no total given calculate from cost exclusive of tax
+    # + tax amount (if present, sometimes omitted if 0 )
+    if ( !defined $line_total ) {
+        my $x = $line->amt_taxoncharge;
+        if ( !defined $x ) {
+            $x = 0;
         }
+        $line_total = $excl_tax + $x;
     }
-    return $price;
+
+    # invoices give amounts per orderline, Koha requires that we store
+    # them per item
+    if ( $qty != 1 ) {
+        return ( $line_total / $qty, $excl_tax / $qty );
+    }
+    return ( $line_total, $excl_tax );    # return as is for most common case
 }
 
 sub receipt_items {
@@ -620,26 +647,37 @@ sub quote_item {
         }
         $order_quantity = 1;    # attempts to create an orderline for each gir
     }
+    my $price  = $item->price_info;
+    # Howells do not send an info price but do have a gross price
+    if (!$price) {
+        $price = $item->price_gross;
+    }
     my $vendor = Koha::Acquisition::Booksellers->find( $quote->vendor_id );
+
+    # NB quote will not include tax info it only contains the list price
+    my $ecost = _discounted_price( $vendor->discount, $price, $item->price_info_inclusive );
 
     # database definitions should set some of these defaults but dont
     my $order_hash = {
         biblionumber       => $bib->{biblionumber},
         entrydate          => dt_from_string()->ymd(),
         basketno           => $basketno,
-        listprice          => $item->price,
+        listprice          => $price,
         quantity           => $order_quantity,
         quantityreceived   => 0,
         order_vendornote   => q{},
         order_internalnote => $order_note,
-        replacementprice   => $item->price,
-        rrp_tax_included   => $item->price,
-        rrp_tax_excluded   => $item->price,
-        ecost => _discounted_price( $quote->vendor->discount, $item->price ),
-        uncertainprice => 0,
-        sort1          => q{},
-        sort2          => q{},
-        currency       => $vendor->listprice(),
+        replacementprice   => $price,
+        rrp_tax_included   => $price,
+        rrp_tax_excluded   => $price,
+        rrp                => $price,
+        ecost              => $ecost,
+        ecost_tax_included => $ecost,
+        ecost_tax_excluded => $ecost,
+        uncertainprice     => 0,
+        sort1              => q{},
+        sort2              => q{},
+        currency           => $vendor->listprice(),
     };
 
     # suppliers references
@@ -864,8 +902,8 @@ sub quote_item {
                         notforloan       => -1,
                         cn_sort          => q{},
                         cn_source        => 'ddc',
-                        price            => $item->price,
-                        replacementprice => $item->price,
+                        price            => $price,
+                        replacementprice => $price,
                         itype =>
                           $item->girfield( 'stock_category', $occurrence ),
                         location =>
@@ -925,7 +963,13 @@ sub get_edifact_ean {
 
 # We should not need to have a routine to do this here
 sub _discounted_price {
-    my ( $discount, $price ) = @_;
+    my ( $discount, $price, $discounted_price ) = @_;
+    if (defined $discounted_price) {
+        return $discounted_price;
+    }
+    if (!$price) {
+        return 0;
+    }
     return $price - ( ( $discount * $price ) / 100 );
 }
 
@@ -1220,9 +1264,10 @@ Koha::EDI
 
 =head2 _get_invoiced_price
 
-      _get_invoiced_price(line_object)
+      (price, price_tax_excluded) = _get_invoiced_price(line_object)
 
-      Returns the net price or an equivalent calculated from line cost / qty
+      Returns an array of unitprice and unitprice_tax_excluded derived from the lineitem
+      monetary fields
 
 =head2 _discounted_price
 
