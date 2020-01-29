@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use FindBin qw( $Bin );
 
-use Test::More tests => 19;
+use Test::More tests => 21;
 
 BEGIN { use_ok('Koha::Edifact') }
 
@@ -70,6 +70,14 @@ my $lineprice = $lines->[7]->price_net;
 
 is( $lineprice, 4.55, 'correct net line price returned' );
 
+my $lineprice = $lines->[7]->price_gross;
+
+is( $lineprice, 7.99, 'correct gross line price returned' );
+
 my $tax = $lines->[7]->tax;
 
 is( $tax, 0, 'correct tax amount returned' );
+
+my $tax_rate = $lines->[7]->tax_rate;
+
+is( $tax_rate->{rate}, 0.0, 'correct tax rate returned' );

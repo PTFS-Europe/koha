@@ -218,6 +218,61 @@ sub lineitems {
     }
 }
 
+sub summary {
+    my $self       = shift;
+    my $in_summary = 0;
+    foreach my $s ( @{ $self->{datasegs} } ) {
+        if ( $s->tag eq 'UNS' ) {
+            $in_summary = 1;
+            next;
+        }
+        if ($in_summary) {
+            print $s->tag;
+            if ( $s->tag eq 'MOA' ) {
+                my $code = $s->elem( 0, 0 );
+
+                # Code table DE 5025
+                if ( $code eq '124' ) {
+                    $code = 'tax amount';
+                }
+                elsif ( $code eq '125' ) {
+                    $code = 'taxable amount';
+                }
+                elsif ( $code eq '79' ) {
+                    $code = 'total line item amounts';
+                }
+                elsif ( $code eq '129' ) {
+                    $code = 'total before tax and settlement discount';
+                }
+                elsif ( $code eq '122' ) {
+                    $code = 'total before tax and after settlement discount';
+                }
+                elsif ( $code eq '176' ) {
+                    $code = 'invoice total tax amount';
+                }
+                elsif ( $code eq '86' ) {
+                    $code = 'message total monetary amount';
+                }
+                elsif ( $code eq '113' ) {
+                    $code = 'prepaid amount';
+                }
+                elsif ( $code eq '9' ) {
+                    $code = 'amount payable';
+                }
+                elsif ( $code eq '259' ) {
+                    $code = 'total charges';
+                }
+                elsif ( $code eq '260' ) {
+                    $code = 'total allowances';
+                }
+                print " $code ", $s->elem( 0, 1 );
+            }
+            print "\n";
+        }
+    }
+    return;
+}
+
 1;
 __END__
 
