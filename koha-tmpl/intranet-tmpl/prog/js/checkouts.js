@@ -277,7 +277,7 @@ $(document).ready(function() {
                     "bVisible": false,
                 },
                 {
-                    "iDataSort": 2, // Sort on hidden unformatted date due column
+                    "aDataSort": [1,2], // Sort on hidden unformatted date due column
                     "mDataProp": function( oObj ) {
                         var due = oObj.date_due_formatted;
 
@@ -673,16 +673,6 @@ $(document).ready(function() {
                 collision: "none"
             });
         }
-
-        // Disable rowGroup when sorting on due date
-        $("#issues-table").on( 'order.dt', function(){
-            var order = issuesTable.api().order();
-            if ( order[0][0] === 3 ) {
-                issuesTable.api().rowGroup().disable();
-            } else {
-                issuesTable.api().rowGroup().enable();
-            }
-        });
     }
 
     // Don't load relatives' issues table unless it is clicked on
