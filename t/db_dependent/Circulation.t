@@ -3583,6 +3583,48 @@ subtest 'Filling a hold should cancel existing transfer' => sub {
     is( Koha::Item::Transfers->search({ itemnumber => $item->itemnumber, datearrived => undef })->count, 0, "No outstanding transfers when hold is waiting");
 };
 
+subtest 'Do not return on renewal (LOST charge)' => sub {
+    plan tests => 1;
+
+    t::lib::Mocks::mock_preference('MarkLostItemsAsReturned', 'onpayment');
+    my $library = $builder->build_object( { class => "Koha::Libraries" } );
+    my $manager = $builder->build_object( { class => "Koha::Patrons" } );
+    t::lib::Mocks::mock_userenv({ patron => $manager,branchcode => $manager->branchcode });
+
+    my $biblio = $builder->build_sample_biblio;
+
+    my $item = $builder->build_sample_item(
+        {
+            biblionumber     => $biblio->biblionumber,
+            library          => $library->branchcode,
+            replacementprice => 99.00,
+            itype            => $itemtype,
+        }
+    );
+
+    my $patron = $builder->build_object( { class => 'Koha::Patrons' } );
+    AddIssue( $patron->unblessed, $item->barcode );
+
+    my $accountline = Koha::Account::Line->new(
+        {
+            borrowernumber    => $patron->borrowernumber,
+            debit_type_code   => 'LOST',
+            status            => undef,
+            itemnumber        => $item->itemnumber,
+            amount            => 12,
+            amountoutstanding => 12,
+            interface         => 'something',
+        }
+    )->store();
+
+    # AddRenewal doesn't call _FixAccountForLostAndFound
+    AddIssue( $patron->unblessed, $item->barcode );
+
+    is( $patron->checkouts->count, 1,
+        'Renewal should not return the item even if a LOST payment has been made earlier'
+    );
+};
+
 $schema->storage->txn_rollback;
 C4::Context->clear_syspref_cache();
 $cache->clear_from_cache('single_holidays');
