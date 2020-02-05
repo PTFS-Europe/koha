@@ -2,6 +2,7 @@ INSERT INTO account_offset_types ( type ) VALUES
 ('Writeoff'),
 ('Payment'),
 ('Lost Item'),
+('Lost Item Found'),
 ('Processing Fee'),
 ('Manual Credit'),
 ('Manual Debit'),
