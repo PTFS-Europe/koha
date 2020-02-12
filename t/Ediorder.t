@@ -7,6 +7,7 @@ use Test::More tests => 13;
 
 BEGIN { use_ok('Koha::Edifact::Order') }
 
+
 # The following tests are for internal methods but they could
 # error spectacularly so best
 # Check that quoting is done correctly
@@ -122,4 +123,3 @@ cmp_ok(
 
 cmp_ok( $gsegs[3], 'eq', q{GIR+002+S_I:LVT},
     'Second part of split GIR field OK' );
-

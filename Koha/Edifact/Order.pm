@@ -50,7 +50,7 @@ sub new {
         $self->{is_response} = $parameter_hashref->{is_response};
 
         # convenient alias
-        $self->{basket}       = $self->{orderlines}->[0]->basketno;
+        $self->{basket} = $self->{orderlines}->[0]->basketno;
         $self->{message_date} = DateTime->now( time_zone => 'local' );
     }
 
@@ -302,6 +302,7 @@ sub beginning_of_message {
     my %bic_sans = (
         '5013546025065' => 'Peters',
         '9377779308820' => 'Bolinda',
+        '5013546048686' => 'Proquest',
         '5013546025078' => 'Bertrams',
         '5013546031839' => 'Ulverscroft',
     );
@@ -342,12 +343,11 @@ sub name_and_address {
 sub order_line {
     my ( $self, $linenumber, $orderline ) = @_;
 
-    my $basket =
-      Koha::Acquisition::Orders->find( $orderline->ordernumber )->basket;
+    my $basket = Koha::Acquisition::Orders->find( $orderline->ordernumber )->basket;
 
     my $schema = $self->{schema};
     if ( !$orderline->biblionumber )
-    {    # cannot generate an orderline without a bib record
+    {                        # cannot generate an orderline without a bib record
         return;
     }
     my $biblionumber = $orderline->biblionumber->biblionumber;
@@ -404,7 +404,7 @@ sub order_line {
             push @items, $item_hash;
         }
     }
-    my $budget    = GetBudget( $orderline->budget_id );
+    my $budget = GetBudget( $orderline->budget_id );
     my $ol_fields = { budget_code => $budget->{budget_code}, };
     if ( $orderline->order_vendornote ) {
         $ol_fields->{servicing_instruction} = $orderline->order_vendornote;
@@ -562,8 +562,6 @@ sub gir_segments {
             push @gir_elements,
               { identity_number => 'LSM', data => $item->{itemcallnumber} };
         }
-
-        # itemcallnumber -> shelfmark
         if ( $orderfields->{servicing_instruction} ) {
             push @gir_elements,
               {
@@ -571,8 +569,7 @@ sub gir_segments {
                 data            => $orderfields->{servicing_instruction}
               };
         }
-        my $e_cnt =
-          0;    # count number of elements so we dont exceed 5 per segment
+        my $e_cnt = 0;    # count number of elements so we dont exceed 5 per segment
         my $copy_no = sprintf 'GIR+%03d', $sequence_no;
         my $seg     = $copy_no;
         foreach my $e (@gir_elements) {
@@ -584,7 +581,6 @@ sub gir_segments {
               add_gir_identity_number( $e->{identity_number}, $e->{data} );
             ++$e_cnt;
         }
-
         $sequence_no++;
         push @segments, $seg;
     }
