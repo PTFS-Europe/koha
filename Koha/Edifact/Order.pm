@@ -302,6 +302,7 @@ sub beginning_of_message {
     my %bic_sans = (
         '5013546025065' => 'Peters',
         '9377779308820' => 'Bolinda',
+        '5013546048686' => 'Proquest',
         '5013546025078' => 'Bertrams',
         '5013546031839' => 'Ulverscroft',
     );
@@ -561,8 +562,6 @@ sub gir_segments {
             push @gir_elements,
               { identity_number => 'LSM', data => $item->{itemcallnumber} };
         }
-
-        # itemcallnumber -> shelfmark
         if ( $orderfields->{servicing_instruction} ) {
             push @gir_elements,
               {
@@ -582,7 +581,6 @@ sub gir_segments {
               add_gir_identity_number( $e->{identity_number}, $e->{data} );
             ++$e_cnt;
         }
-
         $sequence_no++;
         push @segments, $seg;
     }

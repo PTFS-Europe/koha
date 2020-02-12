@@ -63,11 +63,8 @@ sub _parse_lines {
         elsif ( $s->tag eq 'IMD' ) {
             push @item_description, $s;
         }
-	elsif ( $s->tag eq 'QTY' ) {
-		if ( $s->elem( 0, 0 ) == 47 ) {
-			$d->{quantity_invoiced} = $s->elem( 0, 1 );
-		}
-		$d->{quantity} = $s->elem( 0, 1 );
+        elsif ( $s->tag eq 'QTY' ) {
+            $d->{quantity} = $s->elem( 0, 1 );
         }
         elsif ( $s->tag eq 'DTM' ) {
             if ( $s->elem( 0, 0 ) eq '44' ) {
@@ -142,6 +139,10 @@ sub _parse_lines {
 
             $d->{monetary_amount} = $s->elem( 0, 1 );
         }
+        elsif ( $s->tag eq 'PRI' ) {
+
+            $d->{price} = $s->elem( 0, 1 );
+        }
         elsif ( $s->tag eq 'RFF' ) {
             my $qualifier = $s->elem( 0, 0 );
             if ( $qualifier eq 'QLI' ) {  # Suppliers unique quotation reference
@@ -153,6 +154,9 @@ sub _parse_lines {
             elsif ( $qualifier eq 'SLI' )
             {    # Suppliers unique order line reference number
                 $d->{orderline_reference_number} = $s->elem( 0, 1 );
+            }
+            elsif ( $qualifier eq 'AE' ) {
+                $d->{authorisation} =  $s->elem( 0, 1 );
             }
         }
     }
@@ -378,11 +382,10 @@ sub quantity {
     return $self->{quantity};
 }
 
-sub quantity_invoiced {
+sub price {
     my $self = shift;
-    return $self->{quantity_invoiced};
+    return $self->{price};
 }
-
 
 sub reference {
     my $self = shift;
@@ -775,11 +778,17 @@ sub pri_price {
             # AAF information price (including all taxes, allowances or charges)
     foreach my $s ( @{ $self->{segs} } ) {
         if ( $s->tag eq 'PRI' && $s->elem( 0, 0 ) eq $price_qualifier ) {
-            my $r = {};
-                $r->{price}          = $s->elem( 0, 1 );
-                $r->{type}           = $s->elem( 0, 2 );
-                $r->{type_qualifier} = $s->elem( 0, 3 );
-            return $r;
+            # in practice not all 3 fields may be present
+            # so use a temp variable to avoid runtime warnings
+            my $p = {
+                price          => undef,
+                type           => undef,
+                type_qualifier => undef,
+            };
+            $p->{price}          = $s->elem( 0, 1 );
+            $p->{type}           = $s->elem( 0, 2 );
+            $p->{type_qualifier} = $s->elem( 0, 3 );
+            return $p;
         }
     }
     return;
@@ -861,6 +870,15 @@ sub availability_date {
     }
     return;
 }
+
+sub authorisation_for_expense {
+    my $self = shift;
+    if ( exists $self->{authorisation} ) {
+        return $self->{authorisation};
+    }
+    return;
+}
+
 
 # return text string representing action code
 sub _translate_action {
