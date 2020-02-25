@@ -81,7 +81,9 @@ INSERT INTO `letter` (module, code, name, title, content, message_transport_type
 
 ('suggestions','TO_PROCESS','Увідомлення фондотримача', 'Пропозиція готова то обробки',
  'Дорог(ий/а) <<borrowers.firstname>> <<borrowers.surname>>,\n\n нова пропозиція гоотова до обробки: „<<suggestions.title>>“ / <<suggestions.author>>.\n\n Спасибі,\n\n<<branches.branchname>>',
- 'email')
+ 'email'),
+
+('members', 'PROBLEM_REPORT','OPAC Problem Report','OPAC Problem Report','Username: <<problem_reports.username>>\n\nProblem page: <<problem_reports.problempage>>\n\nTitle: <<problem_reports.title>>\n\nMessage: <<problem_reports.content>>','email')
 ;
 
 INSERT INTO `letter` (module, code, name, title, content, is_html, message_transport_type)
