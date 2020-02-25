@@ -307,21 +307,26 @@ sub process_invoice {
                             }
                         );
                     }
+                    # If quantity_invoiced is present use it in preference
+                    my $quantity = $line->quantity_invoiced;
+                    if (!$quantity) {
+                        $quantity = $line->quantity;
+                    }
 
-                    my ( $price, $price_excl_tax ) = _get_invoiced_price($line);
+                    my ( $price, $price_excl_tax ) = _get_invoiced_price($line, $quantity);
 
-                    if ( $order->quantity > $line->quantity ) {
+                    if ( $order->quantity > $quantity ) {
                         my $ordered = $order->quantity;
 
                         # part receipt
                         $order->orderstatus('partial');
-                        $order->quantity( $ordered - $line->quantity );
+                        $order->quantity( $ordered - $quantity );
                         $order->update;
                         my $received_order = $order->copy(
                             {
                                 ordernumber            => undef,
-                                quantity               => $line->quantity,
-                                quantityreceived       => $line->quantity,
+                                quantity               => $quantity,
+                                quantityreceived       => $quantity,
                                 orderstatus            => 'complete',
                                 unitprice              => $price,
                                 unitprice_tax_included => $price,
@@ -331,12 +336,12 @@ sub process_invoice {
                             }
                         );
                         transfer_items( $schema, $line, $order,
-                            $received_order );
+                            $received_order, $quantity );
                         receipt_items( $schema, $line,
-                            $received_order->ordernumber );
+                            $received_order->ordernumber, $quantity );
                     }
                     else {    # simple receipt all copies on order
-                        $order->quantityreceived( $line->quantity );
+                        $order->quantityreceived( $quantity );
                         $order->datereceived($msg_date);
                         $order->invoiceid($invoiceid);
                         $order->unitprice($price);
@@ -344,7 +349,7 @@ sub process_invoice {
                         $order->unitprice_tax_included($price);
                         $order->orderstatus('complete');
                         $order->update;
-                        receipt_items( $schema, $line, $ordernumber );
+                        receipt_items( $schema, $line, $ordernumber, $quantity );
                     }
                 }
                 else {
@@ -366,7 +371,7 @@ sub process_invoice {
 
 sub _get_invoiced_price {
     my $line       = shift;
-    my $qty        = $line->quantity;
+    my $qty        = shift;
     my $line_total = $line->amt_total;
     my $excl_tax   = $line->amt_lineitem;
 
@@ -390,9 +395,8 @@ sub _get_invoiced_price {
 }
 
 sub receipt_items {
-    my ( $schema, $inv_line, $ordernumber ) = @_;
+    my ( $schema, $inv_line, $ordernumber, $quantity ) = @_;
     my $logger   = Log::Log4perl->get_logger();
-    my $quantity = $inv_line->quantity;
 
     # itemnumber is not a foreign key ??? makes this a bit cumbersome
     my @item_links = $schema->resultset('AqordersItem')->search(
@@ -478,10 +482,9 @@ sub receipt_items {
 }
 
 sub transfer_items {
-    my ( $schema, $inv_line, $order_from, $order_to ) = @_;
+    my ( $schema, $inv_line, $order_from, $order_to, $quantity ) = @_;
 
     # Transfer x items from the orig order to a completed partial order
-    my $quantity = $inv_line->quantity;
     my $gocc     = 0;
     my %mapped_by_branch;
     while ( $gocc < $quantity ) {
