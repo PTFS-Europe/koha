@@ -1913,7 +1913,7 @@ sub AddReturn {
                     $circControlBranch, $return_date, $patron->privacy );
             };
             unless ( $@ ) {
-                if ( C4::Context->preference('CalculateFinesOnReturn') && $is_overdue && !$item->itemlost ) {
+                if ( ( C4::Context->preference('CalculateFinesOnReturn') && $is_overdue ) || $return_date ) {
                     _CalculateAndUpdateFine( { issue => $issue, item => $item, borrower => $patron_unblessed, return_date => $return_date } );
                 }
             } else {
