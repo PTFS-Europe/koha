@@ -28,6 +28,7 @@ use C4::Context;
 use C4::Acquisition;
 use C4::Biblio;
 use C4::Items;
+use C4::Log qw(logaction);
 use C4::Search;
 
 use Koha::Number::Price;
@@ -183,6 +184,23 @@ while ( my $item = $items->next )  {
         },
         $biblionumber,
         $item->itemnumber,
+    );
+}
+
+# Log the receipt
+if (C4::Context->preference("AcqLog")) {
+    my $infos =
+        sprintf("%010d", $quantityrec) .
+        sprintf("%010d", $bookfund) .
+        sprintf("%010.2f", $input->param("tax_rate")) .
+        sprintf("%010.2f", $replacementprice) .
+        sprintf("%010.2f", $unitprice);
+
+    logaction(
+        'ACQUISITIONS',
+        'RECEIVE_ORDER',
+        $ordernumber,
+        $infos
     );
 }
 
