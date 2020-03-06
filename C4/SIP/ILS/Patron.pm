@@ -358,6 +358,9 @@ sub fine_items {
     my $end = shift;
     my $server = shift;
 
+    # Short circuit this as fine_items as defined here cause problems on some clients
+    return [];
+
     my @fees = Koha::Database->new()->schema()->resultset('Accountline')->search(
         {
             borrowernumber    => $self->{borrowernumber},
