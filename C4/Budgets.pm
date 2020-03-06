@@ -24,12 +24,13 @@ use Koha::Patrons;
 use Koha::Acquisition::Invoice::Adjustments;
 use C4::Debug;
 use C4::Acquisition;
+use C4::Log qw(logaction);
 use vars qw(@ISA @EXPORT);
 
 BEGIN {
-	require Exporter;
-	@ISA    = qw(Exporter);
-	@EXPORT = qw(
+    require Exporter;
+    @ISA    = qw(Exporter);
+    @EXPORT = qw(
 
         &GetBudget
         &GetBudgetByOrderNumber
@@ -39,7 +40,7 @@ BEGIN {
         &GetBudgetsReport
         &GetBudgetReport
         &GetBudgetHierarchy
-	    &AddBudget
+        &AddBudget
         &ModBudget
         &DelBudget
         &GetBudgetSpent
@@ -54,15 +55,15 @@ BEGIN {
         &CanUserUseBudget
         &CanUserModifyBudget
 
-	    &GetBudgetPeriod
+        &GetBudgetPeriod
         &GetBudgetPeriods
         &ModBudgetPeriod
         &AddBudgetPeriod
-	    &DelBudgetPeriod
+        &DelBudgetPeriod
 
         &ModBudgetPlan
 
-		&GetBudgetsPlanCell
+        &GetBudgetsPlanCell
         &AddBudgetPlanValue
         &GetBudgetAuthCats
         &BudgetHasChildren
@@ -71,7 +72,7 @@ BEGIN {
 
         &HideCols
         &GetCols
-	);
+    );
 }
 
 # ----------------------------BUDGETS.PM-----------------------------";
@@ -359,14 +360,14 @@ sub GetBudgetSpent {
         $sum += $adj->adjustment;
     }
 
-	return $sum;
+    return $sum;
 }
 
 # -------------------------------------------------------------------
 sub GetBudgetOrdered {
-	my ($budget_id) = @_;
-	my $dbh = C4::Context->dbh;
-	my $sth = $dbh->prepare(qq|
+    my ($budget_id) = @_;
+    my $dbh = C4::Context->dbh;
+    my $sth = $dbh->prepare(qq|
         SELECT SUM(| . C4::Acquisition::get_rounding_sql(qq|ecost_tax_included|) . qq| *  quantity) AS sum FROM aqorders
             WHERE budget_id = ? AND
             quantityreceived = 0 AND
@@ -380,7 +381,7 @@ sub GetBudgetOrdered {
         $sum += $adj->adjustment;
     }
 
-	return $sum;
+    return $sum;
 }
 
 =head2 GetBudgetName
@@ -430,7 +431,7 @@ sub GetBudgetAuthCats  {
 
 # -------------------------------------------------------------------
 sub GetBudgetPeriods {
-	my ($filters,$orderby) = @_;
+    my ($filters,$orderby) = @_;
 
     my $rs = Koha::Database->new()->schema->resultset('Aqbudgetperiod');
     $rs = $rs->search( $filters, { order_by => $orderby } );
@@ -451,18 +452,18 @@ sub GetBudgetPeriod {
 }
 
 sub DelBudgetPeriod{
-	my ($budget_period_id) = @_;
-	my $dbh = C4::Context->dbh;
-	  ; ## $total = number of records linked to the record that must be deleted
+    my ($budget_period_id) = @_;
+    my $dbh = C4::Context->dbh;
+      ; ## $total = number of records linked to the record that must be deleted
     my $total = 0;
 
-	## get information about the record that will be deleted
-	my $sth = $dbh->prepare(qq|
-		DELETE 
+    ## get information about the record that will be deleted
+    my $sth = $dbh->prepare(qq|
+        DELETE
          FROM aqbudgetperiods
          WHERE budget_period_id=? |
-	);
-	return $sth->execute($budget_period_id);
+    );
+    return $sth->execute($budget_period_id);
 }
 
 # -------------------------------------------------------------------
@@ -487,13 +488,13 @@ sub GetBudgetHierarchy {
                     LEFT JOIN borrowers b on b.borrowernumber = aqbudgets.budget_owner_id
                     JOIN aqbudgetperiods USING (budget_period_id)|;
 
-	my @where_strings;
+    my @where_strings;
     # show only period X if requested
     if ($budget_period_id) {
         push @where_strings," aqbudgets.budget_period_id = ?";
         push @bind_params, $budget_period_id;
     }
-	# show only budgets owned by me, my branch or everyone
+    # show only budgets owned by me, my branch or everyone
     if ($owner) {
         if ($branchcode) {
             push @where_strings,
@@ -509,10 +510,10 @@ sub GetBudgetHierarchy {
             push @bind_params, $branchcode;
         }
     }
-	$query.=" WHERE ".join(' AND ', @where_strings) if @where_strings;
-	$debug && warn $query,join(",",@bind_params);
-	my $sth = $dbh->prepare($query);
-	$sth->execute(@bind_params);
+    $query.=" WHERE ".join(' AND ', @where_strings) if @where_strings;
+    $debug && warn $query,join(",",@bind_params);
+    my $sth = $dbh->prepare($query);
+    $sth->execute(@bind_params);
 
     my %links;
     # create hash with budget_id has key
@@ -635,7 +636,22 @@ sub AddBudget {
     undef $budget->{budget_encumb}   if defined $budget->{budget_encumb}   && $budget->{budget_encumb}   eq '';
     undef $budget->{budget_owner_id} if defined $budget->{budget_owner_id} && $budget->{budget_owner_id} eq '';
     my $resultset = Koha::Database->new()->schema->resultset('Aqbudget');
-    return $resultset->create($budget)->id;
+    my $id = $resultset->create($budget)->id;
+
+    # Log the addition
+    if (C4::Context->preference("AcqLog")) {
+        my $infos =
+            sprintf("%010d", $budget->{budget_amount}) .
+            sprintf("%010d", $budget->{budget_encumb}) .
+            sprintf("%010d", $budget->{budget_expend});
+        logaction(
+            'ACQUISITIONS',
+            'CREATE_FUND',
+            $id,
+            $infos
+        );
+    }
+    return $id;
 }
 
 # -------------------------------------------------------------------
@@ -644,6 +660,24 @@ sub ModBudget {
     my ($budget) = @_;
     my $result = Koha::Database->new()->schema->resultset('Aqbudget')->find($budget);
     return unless($result);
+
+    # Log this modification
+    if (C4::Context->preference("AcqLog")) {
+        my $infos =
+            sprintf("%010d", $budget->{budget_amount}) .
+            sprintf("%010d", $budget->{budget_encumb}) .
+            sprintf("%010d", $budget->{budget_expend}) .
+            sprintf("%010d", $result->budget_amount) .
+            sprintf("%010d", $result->budget_encumb) .
+            sprintf("%010d", $result->budget_expend) .
+            sprintf("%010d", 0 - ($result->budget_amount - $budget->{budget_amount}));
+        logaction(
+            'ACQUISITIONS',
+            'MODIFY_FUND',
+            $budget->{budget_id},
+            $infos
+        );
+    }
 
     undef $budget->{budget_encumb}   if defined $budget->{budget_encumb}   && $budget->{budget_encumb}   eq '';
     undef $budget->{budget_owner_id} if defined $budget->{budget_owner_id} && $budget->{budget_owner_id} eq '';
@@ -654,11 +688,19 @@ sub ModBudget {
 # -------------------------------------------------------------------
 # FIXME Must be replaced by Koha::Acquisition::Fund->delete
 sub DelBudget {
-	my ($budget_id) = @_;
-	my $dbh         = C4::Context->dbh;
-	my $sth         = $dbh->prepare("delete from aqbudgets where budget_id=?");
-	my $rc          = $sth->execute($budget_id);
-	return $rc;
+    my ($budget_id) = @_;
+    my $dbh         = C4::Context->dbh;
+    my $sth         = $dbh->prepare("delete from aqbudgets where budget_id=?");
+    my $rc          = $sth->execute($budget_id);
+    # Log the deletion
+    if (C4::Context->preference("AcqLog")) {
+        logaction(
+            'ACQUISITIONS',
+            'DELETE_FUND',
+            $budget_id
+        );
+    }
+    return $rc;
 }
 
 
