@@ -49,6 +49,7 @@ sub pay {
     my $fee_id               = shift;
     my $is_writeoff          = shift;
     my $disallow_overpayment = shift;
+    my $register_id          = shift;
 
     my $type = $is_writeoff ? 'WRITEOFF' : 'PAYMENT';
 
@@ -81,10 +82,11 @@ sub pay {
     else {
         $account->pay(
             {
-                amount       => $amt,
-                type         => $type,
-                payment_type => 'SIP' . $sip_type,
-                interface    => C4::Context->interface
+                amount        => $amt,
+                type          => $type,
+                payment_type  => 'SIP' . $sip_type,
+                interface     => C4::Context->interface,
+                cash_register => $register_id
             }
         );
         return 1;
