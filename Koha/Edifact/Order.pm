@@ -557,7 +557,7 @@ sub gir_segments {
         }
         if ( $item->{location} ) {
             push @gir_elements,
-              { identity_number => 'LSQ', data => $item->{location} };
+              { identity_number => 'LSQ', data => $item->{ccode} };
         }
         if ( $item->{itemcallnumber} ) {
             push @gir_elements,
