@@ -67,31 +67,6 @@ my $child3  = $builder->build_object({
         }
     });
 
-Koha::Localization->new(
-    {
-        entity      => 'itemtypes',
-        code        => $child1->itemtype,
-        lang        => 'en',
-        translation => 'b translated itemtype desc'
-    }
-)->store;
-Koha::Localization->new(
-    {
-        entity      => 'itemtypes',
-        code        => $child2->itemtype,
-        lang        => 'en',
-        translation => 'a translated itemtype desc'
-    }
-)->store;
-Koha::Localization->new(
-    {
-        entity      => 'something_else',
-        code        => $child2->itemtype,
-        lang        => 'en',
-        translation => 'another thing'
-    }
-)->store;
-
 my $type = Koha::ItemTypes->find($child1->itemtype);
 ok( defined($type), 'first result' );
 is_deeply( $type->unblessed, $child1->unblessed, "We got back the same object" );
@@ -103,22 +78,11 @@ is_deeply( $type->unblessed, $child2->unblessed, "We got back the same object" )
 
 t::lib::Mocks::mock_preference('language', 'en');
 t::lib::Mocks::mock_preference('OPACLanguages', 'en');
-my $itemtypes = Koha::ItemTypes->search_with_localization;
+my $itemtypes = Koha::ItemTypes->search;
 is( $itemtypes->count, $initial_count + 4, 'We added 4 item types' );
-my $first_itemtype = $itemtypes->next;
-is(
-    $first_itemtype->translated_description,
-    'a translated itemtype desc',
-    'item types should be sorted by translated description'
-);
 
-my $children = $parent1->children_with_localization;
-my $first_child = $children->next;
-is(
-    $first_child->translated_description,
-    'a translated itemtype desc',
-    'item types should be sorted by translated description'
-);
+my $children = $parent1->children;
+is ($children->count, 3, 'parent type has 3 children');
 
 my $item_type = $builder->build_object({ class => 'Koha::ItemTypes' });
 

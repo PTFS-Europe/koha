@@ -97,7 +97,7 @@ if ( $reservefee > 0){
     $template->param( RESERVE_CHARGE => $reservefee);
 }
 
-my $itemtypes = { map { $_->{itemtype} => $_ } @{ Koha::ItemTypes->search_with_localization->unblessed } };
+my $itemtypes = { map { $_->{itemtype} => $_ } @{ Koha::ItemTypes->search->unblessed } };
 
 # There are two ways of calling this script, with a single biblio num
 # or multiple biblio nums.
@@ -443,13 +443,13 @@ foreach my $biblioNum (@biblionumbers) {
     $biblioLoopIter{reqholdnotes}=0; #TODO: For future use
 
     if (!$itemLevelTypes && $biblioData->{itemtype}) {
-        $biblioLoopIter{translated_description} = $itemtypes->{$biblioData->{itemtype}}{translated_description};
+        $biblioLoopIter{description} = $itemtypes->{$biblioData->{itemtype}}{description};
         $biblioLoopIter{imageurl} = getitemtypeimagesrc() . "/". $itemtypes->{$biblioData->{itemtype}}{imageurl};
     }
 
     foreach my $itemInfo (@{$biblioData->{itemInfos}}) {
         if ($itemLevelTypes && $itemInfo->{itype}) {
-            $itemInfo->{translated_description} = $itemtypes->{$itemInfo->{itype}}{translated_description};
+            $itemInfo->{description} = $itemtypes->{$itemInfo->{itype}}{description};
             $itemInfo->{imageurl} = getitemtypeimagesrc() . "/". $itemtypes->{$itemInfo->{itype}}{imageurl};
         }
 
@@ -490,7 +490,7 @@ foreach my $biblioNum (@biblionumbers) {
         $itemLoopIter->{copynumber} = $itemInfo->{copynumber};
         $itemLoopIter->{itemnotes} = $itemInfo->{itemnotes};
         if ($itemLevelTypes) {
-            $itemLoopIter->{translated_description} = $itemInfo->{translated_description};
+            $itemLoopIter->{description} = $itemInfo->{description};
             $itemLoopIter->{itype} = $itemInfo->{itype};
             $itemLoopIter->{imageurl} = $itemInfo->{imageurl};
         }

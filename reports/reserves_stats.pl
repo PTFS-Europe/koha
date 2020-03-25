@@ -29,6 +29,7 @@ use C4::Reports qw( GetDelimiterChoices );
 use C4::Members;
 use Koha::AuthorisedValues;
 use Koha::DateUtils qw( dt_from_string output_pref );
+use Koha::I18N;
 use Koha::ItemTypes;
 use Koha::Libraries;
 use Koha::Patron::Categories;
@@ -122,7 +123,7 @@ if ($do_it) {
 
 my $dbh = C4::Context->dbh;
 
-my $itemtypes = Koha::ItemTypes->search_with_localization;
+my $itemtypes = Koha::ItemTypes->search;
 
     # location list
 my @locations;
@@ -308,7 +309,7 @@ sub display_value {
     my $display_value =
         ( $crit =~ /ccode/ )         ? $ccodes->{$value}
       : ( $crit =~ /location/ )      ? $locations->{$value}
-      : ( $crit =~ /itemtype/ )      ? Koha::ItemTypes->find( $value )->translated_description
+      : ( $crit =~ /itemtype/ )      ? db_t('itemtype', Koha::ItemTypes->find( $value )->description)
       : ( $crit =~ /branch/ )        ? Koha::Libraries->find($value)->branchname
       : ( $crit =~ /reservestatus/ ) ? reservestatushuman($value)
       :                                $value;    # default fallback

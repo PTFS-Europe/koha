@@ -22,6 +22,7 @@ use Modern::Perl;
 use Template::Plugin;
 use base qw( Template::Plugin );
 
+use Koha::I18N;
 use Koha::ItemTypes;
 
 sub GetDescription {
@@ -30,11 +31,17 @@ sub GetDescription {
     return q{} unless $itemtype;
     my $parent;
     $parent = $itemtype->parent if $want_parent;
-    return $parent ? $parent->translated_description . "->" . $itemtype->translated_description : $itemtype->translated_description;
+    return $parent ? $self->t($parent->description) . "->" . $self->t($itemtype->description) : $self->t($itemtype->description);
 }
 
 sub Get {
-    return Koha::ItemTypes->search_with_localization->unblessed;
+    return Koha::ItemTypes->search->unblessed;
+}
+
+sub t {
+    my ($self, $description) = @_;
+
+    return db_t('itemtype', $description);
 }
 
 1;

@@ -268,6 +268,9 @@
                         <dt><a href="/cgi-bin/koha/admin/adveditorshortcuts.pl">Keyboard shortcuts</a></dt>
                         <dd>Define which keys trigger actions in the advanced cataloging editor</dd>
                     [% END %]
+
+                    <dt><a href="/cgi-bin/koha/admin/localization.pl">Localization</a></dt>
+                    <dd>Translate user-defined strings</dd>
                 </dl>
             [% END %]
             </div>

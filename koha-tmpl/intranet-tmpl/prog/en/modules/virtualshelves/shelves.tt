@@ -1,5 +1,6 @@
 [% USE raw %]
 [% USE Asset %]
+[% USE ItemTypes %]
 [% USE Koha %]
 [% USE KohaDates %]
 [% SET footerjs = 1 %]
@@ -259,7 +260,7 @@
                 </td>
             [% END %]
 			[% UNLESS ( item_level_itypes ) %]<td>
-                [% UNLESS ( noItemTypeImages || !itemsloo.imageurl ) %]<img src="[% itemsloo.imageurl | html %]" alt="[% itemsloo.description | html %]" title="[% itemsloo.description | html %]" />[% END %][% itemsloo.description | html %]
+                [% UNLESS ( noItemTypeImages || !itemsloo.imageurl ) %]<img src="[% itemsloo.imageurl | html %]" alt="[% ItemTypes.t(itemsloo.description) | html %]" title="[% ItemTypes.t(itemsloo.description) | html %]" />[% END %][% ItemTypes.t(itemsloo.description) | html %]
 			</td>[% END %]
 			<td>
                 [% IF ( itemsloo.XSLTBloc ) %]

@@ -145,7 +145,7 @@ if ( $op eq 'export' ) {
 }
 
 # getting all itemtypes
-my $itemtypes = Koha::ItemTypes->search_with_localization;
+my $itemtypes = Koha::ItemTypes->search;
 
 my $csv_profiles = Koha::CsvProfiles->search({ type => 'sql', used_for => 'export_lost_items' });
 

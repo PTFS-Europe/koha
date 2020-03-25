@@ -74,6 +74,7 @@ use Koha::Biblios;
 use Koha::RecordProcessor;
 use Koha::AuthorisedValues;
 use Koha::CirculationRules;
+use Koha::I18N;
 use Koha::Items;
 use Koha::ItemTypes;
 use Koha::Acquisition::Orders;
@@ -236,7 +237,7 @@ if ($session->param('busc')) {
     {
         my ($arrParamsBusc, $offset, $results_per_page, $patron) = @_;
 
-        my $itemtypes = { map { $_->{itemtype} => $_ } @{ Koha::ItemTypes->search_with_localization->unblessed } };
+        my $itemtypes = { map { $_->{itemtype} => $_ } @{ Koha::ItemTypes->search->unblessed } };
         my @servers;
         @servers = @{$arrParamsBusc->{'server'}} if $arrParamsBusc->{'server'};
         @servers = ("biblioserver") unless (@servers);
@@ -540,12 +541,12 @@ my $HideMARC = $record_processor->filters->[0]->should_hide_marc(
         interface     => 'opac',
     } );
 
-my $itemtypes = { map { $_->{itemtype} => $_ } @{ Koha::ItemTypes->search_with_localization->unblessed } };
+my $itemtypes = { map { $_->{itemtype} => $_ } @{ Koha::ItemTypes->search->unblessed } };
 # imageurl:
 my $itemtype = $dat->{'itemtype'};
 if ( $itemtype ) {
     $dat->{'imageurl'}    = getitemtypeimagelocation( 'opac', $itemtypes->{$itemtype}->{'imageurl'} );
-    $dat->{'description'} = $itemtypes->{$itemtype}->{translated_description};
+    $dat->{'description'} = db_t('itemtype', $itemtypes->{$itemtype}->{description});
 }
 
 my $shelflocations =
@@ -724,7 +725,7 @@ if ( not $viewallitems and @items > $max_items_to_display ) {
     }
     if (exists $itm->{itype} && defined($itm->{itype}) && exists $itemtypes->{ $itm->{itype} }) {
         $itm->{'imageurl'}    = getitemtypeimagelocation( 'opac', $itemtypes->{ $itm->{itype} }->{'imageurl'} );
-        $itm->{'description'} = $itemtypes->{ $itm->{itype} }->{translated_description};
+        $itm->{'description'} = db_t('itemtype', $itemtypes->{ $itm->{itype} }->{description});
     }
     foreach (qw(ccode materials enumchron copynumber itemnotes location_description uri)) {
         $itemfields{$_} = 1 if ($itm->{$_});

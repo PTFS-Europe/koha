@@ -30,6 +30,7 @@ use C4::Context;
 use Koha::AuthorisedValues;
 use Koha::DateUtils qw( dt_from_string output_pref );
 use Koha::Items;
+use Koha::I18N;
 use Koha::ItemTypes;
 
 my $input = CGI->new;
@@ -146,7 +147,7 @@ my $item_level_itypes = C4::Context->preference('item-level_itypes');
 my $claims_returned_lost_value = C4::Context->preference('ClaimReturnedLostValue');
 my $confirm_parts_required = C4::Context->preference("CircConfirmItemParts");
 
-my $itemtypes = { map { $_->{itemtype} => $_->{translated_description} } @{ Koha::ItemTypes->search_with_localization->unblessed } };
+my $itemtypes = { map { $_->{itemtype} => db_t('itemtypes', $_->{itemtype}) } @{ Koha::ItemTypes->search->unblessed } };
 
 my @checkouts_today;
 my @checkouts_previous;

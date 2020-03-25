@@ -1,6 +1,7 @@
 [% USE raw %]
 [% USE Asset %]
 [% USE Branches %]
+[% USE ItemTypes %]
 [% SET footerjs = 1 %]
 [% INCLUDE 'doc-head-open.inc' %]
 <title>Export data &rsaquo; Tools &rsaquo; Koha</title>
@@ -80,7 +81,7 @@
             <select name="itemtype" id="itemtype">
                 <option value="">-- All --</option>
                 [% FOREACH itemtype IN itemtypes %]
-                    <option value="[% itemtype.itemtype | html %]">[% itemtype.translated_description | html %]</option>
+                    <option value="[% itemtype.itemtype | html %]">[% ItemTypes.t(itemtype.description) | html %]</option>
                 [% END %]
             </select>
         </li>

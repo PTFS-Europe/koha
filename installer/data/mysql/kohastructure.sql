@@ -3203,6 +3203,28 @@ CREATE TABLE `keyboard_shortcuts` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+
+DROP TABLE IF EXISTS l10n_source;
+CREATE TABLE l10n_source (
+    l10n_source_id INT(11) NOT NULL AUTO_INCREMENT,
+    context VARCHAR(100) NULL DEFAULT NULL,
+    source TEXT NOT NULL,
+    PRIMARY KEY (l10n_source_id),
+    KEY context_source (context, source(60))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+
+DROP TABLE IF EXISTS l10n_target;
+CREATE TABLE l10n_target (
+    l10n_target_id INT(11) NOT NULL AUTO_INCREMENT,
+    l10n_source_id INT(11) NOT NULL,
+    language VARCHAR(10) NOT NULL,
+    translation TEXT NOT NULL,
+    PRIMARY KEY (l10n_target_id),
+    UNIQUE KEY l10n_source_language (l10n_source_id, language),
+    FOREIGN KEY l10n_source (l10n_source_id) REFERENCES l10n_source (l10n_source_id)
+        ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+
 --
 -- Table structure for table `language_descriptions`
 --

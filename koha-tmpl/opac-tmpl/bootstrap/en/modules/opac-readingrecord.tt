@@ -1,4 +1,5 @@
 [% USE raw %]
+[% USE ItemTypes %]
 [% USE Koha %]
 [% USE KohaDates %]
 [% USE TablesSettings %]
@@ -160,7 +161,7 @@
                                                     [% END %]
                                                 [% END %]
                                                 <span class="tdlabel">Item type:</span>
-                                                [% issue.translated_description | html %]</td>
+                                                [% ItemTypes.t(issue.description) | html %]</td>
                                                 <td>
                                                 <span class="tdlabel">Call number:</span>
                                                 [% issue.itemcallnumber | html %]

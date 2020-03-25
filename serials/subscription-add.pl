@@ -144,9 +144,8 @@ $template->param(
     additional_field_values => \%additional_field_values,
 );
 
-my $typeloop = { map { $_->{itemtype} => $_ } @{ Koha::ItemTypes->search_with_localization->unblessed } };
+my $typeloop = { map { $_->{itemtype} => $_ } @{ Koha::ItemTypes->search->unblessed } };
 
-# FIXME We should use the translated_description for item types
 my @typearg =
     map { { code => $_, value => $typeloop->{$_}{'description'}, selected => ( ( $subs->{itemtype} and $_ eq $subs->{itemtype} ) ? "selected=\"selected\"" : "" ), } } sort keys %{$typeloop};
 my @previoustypearg =

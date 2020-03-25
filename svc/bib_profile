@@ -113,7 +113,7 @@ sub _get_bib_number_tag {
 
 sub _get_biblioitem_itemtypes {
     my $result = shift;
-    my $itemtypes = { map { $_->{itemtype} => $_ } @{ Koha::ItemTypes->search_with_localization->unblessed } };
+    my $itemtypes = { map { $_->{itemtype} => $_ } @{ Koha::ItemTypes->search->unblessed } };
     my $sth = $dbh->prepare_cached("SELECT tagfield, tagsubfield
                                     FROM marc_subfield_structure 
                                     WHERE frameworkcode = '' 

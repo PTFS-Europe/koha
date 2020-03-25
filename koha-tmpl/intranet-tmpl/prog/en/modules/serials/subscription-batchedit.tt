@@ -119,7 +119,7 @@
                                     <select id="itemtype" name="itemtype">
                                         <option value="">No change</option>
                                         [% FOREACH itemtype IN ItemTypes.Get() %]
-                                            <option value="[% itemtype.itemtype | html %]">[% itemtype.description | html %]</option>
+                                            <option value="[% itemtype.itemtype | html %]">[% ItemTypes.t(itemtype.description) | html %]</option>
                                         [% END %]
                                     </select>
                                 </li>

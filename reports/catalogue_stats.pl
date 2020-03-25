@@ -113,7 +113,7 @@ if ($do_it) {
 	my $dbh = C4::Context->dbh;
 	my $count=0;
 
-    my $itemtypes = Koha::ItemTypes->search_with_localization;
+    my $itemtypes = Koha::ItemTypes->search;
 
     my @authvals = map { { code => $_->{authorised_value}, description => $_->{lib} } } Koha::AuthorisedValues->get_descriptions_by_koha_field( { frameworkcode => '', kohafield => 'items.ccode' }, { order_by => ['description'] } );
     my @locations = map { { code => $_->{authorised_value}, description => $_->{lib} } } Koha::AuthorisedValues->get_descriptions_by_koha_field( { frameworkcode => '', kohafield => 'items.location' }, { order_by => ['description'] } );

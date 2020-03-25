@@ -27,6 +27,7 @@ use C4::Output qw( output_with_http_headers );
 use Koha::Libraries;
 
 use Koha::AuthorisedValues;
+use Koha::I18N;
 use Koha::Items;
 use Koha::ItemTypes;
 
@@ -75,7 +76,7 @@ if($itemnumber) {
 
     my $itemtype = Koha::ItemTypes->find( $item->effective_itemtype );
     # We should not do that here, but call ->itemtype->description when needed instea
-    $item_unblessed->{itemtype} = $itemtype->description; # FIXME Should not it be translated_description?
+    $item_unblessed->{itemtype} = db_t('itemtype', $itemtype->description);
 }
 
 my $json_text = to_json( $item_unblessed, { utf8 => 1 } );

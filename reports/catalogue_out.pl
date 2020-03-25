@@ -54,7 +54,7 @@ if ($do_it) {
     exit;    # in either case, exit after do_it
 }
 
-my $itemtypes = Koha::ItemTypes->search_with_localization;
+my $itemtypes = Koha::ItemTypes->search;
 $template->param(
     itemtypes => $itemtypes,
 );

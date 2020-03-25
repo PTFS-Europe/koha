@@ -108,6 +108,7 @@ use Koha::Authority::Types;
 use Koha::Acquisition::Currencies;
 use Koha::Biblio::Metadatas;
 use Koha::Holds;
+use Koha::I18N;
 use Koha::ItemTypes;
 use Koha::MarcOverlayRules;
 use Koha::Plugins;
@@ -1447,7 +1448,7 @@ sub GetAuthorisedValueDesc {
         #---- itemtypes
         if ( $tagslib->{$tag}->{$subfield}->{'authorised_value'} eq "itemtypes" ) {
             my $itemtype = Koha::ItemTypes->find( $value );
-            return $itemtype ? $itemtype->translated_description : q||;
+            return $itemtype ? db_t('itemtype', $itemtype->description) : q||;
         }
 
         if ( $tagslib->{$tag}->{$subfield}->{'authorised_value'} eq "cn_source" ) {

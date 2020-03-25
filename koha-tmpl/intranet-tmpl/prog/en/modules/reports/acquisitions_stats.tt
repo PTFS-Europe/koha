@@ -1,3 +1,4 @@
+[% USE ItemTypes %]
 [% SET footerjs = 1 %]
 [% INCLUDE 'doc-head-open.inc' %]
 <title>[% IF ( do_it ) %]Acquisitions statistics &rsaquo; Results[% ELSE %]Acquisitions statistics[% END %] &rsaquo; Reports &rsaquo; Koha</title>
@@ -218,7 +219,7 @@
                     <select name="Filter" id="itemtypes">
                         <option value="">All item types</option>
                         [% FOREACH itemtype IN itemtypes %]
-                        <option value="[% itemtype.itemtype | html %]">[% itemtype.translated_description | html %]</option>
+                        <option value="[% itemtype.itemtype | html %]">[% ItemTypes.t(itemtype.description) | html %]</option>
                         [% END %]
                     </select>
                 </td>

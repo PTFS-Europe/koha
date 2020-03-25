@@ -189,7 +189,7 @@ my $count          = 0;
 my $overdues_count = 0;
 my @overdues;
 my @issuedat;
-my $itemtypes = { map { $_->{itemtype} => $_ } @{ Koha::ItemTypes->search_with_localization->unblessed } };
+my $itemtypes = { map { $_->{itemtype} => $_ } @{ Koha::ItemTypes->search->unblessed } };
 my $pending_checkouts = $patron->pending_checkouts->search({}, { order_by => [ { -desc => 'date_due' }, { -asc => 'issue_id' } ] });
 my $are_renewable_items = 0;
 if ( $pending_checkouts->count ) { # Useless test

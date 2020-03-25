@@ -166,6 +166,7 @@
             [% IF ( Koha.Preference('EnableAdvancedCatalogingEditor') && CAN_user_parameters_manage_keyboard_shortcuts ) %]
                 <li><a href="/cgi-bin/koha/admin/adveditorshortcuts.pl">Keyboard shortcuts</a></li>
             [% END %]
+            <li><a href="/cgi-bin/koha/admin/localization.pl">Localization</a></li>
         </ul>
     [% END %]
 </div>

@@ -57,6 +57,7 @@ use C4::External::BakerTaylor qw( image_url link_url );
 
 use Koha::CirculationRules;
 use Koha::Libraries;
+use Koha::I18N;
 use Koha::ItemTypes;
 use Koha::Ratings;
 use Koha::Virtualshelves;
@@ -225,14 +226,13 @@ $template->param(search_languages_loop => $languages_limit_loop,);
 
 # load the Type stuff
 my $itemtypes = GetItemTypesCategorized;
-# add translated_description to itemtypes
 foreach my $itemtype ( keys %{$itemtypes} ) {
     # Itemtypes search categories don't have (yet) translated descriptions, they are auth values (and could still have no descriptions too BZ 18400)
     # If 'iscat' (see ITEMTYPECAT) then there is no itemtype and the description is not translated
-    my $translated_description = $itemtypes->{$itemtype}->{iscat}
+    my $description = $itemtypes->{$itemtype}->{iscat}
       ? $itemtypes->{$itemtype}->{description}
-      : Koha::ItemTypes->find($itemtype)->translated_description;
-    $itemtypes->{$itemtype}->{translated_description} = $translated_description || $itemtypes->{$itemtype}->{description} || q{};
+      : db_t('itemtype', Koha::ItemTypes->find($itemtype)->description);
+    $itemtypes->{$itemtype}->{description} = $description || $itemtypes->{$itemtype}->{description} || q{};
 }
 
 # the index parameter is different for item-level itemtypes
@@ -244,7 +244,7 @@ my @advanced_search_types = split(/\|/, $advanced_search_types);
 
 my $hidingrules = C4::Context->yaml_preference('OpacHiddenItems') // {};
 
-my @sorted_itemtypes = sort { $itemtypes->{$a}->{translated_description} cmp $itemtypes->{$b}->{translated_description} } keys %$itemtypes;
+my @sorted_itemtypes = sort { $itemtypes->{$a}->{description} cmp $itemtypes->{$b}->{description} } keys %$itemtypes;
 foreach my $advanced_srch_type (@advanced_search_types) {
     $advanced_srch_type =~ s/^\s*//;
     $advanced_srch_type =~ s/\s*$//;
@@ -257,7 +257,7 @@ foreach my $advanced_srch_type (@advanced_search_types) {
 	    my %row =(  number=>$cnt++,
 		ccl => "$itype_or_itemtype,phr",
                 code => $thisitemtype,
-                description => $itemtypes->{$thisitemtype}->{translated_description},
+                description => $itemtypes->{$thisitemtype}->{description},
                 imageurl=> getitemtypeimagelocation( 'opac', $itemtypes->{$thisitemtype}->{'imageurl'} ),
                 cat => $itemtypes->{$thisitemtype}->{'iscat'},
                 hideinopac => $itemtypes->{$thisitemtype}->{'hideinopac'},
@@ -565,7 +565,7 @@ if ($tag) {
     $pasarParams .= '&amp;count=' . uri_escape_utf8($results_per_page);
     $pasarParams .= '&amp;simple_query=' . uri_escape_utf8($simple_query);
     $pasarParams .= '&amp;query_type=' . uri_escape_utf8($query_type) if ($query_type);
-    my $itemtypes_nocategory = { map { $_->{itemtype} => $_ } @{ Koha::ItemTypes->search_with_localization->unblessed } };
+    my $itemtypes_nocategory = { map { $_->{itemtype} => $_ } @{ Koha::ItemTypes->search->unblessed } };
     eval {
         ($error, $results_hashref, $facets) = $searcher->search_compat($query,$simple_query,\@sort_by,\@servers,$results_per_page,$offset,undef,$itemtypes_nocategory,$query_type,$scan,1);
 };

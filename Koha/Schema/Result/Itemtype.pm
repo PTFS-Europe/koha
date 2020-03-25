@@ -342,28 +342,50 @@ __PACKAGE__->add_columns(
     '+automatic_checkin'            => { is_boolean => 1 },
 );
 
-# Use the ItemtypeLocalization view to create the join on localization
-our $LANGUAGE;
-__PACKAGE__->has_many(
-  "localization" => "Koha::Schema::Result::ItemtypeLocalization",
-    sub {
-        my $args = shift;
-
-        die "no lang specified!" unless $LANGUAGE;
-
-        return ({
-            "$args->{self_alias}.itemtype" => { -ident => "$args->{foreign_alias}.code" },
-            "$args->{foreign_alias}.lang" => $LANGUAGE,
-        });
-
-    }
-);
+__PACKAGE__->load_components('+Koha::DBIx::Component::L10nSource');
 
 sub koha_object_class {
     'Koha::ItemType';
 }
 sub koha_objects_class {
     'Koha::ItemTypes';
+}
+
+sub insert {
+    my $self = shift;
+
+    my $result = $self->next::method(@_);
+
+    my @sources = $self->result_source->resultset->get_column('description')->all;
+    $self->update_l10n_source('itemtype', @sources);
+
+    return $result;
+}
+
+sub update {
+    my $self = shift;
+
+    my $is_description_changed = $self->is_column_changed('description');
+
+    my $result = $self->next::method(@_);
+
+    if ($is_description_changed) {
+        my @sources = $self->result_source->resultset->get_column('description')->all;
+        $self->update_l10n_source('itemtype', @sources);
+    }
+
+    return $result;
+}
+
+sub delete {
+    my $self = shift;
+
+    my $result = $self->next::method(@_);
+
+    my @sources = $self->result_source->resultset->get_column('description')->all;
+    $self->update_l10n_source('itemtype', @sources);
+
+    return $result;
 }
 
 1;

@@ -36,6 +36,7 @@ use Koha::AuthorisedValues;
 use Koha::Biblios;
 use Koha::Items;
 use Koha::Patrons;
+use Koha::I18N;
 
 my $query=CGI->new;
 
@@ -142,9 +143,9 @@ my $ccodes =
 my $copynumbers =
   { map { $_->{authorised_value} => $_->{lib} } Koha::AuthorisedValues->get_descriptions_by_koha_field( { frameworkcode => $fw, kohafield => 'items.copynumber' } ) };
 
-my $itemtypes = { map { $_->{itemtype} => $_ } @{ Koha::ItemTypes->search_with_localization->unblessed } };
+my $itemtypes = { map { $_->{itemtype} => $_ } @{ Koha::ItemTypes->search->unblessed } };
 
-$data->{'itemtypename'} = $itemtypes->{ $data->{'itemtype'} }->{'translated_description'}
+$data->{'itemtypename'} = db_t('itemtype', $itemtypes->{ $data->{'itemtype'} }->{description});
   if $data->{itemtype} && exists $itemtypes->{ $data->{itemtype} };
 foreach ( keys %{$data} ) {
     $template->param( "$_" => defined $data->{$_} ? $data->{$_} : '' );
@@ -154,7 +155,7 @@ foreach ( keys %{$data} ) {
 foreach my $item (@items){
     $item->{object} = Koha::Items->find( $item->{itemnumber} );
     $item->{'collection'}              = $ccodes->{ $item->{ccode} } if $ccodes && $item->{ccode} && exists $ccodes->{ $item->{ccode} };
-    $item->{'itype'}                   = $itemtypes->{ $item->{'itype'} }->{'translated_description'} if exists $itemtypes->{ $item->{'itype'} };
+    $item->{'itype'}                   = db_t('itemtype', $itemtypes->{ $item->{'itype'} }->{description}) if exists $itemtypes->{ $item->{'itype'} };
     $item->{'replacementprice'}        = $item->{'replacementprice'};
     if ( defined $item->{'copynumber'} ) {
         $item->{'displaycopy'} = 1;

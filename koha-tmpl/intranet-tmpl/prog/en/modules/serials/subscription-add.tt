@@ -1,6 +1,7 @@
 [% USE raw %]
 [% USE To %]
 [% USE Asset %]
+[% USE ItemTypes %]
 [% USE KohaDates %]
 [% USE Branches %]
 [% USE Koha %]
@@ -205,9 +206,9 @@ fieldset.rows table { clear: none; margin: 0; }
                                         <option value=""></option>
                                         [% FOREACH type IN typeloop %]
                                             [% IF ( type.selected ) %]
-                                                <option value="[% type.code | html %]" selected="selected">[% type.value | html %]</option>
+                                                <option value="[% type.code | html %]" selected="selected">[% ItemTypes.t(type.value) | html %]</option>
                                             [% ELSE %]
-                                                <option value="[% type.code | html %]">[% type.value | html %]</option>
+                                                <option value="[% type.code | html %]">[% ItemTypes.t(type.value) | html %]</option>
                                             [% END %]
                                         [% END %]
                                     </select>
@@ -219,9 +220,9 @@ fieldset.rows table { clear: none; margin: 0; }
                                             <option value=""></option>
                                         [% FOREACH previous IN previoustypeloop %]
                                             [% IF ( previous.selected ) %]
-                                                <option value="[% previous.code | html %]" selected="selected">[% previous.value | html %]</option>
+                                                <option value="[% previous.code | html %]" selected="selected">[% ItemTypes.t(previous.value) | html %]</option>
                                             [% ELSE %]
-                                                <option value="[% previous.code | html %]">[% previous.value | html %]</option>
+                                                <option value="[% previous.code | html %]">[% ItemTypes.t(previous.value) | html %]</option>
                                             [% END %]
                                         [% END %]
                                     </select>

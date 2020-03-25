@@ -98,7 +98,7 @@ if ( $action eq 'lookup' and $item ) {
 
         ccodes    => GetAuthorisedValues('CCODE'),
         locations => GetAuthorisedValues('LOC'),
-        itypes    => $itemtypes, # FIXME We certainly want to display the translated_description in the template
+        itypes    => $itemtypes,
         return    => $return,
     );
 

@@ -56,6 +56,7 @@ use Koha::Patrons;
 use MARC::File::USMARC;
 use MARC::File::XML;
 use URI::Escape qw( uri_escape_utf8 );
+use Koha::I18N;
 
 if ( C4::Context->preference('marcflavour') eq 'UNIMARC' ) {
     MARC::File::XML->default_record_format('UNIMARC');
@@ -192,10 +193,10 @@ sub build_authorized_values_list {
         push @authorised_values, "";
 
         my $itemtype;
-        my $itemtypes = Koha::ItemTypes->search_with_localization;
+        my $itemtypes = Koha::ItemTypes->search;
         while ( $itemtype = $itemtypes->next ) {
             push @authorised_values, $itemtype->itemtype;
-            $authorised_lib{$itemtype->itemtype} = $itemtype->translated_description;
+            $authorised_lib{$itemtype->itemtype} = db_t('itemtype', $itemtype->description);
         }
         $value = $itemtype unless ($value);
     }

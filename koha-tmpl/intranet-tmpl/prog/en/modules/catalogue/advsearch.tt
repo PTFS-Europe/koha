@@ -1,4 +1,5 @@
 [% USE raw %]
+[% USE ItemTypes %]
 [% USE Koha %]
 [% USE Asset %]
 [% USE Branches %]
@@ -198,7 +199,7 @@
             [% END %]
                 &nbsp;
         [% END %]
-        [% itemtypeloo.description | html %]
+        [% ItemTypes.t(itemtypeloo.description) | html %]
             </label>
         </td>
         [% IF ( loop.last ) %]

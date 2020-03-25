@@ -267,7 +267,7 @@ if ( $op eq "export" ) {
 
 else {
 
-    my $itemtypes = Koha::ItemTypes->search_with_localization;
+    my $itemtypes = Koha::ItemTypes->search;
 
     my $authority_types = Koha::Authority::Types->search( {}, { order_by => ['authtypecode'] } );
 

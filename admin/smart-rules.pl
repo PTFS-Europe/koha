@@ -671,7 +671,7 @@ $template->param(
 
 my $patron_categories = Koha::Patron::Categories->search({}, { order_by => ['description'] });
 
-my $itemtypes = Koha::ItemTypes->search_with_localization;
+my $itemtypes = Koha::ItemTypes->search;
 
 my $humanbranch = ( $branch ne '*' ? $branch : undef );
 
@@ -697,36 +697,6 @@ $template->param(
 output_html_with_http_headers $input, $cookie, $template->output;
 
 exit 0;
-
-# sort by patron category, then item type, putting
-# default entries at the bottom
-sub by_category_and_itemtype {
-    unless (by_category($a, $b)) {
-        return by_itemtype($a, $b);
-    }
-}
-
-sub by_category {
-    my ($a, $b) = @_;
-    if ($a->{'default_humancategorycode'}) {
-        return ($b->{'default_humancategorycode'} ? 0 : 1);
-    } elsif ($b->{'default_humancategorycode'}) {
-        return -1;
-    } else {
-        return $a->{'humancategorycode'} cmp $b->{'humancategorycode'};
-    }
-}
-
-sub by_itemtype {
-    my ($a, $b) = @_;
-    if ($a->{default_translated_description}) {
-        return ($b->{'default_translated_description'} ? 0 : 1);
-    } elsif ($b->{'default_translated_description'}) {
-        return -1;
-    } else {
-        return lc $a->{'translated_description'} cmp lc $b->{'translated_description'};
-    }
-}
 
 sub strip_non_numeric {
     my $string = shift;

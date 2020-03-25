@@ -1,5 +1,6 @@
 [% USE raw %]
 [% USE Asset %]
+[% USE ItemTypes %]
 [% USE Koha %]
 [% USE KohaDates %]
 [% USE KohaPlugins %]
@@ -370,9 +371,9 @@
                     [% IF ( item_level_itypes ) %]
                         <td class="itype">
                             [% IF !noItemTypeImages && item.imageurl %]
-                                <img src="[% item.imageurl | html %]" alt="[% item.translated_description | html %]" title="[% item.translated_description | html %]" />
+                                <img src="[% item.imageurl | html %]" alt="[% ItemTypes.t(item.description) | html %]" title="[% ItemTypes.t(item.description) | html %]" />
                             [% END %]
-                            <span class="itypedesc">[% item.translated_description | html %]</span>
+                            <span class="itypedesc">[% ItemTypes.t(item.description) | html %]</span>
                         </td>
                     [% END %]
                     <td class="location">[% UNLESS ( singlebranchmode ) %][% Branches.GetName( item.branchcode ) | html %] [% END %]</td>

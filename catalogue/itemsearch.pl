@@ -28,6 +28,7 @@ use C4::Koha qw( GetAuthorisedValues );
 
 use Koha::AuthorisedValues;
 use Koha::Biblios;
+use Koha::I18N;
 use Koha::Item::Search::Field qw(GetItemSearchFields);
 use Koha::ItemTypes;
 use Koha::Libraries;
@@ -277,7 +278,13 @@ if ( defined $format ) {
 # Display the search form
 
 my @branches = map { value => $_->branchcode, label => $_->branchname }, Koha::Libraries->search( {}, { order_by => 'branchname' } )->as_list;
-my @itemtypes = map { value => $_->itemtype, label => $_->translated_description }, Koha::ItemTypes->search_with_localization->as_list;
+my @itemtypes;
+foreach my $itemtype ( Koha::ItemTypes->search->as_list ) {
+    push @itemtypes, {
+        value => $itemtype->itemtype,
+        label => db_t('itemtype', $itemtype->description),
+    };
+}
 
 my @ccodes = Koha::AuthorisedValues->get_descriptions_by_koha_field({ kohafield => 'items.ccode' });
 foreach my $ccode (@ccodes) {

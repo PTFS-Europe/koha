@@ -32,6 +32,7 @@ use Encode qw( encode_utf8 );
 
 use Koha::Database;
 use Koha::DateUtils qw( dt_from_string );
+use Koha::I18N;
 use Koha::Exception;
 use Koha::Biblios;
 use Koha::Items;

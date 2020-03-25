@@ -1,4 +1,5 @@
 [% USE Branches %]
+[% USE ItemTypes %]
 [% SET footerjs = 1 %]
 [% INCLUDE 'doc-head-open.inc' %]
 <title>[% IF is_edit || course_reserve %]Edit item[% ELSE %]Add items[% END %] &rsaquo; Course reserves &rsaquo; Koha</title>
@@ -79,9 +80,9 @@
                             <option value=""></option>
                             [% FOREACH it IN itypes %]
                                 [% IF it.itemtype == course_item.itype %]
-                                    <option value="[% it.itemtype | html %]" selected="selected">[% it.description | html %]</option>
+                                    <option value="[% it.itemtype | html %]" selected="selected">[% ItemTypes.t(it.description) | html %]</option>
                                 [% ELSE %]
-                                    <option value="[% it.itemtype | html %]">[% it.description | html %]</option>
+                                    <option value="[% it.itemtype | html %]">[% ItemTypes.t(it.description) | html %]</option>
                                 [% END %]
                             [% END %]
                         </select>

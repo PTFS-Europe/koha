@@ -1,5 +1,6 @@
 [% USE raw %]
 [% USE Asset %]
+[% USE ItemTypes %]
 [% USE Koha %]
 [% USE Branches %]
 [% USE AuthorisedValues %]
@@ -200,9 +201,6 @@ Item types &rsaquo; Administration &rsaquo; Koha
                 <li>
                     <label for="description" class="required">Description: </label>
                     <input type="text" id="description" name="description" size="48" value="[% itemtype.description | html %]" required="required" /> <span class="required">Required</span>
-                    [% IF can_be_translated %]
-                        <a href="/cgi-bin/koha/admin/localization.pl?entity=itemtypes&code=[% itemtype.itemtype | uri %]" title="Translate item type [% itemtype.itemtype | html %]" rel="gb_page_center[600,500]"><i class="fa fa-pencil"></i> Translate into other languages</a>
-                    [% END %]
                 </li>
                 <li>
                     <label for="searchcategory">Search category: </label>
@@ -443,7 +441,7 @@ Item types &rsaquo; Administration &rsaquo; Koha
                 <th scope="row">Item type</th>
                 <td>[% itemtype.itemtype | html %]</td>
             </tr>
-            <tr><th scope="row">Description</th><td>[% itemtype.translated_description | html %]</td></tr>
+            <tr><th scope="row">Description</th><td>[% ItemTypes.t(itemtype.description) | html %]</td></tr>
             [% UNLESS Koha.Preference('noItemTypeImages') && Koha.Preference('OpacNoItemTypeImages') %]
                 <tr>
                     <th scope="row">Image</th>

@@ -156,6 +156,7 @@ use Koha::SearchEngine::Search;
 use Koha::SearchEngine::QueryBuilder;
 use Koha::Virtualshelves;
 use Koha::SearchFields;
+use Koha::I18N;
 
 use URI::Escape;
 
@@ -502,7 +503,7 @@ my $facets; # this object stores the faceted results that display on the left-ha
 my $results_hashref;
 
 eval {
-    my $itemtypes = { map { $_->{itemtype} => $_ } @{ Koha::ItemTypes->search_with_localization->unblessed } };
+    my $itemtypes = { map { $_->{itemtype} => $_ } @{ Koha::ItemTypes->search->unblessed } };
     ( $error, $results_hashref, $facets ) = $searcher->search_compat(
         $query,            $simple_query, \@sort_by,       \@servers,
         $results_per_page, $offset,       undef,           $itemtypes,
@@ -729,7 +730,14 @@ sub prepare_adv_search_types {
     # the index parameter is different for item-level itemtypes
     my $itype_or_itemtype =
       ( C4::Context->preference("item-level_itypes") ) ? 'itype' : 'itemtype';
-    my $itemtypes = { map { $_->{itemtype} => $_ } @{ Koha::ItemTypes->search_with_localization->unblessed } };
+    my $itemtypes = {
+        map {
+            $_->{itemtype} => {
+                %$_,
+                description => db_t( 'itemtype', $_->{description} ),
+              }
+        } @{ Koha::ItemTypes->search->unblessed }
+    };
 
     my ( $cnt, @result );
     foreach my $advanced_srch_type (@advanced_search_types) {
@@ -741,8 +749,8 @@ sub prepare_adv_search_types {
             my @itypesloop;
             foreach my $thisitemtype (
                 sort {
-                    $itemtypes->{$a}->{'translated_description'}
-                      cmp $itemtypes->{$b}->{'translated_description'}
+                    $itemtypes->{$a}->{'description'}
+                      cmp $itemtypes->{$b}->{'description'}
                 } keys %$itemtypes
               )
             {
@@ -750,7 +758,7 @@ sub prepare_adv_search_types {
                     number      => $cnt++,
                     ccl         => "$itype_or_itemtype,phr",
                     code        => $thisitemtype,
-                    description => $itemtypes->{$thisitemtype}->{'translated_description'},
+                    description => $itemtypes->{$thisitemtype}->{'description'},
                     imageurl    => getitemtypeimagelocation(
                         'intranet', $itemtypes->{$thisitemtype}->{'imageurl'}
                     ),

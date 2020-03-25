@@ -27,6 +27,7 @@ use C4::XSLT qw( XSLTParse4Display );
 use C4::Reserves qw( GetReserveStatus );
 use C4::Charset qw( SetUTF8Flag );
 use Koha::AuthorisedValues;
+use Koha::I18N;
 use Koha::ItemTypes;
 use Koha::Libraries;
 use Koha::Logger;
@@ -529,9 +530,7 @@ sub getRecords {
                                     && ref( $itemtypes->{$one_facet} ) eq
                                     "HASH" )
                                 {
-                                    $facet_label_value =
-                                      $itemtypes->{$one_facet}
-                                      ->{translated_description};
+                                    $facet_label_value = db_t('itemtype', $itemtypes->{$one_facet}->{description});
                                 }
                             }
 
@@ -1652,7 +1651,7 @@ sub searchResults {
     my $notforloan_authorised_value = $av->count ? $av->next->authorised_value : undef;
 
     #Get itemtype hash
-    my $itemtypes = Koha::ItemTypes->search_with_localization;
+    my $itemtypes = Koha::ItemTypes->search;
     my %itemtypes = map { $_->{itemtype} => $_ } @{ $itemtypes->unblessed };
 
     #search item field code
@@ -1734,7 +1733,7 @@ sub searchResults {
         # add imageurl to itemtype if there is one
         $oldbiblio->{imageurl} = $itemtype ? getitemtypeimagelocation( $search_context->{'interface'}, $itemtype->{imageurl} ) : q{};
         # Build summary if there is one (the summary is defined in the itemtypes table)
-        $oldbiblio->{description} = $itemtype ? $itemtype->{translated_description} : q{};
+        $oldbiblio->{description} = $itemtype ? db_t('itemtype', $itemtype->{description}) : q{};
 
         # Pull out the items fields
         my @fields = $marcrecord->field($itemtag);
@@ -1800,7 +1799,7 @@ sub searchResults {
             foreach my $code ( keys %subfieldstosearch ) {
                 $item->{$code} = $field->subfield( $subfieldstosearch{$code} );
             }
-            $item->{description} = $itemtypes{ $item->{itype} }{translated_description} if $item->{itype};
+            $item->{description} = db_t('itemtype', $itemtypes{ $item->{itype} }{description}) if $item->{itype};
 
 	        # OPAC hidden items
             if ($is_opac) {

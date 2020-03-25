@@ -65,6 +65,7 @@ use Koha::DateUtils qw( dt_from_string output_pref );
 use Koha::Database;
 
 use Koha::Biblioitems;
+use Koha::I18N;
 use Koha::Items;
 use Koha::ItemTypes;
 use Koha::SearchEngine;
@@ -730,7 +731,6 @@ sub GetItemsInfo {
            serial.serialseq,
            serial.publisheddate,
            itemtypes.description,
-           COALESCE( localization.translation, itemtypes.description ) AS translated_description,
            itemtypes.notforloan as notforloan_per_itemtype,
            holding.branchurl,
            holding.branchcode,
@@ -751,14 +751,11 @@ sub GetItemsInfo {
      . (C4::Context->preference('item-level_itypes') ? 'items.itype' : 'biblioitems.itemtype');
     $query .= q|
     LEFT JOIN tmp_holdsqueue USING (itemnumber)
-    LEFT JOIN localization ON itemtypes.itemtype = localization.code
-        AND localization.entity = 'itemtypes'
-        AND localization.lang = ?
     |;
 
     $query .= " WHERE items.biblionumber = ? ORDER BY home.branchname, items.enumchron, LPAD( items.copynumber, 8, '0' ), items.dateaccessioned DESC" ;
     my $sth = $dbh->prepare($query);
-    $sth->execute($language, $biblionumber);
+    $sth->execute($biblionumber);
     my $i = 0;
     my @results;
     my $serial;
@@ -1722,11 +1719,11 @@ sub PrepareItemrecordDisplay {
 
                         #----- itemtypes
                     } elsif ( $subfield->{authorised_value} eq "itemtypes" ) {
-                        my $itemtypes = Koha::ItemTypes->search_with_localization;
+                        my $itemtypes = Koha::ItemTypes->search;
                         push @authorised_values, "";
                         while ( my $itemtype = $itemtypes->next ) {
                             push @authorised_values, $itemtype->itemtype;
-                            $authorised_lib{$itemtype->itemtype} = $itemtype->translated_description;
+                            $authorised_lib{$itemtype->itemtype} = db_t('itemtype', $itemtype->description);
                         }
                         if ($defaultvalues && $defaultvalues->{'itemtype'}) {
                             $defaultvalue = $defaultvalues->{'itemtype'};

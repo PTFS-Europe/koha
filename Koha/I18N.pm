@@ -35,6 +35,8 @@ use Locale::Messages qw(
 );
 use POSIX qw();
 use Koha::Cache::Memory::Lite;
+use Koha::Caches;
+use Koha::Database;
 
 use parent 'Exporter';
 our @EXPORT = qw(
@@ -51,6 +53,8 @@ our @EXPORT = qw(
     N__n
     N__p
     N__np
+
+    db_t
 );
 
 our $textdomain = 'Koha';
@@ -220,6 +224,51 @@ sub _expand {
     $text =~ s/\{($re)\}/defined $vars{$1} ? $vars{$1} : "{$1}"/ge;
 
     return $text;
+}
+
+=head2 db_t
+
+    db_t($context, $source)
+    db_t('itemtype', $itemtype->description)
+
+Search for a translation in l10n_target table and return it if found
+Return source string otherwise
+
+=cut
+
+sub db_t {
+    my ($context, $source) = @_;
+
+    my $cache = Koha::Caches->get_instance();
+    my $language = C4::Languages::getlanguage();
+    my $cache_key = sprintf('%s:%s', $context, $language);
+
+    my $translations = $cache->get_from_cache($cache_key);
+    unless ($translations) {
+        my $schema = Koha::Database->new->schema;
+        my $rs = $schema->resultset('L10nTarget');
+
+        my @targets = $rs->search(
+            {
+                'l10n_source.context' => $context,
+                language => $language,
+            },
+            {
+                join => 'l10n_source',
+                prefetch => 'l10n_source',
+                result_class => 'DBIx::Class::ResultClass::HashRefInflator',
+            },
+        );
+        $translations = { map { $_->{l10n_source}->{source} => $_->{translation} } @targets };
+
+        $cache->set_in_cache($cache_key, $translations);
+    }
+
+    if (exists $translations->{$source}) {
+        return $translations->{$source};
+    }
+
+    return $source;
 }
 
 1;

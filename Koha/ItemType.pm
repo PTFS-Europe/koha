@@ -22,7 +22,6 @@ use C4::Koha qw( getitemtypeimagelocation );
 use C4::Languages;
 use Koha::Database;
 use Koha::CirculationRules;
-use Koha::Localizations;
 
 use base qw(Koha::Object Koha::Object::Limit::Library);
 
@@ -43,50 +42,6 @@ Koha::ItemType - Koha Item type Object class
 sub image_location {
     my ( $self, $interface ) = @_;
     return C4::Koha::getitemtypeimagelocation( $interface, $self->SUPER::imageurl );
-}
-
-=head3 translated_description
-
-=cut
-
-sub translated_description {
-    my ( $self, $lang ) = @_;
-    if ( my $translated_description = eval { $self->get_column('translated_description') } ) {
-        # If the value has already been fetched (eg. from sarch_with_localization),
-        # do not search for it again
-        # Note: This is a bit hacky but should be fast
-        return $translated_description
-             ? $translated_description
-             : $self->description;
-    }
-    $lang ||= C4::Languages::getlanguage;
-    my $translated_description = Koha::Localizations->search({
-        code => $self->itemtype,
-        entity => 'itemtypes',
-        lang => $lang
-    })->next;
-    return $translated_description
-         ? $translated_description->translation
-         : $self->description;
-}
-
-=head3 translated_descriptions
-
-=cut
-
-sub translated_descriptions {
-    my ( $self ) = @_;
-    my @translated_descriptions = Koha::Localizations->search(
-        {   entity => 'itemtypes',
-            code   => $self->itemtype,
-        }
-    )->as_list;
-    return [ map {
-        {
-            lang => $_->lang,
-            translation => $_->translation,
-        }
-    } @translated_descriptions ];
 }
 
 =head3 can_be_deleted
@@ -152,15 +107,15 @@ sub parent {
 
 }
 
-=head3 children_with_localization
+=head3 children
 
     Returns the ItemType objects of the children of this type or undef.
 
 =cut
 
-sub children_with_localization {
+sub children {
     my ( $self ) = @_;
-    return Koha::ItemTypes->search_with_localization({ parent_type => $self->itemtype });
+    return Koha::ItemTypes->search({ parent_type => $self->itemtype });
 }
 
 =head3 type

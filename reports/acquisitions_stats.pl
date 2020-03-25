@@ -191,7 +191,7 @@ else {
         $ccode_avlist = GetAuthorisedValues($ccode_subfield_structure->{authorised_value});
     }
 
-    my $itemtypes = Koha::ItemTypes->search_with_localization;
+    my $itemtypes = Koha::ItemTypes->search;
     $template->param(
         booksellers   => $booksellers,
         itemtypes     => $itemtypes, # FIXME Should use the TT plugin instead

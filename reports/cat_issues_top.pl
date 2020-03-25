@@ -103,7 +103,7 @@ if ($do_it) {
     my $CGIsepChoice=GetDelimiterChoices;
 
     #doctype
-    my $itemtypes = Koha::ItemTypes->search_with_localization;
+    my $itemtypes = Koha::ItemTypes->search;
 
     #ccode
     my $ccodes = GetAuthorisedValues('CCODE');

@@ -32,7 +32,6 @@ use C4::Auth qw( get_template_and_user );
 use C4::Output qw( output_html_with_http_headers );
 use Koha::ItemTypes;
 use Koha::ItemType;
-use Koha::Localizations;
 
 my $input         = CGI->new;
 my $searchfield   = $input->param('description');
@@ -60,7 +59,6 @@ if ( $op eq 'add_form' ) {
     my $parent_types = Koha::ItemTypes->search({parent_type=>undef,itemtype => {'!='=>$itemtype_code}});
     my $imagesets = C4::Koha::getImageSets( checked => ( $itemtype ? $itemtype->imageurl : undef ) );
     my $searchcategory = GetAuthorisedValues("ITEMTYPECAT");
-    my $translated_languages = C4::Languages::getTranslatedLanguages( "both", C4::Context->preference('template') );
     $template->param(
         itemtype  => $itemtype,
         parent_type => $parent_type,
@@ -68,7 +66,7 @@ if ( $op eq 'add_form' ) {
         is_a_parent => $itemtype ? Koha::ItemTypes->search({parent_type=>$itemtype_code})->count : 0,
         imagesets => $imagesets,
         searchcategory => $searchcategory,
-        can_be_translated => ( scalar(@$translated_languages) > 1 ? 1 : 0 ),
+        branches_loop    => \@branches_loop,
     );
 } elsif ( $op eq 'add_validate' ) {
     my $is_a_modif   = $input->param('is_a_modif');

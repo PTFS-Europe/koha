@@ -116,7 +116,7 @@ if ($do_it) {
 } else {
     my $patron_categories = Koha::Patron::Categories->search({}, {order_by => ['description']});
 
-    my $itemtypes = Koha::ItemTypes->search_with_localization;
+    my $itemtypes = Koha::ItemTypes->search;
 
     my $dbh = C4::Context->dbh;
     my $req = $dbh->prepare("select distinctrow sort1 from borrowers where sort1 is not null order by sort1");

@@ -224,7 +224,7 @@
                                                 <li class="itype">
                                                     <span class="label">Item type: </span>
                                                     [% IF ( bibitemloo.imageurl ) %]<img src="[% bibitemloo.imageurl | html %]" alt="" />[% END %]
-                                                    [% bibitemloo.translated_description | html %]
+                                                    [% ItemTypes.t(bibitemloo.description) | html %]
                                                 </li>
                                             [% END %]
 
@@ -406,7 +406,7 @@
                                                                             <img src="[% itemLoo.imageurl | html %]" alt="" />
                                                                         [% END %]
                                                                     [% END %]
-                                                                    [% itemLoo.translated_description | html %]
+                                                                    [% ItemTypes.t(itemLoo.description) | html %]
                                                                 </td>
                                                             [% END %]
 

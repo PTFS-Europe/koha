@@ -1,133 +1,72 @@
-[% USE raw %]
-[% USE Asset %]
+[% USE JSON.Escape %]
 [% SET footerjs = 1 %]
 [% INCLUDE 'doc-head-open.inc' %]
 <title>Localization &rsaquo; Koha</title>
-[% INCLUDE 'doc-head-close.inc' popup => 1 %]
-<style>#localization { margin-top: 1em; }</style>
+[% INCLUDE 'doc-head-close.inc' %]
+<style>
+    #localization { margin-top: 1em; }
+
+    .add-translation-block {
+        margin-bottom: 5px;
+    }
+
+    .add-translation-block form {
+        display: inline-flex;
+        align-items: center;
+    }
+    code {
+        background-color: lightgrey;
+        font-weight: bold;
+        display: inline-block;
+        padding: 2px 4px;
+    }
+</style>
 </head>
 
 <body id="admin_localization" class="admin">
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-sm-12">
-<form id="add_translation" method="post">
-    <input type="hidden" name="entity" value="[% entity | html %]" />
-    <input type="hidden" name="code" value="[% code | html %]" />
-    <input type="hidden" name="interface" value="[% interface_side | html %]" />
-    <fieldset class="rows clearfix">
-        <ol>
-            <li>
-                <span class="label">Authorized value:</span>
-                [% code | html %]
-            </li>
-            <li>
-                <label for="lang">Language:</label>
-                <select name="lang" id="lang">
-                    [% FOR language IN languages %]
-                        [% FOR sublanguage IN language.sublanguages_loop %]
-                            [% IF language.plural %]
-                                <option value="[% sublanguage.rfc4646_subtag | html %]">[% sublanguage.native_description | html %] [% sublanguage.region_description | html %] ([% sublanguage.rfc4646_subtag | html %])</option>
-                            [% ELSE %]
-                                <option value="[% sublanguage.rfc4646_subtag | html %]">[% sublanguage.native_description | html %] ([% sublanguage.rfc4646_subtag | html %])</option>
-                            [% END %]
-                        [% END %]
-                    [% END %]
-                </select>
-            </li>
-            <li>
-                <label for="translation">Translation:</label>
-                <input type="text" size="40" name="translation" id="translation" />
-            </li>
-            <li>
-                <span class="label">&nbsp;</span>
-                <input type="submit" value="Add" />
-            </li>
-        </ol>
-    </fieldset>
-</form>
-            </div> <!-- /.col-sm-12 -->
-        </div> <!-- /.row -->
+    [% INCLUDE 'header.inc' %]
+    [% INCLUDE 'prefs-admin-search.inc' %]
+
+    <div id="breadcrumbs">
+        <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+        &rsaquo;
+        <a href="/cgi-bin/koha/admin/admin-home.pl">Administration</a>
+        &rsaquo;
+        Localization
+    </div>
+
+    <div class="main container-fluid">
 
         <div class="row">
-            <div class="col-sm-12">
-<div id="messages"></div>
-            </div> <!-- /.col-sm-12 -->
-        </div> <!-- /.row -->
+            <div class="col-sm-10 col-sm-push-2">
+                <main>
+                    <h2>Localization</h2>
 
-        <div class="row">
-            <div class="col-sm-12">
-<table id="localization">
-    <thead>
-        <tr>
-            <th>Id</th>
-            <th>Entity</th>
-            <th>Code</th>
-            <th>Language</th>
-            <th>Translation</th>
-            <th class="NoSort">&nbsp;</th>
-        </tr>
-    </thead>
-    <tbody>
-        [% FOR t IN translations %]
-        <tr id="row_id_[% t.id | html %]" data-id="[% t.id | html %]">
-            <td>[% t.id | html %]</td>
-            <td>[% t.entity | html %]</td>
-            <td>[% t.code | html %]</td>
-            <td class="lang">[% t.lang | html %]</td>
-            <td class="translation" contenteditable="true">[% t.translation | html %]</td>
-            <td class="actions"><a href="#" class="delete"><i class="fa fa-trash"></i> Delete</a></td>
-        </tr>
-        [% END %]
-    </tbody>
-</table>
-            </div> <!-- /.col-sm-12 -->
-        </div> <!-- /.row -->
-    </div> <!-- /.container-fluid -->
+                    <table id="localization">
+                        <thead>
+                            <tr>
+                                <th>Context</th>
+                                <th>Source</th>
+                                <th>Translations</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </main>
+            </div>
+
+            <div class="col-sm-2 col-sm-pull-10">
+                <aside>
+                    [% INCLUDE 'admin-menu.inc' %]
+                </aside>
+            </div>
+        </div>
+    </div>
 
 [% MACRO jsinclude BLOCK %]
     [% INCLUDE 'datatables.inc' %]
     <script>
-
-        function show_message( params ) {
-            var type = params.type;
-            var data = params.data;
-            var messages = $("#messages");
-            var message;
-            if ( type == 'success_on_update' ) {
-                message = $('<div class="dialog message"></div>');
-                message.text(_("Entity %s (code %s) for lang %s has correctly been updated with '%s'").format(data.entity, data.code, data.lang, data.translation));
-            } else if ( type == 'error_on_update' ) {
-                message = $('<div class="dialog alert"></div>');
-                if ( data.error_code == 'already_exists' ) {
-                    message.text(_("A translation already exists for this language."));
-                } else {
-                    message.text(_("An error occurred when updating this translation."));
-                }
-            } else if ( type == 'success_on_delete' ) {
-                message = $('<div class="dialog message"></div>');
-                message.text(_("The translation (id %s) has been removed successfully").format(data.id));
-            } else if ( type == 'error_on_delete' ) {
-                message = $('<div class="dialog alert"></div>');
-                message.text(_("An error occurred when deleting this translation"));
-            } else if ( type == 'success_on_insert' ) {
-                message = $('<div class="dialog message"></div>');
-                message.text(_("Translation (id %s) has been added successfully").format(data.id));
-            } else if ( type == 'error_on_insert' ) {
-                message = $('<div class="dialog alert"></div>');
-                if ( data.error_code == 'already_exists' ) {
-                    message.text(_("A translation already exists for this language."));
-                } else {
-                    message.text(_("An error occurred when adding this translation"));
-                }
-            }
-
-            $(messages).append(message);
-
-            setTimeout(function(){
-                message.hide()
-            }, 3000);
-        }
 
         function send_update_request( data, cell ) {
             $.ajax({
@@ -135,143 +74,89 @@
                 type: 'PUT',
                 url: '/cgi-bin/koha/svc/localization',
                 success: function (data) {
-                    if ( data.error ) {
-                        $(cell).css('background-color', '#FF0000');
-                        show_message({ type: 'error_on_update', data: data });
-                    } else if ( data.is_changed == 1 ) {
-                        $(cell).css('background-color', '#00FF00');
-                        show_message({ type: 'success_on_update', data: data });
-                    }
-
-                    if ( $(cell).hasClass('lang') ) {
-                        $(cell).text(data.lang)
-                    } else if ( $(cell).hasClass('translation') ) {
-                        $(cell).text(data.translation)
-                    }
-                },
-                error: function (data) {
-                    $(cell).css('background-color', '#FF9090');
-                    if ( $(cell).hasClass('lang') ) {
-                        $(cell).text(data.lang)
-                    } else if ( $(cell).hasClass('translation') ) {
-                        $(cell).text(data.translation)
-                    }
-                    show_message({ type: 'error_on_update', data: data });
-                },
-            });
-        }
-
-        function send_delete_request( id, cell ) {
-            $.ajax({
-                type: 'DELETE',
-                url: '/cgi-bin/koha/svc/localization/?id='+id,
-                success: function (data) {
-                    $("#localization").DataTable().row( '#row_id_' + id ).remove().draw();
-                    show_message({ type: 'success_on_delete', data: data });
-                },
-                error: function (data) {
-                    $(cell).css('background-color', '#FF9090');
-                    show_message({ type: 'error_on_delete', data: data });
+                    $("#localization").DataTable().draw(false);
                 },
             });
         }
 
         $(document).ready(function() {
-            $(".dialog").hide();
-
             var table = $("#localization").DataTable($.extend(true, {}, dataTablesDefaults, {
-                "dom": 't',
-                "columnDefs": [
-                    { 'sortable': false, 'targets': [ 'NoSort' ] }
+                autoWidth: true,
+                serverSide: true,
+                ordering: false,
+                ajax: {
+                    url: '/cgi-bin/koha/svc/localization',
+                },
+                columns: [
+                    {
+                        name: 'context',
+                        data: 'context',
+                    },
+                    {
+                        name: 'source',
+                        data: 'source',
+                    },
+                    {
+                        name: 'targets',
+                        data: 'l10n_targets',
+                        render: function (data, type, row, meta) {
+                            const languages = [% languages.json %];
+                            const translations = Object.fromEntries(data.map(translation => [translation.language, translation]));
+                            let output = '';
+                            for (const language of languages) {
+                                const div = $('<div>');
+                                div.addClass('add-translation-block');
+                                const languageCode = $('<code>').text(language.rfc4646_subtag);
+                                const translationSpan = $('<span>');
+                                if (translations[language.rfc4646_subtag]) {
+                                    const translation = translations[language.rfc4646_subtag].translation;
+                                    translationSpan.text(translation);
+                                } else {
+                                    languageCode.html('<del>' + languageCode.text() + '</del>');
+                                }
+                                const translateLink = $('<a>');
+                                translateLink.text('Translate');
+                                translateLink.addClass('add-translation');
+                                translateLink.attr('href', '#');
+                                translateLink.attr('data-l10n-source-id', row.l10n_source_id);
+                                translateLink.attr('data-language', language.rfc4646_subtag);
+                                translateLink.attr('data-source', row.source);
+                                if (translations[language.rfc4646_subtag]) {
+                                    translateLink.attr('data-translation', translations[language.rfc4646_subtag].translation);
+                                }
+
+                                div.append(languageCode, ' ', translationSpan, ' ', translateLink);
+
+                                output += ' ' + div[0].outerHTML;
+                            }
+
+                            return output;
+                        },
+                    },
                 ],
-                'bPaginate': false,
-                'autoWidth': false,
             }));
 
-            var languages_select = $('<select name="lang" id="lang"></select>');
-            [% FOR language IN languages %]
-                [% FOR sublanguage IN language.sublanguages_loop %]
-                    var option;
-                    [% IF language.plural %]
-                        option = $('<option value="[% sublanguage.rfc4646_subtag | html %]">[% sublanguage.native_description | html %] [% sublanguage.region_description | html %] ([% sublanguage.rfc4646_subtag | html %])</option>');
-                        $(languages_select).append(option);
-                    [% ELSE %]
-                        option = $('<option value="[% sublanguage.rfc4646_subtag | html %]">[% sublanguage.native_description | html %] ([% sublanguage.rfc4646_subtag | html %])</option>');
-                    [% END %]
-                    $(languages_select).append(option);
-                [% END %]
-            [% END %]
-
-            $("td.translation").on('focus', function(){
-                $(this).css('background-color', '');
-            });
-            $("td.lang").on('click', function(){
-                var td = this;
-                var lang = $(td).text();
-                $(td).css('background-color', '');
-                var my_select = $(languages_select).clone();
-                $(my_select).find('option[value="' + lang + '"]').attr('selected', 'selected');
-                $(my_select).on('click', function(e){
-                    e.stopPropagation();
+            $('#localization').on('click', '.add-translation', function (ev) {
+                ev.preventDefault();
+                const form = $('<form>');
+                const textarea = $('<textarea>').attr('rows', '1');
+                textarea.text(ev.target.getAttribute('data-translation'));
+                form.append(textarea);
+                form.append('<button type="submit">Save</button>');
+                const l10n_source_id = ev.target.getAttribute('data-l10n-source-id');
+                const language = ev.target.getAttribute('data-language');
+                form.on('submit', function (ev) {
+                    ev.preventDefault();
+                    send_update_request({
+                        id: l10n_source_id,
+                        lang: language,
+                        translation: textarea.val(),
+                    });
                 });
-                $(my_select).on('change', function(){
-                    var tr = $(this).parent().parent();
-                    var id = $(tr).data('id');
-                    var lang = $(this).find('option:selected').val();
-                    var data = "id=" + encodeURIComponent(id) + "&lang=" + encodeURIComponent(lang);
-                    send_update_request( data, td );
-                });
-                $(my_select).on('blur', function(){
-                    $(td).html(lang);
-                });
-                $(this).html(my_select);
+                $(ev.target).hide();
+                $(ev.target).after(form);
             });
-
-            $("td.translation").on('blur', function(){
-                var tr = $(this).parent();
-                var id = $(tr).data('id');
-                var translation = $(this).text();
-                var data = "id=" + encodeURIComponent(id) + "&translation=" + encodeURIComponent(translation);
-                send_update_request( data, this );
-            });
-
-            $("body").on("click", "a.delete", function(e){
-                e.preventDefault();
-                if ( confirm(_("Are you sure you want to delete this translation?")) ) {
-                    var td = $(this).parent();
-                    var tr = $(td).parent();
-                    var id = $(tr).data('id');
-                    send_delete_request( id, td );
-                }
-            });
-
-            $("#add_translation").on('submit', function(e){
-                e.preventDefault();
-                var entity = $(this).find('input[name="entity"]').val();
-                var code = $(this).find('input[name="code"]').val();
-                var lang = $(this).find('select[name="lang"] option:selected').val();
-                var translation = $(this).find('input[name="translation"]').val();
-                var data = "entity=" + encodeURIComponent(entity) + "&code=" + encodeURIComponent(code) + "&lang=" + encodeURIComponent(lang) + "&translation=" + encodeURIComponent(translation);
-                $.ajax({
-                    data: data,
-                    type: 'POST',
-                    url: '/cgi-bin/koha/svc/localization',
-                    success: function (data) {
-                        if ( data.error ) {
-                            show_message({ type: 'error_on_insert', data: data });
-                        } else {
-                            var new_row = table.row.add( [ data.id, data.entity, data.code, data.lang, data.translation, "<a href=\"#\" class=\"delete\"><i class=\"fa fa-trash\"></i> Delete</a>" ] ).draw().node();
-                            $( new_row ).attr("id", "row_id_" + data.id ).data("id", data.id );
-                            show_message({ type: 'success_on_insert', data: data });
-                        }
-                    },
-                    error: function (data) {
-                        show_message({ type: 'error_on_insert', data: data });
-                    },
-                });
-            });
-
          });
     </script>
 [% END %]
-[% INCLUDE 'popup-bottom.inc' %]
+[% INCLUDE 'intranet-bottom.inc' %]

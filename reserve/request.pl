@@ -72,7 +72,7 @@ my $itemtypes = {
     map {
         $_->itemtype =>
           { %{ $_->unblessed }, image_location => $_->image_location }
-    } Koha::ItemTypes->search_with_localization->as_list
+    } Koha::ItemTypes->search->as_list
 };
 
 # Select borrowers infos

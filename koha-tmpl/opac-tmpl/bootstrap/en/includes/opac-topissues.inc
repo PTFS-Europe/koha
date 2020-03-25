@@ -1,3 +1,4 @@
+[% USE ItemTypes %]
 [% USE Koha %]
 [% USE Branches %]
 [% PROCESS 'html_helpers.inc' %]
@@ -37,7 +38,7 @@
                                 [% ELSE %]
                                     <option value="[% itemtype.itemtype | html %]">
                                 [% END %]
-                                    [% itemtype.translated_description | html %]
+                                    [% ItemTypes.t(itemtype.description) | html %]
                                 </option>
                             [% END %]
                         </select>

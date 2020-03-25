@@ -74,6 +74,7 @@ use Koha::Acquisition::Booksellers;
 use Koha::Acquisition::Currencies qw( get_active );
 use Koha::Acquisition::Orders;
 use Koha::DateUtils qw( dt_from_string );
+use Koha::I18N;
 use Koha::ItemTypes;
 use Koha::Patrons;
 

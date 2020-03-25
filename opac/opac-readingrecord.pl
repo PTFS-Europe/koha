@@ -54,7 +54,7 @@ my ( $template, $borrowernumber, $cookie ) = get_template_and_user(
     }
 );
 
-my $itemtypes = { map { $_->{itemtype} => $_ } @{ Koha::ItemTypes->search_with_localization->unblessed } };
+my $itemtypes = { map { $_->{itemtype} => $_ } @{ Koha::ItemTypes->search->unblessed } };
 
 # get the record
 my $order = $query->param('order') || '';
@@ -83,8 +83,7 @@ my $opac_summary_html = C4::Context->preference('OPACMySummaryHTML');
 foreach my $issue ( @{$issues} ) {
     $issue->{normalized_isbn} = GetNormalizedISBN( $issue->{isbn} );
     if ( $issue->{$itype_attribute} ) {
-        $issue->{translated_description} =
-          $itemtypes->{ $issue->{$itype_attribute} }->{translated_description};
+        $issue->{description} = $itemtypes->{ $issue->{$itype_attribute} }->{description};
         $issue->{imageurl} =
           getitemtypeimagelocation( 'opac',
             $itemtypes->{ $issue->{$itype_attribute} }->{imageurl} );

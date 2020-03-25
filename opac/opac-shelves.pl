@@ -328,7 +328,7 @@ if ( $op eq 'view' ) {
                 $itemtype = Koha::ItemTypes->find( $itemtype );
                 if( $itemtype ) {
                     $this_item->{imageurl}          = C4::Koha::getitemtypeimagelocation( 'opac', $itemtype->imageurl );
-                    $this_item->{description}       = $itemtype->description; #FIXME Should not it be translated_description?
+                    $this_item->{description}       = $itemtype->description;
                     $this_item->{notforloan}        = $itemtype->notforloan;
                 }
                 $this_item->{'coins'}           = $biblio->get_coins;
