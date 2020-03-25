@@ -104,6 +104,10 @@ sub encode {
     $self->{transmission} .= $self->user_data_message_segments();
 
     $self->{transmission} .= $self->trailing_service_segments();
+
+    # Guard against CR LF etc being added in data from DB
+    $self->{transmission}=~s/[\r\n\t]//g;
+
     return $self->{transmission};
 }
 
