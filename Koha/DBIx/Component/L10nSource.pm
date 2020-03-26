@@ -42,32 +42,46 @@ Koha::DBIx::Component::L10nSource
 
 =head2 update_l10n_source
 
-    $self->update_l10n_source($context, @sources)
+    $self->update_l10n_source($group, $key, $text)
 
-Ensure that all sources in C<@sources>and only them are present in l10n_source
-for a given C<$context>
+Update or create an entry in l10n_source
 
 =cut
 
 sub update_l10n_source {
-    my ($self, $context, @sources) = @_;
+    my ($self, $group, $key, $text) = @_;
 
-    my $l10n_source_rs = $self->result_source->schema->resultset('L10nSource')->search({ context => $context });
-
-    # Insert missing l10n_source rows
-    foreach my $source (@sources) {
-        my $count = $l10n_source_rs->search({ source => $source })->count;
-        if ($count == 0) {
-            $l10n_source_rs->create({ source => $source });
+    my $l10n_source_rs = $self->result_source->schema->resultset('L10nSource');
+    $l10n_source_rs->update_or_create(
+        {
+            group => $group,
+            key   => $key,
+            text  => $text,
+        },
+        {
+            key => 'group_key',
         }
-    }
+    );
+}
 
-    # Remove l10n_source rows that do not match an existing source
-    my %sources = map { $_ => undef } @sources;
-    my @l10n_sources = grep { !exists $sources{$_->source} } $l10n_source_rs->all;
-    foreach my $l10n_source (@l10n_sources) {
-        $l10n_source->delete;
-    }
+=head2 delete_l10n_source
+
+    $self->delete_l10n_source($group, $key, $text)
+
+Remove an entry from l10n_source
+
+=cut
+
+sub delete_l10n_source {
+    my ($self, $group, $key) = @_;
+
+    my $l10n_source_rs = $self->result_source->schema->resultset('L10nSource');
+    $l10n_source_rs->search(
+        {
+            group => $group,
+            key   => $key,
+        }
+    )->delete();
 }
 
 1;

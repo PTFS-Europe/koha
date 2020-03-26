@@ -228,21 +228,24 @@ sub _expand {
 
 =head2 db_t
 
-    db_t($context, $source)
+    db_t($group, $text)
     db_t('itemtype', $itemtype->description)
 
 Search for a translation in l10n_target table and return it if found
-Return source string otherwise
+Return C<$text> otherwise
 
 =cut
 
 sub db_t {
-    my ($context, $source) = @_;
+    my ($group, $text) = @_;
 
     my $cache = Koha::Caches->get_instance();
-    my $language = C4::Languages::getlanguage();
-    my $cache_key = sprintf('%s:%s', $context, $language);
+    unless ($cache->is_cache_active) {
+        $cache = Koha::Cache::Memory::Lite->get_instance();
+    }
 
+    my $language = C4::Languages::getlanguage();
+    my $cache_key = sprintf('l10n:%s:%s', $group, $language);
     my $translations = $cache->get_from_cache($cache_key);
     unless ($translations) {
         my $schema = Koha::Database->new->schema;
@@ -250,7 +253,7 @@ sub db_t {
 
         my @targets = $rs->search(
             {
-                'l10n_source.context' => $context,
+                'l10n_source.group' => $group,
                 language => $language,
             },
             {
@@ -259,16 +262,16 @@ sub db_t {
                 result_class => 'DBIx::Class::ResultClass::HashRefInflator',
             },
         );
-        $translations = { map { $_->{l10n_source}->{source} => $_->{translation} } @targets };
+        $translations = { map { $_->{l10n_source}->{text} => $_->{translation} } @targets };
 
         $cache->set_in_cache($cache_key, $translations);
     }
 
-    if (exists $translations->{$source}) {
-        return $translations->{$source};
+    if (exists $translations->{$text}) {
+        return $translations->{$text};
     }
 
-    return $source;
+    return $text;
 }
 
 1;

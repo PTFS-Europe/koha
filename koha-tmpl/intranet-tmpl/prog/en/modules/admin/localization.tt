@@ -45,8 +45,8 @@
                     <table id="localization">
                         <thead>
                             <tr>
-                                <th>Context</th>
-                                <th>Source</th>
+                                <th>Group</th>
+                                <th>Text</th>
                                 <th>Translations</th>
                             </tr>
                         </thead>
@@ -89,12 +89,12 @@
                 },
                 columns: [
                     {
-                        name: 'context',
-                        data: 'context',
+                        name: 'group',
+                        data: 'group',
                     },
                     {
-                        name: 'source',
-                        data: 'source',
+                        name: 'text',
+                        data: 'text',
                     },
                     {
                         name: 'targets',
@@ -120,7 +120,6 @@
                                 translateLink.attr('href', '#');
                                 translateLink.attr('data-l10n-source-id', row.l10n_source_id);
                                 translateLink.attr('data-language', language.rfc4646_subtag);
-                                translateLink.attr('data-source', row.source);
                                 if (translations[language.rfc4646_subtag]) {
                                     translateLink.attr('data-translation', translations[language.rfc4646_subtag].translation);
                                 }

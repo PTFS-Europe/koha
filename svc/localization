@@ -24,7 +24,7 @@ sub get_translations {
         my @and;
         my @words = split /\s+/, $search;
         foreach my $word (@words) {
-            push @and, \['source LIKE ? COLLATE utf8mb4_unicode_ci', "%$word%"];
+            push @and, \['text LIKE ? COLLATE utf8mb4_unicode_ci', "%$word%"];
         }
         $cond->{-and} = \@and;
     }
@@ -37,7 +37,7 @@ sub get_translations {
         result_class => 'DBIx::Class::ResultClass::HashRefInflator',
         rows => $length,
         offset => $start,
-        order_by => { -asc => ['context', 'source'] },
+        order_by => { -asc => ['group', 'text'] },
     });
 
     $response->param(
@@ -73,7 +73,7 @@ sub update_translation {
     }
 
     my $source = $schema->resultset('L10nSource')->find($id);
-    my $cache_key = sprintf('%s:%s', $source->context, $lang);
+    my $cache_key = sprintf('l10n:%s:%s', $source->group, $lang);
     Koha::Caches->get_instance()->clear_from_cache($cache_key);
 
     C4::Service->return_success( $response );
