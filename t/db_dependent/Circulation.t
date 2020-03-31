@@ -18,7 +18,7 @@
 use Modern::Perl;
 use utf8;
 
-use Test::More tests => 47;
+use Test::More tests => 49;
 use Test::Exception;
 use Test::MockModule;
 
@@ -2052,6 +2052,7 @@ subtest 'CanBookBeIssued + AutoReturnCheckedOutItems' => sub {
 subtest 'AddReturn | is_overdue' => sub {
     plan tests => 6;
 
+    t::lib::Mocks::mock_preference('MarkLostItemsAsReturned', 'batchmod|moredetail|cronjob|additem|pendingreserves|onpayment');
     t::lib::Mocks::mock_preference('CalculateFinesOnReturn', 1);
     t::lib::Mocks::mock_preference('finesMode', 'production');
     t::lib::Mocks::mock_preference('MaxFine', '100');
