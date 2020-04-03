@@ -415,16 +415,7 @@ sub order_line {
         $ol_fields->{servicing_instruction} = $orderline->order_vendornote;
         chomp $ol_fields->{servicing_instruction};
     }
-    my $item_fields = [];
-    for my $item (@items) {
-        push @{$item_fields},
-          {
-            branchcode     => $item->homebranch->branchcode,
-            itype          => $item->itype,
-            location       => $item->location,
-            itemcallnumber => $item->itemcallnumber,
-          };
-    }
+
     my $item_fields = [];
     for my $item (@items) {
         push @{$item_fields},
