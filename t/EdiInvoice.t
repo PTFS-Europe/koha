@@ -70,7 +70,7 @@ my $lineprice = $lines->[7]->price_net;
 
 is( $lineprice, 4.55, 'correct net line price returned' );
 
-my $lineprice = $lines->[7]->price_gross;
+$lineprice = $lines->[7]->price_gross;
 
 is( $lineprice, 7.99, 'correct gross line price returned' );
 
