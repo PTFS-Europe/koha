@@ -3207,10 +3207,12 @@ CREATE TABLE `keyboard_shortcuts` (
 DROP TABLE IF EXISTS l10n_source;
 CREATE TABLE l10n_source (
     l10n_source_id INT(11) NOT NULL AUTO_INCREMENT,
-    context VARCHAR(100) NULL DEFAULT NULL,
-    source TEXT NOT NULL,
+    `group` VARCHAR(100) NULL DEFAULT NULL,
+    `key` VARCHAR(100) NOT NULL,
+    `text` TEXT NOT NULL,
     PRIMARY KEY (l10n_source_id),
-    KEY context_source (context, source(60))
+    UNIQUE KEY group_key (`group`, `key`),
+    KEY group_text (`group`, `text`(60))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 DROP TABLE IF EXISTS l10n_target;
