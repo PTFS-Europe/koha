@@ -145,7 +145,7 @@ my $copynumbers =
 
 my $itemtypes = { map { $_->{itemtype} => $_ } @{ Koha::ItemTypes->search->unblessed } };
 
-$data->{'itemtypename'} = db_t('itemtype', $itemtypes->{ $data->{'itemtype'} }->{description});
+$data->{'itemtypename'} = db_t('itemtype', $itemtypes->{ $data->{'itemtype'} }->{description})
   if $data->{itemtype} && exists $itemtypes->{ $data->{itemtype} };
 foreach ( keys %{$data} ) {
     $template->param( "$_" => defined $data->{$_} ? $data->{$_} : '' );

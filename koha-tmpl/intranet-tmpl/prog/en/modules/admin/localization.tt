@@ -100,7 +100,7 @@
                         name: 'targets',
                         data: 'l10n_targets',
                         render: function (data, type, row, meta) {
-                            const languages = [% languages.json %];
+                            const languages = [% languages.json | $raw %];
                             const translations = Object.fromEntries(data.map(translation => [translation.language, translation]));
                             let output = '';
                             for (const language of languages) {

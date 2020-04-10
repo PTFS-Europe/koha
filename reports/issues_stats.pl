@@ -440,7 +440,7 @@ sub calculate {
         $cell{coltitle_display} =
             ( $column =~ /ccode/ )    ? $ccodes->{$celvalue}
           : ( $column =~ /location/ ) ? $locations->{$celvalue}
-          : ( $column =~ /itemtype/ ) ? db_t('itemtype', $itemtypes_map->{$celvalue}->{description});
+          : ( $column =~ /itemtype/ ) ? db_t('itemtype', $itemtypes_map->{$celvalue}->{description})
           :                             $celvalue;                               # default fallback
         if ( $column =~ /sort1/ ) {
             foreach (@$Bsort1) {
