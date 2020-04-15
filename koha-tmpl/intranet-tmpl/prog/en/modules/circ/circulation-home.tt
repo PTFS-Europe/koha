@@ -71,6 +71,9 @@
                         <a class="circ-button" href="/cgi-bin/koha/circ/waitingreserves.pl"><i class="fa fa-calendar"></i> Holds awaiting pickup</a>
                     </li>
                     <li>
+                        <a class="circ-button" href="/cgi-bin/koha/reports/guided_reports.pl?reports=290&phase=Run this report"><i class="fa fa-tasks"></i> Reservations placed by Content & Collections Team</a>
+                    </li>
+                    <li>
                         <a class="circ-button" href="/cgi-bin/koha/circ/reserveratios.pl"><i class="fa fa-line-chart"></i> Hold ratios</a>
                     </li>
                 </ul>
