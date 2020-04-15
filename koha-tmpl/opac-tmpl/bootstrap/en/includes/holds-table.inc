@@ -102,7 +102,7 @@
                         <td class="status">
                             <span class="tdlabel">Status:</span>
                             [% IF ( HOLD.is_waiting ) %]
-                                <i class="fa fa-exclamation-circle text-warning"></i>
+                                <i class="fa fa-exclamation-circle text-warning" aria-hidden="true"></i>
                                 [% IF ( HOLD.is_at_destination ) %]
                                     [% IF ( HOLD.found ) %]
                                         Item waiting at <strong> [% HOLD.branch.branchname | html %]</strong>
@@ -141,11 +141,11 @@
                                     [% IF HOLD.suspend %]
                                         <form class="form-inline" action="/cgi-bin/koha/opac-modrequest-suspend.pl" method="post">
                                             <input type="hidden" name="reserve_id" value="[% HOLD.reserve_id | html %]" />
-                                            <button class="btn btn-link" type="submit" name="submit"><i class="fa fa-play"></i> Resume</button>
+                                            <button class="btn btn-link" type="submit" name="submit"><i class="fa fa-play" aria-hidden="true"></i> Resume</button>
                                         </form>
                                     [% ELSE %]
                                         [% IF AutoResumeSuspendedHolds %]
-                                            <a class="btn btn-link js-show" href="#suspendModal[% HOLD.reserve_id | html %]" role="button" data-toggle="modal"><i class="fa fa-pause"></i> Suspend</a>
+                                            <a class="btn btn-link js-show" href="#suspendModal[% HOLD.reserve_id | html %]" role="button" data-toggle="modal"><i class="fa fa-pause" aria-hidden="true"></i> Suspend</a>
                                             [% # hold suspend modal form %]
                                             <div id="suspendModal[% HOLD.reserve_id | html %]" class="modal-nojs" tabindex="-1" role="dialog" aria-labelledby="suspendModal[% HOLD.reserve_id | html %]Label" aria-hidden="true">
                                                 <form class="form-inline" action="/cgi-bin/koha/opac-modrequest-suspend.pl" method="post">
@@ -174,7 +174,7 @@
                                         [% ELSE %]
                                             <form class="form-inline" action="/cgi-bin/koha/opac-modrequest-suspend.pl" method="post">
                                                 <input type="hidden" name="reserve_id" value="[% HOLD.reserve_id | html %]" />
-                                                <button class="btn btn-link" type="submit" name="submit"><i class="fa fa-pause"></i> Suspend</button>
+                                                <button class="btn btn-link" type="submit" name="submit"><i class="fa fa-pause" aria-hidden="true"></i> Suspend</button>
                                             </form>
                                         [% END # / IF AutoResumeSuspendedHolds %]
                                     [% END # / IF HOLD.suspend %]
@@ -187,7 +187,7 @@
                                     <form action="/cgi-bin/koha/opac-modrequest.pl" method="post">
                                     <input type="hidden" name="biblionumber" value="[% HOLD.biblionumber | html %]" />
                                     <input type="hidden" name="reserve_id" value="[% HOLD.reserve_id | html %]" />
-                                    <button type="submit" name="submit" class="btn btn-mini btn-danger" onclick="return confirmDelete(MSG_CONFIRM_DELETE_HOLD);"><i class="fa fa-remove"></i> Cancel</button></form>
+                                    <button type="submit" name="submit" class="btn btn-mini btn-danger" onclick="return confirmDelete(MSG_CONFIRM_DELETE_HOLD);"><i class="fa fa-remove" aria-hidden="true"></i> Cancel</button></form>
                                 [% END %]
                             </td>
                         [% END # / IF onlyinfo %]
@@ -200,7 +200,7 @@
             [% UNLESS ( all_holds_waiting ) %]
                 <div>
                     <form class="form-inline" id="suspend_all_holds" action="/cgi-bin/koha/opac-modrequest-suspend.pl" method="post">
-                        <button type="submit" id="suspend_all_submit" class="btn"><i class="fa fa-pause"></i> Suspend all holds</button>
+                        <button type="submit" id="suspend_all_submit" class="btn"><i class="fa fa-pause" aria-hidden="true"></i> Suspend all holds</button>
                         <input type="hidden" name="suspend" value="1" />
 
                         [% IF AutoResumeSuspendedHolds %]
@@ -213,7 +213,7 @@
                 <br/>
                 <div>
                     <form id="resume_all_holds" action="/cgi-bin/koha/opac-modrequest-suspend.pl" method="post">
-                        <button type="submit" id="resume_all_submit" class="btn"><i class="fa fa-play"></i> Resume all suspended holds</button>
+                        <button type="submit" id="resume_all_submit" class="btn"><i class="fa fa-play" aria-hidden="true"></i> Resume all suspended holds</button>
                         <input type="hidden" name="suspend" value="0" />
                     </form>
                 </div>
