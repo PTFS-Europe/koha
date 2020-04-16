@@ -61,15 +61,18 @@ sub list {
     my $hidden_statuses = [ split /\|/, $hidden_statuses_string ];
 
     # Get all requests
-    # If necessary, only get those from a specified patron
-    my @requests = Koha::Illrequests->search({
-        $hidden_statuses
-        ? ( status => { 'not in' => $hidden_statuses } )
-        : (),
-        $args->{borrowernumber}
-        ? ( borrowernumber => $args->{borrowernumber} )
-        : ()
-    })->as_list;
+    # AI: Temporarily restrict returned results if we're not viewing just
+    # a single borrowers records
+    my $where = !$args->{borrowernumber} ? {
+	-and => [
+            status => { '!=' => 'COMP' },
+	    -or => [
+                status_alias => { -not_in => [ 'CANC','COMP','COMPAVL','GENCOMP','COMPREAP','UNSUP','REQREV','CANCREQ', 'ARTEREQ','ITEMRET' ] },
+		status_alias => undef
+	    ]
+	]
+    } : { borrowernumber => $args->{borrowernumber} };
+    my @requests = Koha::Illrequests->search($where)->as_list;
 
     # Identify patrons & branches that
     # we're going to need and get them
