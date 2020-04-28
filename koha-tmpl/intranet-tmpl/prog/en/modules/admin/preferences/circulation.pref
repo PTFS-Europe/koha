@@ -8,6 +8,12 @@ Circulation:
                   no: Deactivate
             - the navigation sidebar on all Circulation pages.
         -
+            - pref: CircConfirmParts
+              choices:
+                  yes: "Require"
+                  no: "Don't require"
+            - staff to confirm that all parts of an item are present at checkin/checkout.
+        -
             - pref: AutoSwitchPatron
               choices:
                   yes: "Enable"
