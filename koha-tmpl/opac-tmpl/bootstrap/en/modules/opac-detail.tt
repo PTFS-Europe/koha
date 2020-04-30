@@ -367,6 +367,18 @@
                         <div id="BW_citations"></div>
                     [% END # / IF Babeltheque%]
 
+[% FOREACH ITEM_RESULT IN itemloop %]
+        [% IF ( frameworkcode == 'BKS' && !ITEM_RESULT.itemcallnumber.match('.*ONLINE') && ITEM_RESULT.branchname.match('Garching')) && g != '1' %]
+        <p><a href="http://www.eso.org/sci/php/libraries/floorplan/index.php?library=garching&classmark=[% ITEM_RESULT.itemcallnumber %]" onclick="window.open(this.href, '','location=no,resizable=1,scrollbars=yes,width=900,height=600'); return false" target="_blank">Click here to see the shelf location (Garching)</a></p>
+        [% g = '1' %]
+        [% END %]
+        [% IF ( frameworkcode == 'BKS' && !ITEM_RESULT.itemcallnumber.match('.*ONLINE') && ITEM_RESULT.branchname.match('Santiago')) && s != '1' %]
+        <p><a href="http://www.eso.org/sci/php/libraries/floorplan/index.php?library=santiago&classmark=[% ITEM_RESULT.itemcallnumber %]" onclick="window.open(this.href, '','location=no,resizable=1,scrollbars=yes,width=690,height=500'); return false" target="_blank">Click here to see the shelf location (Santiago)</a></p>
+        [% s = '1' %]
+        [% END %]
+
+    [% END %]
+
                 </div> <!-- / #catalogue_detail_biblio -->
 
                 <div id="bibliodescriptions" class="toptabs">
