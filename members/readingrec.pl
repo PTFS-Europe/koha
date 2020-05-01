@@ -95,6 +95,25 @@ if (! $limit){
 	$limit = 'full';
 }
 
+    my @relatives;
+    my $guarantor_relationships = $patron->guarantor_relationships;
+    my @guarantees              = $patron->guarantee_relationships->guarantees;
+    my @guarantors              = $guarantor_relationships->guarantors;
+    if (@guarantors) {
+                push( @relatives, $_->id ) for @guarantors;
+                    push( @relatives, $_->id ) for $patron->siblings();
+            }
+            else {
+                        push( @relatives, $_->id ) for @guarantees;
+                }
+$template->param(
+            guarantor_relationships => $guarantor_relationships,
+                guarantees              => \@guarantees,
+        );
+my $relatives_issues_count =
+  Koha::Database->new()->schema()->resultset('Issue')
+  ->count( { borrowernumber => \@relatives } );
+
 $template->param(
     patron            => $patron,
     readingrecordview => 1,

@@ -81,6 +81,30 @@
         [% END %]
     [% END %]
     <li class="patroncategory">Category: [% patron.category.description | html %] ([% patron.categorycode | html %])</li>
+
+    [% IF guarantor_relationships.count > 1 OR guarantor_relationships.count == 0 AND ( patron.contactfirstname OR patron.contactname ) %]
+          <li><span class="label">Guarantors:</span>
+               [% FOREACH gr IN guarantor_relationships %]
+                    [% SET guarantor = gr.guarantor %]
+               <a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% guarantor.id | uri %]">[% guarantor.firstname | html %] [% guarantor.surname | html %]
+                                  [% IF gr.relationship %] ([% gr.relationship | html %])[% END %]</a></li>
+               [% END %]
+    [% ELSIF guarantor_relationships.count == 1 OR guarantor_relationships.count == 0 AND ( patron.contactfirstname OR patron.contactname ) %]
+          <li><span class="label">Guarantor:</span>
+               [% FOREACH gr IN guarantor_relationships %]
+                    [% SET guarantor = gr.guarantor %]
+               <a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% guarantor.id | uri %]">[% guarantor.firstname | html %] [% guarantor.surname | html %]
+                                  [% IF gr.relationship %] ([% gr.relationship | html %])[% END %]</a></li>
+               [% END %]
+    [% ELSIF guarantees %]
+          <li><span class="label">Guarantees:</span>
+	       [% FOREACH guarantee IN guarantees %]
+               <a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% guarantee.borrowernumber | uri %]">[% guarantee.firstname | html %] [% guarantee.surname | html %]</a></li>
+               [% END %]
+    [% ELSE %]
+          <li><span class="empty">No guarantors stored.</span></li>
+    [% END %]
+
     <li class="patronlibrary">Home library: [% Branches.GetName( patron.branchcode ) | html %]</li>
     <li class="patronborrowernumber">Borrowernumber: [% patron.borrowernumber | html %]</li>
     <li><span class="patronupdatedon">Updated on [% patron.updated_on | $KohaDates with_hours => 1 %]</span></li>

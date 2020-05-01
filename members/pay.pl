@@ -40,7 +40,6 @@ use C4::Koha;
 use C4::Overdues;
 use Koha::Patrons;
 use Koha::Items;
-
 use Koha::Patron::Categories;
 use URI::Escape;
 
@@ -159,6 +158,22 @@ $template->param(
     change_given => $change_given,
     renew_results => $renew_results_display
 );
+
+    my @relatives;
+    my $guarantor_relationships = $patron->guarantor_relationships;
+    my @guarantees              = $patron->guarantee_relationships->guarantees;
+    my @guarantors              = $guarantor_relationships->guarantors;
+    if (@guarantors) {
+           push( @relatives, $_->id ) for @guarantors;
+             push( @relatives, $_->id ) for $patron->siblings();
+     }
+     else {
+              push( @relatives, $_->id ) for @guarantees;
+     }
+$template->param(
+      guarantor_relationships => $guarantor_relationships,
+       guarantees              => \@guarantees,
+      );
 
 add_accounts_to_template();
 
