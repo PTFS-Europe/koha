@@ -8,7 +8,7 @@ Circulation:
                   no: Deactivate
             - the navigation sidebar on all Circulation pages.
         -
-            - pref: CircConfirmParts
+            - pref: CircConfirmItemParts
               choices:
                   yes: "Require"
                   no: "Don't require"
