@@ -3525,6 +3525,107 @@ subtest "Test Backdating of Returns" => sub {
     is( $accountline->amount+0, 0, 'Fee amount was reduced to 0' );
 };
 
+subtest 'CanBookBeIssued & CircConfirmItemParts' => sub {
+    plan tests => 1;
+
+    t::lib::Mocks::mock_preference('CircConfirmItemParts', 1);
+
+    my $library =
+      $builder->build_object( { class => 'Koha::Libraries' } )->store;
+    my $patron = $builder->build_object(
+        {
+            class => 'Koha::Patrons',
+            value => { categorycode => $patron_category->{categorycode} }
+        }
+    )->store;
+
+    my $itemtype = $builder->build_object(
+        {
+            class => 'Koha::ItemTypes',
+            value => {
+                notforloan         => 0,
+                rentalcharge       => 0,
+                rentalcharge_daily => 0
+            }
+        }
+    );
+
+    my $biblioitem = $builder->build( { source => 'Biblioitem' } );
+    my $item = $builder->build_object(
+        {
+            class => 'Koha::Items',
+            value => {
+                homebranch       => $library->id,
+                holdingbranch    => $library->id,
+                notforloan       => 0,
+                itemlost         => 0,
+                withdrawn        => 0,
+                itype            => $itemtype->id,
+                biblionumber     => $biblioitem->{biblionumber},
+                biblioitemnumber => $biblioitem->{biblioitemnumber},
+                materials        => 'includes DVD',
+            }
+        }
+    )->store;
+
+    my ( $issuingimpossible, $needsconfirmation );
+    my $dt_from = dt_from_string();
+    my $dt_due = $dt_from->clone->add( days => 3 );
+
+    ( $issuingimpossible, $needsconfirmation ) = CanBookBeIssued( $patron, $item->barcode, $dt_due, undef, undef, undef );
+    is_deeply( $needsconfirmation, { additional_materials => 'includes DVD' }, 'Item needs confirmation of additional parts' );
+};
+
+subtest 'Do not return on renewal (LOST charge)' => sub {
+    plan tests => 1;
+
+    t::lib::Mocks::mock_preference('MarkLostItemsAsReturned', 'onpayment');
+    my $library = $builder->build_object( { class => "Koha::Libraries" } );
+    my $manager = $builder->build_object( { class => "Koha::Patrons" } );
+    t::lib::Mocks::mock_userenv({ patron => $manager,branchcode => $manager->branchcode });
+
+    my $biblio = $builder->build_sample_biblio;
+
+    my $branch = $library2->{branchcode};
+    my $biblio = $builder->build_sample_biblio();
+    my $item = $builder->build_sample_item(
+        {
+            biblionumber     => $biblio->biblionumber,
+            library          => $branch,
+            itype            => $itemtype,
+        }
+    );
+
+    my %a_borrower_data = (
+        firstname =>  'Kyle',
+        surname => 'Hall',
+        categorycode => $patron_category->{categorycode},
+        branchcode => $branch,
+    );
+    my $borrowernumber = Koha::Patron->new(\%a_borrower_data)->store->borrowernumber;
+    my $borrower = Koha::Patrons->find( $borrowernumber )->unblessed;
+
+    my $due_date = dt_from_string;
+    my $issue = AddIssue( $borrower, $item->barcode, $due_date );
+    UpdateFine(
+        {
+            issue_id          => $issue->id(),
+            itemnumber        => $item->itemnumber,
+            borrowernumber    => $borrowernumber,
+            amount            => .25,
+            amountoutstanding => .25,
+            type              => q{}
+        }
+    );
+
+
+    my ( undef, $message ) = AddReturn( $item->barcode, $branch, undef, $due_date );
+
+    my $accountline = Koha::Account::Lines->find( { issue_id => $issue->id } );
+    is( $accountline->amountoutstanding+0, 0, 'Fee amount outstanding was reduced to 0' );
+    is( $accountline->amount+0, 0, 'Fee amount was reduced to 0' );
+};
+
 subtest 'Filling a hold should cancel existing transfer' => sub {
     plan tests => 4;
 
