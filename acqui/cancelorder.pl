@@ -61,6 +61,11 @@ if( $action and $action eq "confirmcancel" ) {
     $order->cancel({ reason => $reason, delete_biblio => $delete_biblio });
     my @messages = @{ $order->messages };
 
+    # Log the cancellation of the order
+    if (C4::Context->preference("AcqLog")) {
+        logaction('ACQUISITIONS', 'CANCEL_ORDER', $ordernumber);
+    }
+
     if ( scalar @messages > 0 ) {
         $template->param( error_delitem => 1 )
             if $messages[0]->message eq 'error_delitem';
@@ -68,10 +73,6 @@ if( $action and $action eq "confirmcancel" ) {
             if $messages[0]->message eq 'error_delbiblio';
     } else {
         $template->param(success_cancelorder => 1);
-        # Log the cancellation of the order
-        if (C4::Context->preference("AcqLog")) {
-            logaction('ACQUISITIONS', 'CANCEL_ORDER', $ordernumber);
-        }
     }
     $template->param(confirmcancel => 1);
 }
