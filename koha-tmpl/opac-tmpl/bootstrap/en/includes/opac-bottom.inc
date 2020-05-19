@@ -121,6 +121,10 @@ $.widget.bridge('uitooltip', $.ui.tooltip);
 [% Asset.js("js/amazonimages.js") | $raw %]
 [% END %]
 
+[% IF Koha.Preference( 'OPACSearchAutoComplete' ) == 1 %]
+[% Asset.js("js/wikipedia-search.js") | $raw %] 
+[% END %]
+
 <script>
     //<![CDATA[
     var MSG_CONFIRM_AGAIN = _("Warning: Cannot be undone. Please confirm once again")

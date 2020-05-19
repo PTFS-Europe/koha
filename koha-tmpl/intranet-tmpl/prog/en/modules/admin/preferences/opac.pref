@@ -563,6 +563,13 @@ OPAC:
               syntax: text/html
               class: code
         -
+            - pref: OPACSearchAutoComplete
+              default: 0
+              choices:
+                  yes: Enable
+                  no: Disable
+            - "search suggestions based on data entered into the search box"
+        -
             - pref: OpacBrowseSearch
               default: 0
               choices:
