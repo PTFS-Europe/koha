@@ -60,15 +60,16 @@ if($action and $action eq "confirmcancel") {
     my $reason = $input->param('reason');
     my $error = DelOrder($biblionumber, $ordernumber, $del_biblio, $reason);
 
+    # Log the cancellation of the order
+    if (C4::Context->preference("AcqLog")) {
+        logaction('ACQUISITIONS', 'CANCEL_ORDER', $ordernumber);
+    }
+
     if($error) {
         $template->param(error_delitem => 1) if $error->{'delitem'};
         $template->param(error_delbiblio => 1) if $error->{'delbiblio'};
     } else {
         $template->param(success_cancelorder => 1);
-        # Log the cancellation of the order
-        if (C4::Context->preference("AcqLog")) {
-            logaction('ACQUISITIONS', 'CANCEL_ORDER', $ordernumber);
-        }
     }
     $template->param(confirmcancel => 1);
 }
