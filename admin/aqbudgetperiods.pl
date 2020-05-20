@@ -117,8 +117,8 @@ elsif ( $op eq 'add_validate' ) {
 ## add or modify a budget period (confirmation)
 
     ## update budget period data
-    +    if ( $budget_period_id ne '' ) {
-    +        # Grab the previous values so we can log them
+    if ( $budget_period_id ne '' ) {
+        # Grab the previous values so we can log them
         my $budgetperiod_old=GetBudgetPeriod($budget_period_id);
         $$budget_period_hashref{$_}||=0 for qw(budget_period_active budget_period_locked);
         my $status=ModBudgetPeriod($budget_period_hashref);
