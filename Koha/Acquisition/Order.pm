@@ -197,7 +197,8 @@ Returns the bibliographic record associated to the order
 
 sub biblio {
     my ( $self ) = @_;
-    my $biblio_rs= $self->_result->biblionumber;
+    my $biblio_rs = $self->_result->biblionumber;
+    return unless $biblio_rs;
     return Koha::Biblio->_new_from_dbic( $biblio_rs );
 }
 

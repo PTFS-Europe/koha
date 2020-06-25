@@ -79,11 +79,10 @@
                 <input type="checkbox" value="[% lateorder.ordernumber | html %]" data-booksellerid="[% lateorder.basket.booksellerid | html %]" name="ordernumber">
             </td>
             <td>
-                <span title="[% lateorder.orderdate | html %]">[% lateorder.orderdate | $KohaDates %] ([% lateorder.latesince | html %] days)</span>
-                [% lateorder.ordernumber | $raw %]
+                <span title="[% lateorder.basket.closedate | html %]">[% lateorder.basket.closedate | $KohaDates %] ([% lateorder.basket.late_since_days | html %] days)</span>
             </td>
             <td>
-                <span title="[% lateorder.closedate | html %]">[% lateorder.closedate | $KohaDates %] ([% lateorder.late_since_days | html %] days)</span>
+                [% lateorder.ordernumber | $raw %]
             </td>
             <td>
                 [% SET estimated_delivery_date = lateorder.get_column('estimated_delivery_date') %]
