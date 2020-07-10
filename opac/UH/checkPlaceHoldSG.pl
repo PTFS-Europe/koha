@@ -1,0 +1,119 @@
+#!/usr/bin/perl -w
+
+use lib '/home/koha/kohaclone';
+use DBI;           # Connect to DB
+use DBD::mysql;    # Manipulate MySQL
+use CGI qw/:standard -debug/;
+use CGI::Carp qw(fatalsToBrowser);
+
+# Koha Imports
+use C4::Context;    # Koha Database Access
+
+my $DEBUG = 0;
+my $debugString;
+
+my $q = new CGI;
+my @ids;
+
+if ($q->param('DEBUG')) {
+	$DEBUG = 1;
+}
+
+#if ($q->param('bibids') =~ m/:/) {
+#	@ids = split(/:/,$q->param('bibids'));
+#} else {
+#	push @ids,$q->param('bibids');
+#}
+
+my $bibIDString = $q->param('bibids');
+
+#if ($#ids == 0) {
+#	$bibIDString = "'$ids[0]'";
+#} else {
+# foreach my $id (@ids) {
+#		$bibIDString .= "'$id',";
+#	}
+#	chop($bibIDString);
+#}
+
+# $debugString .= "<br>There are " . ++$#ids . " bibIDs, which are $bibIDString<br>";
+$debugString .= "<br>The ID is $bibIDString<br>";
+
+my $data = &getAvailability($bibIDString);
+
+my $rv = "{\"holding\":[";
+
+my $count = 0;
+my $holdCount = 0;
+
+foreach my $rec (@$data) {
+	my ($id,$loc,$callnumber,$availabilty,$itype,$lost,$numberOfHolds) = @$rec;
+	if ($count == 0) { $holdCount = $numberOfHolds };
+	$loc =~ s/Learning Resources Centre/LRC/;
+	if ($holdCount > 0) {
+		$availabilty = "On Hold";
+		$holdCount--;
+	}
+	$rv .= "{\"id\":\"$id\",\"status\":\"$availabilty\",\"location\":\"$loc\",\"callnumber\":\"$callnumber\",\"itemtype\":\"$itype\",\"missing\":\"$lost\",\"holds\":\"$numberOfHolds\"},";
+	$count++;
+}
+
+chop($rv);
+
+$rv .= "]}";
+
+$debugString .= "<br>JSON: <pre>$rv</pre><br>";
+
+if ($DEBUG) {
+	print "Content-type: text/html\n\n";
+	print $debugString;
+} else {
+	print "Content-type: text/json\n\n";
+	print $rv;
+}
+
+exit;
+
+#######################################
+
+sub getAvailability($) {
+
+	my $bibID = $_[0];
+
+    my $dbh = C4::Context->dbh;
+    my $query;
+    my $sth;
+
+	my $SQL = "select
+				biblionumber,
+				concat (branchname, ', ', lib) as location,
+				itemcallnumber,
+				if(onloan is null,'Available','Checked Out') onloan,
+				itype,
+				itemlost,
+				(select count(biblionumber) from reserves where biblionumber = '$bibID' and found is not null) as holds
+				from items,authorised_values,branches
+				where biblionumber = '$bibID'
+				and authorised_values.category = 'LOC'
+				and items.location = authorised_values.authorised_value
+				and items.homebranch = branches.branchcode
+				and lib != 'Missing'
+				and itype not in ('REF','MIS')
+				and notforloan = 'false'
+				and onloan is null
+				and itemlost = 'false'";
+
+	$debugString .= "<br>The SQL is $SQL<br>";
+
+
+	$sth = $dbh->prepare($SQL)
+		or warn "Can't prepare $query: $dbh->errstr\n";
+	$sth->execute()
+          or warn "Can't execute the query: $sth->errstr\n";
+
+	my $data = $sth->fetchall_arrayref();
+
+	return $data;
+}
+
+#######################################
