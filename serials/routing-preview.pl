@@ -124,6 +124,8 @@ my $memberloop = [];
 for my $routing (@routinglist) {
     my $member = Koha::Patrons->find( $routing->{borrowernumber} )->unblessed;
     $member->{name}           = "$member->{firstname} $member->{surname}";
+    $member->{address}        = "$member->{address}";
+    $member->{address2}       = "$member->{address2}";
     push @{$memberloop}, $member;
 }
 
