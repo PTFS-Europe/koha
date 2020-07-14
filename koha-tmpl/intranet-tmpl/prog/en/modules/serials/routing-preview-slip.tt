@@ -14,19 +14,23 @@
 
 <table>
     <tr>
-        <td colspan="2"><h3>[% libraryname | html %]</h3></td>
+        <td colspan="4"><h3>[% libraryname | html %]</h3></td>
     </tr>
     <tr>
-        <td colspan="2"><b>Title:</b> [% title | html %]<br />[% issue | html %]</td>
+        <td colspan="4"><b>Title:</b> [% title | html %]<br />[% issue | html %]</td>
     </tr>
     <tr>
         <td><b>Name</b></td>
         <td><b>Date due</b></td>
+        <td><b>Room No.</b></td>
+        <td><b>Office</b></td>
     </tr>
     [% FOREACH memberloo IN memberloop %]
     <tr>
         <td>[% memberloo.name | html %]</td>
         <td>&nbsp;</td>
+        <td>[% memberloo.address %]</td>
+        <td>[% memberloo.address2 %]</td>
     </tr>
     [% END %]
 </table>
