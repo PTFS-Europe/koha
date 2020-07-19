@@ -79,7 +79,7 @@
         <span class="Z3988" title="[% ocoins | html %]"></span>
     [% END %]
 
-    [% IF ( AmazonCoverImages  || LocalCoverImages || AdlibrisEnabled || IntranetCoce || (Koha.Preference('CustomCoverImages') && Koha.Preference('CustomCoverImagesURL')) ) %]
+    [% IF ( AmazonCoverImages  || LocalCoverImages || AdlibrisEnabled || BDSStaffEnable || IntranetCoce || (Koha.Preference('CustomCoverImages') && Koha.Preference('CustomCoverImagesURL')) ) %]
         [% IF ( XSLTDetailsDisplay ) %]
             <div id="catalogue_detail_biblio" class="col-xs-9">
         [% ELSE %]
@@ -135,10 +135,15 @@
             </span>
         [% END %]
 
-        [% IF ( AmazonCoverImages  || LocalCoverImages || AdlibrisEnabled || IntranetCoce || (Koha.Preference('CustomCoverImages') && Koha.Preference('CustomCoverImagesURL')) ) %]
+        [% IF ( AmazonCoverImages  || LocalCoverImages || AdlibrisEnabled || BDSStaffEnable || IntranetCoce || (Koha.Preference('CustomCoverImages') && Koha.Preference('CustomCoverImagesURL')) ) %]
         </div><div class="col-xs-3" id="bookcoverimg">
         [% IF ( LocalCoverImages ) %]
             <div title="[% biblionumber |url %]" class="[% biblionumber | html %]" id="local-thumbnail-preview"></div>
+        [% END %]
+        [% IF ( BDSStaffEnable && normalized_isbn ) %]
+        <span class="bds_coverimage"><a href="https://www.bibdsl.co.uk/xmla/image-service.asp?ISBN=[% normalized_isbn %]&SIZE=l&DBM=[% DBMCode %]&SSL=on" />
+        <img src="https://www.bibdsl.co.uk/xmla/image-service.asp?ISBN=[% normalized_isbn %]&SIZE=s&DBM=[% DBMCode %]&SSL=on" />
+        </a></span>
         [% END %]
         [% IF ( AdlibrisEnabled && normalized_isbn ) %]
             <a href="[% AdlibrisURL | url %]?isbn=[% normalized_isbn | uri %]"><img src="[% AdlibrisURL | url %]?isbn=[% normalized_isbn | uri %]" class="adlibris-cover-big" alt="Adlibris cover image" /></a>
@@ -1000,7 +1005,7 @@
              });
         });
 
-        [% IF ( AmazonCoverImages || LocalCoverImages ) %]$(window).load(function() {
+        [% IF ( AmazonCoverImages || LocalCoverImages || BDSStaffEnable ) %]$(window).load(function() {
             verify_images();
         });[% END %]
     </script>
