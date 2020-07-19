@@ -7,6 +7,7 @@
 [% PROCESS 'i18n.inc' %]
 [% SET footerjs = 1 %]
 [% USE AuthorisedValues %]
+[% SET BDSStaffEnable = Koha.Preference('BDSStaffEnable') %]
 [% IF BiblioDefaultViewmarc %]
     [% SET DetailPage="MARCdetail.pl" %]
 [% ELSIF BiblioDefaultViewlabeled_marc %]
@@ -423,7 +424,7 @@
                                 <!-- TABLE RESULTS START -->
                                 <table>
                                     <tr>
-                                        [% IF ( AmazonCoverImages  || LocalCoverImages || (Koha.Preference('CustomCoverImages') && Koha.Preference('CustomCoverImagesURL')) ) %]
+                                        [% IF ( AmazonCoverImages  || LocalCoverImages || BDSStaffEnable || (Koha.Preference('CustomCoverImages') && Koha.Preference('CustomCoverImagesURL')) ) %]
                                             <th>&nbsp;</th>
                                         [% END %]
                                         <th colspan="2">Results</th>
@@ -433,7 +434,7 @@
                                     [% SET MaxSearchResultsItemsPerRecordStatusCheck = Koha.Preference('MaxSearchResultsItemsPerRecordStatusCheck') %]
                                     [% FOREACH SEARCH_RESULT IN SEARCH_RESULTS %]
                                         <tr id="row[% SEARCH_RESULT.biblionumber | html %]">
-                                            [% IF ( AmazonCoverImages  || LocalCoverImages || IntranetCoce || (Koha.Preference('CustomCoverImages') && Koha.Preference('CustomCoverImagesURL')) ) %]
+                                            [% IF ( AmazonCoverImages || BDSStaffEnable || LocalCoverImages || IntranetCoce || (Koha.Preference('CustomCoverImages') && Koha.Preference('CustomCoverImagesURL')) ) %]
     <td class="bookcoverimg">
         <div id="cover-slides-[% SEARCH_RESULT.biblionumber | html %]" class="cover-slides" data-biblionumber="[% SEARCH_RESULT.biblionumber | html %]">
             [% IF ( LocalCoverImages ) %][% SEARCH_RESULT.localimage | html %]
@@ -442,6 +443,15 @@
                         <img src="/cgi-bin/koha/catalogue/image.pl?thumbnail=1&amp;biblionumber=[% SEARCH_RESULT.biblionumber | uri %]" alt="Local cover image" />
                     </a>
                     <div class="hint">Local cover image</div>
+                </div>
+            [% END %]
+
+            [% IF ( BDSStaffEnable && SEARCH_RESULT.normalized_isbn ) %]
+                <div id="bds-coverimg-[% SEARCH_RESULT.biblionumber | html %]" class="cover-image bds-coverimg">
+                    <a class="p1" href="/cgi-bin/koha/catalogue/[% DetailPage %]?biblionumber=[% SEARCH_RESULT.biblionumber |url %]">
+                        <img src="https://www.bibdsl.co.uk/xmla/image-service.asp?ISBN=[% SEARCH_RESULT.normalized_isbn %]&SIZE=s&DBM=[% DBMCode %]&SSL=on" />
+                    </a>
+                    <div class="hint">BDS cover image</div>
                 </div>
             [% END %]
 

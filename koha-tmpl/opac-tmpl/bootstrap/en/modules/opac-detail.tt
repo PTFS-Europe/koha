@@ -82,6 +82,15 @@
                                 </div>
                             [% END %]
 
+                            [% IF ( BDSOpacEnable && normalized_isbn) %]
+                                <div class="cover-image" id="bds-bookcoverimg">
+                                    <a href="https://www.bibdsl.co.uk/xmla/image-service.asp?ISBN=[% normalized_isbn %]&SIZE=l&DBM=[% DBMCode %]&SSL=on" />
+                                        <img src="https://www.bibdsl.co.uk/xmla/image-service.asp?ISBN=[% normalized_isbn %]&SIZE=s&DBM=[% DBMCode %]&SSL=on" />
+                                    </a>
+                                    <div class="hint">Image from BDS</div>
+                                </div>
+                            [% END %]
+
                             [% IF ( SyndeticsEnabled && SyndeticsCoverImages ) %]
                                 [% IF ( content_identifier_exists ) %]
                                     <div class="cover-image" id="syndetics-coverimg">
