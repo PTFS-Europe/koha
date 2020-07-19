@@ -41,6 +41,15 @@
                                         [% END %]
                                     [% END %]
 
+									[% IF ( BDSOpacEnable ) %]
+										[% IF ( item.browser_normalized_isbn ) %]
+											<img src="https://www.bibdsl.co.uk/xmla/image-service.asp?ISBN=[% item.browser_normalized_isbn %]&SIZE=s&DBM=[% DBMCode %]&SSL=on" alt="" />
+										[% ELSE %]
+											<span class="no-image">No cover image available</span>
+										[% END %]
+									[% END %]
+
+
                                     [% IF ( SyndeticsEnabled ) %]
                                         [% IF ( SyndeticsCoverImages ) %]
                                             [% IF ( content_identifier_exists ) %]

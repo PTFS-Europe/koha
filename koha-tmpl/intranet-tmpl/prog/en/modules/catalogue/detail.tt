@@ -91,7 +91,7 @@
         <span class="Z3988" title="[% ocoins | html %]"></span>
     [% END %]
 
-    [% IF ( AmazonCoverImages  || LocalCoverImages || AdlibrisEnabled || IntranetCoce || (Koha.Preference('CustomCoverImages') && Koha.Preference('CustomCoverImagesURL')) ) %]
+    [% IF ( AmazonCoverImages  || LocalCoverImages || AdlibrisEnabled || BDSStaffEnable || IntranetCoce || (Koha.Preference('CustomCoverImages') && Koha.Preference('CustomCoverImagesURL')) ) %]
         [% IF ( XSLTDetailsDisplay ) %]
             <div id="catalogue_detail_biblio" class="col-xs-9">
         [% ELSE %]
@@ -174,7 +174,7 @@
             </span>
         [% END %]
 
-        [% IF ( AmazonCoverImages  || LocalCoverImages || AdlibrisEnabled || IntranetCoce || (Koha.Preference('CustomCoverImages') && Koha.Preference('CustomCoverImagesURL')) ) %]
+        [% IF ( AmazonCoverImages  || LocalCoverImages || AdlibrisEnabled || BDSStaffEnable || IntranetCoce || (Koha.Preference('CustomCoverImages') && Koha.Preference('CustomCoverImagesURL')) ) %]
             </div>
             <div class="col-xs-3 bookcoverimg">
                 <div id="biblio-cover-slider" class="cover-slider">
@@ -190,6 +190,12 @@
                             [% END %]
                         [% END %]
                     [% END %]
+
+					[% IF ( BDSStaffEnable && normalized_isbn ) %]
+						<span class="bds_coverimage"><a href="https://www.bibdsl.co.uk/xmla/image-service.asp?ISBN=[% normalized_isbn %]&SIZE=l&DBM=[% DBMCode %]&SSL=on" />
+						<img src="https://www.bibdsl.co.uk/xmla/image-service.asp?ISBN=[% normalized_isbn %]&SIZE=s&DBM=[% DBMCode %]&SSL=on" />
+						</a></span>
+					[% END %]
 
                     [% IF ( AdlibrisEnabled && normalized_isbn ) %]
                         <div class="cover-image" id="adlibris-coverimg">

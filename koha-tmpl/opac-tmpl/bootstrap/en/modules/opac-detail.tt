@@ -69,6 +69,12 @@
                             <div title="[% img_title | html %]" class="[% biblio.biblionumber | html %]" id="local-thumbnail-preview"></div>
                         [% END %]
 
+						[% IF ( BDSOpacEnable ) %]
+							<a href="https://www.bibdsl.co.uk/xmla/image-service.asp?ISBN=[% normalized_isbn %]&SIZE=l&DBM=[% DBMCode %]&SSL=on" />
+							<img src="https://www.bibdsl.co.uk/xmla/image-service.asp?ISBN=[% normalized_isbn %]&SIZE=s&DBM=[% DBMCode %]&SSL=on" />
+							</a>
+						[% END %]
+
                         [% IF ( AdlibrisEnabled && normalized_isbn ) %]
                             <a href="[% AdlibrisURL | url %]?isbn=[% normalized_isbn | uri %]"><img src="[% AdlibrisURL | url %]?isbn=[% normalized_isbn | uri %]" alt="Cover image" class="adlibris-cover-big" /></a>
                         [% END %]
