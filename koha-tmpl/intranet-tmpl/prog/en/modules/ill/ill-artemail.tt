@@ -1,0 +1,35 @@
+[% USE AuthorisedValues %]
+
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Koha &rsaquo; ILL Artemail  &rsaquo;</title>
+[% INCLUDE 'doc-head-close.inc' %]
+<script type="text/javascript" src="[% themelang %]/lib/jquery/plugins/jquery.tablesorter.min.js"></script>
+<script type="text/javascript" src="[% themelang %]/lib/jquery/plugins/jquery.checkboxes.min.js"></script>
+<link rel="stylesheet" type="text/css" href="[% themelang %]/css/datatables.css" />
+</head>
+
+<body id="acq_suggestion" class="acq">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'cat-search.inc' %]
+
+<div id="breadcrumbs">
+    <a href="/cgi-bin/koha/mainpage.pl">Home</a> &rsaquo; <a href="/cgi-bin/koha/ill/ill-requests.pl">ILL Requests</a> &rsaquo; Artemail
+</div>
+
+<div id="doc3" class="yui-t2">
+<div id="bd">
+    <div id="yui-main">
+        <div class="yui-b">
+            [% INCLUDE 'ill-toolbar.inc' %]
+
+            <h1>ILL ARTEmail Requests</h1>
+            <div id="results">
+
+					[% requestBody %]
+
+			</div>
+		</div>
+    </div>
+</div>
+
+[% INCLUDE 'intranet-bottom.inc' %]
