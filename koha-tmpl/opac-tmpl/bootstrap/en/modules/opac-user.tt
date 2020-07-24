@@ -788,7 +788,6 @@
             $(".js-show").show();
             $(".js-hide").hide();
             $(".modal-nojs").addClass("modal").addClass("hide").removeClass("modal-nojs");
-            $(".suspend-until").prop("readonly",1);
 
             $(".btn-delete-hold").on("click", function(e){
                 e.preventDefault();
