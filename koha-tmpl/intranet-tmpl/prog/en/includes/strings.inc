@@ -9,6 +9,7 @@
     var RETURN_CLAIMED_FAILURE = _("Unable to claim as returned");
     var RETURN_CLAIMED_MAKE = _("Claim returned");
     var RETURN_CLAIMED_NOTES = _("Notes about return claim");
+    var CONFIRM_RETURN = _("Confirm");
     var NOT_CHECKED_OUT = _("not checked out");
     var TOO_MANY_RENEWALS = _("too many renewals");
     var TOO_MANY_UNSEEN = _("too many consecutive renewals without being seen by the library");
