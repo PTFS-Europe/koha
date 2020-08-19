@@ -17,6 +17,12 @@
   "/acquisitions/funds": {
     "$ref": "paths/acquisitions_funds.json#/~1acquisitions~1funds"
   },
+  "/cash_registers/{cash_register_id}/cashups": {
+    "$ref": "paths/cash_registers.json#/~1cash_registers~1{cash_register_id}~1cashups"
+  },
+  "/cashups/{cashup_id}": {
+    "$ref": "paths/cash_registers.json#/~1cashups~1{cashup_id}"
+  },
   "/checkouts": {
     "$ref": "paths/checkouts.json#/~1checkouts"
   },
