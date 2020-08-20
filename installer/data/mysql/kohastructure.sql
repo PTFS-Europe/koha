@@ -824,6 +824,7 @@ CREATE TABLE `issuingrules` ( -- circulation and fine rules
   `hardduedate` date default NULL, -- hard due date
   `hardduedatecompare` tinyint NOT NULL default "0", -- type of hard due date (1 = after, 0 = on, -1 = before)
   `renewalsallowed` smallint(6) NOT NULL default "0", -- how many renewals are allowed
+  `unseen_renewals_allowed` smallint(6) default NULL, -- how many consecutive renewals are allowed without seeing the item in the library
   `renewalperiod` int(4) default NULL, -- renewal period in the unit set in issuingrules.lengthunit
   `norenewalbefore` int(4) default NULL, -- no renewal allowed until X days or hours before due date.
   `auto_renew` BOOLEAN default FALSE, -- automatic renewal
@@ -1669,6 +1670,7 @@ CREATE TABLE `issues` ( -- information related to check outs or issues
   `returndate` datetime default NULL, -- date the item was returned, will be NULL until moved to old_issues
   `lastreneweddate` datetime default NULL, -- date the item was last renewed
   `renewals` tinyint(4) NOT NULL default 0, -- lists the number of times the item was renewed
+  `unseen_renewals` tinyint(4) NOT NULL default 0, -- lists the number of consecutive times the item was renewed without being seen
   `auto_renew` BOOLEAN default FALSE, -- automatic renewal
   `auto_renew_error` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL, -- automatic renewal error
   `timestamp` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP, -- the date and time this record was last touched
@@ -1701,6 +1703,7 @@ CREATE TABLE `old_issues` ( -- lists items that were checked out and have been r
   `returndate` datetime default NULL, -- date the item was returned
   `lastreneweddate` datetime default NULL, -- date the item was last renewed
   `renewals` tinyint(4) NOT NULL default 0, -- lists the number of times the item was renewed
+  `unseen_renewals` tinyint(4) NOT NULL default 0, -- lists the number of consecutive times the item was renewed without being seen
   `auto_renew` BOOLEAN default FALSE, -- automatic renewal
   `auto_renew_error` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL, -- automatic renewal error
   `timestamp` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP, -- the date and time this record was last touched
