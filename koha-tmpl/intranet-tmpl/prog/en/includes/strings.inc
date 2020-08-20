@@ -11,6 +11,7 @@
     var RETURN_CLAIMED_NOTES = _("Notes about return claim");
     var NOT_CHECKED_OUT = _("not checked out");
     var TOO_MANY_RENEWALS = _("too many renewals");
+    var TOO_MANY_UNSEEN = _("too many consecutive renewals without being seen by the library");
     var ON_RESERVE = _("on hold");
     var REASON_UNKNOWN = _("reason unknown");
     var TODAYS_CHECKOUTS = _("Today's checkouts");
@@ -18,6 +19,7 @@
     var BY = _("by _AUTHOR_");
     var ON_HOLD = _("On hold");
     var NOT_RENEWABLE = _("Not renewable");
+    var NOT_RENEWABLE_UNSEEN = _("Must be renewed at the library");
     var NOT_RENEWABLE_TOO_SOON = _("No renewal before %s");
     var NOT_RENEWABLE_AUTO_TOO_SOON = _("Scheduled for automatic renewal");
     var NOT_RENEWABLE_AUTO_TOO_LATE = _("Can no longer be auto-renewed - number of checkout days exceeded");
@@ -26,6 +28,7 @@
     var NOT_RENEWABLE_AUTO_RENEW = _("Scheduled for automatic renewal");
     var NOT_RENEWABLE_DENIED = _("Renewal denied by syspref");
     var RENEWALS_REMAINING = _("%s of %s renewals remaining");
+    var UNSEEN_REMAINING = _("%s of %s unseen renewals remaining");
     var HOLD_IS_SUSPENDED = _("Hold is <strong>suspended</strong>");
     var UNTIL = _("until %s");
     var NEXT_AVAILABLE_ITYPE = _("Next available %s item");

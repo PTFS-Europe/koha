@@ -146,6 +146,12 @@ $(document).ready(function() {
                 override_limit:  override_limit,
             };
 
+            if (UnseenRenewals) {
+                var ren = $("#renew_as_unseen_checkbox");
+                var renew_unseen = ren.length > 0 && ren.is(':checked') ? 1 : 0;
+                params.seen = renew_unseen === 1 ? 0 : 1;
+            }
+
             // Determine which due date we need to use
             var dueDate = isOnReserve ?
                 $("#newonholdduedate input").val() :
@@ -168,6 +174,8 @@ $(document).ready(function() {
                         content += NOT_CHECKED_OUT;
                     } else if ( data.error == "too_many" ) {
                         content += TOO_MANY_RENEWALS;
+                    } else if ( data.error == "too_unseen" ) {
+                        content += TOO_MANY_UNSEEN;
                     } else if ( data.error == "on_reserve" ) {
                         content += ON_RESERVE;
                     } else if ( data.error == "restriction" ) {
@@ -432,6 +440,13 @@ $(document).ready(function() {
 
                             span_style = "display: none";
                             span_class = "renewals-allowed";
+                        } else if ( oObj.can_renew_error == "too_unseen" ) {
+                            msg += "<span class='renewals-disabled'>"
+                                    + NOT_RENEWABLE_UNSEEN
+                                    + "</span>";
+
+                            span_style = "display: none";
+                            span_class = "renewals-allowed";
                         } else if ( oObj.can_renew_error == "restriction" ) {
                             msg += "<span class='renewals-disabled'>"
                                     + NOT_RENEWABLE_RESTRICTION
@@ -526,9 +541,12 @@ $(document).ready(function() {
                         }
                         content += msg;
                         if ( can_renew || can_force_renew ) {
-                            content += "<span class='renewals'>("
-                                    + RENEWALS_REMAINING.format( oObj.renewals_remaining, oObj.renewals_allowed )
-                                    + ")</span>";
+                            content += "<span class='renewals'>(";
+                            content += RENEWALS_REMAINING.format( oObj.renewals_remaining, oObj.renewals_allowed );
+                            if (UnseenRenewals && oObj.unseen_allowed) {
+                                content += " / " + UNSEEN_REMAINING.format( oObj.unseen_remaining, oObj.unseen_allowed );
+                            }
+                            content += ")</span>";
                         }
 
                         content += "</span>";
