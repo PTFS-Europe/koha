@@ -127,6 +127,11 @@ __PACKAGE__->table("issuingrules");
   default_value: 0
   is_nullable: 0
 
+=head2 unseen_renewals_allowed
+
+  data_type: 'smallint'
+  is_nullable: 1
+
 =head2 renewalperiod
 
   data_type: 'integer'
@@ -260,6 +265,8 @@ __PACKAGE__->add_columns(
   { data_type => "tinyint", default_value => 0, is_nullable => 0 },
   "renewalsallowed",
   { data_type => "smallint", default_value => 0, is_nullable => 0 },
+  "unseen_renewals_allowed",
+  { data_type => "smallint", is_nullable => 1 },
   "renewalperiod",
   { data_type => "integer", is_nullable => 1 },
   "norenewalbefore",
@@ -314,8 +321,8 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key("branchcode", "categorycode", "itemtype");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07046 @ 2019-03-05 20:49:11
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:6bPX0BRWWQZrWFun3GP86Q
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2020-08-20 13:10:13
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:M7Fw4rapwLaP5Yj6O5+u1w
 
 sub koha_object_class {
     'Koha::IssuingRule';
