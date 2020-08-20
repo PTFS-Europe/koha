@@ -81,7 +81,7 @@ else {
             else {
                 $branchcode = 'OPACRenew';
             }
-            AddRenewal( $borrowernumber, $itemnumber, $branchcode, undef, undef );
+            AddRenewal( $borrowernumber, $itemnumber, $branchcode, undef, undef, 0 );
             push( @renewed, $itemnumber );
         }
         else {

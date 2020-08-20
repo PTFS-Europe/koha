@@ -2713,6 +2713,11 @@ sub CanBookBeRenewed {
         return ( 0, "too_many" )
           if not $issuing_rule or $issuing_rule->renewalsallowed <= $issue->renewals;
 
+    return ( 0, "too_unseen" )
+      if C4::Context->preference('UnseenRenewals') &&
+        $issuing_rule->unseen_renewals_allowed &&
+        $issuing_rule->unseen_renewals_allowed <= $issue->unseen_renewals;
+
         my $overduesblockrenewing = C4::Context->preference('OverduesBlockRenewing');
         my $restrictionblockrenewing = C4::Context->preference('RestrictionBlockRenewing');
         $patron         = Koha::Patrons->find($borrowernumber); # FIXME Is this really useful?
@@ -2880,7 +2885,7 @@ sub CanBookBeRenewed {
 
 =head2 AddRenewal
 
-  &AddRenewal($borrowernumber, $itemnumber, $branch, [$datedue], [$lastreneweddate]);
+  &AddRenewal($borrowernumber, $itemnumber, $branch, [$datedue], [$lastreneweddate], [$seen]);
 
 Renews a loan.
 
@@ -2900,6 +2905,10 @@ this parameter is not supplied, lastreneweddate is set to the current date.
 If C<$datedue> is the empty string, C<&AddRenewal> will calculate the due date automatically
 from the book's item type.
 
+C<$seen> is a boolean flag indicating if the item was seen or not during the renewal. This
+informs the incrementing of the unseen_renewals column. If this flag is not supplied, we
+fallback to a true value
+
 =cut
 
 sub AddRenewal {
@@ -2908,6 +2917,11 @@ sub AddRenewal {
     my $branch          = shift;
     my $datedue         = shift;
     my $lastreneweddate = shift || dt_from_string();
+
+    my $seen            = shift;
+
+    # Fallback on a 'seen' renewal
+    $seen = defined $seen && $seen == 0 ? 0 : 1;
 
     my $item_object   = Koha::Items->find($itemnumber) or return;
     my $biblio = $item_object->biblio;
@@ -2960,13 +2974,32 @@ sub AddRenewal {
             }
         );
 
+        # Increment the unseen renewals, if appropriate
+        # We only do so if the syspref is enabled and
+        # a maximum value has been set in the circ rules
+        my $unseen_renewals = $issue->unseen_renewals;
+        if (C4::Context->preference('UnseenRenewals')) {
+            my $issuing_rule = Koha::IssuingRules->get_effective_issuing_rule(
+                {   categorycode => $patron->categorycode,
+                    itemtype     => $item_object->effective_itemtype,
+                    branchcode   => $circ_library->branchcode
+                }
+            );
+            if (!$seen && $issuing_rule && $issuing_rule->unseen_renewals_allowed) {
+                $unseen_renewals++;
+            } else {
+                # If the renewal is seen, unseen should revert to 0
+                $unseen_renewals = 0;
+            }
+        }
+
         # Update the issues record to have the new due date, and a new count
         # of how many times it has been renewed.
         my $renews = ( $issue->renewals || 0 ) + 1;
-        my $sth = $dbh->prepare("UPDATE issues SET date_due = ?, renewals = ?, lastreneweddate = ? WHERE issue_id = ?");
+        my $sth = $dbh->prepare("UPDATE issues SET date_due = ?, renewals = ?, unseen_renewals = ?, lastreneweddate = ? WHERE issue_id = ?");
 
-        eval{
-            $sth->execute( $datedue->strftime('%Y-%m-%d %H:%M'), $renews, $lastreneweddate, $issue->issue_id );
+        eval {
+            $sth->execute( $datedue->strftime('%Y-%m-%d %H:%M'), $renews, $unseen_renewals, $lastreneweddate, $issue->issue_id );
         };
         if( $sth->err ){
             Koha::Exceptions::Checkout::FailedRenewal->throw(
@@ -3054,8 +3087,11 @@ sub GetRenewCount {
     my ( $bornum, $itemno ) = @_;
     my $dbh           = C4::Context->dbh;
     my $renewcount    = 0;
+    my $unseencount    = 0;
     my $renewsallowed = 0;
+    my $unseenallowed = 0;
     my $renewsleft    = 0;
+    my $unseenleft    = 0;
 
     my $patron = Koha::Patrons->find( $bornum );
     my $item   = Koha::Items->find($itemno);
@@ -3074,6 +3110,7 @@ sub GetRenewCount {
     $sth->execute( $bornum, $itemno );
     my $data = $sth->fetchrow_hashref;
     $renewcount = $data->{'renewals'} if $data->{'renewals'};
+    $unseencount = $data->{'unseen_renewals'} if $data->{'unseen_renewals'};
     # $item and $borrower should be calculated
     my $branchcode = _GetCircControlBranch($item->unblessed, $patron->unblessed);
 
@@ -3085,9 +3122,19 @@ sub GetRenewCount {
     );
 
     $renewsallowed = $issuing_rule ? $issuing_rule->renewalsallowed : 0;
+    $unseenallowed = $issuing_rule ? $issuing_rule->unseen_renewals_allowed : 0;
     $renewsleft    = $renewsallowed - $renewcount;
+    $unseenleft    = $unseenallowed - $unseencount;
     if($renewsleft < 0){ $renewsleft = 0; }
-    return ( $renewcount, $renewsallowed, $renewsleft );
+    if($unseenleft < 0){ $unseenleft = 0; }
+    return (
+        $renewcount,
+        $renewsallowed,
+        $renewsleft,
+        $unseencount,
+        $unseenallowed,
+        $unseenleft
+    );
 }
 
 =head2 GetSoonestRenewDate
