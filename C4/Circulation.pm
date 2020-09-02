@@ -846,7 +846,7 @@ sub CanBookBeIssued {
     if ( C4::Context->preference("CircConfirmItemParts")
         && $item_object->materials )
     {
-        $needsconfirmation{additional_materials} = $item_object->materials;
+        $needsconfirmation{ADDITIONAL_MATERIALS} = $item_object->materials;
     }
 
     #
