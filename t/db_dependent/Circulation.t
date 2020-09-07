@@ -280,7 +280,7 @@ $dbh->do(
 
 my ( $reused_itemnumber_1, $reused_itemnumber_2 );
 subtest "CanBookBeRenewed tests" => sub {
-    plan tests => 81;
+    plan tests => 83;
 
     C4::Context->set_preference('ItemsDeniedRenewal','');
     # Generate test biblio
@@ -944,6 +944,7 @@ subtest "CanBookBeRenewed tests" => sub {
     is( $error, 'too_many', 'Cannot renew, 0 renewals allowed (returned code is too_many)');
 
     # Too many unseen renewals
+    t::lib::Mocks::mock_preference('UnseenRenewals', 1);
     $dbh->do('UPDATE issuingrules SET unseen_renewals_allowed = 2, renewalsallowed = 10');
     $dbh->do('UPDATE issues SET unseen_renewals = 2 where borrowernumber = ? AND itemnumber = ?', undef, ($renewing_borrowernumber, $item_1->itemnumber));
     ( $renewokay, $error ) = CanBookBeRenewed($renewing_borrowernumber, $item_1->itemnumber);

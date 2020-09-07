@@ -17,7 +17,7 @@
 
 use Modern::Perl;
 
-use Test::More tests => 46;
+use Test::More tests => 48;
 use DateTime::Duration;
 
 use t::lib::Mocks;
@@ -303,7 +303,7 @@ is_deeply(
 );
 @renewcount = C4::Circulation::GetRenewCount($borrower_id1, $item_id1);
 is_deeply(
-    \@renewcount,
+    [@renewcount[0..2]],
     [ 2, 0, 0 ],
     "Without issuing rules and with a valid parameter, renewcount = 2, renewsallowed = undef, renewsleft = 0"
 );
@@ -311,19 +311,19 @@ is_deeply(
 #With something in DB
 @renewcount = C4::Circulation::GetRenewCount();
 is_deeply(
-    \@renewcount,
+    [@renewcount[0..2]],
     [ 0, 0, 0 ],
     "With issuing rules (renewal disallowed) and without parameter, GetRenewCount returns renewcount = 0, renewsallowed = 0, renewsleft = 0"
 );
 @renewcount = C4::Circulation::GetRenewCount(-1);
 is_deeply(
-    \@renewcount,
+    [@renewcount[0..2]],
     [ 0, 0, 0 ],
     "With issuing rules (renewal disallowed) and without wrong parameter, GetRenewCount returns renewcount = 0, renewsallowed = 0, renewsleft = 0"
 );
 @renewcount = C4::Circulation::GetRenewCount($borrower_id1, $item_id1);
 is_deeply(
-    \@renewcount,
+    [@renewcount[0..2]],
     [ 2, 0, 0 ],
     "With issuing rules (renewal disallowed) and with a valid parameter, Getrenewcount returns renewcount = 2, renewsallowed = 0, renewsleft = 0"
 );
@@ -334,7 +334,7 @@ $dbh->do(q|
 |);
 @renewcount = C4::Circulation::GetRenewCount($borrower_id1, $item_id1);
 is_deeply(
-    \@renewcount,
+    [@renewcount[0..2]],
     [ 2, 3, 1 ],
     "With issuing rules (renewal allowed) and with a valid parameter, Getrenewcount of item1 returns 3 renews left"
 );
@@ -343,7 +343,7 @@ AddRenewal( $borrower_id1, $item_id1, $branchcode_1,
     $datedue3, $daysago10 );
 @renewcount = C4::Circulation::GetRenewCount($borrower_id1, $item_id1);
 is_deeply(
-    \@renewcount,
+    [@renewcount[0..2]],
     [ 3, 3, 0 ],
     "With issuing rules (renewal allowed, 1 remaining) and with a valid parameter, Getrenewcount of item1 returns 0 renews left"
 );
