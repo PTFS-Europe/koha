@@ -17,7 +17,7 @@
 
 use Modern::Perl;
 
-use Test::More tests => 46;
+use Test::More tests => 48;
 use DateTime::Duration;
 
 use t::lib::Mocks;
@@ -304,7 +304,7 @@ is_deeply(
 @renewcount = C4::Circulation::GetRenewCount($borrower_id1, $item_id1);
 is_deeply(
     \@renewcount,
-    [ 2, 0, 0 ],
+    [ 2, 0, 0, 0, 0, 0 ],
     "Without issuing rules and with a valid parameter, renewcount = 2, renewsallowed = undef, renewsleft = 0"
 );
 
@@ -312,19 +312,19 @@ is_deeply(
 @renewcount = C4::Circulation::GetRenewCount();
 is_deeply(
     \@renewcount,
-    [ 0, 0, 0 ],
+    [ 0, 0, 0, 0, 0, 0 ],
     "With issuing rules (renewal disallowed) and without parameter, GetRenewCount returns renewcount = 0, renewsallowed = 0, renewsleft = 0"
 );
 @renewcount = C4::Circulation::GetRenewCount(-1);
 is_deeply(
     \@renewcount,
-    [ 0, 0, 0 ],
+    [ 0, 0, 0, 0, 0, 0 ],
     "With issuing rules (renewal disallowed) and without wrong parameter, GetRenewCount returns renewcount = 0, renewsallowed = 0, renewsleft = 0"
 );
 @renewcount = C4::Circulation::GetRenewCount($borrower_id1, $item_id1);
 is_deeply(
     \@renewcount,
-    [ 2, 0, 0 ],
+    [ 2, 0, 0, 0, 0, 0 ],
     "With issuing rules (renewal disallowed) and with a valid parameter, Getrenewcount returns renewcount = 2, renewsallowed = 0, renewsleft = 0"
 );
 
