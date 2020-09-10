@@ -74,4 +74,10 @@
     [% END %]
 [% KohaPlugins.get_plugins_intranet_js | $raw %]
 </body>
+<script src="/custom/qz/js/dependencies/rsvp-3.1.0.min.js"></script>
+<script src="/custom/qz/js/dependencies/sha-256.min.js"></script>
+<script src="/custom/qz/js/qz-tray.js"></script>
+<script src="/custom/qz/assets/signing/jsrsasign-all-min.js"></script>
+<script src="/custom/qz/assets/signing/sign-message.js"></script>
+<script src="/custom/qz/qz.js"></script>
 </html>
