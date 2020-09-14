@@ -495,39 +495,11 @@ Item types &rsaquo; Administration &rsaquo; Koha
                 [% END %]
             <td>
                 [% IF itemtype.parent_type %]
-                    [% IF itemtype.parent.translated_descriptions.size %]
-                        [% itemtype.parent.description | html %] (default)<br/>
-                    [% ELSE %]
-                        [% itemtype.parent.description | html %]
-                    [% END %]
+                    [% itemtype.parent.description | html %]
                     </br>
-                    [% IF itemtype.translated_descriptions.size %]
-                        [% itemtype.description | html %] (default)<br/>
-                        [% FOR description IN itemtype.translated_descriptions %]
-                            [% IF description.translation == itemtype.translated_description %]
-                            --    <strong>[% description.translation | html %]</strong>
-                            [% ELSE %]
-                            --    [% description.translation | html %] ([% description.lang | html %])
-                            [% END %]
-                            <br/>
-                        [% END %]
-                    [% ELSE %]
                     --    [% itemtype.description | html %]
-                    [% END %]
                 [% ELSE %]
-                    [% IF itemtype.translated_descriptions.size %]
-                        [% itemtype.description | html %] (default)<br/>
-                        [% FOR description IN itemtype.translated_descriptions %]
-                            [% IF description.translation == itemtype.translated_description %]
-                                <strong>[% description.translation | html %]</strong>
-                            [% ELSE %]
-                                [% description.translation | html %] ([% description.lang | html %])
-                            [% END %]
-                            <br/>
-                        [% END %]
-                    [% ELSE %]
-                        [% itemtype.description | html %]
-                    [% END %]
+                    [% itemtype.description | html %]
                 [% END %]
             </td>
             <td>
