@@ -88,7 +88,7 @@ while ( my $library = $libraries->next ) {
             my $itemtype = Koha::ItemTypes->find( $item->effective_itemtype );
 
             $getransf{'datetransfer'} = $num->{'datesent'};
-            $getransf{'itemtype'} = db_t('itemtype', $itemtype->description);
+            $getransf{'itemtype'} = db_t('itemtype', $itemtype->itemtype);
             %getransf = (
                 %getransf,
                 title          => $biblio->title,

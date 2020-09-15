@@ -3203,29 +3203,38 @@ CREATE TABLE `keyboard_shortcuts` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Table structure for table `l10n_source`
+--
 
 DROP TABLE IF EXISTS l10n_source;
 CREATE TABLE l10n_source (
-    l10n_source_id INT(11) NOT NULL AUTO_INCREMENT,
+    `l10n_source_id` INT(11) NOT NULL AUTO_INCREMENT,
     `group` VARCHAR(100) NULL DEFAULT NULL,
     `key` VARCHAR(100) NOT NULL,
     `text` TEXT NOT NULL,
     PRIMARY KEY (l10n_source_id),
-    UNIQUE KEY group_key (`group`, `key`),
-    KEY group_text (`group`, `text`(60))
+    UNIQUE KEY group_key (`group`, `key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `l10n_target`
+--
 
 DROP TABLE IF EXISTS l10n_target;
 CREATE TABLE l10n_target (
-    l10n_target_id INT(11) NOT NULL AUTO_INCREMENT,
-    l10n_source_id INT(11) NOT NULL,
-    language VARCHAR(10) NOT NULL,
-    translation TEXT NOT NULL,
+    `l10n_target_id` INT(11) NOT NULL AUTO_INCREMENT,
+    `l10n_source_id` INT(11) NOT NULL,
+    `language` VARCHAR(10) NOT NULL,
+    `translation` TEXT NOT NULL,
+    `fuzzy` tinyint(1) NOT NULL DEFAULT 0,
     PRIMARY KEY (l10n_target_id),
     UNIQUE KEY l10n_source_language (l10n_source_id, language),
-    FOREIGN KEY l10n_source (l10n_source_id) REFERENCES l10n_source (l10n_source_id)
+    CONSTRAINT `l10n_target_fk` FOREIGN KEY (`l10n_source_id`) REFERENCES `l10n_source` (`l10n_source_id`)
         ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `language_descriptions`
@@ -4526,7 +4535,7 @@ CREATE TABLE `saved_sql` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `search_field`
+
 --
 
 DROP TABLE IF EXISTS `search_field`;

@@ -1723,7 +1723,7 @@ sub PrepareItemrecordDisplay {
                         push @authorised_values, "";
                         while ( my $itemtype = $itemtypes->next ) {
                             push @authorised_values, $itemtype->itemtype;
-                            $authorised_lib{$itemtype->itemtype} = db_t('itemtype', $itemtype->description);
+                            $authorised_lib{$itemtype->itemtype} = db_t('itemtype', $itemtype->itemtype);
                         }
                         if ($defaultvalues && $defaultvalues->{'itemtype'}) {
                             $defaultvalue = $defaultvalues->{'itemtype'};

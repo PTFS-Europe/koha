@@ -49,19 +49,22 @@ Update or create an entry in l10n_source
 =cut
 
 sub update_l10n_source {
-    my ($self, $group, $key, $text) = @_;
+    my ( $self, $group, $key, $source_text ) = @_;
 
-    my $l10n_source_rs = $self->result_source->schema->resultset('L10nSource');
-    $l10n_source_rs->update_or_create(
-        {
-            group => $group,
-            key   => $key,
-            text  => $text,
-        },
-        {
-            key => 'group_key',
-        }
-    );
+    my $l10n_source_rs =
+      $self->result_source->schema->resultset('L10nSource')
+      ->find( { group => $group, key => $key }, { key => 'group_key' } );
+
+    if ($l10n_source_rs) {
+        $l10n_source_rs->update( { text => $source_text } );
+        my $l10n_target_rs = $l10n_source_rs->l10n_targets_rs;
+        $l10n_target_rs->update( { fuzzy => 1 } );
+    }
+    else {
+        $l10n_source_rs =
+          $self->result_source->schema->resultset('L10nSource')
+          ->create( { group => $group, key => $key, text => $source_text } );
+    }
 }
 
 =head2 delete_l10n_source

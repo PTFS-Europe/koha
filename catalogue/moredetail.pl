@@ -145,7 +145,7 @@ my $copynumbers =
 
 my $itemtypes = { map { $_->{itemtype} => $_ } @{ Koha::ItemTypes->search->unblessed } };
 
-$data->{'itemtypename'} = db_t('itemtype', $itemtypes->{ $data->{'itemtype'} }->{description})
+$data->{'itemtypename'} = db_t('itemtype', $itemtypes->{ $data->{'itemtype'} }->{itemtype})
   if $data->{itemtype} && exists $itemtypes->{ $data->{itemtype} };
 foreach ( keys %{$data} ) {
     $template->param( "$_" => defined $data->{$_} ? $data->{$_} : '' );
@@ -155,7 +155,7 @@ foreach ( keys %{$data} ) {
 foreach my $item (@items){
     $item->{object} = Koha::Items->find( $item->{itemnumber} );
     $item->{'collection'}              = $ccodes->{ $item->{ccode} } if $ccodes && $item->{ccode} && exists $ccodes->{ $item->{ccode} };
-    $item->{'itype'}                   = db_t('itemtype', $itemtypes->{ $item->{'itype'} }->{description}) if exists $itemtypes->{ $item->{'itype'} };
+    $item->{'itype'}                   = db_t('itemtype', $itemtypes->{ $item->{'itype'} }->{itemtype}) if exists $itemtypes->{ $item->{'itype'} };
     $item->{'replacementprice'}        = $item->{'replacementprice'};
     if ( defined $item->{'copynumber'} ) {
         $item->{'displaycopy'} = 1;

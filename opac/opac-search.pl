@@ -231,7 +231,7 @@ foreach my $itemtype ( keys %{$itemtypes} ) {
     # If 'iscat' (see ITEMTYPECAT) then there is no itemtype and the description is not translated
     my $description = $itemtypes->{$itemtype}->{iscat}
       ? $itemtypes->{$itemtype}->{description}
-      : db_t('itemtype', Koha::ItemTypes->find($itemtype)->description);
+      : db_t('itemtype', Koha::ItemTypes->find($itemtype)->itemtype);
     $itemtypes->{$itemtype}->{description} = $description || $itemtypes->{$itemtype}->{description} || q{};
 }
 

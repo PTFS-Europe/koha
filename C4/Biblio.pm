@@ -1448,7 +1448,7 @@ sub GetAuthorisedValueDesc {
         #---- itemtypes
         if ( $tagslib->{$tag}->{$subfield}->{'authorised_value'} eq "itemtypes" ) {
             my $itemtype = Koha::ItemTypes->find( $value );
-            return $itemtype ? db_t('itemtype', $itemtype->description) : q||;
+            return $itemtype ? db_t('itemtype', $itemtype->itemtype) : q||;
         }
 
         if ( $tagslib->{$tag}->{$subfield}->{'authorised_value'} eq "cn_source" ) {

@@ -309,7 +309,7 @@ sub display_value {
     my $display_value =
         ( $crit =~ /ccode/ )         ? $ccodes->{$value}
       : ( $crit =~ /location/ )      ? $locations->{$value}
-      : ( $crit =~ /itemtype/ )      ? db_t('itemtype', Koha::ItemTypes->find( $value )->description)
+      : ( $crit =~ /itemtype/ )      ? db_t('itemtype', Koha::ItemTypes->find( $value )->itemtype)
       : ( $crit =~ /branch/ )        ? Koha::Libraries->find($value)->branchname
       : ( $crit =~ /reservestatus/ ) ? reservestatushuman($value)
       :                                $value;    # default fallback

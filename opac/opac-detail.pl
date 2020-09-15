@@ -546,7 +546,7 @@ my $itemtypes = { map { $_->{itemtype} => $_ } @{ Koha::ItemTypes->search->unble
 my $itemtype = $dat->{'itemtype'};
 if ( $itemtype ) {
     $dat->{'imageurl'}    = getitemtypeimagelocation( 'opac', $itemtypes->{$itemtype}->{'imageurl'} );
-    $dat->{'description'} = db_t('itemtype', $itemtypes->{$itemtype}->{description});
+    $dat->{'description'} = db_t('itemtype', $itemtypes->{$itemtype}->{itemtype});
 }
 
 my $shelflocations =
@@ -725,7 +725,7 @@ if ( not $viewallitems and @items > $max_items_to_display ) {
     }
     if (exists $itm->{itype} && defined($itm->{itype}) && exists $itemtypes->{ $itm->{itype} }) {
         $itm->{'imageurl'}    = getitemtypeimagelocation( 'opac', $itemtypes->{ $itm->{itype} }->{'imageurl'} );
-        $itm->{'description'} = db_t('itemtype', $itemtypes->{ $itm->{itype} }->{description});
+        $itm->{'description'} = db_t('itemtype', $itemtypes->{ $itm->{itype} }->{itemtype});
     }
     foreach (qw(ccode materials enumchron copynumber itemnotes location_description uri)) {
         $itemfields{$_} = 1 if ($itm->{$_});

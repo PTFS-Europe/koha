@@ -76,7 +76,7 @@ if($itemnumber) {
 
     my $itemtype = Koha::ItemTypes->find( $item->effective_itemtype );
     # We should not do that here, but call ->itemtype->description when needed instea
-    $item_unblessed->{itemtype} = db_t('itemtype', $itemtype->description);
+    $item_unblessed->{itemtype} = db_t('itemtype', $itemtype->itemtype);
 }
 
 my $json_text = to_json( $item_unblessed, { utf8 => 1 } );

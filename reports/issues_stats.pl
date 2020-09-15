@@ -351,7 +351,7 @@ sub calculate {
         $cell{rowtitle_display} =
             ( $line =~ /ccode/ )    ? $ccodes->{$celvalue}
           : ( $line =~ /location/ ) ? $locations->{$celvalue}
-          : ( $line =~ /itemtype/ ) ? db_t('itemtype', $itemtypes_map->{$celvalue}->{description})
+          : ( $line =~ /itemtype/ ) ? db_t('itemtype', $itemtypes_map->{$celvalue}->{itemtype})
           :                           $celvalue;                               # default fallback
         if ( $line =~ /sort1/ ) {
             foreach (@$Bsort1) {
@@ -440,7 +440,7 @@ sub calculate {
         $cell{coltitle_display} =
             ( $column =~ /ccode/ )    ? $ccodes->{$celvalue}
           : ( $column =~ /location/ ) ? $locations->{$celvalue}
-          : ( $column =~ /itemtype/ ) ? db_t('itemtype', $itemtypes_map->{$celvalue}->{description})
+          : ( $column =~ /itemtype/ ) ? db_t('itemtype', $itemtypes_map->{$celvalue}->{itemtype})
           :                             $celvalue;                               # default fallback
         if ( $column =~ /sort1/ ) {
             foreach (@$Bsort1) {

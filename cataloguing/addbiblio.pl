@@ -196,7 +196,7 @@ sub build_authorized_values_list {
         my $itemtypes = Koha::ItemTypes->search;
         while ( $itemtype = $itemtypes->next ) {
             push @authorised_values, $itemtype->itemtype;
-            $authorised_lib{$itemtype->itemtype} = db_t('itemtype', $itemtype->description);
+            $authorised_lib{$itemtype->itemtype} = db_t('itemtype', $itemtype->itemtype);
         }
         $value = $itemtype unless ($value);
     }

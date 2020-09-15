@@ -39,9 +39,9 @@ sub Get {
 }
 
 sub t {
-    my ($self, $description) = @_;
+    my ($self, $key) = @_;
 
-    return db_t('itemtype', $description);
+    return db_t('itemtype', $key);
 }
 
 1;

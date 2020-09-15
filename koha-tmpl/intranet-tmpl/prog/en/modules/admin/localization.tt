@@ -46,6 +46,7 @@
                         <thead>
                             <tr>
                                 <th>Group</th>
+                                <th>Key</th>
                                 <th>Text</th>
                                 <th>Translations</th>
                             </tr>
@@ -91,6 +92,10 @@
                     {
                         name: 'group',
                         data: 'group',
+                    },
+                    {
+                        name: 'key',
+                        data: 'key',
                     },
                     {
                         name: 'text',

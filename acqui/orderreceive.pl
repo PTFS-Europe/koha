@@ -115,7 +115,6 @@ unless($acq_fw) {
     $template->param('NoACQframework' => 1);
 }
 
-
 my $creator = Koha::Patrons->find( $order->created_by );
 
 my $budget = GetBudget( $order->budget_id );

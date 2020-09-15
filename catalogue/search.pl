@@ -734,7 +734,7 @@ sub prepare_adv_search_types {
         map {
             $_->{itemtype} => {
                 %$_,
-                description => db_t( 'itemtype', $_->{description} ),
+                description => db_t( 'itemtype', $_->{itemtype} ),
               }
         } @{ Koha::ItemTypes->search->unblessed }
     };

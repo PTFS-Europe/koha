@@ -82,7 +82,7 @@ while ( my $h = $holds_rs->next() ) {
     my $itemtype_limit;
     if ( $h->itemtype ) {
         my $itemtype = Koha::ItemTypes->find( $h->itemtype );
-        $itemtype_limit = db_t('itemtype', $itemtype->description);
+        $itemtype_limit = db_t('itemtype', $itemtype->itemtype);
     }
 
     my $libraries = Koha::Libraries->search({}, { order_by => ['branchname'] })->unblessed;
