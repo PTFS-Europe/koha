@@ -1603,6 +1603,12 @@ __PACKAGE__->many_to_many("ordernumbers", "aqorder_users", "ordernumber");
 # Created by DBIx::Class::Schema::Loader v0.07046 @ 2020-07-16 16:16:23
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:kM4ka0DO50m/qLc8kT6sPQ
 
+__PACKAGE__->has_many(
+    "guarantees",
+    "Koha::Schema::Result::Borrower",
+    { "foreign.guarantorid" => "self.borrowernumber" },
+);
+
 __PACKAGE__->add_columns(
     '+anonymized'    => { is_boolean => 1 },
     '+lost'          => { is_boolean => 1 },
