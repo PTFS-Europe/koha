@@ -88,7 +88,7 @@ sub build_authorized_values_list {
           unless ( $tagslib->{$tag}->{$subfield}->{mandatory}
             && ( $value || $tagslib->{$tag}->{$subfield}->{defaultvalue} ) );
             push @authorised_values, $itemtype->itemtype;
-            $authorised_lib{$itemtype->itemtype} = db_t('itemtype', $itemtype->itemtype);
+            $authorised_lib{$itemtype->itemtype} = $itemtype->translated_description;
         }
     }
     else { # "true" authorised value

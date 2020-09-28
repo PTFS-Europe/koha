@@ -282,7 +282,7 @@ my @itemtypes;
 foreach my $itemtype ( Koha::ItemTypes->search->as_list ) {
     push @itemtypes, {
         value => $itemtype->itemtype,
-        label => db_t('itemtype', $itemtype->itemtype),
+        label => $itemtype->translated_description,
     };
 }
 
