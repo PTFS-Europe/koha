@@ -318,7 +318,9 @@
                     <td><input type="text" name="maxsuspensiondays" id="maxsuspensiondays" size="3" /> </td>
                     <td><input type="text" name="suspension_chargeperiod" id="suspension_chargeperiod" size="3" /> </td>
                     <td><input type="text" name="renewalsallowed" id="renewalsallowed" size="2" /></td>
+                    [% IF Koha.Preference('UnseenRenewals') %]
                     <td><input type="text" name="unseen_renewals_allowed" id="unseen_renewals_allowed" size="2" /></td>
+                    [% END %]
                     <td><input type="text" name="renewalperiod" id="renewalperiod" size="3" /></td>
                     <td><input type="text" name="norenewalbefore" id="norenewalbefore" size="3" /></td>
                     <td>
@@ -385,7 +387,9 @@
                       <th>Max. suspension duration (day)</th>
                       <th>Suspension charging interval</th>
                       <th>Renewals allowed (count)</th>
+                      [% IF Koha.Preference('UnseenRenewals') %]
                       <th>Unseen renewals allowed (count)</th>
+                      [% END %]
                       <th>Renewal period</th>
                       <th>No renewal before</th>
                       <th>Automatic renewal</th>
