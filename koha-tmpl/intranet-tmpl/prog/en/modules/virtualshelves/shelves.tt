@@ -260,7 +260,7 @@
                 </td>
             [% END %]
 			[% UNLESS ( item_level_itypes ) %]<td>
-                [% UNLESS ( noItemTypeImages || !itemsloo.imageurl ) %]<img src="[% itemsloo.imageurl | html %]" alt="[% ItemTypes.t(itemsloo.description) | html %]" title="[% ItemTypes.t(itemsloo.description) | html %]" />[% END %][% ItemTypes.t(itemsloo.description) | html %]
+                [% UNLESS ( noItemTypeImages || !itemsloo.imageurl ) %]<img src="[% itemsloo.imageurl | html %]" alt="[% ItemTypes.t(itemsloo.translation_key) | html %]" title="[% ItemTypes.t(itemsloo.translation_key) | html %]" />[% END %][% ItemTypes.t(itemsloo.translation_key) | html %]
 			</td>[% END %]
 			<td>
                 [% IF ( itemsloo.XSLTBloc ) %]

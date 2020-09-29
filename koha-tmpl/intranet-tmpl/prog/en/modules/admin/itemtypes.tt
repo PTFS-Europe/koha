@@ -441,7 +441,7 @@ Item types &rsaquo; Administration &rsaquo; Koha
                 <th scope="row">Item type</th>
                 <td>[% itemtype.itemtype | html %]</td>
             </tr>
-            <tr><th scope="row">Description</th><td>[% ItemTypes.t(itemtype.description) | html %]</td></tr>
+            <tr><th scope="row">Description</th><td>[% ItemTypes.t(itemtype.translation_key) | html %]</td></tr>
             [% UNLESS Koha.Preference('noItemTypeImages') && Koha.Preference('OpacNoItemTypeImages') %]
                 <tr>
                     <th scope="row">Image</th>

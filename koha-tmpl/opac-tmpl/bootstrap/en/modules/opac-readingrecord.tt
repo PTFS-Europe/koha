@@ -161,7 +161,7 @@
                                                     [% END %]
                                                 [% END %]
                                                 <span class="tdlabel">Item type:</span>
-                                                [% ItemTypes.t(issue.description) | html %]</td>
+                                                [% ItemTypes.t(issue.translation_key) | html %]</td>
                                                 <td>
                                                 <span class="tdlabel">Call number:</span>
                                                 [% issue.itemcallnumber | html %]

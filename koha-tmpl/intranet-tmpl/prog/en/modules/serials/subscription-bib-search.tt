@@ -26,7 +26,7 @@
                 <option value="">All</option>
                 [%- FOREACH itemtypeloo IN itemtypeloop %]
                 <option value="[% itemtypeloo.code | html %]">
-                    [% ItemTypes.t(itemtypeloo.description) | html %]
+                    [% ItemTypes.t(itemtypeloo.translation_key) | html %]
                 </option>
                 [%- END %]
             </select>

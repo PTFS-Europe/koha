@@ -38,7 +38,7 @@
                                 [% ELSE %]
                                     <option value="[% itemtype.itemtype | html %]">
                                 [% END %]
-                                    [% ItemTypes.t(itemtype.description) | html %]
+                                    [% ItemTypes.t(itemtype.translation_key) | html %]
                                 </option>
                             [% END %]
                         </select>

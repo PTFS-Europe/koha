@@ -371,9 +371,9 @@
                     [% IF ( item_level_itypes ) %]
                         <td class="itype">
                             [% IF !noItemTypeImages && item.imageurl %]
-                                <img src="[% item.imageurl | html %]" alt="[% ItemTypes.t(item.description) | html %]" title="[% ItemTypes.t(item.description) | html %]" />
+                                <img src="[% item.imageurl | html %]" alt="[% ItemTypes.t(item.translation_key) | html %]" title="[% ItemTypes.t(item.translation_key) | html %]" />
                             [% END %]
-                            <span class="itypedesc">[% ItemTypes.t(item.description) | html %]</span>
+                            <span class="itypedesc">[% ItemTypes.t(item.translation_key) | html %]</span>
                         </td>
                     [% END %]
                     <td class="location">[% UNLESS ( singlebranchmode ) %][% Branches.GetName( item.branchcode ) | html %] [% END %]</td>

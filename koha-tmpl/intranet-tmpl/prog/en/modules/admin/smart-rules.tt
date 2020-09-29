@@ -398,14 +398,14 @@
                                 [% NEXT IF itemtypeloo.parent_type %]
                                 [% SET children = itemtypeloo.children %]
                                 [% IF children.count %]
-                                    <optgroup label="[% ItemTypes.t(itemtypeloo.description) | html %]">
-                                        <option value="[% itemtypeloo.itemtype | html %]">[% ItemTypes.t(itemtypeloo.description) | html %] (All)</option>
+                                    <optgroup label="[% ItemTypes.t(itemtypeloo.translation_key) | html %]">
+                                        <option value="[% itemtypeloo.itemtype | html %]">[% ItemTypes.t(itemtypeloo.translation_key) | html %] (All)</option>
                                         [% FOREACH child IN children %]
-                                            <option value="[% child.itemtype | html %]">[% ItemTypes.t(child.description) | html %]</option>
+                                            <option value="[% child.itemtype | html %]">[% ItemTypes.t(child.translation_key) | html %]</option>
                                         [% END %]
                                     </optgroup>
                                 [% ELSE %]
-                                    <option value="[% itemtypeloo.itemtype | html %]">[% ItemTypes.t(itemtypeloo.description) | html %]</option>
+                                    <option value="[% itemtypeloo.itemtype | html %]">[% ItemTypes.t(itemtypeloo.translation_key) | html %]</option>
                                 [% END %]
                             [% END %]
                         </select>
@@ -1094,7 +1094,7 @@
                     [% IF holdallowed || hold_fulfillment_policy || returnbranch %]
                         <tr>
                             <td>
-                                [% ItemTypes.t(i.description) | html %]
+                                [% ItemTypes.t(i.translation_key) | html %]
                             </td>
                             <td>
                                 [% IF holdallowed == 'from_any_library' %]
@@ -1139,7 +1139,7 @@
                     <td>
                         <select name="itemtype">
                         [% FOREACH itemtypeloo IN itemtypeloop %]
-                            <option value="[% itemtypeloo.itemtype | html %]">[% ItemTypes.t(itemtypeloo.description) | html %]</option>
+                            <option value="[% itemtypeloo.itemtype | html %]">[% ItemTypes.t(itemtypeloo.translation_key) | html %]</option>
                         [% END %]
                         </select>
                     </td>

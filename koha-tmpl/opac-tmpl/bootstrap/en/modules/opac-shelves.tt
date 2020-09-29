@@ -384,9 +384,9 @@
                                                     [% UNLESS ( item_level_itypes ) %]
                                                         <td>
                                                             [% UNLESS ( Koha.Preference('OpacNoItemTypeImages') ) %]
-                                                                <img src="[% itemsloo.imageurl | html %]" alt="[% ItemTypes.t(itemsloo.description) | html %]" title="[% ItemTypes.t(itemsloo.description) | html %]" />
+                                                                <img src="[% itemsloo.imageurl | html %]" alt="[% ItemTypes.t(itemsloo.translation_key) | html %]" title="[% ItemTypes.t(itemsloo.translation_key) | html %]" />
                                                             [% END %]
-                                                            [% ItemTypes.t(itemsloo.description) | html %]
+                                                            [% ItemTypes.t(itemsloo.translation_key) | html %]
                                                         </td>
                                                     [% END %]
                                                     <td>

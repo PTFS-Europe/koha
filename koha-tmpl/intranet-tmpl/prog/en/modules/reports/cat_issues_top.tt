@@ -121,7 +121,7 @@
       <li> 
         <label for="documenttype">Item type: </label><select name="Filter" id="documenttype"><option value="" > Any item type</option>
     [% FOREACH itemtype IN itemtypes %]
-        <option value="[% itemtype.itemtype | html %]" >[% ItemTypes.t(itemtype.description) | html %] </option>
+        <option value="[% itemtype.itemtype | html %]" >[% ItemTypes.t(itemtype.translation_key) | html %] </option>
      [% END %] 
     </select>
       </li>

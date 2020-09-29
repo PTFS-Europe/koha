@@ -80,9 +80,9 @@
                             <option value=""></option>
                             [% FOREACH it IN itypes %]
                                 [% IF it.itemtype == course_item.itype %]
-                                    <option value="[% it.itemtype | html %]" selected="selected">[% ItemTypes.t(it.description) | html %]</option>
+                                    <option value="[% it.itemtype | html %]" selected="selected">[% ItemTypes.t(it.translation_key) | html %]</option>
                                 [% ELSE %]
-                                    <option value="[% it.itemtype | html %]">[% ItemTypes.t(it.description) | html %]</option>
+                                    <option value="[% it.itemtype | html %]">[% ItemTypes.t(it.translation_key) | html %]</option>
                                 [% END %]
                             [% END %]
                         </select>

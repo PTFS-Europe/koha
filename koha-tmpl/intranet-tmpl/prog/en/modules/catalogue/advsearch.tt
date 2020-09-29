@@ -199,7 +199,7 @@
             [% END %]
                 &nbsp;
         [% END %]
-        [% ItemTypes.t(itemtypeloo.description) | html %]
+        [% ItemTypes.t(itemtypeloo.translation_key) | html %]
             </label>
         </td>
         [% IF ( loop.last ) %]
