@@ -46,7 +46,20 @@ Returns a localized string for the Koha::ItemType description field.
 
 sub translated_description {
     my ( $self ) = @_;
-    return dt_t('itemtype', $self->itemtype);
+    return dt_t('itemtype', $self->translation_key);
+}
+
+=head3 translation_key
+
+   db_t('itemtype', $itemtype->translation_key);
+
+Returns the translation key for this itemtype object.
+
+=cut
+
+sub translation_key {
+    my ( $self ) = @_;
+    return $self->itemtype;
 }
 
 =head3 image_location
