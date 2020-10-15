@@ -1290,7 +1290,7 @@ attempts to submit the email.
 
 sub generic_confirm {
     my ( $self, $params ) = @_;
-    my $library = Koha::Libraries->find($params->{current_branchcode})
+    my $branch = Koha::Libraries->find($params->{current_branchcode})
         || die "Invalid current branchcode. Are you logged in as the database user?";
     if ( !$params->{stage}|| $params->{stage} eq 'init' ) {
         # Get the message body from the notice definition
@@ -1328,8 +1328,8 @@ sub generic_confirm {
             "No target email addresses found. Either select at least one partner or check your ILL partner library records.")
           if ( !$to );
         # Create the from, replyto and sender headers
-        my $from = $branch->branchemail;
-        my $replyto = $branch->inbound_ill_address;
+        my $from = $branch->branchillemail || $branch->branchemail;
+        my $replyto = $branch->branchreplyto || $from;
         Koha::Exceptions::Ill::NoLibraryEmail->throw(
             "Your library has no usable email address. Please set it.")
           if ( !$from );

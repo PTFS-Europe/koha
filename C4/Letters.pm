@@ -1615,6 +1615,12 @@ sub _get_tt_params {
             plural   => 'patron_modifications',
             fk       => 'verification_token',
         },
+        illrequests => {
+            module   => 'Koha::Illrequests',
+            singular => 'illrequest',
+            plural   => 'illrequests',
+            fk       => 'illrequest_id'
+        }
     };
 
     foreach my $table ( keys %$tables ) {
