@@ -366,7 +366,12 @@ sub order_line {
     # PIA isbn or other id
     my @identifiers;
     foreach my $id ( $biblioitem->ean, $biblioitem->issn, $biblioitem->isbn ) {
-        if ( $id && $id ne $id_string ) {
+        if ( $id) {
+            # if we have a supplier preferred identifier
+            # dont duplicate it in PIA
+            if (defined $id_string && $id eq $id_string ) {
+                next;
+            }
             push @identifiers, $id;
         }
     }
@@ -384,6 +389,8 @@ sub order_line {
     # GIR copy-related data
     my @items;
     if ( $basket->effective_create_items eq 'ordering' ) {
+        # TBH We should probably ignore effective_create_items at this point
+        # if items are going to be created they have been
         my @linked_itemnumbers = $orderline->aqorders_items;
 
         foreach my $item (@linked_itemnumbers) {
@@ -393,40 +400,30 @@ sub order_line {
             }
         }
     }
-    else {
-        my $item_hash = {
-            itemtype  => $biblioitem->itemtype,
-            shelfmark => $biblioitem->cn_class,
-        };
-        my $branch = $orderline->basketno->deliveryplace;
-        if ($branch) {
-            $item_hash->{branch} = $branch;
-        }
-        for ( 1 .. $orderline->quantity ) {
-            push @items, $item_hash;
-        }
-    }
     my $budget = GetBudget( $orderline->budget_id );
     my $ol_fields = { budget_code => $budget->{budget_code}, };
 
-    my $item_fields = [];
-    for my $item (@items) {
-        push @{$item_fields},
-          {
-            branchcode     => $item->homebranch->branchcode,
-            itype          => $item->itype,
-            location       => $item->location,
-            itemcallnumber => $item->itemcallnumber,
-          };
+    if (@items) { # explicitly skip adding gir_segments if no item data
+        my $item_fields = [];
+        for my $item (@items) {
+            push @{$item_fields},
+              {
+                branchcode     => $item->homebranch->branchcode,
+                itype          => $item->itype,
+                location       => $item->location,
+                itemcallnumber => $item->itemcallnumber,
+              };
+        }
+
+        $self->add_seg(
+            gir_segments(
+                {
+                    ol_fields => $ol_fields,
+                    items     => $item_fields
+                }
+            )
+        );
     }
-    $self->add_seg(
-        gir_segments(
-            {
-                ol_fields => $ol_fields,
-                items     => $item_fields
-            }
-        )
-    );
 
     # TBD what if #items exceeds quantity
 
