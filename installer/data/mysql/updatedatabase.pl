@@ -73,6 +73,7 @@ local $dbh->{RaiseError} = 0;
 # Record the version we are coming from
 
 my $original_version = C4::Context->preference("Version");
+print "Upgrading from $original_version\n";
 
 # Deal with virtualshelves
 my $DBversion = "3.00.00.001";
@@ -13740,12 +13741,14 @@ $DBversion = "16.11.00.000";
 if ( CheckVersion($DBversion) ) {
     print "Upgrade to $DBversion done (Koha 16.11)\n";
     SetVersion($DBversion);
+    printtime($DBversion);
 }
 
 $DBversion = "16.12.00.000";
 if ( CheckVersion($DBversion) ) {
     print "Upgrade to $DBversion done (Koha 16.12 - Our battered suitcases were piled on the sidewalk again; we had longer ways to go. But no matter, the road is life.)\n";
     SetVersion($DBversion);
+    printtime($DBversion);
 }
 
 $DBversion = "16.12.00.001";
@@ -13758,6 +13761,7 @@ if ( CheckVersion($DBversion) ) {
 
     print "Upgrade to $DBversion done (Bug 17767 - Let Koha::Patron::Modification handle extended attributes)\n";
     SetVersion($DBversion);
+    printtime($DBversion);
 }
 
 $DBversion = '16.12.00.002';
@@ -13773,6 +13777,7 @@ if ( CheckVersion($DBversion) ) {
 
     SetVersion($DBversion);
     print "Upgrade to $DBversion done (Bug 14187 - branchtransfer needs a primary key (id) for DBIx and common sense.)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '16.12.00.003';
@@ -13780,6 +13785,7 @@ if ( CheckVersion($DBversion) ) {
     $dbh->do(q{DELETE FROM systempreferences WHERE variable="Persona"});
     SetVersion($DBversion);
     print "Upgrade to $DBversion done (Bug 17486 - Remove 'Mozilla Persona' as an authentication method)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '16.12.00.004';
@@ -13828,6 +13834,7 @@ if ( CheckVersion($DBversion) ) {
     });
     SetVersion($DBversion);
     print "Upgrade to $DBversion done (Bug 17196 - Move marcxml out of the biblioitems table)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '16.12.00.005';
@@ -13836,6 +13843,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 17913 - AuthorityMergeMode)\n";
+    printtime($DBversion);
 }
 
 $DBversion = "16.12.00.006";
@@ -13851,6 +13859,7 @@ if ( CheckVersion($DBversion) ) {
 
     print "Upgrade to $DBversion done (Bug 17813: Table borrower_attributes needs a primary key\n";
     SetVersion($DBversion);
+    printtime($DBversion);
 }
 
 $DBversion = "16.12.00.007";
@@ -13866,6 +13875,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 17960 - Rename opac_news with opac_news.content (template notices have been updated!))\n";
+    printtime($DBversion);
 }
 
 $DBversion = "16.12.00.008";
@@ -13877,6 +13887,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 15503 - Grab Item Information from Order Files)\n";
+    printtime($DBversion);
 }
 
 $DBversion = "16.12.00.009";
@@ -13893,6 +13904,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 17453 - Inter-site holds improvement)\n";
+    printtime($DBversion);
 }
 
 $DBversion = "16.12.00.010";
@@ -13912,6 +13924,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 16034 - Integration with OverDrive Patron API)\n";
+    printtime($DBversion);
 }
 
 $DBversion = "16.12.00.011";
@@ -13923,6 +13936,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 17260 - updatedatabase.pl fails on invalid entries in ENUM and BOOLEAN columns)\n";
+    printtime($DBversion);
 }
 
 $DBversion = "16.12.00.012";
@@ -13934,6 +13948,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 14764 - Add OPAC News branch selector)\n";
+    printtime($DBversion);
 }
 
 $DBversion = "16.12.00.013";
@@ -13945,6 +13960,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 16530 - Add a circ sidebar navigation menu)\n";
+    printtime($DBversion);
 }
 
 $DBversion = "16.12.00.014";
@@ -13977,6 +13993,7 @@ if( CheckVersion( $DBversion ) ) {
         
         SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 18066 - Hea version 2)\n";
+    printtime($DBversion);
 }
 
 $DBversion = "16.12.00.016";
@@ -13991,6 +14008,7 @@ if ( CheckVersion($DBversion) ) {
 
     print "Upgrade to $DBversion done (Bug 13757: Make patron attributes editable in the opac if set to 'editable in OPAC)'\n";
     SetVersion($DBversion);
+    printtime($DBversion);
 }
 
 $DBversion = "16.12.00.017";
@@ -14002,6 +14020,7 @@ if ( CheckVersion($DBversion) ) {
 
     print "Upgrade to $DBversion done (Bug 14146 - Additional days are not added to restriction period when checking-in several overdues for same patron)'\n";
     SetVersion($DBversion);
+    printtime($DBversion);
 }
 
 $DBversion = "16.12.00.018";
@@ -14020,6 +14039,7 @@ if ( CheckVersion($DBversion) ) {
 
     print "Upgrade to $DBversion done (Bug 15498 - Replace ExportWithCsvProfile with ExportCircHistory)'\n";
     SetVersion($DBversion);
+    printtime($DBversion);
 }
 
 $DBversion = "16.12.00.019";
@@ -14034,6 +14054,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 18173 - Remove issues.return DB field)\n";
+    printtime($DBversion);
 }
 
 $DBversion = "16.12.00.020";
@@ -14048,6 +14069,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 17560 - Hold fee placement at point of checkout)\n";
+    printtime($DBversion);
 }
 
 $DBversion = "16.12.00.021";
@@ -14059,6 +14081,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 17708 - Renewal log seems empty)\n";
+    printtime($DBversion);
 }
 
 $DBversion = "16.12.00.022";
@@ -14066,6 +14089,7 @@ if( CheckVersion( $DBversion ) ) {
     print "NOTE: The sender for claim notifications has been corrected. The email address of the staff member is no longer used. We will use the branch email address or KohaAdminEmailAddress, as is done for other notices.\n";
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 17866 - Change sender for serial claim notifications)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '16.12.00.023';
@@ -14098,6 +14122,7 @@ if( CheckVersion( $DBversion ) ) {
     }
     print "IMPORTANT NOTE: If you are not using a Debian package install, please verify that you no longer use misc/migration_tools/merge_authority.pl in your cron files AND add misc/cronjobs/merge_authorities.pl to cron now. This job is no longer optional! You need it to perform larger authority merges.\n";
     print "Upgrade to $DBversion done (Bug 9988 - Add AuthorityMergeLimit)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '16.12.00.024';
@@ -14108,6 +14133,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 14537 - The system preference 'OverdueNoticeBcc' is mis-named.)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '16.12.00.025';
@@ -14124,6 +14150,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 17669 - Introduce preference for deleting temporary uploads)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '16.12.00.026';
@@ -14142,6 +14169,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 18427 - Add a primary key to serialitems)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '16.12.00.027';
@@ -14271,6 +14299,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 12461 - Add patron clubs feature)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '16.12.00.028';
@@ -14281,6 +14310,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 18110 - Adds FR to the syspref AddressFormat)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '16.12.00.029';
@@ -14310,6 +14340,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 14224: Add column issues.note and issues.notedate)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '16.12.00.030';
@@ -14322,6 +14353,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 16344 - Add a circ rule to limit the auto renewals given a specific date)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '16.12.00.031';
@@ -14341,6 +14373,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 15108: OAI-PMH provider improvements)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '16.12.00.032';
@@ -14384,6 +14417,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 12063 - Update reserves.expirationdate)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '16.12.00.033';
@@ -14408,6 +14442,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 17762 - Add columns letter.lang and borrowers.lang to allow translation of notices)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '16.12.00.034';
@@ -14419,6 +14454,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 15582 - Ability to block auto renewals if the OPACFineNoRenewals amount is reached)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '16.12.00.035';
@@ -14460,6 +14496,7 @@ The following item, [% biblio.title %], has correctly been renewed and is now du
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 15705 - Notify the user on auto renewing)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '16.12.00.036';
@@ -14471,6 +14508,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 17465 - Add a System Preference to control number of Saved Reports displayed)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '16.12.00.037';
@@ -14491,6 +14529,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 18314 - Add FailedLoginAttempts and borrowers.login_attempts)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '16.12.00.038';
@@ -14502,6 +14541,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 18663 - Missing db update for ExportRemoveFields)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '16.12.00.039';
@@ -14513,6 +14553,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 18600 - Missing db update for TalkingTechItivaPhoneNotification)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.05.00.000';
@@ -14520,12 +14561,14 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Koha 17.05)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.06.00.000';
 if( CheckVersion( $DBversion ) ) {
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (He pai ake te iti i te kore)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.06.00.001';
@@ -14539,6 +14582,7 @@ if( CheckVersion( $DBversion ) ) {
     }
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 8612 - Add new column export_format.used_for)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.06.00.002';
@@ -14572,6 +14616,7 @@ if ( CheckVersion($DBversion) ) {
 
     SetVersion($DBversion);
     print "Upgrade to $DBversion done (Bug 18228 - Alter table virtualshelves to simplify permissions)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.06.00.003';
@@ -14593,6 +14638,7 @@ if ( CheckVersion($DBversion) ) {
 
     SetVersion($DBversion);
     print "Upgrade to $DBversion done (Bug 18801 - Update incorrect Default auth type codes)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.06.00.004';
@@ -14606,6 +14652,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 16892: Add automatic patron registration via OAuth2 login)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.06.00.005';
@@ -14616,6 +14663,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 18718 - Language selector in staff header menu similar to OPAC )\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.06.00.006';
@@ -14625,6 +14673,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 18811 - Visibility settings inconsistent between framework and authority editor)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.06.00.007';
@@ -14635,6 +14684,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 10132 - MARCOrgCode on branch level (branches.marcorgcode))\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.06.00.008';
@@ -14659,6 +14709,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 6758 - Capture membership renewal date for reporting purposes (borrowers.date_renewed))\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.06.00.009';
@@ -14672,6 +14723,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 19344 -  Reorder lang and login_attempts in the [deleted]borrowers tables)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.06.00.010';
@@ -14684,6 +14736,7 @@ if ( CheckVersion($DBversion) ) {
     });
     SetVersion($DBversion);
     print "Upgrade to $DBversion done (Bug 13912 - System preference for default place of publication (country code) for field 008, range 15-17)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.06.00.011';
@@ -14706,6 +14759,7 @@ if ( CheckVersion($DBversion) ) {
 
     SetVersion($DBversion);
     print "Upgrade to $DBversion done (Bug 13766 - Make ean mediumtext and add ean indexes)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.06.00.012';
@@ -14720,6 +14774,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 19043 - Z39.50 target for Columbia University is no longer publicly available.)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.06.00.013';
@@ -14735,6 +14790,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 16401 - fix potentialy bad set staffClientBaseURL preference)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.06.00.014';
@@ -14748,6 +14804,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 15685 - Allow creation of items (AcqCreateItem) to be customizable per-basket)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.06.00.015';
@@ -14759,6 +14816,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 19186 - Insert system preference SelfCheckoutByLogin if missing)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.06.00.016';
@@ -14770,6 +14828,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 18298 - Allow enforcing password complexity (system preference RequireStrongPassword))\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.06.00.017';
@@ -14819,6 +14878,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 14826 - Resurrect account offsets table (Add new tables account_offsets and account_offset_types))\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.06.00.018';
@@ -14845,6 +14905,7 @@ if( CheckVersion( $DBversion ) ) {
     }
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 12768 - Insert system preferences useDefaultReplacementCost and ProcessingFeeNote + Add new columns defaultreplacecost and processfee to the itemtypes table)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.06.00.019';
@@ -14855,6 +14916,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 12768 - Add 'Processing Fee' to the account_offset_types table if missing)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.06.00.020';
@@ -14871,6 +14933,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 19028: Add 'shelving location' to holdings table in detail page (Rename syspref OpacLocationBranchToDisplayShelving with OpacLocationOnDetail))\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.06.00.021';
@@ -14881,6 +14944,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 17381 - Add system preference SCOMainUserBlock)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.06.00.022';
@@ -14902,6 +14966,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 19038: Remove OPACShowBarcode syspref)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.06.00.023';
@@ -14913,6 +14978,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 12363 - Add system preference MarkLostItemsAsReturned)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.06.00.024';
@@ -14924,6 +14990,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 2093 - Add system preference OPACUserSummary)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.06.00.025';
@@ -14946,6 +15013,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 13178 - Increase cardnumber fields to VARCHAR(32))\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.06.00.026';
@@ -14957,6 +15025,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 10748 - Add system preference BlockReturnOfLostItems)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.06.00.027';
@@ -14967,6 +15036,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion($DBversion);
     print "Upgrade to $DBversion done (Bug 18882 - Add location code to statistics table for checkouts and renewals)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.06.00.028';
@@ -15036,18 +15106,21 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 7317 - Add an Interlibrary Loan Module to Circulation and OPAC)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.11.00.000';
 if( CheckVersion( $DBversion ) ) {
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Koha 17.11)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.12.00.000';
 if( CheckVersion( $DBversion ) ) {
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Tē tōia, tē haumatia)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.12.00.001';
@@ -15070,6 +15143,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 19724 - Add [deleted]biblio_metadata.timestamp)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.12.00.002';
@@ -15162,6 +15236,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 19096 - Make Default authoritative for Koha to MARC mappings)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.12.00.003';
@@ -15175,6 +15250,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 10021 - Drop notifys-related table and columns)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.12.00.004';
@@ -15187,6 +15263,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 19278 - Add a configurable default page size for REST endpoints)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.12.00.005';
@@ -15208,6 +15285,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 18915 - Correct CHECKOUT_NOTE notice template)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.12.00.006';
@@ -15218,6 +15296,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 17682 - Update URL for Google Scholar in OPACSearchForTitleIn)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.12.00.007';
@@ -15243,6 +15322,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 15707 - Add new table library_groups)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.12.00.008';
@@ -15284,6 +15364,7 @@ if ( CheckVersion($DBversion) ) {
 
     print "Upgrade to $DBversion done (Bug 16735 - Migrate library search groups into the new hierarchical groups)\n";
     SetVersion($DBversion);
+    printtime($DBversion);
 }
 
 $DBversion = '17.12.00.009';
@@ -15298,6 +15379,7 @@ if ( CheckVersion($DBversion) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 18403 - Add the view_borrower_infos_from_any_libraries permission )\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.12.00.010';
@@ -15309,6 +15391,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 20133 - Add library_groups.ft_hide_patron_info)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.12.00.011';
@@ -15322,6 +15405,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 20157 - Use group 'features' to decide which groups to use for group searching functionality)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.12.00.012';
@@ -15334,6 +15418,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 15752 - Add system preference AutoSwitchPatron)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.12.00.013';
@@ -15345,6 +15430,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 20175 - Set DEFAULT NULL value for club_enrollments.date_created)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.12.00.014';
@@ -15352,6 +15438,7 @@ if( CheckVersion( $DBversion ) ) {
     $dbh->do( "UPDATE marc_subfield_structure SET kohafield=NULL where kohafield='additionalauthors.author'" );
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 19790 - Remove additionalauthors.author from installer files)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.12.00.015';
@@ -15388,6 +15475,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 20144 - Adapt DB structure to work with new SQL modes)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.12.00.016';
@@ -15400,6 +15488,8 @@ if( CheckVersion( $DBversion ) ) {
         $table_sth->execute;
         my @table = $table_sth->fetchrow_array;
         unless ( $table[1] =~ /COLLATE=utf8mb4_unicode_ci/ ) {
+            my $time = POSIX::strftime("%H:%M:%S",localtime);
+            say sprintf "Upgrading table %s to utf8mb4 [%s]", $name, $time;
             # Some users might have done the upgrade to utf8mb4 on their own
             # to support supplemental chars (japanese, chinese, etc)
             if ( $name eq 'additional_fields' ) {
@@ -15547,6 +15637,7 @@ if( CheckVersion( $DBversion ) ) {
 
     print "Upgrade to $DBversion done (Bug 18336 - Convert DB tables to utf8mb4 🎁)\n";
     SetVersion($DBversion);
+    printtime($DBversion);
 }
 
 
@@ -15562,6 +15653,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 17672 - Add damaged_on to items and deleteditems tables)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.12.00.018';
@@ -15573,6 +15665,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 19290 - Add system preference BrowseResultSelection)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.12.00.019';
@@ -15582,6 +15675,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 20074 - Auth_subfield_structure changes hidden attribute)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.12.00.020';
@@ -15599,6 +15693,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 20082 - Update descriptions of Vietnamese language)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.12.00.021';
@@ -15611,6 +15706,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 13287 - Add system preference PurgeSuggestionsOlderThan)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.12.00.022';
@@ -15624,6 +15720,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 4078 - Add column currency.p_sep_by_space)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.12.00.023';
@@ -15635,6 +15732,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 20264 - Remove system preference 'checkdigit')\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.12.00.024';
@@ -15705,6 +15803,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 15492 - Add a standalone self-checkin module)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.12.00.025';
@@ -15721,6 +15820,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 20291 - Add StaffLoginInstructions system preference and rename NoLoginInstructions with OpacLoginInstructions)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.12.00.026';
@@ -15733,6 +15833,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 19804 - Add issuingrules.suspension_chargeperiod)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.12.00.027';
@@ -15744,6 +15845,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 19289 - Add system preference UseACQFrameworkForBiblioRecords)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.12.00.028';
@@ -15758,6 +15860,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 9701 - Add default indicators (marc_tag_structure.indX_defaultvalue))\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.12.00.029';
@@ -15816,6 +15919,7 @@ unimarc, *, ind1:auth1, ind2:auth2|;
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 14769 - Authorities merge: Set correct indicators in biblio field (new system preference AuthorityControlledIndicators))\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.12.00.030';
@@ -15827,6 +15931,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 19882 - Add system preference NovelistSelectStaffProfile)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.12.00.031';
@@ -15838,6 +15943,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 11674 - Add system preference MarcFieldDocURL)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.12.00.032';
@@ -15854,6 +15960,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 19794 - Rename RLIST notice to SERIAL_ALERT)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.12.00.033';
@@ -15870,6 +15977,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 18786 - Add ability to create custom payment types)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.12.00.034';
@@ -15881,6 +15989,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 18790 - Add ability to void payment)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.12.00.035';
@@ -15908,6 +16017,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 19974 - Make MarkLostItemsAsReturned multiple)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.12.00.036';
@@ -15928,6 +16038,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 19287 - Add ability to mark an item 'Lost' from 'Holds to pull' list (CanMarkHoldsToPullAsLost, UpdateItemWhenLostFromHoldList and CANCEL_HOLD_ON_LOST))\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.12.00.037';
@@ -15935,6 +16046,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (This change has been reverted, nothing done!)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.12.00.038';
@@ -15946,6 +16058,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 20245 - Use Bibliographic code value for Slovak language)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.12.00.039';
@@ -15963,6 +16076,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 20482 - Use Bibliographic code value for Basque, Maori and Albanian languages)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.12.00.040';
@@ -15975,6 +16089,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 20100 - Add new system preference ProtectSuperlibrarianPrivileges)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.12.00.041';
@@ -15986,6 +16101,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 11317 - Add a new permission to access files stored on the server)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.12.00.042';
@@ -16004,6 +16120,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 20402 - Implement OAuth2 authentication for REST API)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '17.12.00.043';
@@ -16030,6 +16147,7 @@ if(CheckVersion($DBversion)) {
 
     print "Upgrade to $DBversion done (Bug 20568 - Add API key management interface for patrons)\n";
     SetVersion($DBversion);
+    printtime($DBversion);
 }
 
 $DBversion = '17.12.00.044';
@@ -16043,18 +16161,21 @@ if(CheckVersion($DBversion)) {
 
     print "Upgrade to $DBversion done (Bug 20624 - Disable OAuth2 client credentials grant by default)\n";
     SetVersion($DBversion);
+    printtime($DBversion);
 }
 
 $DBversion = '18.05.00.000';
 if( CheckVersion( $DBversion ) ) {
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Koha 18.05)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.000';
 if( CheckVersion( $DBversion ) ) {
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Koha 18.06 - It's Adventure time!)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.001';
@@ -16070,6 +16191,7 @@ if( CheckVersion( $DBversion ) ) {
     $dbh->do(q{UPDATE permissions SET description = 'Manage all funds' WHERE code = 'budget_manage_all';});
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 3849- Improve descriptions of granular acquisition permissions)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.002';
@@ -16078,6 +16200,7 @@ if( CheckVersion( $DBversion ) ) {
     $dbh->do(q{UPDATE borrowers SET flags = flags - ( flags & (1<<12) ) WHERE flags & (1 << 12);});
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 2426 - Remove deprecated management permission)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.003';
@@ -16085,6 +16208,7 @@ if( CheckVersion( $DBversion ) ) {
     $dbh->do( "ALTER TABLE search_field CHANGE COLUMN type type ENUM('', 'string', 'date', 'number', 'boolean', 'sum', 'isbn', 'stdno') NOT NULL COMMENT 'what type of data this holds, relevant when storing it in the search engine'" );
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 20073 - Add new types for Elasticsearch fields)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.004';
@@ -16125,6 +16249,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 20980 - Manual credit offsets are stored as debits)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.005';
@@ -16139,6 +16264,7 @@ if( CheckVersion( $DBversion ) ) {
     }
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 12395 - Save order line's creator)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.006';
@@ -16148,6 +16274,7 @@ if( CheckVersion( $DBversion ) ) {
     }
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 19524 - Share patron lists between staff)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.007';
@@ -16160,6 +16287,7 @@ if( CheckVersion( $DBversion ) ) {
     });
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 7651 - Add separate permission for managing currencies and exchange rates)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.008';
@@ -16167,6 +16295,7 @@ if( CheckVersion( $DBversion ) ) {
     $dbh->do( "ALTER TABLE marc_modification_template_actions CHANGE action action ENUM('delete_field','add_field','update_field','move_field','copy_field','copy_and_replace_field')" );
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 13560 - need an add option in marc modification templates)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.009';
@@ -16189,6 +16318,7 @@ if( CheckVersion( $DBversion ) ) {
     $dbh->do("INSERT IGNORE INTO authorised_value_categories (category_name) VALUES ('ADJ_REASON')");
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 19166 - Add the ability to add adjustments to an invoice)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.010';
@@ -16205,6 +16335,7 @@ if( CheckVersion( $DBversion ) ) {
     });
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 19191 - Add ability to email receipts for account payments and write-offs)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.011';
@@ -16219,6 +16350,7 @@ if( CheckVersion( $DBversion ) ) {
     $dbh->do(q|INSERT IGNORE INTO permissions (module_bit, code, description) VALUES ( 1, 'manage_checkout_notes', 'Mark checkout notes as seen/not seen');|);
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 17698: Add column issues.noteseen and old_issues.noteseen)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.012';
@@ -16227,6 +16359,7 @@ if( CheckVersion( $DBversion ) ) {
     $dbh->do(q|INSERT IGNORE INTO user_permissions (borrowernumber, module_bit, code) SELECT borrowernumber, 11, 'suggestions_manage' FROM borrowers WHERE flags & (1 << 2);|);
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 11911 - Add separate permission for managing suggestions)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.013';
@@ -16236,6 +16369,7 @@ if( CheckVersion( $DBversion ) ) {
     });
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 20997 - Add Koha::Account::Line::apply)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.014';
@@ -16245,6 +16379,7 @@ if( CheckVersion( $DBversion ) ) {
     });
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 21121 - New syspref to allow hiding of private patron data in circulation page)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.015';
@@ -16254,6 +16389,7 @@ if( CheckVersion( $DBversion ) ) {
     $dbh->do(q{DELETE FROM systempreferences where variable="XISBNDailyLimit";});
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 21226 - Remove prefs OCLCAffiliateID, XISBN and XISBNDailyLimit)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.016';
@@ -16265,6 +16401,7 @@ if( CheckVersion( $DBversion ) ) {
     $dbh->do( $sql, undef, $dtf->format_datetime($date) );
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 20773 - expirationdate filled for waiting holds)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.017';
@@ -16272,6 +16409,7 @@ if( CheckVersion( $DBversion ) ) {
     $dbh->do(q|INSERT IGNORE INTO authorised_value_categories (category_name) VALUES ('ROADTYPE');|);
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 21144: Add ROADTYPE to default authorised values categories)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.018';
@@ -16283,6 +16421,7 @@ WHERE issues.itemnumber IS NULL
     |);
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 20487: Clear items.onloan for unissued items)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.019';
@@ -16294,6 +16433,7 @@ INSERT IGNORE INTO columns_settings (module, page, tablename, columnname, cannot
     |);
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 19719: Default to hiding collection code column)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.020';
@@ -16310,6 +16450,7 @@ if( CheckVersion( $DBversion ) ) {
     }
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 15524 - Set limit on maximum possible holds per patron by category)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.021';
@@ -16326,6 +16467,7 @@ if( CheckVersion( $DBversion ) ) {
     }
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 21068 - Remove system preferences NorwegianPatronDB*)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.022';
@@ -16338,6 +16480,7 @@ if( CheckVersion( $DBversion ) ) {
     |);
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 19383 - Add ability to print hold receipts automatically)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.023';
@@ -16348,6 +16491,7 @@ if( CheckVersion( $DBversion ) ) {
     }
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 18639 - Add replacementprice field to aqorders table)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.024';
@@ -16357,6 +16501,7 @@ if( CheckVersion( $DBversion ) ) {
     }
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 7534 - Let libraries have configuration for pickup locations)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.025';
@@ -16368,6 +16513,7 @@ if( CheckVersion( $DBversion ) ) {
     });
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 19817: Add pref KohaManualLanguage and KohaManualBaseURL)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.026';
@@ -16377,6 +16523,7 @@ INSERT IGNORE INTO  systempreferences (variable, value, options, explanation, ty
     |);
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 17530 - Add pref ArticleRequestsLinkControl)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.027';
@@ -16384,6 +16531,7 @@ if( CheckVersion( $DBversion ) ) {
     $dbh->do( "DROP TABLE IF EXISTS services_throttle" );
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 21235: Remove table services_throttle)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.028';
@@ -16395,6 +16543,7 @@ INSERT IGNORE INTO systempreferences ( `variable`, `value`, `options`, `explanat
 });
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 19469 - Add ability to split view of holds view on record by pickup library and/or itemtype)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.029';
@@ -16406,6 +16555,7 @@ if( CheckVersion( $DBversion ) ) {
     }
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 21288: Slowness in acquisition caused by GetInvoices\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.030';
@@ -16418,6 +16568,7 @@ if( CheckVersion( $DBversion ) ) {
     }
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 20777 - Remove unused field accountlines.dispute)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.031';
@@ -16442,6 +16593,7 @@ INSERT IGNORE INTO systempreferences ( variable, value, options, explanation, ty
     |);
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 20819: Add patron_consent)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.032';
@@ -16452,6 +16604,7 @@ if( CheckVersion( $DBversion ) ) {
     $dbh->do(q|ALTER TABLE course_items            CHANGE COLUMN ccode ccode varchar(80) default NULL|);
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 5458: length of items.ccode disagrees with authorised_values.authorised_value)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.033';
@@ -16461,6 +16614,7 @@ if( CheckVersion( $DBversion ) ) {
     |);
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 12747 - Add AdditionalFieldsInZ3950ResultSearch system preference)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.034';
@@ -16473,6 +16627,7 @@ if( CheckVersion( $DBversion ) ) {
     |);
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 17602 - Integrate support for OneClickdigital/Recorded Books API)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.035';
@@ -16482,6 +16637,7 @@ if( CheckVersion( $DBversion ) ) {
     });
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 21403 - Add Indian Amazon Affiliate option to AmazonLocale setting)\n";
+    printtime($DBversion);
 }
 
 
@@ -16525,6 +16681,7 @@ if( CheckVersion( $DBversion ) ) {
     }
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 18887 - Introduce new table 'circulation_rules', use for 'max_holds' rules)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.037';
@@ -16544,6 +16701,7 @@ if( CheckVersion( $DBversion ) ) {
     $dbh->do("INSERT IGNORE INTO systempreferences (variable,value,explanation,options,type) VALUES ('OverDrivePasswordRequired','', 'Does the library require passwords for OverDrive SIP authentication', NULL, 'YesNo');");
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 21082 - Add overdrive patron auth method)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.038';
@@ -16551,6 +16709,7 @@ if( CheckVersion( $DBversion ) ) {
     $dbh->do( "ALTER TABLE edifact_ean MODIFY branchcode VARCHAR(10) NULL DEFAULT NULL" );
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 21417 - EDI ordering fails when basket and EAN libraries do not match)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.039';
@@ -16560,6 +16719,7 @@ if( CheckVersion( $DBversion ) ) {
     });
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 15520 - Add more granular permission for only editing own library's circ rules)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.040';
@@ -16643,6 +16803,7 @@ if( CheckVersion( $DBversion ) ) {
     });
     print "Upgrade to $DBversion done (Bug 11897 - Add Stock Rotation Feature)\n";
     SetVersion( $DBversion );
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.041';
@@ -16669,6 +16830,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 20772 - Add illrequestattributes.readonly and illrequest.price_paid columns)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.042';
@@ -16677,6 +16839,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 21617: Make statistics.ccode longer)\n";
+    printtime($DBversion);
 }
 
 $DBversion = "18.06.00.043";
@@ -16690,6 +16853,7 @@ if ( CheckVersion($DBversion) ) {
     }
     print "Upgrade to $DBversion done (Bug 15486: Restrict number of holds placed by day)\n";
     SetVersion($DBversion);
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.044';
@@ -16699,6 +16863,7 @@ if( CheckVersion( $DBversion ) ) {
     }
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 15766: Add column creator_batches.description)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.045';
@@ -16713,6 +16878,7 @@ if( CheckVersion( $DBversion ) ) {
         ));
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 21639 - Add phone transports by default)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.046';
@@ -16740,6 +16906,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 18591 - Add comments to ILL requests)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.047';
@@ -16748,6 +16915,7 @@ if( CheckVersion( $DBversion ) ) {
     $dbh->do( "INSERT IGNORE INTO authorised_value_categories values ('CONTROL_NUM_SEQUENCE');" );
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 19263 - Advanced Editor - Rancor - Add auto control number (001) widget)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.048';
@@ -16755,6 +16923,7 @@ if( CheckVersion( $DBversion ) ) {
     $dbh->do( "ALTER TABLE stockrotationrotas CHANGE COLUMN description description text" );
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 21682 - Remove default on stockrotationrotas.description)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.049';
@@ -16765,6 +16934,7 @@ if( CheckVersion( $DBversion ) ) {
     });
     print "Upgrade to $DBversion done (Bug 21656 - Stock Rotation Notice, Template Toolkit Syntax Correction)\n";
     SetVersion( $DBversion );
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.050';
@@ -16774,6 +16944,7 @@ if( CheckVersion( $DBversion ) ) {
     });
     print "Upgrade to $DBversion done (Bug 14385 - Add OpacHiddenItemExceptions)\n";
     SetVersion( $DBversion );
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.051';
@@ -16785,6 +16956,7 @@ if( CheckVersion( $DBversion ) ) {
     });
     print "Upgrade to $DBversion done (Bug 8630 - Add covers from AdLibris to the OPAC and Intranet)\n";
     SetVersion( $DBversion );
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.052';
@@ -16908,6 +17080,7 @@ if( CheckVersion( $DBversion ) ) {
     });
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 14391: Add granular permissions to the administration module)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.053';
@@ -16915,6 +17088,7 @@ if( CheckVersion( $DBversion ) ) {
     $dbh->do( "INSERT IGNORE INTO systempreferences (variable,value,options,explanation,type) VALUES ('ItemsDeniedRenewal','','','This syspref allows to define custom rules for denying renewal of specific items.','Textarea')" );
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 15494 - Block renewals by arbitrary item values)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.054';
@@ -16924,6 +17098,7 @@ if( CheckVersion( $DBversion ) ) {
     }
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 18316 - Add column search_field.weight)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.055';
@@ -16933,6 +17108,7 @@ if( CheckVersion( $DBversion ) ) {
     }
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 12365: Add column issuingrules.note)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.056';
@@ -17033,6 +17209,7 @@ if( CheckVersion( $DBversion ) ) {
         $dbh->{RaiseError} = $raise_error;
     }
 
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.057';
@@ -17044,6 +17221,7 @@ if( CheckVersion( $DBversion ) ) {
     });
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 20312 - Add showLastPatron systempreference)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.058';
@@ -17058,6 +17236,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 19349 - Add system preferences MarcFieldForCreatorId, MarcFieldForCreatorName, MarcFieldForModifierId, MarcFieldForModifierName)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.059';
@@ -17067,6 +17246,7 @@ if( CheckVersion( $DBversion ) ) {
     });
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 20356 - Add EmailSMSSendDriverFromAddress system preference)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.060';
@@ -17117,6 +17297,7 @@ if( CheckVersion( $DBversion ) ) {
 
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 15836 - Add class_sort_rules.split_routine and split_regex)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.061';
@@ -17128,6 +17309,7 @@ if ( CheckVersion($DBversion) ) {
     });
     SetVersion($DBversion);
     print "Upgrade to $DBversion done (Bug 19893 - Add elasticsearch index status preferences)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.06.00.062';
@@ -17135,6 +17317,7 @@ if( CheckVersion( $DBversion ) ) {
     $dbh->do( "INSERT IGNORE INTO authorised_value_categories (category_name) VALUES ('PA_CLASS');");
     SetVersion( $DBversion );
     print "Upgrade to $DBversion done (Bug 21730: Add new authorised value category PA_CLASS)\n";
+    printtime($DBversion);
 }
 
 $DBversion = '18.11.00.000';
@@ -17172,6 +17355,9 @@ if( CheckVersion( $DBversion ) ) {
         $dbh->do(q|
             ALTER TABLE accountlines CHANGE COLUMN borrowernumber borrowernumber INT(11) DEFAULT NULL;
         |);
+        $dbh->do(q|
+	    UPDATE accountlines SET borrowernumber = NULL WHERE borrowernumber NOT IN ( SELECT borrowernumber FROM borrowers );
+	|);
         $dbh->do(q|
             ALTER TABLE accountlines ADD CONSTRAINT accountlines_ibfk_borrowers FOREIGN KEY (borrowernumber) REFERENCES borrowers (borrowernumber) ON DELETE SET NULL ON UPDATE CASCADE;
         |);
@@ -17869,7 +18055,6 @@ if ( CheckVersion($DBversion) ) {
       }
     );
 
-
     printf "Upgrade to $DBversion done (Bug 22518 - Fix accounttype 'O' to 'FU' - %d updated)\n", $rows;
     NewVersion( $DBversion, 22518, "Fix accounttype 'O' to 'FU'");
 }
@@ -17884,7 +18069,6 @@ if( CheckVersion( $DBversion ) ) {
     $dbh->do( "ALTER TABLE old_issues MODIFY COLUMN renewals tinyint(4) NOT NULL default 0");
 
     # Always end with this (adjust the bug info)
-
     NewVersion($DBversion, 22607, "Set default value of issues.renewals to 0");
 }
 
@@ -23879,6 +24063,12 @@ sub NewVersion {
         }
         $first = 0;
     }
+}
+
+sub printtime {
+    my ($DBversion) = @_;
+    my $time = POSIX::strftime("%H:%M:%S",localtime);
+    say sprintf "Upgrade to %s done [%s]", $DBversion, $time;
 }
 
 =head2 CheckVersion
