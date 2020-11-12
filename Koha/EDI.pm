@@ -1220,7 +1220,7 @@ Koha::EDI
 
 =head2 receipt_items
 
-    receipt_items( schema_obj, invoice_line, ordernumber)
+    receipt_items( schema_obj, invoice_line, ordernumber, $quantity)
 
     receipts the items recorded on this invoice line
 
@@ -1228,7 +1228,7 @@ Koha::EDI
 
 =head2 transfer_items
 
-    transfer_items(schema, invoice_line, originating_order, receiving_order)
+    transfer_items(schema, invoice_line, originating_order, receiving_order, $quantity)
 
     Transfer the items covered by this invoice line from their original
     order to another order recording the partial fulfillment of the original
@@ -1281,17 +1281,19 @@ Koha::EDI
 
 =head2 _get_invoiced_price
 
-      (price, price_tax_excluded) = _get_invoiced_price(line_object)
+      (price, price_tax_excluded) = _get_invoiced_price(line_object, $quantity)
 
       Returns an array of unitprice and unitprice_tax_excluded derived from the lineitem
       monetary fields
 
 =head2 _discounted_price
 
-      ecost = _discounted_price(discount, item_price)
+      ecost = _discounted_price(discount, item_price, discounted_price)
 
       utility subroutine to return a price calculated from the
       vendors discount and quoted price
+      if invoice has a field containing discounted price that is returned
+      instead of recalculating
 
 =head2 _check_for_existing_bib
 
