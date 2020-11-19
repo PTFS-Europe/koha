@@ -142,6 +142,33 @@ sub lock_exec {
         or Koha::Exceptions::Exception->throw("Unable to acquire the lock ".$self->{lock_file}.": $!");
 }
 
+=head3 elapsed_time
+
+    my $elapsed = $script->elapsed_time($start);
+
+This method, when passed an epoch start time in seconds will return the elapsed
+time that has passed since the passed time as a string suitable for printing.
+
+=cut
+
+sub elapsed_time {
+    use integer;
+    my $start_time = shift;
+    my $now        = time;
+    my $elapsed    = $now - $start_time;
+    local $_ = $elapsed;
+    my ( $d, $h, $m, $s );
+    $s = $_ % 60;
+    $_ /= 60;
+    $m = $_ % 60;
+    $_ /= 60;
+    $h = $_ % 24;
+    $_ /= 24;
+    $d = $_;
+
+    return $d ? "$d:$h:$m:$s" : $h ? "$h:$m:$s" : $m ? "$m:$s" : "$s";
+}
+
 =head2 Internal methods
 
 =head3 _initialize_locking
