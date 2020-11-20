@@ -23,7 +23,8 @@ if ($q->param('DEBUG')) {
 if ($q->param('bibids') =~ m/:/) {
 	@ids = split(/:/,$q->param('bibids'));
 } else {
-	push @ids,$q->param('bibids');
+	my $id = $q->param('bibids');
+	push @ids, $id;
 }
 
 my $bibIDString;
