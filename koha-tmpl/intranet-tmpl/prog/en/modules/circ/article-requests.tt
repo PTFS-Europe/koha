@@ -128,7 +128,12 @@
 
                              <tbody>
                                 [% FOREACH ar IN article_requests_pending %]
-                                    <tr class="ar-row ar-pending">
+					[% uhLRC = 'LRC' %]
+					[% FOR item IN ar.biblio.items %]
+                                                        [% LAST IF loop.count > 1 %]
+                                                        [% uhLRC = item.holdingbranch %]
+                                         [% END %] 
+                                    <tr class="ar-row ar-pending [% uhLRC %]">
                                         <td><input type="checkbox" reqid="[% ar.id | html %]"/></td>
                                         <td class="ar-title">
                                             <p>
@@ -158,6 +163,13 @@
                                                     [% IF ar.biblio.biblioitem.isbn %]
                                                         ISBN: [% ar.biblio.biblioitem.isbn | html %]
                                                     [% END %]
+						    [%# ISSN added by sg13abk  %]
+                                                    [% IF ar.biblio.biblioitem.issn %]
+                                                        ISSN: [% ar.biblio.biblioitem.issn | html %]
+                                                    [% END %]
+							<br>
+							<br>
+						    <a href="/cgi-bin/koha/reports/guided_reports.pl?reports=305&phase=Run+this+report&param_name=biblionumber&sql_params=[% ar.biblionumber | uri %]"><font size"-1">Check requests</font></a>
                                                 </div>
                                             </p>
                                         </td>
@@ -179,6 +191,14 @@
                                             [% END %]
 
                                             [% ar.item.itemcallnumber | html %]
+					    [%# sg13abk %]
+					    [% FOR item IN ar.biblio.items %]
+							[% LAST IF loop.count > 1 %]
+							[% item.itemcallnumber | html %]
+							<br>
+							<br>
+							[% item.holdingbranch | html %] LRC
+					    [% END %]
                                         </td>
                                         <td class="ar-status">[% PROCESS 'item_status' myitem = ar.item IF ar.item %]</td>
                                         <td class="ar-copynumber">[% ar.item.copynumber | html %]</td>
@@ -229,7 +249,12 @@
 
                              <tbody>
                                 [% FOREACH ar IN article_requests_processing %]
-                                    <tr class="ar-row ar-processing">
+					[% uhLRC = 'LRC' %]
+					[% FOR item IN ar.biblio.items %]
+                                                        [% LAST IF loop.count > 1 %]
+                                                        [% uhLRC = item.holdingbranch %]
+                                         [% END %] 
+                                    <tr class="ar-row ar-processing [% uhLRC %]">
                                         <td><input type="checkbox" reqid="[% ar.id | html %]"/></td>
                                         <td class="ar-title">
                                             <p>
@@ -257,6 +282,12 @@
                                                     [% IF ar.biblio.biblioitem.isbn %]
                                                         ISBN: [% ar.biblio.biblioitem.isbn | html %]
                                                     [% END %]
+                                                    [% IF ar.biblio.biblioitem.issn %]
+                                                        ISSN: [% ar.biblio.biblioitem.issn | html %]
+                                                    [% END %]
+							<br>
+							<br>
+						    <a href="/cgi-bin/koha/reports/guided_reports.pl?reports=305&phase=Run+this+report&param_name=biblionumber&sql_params=[% ar.biblionumber | uri %]"><font size"-1">Check requests</font></a>
                                                 </div>
                                             </p>
                                         </td>
@@ -278,6 +309,15 @@
                                             [% END %]
 
                                             [% ar.item.itemcallnumber | html %]
+					    [%# sg13abk %]
+					    [% FOR item IN ar.biblio.items %]
+							[% LAST IF loop.count > 1 %]
+							[% item.itemcallnumber | html %]
+							<br>
+							<br>
+							[% item.holdingbranch | html %] LRC
+					    [% END %]
+
                                         </td>
                                         <td class="ar-status">[% PROCESS 'item_status' myitem = ar.item IF ar.item %]</td>
                                         <td class="ar-copynumber">[% ar.item.copynumber | html %]</td>
