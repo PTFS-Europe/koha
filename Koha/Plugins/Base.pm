@@ -18,6 +18,7 @@ package Koha::Plugins::Base;
 # along with Koha; if not, see <http://www.gnu.org/licenses>.
 
 use Modern::Perl;
+use utf8;
 
 use Module::Pluggable require => 1;
 use Cwd qw(abs_path);
