@@ -81,77 +81,6 @@
             [% END %]
         [% END %]
 
-        [% IF ( koha_news ) %]
-
-            [% IF single_news_error %]
-
-                <div class="alert alert-error">
-                    This news item does not exist.
-                </div>
-
-            [% ELSE %]
-
-                <div id="news" class="newscontainer">
-                    [% SET newsdisp = ( Koha.Preference('NewsAuthorDisplay') ) %]
-                    [% FOREACH koha_new IN koha_news %]
-                        <div class="newsitem">
-                            <h4 class="newsheader">
-                                [% IF ( news_item ) %]
-                                    [% koha_new.title | html %]
-                                [% ELSE %]
-                                    <a name="newsitem[% koha_new.idnew | html %]" href="/cgi-bin/koha/opac-main.pl?news_id=[% koha_new.idnew | uri %]">[% koha_new.title | html %]</a>
-                                [% END %]
-                            </h4>
-                            <div class="newsbody">[% koha_new.content | $raw %]</div>
-                            <div class="newsfooter">
-                                Published on [% koha_new.published_on | $KohaDates %]
-                                [% IF ( (newsdisp == 'opac' || newsdisp == 'both') && koha_new.borrowernumber ) %]
-                                    by <span class="newsauthor_title">[% koha_new.author_title | html %] </span>[% koha_new.author_firstname | html %] [% koha_new.author_surname | html %]
-                                [% END %]
-                                [% IF ( news_item ) %]
-                                    &bull; <a href="/cgi-bin/koha/opac-main.pl">Show all news</a>
-                                [% END %]
-                            </div>
-                        </div>
-
-                    [% END %]
-                    [% UNLESS news_item %]
-                        <div id="rssnews-container">
-                            <!-- Logged in users have a branch code or it could be explicitly set -->
-                            <a href="[% OPACBaseURL | url %]/cgi-bin/koha/opac-news-rss.pl?branchcode=[% branchcode | uri %]">
-                                <i class="fa fa-rss" aria-hidden="true"></i>
-                                [% IF Branches.all.size == 1 %]
-                                    [% IF branchcode %]
-                                        RSS feed for [% Branches.GetName( branchcode ) | html %] library news
-                                    [% ELSE %]
-                                        RSS feed for library news
-                                    [% END %]
-                                [% ELSE %]
-                                    [% IF branchcode %]
-                                        RSS feed for [% Branches.GetName( branchcode ) | html %] and system-wide library news
-                                    [% ELSE %]
-                                        RSS feed for system-wide library news
-                                    [% END %]
-                                [% END %]
-                            </a>
-                        </div>
-                    [% END %]
-                </div>
-
-            [% END # /IF single_news_error %]
-
-        [% ELSE %] <!-- koha news -->
-            [% IF Koha.Preference( 'OpacNewsLibrarySelect' ) %]
-                <div id="news" class="newscontainer">
-                    <div class="newsitem">
-                        <div class="newsbody">No news to display.</div>
-                        <div class="newsfooter"></div>
-                    </div>
-                </div>
-            [% END %]
-
-        [% END # IF koha_news %]
-
         [% UNLESS news_item # Don't show under single news item %]
             [% IF ( daily_quote ) %]
                 <div id="daily-quote">
@@ -162,11 +91,11 @@
                 </div>
             [% END %]
 
-            [% IF ( OpacMainUserBlock ) %]
+            <!-- [% IF ( OpacMainUserBlock ) %]
                 <div id="opacmainuserblock">
                     [% PROCESS koha_news_block news => OpacMainUserBlock %]
                 </div>
-            [% END %]
+            [% END %] -->
                 [% IF ( page_test ) %]
                 [% page_test %]
             [% END %]
