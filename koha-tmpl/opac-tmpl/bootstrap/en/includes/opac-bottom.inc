@@ -5,6 +5,9 @@
 [% USE Asset %]
 [% SET opaccredits = AdditionalContents.get( location => "opaccredits", lang => lang, library => logged_in_user.branchcode || default_branch ) %]
 [% PROCESS 'html_helpers.inc' %]
+[% IF Koha.Preference( 'CookieConsent' ) %]
+    [% USE JSConsents %]
+[% END %]
 [% UNLESS ( is_popup ) %]
         [% SET OpacLangSelectorMode = Koha.Preference('OpacLangSelectorMode') %]
         [% IF ( opaccredits ) %]
@@ -116,6 +119,14 @@
         [% END # / IF opaclanguagesdisplay %]
     [% END # /IF OpacLangSelectorMode == 'both' || OpacLangSelectorMode == 'footer' %]
 [% END # / UNLESS is_popup %]
+
+<!-- CookieConsentedJS code that may run -->
+[% IF Koha.Preference( 'CookieConsent' ) && JSConsents.all('opacConsent').size %]
+    [% consents = JSConsents.all('opacConsent') %]
+    [% FOREACH consent IN consents %]
+        <div class="consentCode" style="display:none" aria-hidden="true" data-consent-id="[% consent.id | html %]" data-consent-code="[% consent.code | html %]" data-consent-match-pattern="[% consent.matchPattern | html %]" data-consent-cookie-domain="[% consent.cookieDomain | html  %]" data-consent-cookie-path="[% consent.cookiePath | html %]" data-requires-consent="[% consent.opacConsent ? 'true' : 'false' | html %]"></div>
+    [% END %]
+[% END %]
 
 <!-- JavaScript includes -->
 [% Asset.js("lib/jquery/jquery-3.6.0.min.js") | $raw %]
@@ -296,6 +307,9 @@ $(document).ready(function() {
 
         </script>
     [% END %]
+[% END %]
+[% IF Koha.Preference( 'CookieConsent' ) %]
+    [% Asset.js("js/cookieconsent.js") | $raw %]
 [% END %]
 [% KohaPlugins.get_plugins_opac_js | $raw %]
 </body>
