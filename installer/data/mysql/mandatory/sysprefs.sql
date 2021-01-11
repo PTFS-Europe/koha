@@ -156,6 +156,8 @@ INSERT INTO systempreferences ( `variable`, `value`, `options`, `explanation`, `
 ('ComponentSortOrder','asc','asc|dsc|az|za','Specify the default sort order','Choice'),
 ('ConfirmFutureHolds','0','','Number of days for confirming future holds','Integer'),
 ('ConsiderOnSiteCheckoutsAsNormalCheckouts','1',NULL,'Consider on-site checkouts as normal checkouts','YesNo'),
+('CookieConsent', '0', NULL, 'Require cookie consent to be displayed', 'YesNo'),
+('CookieConsentedJS', '', NULL, 'Add Javascript code that will run if cookie consent is provided (e.g. tracking code).', 'Free'),
 ('CreateAVFromCataloguing', '1', '', 'Ability to create authorized values from the cataloguing module', 'YesNo'),
 ('CronjobLog','0',NULL,'If ON, log information from cron jobs.','YesNo'),
 ('CumulativeRestrictionPeriods',0,NULL,'Cumulate the restriction periods instead of keeping the highest','YesNo'),
