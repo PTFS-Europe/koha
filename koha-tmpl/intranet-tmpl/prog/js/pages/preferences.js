@@ -266,6 +266,10 @@ $( document ).ready( function () {
         $("#prefModal").modal("show");
     });
 
+    $(".modaljs").on("click", function () {
+        console.log('modaljs clicked');
+    });
+
     $("#saveModalPrefs").on("click", function(){
         var formfieldid = $("#" + $(this).data("target") );
         var prefs = [];
