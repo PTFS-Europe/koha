@@ -4308,6 +4308,37 @@ div .suggestion_note {
     margin: .5em;
 }
 
+#consentJSItems {
+    #consentJSWarning {
+        margin: 20px 0;
+        text-align: center;
+        font-weight: 800;
+        font-size: 120%;
+    }
+    .consentJSItem {
+        margin-bottom: 30px;
+        padding: 10px;
+        border: 1px solid #ccc;
+    }
+    .consentRow {
+        display: flex;
+        margin-bottom: 20px;
+        .consentItem {
+            margin-right: 40px;
+        }
+        .consentItem:last-child {
+            margin-right: 0;
+        }
+    }
+    .codeRow {
+        display: block;
+    }
+    .consentDelete {
+        display: block;
+        text-align: right;
+    }
+}
+
 @import "header";
 @import "toolbar";
 @import "forms";
