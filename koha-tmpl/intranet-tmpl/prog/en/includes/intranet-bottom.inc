@@ -1,6 +1,10 @@
 [% USE raw %]
 [% USE Koha %]
 [% USE KohaPlugins %]
+[% USE Asset %]
+[% IF Koha.Preference( 'CookieConsent' ) %]
+    [% USE JSConsents %]
+[% END %]
         </div>
 [% IF ( ( languages_loop ) && ( ! popup_window ) && ( Koha.Preference('StaffLangSelectorMode') == 'both' || Koha.Preference('StaffLangSelectorMode') == 'footer') ) %]
     [% UNLESS ( one_language_enabled ) %]
@@ -73,6 +77,71 @@
         [% jsinclude | $raw # Parse the page template's JavaScript block if necessary %]
     [% END %]
 [% KohaPlugins.get_plugins_intranet_js | $raw %]
+
+    <!-- Cookie consent -->
+    [% IF Koha.Preference( 'CookieConsent' ) %]
+        <!-- Cookie consent bar -->
+        <div id="cookieConsentBar" aria-hidden="true">
+            [% Koha.Preference( 'CookieConsentBar' ) | $raw %]
+            <div id="consentButtons">
+                <button type="button" class="btn btn-primary consentAcceptAll">Accept all cookies</button>
+                [% IF ( Koha.Preference( 'ConsentJS' ).length > 0 ) %]
+                    <button type="button" class="btn btn-primary consentAcceptEssential">Accept only essential cookies</button>
+                    <button type="button" class="btn btn-info" id="consentMoreInfo">More information</button>
+                [% END %]
+            </div>
+        </div> <!-- /#cookieConsentBar -->
+        <!-- Cookie consent modal -->
+        <div id="cookieConsentModal" class="modal" tabindex="-1" role="dialog" aria-labelledby="cookieConsentModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title" id="cookieConsentModalLabel">Cookie consent</h2>
+                    </div>
+                    <div class="modal-body">
+                        [% IF Koha.Preference( 'CookieConsentPopup' ) %]
+                            <div id="cookieConsentPopupText">
+                                [% Koha.Preference( 'CookieConsentPopup' ) | $raw %]
+                            </div>
+                        [% END %]
+                        <div id="consentCookieList">
+                            [% consents = JSConsents.all() %]
+                            [% FOREACH consent IN consents %]
+                                <div class="consentModalItem">
+                                    <div class="consentItemCheckbox">
+                                        <input class="consentCheckbox" type="checkbox" name="consentCheckbox" value="[% consent.id %]">
+                                    </div>
+                                    <div class="consentItemMeta">
+                                        <div class="consentItemName">[% consent.name | html %]</div>
+                                        <div class="consentItemDescription">[% consent.description | html %]</div>
+                                    </div>
+                                </div>
+                            [% END %]
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div id="consentButtons">
+                            <button type="button" class="btn btn-primary consentAcceptAll">Accept all cookies</button>
+                            [% IF ( Koha.Preference( 'ConsentJS' ).length > 0 ) %]
+                                <button type="button" class="btn btn-primary consentAcceptEssential">Accept only essential cookies</button>
+                                <button type="button" class="btn btn-warning" id="consentAcceptSelected">Accept selected non-essential cookies</button>
+                            [% END %]
+                        </div>
+                    </div>
+                </div> <!-- /.modal-content -->
+            </div> <!-- /.modal-dialog -->
+        </div>  <!-- /#cookieConsentModal  -->
+    [% END %]
+    <!-- ConsentJS code that may run -->
+    [% IF Koha.Preference( 'CookieConsent' ) && Koha.Preference( 'ConsentJS' ).length > 0 %]
+        [% consents = JSConsents.all() %]
+        [% FOREACH consent IN consents %]
+            <div class="consentCode" style="display:none" aria-hidden="true" data-consent-id="[% consent.id %]" data-consent-code="[% consent.code %]" data-requires-consent="[% consent.staffConsent ? 'true' : 'false' %]"></div>
+        [% END %]
+    [% END %]
+    [% IF Koha.Preference( 'CookieConsent' ) %]
+        [% Asset.js("js/cookieconsent.js") | $raw %]
+    [% END %]
 
 </body>
 </html>
