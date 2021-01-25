@@ -64,6 +64,13 @@ sub _get_chunk {
     if( $options{'syntax'} ){
         $chunk->{'syntax'} = $options{'syntax'};
     }
+    if( $options{'type'} ) {
+        if( $options{'type'} eq 'modaljs' ){
+            $chunk->{'type'} = 'modaljs';
+            $chunk->{'initiator'} = $options{'initiator'};
+            $chunk->{'processor'} = $options{'processor'};
+        }
+    }
     if ( $options{'class'} && $options{'class'} eq 'password' ) {
         $chunk->{'input_type'} = 'password';
     } elsif ( $options{'class'} && $options{'class'} eq 'date' ) {
