@@ -1,4 +1,8 @@
-.preference-url, .preference-multi, .preference-long, .preference-file {
+.preference-url,
+.preference-multi,
+.preference-long,
+.preference-file,
+.preference-modaljs {
     width: 20em;
 }
 
@@ -8,6 +12,14 @@
 
 .preference-integer, .preference-percent, .preference-date, .preference-currency {
     width: 5em;
+}
+
+input[type="text"].modaljs {
+    cursor: pointer;
+}
+
+input[type="text"].modaljs:hover {
+    background-color: #FFC;
 }
 
 textarea.preference {
@@ -134,4 +146,10 @@ span.overridden {
     border: 1px solid #EEE;
     margin: 1em 1em 1em 0;
     resize:  vertical;
+}
+
+#prefModal label {
+    display: block;
+    font-weight: bold;
+    line-height: 1.5em;
 }

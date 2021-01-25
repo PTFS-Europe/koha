@@ -2,6 +2,9 @@
 [% USE Koha %]
 [%- USE KohaPlugins -%]
 [% USE Asset %]
+[% IF Koha.Preference( 'CookieConsent' ) %]
+    [% USE JSConsents %]
+[% END %]
 [% UNLESS ( is_popup ) %]
     [% SET OpacLangSelectorMode = Koha.Preference('OpacLangSelectorMode') %]
     [% IF ( opaccredits ) %]
@@ -79,6 +82,13 @@
 [% END %]
 [% END # / UNLESS is_popup %]
 
+<!-- ConsentJS code that may run -->
+[% IF Koha.Preference( 'CookieConsent' ) && Koha.Preference( 'ConsentJS' ).length > 0 %]
+    [% consents = JSConsents.all() %]
+    [% FOREACH consent IN consents %]
+        <div class="consentCode" style="display:none" aria-hidden="true" data-consent-id="[% consent.id %]" data-consent-code="[% consent.code %]" data-requires-consent="[% consent.opacConsent ? 'true' : 'false' %]"></div>
+    [% END %]
+[% END %]
 
 <!-- JavaScript includes -->
 [% Asset.js("lib/jquery/jquery-3.4.1.min.js") | $raw %]
@@ -307,6 +317,9 @@ $(document).ready(function() {
             //]]>
         </script>
     [% END %]
+[% END %]
+[% IF Koha.Preference( 'CookieConsent' ) %]
+    [% Asset.js("js/cookieconsent.js") | $raw %]
 [% END %]
 [% KohaPlugins.get_plugins_opac_js | $raw %]
 </body>
