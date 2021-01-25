@@ -82,6 +82,15 @@
                         </div> <!-- / .dropdown-menu -->
                     </li> <!-- / .nav-item.dropdown -->
                 [% END # / IF virtualshelves %]
+                <!-- Cookie consent button for non logged-in users -->
+                [% IF !loggedinusername %]
+                    <li style="display:none" id="cookieConsentDivider" class="divider-vertical" aria-hidden="true"></li>
+                    <li style="display:none" id="cookieConsentLi" class="nav-item" aria-hidden="true">
+                        <a id="cookieConsentButton" href="#" name="Your cookies" class="nav-link" title="View and amend cookies you have consented to" role="button">
+                            <span class="cookieconsentlabel">Your cookies</span>
+                        </a>
+                    </li>
+                [% END %]
             </ul> <!-- / .navbar-nav -->
 
             [% IF Koha.Preference( 'opacuserlogin' ) == 1 ||  Koha.Preference( 'EnableOpacSearchHistory') || Koha.Preference( 'opaclanguagesdisplay' ) %]
@@ -441,12 +450,6 @@
                 [% END %]
             </div>
         </div> <!-- /#cookieConsentBar -->
-        <!-- Cookie consent button for non logged-in users -->
-        [% IF !loggedinusername %]
-            <button id="cookieConsentButton" style="display:none" aria-hidden="true">
-                Your cookies
-            </button>
-        [% END %]
         <!-- Cookie consent modal -->
         <div id="cookieConsentModal" class="modal" tabindex="-1" role="dialog" aria-labelledby="cookieConsentModalLabel" aria-hidden="true">
             <div class="modal-dialog">
