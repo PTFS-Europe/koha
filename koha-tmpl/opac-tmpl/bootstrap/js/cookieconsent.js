@@ -62,10 +62,9 @@
         // cookieConsentsButton element in the DOM. The user
         // has previously consented, so we need to display this
         // button
-        const consentButton = $('#cookieConsentButton');
-        if (consentButton.length > 0) {
-            consentButton.attr('aria-hidden', 'false');
-            consentButton.show();
+        if ($('#cookieConsentButton').length > 0) {
+            $('#cookieConsentDivider').show().attr('aria-hidden', 'false');
+            $('#cookieConsentLi').show().attr('aria-hidden', 'false');
         }
     }
 
