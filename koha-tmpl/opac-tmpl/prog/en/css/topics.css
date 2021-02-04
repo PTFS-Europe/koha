@@ -1,0 +1,60 @@
+/* ##################### CONTENT ##################### */
+
+section#content div#site-banner {
+  background:#3E6CA6;
+  filter:none;
+  height:105px;
+}
+
+div#site-banner h1.csc-firstHeader {
+  font-size:2.125em;
+  font-family:Arial,Helvetica,sans-serif;
+/*  color:#000; */
+  padding-top:15px;
+  margin-bottom:12px;
+  width: 448px
+  color: #FFFFFF;
+}
+
+div#site-banner p.bodytext {
+  color:#000;
+  margin:0 15px 6px 15px;
+  font-size:0.813em;
+}
+
+div#site-banner ul li {
+  color:#000;
+  font-size:0.813em;
+  margin:0 18px;
+}
+
+div#site-banner ul li a {
+  color:#000;
+}
+
+header ul.top-submenu li.with-banner {
+  background: url(../images/li-current-w-banner-green.png) no-repeat scroll center 38px transparent;
+}
+
+div#site-banner ul li {
+    background: url(../images/li-bullet-black.png) no-repeat left 5px;
+}
+
+div.topic {
+  float:left;
+  width:45%;
+  min-height:150px;
+  margin-right:34px;
+}
+
+div#maincontent div.topic h2 {
+  border-bottom:1px solid #000;
+  font-family:Arial,Helvetica,sans-serif;
+  font-weight:normal;
+  font-size:1.125em;
+  padding-bottom:4px;
+}
+
+div#maincontent div.topic p.bodytext {
+  font-size:0.813em;
+}
