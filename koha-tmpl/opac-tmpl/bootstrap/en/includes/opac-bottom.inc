@@ -124,7 +124,7 @@
 [% IF Koha.Preference( 'CookieConsent' ) && Koha.Preference( 'ConsentJS' ).length > 0 %]
     [% consents = JSConsents.all() %]
     [% FOREACH consent IN consents %]
-        <div class="consentCode" style="display:none" aria-hidden="true" data-consent-id="[% consent.id %]" data-consent-code="[% consent.code %]" data-requires-consent="[% consent.opacConsent ? 'true' : 'false' %]"></div>
+        <div class="consentCode" style="display:none" aria-hidden="true" data-consent-id="[% consent.id | html %]" data-consent-code="[% consent.code | html %]" data-consent-match-pattern="[% consent.matchPattern | html %]" data-requires-consent="[% consent.opacConsent ? 'true' : 'false' | html %]"></div>
     [% END %]
 [% END %]
 
