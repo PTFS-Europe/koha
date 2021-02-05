@@ -120,13 +120,15 @@
                 // This code doesn't have consent to run, we may need to remove
                 // any cookies it has previously set
                 const matchPattern = $(this).data('consent-match-pattern');
+                const cookieDomain = $(this).data('consent-cookie-domain');
+                const cookiePath = $(this).data('consent-cookie-path');
                 if (matchPattern.length > 0) {
                     const regex = new RegExp(matchPattern);
                     const allCookies = document.cookie.split('; ');
                     allCookies.forEach(function (cookie) {
                         const name = cookie.split('=')[0];
                         if (regex.test(name)) {
-                            document.cookie = name + '=; expires=Thu, 01 Jan 1970 00: 00: 01 GMT';
+                            document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT; domain=' + cookieDomain +'; path=' + cookiePath;
                         }
                     });
                 }
