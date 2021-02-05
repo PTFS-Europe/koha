@@ -362,6 +362,14 @@ $( document ).ready( function () {
                '            <label for="matchPattern_' + id + '">' + __('String used to identify cookie name') + ':</label>' +
                '            <input id="matchPattern_' + id + '" class="metaMatchPattern" type="text" value="' + item.matchPattern + '"><span class="required">' + __('Required') + '</span>' +
                '        </div >' +
+               '        <div class="consentItem">' +
+               '            <label for="cookieDomain' + id + '">' + __('Cookie domain') + ':</label>' +
+               '            <input id="cookieDomain' + id + '" class="metaCookieDomain" type="text" value="' + item.cookieDomain + '"><span class="required">' + __('Required') + '</span>' +
+               '        </div >' +
+               '        <div class="consentItem">' +
+               '            <label for="cookiePath' + id + '">' + __('Cookie path') + ':</label>' +
+               '            <input id="cookiePath' + id + '" class="metaCookiePath" type="text" value="' + item.cookiePath + '"><span class="required">' + __('Required') + '</span>' +
+               '        </div >' +
                '    </div >' +
                '    <div class="consentRow codeRow">' +
                '        <textarea style="display:none;" id="pref_' + id + '" class="preference preference-code codemirror" rows="10" cols="40">' + code + '</textarea>' +
@@ -392,6 +400,8 @@ $( document ).ready( function () {
             name: '',
             description: '',
             matchPattern: '',
+            cookieDomain: '',
+            cookiePath: '',
             code: '',
             consentInOpac: false,
             consentInStaff: false
@@ -470,6 +480,8 @@ $( document ).ready( function () {
             const name = $(this).find('.metaName').val();
             const desc = $(this).find('.metaDescription').val();
             const matchPattern = $(this).find('.metaMatchPattern').val();
+            const cookieDomain = $(this).find('.metaCookieDomain').val();
+            const cookiePath = $(this).find('.metaCookiePath').val();
             const opacConsent = $(this).find('.opacConsent').is(':checked')
             const staffConsent = $(this).find('.staffConsent').is(':checked');
             const code = $(this).find('.preference-code').val();
@@ -479,6 +491,8 @@ $( document ).ready( function () {
                 name.length === 0 &&
                 desc.length === 0 &&
                 matchPattern.length === 0 &&
+                cookieDomain.length === 0 &&
+                cookiePath.length === 0 &&
                 code.length === 0
             ) {
                 return;
@@ -488,6 +502,7 @@ $( document ).ready( function () {
                 (name.length === 0) ||
                 (desc.length === 0) ||
                 (matchPattern.length === 0) ||
+                (cookiePath.length === 0) ||
                 (code.length === 0)
             ) {
                 invalid.push(this);
@@ -497,6 +512,8 @@ $( document ).ready( function () {
                     name: name,
                     description: desc,
                     matchPattern: matchPattern,
+                    cookieDomain: cookieDomain,
+                    cookiePath: cookiePath,
                     opacConsent: opacConsent,
                     staffConsent: staffConsent,
                     code: btoa(code)
