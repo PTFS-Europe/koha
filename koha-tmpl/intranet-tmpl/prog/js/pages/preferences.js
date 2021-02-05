@@ -334,7 +334,38 @@ $( document ).ready( function () {
         const id = 'ConsentJS_' + idx;
         const code = item.code && item.code.length > 0 ? atob(item.code) : '';
         const itemId = item.id && item.id.length > 0 ? item.id : '';
-        return '<div id="' + id + '" class="consentJSItem" data-id="' + itemId + '"><div class="consentRow"><div class="consentItem"><label class="required" for="name_' + id + '">' + __('Name') + ':</label><input id="name_' + id + '" class="metaName" type="text" value="' + item.name + '"><span class="required">' + __('Required')  + '</span></div><div class="consentItem"><label class="required" for="description_' + id + '">' + __('Description') + ':</label><input id="description_' + id + '" class="metaDescription" type="text" value="' + item.description + '"><span class="required">' + __('Required') + '</span></div><div class="consentItem"><label for="opacConsent_' + id + '">' + __('Requires consent in OPAC') + ':</label>' + checkBox('opacConsent_' + id, 'opacConsent', item.opacConsent) + '</div><div class="consentItem"><label for="staffConsent_' + id + '">' + __('Requires consent in staff interface') + ':</label>' + checkBox('staffConsent_' + id, 'staffConsent', item.staffConsent) + '</div></div><div class="consentRow codeRow"><textarea style="display:none;" id="pref_' + id + '" class="preference preference-code codemirror" rows="10" cols="40">' + code + '</textarea><div><a id="expand_' + id + '" class="expand-textarea" data-target="' + id + '" data-syntax="javascript" href="#">' + __('Click to expand') + '</a><a id="collapse_' + id + '" class="collapse-textarea" data-target="' + id + '" data-syntax="javascript" href="#" style="display:none">' + __('Click to collapse') + '</a></div></div><a class="consentDelete" data-target="' + id + '" href="#">Delete</a></div>';
+        return '<div id="' + id + '" class="consentJSItem" data-id="' + itemId + '">' +
+               '    <div class="consentRow">' +
+               '        <div class="consentItem">' +
+               '            <label class="required" for="name_' + id + '">' + __('Name') + ':</label>' +
+               '            <input id="name_' + id + '" class="metaName" type="text" value="' + item.name + '"><span class="required">' + __('Required') + '</span>' +
+               '        </div >' +
+               '        <div class="consentItem">' +
+               '            <label class="required" for="description_' + id + '">' + __('Description') + ':</label>' +
+               '            <input id="description_' + id + '" class="metaDescription" type="text" value="' + item.description + '"><span class="required">' + __('Required') + '</span>' +
+               '        </div>' +
+               '        <div class="consentItem">' +
+               '            <label for="opacConsent_' + id + '">' + __('Requires consent in OPAC') + ':</label>' +
+                            checkBox('opacConsent_' + id, 'opacConsent', item.opacConsent) +
+               '        </div>' +
+               '        <div class="consentItem">' +
+               '            <label for="staffConsent_' + id + '">' + __('Requires consent in staff interface') + ':</label>' +
+                            checkBox('staffConsent_' + id, 'staffConsent', item.staffConsent) +
+               '        </div >' +
+               '        <div class="consentItem">' +
+               '            <label for="matchPattern_' + id + '">' + __('String used to identify cookie name') + ':</label>' +
+               '            <input id="matchPattern_' + id + '" class="metaMatchPattern" type="text" value="' + item.matchPattern + '"><span class="required">' + __('Required') + '</span>' +
+               '        </div >' +
+               '    </div >' +
+               '    <div class="consentRow codeRow">' +
+               '        <textarea style="display:none;" id="pref_' + id + '" class="preference preference-code codemirror" rows="10" cols="40">' + code + '</textarea>' +
+               '        <div>' +
+               '            <a id="expand_' + id + '" class="expand-textarea" data-target="' + id + '" data-syntax="javascript" href="#">' + __('Click to expand') + '</a>' +
+               '            <a id="collapse_' + id + '" class="collapse-textarea" data-target="' + id + '" data-syntax="javascript" href="#" style="display:none">' + __('Click to collapse') + '</a>' +
+               '        </div >' +
+               '    </div>' +
+               '    <a class="consentDelete" data-target="' + id + '" href="#">Delete</a>' +
+               '</div > ';
     }
 
     // Return the markup for all consentJS items concatenated
@@ -354,6 +385,7 @@ $( document ).ready( function () {
         return {
             name: '',
             description: '',
+            matchPattern: '',
             code: '',
             consentInOpac: false,
             consentInStaff: false
@@ -431,18 +463,25 @@ $( document ).ready( function () {
                 '_' + Math.random().toString(36).substr(2, 9);
             const name = $(this).find('.metaName').val();
             const desc = $(this).find('.metaDescription').val();
+            const matchPattern = $(this).find('.metaMatchPattern').val();
             const opacConsent = $(this).find('.opacConsent').is(':checked')
             const staffConsent = $(this).find('.staffConsent').is(':checked');
             const code = $(this).find('.preference-code').val();
-            // If the name, description and code are empty, then they've
+            // If the name, description, match pattern code are empty, then they've
             // added a new entry, but not filled it in, we can skip it
-            if (name.length === 0 && desc.length === 0 && code.length === 0) {
+            if (
+                name.length === 0 &&
+                desc.length === 0 &&
+                matchPattern.length === 0 &&
+                code.length === 0
+            ) {
                 return;
             }
             // They've filled in at least some info
             if (
                 (name.length === 0) ||
                 (desc.length === 0) ||
+                (matchPattern.length === 0) ||
                 (code.length === 0)
             ) {
                 invalid.push(this);
@@ -451,6 +490,7 @@ $( document ).ready( function () {
                     id: id,
                     name: name,
                     description: desc,
+                    matchPattern: matchPattern,
                     opacConsent: opacConsent,
                     staffConsent: staffConsent,
                     code: btoa(code)
