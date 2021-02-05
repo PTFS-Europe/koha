@@ -102,6 +102,21 @@
                 const code = atob($(this).data('consent-code'));
                 const func = Function(code);
                 func();
+            } else {
+                // This code doesn't have consent to run, we may need to remove
+                // any cookies it has previously set
+                const matchPattern = $(this).data('consent-match-pattern');
+                if (matchPattern.length > 0) {
+                    const regex = new RegExp(matchPattern);
+                    const allCookies = document.cookie.split('; ');
+                    allCookies.forEach(function (cookie) {
+                        const name = cookie.split('=')[0];
+                        if (regex.test(name)) {
+                            document.cookie = name + '=; expires=Thu, 01 Jan 1970 00: 00: 01 GMT';
+                        }
+                    });
+
+                }
             }
         });
     }
@@ -125,6 +140,7 @@
             e.preventDefault();
             localStorage.setItem('cookieConsent', []);
             hideContainer();
+            runConsentedCode();
         });
 
         // "Accept selected" handler
