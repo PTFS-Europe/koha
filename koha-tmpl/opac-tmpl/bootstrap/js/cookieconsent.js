@@ -128,7 +128,7 @@
                     allCookies.forEach(function (cookie) {
                         const name = cookie.split('=')[0];
                         if (regex.test(name)) {
-                            document.cookie = name + '=; expires=Thu, 01 Jan 1970 00: 00: 01 GMT; domain=' + cookieDomain + '; path=' + cookiePath;
+                            document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT; domain=' + cookieDomain +'; path=' + cookiePath;
                         }
                     });
                 }
