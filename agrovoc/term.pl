@@ -120,6 +120,9 @@ sub retrieve_concept {
         my $tmp_arr = [];   # cannot do this in place as we need to remove terms
                             # which lack a label in the interface language
         foreach my $tc ( @{ $concept_hash->{$arr_label} } ) {
+            if ($tc=~/^[A-Z]{3}$/) {
+                next;
+            }
             if ($tc!~/^\d+$/) {
                 push @{$tmp_arr},
                 {

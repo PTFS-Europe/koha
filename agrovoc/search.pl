@@ -75,6 +75,9 @@ sub call_simple_search {
             if ( !$language || !exists $langs{$language} ) {
                 next;
             }
+            if ($termcode =~m/^[A-Z]{3}$/) {
+                next;
+            }
             push @{$array_ref},
               {
                 termcode    => $termcode,
