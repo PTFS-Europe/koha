@@ -123,7 +123,7 @@ sub retrieve_concept {
             if ($tc=~/^[A-Z]{3}$/) {
                 next;
             }
-            if ($tc!~/^\d+$/) {
+            if ($tc!~/^[0-9abcdef]+$/) {
                 push @{$tmp_arr},
                 {
                     termcode => $tc,
