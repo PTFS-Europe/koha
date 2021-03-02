@@ -33,7 +33,7 @@ my $lang = $q->param('lang');
 $lang ||= 'en';
 
 my $concept = retrieve_concept( $q->param('termcode'), $lang );
-my $label = join ' -- ', @{ $concept->{labels} };
+my $label = shift  @{ $concept->{labels} };
 
 #$template->param(
 #    display_term_details => 1,
