@@ -5,14 +5,31 @@ use Data::Dumper;
 use JSON;
 use DBI;           # Connect to DB
 use DBD::mysql;    # Manipulate MySQL
+use MIME::Base64;
 
 use C4::Context;    # Koha Database Access
 
 my $DEBUG = 0;
 
+my %allowedIPs = (
+	"147.197.138.27" => "GLJ Server"
+);
+
+my $reqIP = $ENV{"REMOTE_ADDR"};
+
+if (! exists $allowedIPs{$reqIP}) {
+	print "Content-type: text/html\n\n";
+	print "Out of range\n";
+	exit;
+}
+
 my $q = new CGI;
 my $userBarcode = $q->param('barcode');
 chomp($userBarcode);
+
+if ($userBarcode !~ /^044/) {
+	$userBarcode = decode_base64($userBarcode);
+}
 
 my $data = &getData($userBarcode);
 # print Dumper($data);
