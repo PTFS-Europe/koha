@@ -238,7 +238,7 @@ sub getNewILLRequests {
 	#my $SQL = "select ir.id, ir.borrowernumber, b.email, ir.reqtype from ill_requests ir, borrowers b where ir.status = 'NEW' and ir.borrowernumber = b.borrowernumber";
 	#my $SQL = "select ir.illrequest_id, ir.borrowernumber, b.email, ir.medium from illrequests ir, borrowers b where ir.status = 'NEW' and ir.backend = 'FreeForm' and ir.borrowernumber = b.borrowernumber";
 	#my $SQL = "select ir.illrequest_id, ir.borrowernumber, b.email, ir.medium from illrequests ir, borrowers b where ((ir.status = 'NEW' and ir.status_alias is NULL) or (ir.status = 'REQ' and ir.status_alias = '465')) and ir.borrowernumber = b.borrowernumber";
-	my $SQL = "select ir.illrequest_id, ir.borrowernumber, b.email, ir.medium from illrequests ir, borrowers b where ((ir.status = 'NEW' and ir.status_alias is NULL) or (ir.status = 'REQ' and ir.status_alias = '465') or (ir.status = 'NEW' and ir.status_alias = '465')) and ir.borrowernumber = b.borrowernumber";
+	my $SQL = "select ir.illrequest_id, ir.borrowernumber, b.email, ir.medium from illrequests ir, borrowers b where ((ir.status = 'NEW' and ir.status_alias is NULL) or (ir.status = 'REQ' and ir.status_alias = 'NEW') or (ir.status = 'NEW' and ir.status_alias = 'NEW')) and ir.borrowernumber = b.borrowernumber";
 	
 	$sth = $dbh->prepare($SQL)
 		or warn "getNewILLRequests sub: Can't prepare query: $dbh->errstr\n";
@@ -736,6 +736,8 @@ sub updateStatus($) {
 	my $ID = $_[0];
         my $request = Koha::Illrequests->find($ID);
         $request->status("REQ");
-        $request->status_alias("471");
+	#$request->status_alias("471");
+	$request->status_alias("ARTEREQ");
         $request->store;
+	$htmlBody .= $ID . " has been updated to REQ and status alias to ARTEMAIL<br>\n";
 }
