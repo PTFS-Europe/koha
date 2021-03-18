@@ -46,6 +46,7 @@ $filename =~ s/-full-/-updates-/;
 
 write_file($filename);
 
+#uncomment
 transfer_file($filename);
 
 $filename =~ s/-updates-/-deletes-/;
@@ -53,6 +54,7 @@ $filename =~ s/\.mrc$/\.txt/;
 
 write_file($filename);
 
+# uncomment
 transfer_file($filename);
 
 sub write_file {
@@ -188,7 +190,7 @@ sub transfer_file {
     my $username  = q(herts-catalog);
     my $password  = q(96PeL5hEmc);
 
-    my $ftp = Net::FTP->new( $remote, Debug => 0 )
+    my $ftp = Net::FTP->new( $remote, Debug => 1, Passive => 1 )
       or croak "Cannot connect to smartsm: $@";
 
     $ftp->login( $username, $password )
@@ -218,7 +220,7 @@ sub sendEmail($) {
 	my $message = $_[0];
 	my $m = encode('utf8',$message);
 	my $email = 's.graham4@herts.ac.uk books@herts.ac.uk';
-	#my $email = 's.graham4@herts.ac.uk';
+	# my $email = 's.graham4@herts.ac.uk';
 	my $subject = "Koha records sent to Summon";
 	
 	my %mail    = (

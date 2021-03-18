@@ -33,7 +33,7 @@ sub parseData($) {
 	my @loans;
 
 	foreach my $rec (@$data) {
-		my ($bibID,$onHold,$numberOfRenewals,$title,$overdue,$returnDate) = @$rec;
+		my ($bibID,$onHold,$numberOfRenewals,$title,$overdue,$returnDate,$maxRenewals) = @$rec;
 
 		if ($onHold > 0) {
 			$onHold = 1;
@@ -45,6 +45,7 @@ sub parseData($) {
 		$hashRef{"overdue"} = $overdue;
 		$hashRef{"totalrenewals"} = $numberOfRenewals;
 		$hashRef{"hold"} = $onHold;
+		$hashRef{"maxRenewals"} = $maxRenewals;
 		push @loans, { %hashRef };
 		%hashRef = ();
 	}
@@ -68,17 +69,32 @@ sub getData($) {
     my $query;
     my $sth;
 
+	#my $SQL = "select bi.biblionumber,
+	#			(select count(*) from reserves r where r.biblionumber = bi.biblionumber),
+	#			i.renewals,
+	#			SUBSTRING_INDEX(ExtractValue(bm.metadata,'//datafield[\@tag=\"245\"]/subfield[\@code>=\"a\"]'),'/','1'),
+	#			if (curdate() > i.date_due,1,0),
+	#			date(i.date_due)
+	#			from issues i, biblioitems bi, items it, biblio_metadata bm
+	#			where i.borrowernumber = (select borrowernumber from borrowers where (cardnumber = '". $barcode . "' or userid = '". $barcode . "')) 
+	#			and i.itemnumber = it.itemnumber
+	#			and bm.biblionumber = bi.biblionumber
+	#			and it.biblioitemnumber = bi.biblioitemnumber
+	#";
+
 	my $SQL = "select bi.biblionumber,
-				(select count(*) from reserves r where r.biblionumber = bi.biblionumber),
-				i.renewals,
-				SUBSTRING_INDEX(ExtractValue(bm.metadata,'//datafield[\@tag=\"245\"]/subfield[\@code>=\"a\"]'),'/','1'),
-				if (curdate() > i.date_due,1,0),
-				date(i.date_due)
-				from issues i, biblioitems bi, items it, biblio_metadata bm
-				where i.borrowernumber = (select borrowernumber from borrowers where (cardnumber = '". $barcode . "' or userid = '". $barcode . "')) 
-				and i.itemnumber = it.itemnumber
-				and bm.biblionumber = bi.biblionumber
-				and it.biblioitemnumber = bi.biblioitemnumber
+       			(select count(*) from reserves r where r.biblionumber = bi.biblionumber),
+       			i.renewals,
+			SUBSTRING_INDEX(ExtractValue(bm.metadata,'//datafield[\@tag=\"245\"]/subfield[\@code>=\"a\"]'),'/','1'),
+       			if (curdate() > i.date_due,1,0),
+       			date(i.date_due),
+       			if(b.categorycode = 'UHSTU','20','52') maxRenewals
+			from issues i, biblioitems bi, items it, biblio_metadata bm, borrowers b
+			where i.borrowernumber = b.borrowernumber
+			and (cardnumber = '". $barcode . "' or userid = '". $barcode . "') 
+			and i.itemnumber = it.itemnumber
+			and bm.biblionumber = bi.biblionumber
+			and it.biblioitemnumber = bi.biblioitemnumber
 	";
 
 	# print "checkHolds sub: The SQL is $SQL";

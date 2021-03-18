@@ -101,6 +101,7 @@ binmode(STDOUT);
 
 my $type = $input->param('type') || 'Code39';
 my $barcode = $input->param('barcode');
+$barcode = uc($barcode);
 my $notext = $input->param('notext') ? 1 : 0;
 my $height = $input->param('height') || 50;
 my $qrcode_modulesize = $input->param('modulesize') || "5"; # 1+

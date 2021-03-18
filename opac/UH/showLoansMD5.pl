@@ -6,34 +6,52 @@ use JSON;
 use DBI;           # Connect to DB
 use DBD::mysql;    # Manipulate MySQL
 use MIME::Base64;
+use Digest::HMAC_MD5;;
 
 use C4::Context;    # Koha Database Access
 
 my $DEBUG = 0;
 
+my $secret = "It was the best of times, it was the worst of times, it was the age of wisdom, it was the age of foolishness, it was the epoch of belief, it was the epoch of incredulity, it was the season of Light, it was the season of Darkness, it was the spring of hope, it was the winter of despair. JON AND STEPHEN";
+
 my %allowedIPs = (
-	"147.197.138.27" => "GLJ Server"
+	"147.197.138.27" => "GLJ Server",
+	"147.197.100.215" => "VPN 1",
+	"147.197.100.216" => "VPN 2",
+	"147.197.100.217" => "VPN 3",
+	"147.197.100.218" => "VPN 4"
 );
 
 my $reqIP = $ENV{"REMOTE_ADDR"};
 
-if (! exists $allowedIPs{$reqIP}) {
-	print "Content-type: text/html\n\n";
-	print "Out of range\n";
-	exit;
-}
+#if (! exists $allowedIPs{$reqIP}) {
+#	print "Content-type: text/html\n\n";
+#	print "$reqIP - Out of range\n";
+#	exit;
+#}
 
 my $q = new CGI;
 my $userBarcode = $q->param('barcode');
+my $hashValue = $q->param('hash');
 chomp($userBarcode);
+chomp($hashValue);
 
-if ($userBarcode !~ /^044/) {
-	$userBarcode = decode_base64($userBarcode);
+my $hmac = Digest::HMAC_MD5->new($secret);
+$hmac->add($userBarcode); 
+my $digest = $hmac->hexdigest;
+
+my $json = "[]";;
+
+if ($digest ne $hashValue) {
+	
+	$json = "[{\"totalrenewals\":9999,\"overdue\":9999,\"biblionumber\":9999,\"maxRenewals\":\"9999\",\"hold\":9999,\"title\":\"The 9999 Book\",\"datedue\":\"9999-99-99\"}]";
+	
+} else {
+
+	my $data = &getData($userBarcode);
+	# print Dumper($data);
+	$json = &parseData($data);
 }
-
-my $data = &getData($userBarcode);
-# print Dumper($data);
-my $json = &parseData($data);
 
 print $q->header(
 	-type => 'application/json'
