@@ -122,7 +122,7 @@ sub transfer_file {
     my $username  = q(herts-catalog);
     my $password  = q(96PeL5hEmcX);
 
-    my $ftp = Net::FTP->new( $remote, Debug => 0 )
+    my $ftp = Net::FTP->new( $remote, Debug => 0, Passive => 1 )
       or croak "Cannot connect to smartsm: $@";
 
     $ftp->login( $username, $password )
