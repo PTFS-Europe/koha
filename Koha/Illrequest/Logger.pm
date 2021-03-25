@@ -24,7 +24,7 @@ use Time::Local;
 use C4::Koha;
 use C4::Context;
 use C4::Templates;
-use C4::Log qw( logaction );
+use C4::Log;
 use Koha::ActionLogs;
 use Koha::Notice::Template;
 use Koha::Patron;
@@ -231,7 +231,7 @@ sub log_something {
         defined $to_log->{infos} &&
         C4::Context->preference("IllLog")
     ) {
-        logaction(
+        C4::Log::logaction(
             $to_log->{modulename},
             $to_log->{actionname},
             $to_log->{objectnumber},
