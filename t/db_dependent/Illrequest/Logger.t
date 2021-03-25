@@ -1,4 +1,3 @@
-
 #!/usr/bin/perl
 
 # This file is part of Koha.
@@ -74,7 +73,7 @@ subtest 'Basics' => sub {
         'logaction() being called when data is incomplete');
 
     # Fix the data hashref, then test that logging occurs
-    $log_obj->{objectnumber} = 'objectnumber';
+    $log_obj->{objectnumber} = 123;
     is($logger->log_something($log_obj), 1,
         'logaction() being called when pref is set and data is complete');
 
@@ -99,8 +98,7 @@ subtest 'Basics' => sub {
     my $categorycode = $builder->build({ source => 'Category' })->{categorycode};
     my $branchcode = $builder->build({ source => 'Branch' })->{branchcode};
     my $illrq = $builder->build_object({
-        class => 'Koha::Illrequests',
-        value => { borrowernumber => 123 }
+        class => 'Koha::Illrequests'
     });
     my $config = Test::MockObject->new;
     $config->set_always('partner_code', $categorycode);
