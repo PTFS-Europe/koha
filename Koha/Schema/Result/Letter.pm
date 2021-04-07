@@ -23,6 +23,14 @@ __PACKAGE__->table("letter");
 
 =head1 ACCESSORS
 
+=head2 id
+
+  data_type: 'integer'
+  is_auto_increment: 1
+  is_nullable: 0
+
+primary key identifier
+
 =head2 module
 
   data_type: 'varchar'
@@ -94,6 +102,8 @@ __PACKAGE__->table("letter");
 =cut
 
 __PACKAGE__->add_columns(
+  "id",
+  { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
   "module",
   { data_type => "varchar", default_value => "", is_nullable => 0, size => 20 },
   "code",
@@ -136,6 +146,20 @@ __PACKAGE__->add_columns(
 
 =over 4
 
+=item * L</id>
+
+=back
+
+=cut
+
+__PACKAGE__->set_primary_key("id");
+
+=head1 UNIQUE CONSTRAINTS
+
+=head2 C<letter_uniq_1>
+
+=over 4
+
 =item * L</module>
 
 =item * L</code>
@@ -150,7 +174,10 @@ __PACKAGE__->add_columns(
 
 =cut
 
-__PACKAGE__->set_primary_key("module", "code", "branchcode", "message_transport_type", "lang");
+__PACKAGE__->add_unique_constraint(
+  "letter_uniq_1",
+  ["module", "code", "branchcode", "message_transport_type", "lang"],
+);
 
 =head1 RELATIONS
 
