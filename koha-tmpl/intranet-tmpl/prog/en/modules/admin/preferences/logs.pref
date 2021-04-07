@@ -90,6 +90,12 @@ Logging:
                   on: Log
                   off: "Don't log"
             - " successful authentications."
+        -
+            - pref: NoticesLog
+              choices:
+                  on: Log
+                  off: "Don't log"
+            - " changes to notice templates."
 
     Debugging:
         -

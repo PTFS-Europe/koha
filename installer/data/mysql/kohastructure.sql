@@ -2755,6 +2755,32 @@ CREATE TABLE `account_debit_types_branches` (
     FOREIGN KEY (`debit_type_code`) REFERENCES `account_debit_types` (`code`) ON DELETE CASCADE,
     FOREIGN KEY (`branchcode`) REFERENCES `branches` (`branchcode`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `letter`
+--
+
+DROP TABLE IF EXISTS `letter`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `letter` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'primary key identifier',
+  `module` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT 'Koha module that triggers this notice or slip',
+  `code` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT 'unique identifier for this notice or slip',
+  `branchcode` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT 'the branch this notice or slip is used at (branches.branchcode)',
+  `name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT 'plain text name for this notice or slip',
+  `is_html` tinyint(1) DEFAULT 0 COMMENT 'does this notice or slip use HTML (1 for yes, 0 for no)',
+  `title` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT 'subject line of the notice',
+  `content` mediumtext COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'body text for the notice or slip',
+  `message_transport_type` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'email' COMMENT 'transport type for this notice',
+  `lang` varchar(25) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'default' COMMENT 'lang of the notice',
+  `updated_on` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT 'last modification',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `letter_uniq_1` (`module`,`code`,`branchcode`,`message_transport_type`,`lang`),
+  KEY `message_transport_type_fk` (`message_transport_type`),
+  CONSTRAINT `message_transport_type_fk` FOREIGN KEY (`message_transport_type`) REFERENCES `message_transport_types` (`message_transport_type`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Table structure for table `accountlines`
