@@ -32,6 +32,7 @@ date >> ${LOGFILE}
 
 sleep 1m
 
+# C19 - sg13abk
 echo 'Sending emails starting at....' >> ${LOGFILE}
 date >> ${LOGFILE}
 $KOHA_CRON_PATH/process_message_queue.pl >> ${LOGFILE}
@@ -47,3 +48,4 @@ echo 'Fines finishing at....' >> ${LOGFILE}
 date >> ${LOGFILE}
 
 mail -s "Koha Cronjob Report" s.graham4@herts.ac.uk d.m.peacock@herts.ac.uk < ${LOGFILE}
+
