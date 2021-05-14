@@ -1014,13 +1014,61 @@
                             [% ELSE %]
                                 <fieldset class="action">
                                     <input type="hidden" name="action" value="create" />
-                                    <input type="submit" class="btn btn-primary" value="Submit" />
+                                    <input type="submit" class="btn" value="Submit" onclick="check_slhl();return false;" />
                                 </fieldset>
                             [% END %]
                         </div> <!-- /.col -->
                     </div> <!-- /.row -->
 
                 </form>
+
+<div id="dialog-confirm" title="Stenhouse Library regulations" style="font-size:0.7em">
+  
+  <p><strong>Library Membership</strong></p>
+  <ol>
+    <li>Membership of the library is open to all staff employed by or students on placement with Kingston Hospital NHS Foundation Trust.</li>
+    <li>Other persons with legitimate interest in health services may be allowed access to the library and library services. Persons wishing to use these facilities may become associate members on payment of a fee (ie private membership). Enquiries regarding private membership should be addressed to the Library Manager</li>
+    <li>All readers are required to register with the library before using library facilities.</li>
+    <li>All readers must update the library on changes to contact details or employment.</li>
+  </ol>
+  <p><strong>Loans</strong></p>
+  <ol>
+    <li>ID badges must be presented when borrowing books. This must be in the same names as your library record. A user barcode is required to us the self-service system</li>
+    <li>Items borrowed from the library remain your responsibility whilst on loan and should not be borrowed on behalf of another user.</li>
+    <li>All items must be issued by the Library Staff, or through self-service using the library loans system.</li>
+    <li>During unstaffed hours books must be issued through the self-service system or if there is a problem, using the forms provided.</li>
+    <li>Up to five books may be borrowed. Books may be borrowed either for a period of 3 weeks and may be renewed twice, or for 7 days and these may only be renewed once</li>
+    <li>Students and staff on undergraduate courses may borrow books for a maximum period of 2 weeks</li>
+    <li>If books are required by another reader, the books cannot be renewed and should be returned to the library by the due date.</li>
+    <li>Borrowers must bring books to the Library to be renewed if they are 7 or more days overdue</li>
+    <li>Borrowing rights will be suspended if the user has books 7 or more days overdue. A donation must be made before borrowing rights will be restored.</li>
+    <li>Current issues of journals and some textbooks marked reference may not be borrowed. Overnight and short loans are at the librarians’ discretion.</li>
+    <li>Library material which is not returned when recalled will be considered lost or stolen and the user will be charged the replacement price and administration charge or asked to provide a replacement themselves.</li>
+    <li>Library material must not be mutilated or defaced in any way and if found to be so the user will be charged the replacement price and administration charge or asked to provide a replacement themselves.</li>
+  </ol>
+  <p><strong>Use of IM&amp;T Facilities</strong></p>
+  <ol>
+    <li>Users are expected to abide by all Trust IM&T guidelines and policies relating to the use of computers and other IT equipment, information governance, and confidentiality.</li>
+    <li>It is the responsibility of all staff and students within the Trust to ensure that computer systems and the data which is accessed through them are safe and secure. This includes locking PCs and removing SmartCards when away from them.</li>
+    <li>Any SmartCards found unattended will be removed and may be returned to Information Governance.</li>
+    <li>Staff who are authorised to use the e–mail system have additional responsibilities relating to security, confidentiality and appropriate use.</li>
+    <li>Users are expected to ensure that any print documents containing person identifiable information is not left unattended. Any person identifiable information found unattended will be removed and will be reported as an incident to Information Governance.</li>
+  </ol>
+  <p><strong>Other</strong></p>
+  <ol>
+    <li>Food must not be consumed in the library.</li>
+    <li>24 hour access is available to all members using the swipe card access. </li>
+    <li>Cards can be borrowed from the library for 7 days </li>
+    <li>Cards must not be returned to the book return boxes</li>
+    <li>Users are expected to treat the facilities and other users in line with the Trusts values.</li>
+  </ol>
+  <p><strong>Privacy/data protection statement</strong></p>
+  <p>Your personal data and records of library use may be shared with library staff in accordance with the General Data Protection Regulation 2018 (GDPR). Your information may be accessible to library staff at other NHS and partner organisations within the South London shared library management consortium to enable loans of other libraries’ materials and the supply of other requested items e.g. journal articles. Stenhou
+se Library will only use your contact details in relation to direct library business including book loans, document delivery, training activities and events, electronic resources, library access and user satisfaction. Your data will not be shared with any third party.</p>
+  <p><strong>Agreement</strong></p>
+  <p>I understand that I am responsible for any item borrowed by me and I agree that replacement costs and administration charges may be payable and that library facilities may be withdrawn from users who do not conform to the library regulations.</p>
+  <p>I have read the rules and regulations governing the use of the library and I agree to abide by them. I consent to contact from the library in relation to my membership and the services provided by the library.</p>
+</div>
 
                     </div><!--/div#update-account -->
                 </div>
@@ -1077,7 +1125,7 @@
                     }
                     else {
                         form.beenSubmitted = true;
-                        form.submit();
+                        document.getElementById('memberentry-form').submit();
                     }
                 }
             });
@@ -1174,12 +1222,41 @@
 
                 return false;
             } );
+
+            $( "#dialog-confirm" ).dialog({
+                resizable: false,
+                height: "auto",
+                width: "80%",
+                modal: true,
+                autoOpen: false,
+                buttons: {
+                    "Agree": function() {
+                        $('#memberentry-form').append('<input type="hidden" id="confirmed" name="confirmed" value="true" />');
+                        document.getElementById('memberentry-form').submit();
+                    },
+                   Cancel: function() {
+                        $( this ).dialog( "close" );
+                    }
+                }
+            });
+
         });
 
     $(".cleardate").on("click", function(){
         $('#borrower_dateofbirth').val('');
         return false;
     });
+
+    function check_slhl() {
+        console.log('check');
+       if ($("#memberentry_library select#borrower_branchcode").val()=='STEN') {
+               console.log('STEN');
+               $( "#dialog-confirm" ).dialog('open');
+       } else {
+               console.log($("#memberentry_library select#borrower_branchcode").val());
+               document.getElementById('memberentry-form').submit();
+       }
+    }
 
     [% IF action != 'edit' and Koha.Preference('PatronSelfRegistrationConfirmEmail') %]
         $("#borrower_email").bind("cut copy paste", function(e){
