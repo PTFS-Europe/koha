@@ -241,7 +241,7 @@ function addTerms2Rec(index, terms)
 {
     var idx = index;
     for(var i = 0; i < terms.length; ) {
-        idx = cloneField(idx);
+        idx = CloneField(idx);
         addTermWorker(idx,terms[i]);
        i++;
     }
@@ -291,32 +291,113 @@ function addTermWorker(index, termArr) {
     }
 }
 
-function createKey() {
-    return parseInt(Math.random() * 100000);
-}
+// Copy functions from Koha cataloging.js.. not sure why we don't just load that and reference them here.. but..
+var current_select2;
+var Select2Utils = {
+    removeSelect2: function(selects) {
+        if ($.fn.select2) {
+            $(selects).each(function(){
+                $(this).select2('destroy');
+            });
+        }
+    },
 
-function cloneField(index) {
-    var original = opener.document.getElementById(index); //original <div>
-    var fields = original.getElementsByClassName('input_marceditor');
-    var tag_used = 0;
-    for ( var f=0; f < fields.length; f++) {
-        if (fields[f].value != "") {
-            tag_used = 1;
+    initSelect2: function(selects) {
+        if ($.fn.select2) {
+            if ( window.CAN_user_parameters_manage_auth_values === undefined || ! CAN_user_parameters_manage_auth_values ) {
+                $(selects).select2().on("select2:clear", function () {
+                    $(this).on("select2:opening.cancelOpen", function (evt) {
+                        evt.preventDefault();
+                        $(this).off("select2:opening.cancelOpen");
+                    });
+                });
+            } else {
+                $(selects).each(function(){
+                    if ( !$(this).data("category") ) {
+                        $(this).select2().on("select2:clear", function () {
+                            $(this).on("select2:opening.cancelOpen", function (evt) {
+                                evt.preventDefault();
+                                $(this).off("select2:opening.cancelOpen");
+                            });
+                        });
+                    } else {
+                        $(this).select2({
+                            tags: true,
+                            createTag: function (tag) {
+                                return {
+                                    id: tag.term,
+                                    text: tag.term,
+                                    newTag: true
+                                };
+                            },
+                            templateResult: function(state) {
+                                if (state.newTag) {
+                                    return state.text + " " + __("(select to create)");
+                                }
+                                return state.text;
+                            }
+                        }).on("select2:select", function(e) {
+                            if(e.params.data.newTag){
+                                current_select2 = this;
+                                var category = $(this).data("category");
+                                $("#avCreate #new_av_category").html(category);
+                                $("#avCreate input[name='category']").val(category);
+                                $("#avCreate input[name='value']").val('');
+                                $("#avCreate input[name='description']").val(e.params.data.text);
+
+                                $(this).val($(this).find("option:first").val()).trigger('change');
+                                $('#avCreate').modal({show:true});
+                            }
+                        }).on("select2:clear", function () {
+                            $(this).on("select2:opening.cancelOpen", function (evt) {
+                                evt.preventDefault();
+
+                                $(this).off("select2:opening.cancelOpen");
+                            });
+                        });
+                    }
+                });
+            }
         }
     }
-    if (tag_used != 1) {
-        return index; // empty clone not required
-    }
+};
 
-    //opener.document.fields_in_use[index.substr(0, 7)]++; //Horrible global
+function AddEventHandlers (oldcontrol, newcontrol, newinputid ) {
+// This function is a helper for CloneField and CloneSubfield.
+// It adds the event handlers from oldcontrol to newcontrol.
+// newinputid is the id attribute of the cloned controlling input field
+// Note: This code depends on the jQuery data for events; this structure
+// is moved to _data as of jQuery 1.8.
+    var ev= $(oldcontrol).data('events');
+    if(typeof ev != 'undefined') {
+        $.each(ev, function(prop,val) {
+            $.each(val, function(prop2,val2) {
+                $(newcontrol).off( val2.type );
+                $(newcontrol).on( val2.type, {id: newinputid}, val2.handler );
+            });
+        });
+    }
+}
+
+function CreateKey() {
+    return parseInt(Math.random() * 100000);
+}
+// END Copy functions from Koha cataloging.js.. not sure why we don't just load that and reference them here.. but..
+
+// Minor modified CloneField from Koha cataloging.js - Updates target to use 'opener' to refer to original window
+function CloneField(index) {
+    var original = opener.document.getElementById(index); //original <li>
+    Select2Utils.removeSelect2($(original).find('select'));
+
     var clone = original.cloneNode(true);
-    var new_key = createKey();
+    var new_key = CreateKey();
     var new_id  = original.getAttribute('id')+new_key;
 
-    clone.setAttribute('id',new_id); // setting a new id for the parent div
+    clone.setAttribute('id',new_id); // setting a new id for the parent li
 
-    var divs = clone.getElementsByTagName('div');
+    var divs = Array.from(clone.getElementsByTagName('li')).concat(Array.from(clone.getElementsByTagName('div')));
 
+    // if hide_marc, indicators are hidden fields
     // setting a new name for the new indicator
     for(var i=0; i < 2; i++) {
         var indicator = clone.getElementsByTagName('input')[i];
@@ -324,61 +405,72 @@ function cloneField(index) {
     }
 
     // settings all subfields
-    for(var i=0,divslen = divs.length ; i<divslen ; i++){      // foreach div
-        if(divs[i].getAttribute("class").match(/^subfield_line/) && divs[i].getAttribute("id").match(/^subfield/)){  // if it s a subfield
+    var divslen = divs.length;
+    for( i=0; i < divslen ; i++ ){      // foreach div/li
+        if( divs[i].getAttribute("id") && divs[i].getAttribute("id").match(/^subfield/)){  // if it s a subfield
 
-            // set the attribute for the new 'div' subfields
+            // set the attribute for the new 'li' subfields
             divs[i].setAttribute('id',divs[i].getAttribute('id')+new_key);
 
             var inputs   = divs[i].getElementsByTagName('input');
             var id_input = "";
+            var olddiv;
+            var oldcontrol;
 
             for( j = 0 ; j < inputs.length ; j++ ) {
                 if(inputs[j].getAttribute("id") && inputs[j].getAttribute("id").match(/^tag_/) ){
                     inputs[j].value = "";
                 }
             }
-
-            inputs[0].setAttribute('id',inputs[0].getAttribute('id')+new_key);
-            inputs[0].setAttribute('name',inputs[0].getAttribute('name')+new_key);
-            var id_input;
-            try {
-                id_input = inputs[1].getAttribute('id')+new_key;
-                inputs[1].setAttribute('id',id_input);
-                inputs[1].setAttribute('name',inputs[1].getAttribute('name')+new_key);
-            } catch(e) {
-                try{
-                    // it s a select if it is not an input
-                    var selects = divs[i].getElementsByTagName('select');
-                    id_input = selects[0].getAttribute('id')+new_key;
-                    selects[0].setAttribute('id',id_input);
-                    selects[0].setAttribute('name',selects[0].getAttribute('name')+new_key);
-                }catch(e2){ // it is a textarea if it s not a select or an input
-                    var textaeras = divs[i].getElementsByTagName('textarea');
-                    id_input = textaeras[0].getAttribute('id')+new_key;
-                    textaeras[0].setAttribute('id',id_input);
-                    textaeras[0].setAttribute('name',textaeras[0].getAttribute('name')+new_key);
+            var textareas = divs[i].getElementsByTagName('textarea');
+            for( j = 0 ; j < textareas.length ; j++ ) {
+                if(textareas[j].getAttribute("id") && textareas[j].getAttribute("id").match(/^tag_/) ){
+                    textareas[j].value = "";
                 }
             }
+            if( inputs.length > 0 ){
+                inputs[0].setAttribute('id',inputs[0].getAttribute('id')+new_key);
+                inputs[0].setAttribute('name',inputs[0].getAttribute('name')+new_key);
 
+                try {
+                    id_input = inputs[1].getAttribute('id')+new_key;
+                    inputs[1].setAttribute('id',id_input);
+                    inputs[1].setAttribute('name',inputs[1].getAttribute('name')+new_key);
+                } catch(e) {
+                    try{ // it s a select if it is not an input
+                        var selects = divs[i].getElementsByTagName('select');
+                        id_input = selects[0].getAttribute('id')+new_key;
+                        selects[0].setAttribute('id',id_input);
+                        selects[0].setAttribute('name',selects[0].getAttribute('name')+new_key);
+                    }catch(e2){ // it is a textarea if it s not a select or an input
+                        var textareas = divs[i].getElementsByTagName('textarea');
+                        if( textareas.length > 0 ){
+                            id_input = textareas[0].getAttribute('id')+new_key;
+                            textareas[0].setAttribute('id',id_input);
+                            textareas[0].setAttribute('name',textareas[0].getAttribute('name')+new_key);
+                        }
+                    }
+                }
+                if( $(inputs[1]).hasClass('framework_plugin') ) {
+                    olddiv= original.getElementsByTagName('li')[i];
+                    oldcontrol= olddiv.getElementsByTagName('input')[1];
+                    AddEventHandlers( oldcontrol,inputs[1],id_input );
+                }
+            }
             // when cloning a subfield, re set its label too.
             var labels = divs[i].getElementsByTagName('label');
-            labels[0].setAttribute('for',id_input);
-
-            // updating javascript parameters on button up
-            var imgs = divs[i].getElementsByTagName('img');
-            imgs[0].setAttribute('onclick',"upSubfield(\'"+divs[i].getAttribute('id')+"\');");
+            labels[0].setAttribute('for', id_input);
 
             // setting its '+' and '-' buttons
             try {
                 var anchors = divs[i].getElementsByTagName('a');
                 for (var j = 0; j < anchors.length; j++) {
                     if(anchors[j].getAttribute('class') == 'buttonPlus'){
-                        anchors[j].setAttribute('onclick',"CloneSubfield('" + divs[i].getAttribute('id') + "')");
+                        anchors[j].setAttribute('onclick',"CloneSubfield('" + divs[i].getAttribute('id') + "','" + advancedMARCEditor + "'); return false;");
                     } else if (anchors[j].getAttribute('class') == 'buttonMinus') {
-                        anchors[j].setAttribute('onclick',"UnCloneField('" + divs[i].getAttribute('id') + "')");
+                        anchors[j].setAttribute('onclick',"UnCloneField('" + divs[i].getAttribute('id') + "'); return false;");
                     } else if (anchors[j].getAttribute('class') == 'buttonDot') {
-                        anchors[j].setAttribute('onclick',"openAgrovoc('" + divs[i].getAttribute('id') + "')");
+                        anchors[j].setAttribute('onclick',"openAgrovoc('" + divs[i].getAttribute('id') + "'); return false;");
                     }
                 }
             }
@@ -400,25 +492,10 @@ function cloneField(index) {
                     if(buttonDot){
                         // 2 possibilities :
                         try{
-                            var buttonDotOnClick = buttonDot.getAttribute('onclick');
-                            if(buttonDotOnClick.match('Clictag')){   // -1- It s a plugin
-                                var re = /\('.*'\)/i;
-                                buttonDotOnClick = buttonDotOnClick.replace(re,"('"+inputs[1].getAttribute('id')+"')");
-                                if(buttonDotOnClick){
-                                    buttonDot.setAttribute('onclick',buttonDotOnClick);
-                                }
-                            } else {
-                                if(buttonDotOnClick.match('Dopop')) {  // -2- It's a auth value
-                                    var re1 = /&index=.*',/;
-                                    var re2 = /,.*\)/;
-
-                                    buttonDotOnClick = buttonDotOnClick.replace(re1,"&index="+inputs[1].getAttribute('id')+"',");
-                                    buttonDotOnClick = buttonDotOnClick.replace(re2,",'"+inputs[1].getAttribute('id')+"')");
-
-                                    if(buttonDotOnClick){
-                                        buttonDot.setAttribute('onclick',buttonDotOnClick);
-                                    }
-                                }
+                            if( $(buttonDot).hasClass('framework_plugin') ) {
+                                olddiv= original.getElementsByTagName('li')[i];
+                                oldcontrol= olddiv.getElementsByTagName('a')[0];
+                                AddEventHandlers(oldcontrol,buttonDot,id_input);
                             }
                             try {
                                 // do not copy the script section.
@@ -427,44 +504,54 @@ function cloneField(index) {
                             } catch(e) {
                                 // do nothing if there is no script
                             }
-                        }catch(e){}
+                        } catch(e){
+                            //
+                        }
                     }
                 }
             }
-            var buttonUp = divs[i].getElementsByTagName('img')[0];
-            buttonUp.setAttribute('onclick',"upSubfield('" + divs[i].getAttribute('id') + "')");
 
         } else { // it's a indicator div
-            if(divs[i].getAttribute("class").match(/^tag_title/) && divs[i].getAttribute('id').match(/^div_indicator/)){
-                var inputs = divs[i].getElementsByTagName('input');
+            if ( divs[i].getAttribute("id") && divs[i].getAttribute('id').match(/^div_indicator/)) {
+
+                // setting a new id for the indicator div
+                divs[i].setAttribute('id',divs[i].getAttribute('id')+new_key);
+
+                inputs = divs[i].getElementsByTagName('input');
                 inputs[0].setAttribute('id',inputs[0].getAttribute('id')+new_key);
                 inputs[1].setAttribute('id',inputs[1].getAttribute('id')+new_key);
 
+                var CloneButtonPlus;
+                try {
+                    anchors = divs[i].getElementsByTagName('a');
+                    for ( j = 0; j < anchors.length; j++) {
+                        if (anchors[j].getAttribute('class') == 'buttonPlus') {
+                            anchors[j].setAttribute('onclick',"CloneField('" + new_id + "','" + hideMarc + "','" + advancedMARCEditor + "'); return false;");
+                        } else if (anchors[j].getAttribute('class') == 'buttonMinus') {
+                            anchors[j].setAttribute('onclick',"UnCloneField('" + new_id + "'); return false;");
+                        } else if (anchors[j].getAttribute('class') == 'expandfield') {
+                            anchors[j].setAttribute('onclick',"ExpandField('" + new_id + "'); return false;");
+                        } else if (anchors[j].getAttribute('class') == 'buttonPlus') {
+                            anchors[j].setAttribute('onclick',"openAgrovoc('" + new_id + "'); return false;");
+                        }
+                    }
+                }
+                catch(e){
+                    // do nothig CloneButtonPlus doesn't exist.
+                }
 
             }
         }
     }
 
-    var CloneButtonPlus;
-    try {
-        var anchors = clone.getElementsByTagName('a');
-        for (var j = 0; j < anchors.length; j++) {
-            if (anchors[j].getAttribute('class') == 'buttonPlus') {
-                anchors[j].setAttribute('onclick',"CloneField('" + new_id + "'); return false;");
-            } else if (anchors[j].getAttribute('class') == 'buttonMinus') {
-                anchors[j].setAttribute('onclick',"UnCloneField('" + new_id + "'); return false;");
-            } else if (anchors[j].getAttribute('class') == 'expandfield') {
-                anchors[j].setAttribute('onclick',"ExpandField('" + new_id + "'); return false;");
-            } else if (anchors[j].getAttribute('class') == 'buttonDot') {
-                anchors[j].setAttribute('onclick',"openAgrovoc('" + new_id + "'); return false;");
-            }
-        }
-    }
-    catch(e){
-        // do nothig CloneButtonPlus doesn't exist.
-    }
     // insert this line on the page
     original.parentNode.insertBefore(clone,original.nextSibling);
+
+    $("ul.sortable_subfield", clone).sortable();
+
+    Select2Utils.initSelect2($(original).find('select'));
+    Select2Utils.initSelect2($(clone).find('select'));
+
     return new_id;
 }
 

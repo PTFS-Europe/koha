@@ -297,7 +297,7 @@ function CloneField(index, hideMarc, advancedMARCEditor) {
                         } else if (anchors[j].getAttribute('class') == 'expandfield') {
                             anchors[j].setAttribute('onclick',"ExpandField('" + new_id + "'); return false;");
                         } else if (anchors[j].getAttribute('class') == 'buttonPlus') {
-			    anchors[j].setAttribute('onclick',"openAgrovoc('" + new_id + "')");
+            			    anchors[j].setAttribute('onclick',"openAgrovoc('" + new_id + "'); return false;");
                         }
                     }
                 }
