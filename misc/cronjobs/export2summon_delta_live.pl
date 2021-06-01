@@ -126,8 +126,10 @@ sub write_file {
         while ( my ($biblionumber) = $sth->fetchrow_array ) {
             print {$fh} "$biblionumber\n";
         }
-        $query =
+	$query =
 'select biblionumber from biblio_metadata where ExtractValue(metadata, \'//datafield[@tag="942"]/subfield[@code="n"]\') = "1"';
+	#$query =
+#'select biblionumber from biblio_metadata where ExtractValue(metadata, \'//datafield[@tag="942"]/subfield[@code="n"]\') <> "1"';
         $sth = $dbh->prepare($query);
         $sth->execute();
         while ( my ($biblionumber) = $sth->fetchrow_array ) {
