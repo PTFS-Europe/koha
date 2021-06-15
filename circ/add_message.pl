@@ -35,6 +35,7 @@ my ( $template, $loggedinuser, $cookie ) = get_template_and_user(
         debug           => 1,
     }
 );
+output_and_exit_if_error($input, $cookie, $template, { check => 'csrf_token' });
 
 my $borrowernumber   = $input->param('borrowernumber');
 my $branchcode       = $input->param('branchcode');
