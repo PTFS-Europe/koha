@@ -100,6 +100,12 @@ foreign key from the borrowers table, links transaction to a specific borrower
 
 foreign key from the items table, links transaction to a specific collection code
 
+=head2 categorycode
+
+  data_type: 'varchar'
+  is_nullable: 1
+  size: 10
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -127,11 +133,13 @@ __PACKAGE__->add_columns(
   { data_type => "integer", is_nullable => 1 },
   "ccode",
   { data_type => "varchar", is_nullable => 1, size => 80 },
+  "categorycode",
+  { data_type => "varchar", is_nullable => 1, size => 10 },
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-01-21 13:39:29
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:OjX7bnPQw0SjrCRB2oVr1w
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-05-23 13:51:32
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:yaYco9rQ8ohsFbRyd8w7Sg
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration
