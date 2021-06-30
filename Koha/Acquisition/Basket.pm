@@ -95,6 +95,23 @@ sub orders {
     return Koha::Acquisition::Orders->_new_from_dbic( $orders_rs );
 }
 
+=head3 edi_order
+
+  my $edi_order = $basket->edi_order;
+
+Returns the most recently attached EDI order object if one exists for the basket.
+
+=cut
+
+sub edi_order {
+    my ($self) = @_;
+
+    my $order_rs =
+      $self->_result->edifact_messages( { message_type => 'ORDERS' },
+        { order_by => { '-desc' => 'transfer_date' }, rows => 1 } );
+    return $order_rs->single;
+}
+
 =head3 effective_create_items
 
 Returns C<create_items> for this basket, falling back to C<AcqCreateItem> if unset.
