@@ -1,0 +1,39 @@
+#logo {
+    background: url("../images/Royal_Marsden_NHS_Foundation_Trust_Aubergine.jpg") no-repeat scroll 0 center  / 475px transparent;
+    width: 474px;
+    height: 90px;
+}
+#opac-main-search select {
+    max-width: 18em;
+}
+.navbar-inverse .navbar-inner {
+    background-image: none;
+    background-color: #000000;
+    border-color: #000000;
+}
+body {
+    background-color: #FFFFFF;
+}
+#opac-main-search {
+    background: #00A4A1;
+}
+#opac-main-search label {
+    color: #FFFFFF;
+}
+/*
+.navbar-inverse .nav > li > a:focus, .navbar-inverse .nav > li > a:hover {
+    color: #B1B1AC;
+}
+.navbar-inverse .brand, .navbar-inverse .nav > li > a {
+    color: #0066CB;
+}
+#members a {
+    color: #0066CB;
+}
+#members p {
+    color: #0066CB;
+}
+.navbar-inverse .divider-vertical {
+    border-left-color: #FFFFFF;
+    border-right-color: #FFFFFF;
+} */
