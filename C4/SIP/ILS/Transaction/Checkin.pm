@@ -10,6 +10,7 @@ use strict;
 # use POSIX qw(strftime);
 
 use C4::SIP::ILS::Transaction;
+use C4::SIP::ILS::Bin qw(get_sort_bin);
 
 use C4::Circulation;
 use C4::Debug;
@@ -162,6 +163,12 @@ sub do_checkin {
         $self->{item}->destination_loc( $messages->{ResFound}->{branchcode} );
     }
     # ignoring messages: NotIssued, WasTransfered
+    
+    # sorter handling
+    my $sort_bin = get_sort_bin( $self->{item}, $branch );
+    if ($sort_bin) {
+        $self->{sort_bin} = $sort_bin;
+    }
 
     if ($cv_triggers_alert) {
         $self->alert( defined $self->alert_type ); # Overwrites existing alert value, should set to 0 if there is no alert type
