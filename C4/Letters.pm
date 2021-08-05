@@ -1359,20 +1359,47 @@ sub _send_message_by_email {
         $branch_returnpath = $library->branchreturnpath;
     }
 
-    my $email = Koha::Email->create(
-        {
-            to => $to_address,
-            (
-                C4::Context->preference('NoticeBcc')
-                ? ( bcc => C4::Context->preference('NoticeBcc') )
-                : ()
-            ),
-            from     => $message->{'from_address'}  || $branch_email,
-            reply_to => $message->{'reply_address'} || $branch_replyto,
-            sender   => $branch_returnpath,
-            subject  => "" . $message->{subject}
-        }
-    );
+    # NOTE: Patron may not be defined above so branch_email may be undefined still
+    # so we need to fallback to KohaAdminEmailAddress as a last resort.
+    my $from_address =
+         $message->{'from_address'}
+      || $branch_email
+      || C4::Context->preference('KohaAdminEmailAddress');
+    if( !$from_address ) {
+        _set_message_status(
+            {
+                message_id   => $message->{'message_id'},
+                status       => 'failed',
+            }
+        );
+        return;
+    };
+    my $email = try {
+        Koha::Email->create(
+            {
+                to => $to_address,
+                (
+                    C4::Context->preference('NoticeBcc')
+                    ? ( bcc => C4::Context->preference('NoticeBcc') )
+                    : ()
+                ),
+                from     => $from_address,
+                reply_to => $message->{'reply_address'} || $branch_replyto,
+                sender   => $branch_returnpath,
+                subject  => "" . $message->{subject}
+            }
+        );
+    }
+    catch {
+        _set_message_status(
+            {
+                message_id   => $message->{'message_id'},
+                status       => 'failed',
+            }
+        );
+        return 0;
+    };
+    return unless $email;
 
     if ( $is_html ) {
         $email->html_body(
