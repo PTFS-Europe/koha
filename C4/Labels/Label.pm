@@ -17,6 +17,7 @@ use Koha::ClassSortRules;
 use Koha::ClassSplitRules;
 use C4::ClassSplitRoutine::Dewey;
 use C4::ClassSplitRoutine::LCC;
+use C4::ClassSplitRoutine::ETF;
 use C4::ClassSplitRoutine::Generic;
 use C4::ClassSplitRoutine::RegEx;
 
@@ -220,6 +221,7 @@ sub _desc_koha_tables {
 sub _BIB {
     my $self = shift;
     my $line_spacer = ($self->{'font_size'} * 1);       # number of pixels between text rows (This is actually leading: baseline to baseline minus font size. Recommended starting point is 20% of font size.).
+    $line_spacer = ($self->{'font_size'} + 2); # ETF CUSTOMISATION
     my $text_lly = ($self->{'lly'} + ($self->{'height'} - $self->{'top_text_margin'}));
     return $self->{'llx'}, $text_lly, $line_spacer, 0, 0, 0, 0;
 }
@@ -227,9 +229,13 @@ sub _BIB {
 sub _BAR {
     my $self = shift;
     my $barcode_llx = $self->{'llx'} + $self->{'left_text_margin'};     # this places the bottom left of the barcode the left text margin distance to right of the left edge of the label ($llx)
+    $barcode_llx = $self->{'llx'} + 0.1 * $self->{'width'}; # ETF CUSTOMISATION
     my $barcode_lly = $self->{'lly'} + $self->{'top_text_margin'};      # this places the bottom left of the barcode the top text margin distance above the bottom of the label ($lly)
+    $barcode_lly = $self->{'lly'} + 0.1 * $self->{'height'}; # ETF CUSTOMISATION
     my $barcode_width = 0.8 * $self->{'width'};                         # this scales the barcode width to 80% of the label width
+    $barcode_width = 0.85 * $self->{'width'}; # ETF CUSTOMISATION
     my $barcode_y_scale_factor = 0.01 * $self->{'height'};              # this scales the barcode height to 10% of the label height
+    $barcode_y_scale_factor = 0.02 * $self->{'height'}; # ETF CUSTOMISATION
     return 0, 0, 0, $barcode_llx, $barcode_lly, $barcode_width, $barcode_y_scale_factor;
 }
 
@@ -384,7 +390,7 @@ sub draw_label_text {
         my @callnumber_list = qw(itemcallnumber 050a 050b 082a 952o 995k);
         if ((grep {$field->{'code'} =~ m/$_/} @callnumber_list) and ($self->{'printing_type'} ne 'BAR') and ($self->{'callnum_split'})) { # If the field contains the call number, we do some sp
             if ($split_routine eq 'LCC' || $split_routine eq 'nlm') { # NLM and LCC should be split the same way
-                @label_lines = C4::ClassSplitRoutine::LCC::split_callnumber($field_data);
+                @label_lines = C4::ClassSplitRoutine::ETF::split_callnumber($field_data);
                 @label_lines = C4::ClassSplitRoutine::Generic::split_callnumber($field_data) unless @label_lines; # If it was not a true lccn, try it as a custom call number
                 push (@label_lines, $field_data) unless @label_lines;         # If it was not that, send it on unsplit
             } elsif ($split_routine eq 'Dewey') {
