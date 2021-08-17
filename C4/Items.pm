@@ -520,6 +520,7 @@ sub GetItemsForInventory {
     my $minlocation  = $parameters->{'minlocation'}  // '';
     my $maxlocation  = $parameters->{'maxlocation'}  // '';
     my $class_source = $parameters->{'class_source'}  // C4::Context->preference('DefaultClassificationSource');
+    my $items_bundle = $parameters->{'items_bundle'} // '';
     my $location     = $parameters->{'location'}     // '';
     my $itemtype     = $parameters->{'itemtype'}     // '';
     my $ignoreissued = $parameters->{'ignoreissued'} // '';
@@ -563,6 +564,11 @@ sub GetItemsForInventory {
     if ($maxlocation) {
         push @where_strings, 'items.cn_sort <= ?';
         push @bind_params, $max_cnsort;
+    }
+
+    if ($items_bundle) {
+        push @where_strings, 'items.itemnumber IN (SELECT itemnumber FROM items_bundle_item WHERE items_bundle_id = ?)';
+        push @bind_params, $items_bundle;
     }
 
     if ($datelastseen) {

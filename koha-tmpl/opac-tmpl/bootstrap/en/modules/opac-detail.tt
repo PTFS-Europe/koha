@@ -1219,7 +1219,9 @@
     <table class="table table-bordered table-striped" id="[% table_id | html %]">
         <thead>
             <tr>
-
+                [% IF ( itemdata_bundles ) %]
+                    <th id="item_bundle" data-colname="item_bundle"></th>
+                [% END %]
                 [% IF Koha.Preference('OPACLocalCoverImages') && ( tab == 'holdings' && itemloop_has_images || tab == 'otherholdings' && otheritemloop_has_images ) %]
                     <th id="item_cover" data-colname="item_cover">Cover image</th>
                 [% END %]
@@ -1270,9 +1272,19 @@
         <tbody>
             [% FOREACH ITEM_RESULT IN items %]
                 [% IF ITEM_RESULT.this_branch %]
-                  <tr class="highlight-row-detail" vocab="http://schema.org/" typeof="Offer">
+                  <tr class="highlight-row-detail" vocab="http://schema.org/" typeof="Offer" data-itemnumber="[% ITEM_RESULT.itemnumber | html %]>
                 [% ELSE %]
-                  <tr vocab="http://schema.org/" typeof="Offer">
+                  <tr vocab="http://schema.org/" typeof="Offer" data-itemnumber="[% ITEM_RESULT.itemnumber | html %]">
+                [% END %]
+
+                [% IF ( itemdata_bundles ) %]
+                    [% IF ITEM_RESULT.is_bundle %]
+                    <td class="details-control">
+                        <button><i class="fa fa-folder-open"></i></button>
+                    </td>
+                    [% ELSE %]
+                    <td></td>
+                    [% END %]
                 [% END %]
 
                 [% IF Koha.Preference('OPACLocalCoverImages') && ( tab == 'holdings' && itemloop_has_images || tab == 'otherholdings' && otheritemloop_has_images ) %]
@@ -1575,6 +1587,82 @@
                 "bKohaColumnsUseNames": true,
                 "autoWidth": false
             }, columns_settings);
+
+            function createChild ( row, itemnumber ) {
+                // This is the table we'll convert into a DataTable
+                var bundles_table = $('<table class="display" width="100%"/>');
+
+                // Display it the child row
+                row.child( bundles_table ).show();
+
+                // Initialise as a DataTable
+                var bundle_table_url = "/api/v1/items/" + itemnumber + "/bundled_items?";
+                var bundle_table = bundles_table.api({
+                    "ajax": {
+                        "url": bundle_table_url
+                    },
+                    "header_filter": false,
+                    "embed": [
+                        "biblio",
+                        "checkout"
+                    ],
+                    "order": [[ 0, "asc" ]],
+                    "columns": [
+                        {
+                            "data": "item_type",
+                            "title": "Item Type",
+                            "searchable": false,
+                            "orderable": true,
+                        },
+                        {
+                            "data": "biblio.title",
+                            "title": "Title",
+                            "searchable": true,
+                            "orderable": true,
+                        },
+                        {
+                            "data": "damaged_status",
+                            "title": "Status",
+                            "searchable": false,
+                            "orderable": true,
+                        },
+                        {
+                            "data": "external_id",
+                            "title": "Barcode",
+                            "searchable": true,
+                            "orderable": true,
+                        },
+                        {
+                            "data": "callnumber",
+                            "title": "Callnumber",
+                            "searchable": true,
+                            "orderable": true,
+                        },
+                    ]
+                }, [], 1);
+
+                return;
+            }
+
+            // Add event listener for opening and closing details
+            $('#holdingst tbody').on('click', 'td.details-control', function () {
+                var tr = $(this).closest('tr');
+                var dTable = $(this).closest('table').DataTable({ 'retrieve': true });
+
+                var itemnumber = tr.data('itemnumber');
+                var row = dTable.row( tr );
+
+                if ( row.child.isShown() ) {
+                    // This row is already open - close it
+                    row.child.hide();
+                    tr.removeClass('shown');
+                }
+                else {
+                    // Open this row
+                    createChild(row, itemnumber);
+                    tr.addClass('shown');
+                }
+            } );
 
             var serial_column_settings = [% TablesSettings.GetColumns( 'opac', 'biblio-detail', 'subscriptionst', 'json' ) | $raw %];
 

@@ -48,6 +48,7 @@ my $minlocation=$input->param('minlocation') || '';
 my $maxlocation=$input->param('maxlocation');
 my $class_source=$input->param('class_source');
 $maxlocation=$minlocation.'Z' unless ( $maxlocation || ! $minlocation );
+my $items_bundle = $input->param('items_bundle');
 my $location=$input->param('location') || '';
 my $ignoreissued=$input->param('ignoreissued');
 my $ignore_waiting_holds = $input->param('ignore_waiting_holds');
@@ -68,6 +69,12 @@ my ( $template, $borrowernumber, $cookie ) = get_template_and_user(
     }
 );
 
+my $schema = Koha::Database->new()->schema();
+my $items_bundle_rs = $schema->resultset('ItemsBundle');
+my @items_bundles = $items_bundle_rs->search(undef, {
+    order_by => { -asc => ['biblionumber.title'] },
+    join => ['biblionumber'],
+});
 my @authorised_value_list;
 my $authorisedvalue_categories = '';
 
@@ -129,6 +136,7 @@ my $pref_class = C4::Context->preference("DefaultClassificationSource");
 
 $template->param(
     authorised_values        => \@authorised_value_list,
+    items_bundles            => \@items_bundles,
     today                    => dt_from_string,
     minlocation              => $minlocation,
     maxlocation              => $maxlocation,
@@ -243,6 +251,7 @@ if ( $op && ( !$uploadbarcodes || $compareinv2barcd )) {
       minlocation  => $minlocation,
       maxlocation  => $maxlocation,
       class_source => $class_source,
+      items_bundle => $items_bundle,
       location     => $location,
       ignoreissued => $ignoreissued,
       datelastseen => $datelastseen,
@@ -260,6 +269,7 @@ if( @scanned_items ) {
       maxlocation  => $maxlocation,
       class_source => $class_source,
       location     => $location,
+      items_bundle => $items_bundle,
       ignoreissued => undef,
       datelastseen => undef,
       branchcode   => $branchcode,
