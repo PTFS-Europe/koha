@@ -21,6 +21,7 @@ use Modern::Perl;
 
 use List::MoreUtils qw( any );
 use Data::Dumper qw( Dumper );
+use Try::Tiny qw( catch try );
 
 use Koha::Database;
 use Koha::DateUtils qw( dt_from_string );
@@ -392,6 +393,39 @@ sub checkout {
     my $checkout_rs = $self->_result->issue;
     return unless $checkout_rs;
     return Koha::Checkout->_new_from_dbic( $checkout_rs );
+}
+
+=head3 last_checkout
+
+  my $old_checkout = $item->last_checkout;
+
+Return the last_checkout for this item
+
+=cut
+
+sub last_checkout {
+    my ( $self ) = @_;
+    my $checkout_rs = $self->_result->old_issues->search( {},
+        { order_by => { '-desc' => 'returndate' }, rows => 1 } )->single;
+    return unless $checkout_rs;
+    return Koha::Old::Checkout->_new_from_dbic( $checkout_rs );
+}
+
+=head3 loss_checkout
+
+  my $loss_checkout = $item->loss_checkout;
+
+Return the old checkout from which this item was marked as lost
+
+=cut
+
+sub loss_checkout {
+    my ( $self ) = @_;
+    my $items_lost_issue_rs = $self->_result->items_lost_issue;
+    return unless $items_lost_issue_rs;
+    my $issue_rs = $items_lost_issue_rs->issue;
+    return unless $issue_rs;
+    return Koha::Old::Checkout->_new_from_dbic( $issue_rs );
 }
 
 =head3 holds
@@ -1270,6 +1304,170 @@ sub move_to_biblio {
     $self->tracked_links->update({ biblionumber => $to_biblionumber }, { no_triggers => 1 });
 
     return $to_biblionumber;
+}
+
+=head3 bundle_items
+
+  my $bundle_items = $item->bundle_items;
+
+Returns the items associated with this bundle
+
+=cut
+
+sub bundle_items {
+    my ($self) = @_;
+
+    if ( !$self->{_bundle_items_cached} ) {
+        my $bundle_items = Koha::Items->search(
+            { 'item_bundles_item.host' => $self->itemnumber },
+            { join                     => 'item_bundles_item' } );
+        $self->{_bundle_items}        = $bundle_items;
+        $self->{_bundle_items_cached} = 1;
+    }
+
+    return $self->{_bundle_items};
+}
+
+=head3 is_bundle
+
+  my $is_bundle = $item->is_bundle;
+
+Returns whether the item is a bundle or not
+
+=cut
+
+sub is_bundle {
+    my ($self) = @_;
+    return $self->bundle_items->count ? 1 : 0;
+}
+
+=head3 bundle_host
+
+  my $bundle = $item->bundle_host;
+
+Returns the bundle item this item is attached to
+
+=cut
+
+sub bundle_host {
+    my ($self) = @_;
+
+    if ( !$self->{_bundle_host_cached} ) {
+        my $bundle_item_rs = $self->_result->item_bundles_item;
+        $self->{_bundle_host} =
+          $bundle_item_rs
+          ? Koha::Item->_new_from_dbic($bundle_item_rs->host)
+          : undef;
+        $self->{_bundle_host_cached} = 1;
+    }
+
+    return $self->{_bundle_host};
+}
+
+=head3 in_bundle
+
+  my $in_bundle = $item->in_bundle;
+
+Returns whether this item is currently in a bundle
+
+=cut
+
+sub in_bundle {
+    my ($self) = @_;
+    return $self->bundle_host ? 1 : 0;
+}
+
+=head3 add_to_bundle
+
+  my $link = $item->add_to_bundle($bundle_item);
+
+Adds the bundle_item passed to this item
+
+=cut
+
+sub add_to_bundle {
+    my ( $self, $bundle_item ) = @_;
+
+    my $schema = Koha::Database->new->schema;
+
+    my $BundleNotLoanValue = C4::Context->preference('BundleNotLoanValue');
+
+    try {
+        $schema->txn_do(
+            sub {
+                $self->_result->add_to_item_bundles_hosts(
+                    { item => $bundle_item->itemnumber } );
+
+                $bundle_item->notforloan($BundleNotLoanValue)->store();
+            }
+        );
+    }
+    catch {
+
+        # FIXME: See if we can move the below copy/paste from Koha::Object::store into it's own class and catch at a lower level in the Schema instantiation.. take inspiration fro DBIx::Error
+        if ( ref($_) eq 'DBIx::Class::Exception' ) {
+            warn $_->{msg};
+            if ( $_->{msg} =~ /Cannot add or update a child row: a foreign key constraint fails/ ) {
+                # FK constraints
+                # FIXME: MySQL error, if we support more DB engines we should implement this for each
+                if ( $_->{msg} =~ /FOREIGN KEY \(`(?<column>.*?)`\)/ ) {
+                    Koha::Exceptions::Object::FKConstraint->throw(
+                        error     => 'Broken FK constraint',
+                        broken_fk => $+{column}
+                    );
+                }
+            }
+            elsif (
+                $_->{msg} =~ /Duplicate entry '(.*?)' for key '(?<key>.*?)'/ )
+            {
+                Koha::Exceptions::Object::DuplicateID->throw(
+                    error        => 'Duplicate ID',
+                    duplicate_id => $+{key}
+                );
+            }
+            elsif ( $_->{msg} =~
+/Incorrect (?<type>\w+) value: '(?<value>.*)' for column \W?(?<property>\S+)/
+              )
+            {    # The optional \W in the regex might be a quote or backtick
+                my $type     = $+{type};
+                my $value    = $+{value};
+                my $property = $+{property};
+                $property =~ s/['`]//g;
+                Koha::Exceptions::Object::BadValue->throw(
+                    type     => $type,
+                    value    => $value,
+                    property => $property =~ /(\w+\.\w+)$/
+                    ? $1
+                    : $property
+                    ,    # results in table.column without quotes or backtics
+                );
+            }
+
+            # Catch-all for foreign key breakages. It will help find other use cases
+            $_->rethrow();
+        }
+        else {
+            $_;
+        }
+    };
+}
+
+=head3 remove_from_bundle
+
+Remove this item from any bundle it may have been attached to.
+
+=cut
+
+sub remove_from_bundle {
+    my ($self) = @_;
+
+    my $bundle_item_rs = $self->_result->item_bundles_item;
+    if ( $bundle_item_rs ) {
+        $bundle_item_rs->delete;
+        $self->notforloan(0)->store();
+        return 1;
+    }
+    return 0;
 }
 
 =head2 Internal methods

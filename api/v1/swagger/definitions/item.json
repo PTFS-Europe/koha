@@ -180,6 +180,10 @@
     "exclude_from_local_holds_priority": {
       "type": "boolean",
       "description": "Exclude this item from local holds priority."
+    },
+    "biblio": {
+    },
+    "checkout": {
     }
   },
   "additionalProperties": false,

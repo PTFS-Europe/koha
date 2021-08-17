@@ -37,6 +37,7 @@ use Koha::Biblio::Metadatas;
 use Koha::Biblioitems;
 use Koha::CirculationRules;
 use Koha::Item::Transfer::Limits;
+use Koha::Item::Bundles;
 use Koha::Items;
 use Koha::Libraries;
 use Koha::Suggestions;
@@ -417,6 +418,25 @@ sub items {
     my $items_rs = $self->_result->items;
 
     return Koha::Items->_new_from_dbic( $items_rs );
+}
+
+=head3 item_bundles
+
+  my $bundles = $biblio->item_bundles();
+
+Returns the related Koha::Items limited to items that are bundles for this biblio;
+
+=cut
+
+sub item_bundles {
+    my ($self) = @_;
+
+    my $items_rs = $self->_result->items(
+        { 'item_bundles_hosts.host' => { '!=' => undef } },
+        { join                      => 'item_bundles_hosts', collapse => 1 }
+    );
+
+    return Koha::Item::Bundles->_new_from_dbic($items_rs);
 }
 
 =head3 itemtype

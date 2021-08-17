@@ -752,6 +752,15 @@ if ( not $viewallitems and @items > $max_items_to_display ) {
         $itm->{cover_images} = $item->cover_images;
     }
 
+    if ($item->is_bundle) {
+        $itemfields{bundles} = 1;
+        $itm->{is_bundle} = 1;
+    }
+
+    if ($item->in_bundle) {
+        $itm->{bundle_host} = $item->bundle_host;
+    }
+
     my $itembranch = $itm->{$separatebranch};
     if ($currentbranch and C4::Context->preference('OpacSeparateHoldings')) {
         if ($itembranch and $itembranch eq $currentbranch) {
@@ -802,6 +811,7 @@ if( C4::Context->preference('ArticleRequests') ) {
                      MARCNOTES               => $marcnotesarray,
                      norequests              => $norequests,
                      RequestOnOpac           => C4::Context->preference("RequestOnOpac"),
+                     itemdata_bundles        => $itemfields{bundles},
                      itemdata_ccode          => $itemfields{ccode},
                      itemdata_materials      => $itemfields{materials},
                      itemdata_enumchron      => $itemfields{enumchron},

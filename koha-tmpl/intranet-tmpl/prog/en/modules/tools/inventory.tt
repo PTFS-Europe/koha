@@ -133,6 +133,17 @@
             [% END %]
             </select>
           </li>
+        [% IF items_bundles.size > 0 %]
+            <li>
+                <label for="items_bundle">Items bundle:</label>
+                <select id="items_bundle" name="items_bundle">
+                    <option value=""></option>
+                    [% FOREACH items_bundle IN items_bundles %]
+                        <option value="[% items_bundle.items_bundle_id | html %]">[% items_bundle.biblionumber.title | html %]</option>
+                    [% END %]
+                </select>
+            </li>
+        [% END %]
     </ol>
     </fieldset>
 
@@ -348,7 +359,8 @@
                     $('#locationloop').val() ||
                     $('#minlocation').val()  ||
                     $('#maxlocation').val()  ||
-                    $('#statuses input:checked').length
+                    $('#statuses input:checked').length ||
+                    $('#items_bundle').val()
                 ) ) {
                     return confirm(
                         _("You have not selected any catalog filters and are about to compare a file of barcodes to your entire catalog.") + "\n\n" +
@@ -486,6 +498,12 @@
                 e.preventDefault();
                 $(".branch_select").prop("checked",0);
             });
+        });
+    </script>
+    [% INCLUDE 'select2.inc' %]
+    <script>
+        $(document).ready(function () {
+            $('#items_bundle').select2();
         });
     </script>
 [% END %]

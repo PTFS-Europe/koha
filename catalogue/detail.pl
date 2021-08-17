@@ -49,12 +49,15 @@ use Koha::AuthorisedValues;
 use Koha::Biblios;
 use Koha::CoverImages;
 use Koha::Illrequests;
+use Koha::Database;
 use Koha::Items;
 use Koha::ItemTypes;
 use Koha::Patrons;
 use Koha::Virtualshelves;
 use Koha::Plugins;
 use Koha::SearchEngine::Search;
+
+my $schema = Koha::Database->new()->schema();
 
 my $query = CGI->new();
 
@@ -202,6 +205,11 @@ if (@hostitems){
 }
 
 my $dat = &GetBiblioData($biblionumber);
+
+#is biblio a collection
+my $leader = $record->leader();
+$dat->{collection} = ( substr($leader,7,1) eq 'c' ) ? 1 : 0;
+
 
 #coping with subscriptions
 my $subscriptionsnumber = CountSubscriptionFromBiblionumber($biblionumber);
@@ -395,6 +403,15 @@ foreach my $item (@items) {
         $item->{cover_images} = $item_object->cover_images;
     }
 
+    if ($item_object->is_bundle) {
+        $itemfields{bundles} = 1;
+        $item->{is_bundle} = 1;
+    }
+
+    if ($item_object->in_bundle) {
+        $item->{bundle_host} = $item_object->bundle_host;
+    }
+
     if ($currentbranch and C4::Context->preference('SeparateHoldings')) {
         if ($itembranchcode and $itembranchcode eq $currentbranch) {
             push @itemloop, $item;
@@ -451,6 +468,7 @@ $template->param(
     itemdata_copynumber => $itemfields{copynumber},
     itemdata_stocknumber => $itemfields{stocknumber},
     itemdata_publisheddate => $itemfields{publisheddate},
+    itemdata_bundles       => $itemfields{bundles},
     volinfo                => $itemfields{enumchron},
         itemdata_itemnotes  => $itemfields{itemnotes},
         itemdata_nonpublicnotes => $itemfields{itemnotes_nonpublic},
