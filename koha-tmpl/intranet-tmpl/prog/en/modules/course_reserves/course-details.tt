@@ -65,7 +65,7 @@
                         [% END %]
                     </div>
                 </li>
-                <li><span class="label">Staff note</span> [% course.staff_note | html %]</li>
+                <li><span class="label">Staff note</span> [% course.staff_note | $raw %]</li>
                 <li><span class="label">Public note</span> [% course.public_note | $raw %]</li>
                 <li><span class="label">Student count</span> [% course.students_count | html %]</li>
                 <li><span class="label">Status</span> [% IF course.enabled == 'yes' %]Active[% ELSE %]Inactive[% END %]</li>
@@ -203,7 +203,7 @@
                                 [% END %]
                             </td>
                             <td>[% IF (cr.staff_note) %]
-                                    [% cr.staff_note | html %]
+                                    [% cr.staff_note | $raw %]
                                 [% ELSIF (cr.item.itemnotes_nonpublic) %]
                                     [% cr.item.itemnotes_nonpublic | html %]
                                 [% END %]
