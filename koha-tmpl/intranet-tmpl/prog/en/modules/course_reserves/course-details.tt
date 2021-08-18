@@ -8,7 +8,7 @@
 [% PROCESS 'i18n.inc' %]
 [% SET footerjs = 1 %]
 [% INCLUDE 'doc-head-open.inc' %]
-<title>Course details for [% course.course_name | html %] &rsaquo; Course reserves &rsaquo; Koha</title>
+<title>Course details for [% course.course_name | html %][%- IF course.section -%] - [% course.section | html %][%- END -%] &rsaquo; Course reserves &rsaquo; Koha</title>
 [% INCLUDE 'doc-head-close.inc' %]
 [% FILTER collapse %]
     <style>
@@ -38,7 +38,7 @@
             <a href="/cgi-bin/koha/course_reserves/course-reserves.pl">Course reserves</a>
         [% END %]
         [% WRAPPER breadcrumb_item bc_active= 1 %]
-            <span>Course details for [% course.course_name | html | $HtmlTags tag="em" %]</span>
+            <span>Course details for [% course.course_name | html | $HtmlTags tag="em" %][%- IF course.section -%] - [% course.section | html | $HtmlTags tag="em" %][%- END -%]</span>
         [% END %]
     [% END #/ WRAPPER breadcrumbs %]
 [% END #/ WRAPPER sub-header.inc %]

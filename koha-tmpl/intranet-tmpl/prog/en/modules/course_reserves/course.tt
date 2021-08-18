@@ -3,7 +3,7 @@
 [% PROCESS 'i18n.inc' %]
 [% SET footerjs = 1 %]
 [% INCLUDE 'doc-head-open.inc' %]
-<title>[% IF course_name %] Edit [% course_name | html %] [% ELSE %] New course [% END %] &rsaquo; Course reserves &rsaquo; Koha</title>
+<title>[% IF course_name %] Edit [% course_name | html %][%- IF course.section -%] - [% course.section | html %][%- END -%] [% ELSE %] New course [% END %] &rsaquo; Course reserves &rsaquo; Koha</title>
 [% INCLUDE 'doc-head-close.inc' %]
 <style>
     #course_instructors {
@@ -28,7 +28,7 @@
         [% END %]
         [% WRAPPER breadcrumb_item bc_active= 1 %]
             [% IF course_name %]
-                <span>Edit [% course_name | html | $HtmlTags tag="em" %]</span>
+                <span>Edit [% course_name | html | $HtmlTags tag="em" %][%- IF course.section -%] - [% course.section | html | $HtmlTags tag="em" %][%- END -%]</span>
             [% ELSE %]
                 <span>New course</span>
             [% END %]

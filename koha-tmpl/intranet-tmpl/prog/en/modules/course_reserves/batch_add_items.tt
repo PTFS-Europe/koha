@@ -20,11 +20,10 @@
         [% WRAPPER breadcrumb_item %]
             <a href="/cgi-bin/koha/course_reserves/course-reserves.pl">Course reserves</a>
         [% END %]
-        [% WRAPPER breadcrumb_item %]
-            <a href="/cgi-bin/koha/course_reserves/course-details.pl?course_id=[% course.course_id | uri %]">[% course.course_name | html %]</a>
-        [% END %]
         [% WRAPPER breadcrumb_item bc_active= 1 %]
-            <span>Add reserves</span>
+            <a href="#" aria-current="page">
+                Add reserves for <em>[% course.course_name | html %][%- IF course.section -%] - [% course.section | html %][%- END -%]</em>
+            </a>
         [% END %]
     [% END #/ WRAPPER breadcrumbs %]
 [% END #/ WRAPPER sub-header.inc %]
