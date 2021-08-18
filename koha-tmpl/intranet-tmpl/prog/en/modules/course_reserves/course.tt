@@ -1,7 +1,7 @@
 [% PROCESS 'i18n.inc' %]
 [% SET footerjs = 1 %]
 [% INCLUDE 'doc-head-open.inc' %]
-<title>[% IF course_name %] Edit [% course_name | html %] [% ELSE %] New course [% END %] &rsaquo; Course reserves &rsaquo; Koha</title>
+<title>[% IF course_name %] Edit [% course_name | html %][%- IF course.section -%] - [% course.section | html %][%- END -%] [% ELSE %] New course [% END %] &rsaquo; Course reserves &rsaquo; Koha</title>
 [% INCLUDE 'doc-head-close.inc' %]
 <style>
     #course_instructors {
@@ -28,7 +28,7 @@
         </li>
         <li>
             <a href="#" aria-current="page">
-                [% IF course_name %] Edit <em>[% course_name | html %]</em> [% ELSE %] New course [% END %]
+                [% IF course_name %] Edit <em>[% course_name | html %][%- IF course.section -%] - [% course.section | html %][%- END -%]</em> [% ELSE %] New course [% END %]
             </a>
         </li>
     </ol>

@@ -21,7 +21,7 @@
         <li>
             <a href="#" aria-current="page">
                 [% IF is_edit || course_reserve %] Edit [% ELSE %] Reserve [% END %]
-                <em>[% biblio.title | html %]</em> for <em>[% course.course_name | html %]</em>
+                <em>[% biblio.title | html %]</em> for <em>[% course.course_name | html %][%- IF course.section -%] - [% course.section | html %][%- END -%]</em>
             </a>
         </li>
     </ol>
@@ -49,9 +49,9 @@
 
             <fieldset class="rows">
                 [% IF is_edit || course_reserve %]
-                    <legend>Edit <em>[% biblio.title | html %]</em> in <em>[% course.course_name | html %]</em></legend>
+                    <legend>Edit <em>[% biblio.title | html %]</em> in <em>[% course.course_name | html %][%- IF course.section -%] - [% course.section | html %][%- END -%]</em></legend>
                 [% ELSE %]
-                    <legend>Add <em>[% biblio.title | html %]</em> to <em>[% course.course_name | html %]</em></legend>
+                    <legend>Add <em>[% biblio.title | html %]</em> to <em>[% course.course_name | html %][%- IF course.section -%] - [% course.section | html %][%- END -%]</em></legend>
                 [% END %]
                 <ol>
                     <li>

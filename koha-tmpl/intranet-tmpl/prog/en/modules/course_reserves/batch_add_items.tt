@@ -23,7 +23,7 @@
         </li>
         <li>
             <a href="#" aria-current="page">
-                Add reserves for <em>[% course.course_name | html %]</em>
+                Add reserves for <em>[% course.course_name | html %][%- IF course.section -%] - [% course.section | html %][%- END -%]</em>
             </a>
         </li>
     </ol>

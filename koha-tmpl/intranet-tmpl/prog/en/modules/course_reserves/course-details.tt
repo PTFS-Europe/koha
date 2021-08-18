@@ -7,7 +7,7 @@
 [% PROCESS 'i18n.inc' %]
 [% SET footerjs = 1 %]
 [% INCLUDE 'doc-head-open.inc' %]
-<title>Course details for [% course.course_name | html %] &rsaquo; Course reserves &rsaquo; Koha</title>
+<title>Course details for [% course.course_name | html %][%- IF course.section -%] - [% course.section | html %][%- END -%] &rsaquo; Course reserves &rsaquo; Koha</title>
 [% INCLUDE 'doc-head-close.inc' %]
 [% FILTER collapse %]
     <style>
@@ -46,7 +46,7 @@
         </li>
         <li>
             <a href="#" aria-current="page">
-                Course details for <em>[% course.course_name | html %]</em>
+                Course details for <em>[% course.course_name | html %][%- IF course.section -%] - [% course.section | html %][%- END -%]</em>
             </a>
         </li>
     </ol>
