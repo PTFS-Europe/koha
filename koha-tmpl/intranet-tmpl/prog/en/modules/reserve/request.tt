@@ -9,6 +9,14 @@
 [% USE Categories %]
 [% USE ItemTypes %]
 [% USE AuthorisedValues %]
+[% IF ( dateformat == "us" ) %]
+    [% USE date(format = '%m/%d/%Y') %]
+[% ELSIF ( dateformat == "metric" ) %]
+    [% USE date(format = '%d/%m/%Y') %]
+[% ELSE %]
+    [% USE date(format = '%Y/%m/%d') %]
+[% END %]
+
 [% USE Price %]
 [% USE TablesSettings %]
 [% PROCESS 'i18n.inc' %]
@@ -570,7 +578,7 @@
                             [% IF ( Koha.Preference('AllowHoldDateInFuture') ) %]
                                 <li>
                                     <label for="from">Hold starts on date:</label>
-                                    <input id="reserve_date" name="reserve_date" id="from" size="10" type="text" data-date_to="expiration_date" class="flatpickr" data-flatpickr-futuredate="true" />
+                                    <input id="reserve_date" name="reserve_date" id="from" size="10" type="text" data-date_to="expiration_date" class="flatpickr" data-flatpickr-futuredate="true" value="[% date.format %]"/>
                                 </li>
                             [% END %]
 

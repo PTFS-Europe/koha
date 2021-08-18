@@ -4,6 +4,14 @@
 [% USE Price %]
 [% USE ItemTypes %]
 [% USE AuthorisedValues %]
+[% IF ( dateformat == "us" ) %]
+    [% USE date(format = '%m/%d/%Y') %]
+[% ELSIF ( dateformat == "metric" ) %]
+    [% USE date(format = '%d/%m/%Y') %]
+[% ELSE %]
+    [% USE date(format = '%Y/%m/%d') %]
+[% END %]
+
 [% INCLUDE 'doc-head-open.inc' %]
 <title>Placing a hold &rsaquo; [% IF ( LibraryNameTitle ) %][% LibraryNameTitle | html %][% ELSE %]Koha online[% END %] catalog</title>
 [% INCLUDE 'doc-head-close.inc' %]
@@ -291,7 +299,7 @@
                                                 [% IF ( reserve_in_future ) %]
                                                     <li>
                                                         <label for="from[% bibitemloo.biblionumber | html %]">Hold starts on date:</label>
-                                                        <input type="text" name="reserve_date_[% bibitemloo.biblionumber | html %]" id="from[% bibitemloo.biblionumber | html %]" data-start_for="to[% bibitemloo.biblionumber | html %]" size="10" class="flatpickr holddatefrom" />
+                                                        <input type="text" name="reserve_date_[% bibitemloo.biblionumber | html %]" id="from[% bibitemloo.biblionumber | html %]" size="10" class="holddatefrom" value="[% date.format %]"/>
                                                         <span class="date-format from" data-biblionumber="[% bibitemloo.biblionumber | html %]">[% INCLUDE 'date-format.inc' %]</span>
                                                         <div class="required_label" style="display:none;">Required</div>
                                                     </li>
