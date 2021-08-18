@@ -73,7 +73,6 @@
             [% END %]
 
             <div class="page-section clearfix">
-
                 <fieldset class="rows">
                 <ol>
                     <li><span class="label">Course name</span> [% course.course_name | html %]</li>
@@ -91,7 +90,7 @@
                             [% END %]
                         </div>
                     </li>
-                    <li><span class="label">Staff note</span> [% course.staff_note | html %]</li>
+                    <li><span class="label">Staff note</span> [% course.staff_note | $raw %]</li>
                     <li><span class="label">Public note</span> [% course.public_note | $raw %]</li>
                     <li><span class="label">Student count</span> [% course.students_count | html %]</li>
                     <li><span class="label">Status</span> [% IF course.enabled == 'yes' %]Active[% ELSE %]Inactive[% END %]</li>
@@ -239,7 +238,7 @@
                                             <div class="biblio-level-info">Item information is not available for record-level course reserve</div>
                                         </td>
                                         <td><!-- Call number --></td>
-                                        <td><!-- Item type --></td>
+                                        <td><!-- Item type --></td> 
                                         <td><!-- Collection --></td>
                                         <td><!-- Location --></td>
                                         <td><!-- Home library --></td>
@@ -247,7 +246,7 @@
                                     [% END %]
 
                                     <td>[% IF (cr.staff_note) %]
-                                            [% cr.staff_note | html %]
+                                            [% cr.staff_note | $raw %]
                                         [% ELSIF (cr.item.itemnotes_nonpublic) %]
                                             [% cr.item.itemnotes_nonpublic | html %]
                                         [% END %]
