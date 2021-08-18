@@ -7,6 +7,14 @@
 [% USE Categories %]
 [% USE ItemTypes %]
 [% USE AuthorisedValues %]
+[% IF ( dateformat == "us" ) %]
+    [% USE date(format = '%m/%d/%Y') %]
+[% ELSIF ( dateformat == "metric" ) %]
+    [% USE date(format = '%d/%m/%Y') %]
+[% ELSE %]
+    [% USE date(format = '%Y/%m/%d') %]
+[% END %]
+
 [% USE Price %]
 [% USE TablesSettings %]
 [% SET footerjs = 1 %]
@@ -448,7 +456,7 @@
                             [% IF ( reserve_in_future ) %]
                                 <li>
                                     <label for="from">Hold starts on date:</label>
-                                    <input name="reserve_date" id="from" size="10" class="datepickerfrom" type="text" >
+                                    <input name="reserve_date" id="from" size="10" class="datepickerfrom" type="text" value="[% date.format %]">
                                     <input type="hidden" class="datepickerfrom_hidden" />
                                     <a href="#" id="clear-date-from" class="clear-date">Clear date</a>
                                 </li>
