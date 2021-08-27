@@ -460,6 +460,7 @@
                     </div>
 
                 [% ELSIF query_type == 'illview' %]
+                    [% PROCESS $whole.template %]
                     [% req_status = request.status %]
 
                     [% IF error %]
