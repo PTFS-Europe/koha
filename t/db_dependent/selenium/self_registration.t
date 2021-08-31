@@ -46,6 +46,8 @@ our @cleanup;
 subtest 'Set flags' => sub {
     plan tests => 2;
 
+    $driver->get($opac_base_url . 'opac-main.pl');
+
     $driver->get($opac_base_url . 'opac-memberentry.pl');
     like( $driver->get_title(), qr(Register a new account), );
 
@@ -53,6 +55,7 @@ subtest 'Set flags' => sub {
     $driver->find_element('//*[@id="borrower_firstname"]')->send_keys("a firstname");
     $driver->find_element('//*[@id="borrower_initials"]')->send_keys("1");
     $driver->execute_script(q{document.querySelector("#borrower_initials").setAttribute("name", "borrower_flags");});
+    $driver->capture_screenshot('selenium_failure_x.png');
     my $captcha = $driver->find_element('//*[@id="captcha"]/following-sibling::span/strong')->get_text();
     $driver->find_element('//*[@id="captcha"]')->send_keys($captcha);
     $s->submit_form;
