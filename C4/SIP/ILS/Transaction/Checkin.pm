@@ -171,7 +171,7 @@ sub do_checkin {
         $self->alert( !$return || defined $self->alert_type );
     }
 
-    my $sort_bin = get_sort_bin($self->{item}->{itype}, $self->{item}->{homebranch});
+    my $sort_bin = get_sort_bin($item->itype, $item->permanent_location);
     if ($sort_bin && $sort_bin != 99) {
         $self->{sort_bin} = $sort_bin;
     }
