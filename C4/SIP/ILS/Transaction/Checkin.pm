@@ -9,8 +9,9 @@ use strict;
 
 # use POSIX qw(strftime);
 
+use C4::SIP::Sip qw( siplog );
 use C4::SIP::ILS::Transaction;
-use C4::SIP::ILS::Bin qw(get_sort_bin);
+use C4::SIP::ILS::Bin qw( get_sort_bin );
 
 use C4::Circulation;
 use C4::Debug;
@@ -165,7 +166,7 @@ sub do_checkin {
     # ignoring messages: NotIssued, WasTransfered
     
     # sorter handling
-    my $sort_bin = get_sort_bin( $self->{item}, $branch );
+    my $sort_bin = get_sort_bin( $item, $branch );
     if ($sort_bin) {
         $self->{sort_bin} = $sort_bin;
     }

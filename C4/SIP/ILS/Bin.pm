@@ -9,8 +9,7 @@ package C4::SIP::ILS::Bin;
 
 use strict;
 use warnings;
-use Exporter;
-use Carp;
+use base qw( Exporter );
 
 use C4::SIP::Sip qw(siplog);
 
@@ -65,8 +64,8 @@ my $exceptions = {
 
 sub get_sort_bin {
     my ( $item, $library ) = @_;
-    my $itemtype = $item->{itemtype};
-    my $classmark = $item->{call_number};
+    my $itemtype = $item->effective_itemtype;
+    my $item_classmark = $item->itemcallnumber;
 
     my $bin = 5;
 
@@ -75,8 +74,8 @@ sub get_sort_bin {
 
     # Handle mappings
     if ( exists ( $map->{$library} ) ) {
-        for my $classmark ( sort keys $map->{$library} ) {
-	    if ( $item->{call_number} < $map->{$library}->{$classmark} ) {
+        for my $classmark ( sort keys %{$map->{$library}} ) {
+	    if ( $item_classmark < $map->{$library}->{$classmark} ) {
                 $bin = $map->{$library}->{$classmark};
                 last;
 	    }
@@ -85,3 +84,5 @@ sub get_sort_bin {
     
     return $bin;
 }
+
+1;
