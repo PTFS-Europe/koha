@@ -958,3 +958,50 @@ subtest 'Test limit parameter for SendQueuedMessages' => sub {
     is( $messages_processed, 2,
         'Processed 2 message with limit of 3 and 2 unprocessed messages' );
 };
+
+subtest 'Test message_id parameter for SendQueuedMessages' => sub {
+
+    plan tests => 7;
+
+    my $dbh = C4::Context->dbh;
+
+    my $borrowernumber = Koha::Patron->new({
+        firstname    => 'Jane',
+        surname      => 'Smith',
+        categorycode => $patron_category,
+        branchcode   => $library->{branchcode},
+        dateofbirth  => $date,
+        smsalertnumber => undef,
+    })->store->borrowernumber;
+
+    $dbh->do(q|DELETE FROM message_queue|);
+    $my_message = {
+        'letter' => {
+            'content'      => 'a message',
+            'metadata'     => 'metadata',
+            'code'         => 'TEST_MESSAGE',
+            'content_type' => 'text/plain',
+            'title'        => 'message title'
+        },
+        'borrowernumber'         => $borrowernumber,
+        'to_address'             => 'to@example.org',
+        'message_transport_type' => 'email',
+        'from_address'           => '@example.com' # invalid from_address
+    };
+    my $message_id = C4::Letters::EnqueueLetter($my_message);
+    my $processed = C4::Letters::SendQueuedMessages( { message_id => $message_id } );
+    is( $processed, 1, 'Processed 1 message when one message_id passed' );
+    my $message_1 = C4::Letters::GetMessage($message_id);
+    is( $message_1->{status}, 'failed', 'Invalid from_address => status failed' );
+    is( $message_1->{failure_code}, 'INVALID_EMAIL:from', 'Failure code set correctly for invalid email parameter');
+
+    $my_message->{from_address} = 'root@example.org'; # valid from_address
+    $message_id = C4::Letters::EnqueueLetter($my_message);
+    warning_like { C4::Letters::SendQueuedMessages( { message_id => $message_id } ); }
+        qr|Fake send_or_die|,
+        "SendQueuedMessages is using the mocked send_or_die routine";
+    $message_1 = C4::Letters::GetMessage($message_1->{message_id});
+    my $message_2 = C4::Letters::GetMessage($message_id);
+    is( $message_1->{status}, 'failed', 'Message 1 status is unchanged' );
+    is( $message_2->{status}, 'sent', 'Valid from_address => status sent' );
+};
