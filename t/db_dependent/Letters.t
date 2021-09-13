@@ -987,7 +987,7 @@ subtest 'Test message_id parameter for SendQueuedMessages' => sub {
         'borrowernumber'         => $borrowernumber,
         'to_address'             => 'to@example.org',
         'message_transport_type' => 'email',
-        'from_address'           => 'root@localhost.' # invalid KohaAdminEmailAddress
+        'from_address'           => '@example.com' # invalid from_address
     };
     my $message_id = C4::Letters::EnqueueLetter($my_message);
     throws_ok {
@@ -995,16 +995,16 @@ subtest 'Test message_id parameter for SendQueuedMessages' => sub {
     } 'Koha::Exceptions::BadParameter',
     'Exception thrown if invalid email is passed';
     my $message_1 = C4::Letters::GetMessage($message_id);
-    # FIXME must be 'failed'
-    is( $message_1->{status}, 'pending', 'Invalid KohaAdminEmailAddress => status pending' );
+    is( $message_1->{status}, 'failed', 'Invalid from_address => status failed' );
+    is( $message_1->{failure_code}, 'INVALID_EMAIL:from', 'Failure code set correctly for invalid email parameter');
 
-    $my_message->{from_address} = 'root@example.org'; # valid KohaAdminEmailAddress
+    $my_message->{from_address} = 'root@example.org'; # valid from_address
     $message_id = C4::Letters::EnqueueLetter($my_message);
     warning_like { C4::Letters::SendQueuedMessages( { message_id => $message_id } ); }
         qr|Fake send_or_die|,
         "SendQueuedMessages is using the mocked send_or_die routine";
     $message_1 = C4::Letters::GetMessage($message_1->{message_id});
     my $message_2 = C4::Letters::GetMessage($message_id);
-    is( $message_1->{status}, 'pending', 'Message 1 status is unchanged' ); # Must be 'failed'
-    is( $message_2->{status}, 'sent', 'Valid KohaAdminEmailAddress => status sent' );
+    is( $message_1->{status}, 'failed', 'Message 1 status is unchanged' );
+    is( $message_2->{status}, 'sent', 'Valid from_address => status sent' );
 };
