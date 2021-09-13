@@ -271,7 +271,35 @@ sub import_patrons {
 
             my $patron = Koha::Patrons->find( $borrowernumber );
             eval { $patron->set(\%borrower)->store };
-            if ( $@ ) {
+
+            if ( !$@ ) {
+                # If 'AutoEmailOpacUser' syspref is on, email user their account details from the 'notice' that matches the user's branchcode.
+                if ( C4::Context->preference("AutoEmailOpacUser") == 1 && $borrower{'userid'}  && $borrower{'password'}) {
+                    #look for defined primary email address, if blank - attempt to use borr.email and borr.emailpro instead
+                    my $emailaddr;
+                    if  (C4::Context->preference("AutoEmailPrimaryAddress") ne 'OFF'  && 
+                        $borrower{C4::Context->preference("AutoEmailPrimaryAddress")} =~  /\w\@\w/ ) {
+                        $emailaddr = $borrower{C4::Context->preference("AutoEmailPrimaryAddress")} 
+                    } 
+                    elsif ($borrower{email} =~ /\w\@\w/) {
+                        $emailaddr = $borrower{email} 
+                    }
+                    elsif ($borrower{emailpro} =~ /\w\@\w/) {
+                        $emailaddr = $borrower{emailpro} 
+                    }
+                    elsif ($borrower{B_email} =~ /\w\@\w/) {
+                        $emailaddr = $borrower{B_email} 
+                    }
+                    # if we manage to find a valid email address, send notice 
+                    if ($emailaddr) {
+                        $borrower{emailaddr} = $emailaddr;
+                        my $err;
+                        eval {
+                            $err = SendAlerts ( 'members', \%borrower, "ACCTDETAILS" );
+                        };
+                    }
+                }
+	    } else {
                 $invalid++;
 
                 push(
@@ -359,6 +387,33 @@ sub import_patrons {
             };
             unless ( $@ ) {
                 $borrowernumber = $patron->id;
+
+                # If 'AutoEmailOpacUser' syspref is on, email user their account details from the 'notice' that matches the user's branchcode.
+                if ( C4::Context->preference("AutoEmailOpacUser") == 1 && $borrower{'userid'}  && $borrower{'password'}) {
+                    #look for defined primary email address, if blank - attempt to use borr.email and borr.emailpro instead
+                    my $emailaddr;
+                    if  (C4::Context->preference("AutoEmailPrimaryAddress") ne 'OFF'  && 
+                        $borrower{C4::Context->preference("AutoEmailPrimaryAddress")} =~  /\w\@\w/ ) {
+                        $emailaddr = $borrower{C4::Context->preference("AutoEmailPrimaryAddress")} 
+                    } 
+                    elsif ($borrower{email} =~ /\w\@\w/) {
+                        $emailaddr = $borrower{email} 
+                    }
+                    elsif ($borrower{emailpro} =~ /\w\@\w/) {
+                        $emailaddr = $borrower{emailpro} 
+                    }
+                    elsif ($borrower{B_email} =~ /\w\@\w/) {
+                        $emailaddr = $borrower{B_email} 
+                    }
+                    # if we manage to find a valid email address, send notice 
+                    if ($emailaddr) {
+                        $borrower{emailaddr} = $emailaddr;
+                        my $err;
+                        eval {
+                            $err = SendAlerts ( 'members', \%borrower, "ACCTDETAILS" );
+                        };
+                    }
+                }
 
                 if ( $patron->is_debarred ) {
                     AddDebarment(
