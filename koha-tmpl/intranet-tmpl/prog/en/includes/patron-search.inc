@@ -9,7 +9,7 @@
 <div id="header_search">
     <div id="patron_search" class="residentsearch">
     <form action="/cgi-bin/koha/members/member.pl" method="post">
-        <label class="tip" for="searchmember">Enter patron card number or partial name:</label>
+        <label class="tip" for="searchmember">Scan item barcode:</label>
     <div class="autocomplete">
         <input id="searchmember" data-toggle="tooltip" size="25" class="head-searchbox focus" name="searchmember" type="text" value="[% searchmember | html %]" autocomplete="off" />
         <input type="hidden" name="quicksearch" value="1" />
