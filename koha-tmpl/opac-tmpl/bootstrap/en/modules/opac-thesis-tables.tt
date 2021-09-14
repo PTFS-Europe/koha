@@ -1,0 +1,86 @@
+[% USE raw %]
+[% USE Asset %]
+[% USE Koha %]
+[% USE AuthorisedValues %]
+[% USE TablesSettings %]
+
+[% INCLUDE 'doc-head-open.inc' %]
+<title>[% IF ( LibraryNameTitle ) %][% LibraryNameTitle | html %][% ELSE %]Koha online[% END %] catalog &rsaquo; Thesis tables</title>
+[% INCLUDE 'doc-head-close.inc' %]
+[% BLOCK cssinclude %]
+    [% Asset.css("css/datatables.css") | $raw %]
+[% END %]
+
+</head>
+[% INCLUDE 'bodytag.inc' bodyid='opac-thesis-tables' %]
+[% INCLUDE 'masthead.inc' %]
+
+<div class="main">
+    <nav aria-label="breadcrumb">
+        <ul class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="/cgi-bin/koha/opac-main.pl">Home</a>
+            </li>
+            <li class="breadcrumb-item" aria-current="page">
+                <a href="#">Thesis tables</a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col order-first order-md-first order-lg-2">
+                <div id="courses" class="maincontent">
+                    <h1>Thesis tables</h1>
+
+                    <table id="thesis_tables_table" class="table table-bordered table-striped table-condensed">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Table #</th>
+                                <th>Students</th>
+                                <th>Topic</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            [% FOREACH c IN courses %]
+                                <tr>
+                                    <td><a href="opac-thesis-table-details.pl?table_id=[% c.course_id | uri %]">[% c.course_name | html %][%- IF c.section -%] - [% c.section | html %][%- END -%]</a></td>
+                                    <td>[% c.course_number | html %]</td>
+                                    <td>
+                                      [% FOREACH i IN c.instructors %]
+                                          <div class="instructor"><span class="inst_surname">[% i.surname | html %]</span>[% IF i.firstname %]<span class="instr_separator">, </span><span class="instr_firstname">[% i.firstname | html %]</span>[% END %]</div>
+                                      [% END %]
+                                    </td>
+                                    <td>[% c.public_note | $raw %]</td>
+                            [% END %]
+                        </tbody>
+                    </table>
+                </div> <!-- / #courses -->
+            </div> <!-- / .col -->
+        </div> <!-- / .row -->
+    </div> <!-- / .container-fluid -->
+</div> <!-- / .main -->
+[% INCLUDE 'opac-bottom.inc' %]
+[% BLOCK jsinclude %]
+    [% INCLUDE 'datatables.inc' %]
+    [% INCLUDE 'columns_settings.inc' %]
+    <script>
+        $(document).ready(function() {
+            columns_settings = [% TablesSettings.GetColumns( 'opac', 'biblio-detail', 'thesis_tables_table', 'json' ) | $raw %]
+            KohaTable("#thesis_tables_table", {
+                "dom": '<"top"f>rt<"clear">',
+                "sorting": [[ 1, "asc" ]],
+                "autoWidth": false,
+                "asColumnDefs": [
+                    { "aTargets": [ 1 ], "sType": "nsb-nse" },
+                ],
+                "language": {
+                    "search": "_INPUT_",
+                    "searchPlaceholder": "Search courses"
+                }
+            }, columns_settings );
+        });
+    </script>
+[% END %]
