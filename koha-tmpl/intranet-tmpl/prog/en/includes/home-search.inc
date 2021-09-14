@@ -23,7 +23,7 @@
 
 [% IF CAN_user_borrowers_edit_borrowers %]
 <div id="patron_search" class="residentsearch">
-    <label class="tip" for="searchmember">Enter patron card number or partial name:</label>
+    <label class="tip" for="searchmember">Scan item barcode:</label>
     <form action="/cgi-bin/koha/members/member.pl" method="post">
         <input name="searchmember" class="head-searchbox" id="searchmember" size="40" type="text" autocomplete="off" />
         <input type="hidden" name="quicksearch" value="1" />

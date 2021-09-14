@@ -74,7 +74,7 @@
                         <form id="article_requests_patronsearch" action="request-article.pl" method="post">
                             <fieldset class="brief">
                                 <label for="patron">Patron: </label>
-                                <div class="hint">Enter patron card number or partial name:</div>
+                                <div class="hint">Scan item barcode:</div>
                                 <input type="text" size="40" id="patron" class="focus" name="patron_cardnumber" />
                                 <input type="submit" value="Search" />
                                 <input type="hidden" name="biblionumber" value="[% biblio.id | html %]" />

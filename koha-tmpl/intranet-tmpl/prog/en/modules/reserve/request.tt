@@ -112,7 +112,7 @@
                         </ul>
                         <div id="holds_patronsearch_pane">
                             <form id="holds_patronsearch" action="request.pl?biblionumbers=[% biblionumbers | html %]" method="post">
-                                <div class="hint">Enter patron card number or partial name:</div>
+                                <div class="hint">Scan item barcode:</div>
                                 <input type="text" size="40" id="patron" class="focus" name="findborrower" autocomplete="off" />
                                 <input type="submit" value="Search" />
                                 [% IF multi_hold %]
