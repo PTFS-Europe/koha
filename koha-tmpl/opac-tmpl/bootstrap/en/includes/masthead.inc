@@ -309,6 +309,9 @@
                         <li class="nav-item">
                             <a href="/cgi-bin/koha/opac-course-reserves.pl">Course reserves</a>
                         </li>
+			<li class="nav-item">
+			    <a href="/cgi-bin/koha/opac-thesis-tables.pl">Thesis tables</a>
+			</li>
                     [% END %]
                     [% IF Koha.Preference( 'OpacBrowser' ) == 1 %]
                         <li class="nav-item">

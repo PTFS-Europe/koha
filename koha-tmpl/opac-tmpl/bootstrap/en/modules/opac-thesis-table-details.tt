@@ -1,0 +1,127 @@
+[% USE raw %]
+[% USE Asset %]
+[% USE Koha %]
+[% USE KohaDates %]
+[% USE AuthorisedValues %]
+[% USE ItemTypes %]
+[% USE Branches %]
+[% USE TablesSettings %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>[% IF ( LibraryNameTitle ) %][% LibraryNameTitle | html %][% ELSE %]Koha online[% END %] catalog &rsaquo; Reserves for [% course.course_name | html %][%- IF course.section -%] - [% course.section | html %][%- END -%]</title>
+[% INCLUDE 'doc-head-close.inc' %]
+[% BLOCK cssinclude %]
+    [% Asset.css("css/datatables.css") | $raw %]
+[% END %]
+
+</head>
+[% INCLUDE 'bodytag.inc' bodyid='opac-course-details' %]
+[% INCLUDE 'masthead.inc' %]
+
+<div class="main">
+    <nav aria-label="breadcrumb">
+        <ul class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="/cgi-bin/koha/opac-main.pl">Home</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="/cgi-bin/koha/opac-thesis-tables.pl">Thesis tables</a>
+            </li>
+            <li class="breadcrumb-item" aria-current="page">
+                Reserves for &nbsp;<em>[% course.course_name | html %][%- IF course.section -%] - [% course.section | html %][%- END -%]</em>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col">
+                <div id="thesis_tables" class="maincontent">
+
+                    <h2>Reserves for <em>[% course.course_name | html %][%- IF course.section -%] - [% course.section | html %][%- END -%]</em></h2>
+                    <div class="rows">
+                        <ol>
+                            [% IF ( course.instructors ) %]
+                                <li><span class="label">Students:</span>
+                                    <ul>
+                                        [% FOREACH i IN course.instructors %]
+                                            <li><div class="instructor">[% i.firstname | html %] [% i.surname | html %]</div></li>
+                                        [% END %]
+                                    </ul>
+                                </li>
+                            [% END %]
+                            [% IF ( course.public_note ) %]<li><span class="label">Notes:</span> [% course.public_note | $raw %]</li>[% END %]
+                        </ol>
+                    </div>
+
+                    [% IF ( course_reserves ) %]
+                        <table id="thesis-table-items-table" class="table table-bordered table-striped table-condensed">
+                            <thead>
+                                <tr>
+                                    <th class="anti-the">Title</th>
+                                    <th>Author</th>
+                                    <th>Item type</th>
+                                    <th>Location</th>
+                                    <th>Collection</th>
+                                    <th>Call number</th>
+                                    <th>Copy number</th>
+                                    <th>Status</th>
+                                    <th class="title-string">Date due</th>
+                                    <th>Notes</th>
+                                    <th>Link</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                [% FOREACH cr IN course_reserves %]
+                                    <tr>
+                                        <td><a href="opac-detail.pl?biblionumber=[% cr.biblio.biblionumber | uri %]">[% INCLUDE 'biblio-title-head.inc' biblio=cr.biblio %]</a></td>
+                                        <td>[% cr.biblio.author | html %]</td>
+                                        <td>[% ItemTypes.GetDescription( cr.item.itype ) | html %]</td>
+                                        <td>[% Branches.GetName( cr.item.holdingbranch ) | html %] <br/> <em>[% AuthorisedValues.GetDescriptionByKohaField( kohafield => 'items.location', authorised_value => cr.item.location, opac => 1 ) | html %]</em></td>
+                                        <td>[% AuthorisedValues.GetDescriptionByKohaField( kohafield => 'items.ccode', authorised_value => cr.item.ccode, opac => 1 ) | html %]</td>
+                                        <td>[% cr.item.itemcallnumber | html %]</td>
+                                        <td>[% cr.item.copynumber | html %]</td>
+                                        <td>[% INCLUDE 'item-status.inc' item=cr.item issue=cr.issue %]</td>
+                                        <td><span title="[% cr.issue.date_due | html %]">[% cr.issue.date_due | $KohaDates  as_due_date => 1 %]</span></td>
+                                        <td>[% IF ( cr.public_note ) %]
+                                                [% cr.public_note | $raw %]
+                                            [% ELSIF ( cr.item.itemnotes ) %]
+                                                [% cr.item.itemnotes | $raw %]
+                                            [% END %]
+                                        </td>
+                                        <td>[% IF (cr.item.uri) %]
+                                                <a href="[% cr.item.uri | url %]">Item URI</a>
+                                            [% ELSIF (cr.biblioitem.url) %]
+                                                <a href="[% cr.biblioitem.url | url %]">Record URL</a>
+                                            [% END %]
+                                        </td>
+                                    </tr>
+                                [% END %]
+                            </tbody>
+                        </table>
+                    [% ELSE %]
+                        <br style="clear:both;" />
+                        <div class="alert alert-info">
+                            <p>No reserves have been selected for this thesis table.</p>
+                        </div>
+                    [% END %]
+                </div> <!-- / #course_reserves -->
+            </div> <!-- / .col -->
+        </div> <!-- / .row -->
+    </div> <!-- / .container-fluid -->
+</div> <!-- / .main -->
+[% INCLUDE 'opac-bottom.inc' %]
+[% BLOCK jsinclude %]
+    [% INCLUDE 'datatables.inc' %]
+    [% INCLUDE 'columns_settings.inc' %]
+    <script>
+        $(document).ready(function() {
+            columns_settings = [% TablesSettings.GetColumns( 'opac', 'biblio-detail', 'thesis-table-items-table', 'json' ) | $raw %];
+            KohaTable("#thesis-table-items-table", {
+                "dom": '<"top"f>rt<"clear">',
+                "sorting": [[ 1, "asc" ]],
+                "autoWidth": false,
+            }, columns_settings );
+        });
+    </script>
+[% END %]

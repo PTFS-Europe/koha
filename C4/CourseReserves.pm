@@ -1004,7 +1004,7 @@ sub CountCourseReservesForItem {
 
 =head2 SearchCourses
 
-    my $courses = SearchCourses( term => $search_term, enabled => 'yes' );
+    my $courses = SearchCourses( term => $search_term, enabled => 'yes', thesis_table => 'no' );
 
 =cut
 
@@ -1014,6 +1014,7 @@ sub SearchCourses {
     my $term = $params{'term'};
 
     my $enabled = $params{'enabled'} || '%';
+    my $thesis_table = $params{'thesis_table'} || 'no';
 
     my @params;
     my $query = "
@@ -1042,6 +1043,21 @@ sub SearchCourses {
            )
            AND
            c.enabled LIKE ?
+    ";
+
+    if ( $thesis_table eq 'no' ) {
+	$query .= "
+	    AND
+	    c.department != 'TT'
+	";
+    } else {
+	$query .= "
+	    AND
+	    c.department = 'TT'
+	";
+    }
+
+    $query .= "
         GROUP BY c.course_id, c.department, c.course_number, c.section, c.course_name, c.term, c.staff_note, c.public_note, c.students_count, c.enabled, c.timestamp
     ";
 
