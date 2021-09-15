@@ -584,6 +584,21 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 1, on_delete => "CASCADE", on_update => "CASCADE" },
 );
 
+=head2 bookings
+
+Type: has_many
+
+Related object: L<Koha::Schema::Result::Booking>
+
+=cut
+
+__PACKAGE__->has_many(
+  "bookings",
+  "Koha::Schema::Result::Booking",
+  { "foreign.item_id" => "self.itemnumber" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 branchtransfers
 
 Type: has_many
@@ -865,8 +880,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-08-27 08:42:21
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:SjZn3haOtUZWu1jrMigjNQ
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-11-04 10:01:46
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:dbrtpKQiN1Rawim2n79Fag
 
 __PACKAGE__->belongs_to( biblioitem => "Koha::Schema::Result::Biblioitem", "biblioitemnumber" );
 
