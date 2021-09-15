@@ -1004,6 +1004,21 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 bookings
+
+Type: has_many
+
+Related object: L<Koha::Schema::Result::Booking>
+
+=cut
+
+__PACKAGE__->has_many(
+  "bookings",
+  "Koha::Schema::Result::Booking",
+  { "foreign.borrowernumber" => "self.borrowernumber" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 borrower_attributes
 
 Type: has_many
@@ -1905,8 +1920,8 @@ Composing rels: L</aqorder_users> -> ordernumber
 __PACKAGE__->many_to_many("ordernumbers", "aqorder_users", "ordernumber");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-09-20 12:00:15
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:9g9WsdsdPINi2NP4H2A+CA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-09-15 15:26:37
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:gT3Z4IHnObg8sCkBk5yrMA
 
 __PACKAGE__->add_columns(
     '+anonymized'    => { is_boolean => 1 },
