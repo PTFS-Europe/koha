@@ -5,7 +5,7 @@
 [% USE TablesSettings %]
 
 [% INCLUDE 'doc-head-open.inc' %]
-<title>[% IF ( LibraryNameTitle ) %][% LibraryNameTitle | html %][% ELSE %]Koha online[% END %] catalog &rsaquo; Thesis tables</title>
+<title>[% IF ( LibraryNameTitle ) %][% LibraryNameTitle | html %][% ELSE %]Koha online[% END %] catalog &rsaquo; Research tables</title>
 [% INCLUDE 'doc-head-close.inc' %]
 [% BLOCK cssinclude %]
     [% Asset.css("css/datatables.css") | $raw %]
@@ -22,7 +22,7 @@
                 <a href="/cgi-bin/koha/opac-main.pl">Home</a>
             </li>
             <li class="breadcrumb-item" aria-current="page">
-                <a href="#">Thesis tables</a>
+                <a href="#">Research tables</a>
             </li>
         </ul>
     </nav>
@@ -31,14 +31,14 @@
         <div class="row">
             <div class="col order-first order-md-first order-lg-2">
                 <div id="courses" class="maincontent">
-                    <h1>Thesis tables</h1>
+                    <h1>Research tables</h1>
 
                     <table id="thesis_tables_table" class="table table-bordered table-striped table-condensed">
                         <thead>
                             <tr>
                                 <th>Name</th>
                                 <th>Table #</th>
-                                <th>Students</th>
+                                <th>Researcher</th>
                                 <th>Topic</th>
                             </tr>
                         </thead>

@@ -24,7 +24,7 @@
                 <a href="/cgi-bin/koha/opac-main.pl">Home</a>
             </li>
             <li class="breadcrumb-item">
-                <a href="/cgi-bin/koha/opac-thesis-tables.pl">Thesis tables</a>
+                <a href="/cgi-bin/koha/opac-thesis-tables.pl">Research tables</a>
             </li>
             <li class="breadcrumb-item" aria-current="page">
                 Reserves for &nbsp;<em>[% course.course_name | html %][%- IF course.section -%] - [% course.section | html %][%- END -%]</em>
@@ -41,7 +41,7 @@
                     <div class="rows">
                         <ol>
                             [% IF ( course.instructors ) %]
-                                <li><span class="label">Students:</span>
+                                <li><span class="label">Researcher:</span>
                                     <ul>
                                         [% FOREACH i IN course.instructors %]
                                             <li><div class="instructor">[% i.firstname | html %] [% i.surname | html %]</div></li>
