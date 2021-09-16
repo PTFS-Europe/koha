@@ -5,6 +5,9 @@
   "basket": {
     "$ref": "definitions/basket.json"
   },
+  "booking": {
+    "$ref": "definitions/booking.yaml"
+  },
   "cashup": {
     "$ref": "definitions/cashup.json"
   },

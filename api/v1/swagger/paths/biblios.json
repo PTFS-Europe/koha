@@ -132,6 +132,104 @@
       }
     }
   },
+  "/biblios/{biblio_id}/bookings": {
+    "get": {
+      "x-mojo-to": "Biblios#get_bookings",
+      "operationId": "getBiblioBookings",
+      "tags": [
+        "bookings"
+      ],
+      "summary": "Get bookings for a biblio",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/biblio_id_pp"
+        },
+        {
+          "$ref": "../parameters.json#/match"
+        },
+        {
+          "$ref": "../parameters.json#/order_by"
+        },
+        {
+          "$ref": "../parameters.json#/page"
+        },
+        {
+          "$ref": "../parameters.json#/per_page"
+        },
+        {
+          "$ref": "../parameters.json#/q_param"
+        },
+        {
+          "$ref": "../parameters.json#/q_body"
+        },
+        {
+          "$ref": "../parameters.json#/q_header"
+        }
+      ],
+      "consumes": [
+        "application/json"
+      ],
+      "produces": [
+        "application/json"
+      ],
+      "responses": {
+        "200": {
+          "description": "A list of the bookings attached to the record",
+          "schema": {
+            "type": "array",
+            "items": {
+              "$ref": "../definitions.json#/booking"
+            }
+          }
+        },
+        "401": {
+          "description": "Authentication required",
+          "schema": {
+            "$ref": "../definitions.json#/error"
+          }
+        },
+        "403": {
+          "description": "Access forbidden",
+          "schema": {
+            "$ref": "../definitions.json#/error"
+          }
+        },
+        "404": {
+          "description": "Biblio not found",
+          "schema": {
+            "$ref": "../definitions.json#/error"
+          }
+        },
+        "406": {
+          "description": "Not acceptable",
+          "schema": {
+            "type": "array",
+            "description": "Accepted content-types",
+            "items": {
+                "type": "string"
+            }
+          }
+        },
+        "500": {
+          "description": "Internal server error",
+          "schema": {
+            "$ref": "../definitions.json#/error"
+          }
+        },
+        "503": {
+          "description": "Under maintenance",
+          "schema": {
+            "$ref": "../definitions.json#/error"
+          }
+        }
+      },
+      "x-koha-authorization": {
+        "permissions": {
+            "circulation": "1"
+        }
+      }
+    }
+  },
   "/biblios/{biblio_id}/checkouts": {
     "get": {
       "x-mojo-to": "Biblios#get_checkouts",

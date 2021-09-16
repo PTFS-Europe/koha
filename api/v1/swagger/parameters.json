@@ -2,6 +2,9 @@
   "biblio_id_pp": {
     "$ref": "parameters/biblio.json#/biblio_id_pp"
   },
+  "booking_id_pp": {
+    "$ref": "parameters/booking.json#/booking_id_pp"
+  },
   "advancededitormacro_id_pp": {
     "$ref": "parameters/advancededitormacro.json#/advancededitormacro_id_pp"
   },
