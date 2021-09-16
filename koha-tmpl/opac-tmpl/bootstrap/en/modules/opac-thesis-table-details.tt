@@ -102,7 +102,7 @@
                     [% ELSE %]
                         <br style="clear:both;" />
                         <div class="alert alert-info">
-                            <p>No reserves have been selected for this thesis table.</p>
+                            <p>No reserves have been selected for this research table.</p>
                         </div>
                     [% END %]
                 </div> <!-- / #course_reserves -->
