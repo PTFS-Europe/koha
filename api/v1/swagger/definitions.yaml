@@ -7,6 +7,8 @@ allows_renewal:
   $ref: definitions/allows_renewal.yaml
 basket:
   $ref: definitions/basket.yaml
+booking:
+  $ref: definitions/booking.yaml
 cashup:
   $ref: definitions/cashup.yaml
 checkout:

@@ -15,12 +15,18 @@
   $ref: paths/article_requests.yaml#/~1article_requests~1{article_request_id}
 "/biblios/{biblio_id}":
   $ref: paths/biblios.yaml#/~1biblios~1{biblio_id}
+"/biblios/{biblio_id}/bookings":
+  $ref: paths/biblios.yaml#/~1biblios~1{biblio_id}~1bookings
 "/biblios/{biblio_id}/checkouts":
   $ref: paths/biblios.yaml#/~1biblios~1{biblio_id}~1checkouts
 "/biblios/{biblio_id}/items":
   $ref: paths/biblios.yaml#/~1biblios~1{biblio_id}~1items
 "/biblios/{biblio_id}/pickup_locations":
   $ref: paths/biblios.yaml#/~1biblios~1{biblio_id}~1pickup_locations
+/bookings:
+  $ref: paths/bookings.yaml#/~1bookings
+"/bookings/{booking_id}":
+  $ref: paths/bookings.yaml#/~1bookings~1{booking_id}
 "/cash_registers/{cash_register_id}/cashups":
   $ref: paths/cash_registers.yaml#/~1cash_registers~1{cash_register_id}~1cashups
 "/cashups/{cashup_id}":
@@ -59,6 +65,8 @@
   $ref: paths/items.yaml#/~1items
 "/items/{item_id}":
   $ref: paths/items.yaml#/~1items~1{item_id}
+"/items/{item_id}/bookings":
+  $ref: paths/items.yaml#/~1items~1{item_id}~1bookings
 "/items/{item_id}/pickup_locations":
   $ref: paths/items.yaml#/~1items~1{item_id}~1pickup_locations
 /libraries:
