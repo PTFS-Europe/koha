@@ -1,0 +1,352 @@
+{
+  "/bookings": {
+    "get": {
+      "x-mojo-to": "Bookings#list",
+      "operationId": "listBookings",
+      "tags": [
+        "bookings"
+      ],
+      "summary": "List bookings",
+      "produces": [
+        "application/json"
+      ],
+      "parameters": [
+        {
+          "name": "biblio_id",
+          "in": "query",
+          "description": "Case insensative search on booking biblio_id",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "item_id",
+          "in": "query",
+          "description": "Case insensative search on booking item_id",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "patron_id",
+          "in": "query",
+          "description": "Case insensative search on booking patron_id",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "start_date",
+          "in": "query",
+          "description": "Case Insensative search on booking start_date",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "end_date",
+          "in": "query",
+          "description": "Case Insensative search on booking end_date",
+          "required": false,
+          "type": "string"
+        },
+
+        {
+          "$ref": "../parameters.json#/match"
+        },
+        {
+          "$ref": "../parameters.json#/order_by"
+        },
+        {
+          "$ref": "../parameters.json#/page"
+        },
+        {
+          "$ref": "../parameters.json#/per_page"
+        },
+        {
+          "$ref": "../parameters.json#/q_param"
+        },
+        {
+          "$ref": "../parameters.json#/q_body"
+        },
+        {
+          "$ref": "../parameters.json#/q_header"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "A list of bookings",
+          "schema": {
+            "type": "array",
+            "items": {
+              "$ref": "../definitions.json#/booking"
+            }
+          }
+        },
+        "403": {
+          "description": "Access forbidden",
+          "schema": {
+            "$ref": "../definitions.json#/error"
+          }
+        },
+        "500": {
+          "description": "Internal error",
+          "schema": {
+            "$ref": "../definitions.json#/error"
+          }
+        },
+        "503": {
+          "description": "Under maintenance",
+          "schema": {
+            "$ref": "../definitions.json#/error"
+          }
+        }
+      },
+      "x-koha-authorization": {
+        "permissions": {
+          "catalogue": "1"
+        }
+      }
+    },
+    "post": {
+      "x-mojo-to": "Bookings#add",
+      "operationId": "addBooking",
+      "tags": [
+        "bookings"
+      ],
+      "summary": "Add booking",
+      "parameters": [
+        {
+          "name": "body",
+          "in": "body",
+          "description": "A JSON object containing informations about the new booking",
+          "required": true,
+          "schema": {
+            "$ref": "../definitions.json#/booking"
+          }
+        }
+      ],
+      "produces": [
+        "application/json"
+      ],
+      "responses": {
+        "201": {
+          "description": "Booking added",
+          "schema": {
+            "$ref": "../definitions.json#/booking"
+          }
+        },
+        "400": {
+          "description": "Client error",
+          "schema": {
+            "$ref": "../definitions.json#/error"
+          }
+        },
+        "401": {
+          "description": "Authentication required",
+          "schema": {
+            "$ref": "../definitions.json#/error"
+          }
+        },
+        "403": {
+          "description": "Access forbidden",
+          "schema": {
+            "$ref": "../definitions.json#/error"
+          }
+        },
+        "500": {
+          "description": "Internal error",
+          "schema": {
+            "$ref": "../definitions.json#/error"
+          }
+        },
+        "503": {
+          "description": "Under maintenance",
+          "schema": {
+            "$ref": "../definitions.json#/error"
+          }
+        }
+      },
+      "x-koha-authorization": {
+        "permissions": {
+          "parameters": "manage_bookings"
+        }
+      }
+    }
+  },
+  "/bookings/{booking_id}": {
+    "get": {
+      "x-mojo-to": "Bookings#get",
+      "operationId": "getBooking",
+      "tags": [
+        "bookings"
+      ],
+      "summary": "Get booking",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/booking_id_pp"
+        }
+      ],
+      "produces": [
+        "application/json"
+      ],
+      "responses": {
+        "200": {
+          "description": "A booking",
+          "schema": {
+            "$ref": "../definitions.json#/booking"
+          }
+        },
+        "404": {
+          "description": "Booking not found",
+          "schema": {
+            "$ref": "../definitions.json#/error"
+          }
+        },
+        "500": {
+          "description": "Internal error",
+          "schema": {
+            "$ref": "../definitions.json#/error"
+          }
+        },
+        "503": {
+          "description": "Under maintenance",
+          "schema": {
+            "$ref": "../definitions.json#/error"
+          }
+        }
+      },
+      "x-koha-authorization": {
+        "permissions": {
+          "catalogue": "1"
+        }
+      }
+    },
+    "put": {
+      "x-mojo-to": "Bookings#update",
+      "operationId": "updateBooking",
+      "tags": [
+        "bookings"
+      ],
+      "summary": "Update booking",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/booking_id_pp"
+        },
+        {
+          "name": "body",
+          "in": "body",
+          "description": "A booking object",
+          "required": true,
+          "schema": {
+            "$ref": "../definitions.json#/booking"
+          }
+        }
+      ],
+      "produces": [
+        "application/json"
+      ],
+      "responses": {
+        "200": {
+          "description": "A booking",
+          "schema": {
+            "$ref": "../definitions.json#/booking"
+          }
+        },
+        "400": {
+          "description": "Client error",
+          "schema": {
+            "$ref": "../definitions.json#/error"
+          }
+        },
+        "401": {
+          "description": "Authentication required",
+          "schema": {
+            "$ref": "../definitions.json#/error"
+          }
+        },
+        "403": {
+          "description": "Access forbidden",
+          "schema": {
+            "$ref": "../definitions.json#/error"
+          }
+        },
+        "404": {
+          "description": "Booking not found",
+          "schema": {
+            "$ref": "../definitions.json#/error"
+          }
+        },
+        "500": {
+          "description": "Internal error",
+          "schema": {
+            "$ref": "../definitions.json#/error"
+          }
+        },
+        "503": {
+          "description": "Under maintenance",
+          "schema": {
+            "$ref": "../definitions.json#/error"
+          }
+        }
+      },
+      "x-koha-authorization": {
+        "permissions": {
+          "parameters": "manage_bookings"
+        }
+      }
+    },
+    "delete": {
+      "x-mojo-to": "Bookings#delete",
+      "operationId": "deleteBooking",
+      "tags": [
+        "bookings"
+      ],
+      "summary": "Delete booking",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/booking_id_pp"
+        }
+      ],
+      "produces": [
+        "application/json"
+      ],
+      "responses": {
+        "204": {
+          "description": "Booking deleted"
+        },
+        "401": {
+          "description": "Authentication required",
+          "schema": {
+            "$ref": "../definitions.json#/error"
+          }
+        },
+        "403": {
+          "description": "Access forbidden",
+          "schema": {
+            "$ref": "../definitions.json#/error"
+          }
+        },
+        "404": {
+          "description": "Booking not found",
+          "schema": {
+            "$ref": "../definitions.json#/error"
+          }
+        },
+        "500": {
+          "description": "Internal error",
+          "schema": {
+            "$ref": "../definitions.json#/error"
+          }
+        },
+        "503": {
+          "description": "Under maintenance",
+          "schema": {
+            "$ref": "../definitions.json#/error"
+          }
+        }
+      },
+      "x-koha-authorization": {
+        "permissions": {
+          "parameters": "manage_bookings"
+        }
+      }
+    }
+  }
+}

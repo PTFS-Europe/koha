@@ -5,6 +5,9 @@
   "basket": {
     "$ref": "definitions/basket.json"
   },
+  "booking": {
+    "$ref": "definitions/booking.json"
+  },
   "bundle_link": {
     "$ref": "definitions/bundle_link.json"
   },

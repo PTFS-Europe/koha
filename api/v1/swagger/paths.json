@@ -20,11 +20,20 @@
   "/biblios/{biblio_id}": {
     "$ref": "paths/biblios.json#/~1biblios~1{biblio_id}"
   },
+  "/biblios/{biblio_id}/bookings": {
+    "$ref": "paths/biblios.json#/~1biblios~1{biblio_id}~1bookings"
+  },
   "/biblios/{biblio_id}/items": {
     "$ref": "paths/biblios.json#/~1biblios~1{biblio_id}~1items"
   },
   "/biblios/{biblio_id}/pickup_locations": {
     "$ref": "paths/biblios.json#/~1biblios~1{biblio_id}~1pickup_locations"
+  },
+  "/bookings": {
+    "$ref": "paths/bookings.json#/~1bookings"
+  },
+  "/bookings/{booking_id}": {
+    "$ref": "paths/bookings.json#/~1bookings~1{booking_id}"
   },
   "/cash_registers/{cash_register_id}/cashups": {
     "$ref": "paths/cash_registers.json#/~1cash_registers~1{cash_register_id}~1cashups"
@@ -82,6 +91,9 @@
   },
   "/items/{item_id}": {
     "$ref": "paths/items.json#/~1items~1{item_id}"
+  },
+  "/items/{item_id}/bookings": {
+    "$ref": "paths/items.json#/~1items~1{item_id}~1bookings"
   },
   "/items/{item_id}/bundled_items": {
     "$ref": "paths/items.json#/~1items~1{item_id}~1bundled_items"

@@ -1,0 +1,33 @@
+{
+  "type": "object",
+  "properties": {
+    "booking_id": {
+      "type": "integer",
+      "description": "Internal booking identifier"
+    },
+    "biblio_id": {
+      "type": "integer",
+      "description": "Internal identifier for the parent bibliographic record"
+    },
+    "item_id": {
+      "type": [ "integer", "null" ],
+      "description": "Internal item identifier"
+    },
+    "patron_id": {
+        "type": "integer",
+        "description": "Internal patron identifier"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Start date and time of this booking"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Start date and time of this booking"
+    }
+  },
+  "additionalProperties": false,
+  "required": ["biblio_id", "item_id", "patron_id", "start_date", "end_date"]
+}
