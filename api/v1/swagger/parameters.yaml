@@ -3,6 +3,8 @@ advancededitormacro_id_pp:
   $ref: parameters/advancededitormacro.yaml#/advancededitormacro_id_pp
 biblio_id_pp:
   $ref: parameters/biblio.yaml#/biblio_id_pp
+booking_id_pp:
+  $ref: parameters/booking.yaml#/booking_id_pp
 cash_register_id_pp:
   $ref: parameters/cash_register.yaml#/cash_register_id_pp
 cashup_id_pp:
