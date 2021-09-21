@@ -16,6 +16,7 @@ use Koha::ClassSortRules;
 use Koha::ClassSplitRules;
 use C4::ClassSplitRoutine::Dewey;
 use C4::ClassSplitRoutine::LCC;
+use C4::ClassSplitRoutine::ETF;
 use C4::ClassSplitRoutine::Generic;
 use C4::ClassSplitRoutine::RegEx;
 
@@ -415,7 +416,7 @@ sub draw_label_text {
         my @callnumber_list = qw(itemcallnumber 050a 050b 082a 952o 995k);
         if ((grep {$field->{'code'} =~ m/$_/} @callnumber_list) and ($self->{'printing_type'} ne 'BAR') and ($self->{'callnum_split'})) { # If the field contains the call number, we do some sp
             if ($split_routine eq 'LCC' || $split_routine eq 'nlm') { # NLM and LCC should be split the same way
-                @label_lines = C4::ClassSplitRoutine::LCC::split_callnumber($field_data);
+                @label_lines = C4::ClassSplitRoutine::ETF::split_callnumber($field_data);
                 @label_lines = C4::ClassSplitRoutine::Generic::split_callnumber($field_data) unless @label_lines; # If it was not a true lccn, try it as a custom call number
                 push (@label_lines, $field_data) unless @label_lines;         # If it was not that, send it on unsplit
             } elsif ($split_routine eq 'Dewey') {
