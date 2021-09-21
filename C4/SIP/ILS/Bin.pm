@@ -41,15 +41,17 @@ my $map = {
     'PHL'   => {
         '340'   => 1,
         '370'   => 4,
-        '658.5' => 1,
-        '999'   => 3
+        '600'   => 1,
+        '658.4' => 2,
+        '999'   => 3,
     },
     'BERKS' => {
         '340'   => 1,
         '370'   => 4,
-        '658.5' => 1,
-        '999'   => 3
-    }
+        '600'   => 1,
+        '658.4' => 2,
+        '999'   => 3,
+    },
 };
 
 my $exceptions = {
@@ -66,22 +68,23 @@ sub get_sort_bin {
     my ( $item, $library ) = @_;
     my $itemtype = $item->effective_itemtype;
     my $item_classmark = $item->itemcallnumber;
+    $item_classmark =~ s/[^0-9.]+//g;
 
     my $bin = 5;
-
-    # Handle itemtype exceptions
-    $bin = $exceptions->{$itemtype} if exists($exceptions->{$itemtype});
 
     # Handle mappings
     if ( exists ( $map->{$library} ) ) {
         for my $classmark ( sort keys %{$map->{$library}} ) {
-	    if ( $item_classmark < $map->{$library}->{$classmark} ) {
+	    if ( $item_classmark < $classmark ) {
                 $bin = $map->{$library}->{$classmark};
                 last;
 	    }
 	}
     }
-    
+
+    # Handle itemtype exceptions
+    $bin = $exceptions->{$itemtype} if exists($exceptions->{$itemtype});
+   
     return $bin;
 }
 
