@@ -30,7 +30,7 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col order-first order-md-first order-lg-2">
-                <div id="courses" class="maincontent">
+                <div id="reserves" class="maincontent">
                     <h1>Research tables</h1>
 
                     <table id="thesis_tables_table" class="table table-bordered table-striped table-condensed">
