@@ -305,9 +305,24 @@ __PACKAGE__->belongs_to(
   },
 );
 
+=head2 items_lost_issues
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-01-21 13:39:29
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:BWwXBAuls9a0HhscR0WlGQ
+Type: has_many
+
+Related object: L<Koha::Schema::Result::ItemsLostIssue>
+
+=cut
+
+__PACKAGE__->has_many(
+  "items_lost_issues",
+  "Koha::Schema::Result::ItemsLostIssue",
+  { "foreign.issue_id" => "self.issue_id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-09-23 07:00:41
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:RYZFozdomZ0NrvimL6+YZQ
 
 __PACKAGE__->add_columns(
     '+auto_renew'      => { is_boolean => 1 },

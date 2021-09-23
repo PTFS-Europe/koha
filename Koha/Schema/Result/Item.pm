@@ -744,6 +744,36 @@ __PACKAGE__->might_have(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 item_bundles_hosts
+
+Type: has_many
+
+Related object: L<Koha::Schema::Result::ItemBundle>
+
+=cut
+
+__PACKAGE__->has_many(
+  "item_bundles_hosts",
+  "Koha::Schema::Result::ItemBundle",
+  { "foreign.host" => "self.itemnumber" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+=head2 item_bundles_item
+
+Type: might_have
+
+Related object: L<Koha::Schema::Result::ItemBundle>
+
+=cut
+
+__PACKAGE__->might_have(
+  "item_bundles_item",
+  "Koha::Schema::Result::ItemBundle",
+  { "foreign.item" => "self.itemnumber" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 items_last_borrower
 
 Type: might_have
@@ -755,6 +785,21 @@ Related object: L<Koha::Schema::Result::ItemsLastBorrower>
 __PACKAGE__->might_have(
   "items_last_borrower",
   "Koha::Schema::Result::ItemsLastBorrower",
+  { "foreign.itemnumber" => "self.itemnumber" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+=head2 items_lost_issue
+
+Type: might_have
+
+Related object: L<Koha::Schema::Result::ItemsLostIssue>
+
+=cut
+
+__PACKAGE__->might_have(
+  "items_lost_issue",
+  "Koha::Schema::Result::ItemsLostIssue",
   { "foreign.itemnumber" => "self.itemnumber" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
