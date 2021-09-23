@@ -386,6 +386,20 @@ if ($barcode) {
                 $bundle_item->_result->update_or_create_related(
                     'items_lost_issue', { issue_id => $checkout->issue_id } );
                 push @missing_items, $bundle_item;
+                # NOTE: We cannot use C4::LostItem here because the item itself doesn't have a checkout
+                # and thus would not get charged.. it's checked out as part of the bundle.
+                if ( C4::Context->preference('WhenLostChargeReplacementFee') ) {
+                    C4::Accounts::chargelostitem(
+                        $checkout->borrowernumber,
+                        $bundle_item->itemnumber,
+                        $bundle_item->replacementprice,
+                        sprintf( "%s %s %s",
+                            $bundle_item->biblio->title  || q{},
+                            $bundle_item->barcode        || q{},
+                            $bundle_item->itemcallnumber || q{},
+                        ),
+                    );
+                }
             }
             $template->param(
                 unexpected_items => \@unexpected_items,
