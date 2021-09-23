@@ -395,6 +395,22 @@ sub checkout {
     return Koha::Checkout->_new_from_dbic( $checkout_rs );
 }
 
+=head3 last_checkout
+
+  my $old_checkout = $item->last_checkout;
+
+Return the last_checkout for this item
+
+=cut
+
+sub last_checkout {
+    my ( $self ) = @_;
+    my $checkout_rs = $self->_result->old_issues->search( {},
+        { order_by => { '-desc' => 'returndate' }, rows => 1 } )->single;
+    return unless $checkout_rs;
+    return Koha::Old::Checkout->_new_from_dbic( $checkout_rs );
+}
+
 =head3 holds
 
 my $holds = $item->holds();
