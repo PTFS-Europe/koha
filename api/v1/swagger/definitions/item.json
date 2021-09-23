@@ -9,6 +9,8 @@
       "type": "integer",
       "description": "Internal identifier for the parent bibliographic record"
     },
+    "biblio": {
+    },
     "external_id": {
       "type": ["string", "null"],
       "description": "The item's barcode"

@@ -127,6 +127,246 @@
       }
     }
   },
+  "/items/{item_id}/bundled_items": {
+    "get": {
+      "x-mojo-to": "Items#bundled_items",
+      "operationId": "bundledItems",
+      "tags": [
+        "items"
+      ],
+      "summary": "List bundled items",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/item_id_pp"
+        },
+        {
+          "name": "external_id",
+          "in": "query",
+          "description": "Search on the item's barcode",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "$ref": "../parameters.json#/match"
+        },
+        {
+          "$ref": "../parameters.json#/order_by"
+        },
+        {
+          "$ref": "../parameters.json#/page"
+        },
+        {
+          "$ref": "../parameters.json#/per_page"
+        },
+        {
+          "$ref": "../parameters.json#/q_param"
+        },
+        {
+          "$ref": "../parameters.json#/q_body"
+        },
+        {
+          "$ref": "../parameters.json#/q_header"
+        }
+      ],
+      "consumes": [
+        "application/json"
+      ],
+      "produces": [
+        "application/json"
+      ],
+      "responses": {
+        "200": {
+          "description": "A list of item",
+          "schema": {
+            "type": "array",
+            "items": {
+              "$ref": "../definitions.json#/item"
+            }
+          }
+        },
+        "401": {
+          "description": "Authentication required",
+          "schema": {
+            "$ref": "../definitions.json#/error"
+          }
+        },
+        "403": {
+          "description": "Access forbidden",
+          "schema": {
+            "$ref": "../definitions.json#/error"
+          }
+        },
+        "500": {
+          "description": "Internal server error",
+          "schema": {
+            "$ref": "../definitions.json#/error"
+          }
+        },
+        "503": {
+          "description": "Under maintenance",
+          "schema": {
+            "$ref": "../definitions.json#/error"
+          }
+        }
+      },
+      "x-koha-authorization": {
+        "permissions": {
+          "catalogue": "1"
+        }
+      },
+      "x-koha-embed": [
+        "biblio",
+        "checkout"
+      ]
+    }
+  },
+  "/items/{item_id}/bundled_items/item": {
+      "post": {
+          "x-mojo-to": "Items#add_to_bundle",
+          "operationId": "addToBundle",
+          "tags": ["items"],
+          "summary": "Add item to bundle",
+          "parameters": [{
+                  "$ref": "../parameters.json#/item_id_pp"
+              },
+              {
+                  "name": "body",
+                  "in": "body",
+                  "description": "A JSON object containing information about the new bundle link",
+                  "required": true,
+                  "schema": {
+                      "$ref": "../definitions.json#/bundle_link"
+                  }
+              }
+          ],
+          "consumes": ["application/json"],
+          "produces": ["application/json"],
+          "responses": {
+              "201": {
+                  "description": "A successfully created bundle link",
+                  "schema": {
+                      "items": {
+                          "$ref": "../definitions.json#/item"
+                      }
+                  }
+              },
+              "400": {
+                  "description": "Bad parameter",
+                  "schema": {
+                      "$ref": "../definitions.json#/error"
+                  }
+              },
+              "401": {
+                  "description": "Authentication required",
+                  "schema": {
+                      "$ref": "../definitions.json#/error"
+                  }
+              },
+              "403": {
+                  "description": "Access forbidden",
+                  "schema": {
+                      "$ref": "../definitions.json#/error"
+                  }
+              },
+              "404": {
+                  "description": "Resource not found",
+                  "schema": {
+                      "$ref": "../definitions.json#/error"
+                  }
+              },
+              "409": {
+                  "description": "Conflict in creating resource",
+                  "schema": {
+                      "$ref": "../definitions.json#/error"
+                  }
+              },
+              "500": {
+                  "description": "Internal server error",
+                  "schema": {
+                      "$ref": "../definitions.json#/error"
+                  }
+              },
+              "503": {
+                  "description": "Under maintenance",
+                  "schema": {
+                      "$ref": "../definitions.json#/error"
+                  }
+              }
+          },
+          "x-koha-authorization": {
+              "permissions": {
+                  "catalogue": 1
+              }
+          }
+      }
+  },
+  "/items/{item_id}/bundled_items/item/{bundled_item_id}": {
+      "delete": {
+          "x-mojo-to": "Items#remove_from_bundle",
+          "operationId": "removeFromBundle",
+          "tags": ["items"],
+          "summary": "Remove item from bundle",
+          "parameters": [{
+                  "$ref": "../parameters.json#/item_id_pp"
+              },
+              {
+                    "name": "bundled_item_id",
+                    "in": "path",
+                    "description": "Internal identifier for the bundled item",
+                    "required": true,
+                    "type": "string"
+              }
+          ],
+          "consumes": ["application/json"],
+          "produces": ["application/json"],
+          "responses": {
+              "204": {
+                  "description": "Bundle link deleted"
+              },
+              "400": {
+                  "description": "Bad parameter",
+                  "schema": {
+                      "$ref": "../definitions.json#/error"
+                  }
+              },
+              "401": {
+                  "description": "Authentication required",
+                  "schema": {
+                      "$ref": "../definitions.json#/error"
+                  }
+              },
+              "403": {
+                  "description": "Access forbidden",
+                  "schema": {
+                      "$ref": "../definitions.json#/error"
+                  }
+              },
+              "404": {
+                  "description": "Resource not found",
+                  "schema": {
+                      "$ref": "../definitions.json#/error"
+                  }
+              },
+              "500": {
+                  "description": "Internal server error",
+                  "schema": {
+                      "$ref": "../definitions.json#/error"
+                  }
+              },
+              "503": {
+                  "description": "Under maintenance",
+                  "schema": {
+                      "$ref": "../definitions.json#/error"
+                  }
+              }
+          },
+          "x-koha-authorization": {
+              "permissions": {
+                  "catalogue": 1
+              }
+          }
+      }
+  },
   "/items/{item_id}/pickup_locations": {
     "get": {
       "x-mojo-to": "Items#pickup_locations",
