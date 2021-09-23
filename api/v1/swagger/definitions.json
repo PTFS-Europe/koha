@@ -8,6 +8,9 @@
   "booking": {
     "$ref": "definitions/booking.yaml"
   },
+  "bundle_link": {
+    "$ref": "definitions/bundle_link.json"
+  },
   "cashup": {
     "$ref": "definitions/cashup.json"
   },

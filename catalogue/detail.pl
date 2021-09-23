@@ -169,6 +169,11 @@ if (@hostitems){
 
 my $dat = &GetBiblioData($biblionumber);
 
+#is biblio a collection
+my $leader = $record->leader();
+$dat->{collection} = ( substr($leader,7,1) eq 'c' ) ? 1 : 0;
+
+
 #coping with subscriptions
 my $subscriptionsnumber = CountSubscriptionFromBiblionumber($biblionumber);
 my @subscriptions       = SearchSubscriptions({ biblionumber => $biblionumber, orderby => 'title' });
@@ -401,6 +406,15 @@ foreach my $item (@items) {
 
     if ( C4::Context->preference("LocalCoverImages") == 1 ) {
         $item->{cover_images} = $item_object->cover_images;
+    }
+
+    if ($item_object->is_bundle) {
+        $itemfields{bundles} = 1;
+        $item->{is_bundle} = 1;
+    }
+
+    if ($item_object->in_bundle) {
+        $item->{bundle_host} = $item_object->bundle_host;
     }
 
     if ($currentbranch and C4::Context->preference('SeparateHoldings')) {

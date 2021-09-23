@@ -101,6 +101,15 @@
   "/items/{item_id}/bookings": {
     "$ref": "paths/items.json#/~1items~1{item_id}~1bookings"
   },
+  "/items/{item_id}/bundled_items": {
+    "$ref": "paths/items.json#/~1items~1{item_id}~1bundled_items"
+  },
+  "/items/{item_id}/bundled_items/item": {
+    "$ref": "paths/items.json#/~1items~1{item_id}~1bundled_items~1item"
+  },
+  "/items/{item_id}/bundled_items/item/{bundled_item_id}": {
+    "$ref": "paths/items.json#/~1items~1{item_id}~1bundled_items~1item~1{bundled_item_id}"
+  },
   "/items/{item_id}/pickup_locations": {
     "$ref": "paths/items.yaml#/~1items~1{item_id}~1pickup_locations"
   },
