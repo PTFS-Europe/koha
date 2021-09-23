@@ -414,6 +414,23 @@ sub last_checkout {
     return Koha::Old::Checkout->_new_from_dbic( $checkout_rs );
 }
 
+=head3 loss_checkout
+
+  my $loss_checkout = $item->loss_checkout;
+
+Return the old checkout from which this item was marked as lost
+
+=cut
+
+sub loss_checkout {
+    my ( $self ) = @_;
+    my $items_lost_issue_rs = $self->_result->items_lost_issue;
+    return unless $items_lost_issue_rs;
+    my $issue_rs = $items_lost_issue_rs->issue;
+    return unless $issue_rs;
+    return Koha::Old::Checkout->_new_from_dbic( $issue_rs );
+}
+
 =head3 holds
 
 my $holds = $item->holds();
@@ -1260,7 +1277,10 @@ Internal function, not exported, called only by Koha::Item->store.
 sub _set_found_trigger {
     my ( $self, $pre_mod_item ) = @_;
 
-    ## If item was lost, it has now been found, reverse any list item charges if necessary.
+    # If item was lost, it has now been found
+    $self->_result->items_lost_issue->delete;
+
+    # Reverse any lost item charges if necessary.
     my $no_refund_after_days =
       C4::Context->preference('NoRefundOnLostReturnedItemsAge');
     if ($no_refund_after_days) {
