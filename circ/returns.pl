@@ -383,6 +383,8 @@ if ($barcode) {
             for my $missing_item ( keys %{$expected_items} ) {
                 my $bundle_item = $expected_items->{$missing_item};
                 $bundle_item->itemlost($BundleLostValue)->store();
+                $bundle_item->_result->update_or_create_related(
+                    'items_lost_issue', { issue_id => $checkout->issue_id } );
                 push @missing_items, $bundle_item;
             }
             $template->param(

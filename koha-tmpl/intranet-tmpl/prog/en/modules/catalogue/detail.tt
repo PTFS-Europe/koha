@@ -455,6 +455,9 @@ Note that permanent location is a code, and location may be an authval.
                             [% ELSE %]
                                 <span class="lost">Unavailable (lost or missing)</span>
                             [% END %]
+                            [% IF ( item.itemlost == Koha.Preference('BundleLostValue') AND item.loss_checkout ) %]
+                                <span class="lost">Lost by [% INCLUDE 'patron-title.inc' patron=item.loss_checkout.patron hide_patron_infos_if_needed=1 %]</span>
+                            [% END %]
                         [% END %]
 
                         [% IF ( item.withdrawn ) %]
