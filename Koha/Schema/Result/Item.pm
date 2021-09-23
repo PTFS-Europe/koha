@@ -729,6 +729,36 @@ __PACKAGE__->might_have(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 item_bundles_hosts
+
+Type: has_many
+
+Related object: L<Koha::Schema::Result::ItemBundle>
+
+=cut
+
+__PACKAGE__->has_many(
+  "item_bundles_hosts",
+  "Koha::Schema::Result::ItemBundle",
+  { "foreign.host" => "self.itemnumber" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+=head2 item_bundles_item
+
+Type: might_have
+
+Related object: L<Koha::Schema::Result::ItemBundle>
+
+=cut
+
+__PACKAGE__->might_have(
+  "item_bundles_item",
+  "Koha::Schema::Result::ItemBundle",
+  { "foreign.item" => "self.itemnumber" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 items_last_borrower
 
 Type: might_have
@@ -740,6 +770,21 @@ Related object: L<Koha::Schema::Result::ItemsLastBorrower>
 __PACKAGE__->might_have(
   "items_last_borrower",
   "Koha::Schema::Result::ItemsLastBorrower",
+  { "foreign.itemnumber" => "self.itemnumber" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+=head2 items_lost_issue
+
+Type: might_have
+
+Related object: L<Koha::Schema::Result::ItemsLostIssue>
+
+=cut
+
+__PACKAGE__->might_have(
+  "items_lost_issue",
+  "Koha::Schema::Result::ItemsLostIssue",
   { "foreign.itemnumber" => "self.itemnumber" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
@@ -865,8 +910,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-08-27 08:42:21
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:SjZn3haOtUZWu1jrMigjNQ
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-09-23 07:00:41
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:/LUKEnOVCeXHPYDqV7HGRg
 
 __PACKAGE__->belongs_to( biblioitem => "Koha::Schema::Result::Biblioitem", "biblioitemnumber" );
 
