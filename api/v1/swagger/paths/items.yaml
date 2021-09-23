@@ -303,3 +303,54 @@
     x-koha-authorization:
       permissions:
         reserveforothers: place_holds
+/public/items/{item_id}/bundled_items:
+  get:
+    x-mojo-to: Items#bundled_items
+    operationId: bundledItemsPublic
+    tags:
+      - items
+    summary: List bundled items
+    parameters:
+      - $ref: ../parameters.json#/item_id_pp
+      - name: external_id
+        in: query
+        description: Search on the item's barcode
+        required: false
+        type: string
+      - $ref: ../parameters.json#/match
+      - $ref: ../parameters.json#/order_by
+      - $ref: ../parameters.json#/page
+      - $ref: ../parameters.json#/per_page
+      - $ref: ../parameters.json#/q_param
+      - $ref: ../parameters.json#/q_body
+      - $ref: ../parameters.json#/q_header
+    consumes:
+      - application/json
+    produces:
+      - application/json
+    responses:
+      "200":
+        description: A list of item
+        schema:
+          type: array
+          items:
+            $ref: ../definitions.json#/item
+      "401":
+        description: Authentication required
+        schema:
+          $ref: ../definitions.json#/error
+      "403":
+        description: Access forbidden
+        schema:
+          $ref: ../definitions.json#/error
+      "500":
+        description: Internal server error
+        schema:
+          $ref: ../definitions.json#/error
+      "503":
+        description: Under maintenance
+        schema:
+          $ref: ../definitions.json#/error
+    x-koha-embed:
+      - biblio
+      - checkout

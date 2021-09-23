@@ -1088,6 +1088,19 @@ sub get_marc_notes {
     return \@marcnotes;
 }
 
+=head3 public_read_list
+
+This method returns the list of publicly readable database fields for both API and UI output purposes
+
+=cut
+
+sub public_read_list {
+    return [
+        'biblionumber', 'frameworkcode', 'title', 'unititle',
+        'seriestitle',  'copyrightdate', 'datecreated'
+    ];
+}
+
 =head3 to_api
 
     my $json = $biblio->to_api;
