@@ -27,6 +27,9 @@
     [% IF ( CAN_user_reserveforothers ) %]
     [% IF ( holdsview ) %]<li class="active">[% ELSE %]<li>[% END %]<a href="/cgi-bin/koha/reserve/request.pl?biblionumber=[% biblio_object_id | url  %]">Holds ([% Biblio.HoldsCount( biblio_object_id ) | html %])</a></li>
     [% END %]
+
+    [% IF ( bookingsview ) %]<li class="active">[% ELSE %]<li>[% END %]<a href="/cgi-bin/koha/bookings/list.pl?biblionumber=[% biblio_object_id | url  %]">Bookings</a></li>
+
     [% IF ( EasyAnalyticalRecords ) %][% IF ( analyze ) %]<li class="active">[% ELSE %]<li>[% END %]<a href="/cgi-bin/koha/catalogue/detail.pl?biblionumber=[% biblio_object_id | url  %]&amp;analyze=1">Analytics</a></li>[% END %]
 
     [% IF Koha.Preference('ArticleRequests') %]
