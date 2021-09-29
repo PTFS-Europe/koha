@@ -319,6 +319,13 @@
           "$ref": "../parameters.json#/biblio_id_pp"
         },
         {
+          "name": "bookable",
+          "in": "query",
+          "description": "Limit to items that are bookable",
+          "required": false,
+          "type": "boolean"
+        },
+        {
           "$ref": "../parameters.json#/match"
         },
         {
