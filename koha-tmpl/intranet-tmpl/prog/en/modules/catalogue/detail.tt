@@ -1104,6 +1104,9 @@ Note that permanent location is a code, and location may be an authval.
 
 [% MACRO jsinclude BLOCK %]
     [% INCLUDE 'catalog-strings.inc' %]
+    [% INCLUDE 'calendar.inc' %]
+    [% INCLUDE 'select2.inc' %]
+    [% INCLUDE 'js-date-format.inc' %]
     [% Asset.js("js/catalog.js") | $raw %]
     [% Asset.js("js/coce.js") | $raw %]
     [% Asset.js("lib/Chocolat/js/chocolat.js") | $raw %]
@@ -1404,6 +1407,7 @@ Note that permanent location is a code, and location may be an authval.
     [% INCLUDE 'js-patron-format.inc' %]
     [% Asset.js("js/browser.js") | $raw %]
     [% Asset.js("js/table_filters.js") | $raw %]
+    [% Asset.js("js/place_booking_modal.js") | $raw %]
     <script>
         var browser;
         browser = KOHA.browser('[% searchid | html %]', parseInt(biblionumber, 10));
