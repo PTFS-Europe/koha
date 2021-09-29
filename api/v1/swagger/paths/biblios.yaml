@@ -199,6 +199,11 @@
     summary: Get items for a biblio
     parameters:
       - $ref: ../parameters.yaml#/biblio_id_pp
+      - name: bookable
+        in: query
+        description: Limit to items that are bookable
+        required: false
+        type: boolean
       - $ref: ../parameters.yaml#/match
       - $ref: ../parameters.yaml#/order_by
       - $ref: ../parameters.yaml#/page

@@ -191,6 +191,8 @@
     [% END %]
 [% END %]
 
+<div class="btn-group"><button id="placbooking" class="btn btn-default" data-toggle="modal" data-target="#placeBookingModal" data-biblionumber="[% biblionumber | html %]"><i class="fa fa-calendar"></i> Place booking</button></div>
+
 [% IF Koha.Preference('ArticleRequests') %]
     <div class="btn-group"><a id="placehold" class="btn btn-default" href="/cgi-bin/koha/circ/request-article.pl?biblionumber=[% biblionumber | html %]"><i class="fa fa-file-text-o"></i> Request article</a></div>
 [% END %]
@@ -241,3 +243,5 @@
         </div>
         </div>
     </div>
+
+    [% INCLUDE modals/place_booking.inc %]
