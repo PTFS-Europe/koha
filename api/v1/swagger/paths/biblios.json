@@ -227,7 +227,10 @@
         "permissions": {
             "circulation": "1"
         }
-      }
+      },
+      "x-koha-embed": [
+          "item"
+      ]
     }
   },
   "/biblios/{biblio_id}/checkouts": {
