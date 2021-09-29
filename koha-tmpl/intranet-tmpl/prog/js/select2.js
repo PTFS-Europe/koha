@@ -10,8 +10,8 @@ $.fn.select2.defaults.set("language", {
         var n = args.input.length - args.maximum;
         return __("Please delete %s character(s)").format(n);
     },
-    inputTooShort:function(e){
-        var n = e.minimum - args.input.length;
+    inputTooShort:function(args){
+        var n = args.minimum - args.input.length;
         return __("Please enter %s or more characters").format(n);
     },
     formatResult: function(item) {
