@@ -99,6 +99,7 @@
                         start: booking.start_date,
                         end: booking.end_date,
                         content: 'Booking: ' + booking.booking_id,
+                        editable: true,
                         type: 'range',
                         group: booking.item_id ? booking.item_id : 0
                     });
