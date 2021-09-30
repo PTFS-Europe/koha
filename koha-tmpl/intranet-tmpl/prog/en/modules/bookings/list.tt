@@ -96,9 +96,10 @@
                 var bookingsSet = new vis.DataSet();
                 for (booking of bookings[0]){
                     bookingsSet.add({
-                        start: booking.start_date,
-                        end: booking.end_date,
+                        start: moment(booking.start_date),
+                        end: moment(booking.end_date),
                         content: 'Booking: ' + booking.booking_id,
+                        editable: true,
                         type: 'range',
                         group: booking.item_id ? booking.item_id : 0
                     });
@@ -113,6 +114,23 @@
                         item: "top"
                     },
                     timeAxis: {scale: 'day', step: 1},
+                    onMoving: function (item, callback) {
+                        var overlapping = bookingsSet.get({
+                            filter: function(testItem) {
+                                if (testItem.id == item.id) {
+                                    return false;
+                                }
+                                if (testItem.group != item.group) {
+                                    return false;
+                                }
+                                return ((item.start <= testItem.end) && (item.end >= testItem.start));
+                            }
+                        });
+
+                        if (overlapping.length == 0) {
+                            callback(item);
+                        }
+                    },
                 };
                 var timeline = new vis.Timeline(container, bookingsSet, itemsSet, options);
             },
