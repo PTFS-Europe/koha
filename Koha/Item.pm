@@ -426,6 +426,74 @@ sub bookings {
     return Koha::Bookings->_new_from_dbic( $bookings_rs );
 }
 
+=head3 find_booking
+
+Find any booking that would conflict with this passed checkout dates
+
+=cut
+
+sub find_booking {
+    my ( $self, $params ) = @_;
+
+    my $checkout_date = $params->{checkout_date};
+    my $due_date = $params->{due_date};
+
+    my $dtf = Koha::Database->new->schema->storage->datetime_parser;
+    my $bookings = $self->biblio->bookings(
+        [
+            # Checkout starts during booked period
+            start_date => {
+                '-between' => [
+                    $dtf->format_datetime($checkout_date),
+                    $dtf->format_datetime($due_date)
+                ]
+            },
+            # Checkout is due during booked period
+            end_date => {
+                '-between' => [
+                    $dtf->format_datetime($checkout_date),
+                    $dtf->format_datetime($due_date)
+                ]
+            },
+            # Checkout contains booked period
+            {
+                start_date => { '<' => $dtf->format_datetime($checkout_date) },
+                end_date   => { '>' => $dtf->format_datetime($due_date) }
+            }
+        ],
+        {
+            order_by => { '-asc' => 'start_date' }
+        }
+    );
+
+    my $loanable_items = $self->biblio->items->count;
+
+    my $booked;
+    while ( my $booking = $bookings->next ) {
+
+        # Decrement loanable items for each booking found
+        $loanable_items--;
+
+        # Set booked to current booking
+        $booked = $booking;
+
+        if ( defined($booking->item_id) && $booking->item_id == $self->itemnumber ) {
+            # Might fulfil this booking, check patron after return
+            $loanable_items = 0;
+            last;
+        }
+
+        if ( !defined($booking->patron_id) && $booking->patron_id == $params->{patron_id} ) {
+            # This user booked it
+            $loanable_items = 0;
+            last;
+        }
+    }
+
+    return $booked unless $loanable_items;
+    return 0;
+}
+
 =head3 check_booking
 
   my $bookable =
@@ -509,9 +577,9 @@ sub place_booking {
         {
             start_date     => $params->{start_date},
             end_date       => $params->{end_date},
-            borrowernumber => $patron->borrowernumber,
-            biblionumber   => $self->biblionumber,
-            itemnumber     => $self->itemnumber,
+            patron_id      => $patron->borrowernumber,
+            biblio_id      => $self->biblionumber,
+            item_id        => $self->itemnumber,
         }
     )->store();
     return $booking;
