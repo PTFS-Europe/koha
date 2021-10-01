@@ -1152,6 +1152,34 @@ sub CanBookBeIssued {
         }
     }
 
+    ## CHECK FOR BOOKINGS
+    if (
+        my $booking = $item_object->find_booking(
+            {
+                checkout_date => dt_from_string(),
+                due_date      => $duedate,
+                patron_id     => $patron->borrowernumber
+            }
+        )
+      )
+    {
+        # Booked to this patron :)
+        if ( $booking->borrowernumber == $patron->borrowernumber ) {
+            warn "Booked to this user";
+            $messages{'booked'} = $booking;
+        }
+        # Booking starts before due date, reduce loan?
+        elsif ( $duedate > dt_from_string($booking->start_date) ) {
+            warn "Booked to another user soon";
+            $needsconfirmation{'BOOKED_TO_ANOTHER'} = $booking;
+        }
+        # Loan falls inside booking
+        else {
+            warn "Booked to another user now";
+            $issuingimpossible{'BOOKED_TO_ANOTHER'} = $booking;
+        }
+    }
+
     ## CHECK AGE RESTRICTION
     my $agerestriction  = $biblioitem->agerestriction;
     my ($restriction_age, $daysToAgeRestriction) = GetAgeRestriction( $agerestriction, $patron->unblessed );
