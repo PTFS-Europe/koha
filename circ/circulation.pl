@@ -207,6 +207,10 @@ if( $onsite_checkout && !$duedatespec_allow ) {
         }
     }
 }
+my $reduced_datedue = $query->param('reduceddue');
+if ( $reduced_datedue ) {
+    $datedue = dt_from_string( $reduced_datedue );
+}
 
 my $inprocess = (@$barcodes == 0) ? '' : $query->param('inprocess');
 if ( @$barcodes == 0 && $charges eq 'yes' ) {
@@ -303,6 +307,7 @@ if (@$barcodes) {
     };
 
     # always check for blockers on issuing
+    # issuingimpossible, needsconfirm, alerts, messages
     my ( $error, $question, $alerts, $messages ) = CanBookBeIssued(
         $patron,
         $barcode, $datedue,
@@ -362,6 +367,12 @@ if (@$barcodes) {
         $blocker = 1;
     }
 
+    if ( $error->{BOOKED_TO_ANOTHER} ) {
+        $template_params->{BOOKED_TO_ANOTHER} = $error->{BOOKED_TO_ANOTHER};
+        $template_params->{IMPOSSIBLE} = 1;
+        $blocker = 1;
+    }
+
     if ( $error->{UNKNOWN_BARCODE} or not $onsite_checkout or not C4::Context->preference("OnSiteCheckoutsForce") ) {
         delete $question->{'DEBT'} if ($debt_confirmed);
         foreach my $impossible ( keys %$error ) {
@@ -388,6 +399,10 @@ if (@$barcodes) {
                 $template_params->{getBarcodeMessageIteminfo} = $item->barcode;
                 $template_params->{NEEDSCONFIRMATION} = 1;
                 $confirm_required = 1;
+                if ( $needsconfirmation eq 'BOOKED_TO_ANOTHER' ) {
+                    my $reduceddue = dt_from_string($$question{$needsconfirmation}->start_date)->subtract( days => 1 );
+                    $template_params->{reduceddue} = $reduceddue;
+                }
             }
         }
         unless($confirm_required) {
