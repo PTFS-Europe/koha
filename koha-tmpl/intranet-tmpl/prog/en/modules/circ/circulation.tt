@@ -232,6 +232,12 @@
                                         Please confirm that the accompanying materials are present: [% ADDITIONAL_MATERIALS | html %]
                                     </li>
                                 [% END %]
+
+                                [% IF ( BOOKED_TO_ANOTHER ) %]
+                                    <li>
+                                        Due for another patron booking by: [% BOOKED_TO_ANOTHER.start_date | $KohaDates %]
+                                    </li>
+                                [% END %]
                             </ul>
 
                             [% IF CAN_user_circulate_force_checkout or HIGHHOLDS %]
@@ -295,6 +301,13 @@
                                         </p>
                                     [% ELSE %]
                                         <input type="hidden" name="duedatespec" value="[% duedatespec | html %]" />
+                                    [% END %]
+
+                                    [% IF ( BOOKED_TO_ANOTHER ) %]
+                                        <p>
+                                            <label for="reduceddue">Reducing due date to: <label>
+                                            <input type="text" size="20" id="reudceddue" name="reduceddue" value="[% reduceddue | $KohaDates with_hours => 1 %]" readonly="readonly">
+                                        </p>
                                     [% END %]
 
                                     <input type="hidden" name="stickyduedate" value="[% stickyduedate | html %]" />
@@ -460,10 +473,13 @@
                                 [% IF ( USERBLOCKEDOVERDUE ) %]
                                     <li>Checkouts are BLOCKED because patron has overdue items.</li>
                                 [% END %]
-                                </ul>
 
                                 [% IF (forceallow) %]
                                     <li>Restriction overridden temporarily.</li>
+                                [% END %]
+
+                                [% IF ( BOOKED_TO_ANOTHER ) %]
+                                    <li>!!A booking exists!!</li>
                                 [% END %]
                             </ul>
                         </div> <!-- /#circ_impossible -->
