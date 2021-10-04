@@ -730,6 +730,11 @@ $template->param(borrowernumber => $borrowernumber_hold);
 
 $template->param( failed_holds => \@failed_holds );
 
+my $recallerror = $input->param('recallerror');
+if ($recallerror) {
+    $template->param( recallerror => 1 );
+}
+
 # printout the page
 output_html_with_http_headers $input, $cookie, $template->output;
 

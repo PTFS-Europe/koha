@@ -47,6 +47,7 @@ my @branch = $query->multi_param('pickup');
 my @itemnumber = $query->multi_param('itemnumber');
 my @biblionumber = $query->multi_param('biblionumber');
 my $count=@rank;
+my $recallerror;
 
 @biblionumber = uniq @biblionumber;
 
@@ -67,6 +68,13 @@ if( $op eq 'cud-cancelall' || $op eq 'cud-modifyall' ) {
         };
         if (C4::Context->preference('AllowHoldDateInFuture')) {
             $params->{reservedate} = $reservedates[$i] || undef;
+        }
+
+        if ( $rank[$i] eq 'recall' and !$recallerror ) {
+            my $hold = Koha::Holds->find( $reserve_id[$i] );
+            if ( !$hold->biblio->can_be_recalled( { patron => $hold->patron } ) ) {
+                $recallerror = 1;
+            }
         }
 
         try {
@@ -108,7 +116,11 @@ if ( $from eq 'borrower'){
 } elsif ( $from eq 'circ'){
     print $query->redirect("/cgi-bin/koha/circ/circulation.pl?borrowernumber=$borrower[0]");
 } else {
-     my $url = URI->new("/cgi-bin/koha/reserve/request.pl");
-     $url->query_form( biblionumber => [@biblionumber]);
-     print $query->redirect($url);
+    my $url = URI->new("/cgi-bin/koha/reserve/request.pl");
+    if ($recallerror) {
+        $url->query_form( biblionumber => [@biblionumber], recallerror => 1 );
+    } else {
+        $url->query_form( biblionumber => [@biblionumber] );
+    }
+    print $query->redirect($url);
 }

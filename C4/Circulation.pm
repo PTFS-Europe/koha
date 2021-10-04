@@ -385,7 +385,7 @@ sub transferbook {
     }
 
     # find recall
-    if ( C4::Context->preference('UseRecalls') ) {
+    if ( C4::Context->preference('UseRecalls') ne "off" ) {
         my $recall = Koha::Recalls->find({ item_id => $itemnumber, status => 'in_transit' });
         if ( defined $recall ) {
             # do a transfer if the recall branch is different to the item holding branch
@@ -1142,7 +1142,7 @@ sub CanBookBeIssued {
     # CHECK IF ITEM HAS BEEN RECALLED BY ANOTHER PATRON
     # Only bother doing this if UseRecalls is enabled and the item is recallable
     # Don't look at recalls that are in transit
-    if ( C4::Context->preference('UseRecalls') and $item_object->can_be_waiting_recall ) {
+    if ( C4::Context->preference('UseRecalls') ne "off" and $item_object->can_be_waiting_recall ) {
         my @recalls = $biblio->recalls({},{ order_by => { -asc => 'created_date' } })->filter_by_current->as_list;
 
         foreach my $r ( @recalls ) {
@@ -1647,7 +1647,7 @@ sub AddIssue {
                 $item_object->discard_changes;
             }
 
-            if ( C4::Context->preference('UseRecalls') ) {
+            if ( C4::Context->preference('UseRecalls') ne "off" ) {
                 Koha::Recalls->move_recall(
                     {
                         action         => $cancel_recall,
@@ -2427,7 +2427,7 @@ sub AddReturn {
     }
 
     # find recalls...
-    if ( C4::Context->preference('UseRecalls') ) {
+    if ( C4::Context->preference('UseRecalls') ne "off" ) {
         # check if this item is recallable first, which includes checking if UseRecalls syspref is enabled
         my $recall = undef;
         $recall = $item->check_recalls if $item->can_be_waiting_recall;
@@ -2504,7 +2504,7 @@ sub AddReturn {
         $request->status('RET') if $request;
     }
 
-    if ( C4::Context->preference('UseRecalls') ) {
+    if ( C4::Context->preference('UseRecalls') ne "off" ) {
         # all recalls that have triggered a transfer will have an allocated itemnumber
         my $transfer_recall = Koha::Recalls->find({ item_id => $item->itemnumber, status => 'in_transit' });
         if ( $transfer_recall and $transfer_recall->pickup_library_id eq $branch ) {
@@ -3067,7 +3067,7 @@ sub CanBookBeRenewed {
 
     }
 
-    if ( C4::Context->preference('UseRecalls') ) {
+    if ( C4::Context->preference('UseRecalls') ne "off" ) {
         my $recall = undef;
         $recall = $item->check_recalls if $item->can_be_waiting_recall;
         if ( defined $recall ) {

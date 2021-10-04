@@ -255,6 +255,14 @@
                         <p>No club with this name, please, try another</p>
                     </div>
                 [% END %]
+
+                [% IF ( recallerror ) %]
+                    <div class="dialog alert">
+                        <h3>Hold cannot be converted to a recall</h3>
+                        <p>A recall cannot be placed for one or more holds. Check your <a href="/cgi-bin/koha/admin/smart-rules.pl">circulation and fine rules</a>.</p>
+                    </div>
+                [% END %]
+
                 <fieldset>
                     [% UNLESS multi_hold %]
                         [% IF clubcount %]
@@ -2013,6 +2021,10 @@
             window.open("/cgi-bin/koha/circ/hold-transfer-slip.pl?reserve_id=" + reserve_id);
             return false;
         })
+        $(".convert-to-recall").click(function(){
+            var reserve_id = $(this).attr('data-id');
+            $("select[class='rank-request'][data-hold-id='"+reserve_id+"']").val('recall');
+        });
     </script>
 [% END %]
 

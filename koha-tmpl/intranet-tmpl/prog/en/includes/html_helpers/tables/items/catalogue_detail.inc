@@ -237,7 +237,7 @@
     [% IF biblio.serial %]
         embed.push('serial_item.serial');
     [% END %]
-    [% IF Koha.Preference('UseRecalls') %]
+    [% IF Koha.Preference('UseRecalls') != "off" %]
         embed.push('recall', 'recall+strings', 'recall.patron')
     [% END %]
     [% IF bundlesEnabled %]
@@ -540,7 +540,7 @@
                         }
                     }
 
-                    [% IF Koha.Preference('UseRecalls') %]
+                    [% IF Koha.Preference('UseRecalls') != "off" %]
                         if ( row.recall ) {
                             if ( row.recall.waiting_date ) {
                                 nodes += '<span>%s</span>'.format(_("Waiting at %s since %s").format(escape_str(row.recall.pickup_library_id.str), $date(row.recall.waiting_date)));

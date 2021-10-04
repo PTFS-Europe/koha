@@ -30,7 +30,7 @@
                     [% INCLUDE 'messages.inc' %]
                     [% INCLUDE 'members-toolbar.inc' %]
                     <h1>Recalls history</h1>
-                    [% IF Koha.Preference('UseRecalls') %]
+                    [% IF Koha.Preference('UseRecalls') != "off" %]
                         <input type="checkbox" id="hide_old" name="hide_old" checked="checked">
                         <label for="hide_old">Show old recalls</label>
                         [% INCLUDE 'recalls.inc' %]

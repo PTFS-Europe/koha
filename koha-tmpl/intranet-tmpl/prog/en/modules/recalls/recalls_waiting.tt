@@ -39,7 +39,7 @@
             [% INCLUDE 'messages.inc' %]
                 <h1>Recalls awaiting pickup</h1>
 
-                [% IF Koha.Preference('UseRecalls') %]
+                [% IF Koha.Preference('UseRecalls') != "off" %]
 
                     [% WRAPPER tabs id= "results" %]
                         [% WRAPPER tabs_nav %]

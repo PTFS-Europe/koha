@@ -84,7 +84,7 @@
                 <a href="/cgi-bin/koha/opac-holdshistory.pl">Holds history</a></li>
             [% END %]
 
-            [% IF Koha.Preference('UseRecalls') %]
+            [% IF Koha.Preference('UseRecalls') != "off" %]
                 [% IF ( recallsview ) %]
                     <li class="active">
                 [% ELSE %]

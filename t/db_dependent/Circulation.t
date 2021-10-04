@@ -1728,7 +1728,7 @@ subtest "CanBookBeRenewed tests" => sub {
     );
 
     # Recalls
-    t::lib::Mocks::mock_preference('UseRecalls', 1);
+    t::lib::Mocks::mock_preference('UseRecalls', 'opac');
     Koha::CirculationRules->set_rules({
         categorycode => undef,
         branchcode => undef,
@@ -2441,7 +2441,7 @@ subtest 'AddIssue & AllowReturnToBranch' => sub {
 subtest 'AddIssue | recalls' => sub {
     plan tests => 3;
 
-    t::lib::Mocks::mock_preference("UseRecalls", 1);
+    t::lib::Mocks::mock_preference("UseRecalls", 'opac');
     t::lib::Mocks::mock_preference("item-level_itypes", 1);
     my $patron1 = $builder->build_object({ class => 'Koha::Patrons' });
     my $patron2 = $builder->build_object({ class => 'Koha::Patrons' });
@@ -4800,7 +4800,7 @@ subtest 'CanBookBeIssued | notforloan' => sub {
 subtest 'CanBookBeIssued | recalls' => sub {
     plan tests => 3;
 
-    t::lib::Mocks::mock_preference("UseRecalls", 1);
+    t::lib::Mocks::mock_preference("UseRecalls", 'opac');
     t::lib::Mocks::mock_preference("item-level_itypes", 1);
     my $patron1 = $builder->build_object({ class => 'Koha::Patrons' });
     my $patron2 = $builder->build_object({ class => 'Koha::Patrons' });
@@ -4952,7 +4952,7 @@ subtest 'AddReturn should clear items.onloan for unissued items' => sub {
 subtest 'AddReturn | recalls' => sub {
     plan tests => 3;
 
-    t::lib::Mocks::mock_preference("UseRecalls", 1);
+    t::lib::Mocks::mock_preference("UseRecalls", 'opac');
     t::lib::Mocks::mock_preference("item-level_itypes", 1);
     my $patron1 = $builder->build_object({ class => 'Koha::Patrons' });
     my $patron2 = $builder->build_object({ class => 'Koha::Patrons' });

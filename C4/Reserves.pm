@@ -1052,7 +1052,44 @@ sub ModReserve {
     my $original = C4::Context->preference('HoldsLog') ? $hold->unblessed : undef;
 
     if ( $rank eq "del" ) {
-        $hold->cancel({ cancellation_reason => $cancellation_reason });
+        $hold->cancel( { cancellation_reason => $cancellation_reason } );
+    } elsif ( $rank eq "recall" ) {
+        if ( !$biblionumber ) {
+            $biblionumber = $hold->biblionumber;
+        }
+        my $biblio = Koha::Biblios->find($biblionumber);
+        if ( !$borrowernumber ) {
+            $borrowernumber = $hold->borrowernumber;
+        }
+        my $patron = Koha::Patrons->find($borrowernumber);
+        if ( $hold->item_level_hold ) {
+            if ( $hold->item->can_be_recalled( { patron => $patron, hold_convert => 1 } ) ) {
+                my ( $recall, $due_interval, $due_date ) = Koha::Recalls->add_recall(
+                    {
+                        patron         => $patron,
+                        biblio         => $biblio,
+                        branchcode     => $branchcode,
+                        expirationdate => $date,
+                        interface      => 'intranet',
+                        item           => $hold->item,
+                    }
+                );
+                $hold->cancel( { cancellation_reason => 'RECALLED' } );
+            }
+        } else {
+            if ( $biblio->can_be_recalled( { patron => $patron, hold_convert => 1 } ) ) {
+                my ( $recall, $due_interval, $due_date ) = Koha::Recalls->add_recall(
+                    {
+                        patron         => $patron,
+                        biblio         => $biblio,
+                        branchcode     => $branchcode,
+                        expirationdate => $date,
+                        interface      => 'intranet',
+                    }
+                );
+                $hold->cancel( { cancellation_reason => 'RECALLED' } );
+            }
+        }
     }
     elsif ($hold->found && $hold->priority eq '0' && $date) {
 

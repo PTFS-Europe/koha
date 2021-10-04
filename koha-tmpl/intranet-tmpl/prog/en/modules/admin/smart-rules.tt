@@ -147,7 +147,7 @@
                             <th>Article requests</th>
                             [% END %]
                             <th>Rental discount (%)</th>
-                            [% IF Koha.Preference('UseRecalls') %]
+                            [% IF Koha.Preference('UseRecalls') != "off" %]
                                 <th>Recalls allowed (total)</th>
                                 <th>Recalls per record (count)</th>
                                 <th>On shelf recalls allowed</th>
@@ -392,7 +392,7 @@
                                                 </td>
                                                 [% END %]
                                                 <td>[% rentaldiscount | html %]</td>
-                                                [% IF Koha.Preference('UseRecalls') %]
+                                                [% IF Koha.Preference('UseRecalls') != "off" %]
                                                     <td>[% recalls_allowed | html %]</td>
                                                     <td>[% recalls_per_record | html %]</td>
                                                     <td data-code="[% on_shelf_recalls | html %]">
@@ -539,7 +539,7 @@
                                 </td>
                                 [% END %]
                                 <td><input type="text" name="rentaldiscount" id="rentaldiscount" size="2" /></td>
-                                [% IF Koha.Preference('UseRecalls') %]
+                                [% IF Koha.Preference('UseRecalls') != "off" %]
                                     <td><input type="text" name="recalls_allowed" id="recalls_allowed" size="3"></td>
                                     <td><input type="text" name="recalls_per_record" id="recalls_per_record" size="3"></td>
                                     <td>
@@ -603,7 +603,7 @@
                                   <th>Article requests</th>
                                   [% END %]
                                   <th>Rental discount (%)</th>
-                                  [% IF Koha.Preference('UseRecalls') %]
+                                  [% IF Koha.Preference('UseRecalls') != "off" %]
                                     <th>Recalls allowed (total)</th>
                                     <th>Recalls per record (count)</th>
                                     <th>On shelf recalls allowed</th>

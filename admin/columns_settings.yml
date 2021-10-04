@@ -1890,6 +1890,8 @@ modules:
               columnname: suspend
             -
               columnname: print_slip
+            -
+              columnname: convert_to_recall
 
     holdsratios:
       holds-ratios:

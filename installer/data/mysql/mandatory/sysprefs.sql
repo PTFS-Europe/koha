@@ -856,7 +856,7 @@ INSERT INTO systempreferences ( `variable`, `value`, `options`, `explanation`, `
 ('UseICUStyleQuotes','0','1','Tell Koha whether to use ICU style quotes ({) or default (") when tracing subjects .','YesNo'),
 ('UseLocationAsAQInSIP', '0', '', 'Use permanent_location instead of homebranch for AQ in SIP response', 'YesNo'),
 ('UseOCLCEncodingLevels','0',NULL,'If enabled, include OCLC encoding levels in leader value builder dropdown for position 17.','YesNo'),
-('UseRecalls','0',NULL,'Enable or disable recalls','YesNo'),
+('UseRecalls','off','off|opac|staff|opac_and_staff','Enable or disable recalls','Choice'),
 ('UseTransportCostMatrix','0','','Use Transport Cost Matrix when filling holds','YesNo'),
 ('UseWYSIWYGinSystemPreferences','0','','Show WYSIWYG editor when editing certain HTML system preferences.','YesNo'),
 ('viewISBD','1','','Allow display of ISBD view of bibiographic records','YesNo'),

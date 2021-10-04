@@ -124,7 +124,7 @@
         </li>
         [%- END -%]
 
-        [%- IF ( Koha.Preference('UseRecalls') && CAN_user_recalls ) -%]
+        [%- IF ( Koha.Preference('UseRecalls') != "off" && CAN_user_recalls ) -%]
         [%- IF ( recallsview ) -%]
         <li class="active">
         [%- ELSE -%]

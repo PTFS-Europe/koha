@@ -2459,7 +2459,7 @@ subtest 'Recalls tests' => sub {
     );
 
     t::lib::Mocks::mock_userenv( { patron => $patron1 } );
-    t::lib::Mocks::mock_preference('UseRecalls', 1);
+    t::lib::Mocks::mock_preference('UseRecalls', 'opac');
 
     my $recall1 = Koha::Recall->new(
         {   patron_id         => $patron1->borrowernumber,
@@ -2487,10 +2487,10 @@ subtest 'Recalls tests' => sub {
 
     $recall2->set_cancelled;
 
-    t::lib::Mocks::mock_preference('UseRecalls', 0);
+    t::lib::Mocks::mock_preference('UseRecalls', 'off');
     is( $item1->can_be_recalled({ patron => $patron1 }), 0, "Can't recall with UseRecalls disabled" );
 
-    t::lib::Mocks::mock_preference("UseRecalls", 1);
+    t::lib::Mocks::mock_preference("UseRecalls", 'opac');
 
     $item1->update({ notforloan => 1 });
     is( $item1->can_be_recalled({ patron => $patron1 }), 0, "Can't recall that is not for loan" );
@@ -2675,7 +2675,7 @@ subtest 'has_pending_recall() tests' => sub {
     my $patron  = $builder->build_object({ class => 'Koha::Patrons' });
 
     t::lib::Mocks::mock_userenv({ branchcode => $library->branchcode });
-    t::lib::Mocks::mock_preference( 'UseRecalls', 1 );
+    t::lib::Mocks::mock_preference( 'UseRecalls', 'opac' );
 
     C4::Circulation::AddIssue( $patron, $item->barcode );
 

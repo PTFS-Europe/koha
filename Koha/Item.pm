@@ -2324,12 +2324,14 @@ sub recall {
 
 Does item-level checks and returns if items can be recalled by this borrower
 
+if hold_convert $param is included, this is to say that this a check to convert a hold to a recall, so we should not check for an existing hold.
+
 =cut
 
 sub can_be_recalled {
     my ( $self, $params ) = @_;
 
-    return 0 if !( C4::Context->preference('UseRecalls') );
+    return 0 if ( C4::Context->preference('UseRecalls') eq "off" );
 
     # check if this item is not for loan, withdrawn or lost
     return 0 if ( $self->notforloan != 0 );
@@ -2375,7 +2377,9 @@ sub can_be_recalled {
         return 0 if ( Koha::Checkouts->search({ itemnumber => $self->itemnumber, borrowernumber => $patron->borrowernumber })->count > 0 );
 
         # check if this patron has already reserved this item
-        return 0 if ( Koha::Holds->search({ itemnumber => $self->itemnumber, borrowernumber => $patron->borrowernumber })->count > 0 );
+        unless ( $params->{hold_convert} ) {
+            return 0 if ( Koha::Holds->search({ itemnumber => $self->itemnumber, borrowernumber => $patron->borrowernumber })->count > 0 );
+        }
     }
 
     # check item availability
@@ -2412,7 +2416,7 @@ At this point the item has already been recalled. We are now at the checkin and 
 sub can_be_waiting_recall {
     my ( $self ) = @_;
 
-    return 0 if !( C4::Context->preference('UseRecalls') );
+    return 0 if ( C4::Context->preference('UseRecalls') eq "off" );
 
     # check if this item is not for loan, withdrawn or lost
     return 0 if ( $self->notforloan != 0 );

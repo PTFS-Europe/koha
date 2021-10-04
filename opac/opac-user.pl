@@ -304,7 +304,7 @@ if ( $pending_checkouts->count ) { # Useless test
             $issue->{normalized_oclc} = GetNormalizedOCLCNumber( $marcrecord, C4::Context->preference('marcflavour') );
         }
 
-        if ( C4::Context->preference('UseRecalls') ) {
+        if ( C4::Context->preference('UseRecalls') ne "off" ) {
             my $maybe_recalls = Koha::Recalls->search({ biblio_id => $issue->{biblionumber}, item_id => [ undef, $issue->{itemnumber} ], completed => 0 });
             while( my $recall = $maybe_recalls->next ) {
                 if ( $recall->checkout and $recall->checkout->issue_id == $issue->{issue_id} ) {
@@ -340,7 +340,7 @@ $template->param(
     showpriority   => $show_priority,
 );
 
-if ( C4::Context->preference('UseRecalls') ) {
+if ( C4::Context->preference('UseRecalls') ne "off" ) {
     my $recalls = Koha::Recalls->search( { patron_id => $borrowernumber, completed => 0 } );
     $template->param( RECALLS => $recalls );
 }

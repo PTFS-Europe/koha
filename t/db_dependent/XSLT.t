@@ -193,7 +193,7 @@ subtest 'buildKohaItemsNamespace status tests' => sub {
     my $library_name = $holdinglibrary->branchname;
     like($xml,qr{<resultbranch>${library_name}</resultbranch>}, "Found resultbranch / holding branch" );
 
-    t::lib::Mocks::mock_preference('UseRecalls', 1);
+    t::lib::Mocks::mock_preference('UseRecalls', 'opac');
     my $recall = $builder->build_object(
         {
             class => 'Koha::Recalls',
@@ -208,7 +208,7 @@ subtest 'buildKohaItemsNamespace status tests' => sub {
     $recall->set_waiting;
     $xml = C4::XSLT::buildKohaItemsNamespace( $item->biblionumber,[]);
     like($xml,qr{<substatus>Recall waiting</substatus>},"Waiting status takes precedence over In transit (recalls)");
-    t::lib::Mocks::mock_preference('UseRecalls', 0);
+    t::lib::Mocks::mock_preference('UseRecalls', 'off');
 
     $schema->storage->txn_rollback;
 };

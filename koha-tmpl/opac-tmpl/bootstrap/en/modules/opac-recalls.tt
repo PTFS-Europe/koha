@@ -28,7 +28,7 @@
             <div class="col-md-12 col-lg-10 order-1 order-lg-2">
                 <div id="recalls" class="maincontent">
                     <h2>Recalls history</h2>
-                    [% IF Koha.Preference('UseRecalls') %]
+                    [% IF Koha.Preference('UseRecalls') != "off" %]
                         [% IF RECALLS.count %]
                             <div id="opac-user-recalls">
                                 <table id="recalls-table" class="table table-bordered table-striped">

@@ -676,6 +676,8 @@ function patron_autocomplete(node, options) {
                     ? "/cgi-bin/koha/circ/circulation.pl"
                     : link_to == "reserve"
                     ? "/cgi-bin/koha/reserve/request.pl"
+                    : link_to == 'recall'
+                    ? "/cgi-bin/koha/recalls/request.pl"
                     : "/cgi-bin/koha/members/moremember.pl";
             item.link +=
                 (url_params ? "?" + url_params + "&" : "?") +

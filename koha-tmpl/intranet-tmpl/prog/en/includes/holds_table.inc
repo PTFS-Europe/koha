@@ -25,6 +25,7 @@
             <th id="delete" data-colname="delete">Delete</th>
             <th id="suspend" data-colname="suspend">Suspend</th>
             <th id="print_slip" data-colname="print_slip">Print hold/transfer slip</th>
+            <th id="convert_to_recall" data-colname="convert_to_recall">Convert hold to recall</th>
         </tr>
     </thead>
     [%- SET first_priority = 0 -%]
@@ -72,6 +73,9 @@
                                 <option value="[% hold.priority | html %]" selected="selected">[% this_priority | html %]</option>
                             [% END %]
                                 <option value="del">del</option>
+                                [% IF ( Koha.Preference('UseRecalls').match('staff') ) %]
+                                    <option value="recall">recall</option>
+                                [% END %]
                             </select>
                         [% ELSE %]
                             <input type="hidden" name="rank-request" class="rank-request" value="[% hold.priority | html %]" data-hold-id="[% hold.reserve_id | html %]">
@@ -87,6 +91,9 @@
                             [% ELSE %]
                                 <option value="[% hold.priority | html %]" selected="selected">[% this_priority | html %]</option>
                             [% END %]
+                                [% IF ( Koha.Preference('UseRecalls').match('staff') ) %]
+                                    <option value="recall">recall</option>
+                                [% END %]
                             </select>
                         [% END %]
                     [% ELSE %]
@@ -271,6 +278,11 @@
                 [% ELSE %]
                     <td></td>
                 [% END %]
+                <td>
+                    [% IF ( Koha.Preference('UseRecalls').match('staff') ) %]
+                    <a class="convert-to-recall btn" title="Convert hold to recall" data-id="[% hold.reserve_id | html %]">Mark for conversion to recall</a>
+                    [% END %]
+                </td>
             </tr>
         [% END %]
     </tbody>
