@@ -1,7 +1,7 @@
 $DBversion = 'XXX'; # will be replaced by the RM
 if( CheckVersion( $DBversion ) ) {
 
-    # Uncomment to run
+    # Comment to run
     return 1;
 
     # Move cash_tills to cash_registers
