@@ -317,7 +317,11 @@
     </ol>
     </fieldset>
     <div class="action">
-        <input type="submit" name="submitbutton" value="Confirm" />
+        [% IF type == 'WRITEOFF' %]
+        <input id="writeoffsubmit" type="submit" name="submitbutton" value="Confirm" />
+        [% ELSE %]
+        <input id="paysubmit" type="submit" name="submitbutton" value="Confirm" />
+        [% END %]
         <a class="cancel" href="/cgi-bin/koha/members/pay.pl?borrowernumber=[% patron.borrowernumber | html %]">Cancel</a>
     </div>
     </form>
