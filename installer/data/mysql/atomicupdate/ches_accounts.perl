@@ -40,11 +40,13 @@ if( CheckVersion( $DBversion ) ) {
 
     $sth->execute();
     use Data::Undumper;
+    my $stats = { lines => 0, no_match => 0, linked => 0, mismatch => 0, multimatch => 0, multipayment => 0 };
     while ( my $row = $sth->fetchrow_hashref ) {
         my $timestamp = $row->{timestamp};
         my $date      = $row->{date};
         my $info = $row->{info};
         my $dump = Data::Undumper::Undump($info, 1);
+        $stats->{lines}++;
 
         $sth1->execute($date, $dump->{manager_id}, $dump->{borrowernumber});
         #print "SELECT * FROM accountlines WHERE date = $date AND manager_id = $dump->{manager_id} AND borrowernumber = $dump->{borrowernumber} AND register_id IS NULL AND credit_type_code = 'Pay'\n";
@@ -62,26 +64,47 @@ if( CheckVersion( $DBversion ) ) {
                         unless ($counted) {
                             $counted++;
                             if ( (0 - $trans_row->{amount}) == $pay_row->{amount} ) {
+                                $stats->{linked}++;
                                 $sth3->execute($trans_row->{till}, $trans_row->{created}, $pay_row->{accountlines_id});
                                 # Ensure offsets exist
                                 for my $paid ( @{$dump->{accountlines_paid}} ) {
                                     $sth4->execute($pay_row->{accountlines_id}, $paid, '0', $timestamp);
                                 }
                             } else {
-                                print "Misfound transaction $trans_row->{amount} vs $pay_row->{amount}\n";
+                                $stats->{mismatch}++;
+                                #print "Misfound transaction $trans_row->{amount} vs $pay_row->{amount}\n";
                             }
                         } else {
-                            print "Second transaction found\n";
+                            $stats->{multimatch}++;
+                            #print "Second transaction found\n";
                         }
                     }
                 } else {
-                    print "Found another matching payment\n";
+                    $stats->{multipayment}++;
+                    #print "Found another matching payment\n";
                 }
             }
         } else {
-            print "No matching accountlines found\n";
+            $stats->{no_match}++;
+            #print "No matching accountlines found\n";
+        }
+        if ($stats->{lines} % 250 == 0) {
+            print "Processed: " . $stats->{lines} . "\n";
+            print "Linked: " . $stats->{linked} . "\n";
+            print "No match found: " . $stats->{no_match} . "\n";
+            print "Mismatched: " . $stats->{mismatch} . "\n";
+            print "Multimatch: " . $stats->{multimatch} . "\n";
+            print "Multipayment: " . $stats->{multipayment} . "\n";
         }
     }
+
+    print "\n\n=======================\n";
+    print "Processed: " . $stats->{lines} . "\n";
+    print "Linked: " . $stats->{linked} . "\n";
+    print "No match found: " . $stats->{no_match} . "\n";
+    print "Mismatched: " . $stats->{mismatch} . "\n";
+    print "Multimatch: " . $stats->{multimatch} . "\n";
+    print "Multipayment: " . $stats->{multipayment} . "\n";
 
 #    my $sth = $dbh->prepare( "SELECT date(created) AS created, amt, till, tcode, paymenttype, receiptid FROM cash_transactions" );
 #    $sth->execture();
