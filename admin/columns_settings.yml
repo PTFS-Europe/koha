@@ -1180,6 +1180,8 @@ modules:
             -
               columnname: title
             -
+              columnname: author
+            -
               columnname: collection
             -
               columnname: document_type
@@ -1191,6 +1193,8 @@ modules:
               columnname: enumeration
             -
               columnname: barcode
+            -
+              columnname: isbn
             -
               columnname: patron
             -
