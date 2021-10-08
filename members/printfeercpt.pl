@@ -67,7 +67,7 @@ my $letter = C4::Letters::GetPreparedLetter(
     },
     substitute => {
         tendered => scalar $input->param('tendered'),
-        change   => scalar $input->param('change')
+        change_given   => scalar $input->param('change_given')
     }
 );
 
