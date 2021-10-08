@@ -182,7 +182,7 @@
                 [% IF ( itemsloo.item_level_request ) %]
                     <em>Only item:</em> <strong>[% itemsloo.barcode | html %]</strong>
                 [% ELSE %]
-                    <strong>[% itemsloo.barcode | html %]</strong> <em>or any available</em>
+                    <strong>[% itemsloo.barcode | html %]</strong>
                 [% END %]
             </td>
             <td class="hq-patron">
