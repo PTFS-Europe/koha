@@ -1633,6 +1633,8 @@ modules:
               columnname: holdingbranch
               is_hidden: 1
             -
+              columnname: author
+            -
               columnname: collection
             -
               columnname: document_type
@@ -1644,6 +1646,8 @@ modules:
               columnname: enumeration
             -
               columnname: barcode
+            -
+              columnname: isbn
             -
               columnname: patron
             -

@@ -78,12 +78,14 @@
                 <tr>
                     <th class="hq-title anti-the">Title</th>
                     <th class="hq-holdingbranch">Current library</th>
+                    <th class="hq-author">Author</th>
                     <th class="hq-collection">Collection</th>
                     <th class="hq-itemtype">Item type</th>
                     <th class="hq-callnumber">Call number</th>
                     <th class="hq-copynumber">Copy number</th>
                     <th class="hq-enumchron">Enumeration</th>
                     <th class="hq-barcode">Barcode</th>
+                    <th class="hq-isbn">ISBN</th>
                     <th class="hq-patron">Patron</th>
                     <th class="hq-patroncategory">Patron category</th>
                     <th class="hq-sendto">Send to</th>
@@ -99,6 +101,11 @@
                     <td class="hq-holdingbranch">
                         <span class="filter_column filter_text">
                             <input class="text_filter" type="text" placeholder="Current library">
+                        </span>
+                    </td>
+                    <td class="hq-author">
+                        <span class="filter_column filter_text">
+                            <input class="text_filter" type="text" placeholder="Author">
                         </span>
                     </td>
                     <td class="hq-collection">
@@ -129,6 +136,11 @@
                     <td class="hq-barcode">
                         <span class="filter_column filter_text">
                             <input type="text" placeholder="Barcode">
+                        </span>
+                    </td>
+                    <td class="hq-isbn">
+                        <span class="filter_column filter_text">
+                            <input type="text" placeholder="ISBN">
                         </span>
                     </td>
                     <td class="hq-patron">
@@ -184,6 +196,7 @@
                             </div>
                         </td>
                         <td class="hq-holdingbranch">[% Branches.GetName( itemsloo.holdingbranch ) | html %]</td>
+                        <td class="hq-author">[% itemsloo.author | html %]</td>
                         <td class="hq-collection">[% AuthorisedValues.GetDescriptionByKohaField( kohafield => 'items.ccode', authorised_value => itemsloo.item.ccode ) | html %]</td>
                         <td class="hq-itemtype">[% ItemTypes.GetDescription( itemsloo.item.effective_itemtype ) | html %]</td>
                         <td class="hq-callnumber">[% IF ( itemsloo.item.location ) %]<em>[% AuthorisedValues.GetDescriptionByKohaField( kohafield => 'items.location', authorised_value => itemsloo.item.location ) | html %]</em> [% END %][% itemsloo.item.itemcallnumber | html %]</td>
@@ -198,6 +211,7 @@
                                 <strong><a href="/cgi-bin/koha/catalogue/moredetail.pl?itemnumber=[% itemsloo.itemnumber | uri %]&biblionumber=[% itemsloo.biblionumber | uri %]#item[% itemsloo.itemnumber | uri %]">[% itemsloo.barcode | uri %]</a></strong> <em>or any available</em>
                             [% END %]
                         </td>
+                        <td class="hq-isbn">[% itemsloo.isbn | html %]</td>
                         <td class="hq-patron">
                           <p>
                               [% INCLUDE 'patron-title.inc' invert_name=1 patron=itemsloo.patron hide_patron_infos_if_needed=1 link_to="circulation_reserves" %]
