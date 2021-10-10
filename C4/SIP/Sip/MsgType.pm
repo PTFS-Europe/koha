@@ -1049,13 +1049,18 @@ sub handle_patron_info {
 
         $resp .= summary_info( $ils, $patron, $summary, $start, $end, $server );
 
-        $resp .= maybe_add( FID_HOME_ADDR,  $patron->address, $server );
-        $resp .= maybe_add( FID_EMAIL,      $patron->email_addr, $server );
-        $resp .= maybe_add( FID_HOME_PHONE, $patron->home_phone, $server );
+#        $resp .= maybe_add( FID_HOME_ADDR,  $patron->address, $server );
+#        $resp .= maybe_add( FID_EMAIL,      $patron->email_addr, $server );
+#        $resp .= maybe_add( FID_HOME_PHONE, $patron->home_phone, $server );
+        $resp .= maybe_add( FID_HOME_ADDR,  q{} );
+        $resp .= maybe_add( FID_EMAIL,      q{} );
+        $resp .= maybe_add( FID_HOME_PHONE, q{} );
+
 
         # SIP 2.0 extensions used by Envisionware
         # Other terminals will ignore unrecognized fields (unrecognized field identifiers)
-        $resp .= maybe_add( FID_PATRON_BIRTHDATE, $patron->birthdate, $server );
+#        $resp .= maybe_add( FID_PATRON_BIRTHDATE, $patron->birthdate, $server );
+        $resp .= maybe_add( FID_PATRON_BIRTHDATE, q{} );
         $resp .= maybe_add( FID_PATRON_CLASS,     $patron->ptype, $server );
 
         # Custom protocol extension to report patron internet privileges
