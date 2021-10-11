@@ -263,7 +263,8 @@ if ( $total_paid and $total_paid ne '0.00' ) {
         }
         my $append = scalar @renew_result ? '&' . join('&', @renew_result) : '';
 
-        $url .= "?borrowernumber=$borrowernumber&payment_id=$payment_id&change_given=${change_given}${append}";
+        $url .= "?borrowernumber=$borrowernumber&payment_id=$payment_id&change_given=$change_given&tendered=$total_collected";
+	$url .= $append;
 
         print $input->redirect($url);
     }
