@@ -869,7 +869,7 @@ sub quote_item {
                     my $new_item = {
                         itype =>
                           $item->girfield( 'stock_category', $occurrence ),
-                        location =>
+                        ccode =>
                           $item->girfield( 'collection_code', $occurrence ),
                         itemcallnumber =>
                           $item->girfield( 'shelfmark', $occurrence )
@@ -957,7 +957,7 @@ sub quote_item {
                         replacementprice => $price,
                         itype =>
                           $item->girfield( 'stock_category', $occurrence ),
-                        location =>
+                        ccode =>
                           $item->girfield( 'collection_code', $occurrence ),
                         itemcallnumber =>
                           $item->girfield( 'shelfmark', $occurrence )
@@ -1173,7 +1173,7 @@ sub _create_item_from_quote {
     $item_hash->{booksellerid} = $quote->vendor_id;
     $item_hash->{price}        = $item_hash->{replacementprice} = $item->price;
     $item_hash->{itype}        = $item->girfield('stock_category');
-    $item_hash->{location}     = $item->girfield('collection_code');
+    $item_hash->{ccode}     = $item->girfield('collection_code');
 
     my $note = {};
 
