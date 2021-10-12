@@ -34,7 +34,7 @@ use Koha::Patrons;
 
 my $input = CGI->new;
 
-my ( $loggedinuserid ) = checkauth($input, 0, { borrowers => 'edit_borrowers' }, 'intranet');
+my ( $loggedinuserid, $cookie ) = checkauth($input, 0, { borrowers => 'edit_borrowers' }, 'intranet');
 
 my $destination = $input->param("destination") || '';
 my $borrowernumber=$input->param('borrowernumber');
