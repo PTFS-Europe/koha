@@ -14,6 +14,7 @@ index:
         tokenizer: icu_tokenizer
         filter:
           - icu_folding
+          - apostrophe
       analyzer_stdno:
         tokenizer: whitespace
         filter:
@@ -40,6 +41,11 @@ index:
       facet:
         type: pattern_replace
         pattern: '\s*(?<!\p{Lu})[.\-,;]*\s*$'
+        replacement: ''
+    filter:
+      apostrophe:
+        type: pattern_replace
+        pattern: "'"
         replacement: ''
 index.mapping.total_fields.limit: 10000
 index.number_of_replicas: 1
