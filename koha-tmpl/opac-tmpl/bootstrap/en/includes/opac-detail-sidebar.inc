@@ -11,6 +11,10 @@
         [% END %]
     [% END %]
 
+    <li>
+        <a class="book btn btn-link btn-lg" href="/cgi-bin/koha/opac-booking.pl?biblionumber=[% biblio.biblionumber | html %]"><i class="fa fa-fw fa-calendar" aria-hidden="true"></i> Place booking</a>
+    </li>
+
     <li><a class="print-large btn btn-link btn-lg" href="#"><i class="fa fa-fw fa-print" aria-hidden="true"></i> Print</a></li>
 
     [% IF Koha.Preference( 'opacuserlogin' ) == 1 %]

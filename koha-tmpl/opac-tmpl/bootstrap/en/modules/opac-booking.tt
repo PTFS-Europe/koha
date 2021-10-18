@@ -1,0 +1,70 @@
+[% USE Koha %]
+[% USE Branches %]
+[% USE KohaDates %]
+[% USE Price %]
+[% USE ItemTypes %]
+[% USE AuthorisedValues %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Placing a booking &rsaquo; [% IF ( LibraryNameTitle ) %][% LibraryNameTitle | html %][% ELSE %]Koha online[% END %] catalog</title>
+[% INCLUDE 'doc-head-close.inc' %]
+[% BLOCK cssinclude %][% END %]
+</head>
+
+[% INCLUDE 'bodytag.inc' bodyid='opac-bookings' %]
+[% INCLUDE 'masthead.inc' %]
+
+<div class="main">
+    <nav aria-label="breadcrumb">
+        <ul class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="/cgi-bin/koha/opac-main.pl">Home</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                <a href="#">Placing a booking</a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <div id="bookings" class="maincontent">
+            <h1>Placing a booking</h1>
+            <form id="placeBookingForm">
+                <div id="booking_result"></div>
+                <fieldset class="rows">
+                    <input type="hidden" name="biblio_id" value="[% biblionumber | uri %]">
+                    <input type="hidden" name="patron_id" value="[% logged_in_user.borrowernumber | uri %]">
+                    <input type="hidden" name="start_date" id="booking_start_date">
+                    <input type="hidden" name="end_date" id="booking_end_date">
+                    <ol>
+                        <li>
+                            <label class="required" for="period">Period: </label>
+                            <input type="text" id="period" name="period" class="futuredate" required="required" autocomplete="off">
+                            <span class="required">Required</span>
+                        </li>
+                    </ol>
+                </fieldset>
+                <button type="submit" class="btn btn-primary">Submit</button>
+                <button type="button" class="btn btn-default" aria-hidden="true">Cancel</button>
+            </form>
+
+            [% FOR booking IN biblio.bookings.filter_by_active %]
+            <div>[% booking.start_date | html %]</div>
+            [% END %]
+        </div>
+    </div>
+</div>
+[% INCLUDE 'opac-bottom.inc' %]
+[% BLOCK jsinclude %]
+[% INCLUDE 'calendar.inc' %]
+<script>
+    $(document).ready(function() {
+
+        // Adopt flatpickr and update mode
+        var periodPicker = $("#period").flatpickr({
+            inline: true,
+            mode: 'range',
+            showMonths: 3
+        });
+    });
+</script>
+[% END %]
