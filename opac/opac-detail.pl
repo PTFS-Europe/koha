@@ -669,6 +669,7 @@ my $holdable_items = $biblio->items->filter_by_for_hold->count;
 # If we have a patron we need to check their policies for holds in the loop below
 # If we don't have a patron, then holdable items determines holdability
 my $can_holds_be_placed = $patron ? 0 : $holdable_items;
+my $can_bookings_be_placed = $patron ? $biblio->bookable_items->count : 0;
 
 my ( $itemloop_has_images, $otheritemloop_has_images );
 my $item_level_holds;
@@ -780,6 +781,7 @@ $template->param(
     item_checkouts           => $item_checkouts,
     item_level_holds         => $item_level_holds,
     ReservableItems          => $can_holds_be_placed,
+    BookableItems            => $can_bookings_be_placed,
     itemloop_has_images      => $itemloop_has_images,
     otheritemloop_has_images => $otheritemloop_has_images,
 );
