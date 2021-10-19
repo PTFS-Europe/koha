@@ -66,6 +66,7 @@
     x-koha-embed:
       - biblio
       - item
+      - patron
   post:
     operationId: addBooking
     parameters:
