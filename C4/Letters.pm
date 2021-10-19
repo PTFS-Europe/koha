@@ -807,6 +807,11 @@ sub _parseletter {
         $letter->{content} =~ s/<<today>>/$todaysdate/go;
     }
 
+    if ($letter->{content} && $letter->{content} =~ /<<email_signature>>/) {
+	my $emailsig = C4::Context->preference( $letter->{'is_html'} ? 'email_signature_html' : 'email_signature' );
+	$letter->{content} =~ s/<<email_signature>>/$emailsig/go;
+    }
+
     while ( my ($field, $val) = each %$values ) {
         $val =~ s/\p{P}$// if $val && $table=~/biblio/;
             #BZ 9886: Assuming that we want to eliminate ISBD punctuation here
