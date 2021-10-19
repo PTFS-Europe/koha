@@ -537,6 +537,7 @@ jQuery.fn.dataTable.ext.errMode = function(settings, note, message) {
     $.fn.kohaTable = function(options, columns_settings, add_filters, default_filters) {
         var settings = null;
 
+
         if ( add_filters ) {
             $(this).find('thead tr').clone(true).appendTo( $(this).find('thead') );
         }
