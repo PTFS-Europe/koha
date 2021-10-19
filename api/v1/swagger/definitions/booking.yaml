@@ -27,6 +27,11 @@ properties:
   patron_id:
     description: Internal patron identifier
     type: integer
+  patron:
+    description: Embedable patron representation
+    type:
+      - object
+      - "null"
   start_date:
     description: Start date and time of this booking
     format: date-time
