@@ -519,15 +519,17 @@ jQuery.fn.dataTable.ext.errMode = function(settings, note, message) {
 
     /**
     * Create a new dataTables instance that uses the Koha RESTful API's as a data source
-    * @param  {Object}  options         Please see the dataTables documentation for further details
-    *                                   We extend the options set with the `criteria` key which allows
-    *                                   the developer to select the match type to be applied during searches
-    *                                   Valid keys are: `contains`, `starts_with`, `ends_with` and `exact`
-    * @param  {Object}  column_settings The arrayref as returned by TableSettings.GetColums function available
-    *                                   from the columns_settings template toolkit include
-    * @param  {Boolean} add_filters     Add a filters row as the top row of the table
-    * @param  {Object}  default_filters Add a set of default search filters to apply at table initialisation
-    * @return {Object}                  The dataTables instance
+    * @param  {Object}  options                      Please see the dataTables settings documentation for further
+    *                                                details
+    * @param  {string}  [options.criteria=contains]  A koha specific extension to the dataTables settings block that
+    *                                                allows setting the 'comparison operator' used in searches
+    *                                                Supports `contains`, `starts_with`, `ends_with` and `exact` match
+    * @param  {string}  [options.columns.*.criteria] As above, but at the column definition level
+    * @param  {Object}  column_settings              The arrayref as returned by TableSettings.GetColums function
+    *                                                available from the columns_settings template toolkit include
+    * @param  {Boolean} add_filters                  Add a filters row as the top row of the table
+    * @param  {Object}  default_filters              Add a set of default search filters to apply at table initialisation
+    * @return {Object}                               The dataTables instance
     */
     $.fn.kohaTable = function(options, columns_settings, add_filters, default_filters) {
         var settings = null;
@@ -590,9 +592,10 @@ jQuery.fn.dataTable.ext.errMode = function(settings, note, message) {
                                     for (var i=0;i<attributes.length;i++){
                                         var part = {};
                                         var attr = attributes[i];
-                                        part[!attr.includes('.')?'me.'+attr:attr] = options.criteria === 'exact'
+                                        var criteria = col.criteria || options.criteria;
+                                        part[!attr.includes('.')?'me.'+attr:attr] = criteria === 'exact'
                                             ? value
-                                            : {like: (['contains', 'ends_with'].indexOf(options.criteria) !== -1?'%':'') + value + (['contains', 'starts_with'].indexOf(options.criteria) !== -1?'%':'')};
+                                            : {like: (['contains', 'ends_with'].indexOf(criteria) !== -1?'%':'') + value + (['contains', 'starts_with'].indexOf(criteria) !== -1?'%':'')};
                                         parts.push(part);
                                     }
                                     return parts;
