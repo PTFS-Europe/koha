@@ -48,6 +48,9 @@ my $publicationyear = $input->param('publicationyear');
 my $op              = $input->param('op')||'';
 my $booksellerid    = $input->param('booksellerid');
 my $basketno        = $input->param('basketno');
+my $publisher       = $input->param('publisher');
+my $publicationdate = $input->param('publicationdate');
+my $title_series    = $input->param('title_series');
 my $page            = $input->param('current_page') || 1;
 $page               = $input->param('goto_page') if $input->param('changepage_goto');
 
@@ -83,6 +86,9 @@ $template->param(
         srchany      => $srchany,
         stdid        => $stdid,
         publicationyear => $publicationyear,
+        publisher       => $publisher,
+        publicationdate => $publicationdate,
+        title_series    => $title_series,
 );
 
 if ( $op ne "do_search" ) {
@@ -126,6 +132,9 @@ my $pars= {
         stdid => $stdid,
         srchany => $srchany,
         publicationyear => $publicationyear,
+        publisher => $publisher,
+        publicationdate => $publicationdate,
+        title_series => $title_series,
 };
 Z3950Search($pars, $template);
 output_html_with_http_headers $input, $cookie, $template->output;

@@ -63,22 +63,19 @@
                                     <label for="publicationyear">Publication year: </label> <input type="text" id="publicationyear" name="publicationyear" value="[% publicationyear | html %]" />
                                 </li>
                                 <li>
-                                    <label for="subject">Subject heading: </label> <input type="text" id="subject" name="subject" value="[% subject | html %]" />
-                                </li>
-                                <li>
                                     <label for="srchany">Keyword (any): </label> <input type="text" id="srchany" name="srchany" value="[% srchany | html %]" />
                                 </li>
                                 <li>
                                     <label for="lccall">LC call number: </label> <input type="text" id="lccall" name="lccall" value="[% lccall | html %]" />
                                 </li>
                                 <li>
-                                    <label for="controlnumber">Control no.: </label> <input type="text" id="controlnumber" name="controlnumber" value="[% controlnumber | html %]" />
+                                    <label for="publisher">Publisher: </label><input type="text" id="publisher" name="publisher" value="" />
                                 </li>
                                 <li>
-                                    <label for="dewey">Dewey: </label> <input type="text" id="dewey" name="dewey" value="[% dewey | html %]" />
+                                    <label for="publicationdate">Publication Date: </label><input type="text" id="publicationdate" name="publicationdate" value="" />
                                 </li>
                                 <li>
-                                    <label for="stdid">Standard ID: </label> <input type="text" id="stdid" name="stdid" value="[% stdid | html %]" />
+                                    <label for="title">Title Series: </label> <input type="text" id="title_series"  name="title_series" value="[% title_series | html %]" />
                                 </li>
                                 <li>
                                     <a id="resetZ3950Search" href="#"><i class="fa fa-trash-can"></i> Clear search form</a>
@@ -124,7 +121,7 @@
 
             <div class="row">
                 <div class="col-xs-12">
-                    <h1>Results</h1>
+                    <h2>Results</h2>
                     <div class="page-section">
                         <p>
                             You searched for:
@@ -139,6 +136,9 @@
                             [% IF ( dewey ) %]<em>Dewey: </em><span class="term">[% dewey | html %]</span> [%END %]
                             [% IF ( srchany ) %]<em>Raw (any): </em><span class="term">[% srchany | html %]</span> [% END %]
                             [% IF ( stdid ) %]<em>Standard ID: </em><span class="term">[% stdid | html %]</span> [% END %]
+                            [% IF ( publisher ) %]<em>Publisher: </em><span class=term>[% publisher | html %]</span> [% END %]
+                            [% IF ( publicationdate ) %]<em>Publication Date: </em><span class=term>[% publicationdate | html %]</span> [% END %]
+                            [% IF ( title_series ) %]<em>Title Series: </em><span class=term>[% title_series | html %]</span> [% END %]
                         </p>
                         [% IF ( errconn ) %]
                             <div class="dialog alert">
@@ -239,6 +239,9 @@
                                 <input type="hidden" id="stdid" name="stdid" value="[% stdid | html %]" />
                                 <input type="hidden" name="biblionumber" value="[% biblionumber | html %]" />
                                 <input type="hidden" name="frameworkcode" value="[% frameworkcode | html %]" />
+                                <input type="hidden" id="publisher" name="publisher" value="[% publisher | html %]" />
+                                <input type="hidden" id="publicationdate" name="publicationdate" value="[% publicationdate | html %]" />
+                                <input type="hidden" id="title_series"  name="title_series" value="[% title_series | html %]" />
 
                                 [% FOREACH server IN servers %]
                                     <input type="hidden" name="id" id="z3950_[% server.id | html %]" value="[% server.id | html %]" />
