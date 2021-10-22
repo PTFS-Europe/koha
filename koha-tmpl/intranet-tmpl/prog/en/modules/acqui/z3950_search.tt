@@ -85,22 +85,19 @@ tr.selected td {
              <li><label for="author">Author: </label> <input type="text" id="author" name="author" value="[% author | html %]" /></li>
              <li><label for="publicationyear">Publication year: </label> <input type="text" id="publicationyear" name="publicationyear" value="[% publicationyear | html %]" /></li>
             <li>
-                <label for="subject">Subject heading: </label> <input type="text" id="subject" name="subject" value="[% subject | html %]" />
-            </li>
-            <li>
                 <label for="srchany">Keyword (any): </label> <input type="text" id="srchany" name="srchany" value="[% srchany | html %]" />
             </li>
             <li>
                 <label for="lccall">LC call number: </label> <input type="text" id="lccall" name="lccall" value="[% lccall | html %]" />
             </li>
             <li>
-                <label for="controlnumber">Control no.: </label> <input type="text" id="controlnumber" name="controlnumber" value="[% controlnumber | html %]" />
+                <label for="publisher">Publisher: </label> <input type="text" id="publisher" name="publisher" value="" />
             </li>
             <li>
-                <label for="dewey">Dewey: </label> <input type="text" id="dewey" name="dewey" value="[% dewey | html %]" />
+                <label for="publicationdate">Publication Date: </label> <input type="text" id="publicationdate" name="publicationdate" value="" />
             </li>
             <li>
-                <label for="stdid">Standard ID: </label> <input type="text" id="stdid" name="stdid" value="[% stdid | html %]" />
+                <label for="title_series">Title Series: </label> <input type="text" id="title_series"  name="title_series" value="[% title_series | html %]" />
             </li>
             <li>
              <li><label for="frameworkcode" >Select MARC framework:</label>
@@ -160,9 +157,9 @@ tr.selected td {
         [% IF ( isbn ) %]<em>ISBN: </em><span class=term>[% isbn | html %]</span> [% END %]
         [% IF ( issn ) %]<em>ISSN: </em><span class=term>[% issn | html %]</span> [% END %]
         [% IF ( lccall ) %]<em>LC call number: </em><span class=term>[% lccall | html %]</span> [% END %]
-        [% IF ( subject ) %]<em>Subject heading: </em><span class=term>[% subject | html %]</span> [% END %]
-        [% IF ( controlnumber ) %]<em>Control no: </em><span class=term>[% controlnumber | html %]</span> [% END %]
-        [% IF ( dewey ) %]<em>Dewey: </em><span class=term>[% dewey | html %]</span> [%END %]
+        [% IF ( publisher ) %]<em>Publisher: </em><span class=term>[% publisher | html %]</span> [% END %]
+        [% IF ( publicationdate ) %]<em>Publication Date: </em><span class=term>[% publicationdate | html %]</span> [% END %]
+        [% IF ( title_series ) %]<em>Title Series: </em><span class=term>[% title_series | html %]</span> [% END %]
     </p>
 
     [% IF ( breeding_loop ) %]
@@ -244,8 +241,9 @@ tr.selected td {
         <input type="hidden" id="lccall" name="lccall" value="[% lccall | html %]" />
         <input type="hidden" id="author" name="author" value="[% author | html %]" />
         <input type="hidden" id="publicationyear" name="publicationyear" value="[% publicationyear | html %]" />
-        <input type="hidden" id="subject" name="subject" value="[% subject | html %]" />
-        <input type="hidden" id="dewey" name="dewey" value="[% dewey | html %]" />
+        <input type="hidden" id="publisher" name="publisher" value="[% publisher | html %]" />
+        <input type="hidden" id="publicationdate" name="publicationdate" value="[% publicationdate | html %]" />
+        <input type="hidden" id="title_series"  name="title_series" value="[% title_series | html %]" />
         <input type="hidden" name="frameworkcode" value="[% frameworkcode | html %]" />
         <input type="hidden" name="biblionumber" value="[% biblionumber | html %]" />
         <input type="hidden" name="controlnumber" value="[% controlnumber | html %]" />
