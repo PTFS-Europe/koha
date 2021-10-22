@@ -256,7 +256,11 @@ sub _bib_build_query {
         controlnumber => '@attr 1=12 "#term" ',
         srchany => '@attr 1=1016 "#term" ',
         stdid   => '@attr 1=1007 "#term" ',
-        publicationyear => '@attr 1=31 "#term" '
+        publicationyear => '@attr 1=31 "#term" ',
+        publisher       => '@attr 1=1018 "#term" ',
+        publicationdate => '@attr 1=31 "#term" ',
+        title_series    => '@attr 1=5 "#term" ',
+
     };
 
     return _build_query( $pars, $qry_build );
