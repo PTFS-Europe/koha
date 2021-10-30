@@ -296,6 +296,24 @@ legend:hover {
                                                 [% END # /UNLESS notitle %]
                                             [% END # /UNLESS ( I ) %]
 
+
+                                            [% UNLESS nofirstname %]
+                                                    <li>
+                                                        [% IF ( mandatoryfirstname ) %]
+                                                            <label for="firstname" class="required">
+                                                        [% ELSE %]
+                                                            <label for="firstname">
+                                                        [% END %]
+                                                            First name:
+                                                        </label>
+                                                        <input type="text" id="firstname" name="firstname" size="20"  value="[% firstname | html UNLESS opduplicate %]" />
+                                                        [% IF ( mandatoryfirstname ) %]
+                                                            <span class="required">Required</span>
+                                                        [% END %]
+                                                    </li>
+                                                [% END #/UNLESS nofirstname %]
+
+
                                             [% UNLESS nosurname %]
                                                 <li>
                                                     [% IF ( I ) %]
@@ -323,6 +341,7 @@ legend:hover {
                                             [% END # /UNLESS nosurname %]
 
                                             [% UNLESS ( I ) %]
+
                                                 [% UNLESS nofirstname %]
                                                     <li>
                                                         [% IF ( mandatoryfirstname ) %]
@@ -338,6 +357,7 @@ legend:hover {
                                                         [% END %]
                                                     </li>
                                                 [% END #/UNLESS nofirstname %]
+
                                                 [% UNLESS nodateofbirth %]
                                                     <li>
                                                         [% IF ( mandatorydateofbirth ) %]
