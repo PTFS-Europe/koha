@@ -74,22 +74,31 @@
             var thisInput = instance.input;
             if ( thisInput.hasAttribute('data-date_to') ) {
                 var endPicker = document.querySelector("#"+thisInput.dataset.date_to)._flatpickr;
+                if ( typeof endPicker === 'undefined' ) {
+                    console.log("Found non-existant picker");
+                    endPicker = document.querySelector("#"+thisInput.dataset.date_to).flatpickr();
+                }
                 endPicker.set('minDate', selectedDates[0]);
             }
         },
     });
     $(document).ready(function(){
         $(".flatpickr").each(function(){
-            let options = {};
+
+            var thisPicker;
+            if ( $(this).get(0)._flatpickr ) {
+                thisPicker = $(this).get(0)._flatpickr;
+            } else {
+                thisPicker = $(this).flatpickr();
+            }
 
             if( $(this).hasClass("futuredate") ) {
-                options['minDate'] = new Date().fp_incr(1);
-                options['allowInvalidPreload'] = true;
+                thisPicker.set('minDate', new Date().fp_incr(1));
+                thisPicker.set('allowInvalidPreload', true);
             }
             if( $(this).hasClass("pastdate") ) {
-                options['maxDate'] = new Date().fp_incr(-1);
+                thisPicker.set('maxDate', new Date().fp_incr(-1));
             }
-            $(this).flatpickr(options);
         });
     });
 </script>
