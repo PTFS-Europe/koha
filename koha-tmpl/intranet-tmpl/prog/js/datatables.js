@@ -523,7 +523,10 @@ jQuery.fn.dataTable.ext.errMode = function(settings, note, message) {
     *                                                details
     * @param  {string}  [options.criteria=contains]  A koha specific extension to the dataTables settings block that
     *                                                allows setting the 'comparison operator' used in searches
-    *                                                Supports `contains`, `starts_with`, `ends_with` and `exact` match
+    *                                                Supports `contains`, `starts_with`, `ends_with` and `exact` string
+    *                                                matches and `before`, `after` and `between` date matches. `between`
+    *                                                expects a string of the form `start:end` in ISO date format and if
+    *                                                only `start` is passed will fall back to act as an `after` match.
     * @param  {string}  [options.columns.*.criteria] As above, but at the column definition level
     * @param  {Object}  column_settings              The arrayref as returned by TableSettings.GetColums function
     *                                                available from the columns_settings template toolkit include
@@ -539,7 +542,7 @@ jQuery.fn.dataTable.ext.errMode = function(settings, note, message) {
         }
 
         if(options) {
-            if(!options.criteria || ['contains', 'starts_with', 'ends_with', 'exact'].indexOf(options.criteria.toLowerCase()) === -1) options.criteria = 'contains';
+            if(!options.criteria || ['contains', 'starts_with', 'ends_with', 'exact', 'before', 'after', 'between'].indexOf(options.criteria.toLowerCase()) === -1) options.criteria = 'contains';
             options.criteria = options.criteria.toLowerCase();
             settings = $.extend(true, {}, dataTablesDefaults, {
                         'deferRender': true,
@@ -585,6 +588,14 @@ jQuery.fn.dataTable.ext.errMode = function(settings, note, message) {
                                     _per_page: length
                                 };
 
+                                function build_between(value) {
+                                    var [start, end] = value.split(':');
+                                    if (typeof end !== 'undefined') {
+                                        return {'>=': start, '<=': end};
+                                    } else {
+                                        return { '>=': start };
+                                    }
+                                }
 
                                 function build_query(col, value){
                                     var parts = [];
@@ -595,6 +606,12 @@ jQuery.fn.dataTable.ext.errMode = function(settings, note, message) {
                                         var criteria = col.criteria || options.criteria;
                                         part[!attr.includes('.')?'me.'+attr:attr] = criteria === 'exact'
                                             ? value
+                                            : criteria === 'before'
+                                            ? { '<=': value }
+                                            : criteria === 'after'
+                                            ? { '>=': value }
+                                            : criteria === 'between'
+                                            ? build_between(value)
                                             : {like: (['contains', 'ends_with'].indexOf(criteria) !== -1?'%':'') + value + (['contains', 'starts_with'].indexOf(criteria) !== -1?'%':'')};
                                         parts.push(part);
                                     }
