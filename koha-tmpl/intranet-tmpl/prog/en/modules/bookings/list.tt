@@ -145,17 +145,19 @@
                 "url": bookings_table_url
             },
             "embed": [
-                "item"
+                "item",
+                "patron"
             ],
             "columns": [{
                 "data": "booking_id",
                 "title": "Booking ID",
-                "searchable": true,
-                "orderable": true
+                "visible": false,
+                "searchable": false,
+                "orderable": false
             },
             {
-                "data": "item_id",
-                "title": "Item ID",
+                "data": "item.external_id",
+                "title": "Item",
                 "searchable": true,
                 "orderable": true,
                 "defaultContent": "Any item",
@@ -168,10 +170,20 @@
                 }
             },
             {
-                "data": "patron_id",
-                "title": "Patron ID",
+                "data": "patron.firstname:patron.surname",
+                "title": "Patron",
                 "searchable": true,
-                "orderable": true
+                "orderable": true,
+                "render": function(data, type, row, meta) {
+                    var fullname;
+                    if ( row.patron.firstname == null ) {
+                        fullname = row.patron.surname;
+                    }
+                    else {
+                        fullname = row.patron.firstname + " " + row.patron.surname;
+                    }
+                    return escape_str(fullname);
+                }
             },
             {
                 "data": "start_date",

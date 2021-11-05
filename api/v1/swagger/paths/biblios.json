@@ -229,7 +229,8 @@
         }
       },
       "x-koha-embed": [
-          "item"
+          "item",
+          "patron"
       ]
     }
   },
