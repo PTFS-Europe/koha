@@ -216,9 +216,11 @@
                     [% END %]
 
 					[% IF ( BDSStaffEnable && normalized_isbn ) %]
+                                            <div class="cover-image" id="bds-bookcoverimg">
 						<span class="bds_coverimage"><a href="https://www.bibdsl.co.uk/xmla/image-service.asp?ISBN=[% normalized_isbn %]&SIZE=l&DBM=[% DBMCode %]&SSL=on" />
 						<img src="https://www.bibdsl.co.uk/xmla/image-service.asp?ISBN=[% normalized_isbn %]&SIZE=s&DBM=[% DBMCode %]&SSL=on" />
 						</a></span>
+                                            </div>
 					[% END %]
 
                     [% IF ( AmazonCoverImages && normalized_isbn) %]
