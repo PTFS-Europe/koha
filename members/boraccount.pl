@@ -52,6 +52,7 @@ my ($template, $loggedinuser, $cookie) = get_template_and_user(
 my $schema         = Koha::Database->new->schema;
 my $borrowernumber = $input->param('borrowernumber');
 my $payment_id     = $input->param('payment_id');
+my $tendered       = $input->param('tendered');
 my $change_given   = $input->param('change_given');
 my $action         = $input->param('action') || '';
 my @renew_results  = $input->multi_param('renew_result');
@@ -216,6 +217,7 @@ $template->param(
     totalcredit         => $totalcredit,
     accounts            => \@accountlines,
     payment_id          => $payment_id,
+    tendered            => $tendered,
     change_given        => $change_given,
     renew_results       => $renew_results_display,
     csrf_token          => $csrf_token,
