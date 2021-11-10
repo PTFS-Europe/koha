@@ -56,4 +56,11 @@ sub CanArticleRequest {
     return $biblio ? $biblio->can_article_request( $borrower ) : 0;
 }
 
+sub CanBook {
+    my ( $self, $biblionumber ) = @_;
+
+    my $biblio = Koha::Biblios->find( $biblionumber );
+    return $biblio->bookable_items->count ? 1 : 0;
+}
+
 1;

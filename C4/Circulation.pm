@@ -1164,7 +1164,7 @@ sub CanBookBeIssued {
       )
     {
         # Booked to this patron :)
-        if ( $booking->borrowernumber == $patron->borrowernumber ) {
+        if ( $booking->patron_id == $patron->borrowernumber ) {
             warn "Booked to this user";
             $messages{'booked'} = $booking;
         }

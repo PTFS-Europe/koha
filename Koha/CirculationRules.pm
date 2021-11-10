@@ -60,6 +60,10 @@ our $RULE_KINDS = {
         scope => [ 'branchcode', 'categorycode' ],
     },
 
+    bookingsallowed => {
+        scope => [ 'branchcode', 'itemtype' ],
+        can_be_blank => 0,
+    },
     holdallowed => {
         scope => [ 'branchcode', 'itemtype' ],
         can_be_blank => 0,

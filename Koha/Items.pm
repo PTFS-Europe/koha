@@ -168,12 +168,40 @@ Returns a new resultset, containing only those items that are allowed to be book
 sub filter_by_bookable {
     my ($self) = @_;
 
-    return $self->search(
+    my $booking_allowed_itypes = Koha::CirculationRules->search(
         {
-            notforloan => [ 0, undef ],
-            withdrawn  => [ 0, undef ]
+            rule_name    => 'bookingsallowed',
+            branchcode   => undef,
+            categorycode => undef,
+            rule_value   => '1',
         }
-    );
+    )->_resultset->get_column('itemtype');
+
+    my $search;
+    if ( C4::Context->preference("item-level_itypes") ) {
+        $search = $self->search(
+            {
+                notforloan => [ 0, undef ],
+                withdrawn  => [ 0, undef ],
+                itype      => { '-in' => $booking_allowed_itypes->as_query }
+            }
+        );
+    }
+    else {
+        $search = $self->search(
+            {
+                notforloan         => [ 0, undef ],
+                withdrawn          => [ 0, undef ],
+                'biblioitem.itype' =>
+                  { '-in' => $booking_allowed_itypes->as_query }
+            },
+            {
+                join => 'biblioitem'
+            }
+        );
+    }
+
+    return $search;
 }
 
 =head3 move_to_biblio

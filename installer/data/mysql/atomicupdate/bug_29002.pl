@@ -25,5 +25,17 @@ return {
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
             });
         }
+
+        my ($count) = $dbh->selectrow_array(q{
+            SELECT COUNT(*)
+            FROM circulation_rules
+            WHERE rule_name = 'bookingsallowed'
+        });
+        if ($count == 0) {
+            $dbh->do(q{
+                INSERT INTO circulation_rules (rule_name, rule_value)
+                VALUES ('bookingsallowed', '0')
+            });
+        }
     },
 }
