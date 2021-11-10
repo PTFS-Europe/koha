@@ -973,6 +973,7 @@
             <table>
                 <tr>
                     <th>Item type</th>
+                    <th>Booking policy</th>
                     <th>Hold policy</th>
                     <th>Hold pickup library match</th>
                     <th>Return policy</th>
@@ -980,6 +981,7 @@
                 </tr>
                 [% FOREACH i IN itemtypeloop %]
                     [% SET holdallowed = CirculationRules.Search( branchcode, undef, i.itemtype, 'holdallowed' ) %]
+                    [% SET bookingsallowed = CirculationRules.Search( branchcode, undef, i.itemtype, 'bookingsallowed' ) %]
                     [% SET hold_fulfillment_policy = CirculationRules.Search( branchcode, undef, i.itemtype, 'hold_fulfillment_policy' ) %]
                     [% SET returnbranch = CirculationRules.Search( branchcode, undef, i.itemtype, 'returnbranch' ) %]
 
@@ -987,6 +989,13 @@
                         <tr>
                             <td>
                                 [% i.translated_description | html %]
+                            </td>
+                            <td>
+                                [% IF bookingsallowed == 1 %]
+                                    <span>Yes</span>
+                                [% ELSE %]
+                                    <span>No</span>
+                                [% END %]
                             </td>
                             <td>
                                 [% IF holdallowed == 'from_any_library' %]
@@ -1033,6 +1042,12 @@
                         [% FOREACH itemtypeloo IN itemtypeloop %]
                             <option value="[% itemtypeloo.itemtype | html %]">[% itemtypeloo.translated_description | html %]</option>
                         [% END %]
+                        </select>
+                    </td>
+                    <td>
+                        <select id="bookingsallowed" name="bookingsallowed">
+                            <option value="0">No</option>
+                            <option value="1">Yes</option>
                         </select>
                     </td>
                     <td>

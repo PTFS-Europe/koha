@@ -105,6 +105,7 @@ if ($op eq 'delete') {
                 holds_per_day                    => undef,
                 onshelfholds                     => undef,
                 opacitemholds                    => undef,
+                bookingsallowed                  => undef,
                 overduefinescap                  => undef,
                 cap_fine_to_replacement_price    => undef,
                 article_requests                 => undef,
@@ -133,6 +134,7 @@ elsif ($op eq 'delete-branch-cat') {
                     branchcode   => undef,
                     itemtype     => undef,
                     rules        => {
+                        bookingsallowed         => undef,
                         holdallowed             => undef,
                         hold_fulfillment_policy => undef,
                         returnbranch            => undef,
@@ -169,6 +171,7 @@ elsif ($op eq 'delete-branch-cat') {
                 branchcode   => $branch,
                 itemtype     => undef,
                 rules        => {
+                    bookingsallowed         => undef,
                     holdallowed             => undef,
                     hold_fulfillment_policy => undef,
                     returnbranch            => undef,
@@ -198,6 +201,7 @@ elsif ($op eq 'delete-branch-item') {
                     branchcode   => undef,
                     itemtype     => undef,
                     rules        => {
+                        bookingsallowed         => undef,
                         holdallowed             => undef,
                         hold_fulfillment_policy => undef,
                         returnbranch            => undef,
@@ -210,6 +214,7 @@ elsif ($op eq 'delete-branch-item') {
                     branchcode   => undef,
                     itemtype     => $itemtype,
                     rules        => {
+                        bookingsallowed         => undef,
                         holdallowed             => undef,
                         hold_fulfillment_policy => undef,
                         returnbranch            => undef,
@@ -223,6 +228,7 @@ elsif ($op eq 'delete-branch-item') {
                 branchcode   => $branch,
                 itemtype     => undef,
                 rules        => {
+                    bookingsallowed         => undef,
                     holdallowed             => undef,
                     hold_fulfillment_policy => undef,
                     returnbranch            => undef,
@@ -235,6 +241,7 @@ elsif ($op eq 'delete-branch-item') {
                 branchcode   => $branch,
                 itemtype     => $itemtype,
                 rules        => {
+                    bookingsallowed         => undef,
                     holdallowed             => undef,
                     hold_fulfillment_policy => undef,
                     returnbranch            => undef,
@@ -272,6 +279,7 @@ elsif ($op eq 'add') {
     my $holds_per_record = strip_non_numeric( scalar $input->param('holds_per_record') );
     my $holds_per_day    = strip_non_numeric( scalar $input->param('holds_per_day') );
     my $onshelfholds     = $input->param('onshelfholds') || 0;
+    my $bookingsallowed  = $input->param('bookingsallowed') || 0;
     my $issuelength  = $input->param('issuelength');
     $issuelength = $issuelength eq q{} ? undef : $issuelength;
     my $daysmode = $input->param('daysmode');
@@ -316,6 +324,7 @@ elsif ($op eq 'add') {
         holds_per_day                 => $holds_per_day,
         onshelfholds                  => $onshelfholds,
         opacitemholds                 => $opacitemholds,
+        bookingsallowed               => $bookingsallowed,
         overduefinescap               => $overduefinescap,
         cap_fine_to_replacement_price => $cap_fine_to_replacement_price,
         article_requests              => $article_requests,
@@ -339,6 +348,7 @@ elsif ($op eq "set-branch-defaults") {
     my $patron_maxonsiteissueqty = $input->param('patron_maxonsiteissueqty');
     $patron_maxonsiteissueqty = strip_non_numeric($patron_maxonsiteissueqty);
     my $holdallowed   = $input->param('holdallowed');
+    my $bookingsallowed   = $input->param('bookingsallowed');
     my $hold_fulfillment_policy = $input->param('hold_fulfillment_policy');
     my $returnbranch  = $input->param('returnbranch');
     my $max_holds = strip_non_numeric( scalar $input->param('max_holds') );
@@ -349,6 +359,7 @@ elsif ($op eq "set-branch-defaults") {
                 itemtype     => undef,
                 branchcode   => undef,
                 rules        => {
+                    bookingsallowed         => $bookingsallowed,
                     holdallowed             => $holdallowed,
                     hold_fulfillment_policy => $hold_fulfillment_policy,
                     returnbranch            => $returnbranch,
@@ -371,6 +382,7 @@ elsif ($op eq "set-branch-defaults") {
                 itemtype     => undef,
                 branchcode   => $branch,
                 rules        => {
+                    bookingsallowed         => $bookingsallowed,
                     holdallowed             => $holdallowed,
                     hold_fulfillment_policy => $hold_fulfillment_policy,
                     returnbranch            => $returnbranch,
@@ -534,6 +546,7 @@ elsif ( $op eq "add-open-article-requests-limit" ) {
 elsif ($op eq "add-branch-item") {
     my $itemtype                = $input->param('itemtype');
     my $holdallowed             = $input->param('holdallowed');
+    my $bookingsallowed         = $input->param('bookingsallowed');
     my $hold_fulfillment_policy = $input->param('hold_fulfillment_policy');
     my $returnbranch            = $input->param('returnbranch');
 
@@ -544,6 +557,7 @@ elsif ($op eq "add-branch-item") {
                     itemtype     => undef,
                     branchcode   => undef,
                     rules        => {
+                        bookingsallowed         => $bookingsallowed,
                         holdallowed             => $holdallowed,
                         hold_fulfillment_policy => $hold_fulfillment_policy,
                         returnbranch            => $returnbranch,
@@ -556,6 +570,7 @@ elsif ($op eq "add-branch-item") {
                     itemtype     => $itemtype,
                     branchcode   => undef,
                     rules        => {
+                        bookingsallowed         => $bookingsallowed,
                         holdallowed             => $holdallowed,
                         hold_fulfillment_policy => $hold_fulfillment_policy,
                         returnbranch            => $returnbranch,
@@ -569,6 +584,7 @@ elsif ($op eq "add-branch-item") {
                     itemtype     => undef,
                     branchcode   => $branch,
                     rules        => {
+                        bookingsallowed         => $bookingsallowed,
                         holdallowed             => $holdallowed,
                         hold_fulfillment_policy => $hold_fulfillment_policy,
                         returnbranch            => $returnbranch,
@@ -581,6 +597,7 @@ elsif ($op eq "add-branch-item") {
                 itemtype     => $itemtype,
                 branchcode   => $branch,
                 rules        => {
+                    bookingsallowed         => $bookingsallowed,
                     holdallowed             => $holdallowed,
                     hold_fulfillment_policy => $hold_fulfillment_policy,
                     returnbranch            => $returnbranch,
