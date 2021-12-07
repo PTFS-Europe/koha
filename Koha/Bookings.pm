@@ -20,6 +20,8 @@ package Koha::Bookings;
 use Modern::Perl;
 
 use Koha::Database;
+use Koha::DateUtils qw(dt_from_string);
+
 use Koha::Booking;
 
 use base qw(Koha::Objects);
@@ -32,7 +34,28 @@ Koha::Bookings - Koha Booking object set class
 
 =head2 Class Methods
 
+=head3 filter_by_active
+
+    Koha::Bookings->filter_by_active;
+
+Returns set of Koha bookings objects that are currently active.
+
+Active is defined as having a end date in the future.
+
 =cut
+
+sub filter_by_active {
+    my ($self) = @_;
+
+    my $dtf = Koha::Database->new->schema->storage->datetime_parser;
+    my $now = dt_from_string();
+
+    return $self->search(
+        {
+            end_date => { '>=' => $dtf->format_datetime($now) }
+        }
+    );
+}
 
 =head3 type
 

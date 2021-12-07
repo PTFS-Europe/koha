@@ -695,6 +695,15 @@
                                     [% END %]
                                 </li>
                             [% END %]
+                            [% IF ( CAN_user_circulate_circulate_remaining_permissions ) %]
+                                <li>
+                                    [% IF ( bookings_count ) %]
+                                        <a href="#bookings" id="bookings-tab">[% bookings_count | html %] Booking(s)</a>
+                                    [% ELSE %]
+                                        <a href="#bookings" id="bookings-tab">0 Bookings</a>
+                                    [% END %]
+                                </li>
+                            [% END %]
                             [% IF Koha.Preference('ArticleRequests') %]
                                 [% SET article_requests = Context.Scalar( Context.Scalar( patron, 'article_requests' ), 'filter_by_current') %]
                                 <li>
@@ -834,6 +843,16 @@
                             </div> [% # /div#reserves %]
                         [% END %]
 
+                        [% IF ( CAN_user_circulate_circulate_remaining_permissions ) %]
+                            <div id="bookings">
+                                [% IF ( bookings_count ) %]
+                                    <table id="bookings-table" style="width: 100% !Important;"></table>
+                                [% ELSE %]
+                                    <p>Patron has nothing booked.</p>
+                                [% END %]
+                            </div> [% # /div#bookings %]
+                        [% END %]
+
                         [% IF Koha.Preference('ClaimReturnedLostValue') %]
                             [% INCLUDE 'patron-return-claims.inc' %]
                         [% END %]
@@ -853,6 +872,8 @@
             </div> <!-- /.col-sm-2.col-sm-pull-10 -->
         </div> <!-- /.row -->
 
+        [% INCLUDE modals/cancel_booking.inc %]
+
 [% MACRO jsinclude BLOCK %]
     [% INCLUDE 'datatables.inc' %]
     [% Asset.js("lib/jquery/plugins/rowGroup/dataTables.rowGroup.min.js") | $raw %]
@@ -861,6 +882,7 @@
     [% Asset.js("lib/jquery/plugins/jquery-ui-timepicker-addon.min.js") | $raw %]
     [% INCLUDE 'timepicker.inc' %]
     [% INCLUDE 'select2.inc' %]
+    [% INCLUDE 'js-date-format.inc' %]
     <script>
         /* Set some variable needed in circulation.js */
         var logged_in_user_borrowernumber = "[% logged_in_user.borrowernumber | html %]";
@@ -886,6 +908,8 @@
     [% Asset.js("js/pages/circulation.js") | $raw %]
     [% Asset.js("js/checkouts.js") | $raw %]
     [% Asset.js("js/holds.js") | $raw %]
+    [% Asset.js("js/bookings.js") | $raw %]
+    [% Asset.js("js/cancel_booking_modal.js") | $raw %]
     [% INCLUDE 'str/members-menu.inc' %]
     [% Asset.js("js/members-menu.js") | $raw %]
     <script>
@@ -930,6 +954,85 @@
                 e.preventDefault();
                 $("#picture-upload, #show-picture-upload").toggle();
             });
+
+            // Bookings
+            var bookings_table;
+            // Load bookings table on tab selection
+            $("#bookings-tab").on( "click", function(){
+                if ( !bookings_table ) {
+                    var today = new Date();
+                    var bookings_table_url = "/api/v1/bookings";
+                    bookings_table = $('#bookings-table').kohaTable({
+                        "ajax": {
+                            "url": bookings_table_url
+                        },
+                        "embed": [
+                            "biblio",
+                            "item",
+                            "patron"
+                        ],
+                        "columns": [{
+                            "data": "booking_id",
+                            "title": "Booking ID",
+                            "visible": false,
+                            "searchable": false,
+                            "orderable": false
+                        },
+                        {
+                            "data": "biblio.title",
+                            "title": "Title",
+                            "searchable": true,
+                            "orderable": true,
+                            "render": function(data,type,row,meta) {
+                                return row.biblio.title;
+                            }
+                        },
+                        {
+                            "data": "item.external_id",
+                            "title": "Item",
+                            "searchable": true,
+                            "orderable": true,
+                            "defaultContent": "Any item",
+                            "render": function(data,type,row,meta) {
+                                if ( row.item ) {
+                                    return row.item.external_id;
+                                } else {
+                                    return null;
+                                }
+                            }
+                        },
+                        {
+                            "data": "start_date",
+                            "title": "Start date",
+                            "searchable": true,
+                            "orderable": true,
+                            "render": function(data, type, row, meta) {
+                                return $datetime(row.start_date);
+                            }
+                        },
+                        {
+                            "data": "end_date",
+                            "title": "End date",
+                            "searchable": true,
+                            "orderable": true,
+                            "render": function(data, type, row, meta) {
+                                return $datetime(row.end_date);
+                            }
+                        },
+                        {
+                            "data": "",
+                            "title": "Actions",
+                            "searchable": false,
+                            "orderable": false,
+                            "render": function(data, type, row, meta) {
+                                var result = '<button type="button" class="btn btn-default btn-xs cancel-action" data-toggle="modal" data-target="#cancelBookingModal" data-booking="'+row.booking_id+'"><i class="fa fa-trash" aria-hidden="true"></i> '+_("Cancel")+'</button>';
+                                return result;
+                            }
+                        }]
+                    }, [], 1, { patron_id: "[% patron.borrowernumber | html %]", end_date: { ">=": today.toISOString() } });
+                };
+            });
+            // Bookings
 
          });
         function uncheck_sibling(me){
