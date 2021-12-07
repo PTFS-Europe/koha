@@ -199,6 +199,11 @@ $template->param(
     WaitingHolds => $waiting_holds,
 );
 
+my $bookings = $patron->bookings->filter_by_active;
+$template->param(
+    bookings_count => $bookings->count()
+);
+
 my $no_issues_charge_guarantees = C4::Context->preference("NoIssuesChargeGuarantees");
 $no_issues_charge_guarantees = undef unless looks_like_number( $no_issues_charge_guarantees );
 if ( defined $no_issues_charge_guarantees ) {
