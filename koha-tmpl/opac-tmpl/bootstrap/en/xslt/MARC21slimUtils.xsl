@@ -400,6 +400,7 @@
         </xsl:for-each>
 
         <!-- 490 Series not traced, Ind1 = 0 -->
+	<!-- BS commented out lines 403 to 425 to supress subject as series.
         <xsl:for-each select="marc:datafield[@tag=490][@ind1!=1]">
             <a><xsl:attribute name="href"><xsl:value-of select="$searchurl"/>?q=se,phr:"<xsl:value-of select="str:encode-uri(marc:subfield[@code='a'], true())"/>"</xsl:attribute>
                         <xsl:call-template name="chopPunctuation">
@@ -422,7 +423,8 @@
                 </xsl:when>
                 <xsl:otherwise><span class="separator"> | </span></xsl:otherwise>
             </xsl:choose>
-        </xsl:for-each>
+		</xsl:for-each>
+	-->
         <!-- 490 Series traced, Ind1 = 1 -->
         <xsl:if test="marc:datafield[@tag=490][@ind1=1]">
             <xsl:for-each select="marc:datafield[@tag=800 or @tag=810 or @tag=811]">
