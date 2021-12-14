@@ -83,16 +83,9 @@ $('#placeBookingModal').on('show.bs.modal', function(e) {
         placeholder: "Select item"
     });
 
-    // Adopt flatpickr and update mode and onClose
+    // Adopt flatpickr and update mode
     var periodPicker = $("#period").get(0)._flatpickr;
     periodPicker.set('mode', 'range');
-    periodPicker.set('onClose', function(selectedDates, dateStr, instance) {
-        var dateArr = selectedDates.map(function(date) {
-            return date.toISOString();
-        });
-        $('#booking_start_date').val(dateArr[0]);
-        $('#booking_end_date').val(dateArr[1]);
-    });
 
     // Fetch list of bookable items
     var items = $.ajax({
@@ -130,8 +123,9 @@ $('#placeBookingModal').on('show.bs.modal', function(e) {
                 }
             }
 
-            // Redraw select with new options
+            // Redraw select with new options and enable
             $('#booking_item_id').trigger('change');
+            $("#booking_item_id").prop("disabled", false);
 
             // Set disabled dates in datepicker
             periodPicker.set('disable', [ function(date) {
@@ -167,7 +161,42 @@ $('#placeBookingModal').on('show.bs.modal', function(e) {
             // Setup listener for item select2
             $('#booking_item_id').on('select2:select', function(e) {
                 itemnumber = e.params.data.id ? e.params.data.id : null;
+
+                // redraw pariodPicker taking selected item into account
                 periodPicker.redraw();
+            });
+
+            // Set onClose for flatpickr
+            periodPicker.set('onClose', function(selectedDates, dateStr, instance) {
+                var dateArr = selectedDates.map(function(date) {
+                    return date.toISOString();
+                });
+                $('#booking_start_date').val(dateArr[0]);
+                $('#booking_end_date').val(dateArr[1]);
+
+                // set available items in select2
+                var booked_items = bookings[0].filter(function(booking) {
+                    let start_date = flatpickr.parseDate(booking.start_date);
+                    let end_date = flatpickr.parseDate(booking.end_date);
+                    // This booking ends before the start of the new booking
+                    if ( end_date <= selectedDates[0] ) return false;
+                    // This booking starts after then end of the new booking
+                    if ( start_date >= selectedDates[1] ) return false;
+                    // This booking overlaps
+                    return true;
+                });
+                $("#booking_item_id > option").each(function() {
+                    let option = $(this);
+                    if ( itemnumber && itemnumber == option.val() ) {
+                        next;
+                    } else if ( booked_items.some(function(booked_item){
+                        return option.val() == booked_item.item_id;
+                    }) ) {
+                        option.prop('disabled',true);
+                    } else {
+                        option.prop('disabled',false);
+                    }
+                });
             });
         },
         function(jqXHR, textStatus, errorThrown){

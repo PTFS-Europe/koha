@@ -25,7 +25,7 @@
                                 </select>
                             </li>
                             <label for="booking_item_id">Item: </label>
-                                <select name="booking_item_id" id="booking_item_id">
+                                <select name="booking_item_id" id="booking_item_id" disabled="true">
                                     <option value="0">Any item</option>
                                 </select>
                             </li>
