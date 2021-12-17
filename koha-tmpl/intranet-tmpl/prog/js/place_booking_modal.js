@@ -128,32 +128,101 @@ $('#placeBookingModal').on('show.bs.modal', function(e) {
             $("#booking_item_id").prop("disabled", false);
 
             // Set disabled dates in datepicker
-            periodPicker.set('disable', [ function(date) {
-                var booked = 0;
+            periodPicker.set('disable', [function(date) {
+
+                // set local copy of selectedDates
+                let selectedDates = periodPicker.selectedDates;
+
+                // set booked counter
+                let booked = 0;
+
+                // reset the unavailable items array
+                let unavailable_items = [];
+
+                // reset the biblio level bookings array
+                let biblio_bookings = [];
+
+                // disable dates before selected date
+                if (selectedDates[0] && selectedDates[0] > date) {
+                    return true;
+                }
+
+                // iterate existing bookings
                 for (booking of bookings[0]) {
                     var start_date = flatpickr.parseDate(booking.start_date);
                     var end_date = flatpickr.parseDate(booking.end_date);
-                    // continue if booking wont overlap
-                    if ( date >= end_date ) {
-                        continue;
-                    }
 
-                    // booking overlaps
-                    if ( date >= start_date && date <= end_date ) {
-                        // same item, disable date
-                        if ( itemnumber == booking.item_id ) {
+                    // patron has selected a start date (end date checks)
+                    if (selectedDates[0]) {
+
+                        // new booking start date is between existing booking start and end dates
+                        if (selectedDates[0] >= start_date && selectedDates[0] < end_date) {
+                            if (booking.item_id) {
+                                if (unavailable_items.indexOf(booking.item_id) === -1) {
+                                    unavailable_items.push(booking.item_id);
+                                }
+                            } else {
+                                if (biblio_bookings.indexOf(booking.booking_id) === -1) {
+                                    biblio_bookings.push(booking.booking_id);
+                                }
+                            }
+                        }
+
+                        // new booking end date would be between existing booking start and end dates
+                        else if (date >= start_date && date < end_date) {
+                            if (booking.item_id) {
+                                if (unavailable_items.indexOf(booking.item_id) === -1) {
+                                    unavailable_items.push(booking.item_id);
+                                }
+                            } else {
+                                if (biblio_bookings.indexOf(booking.booking_id) === -1) {
+                                    biblio_bookings.push(booking.booking_id);
+                                }
+                            }
+                        }
+
+                        // new booking would span existing booking
+                        else if (selectedDates[0] <= start_date && date > end_date) {
+                            if (booking.item_id) {
+                                if (unavailable_items.indexOf(booking.item_id) === -1) {
+                                    unavailable_items.push(booking.item_id);
+                                }
+                            } else {
+                                if (biblio_bookings.indexOf(booking.booking_id) === -1) {
+                                    biblio_bookings.push(booking.booking_id);
+                                }
+                            }
+                        }
+
+                        // new booking would not conflict
+                        else {
+                            continue;
+                        }
+
+                        // check that there are available items
+                        // available = all bookable items - booked items - booked biblios
+                        let total_available = items[0].length - unavailable_items.length - biblio_bookings.length;
+                        if (total_available === 0) {
                             return true;
                         }
-                        // different item, count
-                        else {
-                            booked++;
-                            if ( booked = bookable ) {
-                                return true;
-                            }
+                    }
+
+                    // patron has not yet selected a start date (start date checks)
+                    else if (date < end_date && date >= start_date) {
+
+                        // same item, disable date
+                        if (booking.item_id && booking.item_id === itemnumber) {
+                            return true;
+                        }
+
+                        // count all clashes, both item and biblio level
+                        booked++;
+                        if (booked == bookable) {
+                            return true;
                         }
                     }
                 }
-            } ]);
+            }]);
 
             // Enable flatpickr now we have date function populated
             $("#period").prop('disabled', false);
@@ -167,7 +236,7 @@ $('#placeBookingModal').on('show.bs.modal', function(e) {
             });
 
             // Set onClose for flatpickr
-            periodPicker.set('onClose', function(selectedDates, dateStr, instance) {
+            periodPicker.config.onClose.push(function(selectedDates, dateStr, instance) {
                 var dateArr = selectedDates.map(function(date) {
                     return date.toISOString();
                 });
