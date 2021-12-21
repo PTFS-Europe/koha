@@ -38,7 +38,7 @@
                     <ol>
                         <li>
                             <label class="required" for="period">Period: </label>
-                            <input type="text" id="period" name="period" class="futuredate" required="required" autocomplete="off">
+                            <input type="text" id="period" name="period" class="flatpickr futuredate" required="required" autocomplete="off">
                             <span class="required">Required</span>
                         </li>
                     </ol>
@@ -60,11 +60,39 @@
     $(document).ready(function() {
 
         // Adopt flatpickr and update mode
-        var periodPicker = $("#period").flatpickr({
-            inline: true,
-            mode: 'range',
-            showMonths: 3
-        });
+        var periodPicker = $("#period").get(0)._flatpickr;
+        periodPicker.set('mode', 'range');
+        periodPicker.set('showMonths', 3);
+        
+        // Set disabled dates in datepicker
+        /*
+        periodPicker.set('disable', [ function(date) {
+            var booked = 0;
+            for (booking of bookings[0]) {
+                var start_date = flatpickr.parseDate(booking.start_date);
+                var end_date = flatpickr.parseDate(booking.end_date);
+                // continue if booking wont overlap
+                if ( date >= end_date ) {
+                    continue;
+                }
+
+                // booking overlaps
+                if ( date >= start_date && date <= end_date ) {
+                    // same item, disable date
+                    if ( itemnumber == booking.item_id ) {
+                        return true;
+                    }
+                    // different item, count
+                    else {
+                        booked++;
+                        if ( booked = bookable ) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        } ]);
+        */
     });
 </script>
 [% END %]

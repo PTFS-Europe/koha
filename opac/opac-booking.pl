@@ -43,6 +43,12 @@ my $biblionumber = $query->param('biblionumber');
 my $biblio = Koha::Biblios->find($biblionumber);
 $template->param( biblio => $biblio );
 
+# Bookable items
+my $bookable = $biblio->items->filter_by_bookable;
+
+# Existing bookings
+my $bookings = $biblio->bookings->filter_by_active;
+
 if ( $query->param('place_booking') ) {
 
 }
