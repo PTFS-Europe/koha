@@ -128,7 +128,7 @@ $('#placeBookingModal').on('show.bs.modal', function(e) {
             $("#booking_item_id").prop("disabled", false);
 
             // Set disabled dates in datepicker
-            periodPicker.set('disable', [function(date) {
+            periodPicker.config.disable.push( function(date) {
 
                 // set local copy of selectedDates
                 let selectedDates = periodPicker.selectedDates;
@@ -222,7 +222,7 @@ $('#placeBookingModal').on('show.bs.modal', function(e) {
                         }
                     }
                 }
-            }]);
+            });
 
             // Enable flatpickr now we have date function populated
             $("#period").prop('disabled', false);
