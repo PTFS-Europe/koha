@@ -40,6 +40,7 @@ use Koha::Util::OpenDocument qw( generate_ods );
 use Koha::Notice::Templates;
 use Koha::TemplateUtils qw( process_tt );
 use C4::ClassSource qw( GetClassSources );
+use HTML::Restrict;
 
 =head1 NAME
 
@@ -673,7 +674,8 @@ elsif ($phase eq 'Share'){
 }
 elsif ($phase eq 'Run this report'){
     # execute a saved report
-    my $limit           = $input->param('limit') || 20;
+    my $count           = C4::Context->preference('numSearchResults') || 20;
+    my $limit           = $input->param('limit')                      || $count;
     my $offset          = 0;
     my $report_id       = $input->param('reports');
     my @sql_params      = $input->multi_param('sql_params');
@@ -932,6 +934,7 @@ elsif ($phase eq 'Export'){
     my $format         = $input->param('format');
     my $reportname     = $input->param('reportname');
     my $reportfilename = $reportname ? "$reportname-reportresults.$format" : "reportresults.$format" ;
+    my $hr             = HTML::Restrict->new();
 
     ($sql, undef) = $report->prep_report( \@param_names, \@sql_params );
     my ( $sth, $q_errors ) = execute_query( { sql => $sql, report_id => $report_id } );
@@ -940,9 +943,9 @@ elsif ($phase eq 'Export'){
         if ($format eq 'tab') {
             $type = 'application/octet-stream';
             $content .= join("\t", header_cell_values($sth)) . "\n";
-            $content = Encode::decode('UTF-8', $content);
+            $content = $hr->process(Encode::decode('UTF-8', $content));
             while (my $row = $sth->fetchrow_arrayref()) {
-                $content .= join("\t", map { $_ // '' } @$row) . "\n";
+                $content .= join("\t", $hr->process(@$row)) . "\n";
             }
         } else {
             if ( $format eq 'csv' ) {
@@ -951,13 +954,15 @@ elsif ($phase eq 'Export'){
                 my $csv = Text::CSV::Encoded->new({ encoding_out => 'UTF-8', sep_char => $delimiter, formula => 'empty' });
                 $csv or die "Text::CSV::Encoded->new({binary => 1}) FAILED: " . Text::CSV::Encoded->error_diag();
                 if ($csv->combine(header_cell_values($sth))) {
-                    $content .= Encode::decode('UTF-8', $csv->string()) . "\n";
+                    $content .= $hr->process(Encode::decode('UTF-8', $csv->string())) . "\n";
+
                 } else {
                     push @$q_errors, { combine => 'HEADER ROW: ' . $csv->error_diag() } ;
                 }
                 while (my $row = $sth->fetchrow_arrayref()) {
                     if ($csv->combine(@$row)) {
-                        $content .= $csv->string() . "\n";
+                        $content .= $hr->process($csv->string()) . "\n";
+
                     } else {
                         push @$q_errors, { combine => $csv->error_diag() } ;
                     }
@@ -978,7 +983,8 @@ elsif ($phase eq 'Export'){
                 foreach my $sql_row ( @$sql_rows ) {
                     my @content_row;
                     foreach my $sql_cell ( @$sql_row ) {
-                        push @content_row, Encode::encode( 'UTF8', $sql_cell );
+                        push @content_row, $hr->process(Encode::encode( 'UTF8', $sql_cell ));
+
                     }
                     push @$ods_content, \@content_row;
                 }
