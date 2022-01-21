@@ -4,7 +4,7 @@
 
 use Modern::Perl;
 
-use Test::More tests => 1;
+use Test::More tests => 2;
 
 use MARC::Field;
 use MARC::Record;
@@ -42,6 +42,23 @@ subtest 'Test extract_biblionumber' => sub {
     $searcher = Koha::SearchEngine::Search->new({ index => 'biblios' });
     $bibno = $searcher->extract_biblionumber( test_record() );
     is( $bibno, 4567, 'Extracted biblio number for Zebra' );
+};
+
+subtest 'Test escape_query' => sub {
+    plan tests => 2;
+
+    my @engines = ('Zebra','Elasticsearch');
+    my $expected = {
+        Zebra => q{+ - = && || > < ! ( ) { } [ ] ^ " ~ * ? : \ /},
+        Elasticsearch => q{\\+ \\- \\= \\&& \\||     \\! \\( \\) \\{ \\} \\[ \\] \\^ \\" \\~ \\* \\? \\: \\\ \\/}
+    };
+
+    my $query = q{+ - = && || > < ! ( ) { } [ ] ^ " ~ * ? : \ /};
+    for my $engine ( @engines ){
+        t::lib::Mocks::mock_preference( 'SearchEngine', $engine );
+        my $searcher = Koha::SearchEngine::Search->new({ index => $Koha::SearchEngine::BIBLIOS_INDEX });
+        is( $searcher->escape_query( $query ), $expected->{$engine},"Query is escaped as expected");
+    }
 };
 
 # -- Helper routine

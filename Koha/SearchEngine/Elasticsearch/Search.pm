@@ -134,6 +134,26 @@ sub count {
     return $result->{hits}->{total};
 }
 
+=head2 escape_query
+
+    my $query = $searcher->escape_query($query);
+
+This escapes characters reserved by the search engine. This allows searching for fields
+that contain special characters.
+
+https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html
+
+=cut
+
+sub escape_query {
+    my ( $self, $query ) = @_;
+
+    $query =~ s/(\+|\-|\=|\&\&|\|\||\!|\(|\)|\{|\}|\[|\]|\^|\"|\~|\*|\?|\:|\\|\/)/\\$1/g;
+    $query =~ s/(<|>)/ /g;
+
+    return $query;
+}
+
 =head2 search_compat
 
     my ( $error, $results, $facets ) = $search->search_compat(

@@ -53,6 +53,19 @@ sub search {
     }
 }
 
+=head2 escape_query
+
+This passes the query back unchanged as we have not found issues with
+Zebra reserved characters
+
+=cut
+
+sub escape_query {
+    my ($self,$query) = @_;
+
+    return $query;
+}
+
 =head2 search_compat
 
 This passes straight through to C4::Search::getRecords.
