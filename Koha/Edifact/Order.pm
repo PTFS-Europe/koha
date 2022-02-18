@@ -393,6 +393,7 @@ sub order_line {
                     branchcode     => $i_obj->get_column('homebranch'),
                     itype          => $i_obj->effective_itemtype,
                     location       => $i_obj->location,
+                    ccode          => $i_obj->ccode,
                     itemcallnumber => $i_obj->itemcallnumber,
                 };
             }
@@ -421,6 +422,7 @@ sub order_line {
             branchcode     => $item->{branchcode},
             itype          => $item->{itype},
             location       => $item->{location},
+            ccode          => $item->{ccode},
             itemcallnumber => $item->{itemcallnumber},
           };
     }
@@ -567,7 +569,7 @@ sub gir_segments {
             push @gir_elements,
               { identity_number => 'LST', data => $item->{itype} };
         }
-        if ( $item->{location} ) {
+        if ( $item->{ccode} ) {
             push @gir_elements,
               { identity_number => 'LSQ', data => $item->{ccode} };
         }
