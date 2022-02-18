@@ -193,6 +193,7 @@ INSERT INTO systempreferences ( `variable`, `value`, `options`, `explanation`, `
 ('DumpTemplateVarsOpac',  '0', NULL ,  'If enabled, dump all Template Toolkit variable to a comment in the html source for the opac.',  'YesNo'),
 ('EasyAnalyticalRecords','0','','If on, display in the catalogue screens tools to easily setup analytical record relationships','YesNo'),
 ('EdifactInvoiceImport', 'automatic', 'automatic|manual', "If on, don't auto-import EDI invoices, just keep them in the database with the status 'new'", 'Choice'),
+('EdifactLSQ', 'location', 'location|ccode', "Map EDI sequence code (GIR+LSQ) to Koha Item field', 'Choice'),
 ('ElasticsearchIndexStatus_authorities', '0', 'Authorities index status', NULL, NULL),
 ('ElasticsearchIndexStatus_biblios', '0', 'Biblios index status', NULL, NULL),
 ('ElasticsearchMARCFormat', 'ISO2709', 'ISO2709|ARRAY', 'Elasticsearch MARC format. ISO2709 format is recommended as it is faster and takes less space, whereas array is searchable.', 'Choice'),
