@@ -1,7 +1,7 @@
 #logo {
-    background: url("../images/Reay_House_Library.jpg") no-repeat scroll 0 center transparent;
+    background: url("../images/SLAMLibLogo.png") no-repeat scroll 0 center transparent;
     height: 119px;
-    width: 385px;
+    width: 365px;
 }
 #opac-main-search select {
     max-width: 18em;
