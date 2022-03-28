@@ -23,6 +23,7 @@ use C4::Koha qw( GetAuthorisedValues );
 use C4::ClassSource qw( GetClassSources );
 
 use Koha::DateUtils qw( dt_from_string );
+use Koha::I18N;
 use Koha::Libraries;
 
 =head1 NAME
@@ -206,16 +207,16 @@ sub generate_subfield_form {
             push @authorised_values, "";
             my $itemtypes;
             if ($branch_limit) {
-                $itemtypes = Koha::ItemTypes->search_with_localization(
+                $itemtypes = Koha::ItemTypes->search(
                     { branchcode => $branch_limit } );
             }
             else {
-                $itemtypes = Koha::ItemTypes->search_with_localization;
+                $itemtypes = Koha::ItemTypes->search;
             }
             while ( my $itemtype = $itemtypes->next ) {
                 push @authorised_values, $itemtype->itemtype;
                 $authorised_lib{ $itemtype->itemtype } =
-                  $itemtype->translated_description;
+                  db_t('itemtype', $itemtype->translation_key);
             }
 
             if (!$value && $biblionumber) {
