@@ -255,11 +255,11 @@ sub db_t {
         my @targets = $rs->search(
             {
                 'group' => $group,
-                'l10n_target.language' => $language,
+                'l10n_targets.language' => $language,
             },
             {
-                join => 'l10n_target',
-                prefetch => 'l10n_target',
+                join => 'l10n_targets',
+                prefetch => 'l10n_targets',
                 result_class => 'DBIx::Class::ResultClass::HashRefInflator',
             },
         );

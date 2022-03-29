@@ -66,7 +66,6 @@ if ( $op eq 'add_form' ) {
         is_a_parent => $itemtype ? Koha::ItemTypes->search({parent_type=>$itemtype_code})->count : 0,
         imagesets => $imagesets,
         searchcategory => $searchcategory,
-        branches_loop    => \@branches_loop,
     );
 } elsif ( $op eq 'add_validate' ) {
     my $is_a_modif   = $input->param('is_a_modif');
