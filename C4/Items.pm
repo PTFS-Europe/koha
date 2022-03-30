@@ -732,6 +732,7 @@ sub GetItemsInfo {
            serial.publisheddate,
            itemtypes.description,
            itemtypes.notforloan as notforloan_per_itemtype,
+           itemtypes.itemtype as translation_key,
            holding.branchurl,
            holding.branchcode,
            holding.branchname,
