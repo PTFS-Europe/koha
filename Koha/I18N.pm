@@ -250,22 +250,21 @@ sub db_t {
     my $translations = $cache->get_from_cache($cache_key);
     unless ($translations) {
         my $schema = Koha::Database->new->schema;
-        my $rs = $schema->resultset('L10nSource');
+        my $source_rs = $schema->resultset('L10nSource');
 
-        my @targets = $rs->search(
+        my $sources = $source_rs->search(
             {
-                'group' => $group,
-                'l10n_targets.language' => $language,
-            },
-            {
-                join => 'l10n_targets',
-                prefetch => 'l10n_targets',
-                result_class => 'DBIx::Class::ResultClass::HashRefInflator',
-            },
+                'group' => $group
+            }
         );
-        $translations =
-          { map { $_->{key} => $_->{l10n_targets}->[0]{translation} //= $_->{text} }
-              @targets };
+        while ( my $source = $sources->next ) {
+            my $translation =
+              $source->l10n_targets->search( { language => $language } );
+            $translations->{ $source->key } =
+                $translation->count
+              ? $translation->first->translation
+              : $source->text;
+        }
 
         $cache->set_in_cache($cache_key, $translations);
     }
