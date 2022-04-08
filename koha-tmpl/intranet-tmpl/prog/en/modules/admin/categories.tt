@@ -538,6 +538,7 @@
                                                 [% ELSIF ( prefs.Item_Check_in ) %]Item check-in
                                                 [% ELSIF ( prefs.Item_Checkout ) %]Item checkout
                                                 [% ELSIF ( prefs.Ill_ready ) %]Interlibrary loan ready
+                                                [% ELSIF ( prefs.Ill_update ) %]Interlibrary loan updated
                                                 [% ELSIF ( prefs.Ill_unavailable ) %]Interlibrary loan unavailable
                                                 [% ELSE %]Unknown
                                                 [% END %]:
