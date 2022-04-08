@@ -35,7 +35,7 @@
           [% ELSIF ( messaging_preference.Ill_update ) %]<span>Interlibrary loan updated</span>
           [% ELSIF ( messaging_preference.Auto_Renewals ) %]<span>Auto renewal</span>
           [% ELSE %]<span>Unknown</span>
-          [% END %]
+	  [% END %]
       </td>
       [% IF ( messaging_preference.takes_days ) %]
       <td>
