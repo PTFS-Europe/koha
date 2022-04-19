@@ -78,7 +78,7 @@ sub search {
     }
 
     my $select = "SELECT
-        borrowers.borrowernumber, borrowers.surname, borrowers.firstname,
+        borrowers.borrowernumber, borrowers.surname, borrowers.middle_name, borrowers.firstname,
         borrowers.othernames,
         borrowers.flags,
         borrowers.streetnumber, borrowers.streettype, borrowers.address,
@@ -113,7 +113,7 @@ sub search {
     }
 
     my $searchfields = {
-        standard => C4::Context->preference('DefaultPatronSearchFields') || 'surname,firstname,othernames,cardnumber,userid',
+        standard => C4::Context->preference('DefaultPatronSearchFields') || 'surname,middle_name,firstname,othernames,cardnumber,userid',
         email => 'email,emailpro,B_email',
         borrowernumber => 'borrowernumber',
         phone => 'phone,phonepro,B_phone,altcontactphone,mobile',

@@ -88,7 +88,11 @@
                             // Display card number in parentheses if it exists
                             cardnumber = " (" + item.cardnumber + ") ";
                         }
-                        var itemString = "<a href=\"" + item.link + "\">" + ( item.surname ? item.surname.escapeHtml() : "" ) + ", " + ( item.firstname ? item.firstname.escapeHtml() : "" ) + cardnumber.escapeHtml() + " <small>";
+                        var itemString = "<a href=\"" + item.link + "\">" + ( item.surname ? item.surname.escapeHtml() : "" ) + ", "
+                            + ( item.firstname ? item.firstname.escapeHtml() : "" )
+                            + ( item.middle_name ? " " + item.middle_name.escapeHtml() : "" )
+                            + cardnumber.escapeHtml()
+                            + " <small>";
 
                         if( item.branchcode == loggedInLibrary ){
                             loggedInClass = "ac-currentlibrary";
@@ -151,6 +155,7 @@
                 .append(
                     "<a href=\"" + item.link + "\">" + ( item.surname ? item.surname.escapeHtml() : "" ) + ", "
                         + ( item.firstname ? item.firstname.escapeHtml() : "" )
+                        + ( item.middle_name ? " " + item.middle_name.escapeHtml() : "" )
                         + cardnumber.escapeHtml()
                         + " <small>"
                             + ( item.dateofbirth ? item.dateofbirth.escapeHtml() : "" ) + " "

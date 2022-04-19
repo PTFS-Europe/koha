@@ -2,6 +2,7 @@
     "cardnumber": "cardnumber",
     "surname": "surname",
     "firstname": "firstname",
+    "middle_name": "middle_name",
     "title": "title",
     "othernames": "othernames",
     "initials": "initials",
