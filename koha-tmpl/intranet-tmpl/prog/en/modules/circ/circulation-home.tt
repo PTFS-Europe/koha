@@ -77,6 +77,18 @@
                 <h3>Holds</h3>
 
                 <ul class="buttons-list">
+                    <!-- <li>
+                        <a class="circ-button" href="/cgi-bin/koha/reports/reservationsNotFound.pl?lrc=CL"><i class="fa fa-tasks"></i> Reservations returned at CL but not found on reservations shelf</a>
+                    </li>
+                    <li>
+                        <a class="circ-button" href="/cgi-bin/koha/reports/reservationsNotFound.pl?lrc=DH"><i class="fa fa-tasks"></i> Reservations returned at DH but not found on reservations shelf</a>
+                    </li> -->
+                    <li>
+                        <a class="circ-button" href="/cgi-bin/koha/reports/guided_reports.pl?reports=91&phase=Run+this+report"><i class="fa fa-tasks"></i> Reservations expired at College Lane</a>
+                    </li>
+                    <li>
+                        <a class="circ-button" href="/cgi-bin/koha/reports/guided_reports.pl?reports=92&phase=Run+this+report"><i class="fa fa-tasks"></i> Reservations expired at de Havilland</a>
+                    </li>
                     <li>
                         <a class="circ-button" href="/cgi-bin/koha/circ/view_holdsqueue.pl"><i class="fa fa-tasks"></i> Holds queue</a>
                     </li>

@@ -19,7 +19,7 @@ my $reqIP = $ENV{"REMOTE_ADDR"};
 
 if (! exists $allowedIPs{$reqIP}) {
 	print "Content-type: text/html\n\n";
-	print "Out of range\n";
+        print "Out of range\n";
 	exit;
 }
 
@@ -30,6 +30,8 @@ chomp($userBarcode);
 if ($userBarcode !~ /^044/) {
 	$userBarcode = decode_base64($userBarcode);
 }
+
+$userBarcode = substr $userBarcode,3,8;
 
 my $data = &getData($userBarcode);
 # print Dumper($data);
@@ -105,10 +107,10 @@ sub getData($) {
 			SUBSTRING_INDEX(ExtractValue(bm.metadata,'//datafield[\@tag=\"245\"]/subfield[\@code>=\"a\"]'),'/','1'),
        			if (curdate() > i.date_due,1,0),
        			date(i.date_due),
-       			if(b.categorycode = 'UHSTU','20','52') maxRenewals
+       			if(b.categorycode = 'UHSTU','10','20') maxRenewals
 			from issues i, biblioitems bi, items it, biblio_metadata bm, borrowers b
 			where i.borrowernumber = b.borrowernumber
-			and (cardnumber = '". $barcode . "' or userid = '". $barcode . "') 
+			and b.userid = $barcode 
 			and i.itemnumber = it.itemnumber
 			and bm.biblionumber = bi.biblionumber
 			and it.biblioitemnumber = bi.biblioitemnumber

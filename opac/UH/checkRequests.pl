@@ -28,7 +28,7 @@ my $bibIDString = $q->param('bibid');
 my $userID = $q->param('userid');
 my $type = $q->param('type');
 
-$debugString .= "<br>The ID is $bibIDString<br>";
+$debugString .= "<br>SG The ID is $bibIDString<br>";
 $debugString .= "<br>The User ID is $userID<br>";
 $debugString .= "<br>The Item Type is $type<br>";
 
@@ -53,6 +53,8 @@ if ($userID eq "NOUID") {
 	} else {
 		$refCount = 1;
 	}
+
+	$debugString .= "<br>There are $refCount reference copies<br>\n";
 
 	if ($refCount > 0) {
 
@@ -141,7 +143,7 @@ sub getCurrentRequestCount($) {
 
     my $count = $dbh->selectrow_array($SQL);
 
-    return $count;;
+    return $count;
 }
 
 #######################################
@@ -159,7 +161,7 @@ sub checkForRefCopy($) {
 
     my $count = $dbh->selectrow_array($SQL);
 
-   return $count;;
+   return $count;
 }
 
 ########################################

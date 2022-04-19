@@ -10,7 +10,7 @@ echo 'Number of Items to renew' > ${LOGFILE}
 $KOHA_CRON_PATH/runreport.pl --format=text 138 >> ${LOGFILE}
 echo 'Auto Renewals starting at....' >> ${LOGFILE}
 date >> ${LOGFILE}
-$KOHA_CRON_PATH/automatic_renewals.pl >> ${LOGFILE}
+$KOHA_CRON_PATH/automatic_renewals.pl -c >> ${LOGFILE}
 echo 'Auto Renewals finishing at....' >> ${LOGFILE}
 date >> ${LOGFILE}
 
