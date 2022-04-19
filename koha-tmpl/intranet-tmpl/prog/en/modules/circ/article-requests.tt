@@ -356,6 +356,13 @@
                                                     [% IF ar.biblio.biblioitem.isbn %]
                                                         ISBN: [% ar.biblio.biblioitem.isbn | html %]
                                                     [% END %]
+						    [%# ISSN added by sg13abk  %]
+                                                    [% IF ar.biblio.biblioitem.issn %]
+                                                        ISSN: [% ar.biblio.biblioitem.issn | html %]
+                                                    [% END %]
+							<br>
+							<br>
+						    <a href="/cgi-bin/koha/reports/guided_reports.pl?reports=328&phase=Run+this+report&param_name=biblionumber&sql_params=[% ar.biblionumber | uri %]"><font size"-1">Check requests</font></a>
                                                 </div>
                                             </p>
                                         </td>
@@ -460,6 +467,12 @@
                                                     [% IF ar.biblio.biblioitem.isbn %]
                                                         ISBN: [% ar.biblio.biblioitem.isbn | html %]
                                                     [% END %]
+                                                    [% IF ar.biblio.biblioitem.issn %]
+                                                        ISSN: [% ar.biblio.biblioitem.issn | html %]
+                                                    [% END %]
+							<br>
+							<br>
+						    <a href="/cgi-bin/koha/reports/guided_reports.pl?reports=328&phase=Run+this+report&param_name=biblionumber&sql_params=[% ar.biblionumber | uri %]"><font size"-1">Check requests</font></a>
                                                 </div>
                                             </p>
                                         </td>

@@ -101,6 +101,7 @@ sub write_file {
 		my $bibHash = { biblionumber => $biblionumber };
 		my $marc_record = GetMarcBiblio($bibHash);
 	
+        	add_items_to_biblio($marc_record, $biblionumber);
 
             #	my $marc_record = GetMarcBiblio($biblionumber);
             if ($marc_record) {
@@ -165,8 +166,16 @@ my $dbh = C4::Context->dbh;
         push @itemnumbers, $itemnumber;
     }
 
-    C4::Biblio::EmbedItemsInMarcBiblio( $record, $biblionumber, \@itemnumbers )
-      if (@itemnumbers);
+    #C4::Biblio::EmbedItemsInMarcBiblio( $record, $biblionumber, \@itemnumbers )
+    # if (@itemnumbers);
+
+    # changed by sg13abk on the 25th Feb 2022
+    # to enable item info in the updates
+    C4::Biblio::EmbedItemsInMarcBiblio( {
+        "marc_record" => $record,
+        "biblionumber" => $biblionumber,
+        "item_numbers" => \@itemnumbers } )
+     if (@itemnumbers);
 }
 
 sub get_filename {
