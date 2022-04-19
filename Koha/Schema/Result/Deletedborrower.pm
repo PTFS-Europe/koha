@@ -53,6 +53,13 @@ patron/borrower's last name (surname)
 
 patron/borrower's first name
 
+=head2 middle_name
+
+  data_type: 'longtext'
+  is_nullable: 1
+
+patron/borrower's middle name
+
 =head2 title
 
   data_type: 'longtext'
@@ -617,6 +624,8 @@ __PACKAGE__->add_columns(
   { data_type => "longtext", is_nullable => 1 },
   "firstname",
   { data_type => "mediumtext", is_nullable => 1 },
+  "middle_name",
+  { data_type => "longtext", is_nullable => 1 },
   "title",
   { data_type => "longtext", is_nullable => 1 },
   "othernames",
