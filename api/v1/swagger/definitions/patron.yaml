@@ -9,6 +9,11 @@ properties:
     $ref: ../x-primitives.yaml#/surname
   firstname:
     $ref: ../x-primitives.yaml#/firstname
+  middle_name:
+    type:
+      - string
+      - "null"
+    description: patron's middle name
   title:
     type:
       - string
