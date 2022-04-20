@@ -98,6 +98,7 @@ elsif ( $input->param('apply_credits') ) {
     apply_credits({ patron => $patron, cgi => $input });
 }
 elsif ( $input->param('confirm_writeoff') ) {
+    output_and_exit_if_error($input, $cookie, $template, { check => 'csrf_token' });
     my $item_id         = $input->param('itemnumber');
     my $accountlines_id = $input->param('accountlines_id');
     my $amount          = $input->param('amountwrittenoff');
