@@ -53,7 +53,15 @@ my $patron         = Koha::Patrons->find( $borrowernumber );
 if ( $logged_in_user->can_see_patron_infos($patron) ) {
     if ( $reregistration eq 'y' ) {
         # re-reregistration function to automatic calcul of date expiry
-        output_and_exit_if_error($input, $cookie, $template, { check => 'csrf_token' });
+        #FIXME: Can't use output_and_exit_if_error here because there's no $template available
+        #output_and_exit_if_error($input, $cookie, $template, { check => 'csrf_token' });
+        die "Wrong CSRF token" unless Koha::Token->new->check_csrf(
+            {
+            session_id => scalar $input->cookie('CGISESSID'),
+            token      => scalar $input->param('csrf_token'),
+            }
+        );
+
         $dateexpiry = $patron->renew_account;
     } else {
         my $sth = $dbh->prepare("UPDATE borrowers SET debarred = ?, debarredcomment = '' WHERE borrowernumber = ?");
