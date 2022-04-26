@@ -1,0 +1,23 @@
+#logo {
+    background: url("../images/nelft-logo.png") no-repeat scroll 0 center   / 300px  transparent;
+    width: 474px;
+    height:150px;
+}
+#opac-main-search select {
+    max-width: 18em;
+}
+.navbar-inverse .navbar-inner {
+    background-image: none;
+    background-color: #000000;
+    border-color: #000000;
+}
+body {
+    background-color: #FFFFFF;
+}
+#opac-main-search {
+    background: #00A4A1;
+}
+#opac-main-search label {
+    color: #FFFFFF;
+}
+
