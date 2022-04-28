@@ -61,7 +61,7 @@ my $builder       = t::lib::TestBuilder->new;
 my $schema        = Koha::Database->schema;
 
 subtest 'Search patrons' => sub {
-    plan tests => 27;
+    plan tests => 28;
 
     if ( Koha::Patrons->search({surname => {-like => "test_patron_%"}})->count ) {
         BAIL_OUT("Cannot run this test, data we need to create already exist in the DB");
@@ -152,7 +152,7 @@ subtest 'Search patrons' => sub {
             searched_by_default => 0
         }
     )->store;
-    my $attribute_type_searchable = Koha::Patron::Attribute::Type->new(
+    my $attribute_type_searchable_1 = Koha::Patron::Attribute::Type->new(
         {
             code             => 'my code2',
             description      => 'my description2',
@@ -161,26 +161,37 @@ subtest 'Search patrons' => sub {
             searched_by_default => 1
         }
     )->store;
+    my $attribute_type_searchable_2 = Koha::Patron::Attribute::Type->new(
+        {
+            code             => 'my code3',
+            description      => 'my description3',
+            opac_display     => 1,
+            staff_searchable => 1,
+            searched_by_default => 1
+        }
+    )->store;
     my $attribute_type_searchable_not_default = Koha::Patron::Attribute::Type->new(
         {
-            code             => 'mycode3',
-            description      => 'my description3',
+            code             => 'mycode4',
+            description      => 'my description4',
             opac_display     => 1,
             staff_searchable => 1,
             searched_by_default => 0
         }
     )->store;
-    push @cleanup, $attribute_type, $attribute_type_searchable, $attribute_type_searchable_not_default;
+    push @cleanup, $attribute_type, $attribute_type_searchable_1, $attribute_type_searchable_2, $attribute_type_searchable_not_default;
 
     $patrons[0]->extended_attributes([
         { code => $attribute_type->code, attribute => 'test_attr_1' },
-        { code => $attribute_type_searchable->code, attribute => 'test_attr_2'},
-        { code => $attribute_type_searchable_not_default->code, attribute => 'test_attr_3'},
+        { code => $attribute_type_searchable_1->code, attribute => 'test_attr_2'},
+        { code => $attribute_type_searchable_2->code, attribute => 'test_attr_3'},
+        { code => $attribute_type_searchable_not_default->code, attribute => 'test_attr_4'},
     ]);
     $patrons[1]->extended_attributes([
         { code => $attribute_type->code, attribute => 'test_attr_1' },
-        { code => $attribute_type_searchable->code, attribute => 'test_attr_2'},
-        { code => $attribute_type_searchable_not_default->code, attribute => 'test_attr_3'},
+        { code => $attribute_type_searchable_1->code, attribute => 'test_attr_2'},
+        { code => $attribute_type_searchable_2->code, attribute => 'test_attr_3'},
+        { code => $attribute_type_searchable_not_default->code, attribute => 'test_attr_4'},
     ]);
 
     my $total_number_of_patrons = Koha::Patrons->search->count;
@@ -304,8 +315,17 @@ subtest 'Search patrons' => sub {
     # clear form
     $driver->find_element('//form[@id="patron_search_form"]//*[@id="clear_search"]')->click();
 
+    $s->fill_form( { search_patron_filter => 'test_attr_3' } ); # Terms must be split
+    $s->submit_form;
+    sleep $DT_delay && $s->wait_for_ajax;
+
+    is( $driver->find_element('//div[@id="'.$table_id.'_info"]')->get_text, sprintf('Showing 1 to %s of %s entries (filtered from %s total entries)', 2, 2, $total_number_of_patrons), 'Searching on a searchable attribute returns correct results' );
+
+    # clear form
+    $driver->find_element('//form[@id="patron_search_form"]//*[@id="clear_search"]')->click();
+
     # Search on searchable attribute as specific field, we expect 2 patrons
-    $s->fill_form( { search_patron_filter => 'test_attr_3' } );
+    $s->fill_form( { search_patron_filter => 'test_attr_4' } );
     $driver->find_element('//form[@id="patron_search_form"]//*[@id="searchfieldstype_filter"]//option[@value="_ATTR_'.$attribute_type_searchable_not_default->code.'"]')->click();
     $s->submit_form;
     sleep $DT_delay && $s->wait_for_ajax;
