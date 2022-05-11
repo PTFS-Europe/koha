@@ -83,7 +83,7 @@ sub list_legacy {
     my $hidden_statuses = [ split /\|/, $hidden_statuses_string ];
 
     # Get all requests
-    # If necessary, only get those from a specified patron
+    # If necessary, restrict the resultset
     my @requests = Koha::Illrequests->search({
         $hidden_statuses
         ? (
@@ -98,6 +98,9 @@ sub list_legacy {
         : (),
         $args->{borrowernumber}
         ? ( borrowernumber => $args->{borrowernumber} )
+        : (),
+        $args->{batch_id}
+        ? ( batch_id => $args->{batch_id} )
         : ()
     })->as_list;
 

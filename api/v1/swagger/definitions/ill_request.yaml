@@ -8,6 +8,10 @@ properties:
     type:
       - integer
       - "null"
+  batch_id:
+    type:
+      - string
+      - "null"
     description: Internal bibliographic record identifier
   patron_id:
     type:
