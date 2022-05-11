@@ -38,6 +38,11 @@
         description: Internal biblio identifier
         required: false
         type: integer
+      - name: batch_id
+        in: query
+        description: Internal identifier of the batch the request belongs to
+        required: false
+        type: integer
       - name: borrowernumber
         in: query
         description: Internal patron identifier

@@ -32,6 +32,7 @@ use Koha::Illrequestattributes;
 use Koha::AuthorisedValue;
 use Koha::Illrequest::Logger;
 use Koha::Patron;
+use Koha::Illbatches;
 use Koha::AuthorisedValues;
 use Koha::Biblios;
 use Koha::Items;
@@ -141,6 +142,23 @@ Pushes a passed processor function into our processors arrayref
 sub push_processor {
     my ( $self, $processor ) = @_;
     push @{$self->{processors}}, $processor;
+}
+
+=head3 batch
+
+    my $batch = $request->batch;
+
+Returns the batch associated with a request
+
+=cut
+
+sub batch {
+    my ( $self ) = @_;
+
+    return Koha::Illbatches->find($self->_result->batch_id);
+#    return Koha::Illbatch->_new_from_dbic(
+#        scalar $self->_result->batch_id
+#    );
 }
 
 =head3 statusalias

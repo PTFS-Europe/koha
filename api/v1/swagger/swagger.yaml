@@ -52,6 +52,10 @@ definitions:
     $ref: ./definitions/ill_backend.yaml
   ill_backends:
     $ref: ./definitions/ill_backends.yaml
+  illbatch:
+    $ref: ./definitions/illbatch.yaml
+  illbatches:
+    $ref: ./definitions/illbatches.yaml
   import_batch_profile:
     $ref: ./definitions/import_batch_profile.yaml
   import_batch_profiles:
@@ -237,6 +241,10 @@ paths:
     $ref: ./paths/ill_backends.yaml#/~1ill_backends
   "/ill_backends/{ill_backend_id}":
     $ref: "./paths/ill_backends.yaml#/~1ill_backends~1{ill_backend_id}"
+  /illbatches:
+    $ref: ./paths/illbatches.yaml#/~1illbatches
+  "/illbatches/{illbatch_id}":
+    $ref: "./paths/illbatches.yaml#/~1illbatches~1{illbatch_id}"
   /illrequests:
     $ref: ./paths/illrequests.yaml#/~1illrequests
   "/import_batches/{import_batch_id}/records/{import_record_id}/matches/chosen":
@@ -463,6 +471,12 @@ parameters:
     description: Internal hold identifier
     in: path
     name: hold_id
+    required: true
+    type: integer
+  illbatch_id_pp:
+    description: Internal ILL batch identifier
+    in: path
+    name: illbatch_id
     required: true
     type: integer
   import_batch_profile_id_pp:
@@ -758,6 +772,9 @@ tags:
   - description: "Manage ILL module backends\n"
     name: illbackends
     x-displayName: ILL backends
+  - description: "Manage ILL module batches\n"
+    name: illbatches
+    x-displayName: ILL batches
   - description: "Manage ILL requests\n"
     name: illrequests
     x-displayName: ILL requests
