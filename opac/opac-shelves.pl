@@ -82,6 +82,13 @@ if (C4::Context->preference("BakerTaylorEnabled")) {
     );
 }
 
+# BDS Cover images
+if( C4::Context->preference('BDSOpacEnable') )
+{
+     $template->param(DBMCode =>
+        C4::Context->preference('DBMCode') );
+}
+
 my $referer  = $query->param('referer')  || $op;
 my $public = 0;
 $public = 1 if $query->param('public') && $query->param('public') == 1;

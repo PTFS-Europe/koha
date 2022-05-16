@@ -401,6 +401,14 @@
                                                                     <span title="[% img_title | html %]" class="[% itemsloo.biblionumber | html %]" id="local-thumbnail[% loop.count | html %]"></span>
                                                                 [% END %]
 
+                                                                [% IF ( BDSOpacEnable ) %]
+                                                                    [% IF ( itemsloo.normalized_isbn ) %]
+                                                                        <span title="[% img_title | html %]" id="bds-thumbnail[% loop.count | html %]"><img src="https://www.bibdsl.co.uk/xmla/image-service.asp?ISBN=[% itemsloo.normalized_isbn %]&SIZE=m&DBM=[% DBMCode %]&SSL=on" alt="" /></span>
+                                                                    [% ELSE %]
+                                                                        <span class="no-image">No cover image available</span>
+                                                                    [% END %]
+                                                                [% END %]
+
                                                                 [% IF ( OPACAmazonCoverImages ) %]
                                                                     [% IF ( itemsloo.normalized_isbn ) %]
                                                                         <span title="[% img_title | html %]" id="amazon-thumbnail[% loop.count | html %]"><img src="https://images-na.ssl-images-amazon.com/images/P/[% itemsloo.normalized_isbn | html %].01.TZZZZZZZ.jpg" alt="" /></span>
