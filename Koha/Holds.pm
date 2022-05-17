@@ -120,29 +120,32 @@ sub get_items_that_can_fill {
     push @bibs_or_items, 'me.itemnumber' => { in => \@itemnumbers } if @itemnumbers;
     push @bibs_or_items, 'me.biblionumber' => { in => \@biblionumbers } if @biblionumbers;
 
-    my @branchtransfers = map { $_->itemnumber }
-      Koha::Item::Transfers->search(
-          { datearrived => undef,
-	    datecancelled => undef,
-	  },
-          {
-              columns => ['itemnumber'],
-              collapse => 1,
-          }
-      );
-    my @waiting_holds = map { $_->itemnumber }
-      Koha::Holds->search(
-          { 'found' => 'W' },
-          {
-              columns => ['itemnumber'],
-              collapse => 1,
-          }
-      );
+    my @branchtransfers = Koha::Item::Transfers->search(
+        { datearrived => undef },
+        {
+            columns  => ['itemnumber'],
+            collapse => 1,
+        }
+    )->get_column('itemnumber');
+    my @waiting_holds = Koha::Holds->search(
+        { 'found' => 'W' },
+        {
+            columns  => ['itemnumber'],
+            collapse => 1,
+        }
+    )->get_column('itemnumber');
+    my @notforloan = Koha::Items->search(
+        { notforloan => { '!=' => 0 } },
+        {
+            columns  => ['itemnumber'],
+            collapse => 1,
+        }
+    )->get_column('itemnumber');
 
     return Koha::Items->search(
         {
             -or => \@bibs_or_items,
-            itemnumber   => { -not_in => [ @branchtransfers, @waiting_holds ] },
+            itemnumber   => { -not_in => [ @branchtransfers, @waiting_holds, @notforloan ] },
             onloan       => undef,
         }
     )->filter_by_for_hold();
