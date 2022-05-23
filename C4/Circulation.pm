@@ -800,15 +800,17 @@ sub CanBookBeIssued {
     #
     if ( $patron->category->category_type eq 'X' && (  $item_object->barcode  )) {
     	# stats only borrower -- add entry to statistics table, and return issuingimpossible{STATS} = 1  .
-        C4::Stats::UpdateStats({
-                     branch => C4::Context->userenv->{'branch'},
-                     type => 'localuse',
-                     itemnumber => $item_object->itemnumber,
-                     itemtype => $effective_itemtype,
-                     borrowernumber => $patron->borrowernumber,
-                     ccode => $item_object->ccode},
-                     usercode => $patron->categorycode,
-                    );
+        C4::Stats::UpdateStats(
+            {
+                branch         => C4::Context->userenv->{'branch'},
+                type           => 'localuse',
+                itemnumber     => $item_object->itemnumber,
+                itemtype       => $effective_itemtype,
+                borrowernumber => $patron->borrowernumber,
+                ccode          => $item_object->ccode,
+                categorycode   => $patron->categorycode,
+            }
+        );
         ModDateLastSeen( $item_object->itemnumber ); # FIXME Move to Koha::Item
         return( { STATS => 1 }, {});
     }
@@ -1653,7 +1655,7 @@ sub AddIssue {
                     location       => $item_object->location,
                     borrowernumber => $borrower->{'borrowernumber'},
                     ccode          => $item_object->ccode,
-                    usercode       => $borrower->{'categorycode'}
+                    categorycode   => $borrower->{'categorycode'}
                 }
             );
 
@@ -2252,6 +2254,7 @@ sub AddReturn {
         location       => $item->location,
         borrowernumber => $borrowernumber,
         ccode          => $item->ccode,
+        categorycode   => $patron->categorycode,
     });
 
     # Send a check-in slip. # NOTE: borrower may be undef. Do not try to send messages then.
@@ -3095,7 +3098,7 @@ sub AddRenewal {
                 location       => $item_object->location,
                 borrowernumber => $borrowernumber,
                 ccode          => $item_object->ccode,
-                usercode       => $patron->categorycode,
+                categorycode   => $patron->categorycode,
             }
         );
 
