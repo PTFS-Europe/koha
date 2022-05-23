@@ -2254,7 +2254,7 @@ sub AddReturn {
         location       => $item->location,
         borrowernumber => $borrowernumber,
         ccode          => $item->ccode,
-        categorycode   => $patron->categorycode,
+        ( $patron_unblessed ? ( categorycode   => $patron_unblessed->{categorycode} ) : () ),
     });
 
     # Send a check-in slip. # NOTE: borrower may be undef. Do not try to send messages then.
