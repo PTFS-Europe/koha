@@ -144,7 +144,9 @@ sub _autocreate {
 
     # Send welcome email if enabled
     if ( $config->{welcome} ) {
+        my $logger = Koha::Logger->get;
         my $emailaddr = $patron->notice_email_address;
+        $logger->debug("will attempt to send welcome email to: " . $patron->notice_email_address);
 
         # if we manage to find a valid email address, send notice
         if ($emailaddr) {
@@ -172,6 +174,9 @@ sub _autocreate {
                 );
             };
         }
+	else {
+            $logger->debug("welcome email not sent, no email address found: " . $patron->borrowernumber);
+	}
     }
     return ( 1, $patron->cardnumber, $patron->userid );
 }
