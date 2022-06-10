@@ -156,9 +156,6 @@ sub batch {
     my ( $self ) = @_;
 
     return Koha::Illbatches->find($self->_result->batch_id);
-#    return Koha::Illbatch->_new_from_dbic(
-#        scalar $self->_result->batch_id
-#    );
 }
 
 =head3 statusalias

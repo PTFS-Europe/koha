@@ -1,0 +1,144 @@
+---
+type: object
+properties:
+  accessurl:
+    type:
+      - string
+      - "null"
+    description: A URL for accessing the resource
+  backend:
+    type: string
+    description: Name of the request's ILL supplier
+  batch_id:
+    type:
+      - string
+      - "null"
+    description: The ID of the batch the request belongs to
+  batch:
+    type:
+      - object
+      - "null"
+    description: The batch the request belongs to
+  biblio_id:
+    type:
+      - string
+      - "null"
+    description: The ID of the biblio created from the requested item
+  borrowernumber:
+    type: string
+    description: Borrower number of the patron of the ILL request
+  branchcode:
+    type: string
+    description: The branch code associated with the request
+  capabilities:
+    type:
+      - object
+      - "null"
+    description: A list of the valid actions that can be carried out on this request
+  comments:
+    type:
+      - string
+      - "null"
+    description: The number of comments this request has associated with it
+  completed:
+    type:
+      - string
+      - "null"
+    description: Is this request completed
+  cost:
+    type:
+      - string
+      - "null"
+    description: The recorded cost for this request
+  id_prefix:
+    type:
+      - string
+      - "null"
+    description: A prefix that should be prepended to the ID of this request during display
+  illrequest_id:
+    type:
+      - string
+      - "null"
+    description: The ID of this request
+  library:
+    type:
+      - object
+      - "null"
+    description: The library object associated with this request
+  medium:
+    type:
+      - string
+      - "null"
+    description: The material type associated with this request
+  metadata:
+    type: object
+    description: Metadata that formed this request
+  notesopac:
+    type:
+      - string
+      - "null"
+    description: Notes that have been entered for display in the OPAC
+  notesstaff:
+    type:
+      - string
+      - "null"
+    description: Notes that have been entered for display in the staff interface
+  orderid:
+    type:
+      - string
+      - "null"
+    description: The supplier's ID for the request
+  patron:
+    type:
+      - object
+      - "null"
+    description: The patron associated with this request
+  placed:
+    type:
+      - string
+      - "null"
+    description: The timestamp the request was placed
+  placed_formatted:
+    type:
+      - string
+      - "null"
+    description: The timestamp the request was placed (formatted for display)
+  completed_formatted:
+    type:
+      - string
+      - "null"
+    description: The timestamp the request was completed (formatted for display)
+  price_paid:
+    type:
+      - string
+      - "null"
+    description: The amount ultimately paid for the request
+  replied:
+    type:
+      - string
+      - "null"
+    description: N/A (Not in use)
+  requested_partners:
+    type:
+      - string
+      - "null"
+    description: The email addresses of partners this request been requested from
+  status:
+    type: string
+    description: The request's current status
+  status_alias:
+    type:
+      - string
+      - "null"
+    description: The ID of a user defined status for this request
+  updated:
+    type:
+      - string
+      - "null"
+    description: The timestamp the request was last updated
+  updated_formatted:
+    type:
+      - string
+      - "null"
+    description: The timestamp the request was last updated (formatted for display)
+additionalProperties: false

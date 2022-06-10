@@ -726,6 +726,8 @@ modules:
             -
               columnname: illrequest_id
             -
+              columnname: batch
+            -
               columnname: metadata_author
             -
               columnname: metadata_title

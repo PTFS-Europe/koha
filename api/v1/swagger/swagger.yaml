@@ -38,6 +38,10 @@ definitions:
     $ref: ./definitions/illbatch.yaml
   illbatches:
     $ref: ./definitions/illbatches.yaml
+  illrequest:
+    $ref: ./definitions/illrequest.yaml
+  illrequests:
+    $ref: ./definitions/illrequests.yaml
   import_batch_profile:
     $ref: ./definitions/import_batch_profile.yaml
   import_batch_profiles:

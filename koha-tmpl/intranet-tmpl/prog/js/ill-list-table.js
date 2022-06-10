@@ -221,6 +221,12 @@ $(document).ready(function() {
         return row.id_prefix + row.illrequest_id;
     };
 
+    // Render function for batch
+    var createBatch = function (data, type, row) {
+        if (!row.batch) return;
+        return '<a href="/cgi-bin/koha/ill/ill-requests.pl?batch_id=' + row.batch_id + '">' + row.batch.name + '</a>';
+    };
+
     // Render function for type
     var createType = function(data, type, row) {
         if (!row.hasOwnProperty('metadata_Type') || !row.metadata_Type) {
@@ -289,6 +295,10 @@ $(document).ready(function() {
     var specialCols = {
         action: {
             func: createActionLink,
+            skipSanitize: true
+        },
+        batch: {
+            func: createBatch,
             skipSanitize: true
         },
         illrequest_id: {
@@ -383,7 +393,10 @@ $(document).ready(function() {
         (
             // ILL list requests page
             window.location.href.match(/ill\/ill-requests\.pl/) &&
-            window.location.search.length == 0
+            (
+                window.location.search.length == 0 ||
+                /borrowernumber|batch_id/.test(window.location.search)
+            )
         ) ||
         // Patron profile page
         window.location.href.match(/members\/ill-requests\.pl/)
@@ -391,7 +404,7 @@ $(document).ready(function() {
         var ajax = $.ajax(
             '/api/v1/illrequests?embed=metadata,patron,capabilities,library,status_alias,comments,requested_partners'
             + filterParam
-        ).done(function() {
+        ).done(function () {
             var data = JSON.parse(ajax.responseText);
             // Make a copy, we'll be removing columns next and need
             // to be able to refer to data that has been removed
