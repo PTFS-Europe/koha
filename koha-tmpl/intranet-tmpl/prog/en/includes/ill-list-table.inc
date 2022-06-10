@@ -6,6 +6,7 @@
     <thead>
         <tr id="illview-header">
             <th scope="col">Request ID</th>
+            <th scope="col">Batch</th>
             <th scope="col">Author</th>
             <th scope="col">Title</th>
             <th scope="col">Article title</th>
