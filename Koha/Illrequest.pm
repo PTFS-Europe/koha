@@ -159,9 +159,6 @@ sub batch {
     my ( $self ) = @_;
 
     return Koha::Illbatches->find($self->_result->batch_id);
-#    return Koha::Illbatch->_new_from_dbic(
-#        scalar $self->_result->batch_id
-#    );
 }
 
 =head3 statusalias
@@ -1909,6 +1906,7 @@ sub to_api_mapping {
     return {
         illrequest_id  => 'ill_request_id',
         borrowernumber => 'patron_id',
+        batchid        => 'batch_id',
         branchcode     => 'library_id',
         status_alias   => 'status_av',
         placed         => 'requested_date',

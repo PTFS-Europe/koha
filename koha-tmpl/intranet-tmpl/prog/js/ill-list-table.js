@@ -205,6 +205,13 @@ $(document).ready(function() {
                 }
             },
             {
+                "data": "", // batch
+                "orderable": false,
+                "render": function(data, type, row, meta) {
+                    return '<a href="/cgi-bin/koha/ill/ill-requests.pl?batch_id=' + row.batch_id + '">teste</a>';
+                }
+            },
+            {
                 "data": "", // author
                 "orderable": false,
                 "render": function(data, type, row, meta) {
