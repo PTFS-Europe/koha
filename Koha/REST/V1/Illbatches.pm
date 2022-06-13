@@ -129,7 +129,7 @@ sub add {
 
     return try {
         my $batch = Koha::Illbatch->new( $body );
-        $batch->store;
+        $batch->create_and_log;
         $c->res->headers->location( $c->req->url->to_string . '/' . $batch->id );
 
         my $ret = {
@@ -171,8 +171,7 @@ sub update {
     delete $params->{cardnumber};
 
     return try {
-        $batch->set( $params );
-        $batch->store();
+        $batch->update_and_log( $params );
 
         my $ret = {
             %{$batch->unblessed},
@@ -208,7 +207,7 @@ sub delete {
     }
 
     return try {
-        $batch->delete;
+        $batch->delete_and_log;
         return $c->render( status => 204, openapi => '');
     }
     catch {

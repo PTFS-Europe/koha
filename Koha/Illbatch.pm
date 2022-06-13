@@ -19,6 +19,8 @@ package Koha::Illbatch;
 
 use Modern::Perl;
 use Koha::Database;
+use Koha::Illrequest::Logger;
+use JSON qw( to_json );
 use base qw(Koha::Object);
 
 =head1 NAME
@@ -70,6 +72,89 @@ sub requests_count {
     return Koha::Illrequests->search({
         batch_id => $self->id
     })->count;
+}
+
+=head3 create_and_log
+
+    $batch->create_and_log;
+
+Log batch creation following storage
+
+=cut
+
+sub create_and_log {
+    my ( $self ) = @_;
+
+    $self->store;
+
+    my $logger = Koha::Illrequest::Logger->new;
+
+    $logger->log_something({
+        modulename   => 'ILL',
+        actionname  => 'batch_create',
+        objectnumber => $self->id,
+        infos        => to_json({})
+    });
+}
+
+=head3 update_and_log
+
+    $batch->update_and_log;
+
+Log batch update following storage
+
+=cut
+
+sub update_and_log {
+    my ( $self, $params ) = @_;
+
+    my $before = {
+        name       => $self->name,
+        branchcode => $self->branchcode
+    };
+
+    $self->set( $params );
+    my $update = $self->store;
+
+    my $after = {
+        name       => $self->name,
+        branchcode => $self->branchcode
+    };
+
+    my $logger = Koha::Illrequest::Logger->new;
+
+    $logger->log_something({
+        modulename   => 'ILL',
+        actionname  => 'batch_update',
+        objectnumber => $self->id,
+        infos        => to_json({
+            before => $before,
+            after  => $after
+        })
+    });
+}
+
+=head3 delete_and_log
+
+    $batch->delete_and_log;
+
+Log batch delete
+
+=cut
+
+sub delete_and_log {
+    my ( $self ) = @_;
+
+    my $logger = Koha::Illrequest::Logger->new;
+
+    $logger->log_something({
+        modulename   => 'ILL',
+        actionname  => 'batch_delete',
+        objectnumber => $self->id,
+        infos        => to_json({})
+    });
+
+    $self->delete;
 }
 
 =head2 Internal methods
