@@ -20,6 +20,7 @@ use Modern::Perl;
 use Mojo::Base 'Mojolicious::Controller';
 
 use Koha::Illbatches;
+use Koha::IllbatchStatuses;
 use Koha::Illrequests;
 
 =head1 NAME
@@ -63,15 +64,29 @@ sub list {
         branchcode => { -in => \@branchcodes }
     });
 
+    # Get all batch statuses associated with all our batches
+    # in one go
+    my $statuses = {};
+    foreach my $batch(@batches) {
+        my $code = $batch->statuscode;
+        $statuses->{$code} = 1
+    };
+    my @statuscodes = keys %{$statuses};
+    my $status_results = Koha::IllbatchStatuses->search({
+        code => { -in => \@statuscodes }
+    });
+
     # Populate the response
     my @to_return = ();
     foreach my $it_batch(@batches) {
         my $patron = $patron_results->find({ borrowernumber => $it_batch->borrowernumber});
         my $branch = $branch_results->find({ branchcode => $it_batch->branchcode });
+        my $status = $status_results->find({ code => $it_batch->statuscode });
         push @to_return, {
             %{$it_batch->unblessed},
-            patron   => $patron,
-            branch   => $branch,
+            patron         => $patron,
+            branch         => $branch,
+            status         => $status,
             requests_count => $it_batch->requests_count
         };
     }
@@ -103,8 +118,9 @@ sub get {
         status => 200,
         openapi => {
             %{$batch->unblessed},
-            patron => $batch->patron->unblessed,
-            branch => $batch->branch->unblessed,
+            patron         => $batch->patron->unblessed,
+            branch         => $batch->branch->unblessed,
+            status         => $batch->status->unblessed,
             requests_count => $batch->requests_count
         }
     );
@@ -134,8 +150,9 @@ sub add {
 
         my $ret = {
             %{$batch->unblessed},
-            patron => $batch->patron->unblessed,
-            branch => $batch->branch->unblessed,
+            patron           => $batch->patron->unblessed,
+            branch           => $batch->branch->unblessed,
+            status           => $batch->status->unblessed,
             requests_count   => 0
         };
 
@@ -175,8 +192,9 @@ sub update {
 
         my $ret = {
             %{$batch->unblessed},
-            patron => $batch->patron->unblessed,
-            branch => $batch->branch->unblessed,
+            patron         => $batch->patron->unblessed,
+            branch         => $batch->branch->unblessed,
+            status         => $batch->status->unblessed,
             requests_count => $batch->requests_count
         };
 

@@ -56,6 +56,10 @@ definitions:
     $ref: ./definitions/illbatch.yaml
   illbatches:
     $ref: ./definitions/illbatches.yaml
+  illbatchstatus:
+    $ref: ./definitions/illbatchstatus.yaml
+  illbatchstatuses:
+    $ref: ./definitions/illbatchstatuses.yaml
   illrequest:
     $ref: ./definitions/illrequest.yaml
   illrequests:
@@ -249,6 +253,10 @@ paths:
     $ref: ./paths/illbatches.yaml#/~1illbatches
   "/illbatches/{illbatch_id}":
     $ref: "./paths/illbatches.yaml#/~1illbatches~1{illbatch_id}"
+  /illbatchstatuses:
+    $ref: ./paths/illbatchstatuses.yaml#/~1illbatchstatuses
+  "/illbatchstatuses/{illbatchstatus_code}":
+    $ref: "./paths/illbatchstatuses.yaml#/~1illbatchstatuses~1{illbatchstatus_code}"
   /illrequests:
     $ref: ./paths/illrequests.yaml#/~1illrequests
   "/import_batches/{import_batch_id}/records/{import_record_id}/matches/chosen":
@@ -483,6 +491,12 @@ parameters:
     name: illbatch_id
     required: true
     type: integer
+  illbatchstatus_code_pp:
+    description: Internal ILL batch status identifier
+    in: path
+    name: illbatchstatus_code
+    required: true
+    type: string
   import_batch_profile_id_pp:
     description: Internal profile identifier
     in: path
@@ -779,6 +793,9 @@ tags:
   - description: "Manage ILL module batches\n"
     name: illbatches
     x-displayName: ILL batches
+  - description: "Manage ILL module batch statuses\n"
+    name: illbatchstatuses
+    x-displayName: ILL batch statuses
   - description: "Manage ILL requests\n"
     name: illrequests
     x-displayName: ILL requests
