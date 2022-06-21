@@ -884,10 +884,12 @@
     <script>
         var metadata_enrichment_services = [% metadata_enrichment_services | $raw %];
     </script>
-    [% END %]
-    [% IF batch_availability_services %]
     <script>
+        [% IF batch_availability_services %]
         var batch_availability_services = [% batch_availability_services | $raw %];
+        [% ELSE %]
+        var batch_availability_services = [];
+        [% END %]
     </script>
     [% END %]
     <script>

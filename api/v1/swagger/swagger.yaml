@@ -269,6 +269,12 @@ paths:
     $ref: ./paths/illbatchstatuses.yaml#/~1illbatchstatuses
   "/illbatchstatuses/{illbatchstatus_code}":
     $ref: "./paths/illbatchstatuses.yaml#/~1illbatchstatuses~1{illbatchstatus_code}"
+<<<<<<< HEAD
+=======
+  /illrequests:
+    $ref: ./paths/illrequests.yaml#/~1illrequests
+>>>>>>> Bug 30719: DB, API & tests
+>>>>>>> 573123b36f (Bug 30719: Batch statuses)
   "/import_batches/{import_batch_id}/records/{import_record_id}/matches/chosen":
     $ref: "./paths/import_batches.yaml#/~1import_batches~1{import_batch_id}~1records~1{import_record_id}~1matches~1chosen"
   /import_batch_profiles:
@@ -511,6 +517,12 @@ parameters:
     name: illbatch_id
     required: true
     type: integer
+  illbatchstatus_code_pp:
+    description: Internal ILL batch status identifier
+    in: path
+    name: illbatchstatus_code
+    required: true
+    type: string
   import_batch_profile_id_pp:
     description: Internal profile identifier
     in: path
@@ -816,6 +828,9 @@ tags:
   - description: "Manage ILL module batches\n"
     name: illbatches
     x-displayName: ILL batches
+  - description: "Manage ILL module batch statuses\n"
+    name: illbatchstatuses
+    x-displayName: ILL batch statuses
   - description: "Manage ILL requests\n"
     name: illrequests
     x-displayName: ILL requests
