@@ -19,6 +19,7 @@
     var createProgressBar = document.getElementById("processed_progress_bar");
     var identifierTable = document.getElementById('identifier-table');
     var createRequestsButton = document.getElementById('create-requests-button');
+    var statusesSelect = document.getElementById('statuscode');
 
 
     // We need a data structure keyed on identifier type, which tells us how to parse that
@@ -40,7 +41,8 @@
         name: '',
         backend: null,
         cardnumber: '',
-        branchcode: ''
+        branchcode: '',
+        statuscode: 'NEW'
     };
 
     // The object that holds the batch we're working with
@@ -59,6 +61,7 @@
                 setFinishButton();
                 disableCardnumberInput();
                 displayPatronName();
+                updateStatusesSelect();
             }
         }
     );
@@ -78,6 +81,22 @@
                 updateRowCount();
                 updateProcessTotals();
                 checkAvailability();
+            }
+        }
+    );
+
+    // The object that holds the contents of the table
+    // It's a proxy so we can update portions of the UI
+    // upon changes
+    var statuses = new Proxy(
+        { data: [] },
+        {
+            get: function (obj, prop) {
+                return obj[prop];
+            },
+            set: function (obj, prop, value) {
+                obj[prop] = value;
+                updateStatusesSelect();
             }
         }
     );
@@ -104,6 +123,9 @@
     // Keep track of availability API calls that are in progress
     // so we don't duplicate them
     var availabilitySent = {};
+
+    // Are we updating an existing batch
+    var isUpdate = false;
 
     // The datatable
     var table;
@@ -155,11 +177,13 @@
         };
         if (batchId) {
             fetchBatch();
-            setModalHeading(true);
+            isUpdate = true;
+            setModalHeading();
         } else {
             batch.data = emptyBatch;
             setModalHeading();
         }
+        fetchStatuses();
         finishButtonEventListener();
         processButtonEventListener();
         identifierTextareaEventListener();
@@ -178,7 +202,7 @@
         }
     };
 
-    function setModalHeading(isUpdate) {
+    function setModalHeading() {
         var heading = document.getElementById('ill-batch-modal-label');
         heading.textContent = isUpdate ? ill_batch_update : ill_batch_add;
     }
@@ -323,6 +347,24 @@
         }
     };
 
+    function updateStatusesSelect() {
+        while (statusesSelect.options.length > 0) {
+            statusesSelect.remove(0);
+        }
+        statuses.data.forEach(function (status) {
+            var option = document.createElement('option')
+            option.value = status.code;
+            option.text = status.name;
+            if (batch.data.id && batch.data.statuscode === status.code) {
+                option.selected = true;
+            }
+            statusesSelect.add(option);
+        });
+        if (isUpdate) {
+            statusesSelect.parentElement.style.display = 'block';
+        }
+    };
+
     function removeEventListeners() {
         textarea.removeEventListener('paste', processButtonState);
         textarea.removeEventListener('keyup', processButtonState);
@@ -414,6 +456,20 @@
             });
     };
 
+    // Get all batch statuses
+    function fetchStatuses() {
+        window.doApiRequest('/api/v1/illbatchstatuses')
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (jsoned) {
+                statuses.data = jsoned;
+            })
+            .catch(function (e) {
+                window.handleApiError(ill_batch_statuses_api_fail);
+            });
+    };
+
     // Get the batch
     function fetchBatch() {
         window.doBatchApiRequest("/" + batchId)
@@ -426,7 +482,8 @@
                     name: jsoned.name,
                     backend: jsoned.backend,
                     cardnumber: jsoned.cardnumber,
-                    branchcode: jsoned.branchcode
+                    branchcode: jsoned.branchcode,
+                    statuscode: jsoned.statuscode
                 }
                 return jsoned;
             })
@@ -436,11 +493,11 @@
             .catch(function () {
                 window.handleApiError(ill_batch_api_fail);
             });
-
     };
 
     function createBatch() {
         var selectedBranchcode = branchcodeSelect.selectedOptions[0].value;
+        var selectedStatuscode = statusesSelect.selectedOptions[0].value;
         return doBatchApiRequest('', {
             method: 'POST',
             headers: {
@@ -450,7 +507,8 @@
                 name: nameInput.value,
                 backend: backend,
                 cardnumber: cardnumberInput.value,
-                branchcode: selectedBranchcode
+                branchcode: selectedBranchcode,
+                statuscode: selectedStatuscode
             })
         })
             .then(function (response) {
@@ -464,7 +522,9 @@
                     backend: body.backend,
                     cardnumber: body.patron.cardnumber,
                     branchcode: body.branchcode,
-                    patron: body.patron
+                    statuscode: body.statuscode,
+                    patron: body.patron,
+                    status: body.status
                 };
                 initPostCreate();
             })
@@ -475,6 +535,7 @@
 
     function updateBatch() {
         var selectedBranchcode = branchcodeSelect.selectedOptions[0].value;
+        var selectedStatuscode = statusesSelect.selectedOptions[0].value;
         return doBatchApiRequest('/' + batch.data.id, {
             method: 'PUT',
             headers: {
@@ -484,7 +545,8 @@
                 name: nameInput.value,
                 backend: batch.data.backend,
                 cardnumber: batch.data.patron.cardnumber,
-                branchcode: selectedBranchcode
+                branchcode: selectedBranchcode,
+                statuscode: selectedStatuscode
             })
         })
             .catch(function () {
