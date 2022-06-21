@@ -58,9 +58,14 @@
                     width: '10%'
                 },
                 {
+                    data: 'status',
+                    render: createStatus,
+                    width: '10%'
+                },
+                {
                     data: 'patron',
                     render: createPatronLink,
-                    width: '20%'
+                    width: '10%'
                 },
                 {
                     data: 'branch',
@@ -82,7 +87,7 @@
     // A render function for branch name
     var createBranch = function (data) {
         return data.branchname;
-    }
+    };
 
     // A render function for batch name
     var createName = function (x, y, data) {
@@ -91,6 +96,11 @@
         a.setAttribute('title', data.name);
         a.textContent = data.name;
         return a.outerHTML;
+    };
+
+    // A render function for batch status
+    var createStatus = function (x, y, data) {
+        return data.status.name;
     };
 
     // A render function for our patron link

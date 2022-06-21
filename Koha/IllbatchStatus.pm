@@ -1,4 +1,4 @@
-package Koha::Illbatch;
+package Koha::IllbatchStatus;
 
 # Copyright PTFS Europe 2022
 #
@@ -20,94 +20,50 @@ package Koha::Illbatch;
 use Modern::Perl;
 use Koha::Database;
 use Koha::Illrequest::Logger;
-use Koha::IllbatchStatus;
+use Koha::Illbatch;
 use JSON qw( to_json );
 use base qw(Koha::Object);
 
 =head1 NAME
 
-Koha::Illbatch - Koha Illbatch Object class
+Koha::IllbatchStatus - Koha IllbatchStatus Object class
 
 =head2 Class methods
 
-=head3 status
-
-    my $status = Koha::Illbatch->status;
-
-Return the status object associated with this batch
-
-=cut
-
-sub status {
-    my ( $self ) = @_;
-    return Koha::IllbatchStatus->_new_from_dbic(
-        scalar $self->_result->statuscode
-    );
-}
-
-=head3 patron
-
-    my $patron = Koha::Illbatch->patron;
-
-Return the patron object associated with this batch
-
-=cut
-
-sub patron {
-    my ( $self ) = @_;
-    return Koha::Patron->_new_from_dbic(
-        scalar $self->_result->borrowernumber
-    );
-}
-
-=head3 branch
-
-    my $branch = Koha::Illbatch->branch;
-
-Return the branch object associated with this batch
-
-=cut
-
-sub branch {
-    my ( $self ) = @_;
-    return Koha::Library->_new_from_dbic(
-        scalar $self->_result->branchcode
-    );
-}
-
-=head3 requests_count
-
-    my $requests_count = Koha::Illbatch->requests_count;
-
-Return the number of requests associated with this batch
-
-=cut
-
-sub requests_count {
-    my ( $self ) = @_;
-    return Koha::Illrequests->search({
-        batch_id => $self->id
-    })->count;
-}
-
 =head3 create_and_log
 
-    $batch->create_and_log;
+    $status->create_and_log;
 
-Log batch creation following storage
+Log batch status creation following storage
 
 =cut
 
 sub create_and_log {
     my ( $self ) = @_;
 
-    $self->store;
+    # Ensure code is uppercase and contains only word characters
+    my $fixed_code = uc $self->code;
+    $fixed_code =~ s/\W/_/;
+
+    # Ensure this status doesn't already exist
+    my $status = Koha::IllbatchStatuses->find({ code => $fixed_code });
+    if ($status) {
+        return {
+            error => "Duplicate status found"
+        };
+    }
+
+    # Ensure system statuses can't be created
+    $self->set({
+        code      => $fixed_code,
+        is_system => 0
+    })->store;
 
     my $logger = Koha::Illrequest::Logger->new;
 
     $logger->log_something({
         modulename   => 'ILL',
-        actionname  => 'batch_create',
+        actionname   => 'batch_status_create',
         objectnumber => $self->id,
         infos        => to_json({})
     });
@@ -115,9 +71,9 @@ sub create_and_log {
 
 =head3 update_and_log
 
-    $batch->update_and_log;
+    $status->update_and_log;
 
-Log batch update following storage
+Log batch status update following storage
 
 =cut
 
@@ -125,23 +81,24 @@ sub update_and_log {
     my ( $self, $params ) = @_;
 
     my $before = {
-        name       => $self->name,
-        branchcode => $self->branchcode
+        name => $self->name
     };
 
-    $self->set( $params );
+    # Ensure only the name can be changed
+    $self->set({
+        name => $params->{name}
+    });
     my $update = $self->store;
 
     my $after = {
-        name       => $self->name,
-        branchcode => $self->branchcode
+        name => $self->name
     };
 
     my $logger = Koha::Illrequest::Logger->new;
 
     $logger->log_something({
         modulename   => 'ILL',
-        actionname  => 'batch_update',
+        actionname  => 'batch_status_update',
         objectnumber => $self->id,
         infos        => to_json({
             before => $before,
@@ -154,18 +111,27 @@ sub update_and_log {
 
     $batch->delete_and_log;
 
-Log batch delete
+Log batch status delete
 
 =cut
 
 sub delete_and_log {
     my ( $self ) = @_;
 
+    # Don't permit deletion of system statuses
+    if ($self->is_system) {
+        return;
+    }
+
+    # Update all batches that use this status to have status UNKNOWN
+    my $affected = Koha::Illbatches->search({ statuscode => $self->code });
+    $affected->update({ statuscode => 'UNKNOWN'});
+
     my $logger = Koha::Illrequest::Logger->new;
 
     $logger->log_something({
         modulename   => 'ILL',
-        actionname  => 'batch_delete',
+        actionname   => 'batch_status_delete',
         objectnumber => $self->id,
         infos        => to_json({})
     });
@@ -177,14 +143,14 @@ sub delete_and_log {
 
 =head3 _type
 
-    my $type = Koha::Illbatch->_type;
+    my $type = Koha::IllbatchStatus->_type;
 
 Return this object's type
 
 =cut
 
 sub _type {
-    return 'Illbatch';
+    return 'IllbatchStatus';
 }
 
 =head1 AUTHOR

@@ -5,6 +5,7 @@
     var ill_batch_none = _("None");
     var ill_batch_retrieving_metadata = _("Retrieving metadata");
     var ill_batch_api_fail = _("Unable to retrieve batch details");
+    var ill_batch_statuses_api_fail = _("Unable to retrieve batch statuses");
     var ill_batch_api_request_fail = _("Unable to create local request");
     var ill_batch_requests_api_fail = _("Unable to retrieve batch requests");
     var ill_batch_unknown = _("Unknown");

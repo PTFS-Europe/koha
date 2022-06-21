@@ -28,6 +28,10 @@
                                         [% PROCESS options_for_libraries libraries => Branches.all( selected => branchcode ) %]
                                     </select>
                                 </li>
+                                <li id="batch_statuscode" style="display:none">
+                                    <label class="required" for="statuscode">Status:</label>
+                                    <select id="statuscode" name="statuscode"></select>
+                                </li>
                             </ol>
                         </fieldset>
                         <fieldset id="add_batch_items" class="rows" style="display:none">

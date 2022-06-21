@@ -28,6 +28,7 @@ use Koha::AuthorisedValues;
 use Koha::Illcomment;
 use Koha::Illrequests;
 use Koha::Illbatches;
+use Koha::IllbatchStatuses;
 use Koha::Illrequest::Availability;
 use Koha::Libraries;
 use Koha::Token;
@@ -454,8 +455,9 @@ if ( $backends_available ) {
         );
         exit;
     } elsif ( $op eq "batch_list" ) {
+        # Do not remove, it prevents us falling through to the 'else'
     } elsif ( $op eq "batch_create" ) {
-        # Batch create
+        # Do not remove, it prevents us falling through to the 'else'
     } else {
         my $request = Koha::Illrequests->find($params->{illrequest_id});
         my $backend_result = $request->custom_capability($op, $params);

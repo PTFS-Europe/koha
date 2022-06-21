@@ -141,4 +141,9 @@ properties:
       - string
       - "null"
     description: The timestamp the request was last updated (formatted for display)
+  due_date:
+    type:
+      - string
+      - "null"
+    description: The hard due date of an ILL request
 additionalProperties: false

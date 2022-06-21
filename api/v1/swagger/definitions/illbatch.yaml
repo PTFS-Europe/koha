@@ -29,6 +29,14 @@ properties:
       - object
       - "null"
     description: The branch associated with the batch
+  statuscode:
+    type: string
+    description: Code of the status of the ILL batch
+  status:
+    type:
+      - object
+      - "null"
+    description: The status associated with the batch
   requests_count:
     type: string
     description: The number of requests in this batch
@@ -37,3 +45,4 @@ required:
   - name
   - backend
   - branchcode
+  - statuscode
