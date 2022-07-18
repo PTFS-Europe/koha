@@ -21,6 +21,11 @@ import_batch_profile_id_pp:
   $ref: parameters/import_batch_profile.yaml#/import_batch_profile_id_pp
 item_id_pp:
   $ref: parameters/item.yaml#/item_id_pp
+item_id_qp:
+  description: Internal item identifier
+  in: query
+  name: item_id
+  type: integer
 library_id_pp:
   $ref: parameters/library.yaml#/library_id_pp
 match:

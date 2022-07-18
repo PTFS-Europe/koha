@@ -40,6 +40,53 @@
         circulate: circulate_remaining_permissions
     x-koha-embed:
       - issuer
+  post:
+    x-mojo-to: Checkouts#add
+    operationId: addCheckout
+    tags:
+      - checkouts
+    summary: Add a new checkout
+    parameters:
+      - name: body
+        in: body
+        description: A JSON object containing informations about the new checkout
+        required: true
+        schema:
+          $ref: "../definitions.yaml#/checkout"
+    produces:
+      - application/json
+    responses:
+      "201":
+        description: Created new checkout
+        schema:
+          $ref: "../definitions.yaml#/checkout"
+      "403":
+        description: Cannot create checkout
+        schema:
+          $ref: "../definitions.yaml#/error"
+      "404":
+        description: Checkout not found
+        schema:
+          $ref: "../definitions.yaml#/error"
+      "409":
+        description: Conflict in creating resource
+        schema:
+          $ref: "../definitions.yaml#/error"
+      "412":
+        description: Precondition failed
+        schema:
+          $ref: "../definitions.yaml#/error"
+      "500":
+        description: |
+          Internal server error. Possible `error_code` attribute values:
+
+          * `internal_server_error`
+        schema:
+          $ref: "../definitions.yaml#/error"
+      "503":
+        description: Under maintenance
+        schema:
+          $ref: "../definitions.yaml#/error"
 "/checkouts/{checkout_id}":
   get:
     x-mojo-to: Checkouts#get
@@ -124,3 +171,84 @@
     x-koha-authorization:
       permissions:
         circulate: circulate_remaining_permissions
+"/public/checkouts":
+  post:
+    x-mojo-to: Checkouts#add
+    operationId: addCheckoutPublic
+    tags:
+      - checkouts
+    summary: Add a new checkout
+    parameters:
+      - name: body
+        in: body
+        description: A JSON object containing informations about the new checkout
+        required: true
+        schema:
+          $ref: "../definitions.yaml#/checkout"
+      - name: confirmation
+        in: query
+        description: A JWT confirmation token
+        required: false
+        type: string
+    produces:
+      - application/json
+    responses:
+      "201":
+        description: Created new checkout
+        schema:
+          $ref: "../definitions.yaml#/checkout"
+      "403":
+        description: Cannot create checkout
+        schema:
+          $ref: "../definitions.yaml#/error"
+      "404":
+        description: Checkout not found
+        schema:
+          $ref: "../definitions.yaml#/error"
+      "412":
+        description: Confirmaion required
+        schema:
+          $ref: "../definitions.yaml#/error"
+      "500":
+        description: |
+          Internal server error. Possible `error_code` attribute values:
+
+          * `internal_server_error`
+        schema:
+          $ref: "../definitions.yaml#/error"
+      "503":
+        description: Under maintenance
+        schema:
+          $ref: "../definitions.yaml#/error"
+"/public/checkouts/availability":
+  get:
+    x-mojo-to: Checkouts#get_availability
+    operationId: availabilityCheckoutsPublic
+    tags:
+      - checkouts
+    summary: Get checkout availability
+    parameters:
+      - $ref: "../parameters.yaml#/patron_id_qp"
+      - $ref: "../parameters.yaml#/item_id_qp"
+    produces:
+      - application/json
+    responses:
+      "200":
+        description: Availability
+        schema:
+          type: "object"
+      "403":
+        description: Access forbidden
+        schema:
+          $ref: "../definitions.yaml#/error"
+      "500":
+        description: |
+          Internal server error. Possible `error_code` attribute values:
+
+          * `internal_server_error`
+        schema:
+          $ref: "../definitions.yaml#/error"
+      "503":
+        description: Under maintenance
+        schema:
+          $ref: "../definitions.yaml#/error"

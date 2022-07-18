@@ -742,7 +742,8 @@ sub CanBookBeIssued {
     my $onsite_checkout     = $params->{onsite_checkout}     || 0;
     my $override_high_holds = $params->{override_high_holds} || 0;
 
-    my $item_object = Koha::Items->find({barcode => $barcode });
+    my $item_object = $params->{item}
+      // Koha::Items->find( { barcode => $barcode } );
 
     # MANDATORY CHECKS - unless item exists, nothing else matters
     unless ( $item_object ) {

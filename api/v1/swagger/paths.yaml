@@ -113,6 +113,10 @@
   $ref: paths/biblios.yaml#/~1public~1biblios~1{biblio_id}
 "/public/biblios/{biblio_id}/items":
   $ref: paths/biblios.yaml#/~1public~1biblios~1{biblio_id}~1items
+"/public/checkouts":
+  $ref: paths/checkouts.yaml#/~1public~1checkouts
+"/public/checkouts/availability":
+  $ref: paths/checkouts.yaml#/~1public~1checkouts~1availability
 "/public/items":
   $ref: paths/items.yaml#/~1public~1items
 /public/libraries:
