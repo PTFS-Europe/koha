@@ -685,6 +685,13 @@ OPAC:
             - pref: NumberOfSuggestionDays
               class: integer
             - "days."
+        -
+            - pref: OpacTrustedCheckout
+              default: 0
+              choices:
+                  0: "Don't allow"
+                  1: Allow
+            - "OPAC users to checkout to themselves."
     Privacy:
         -
             - pref: AnonSuggestions
