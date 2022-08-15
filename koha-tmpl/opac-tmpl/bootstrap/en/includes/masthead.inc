@@ -82,6 +82,7 @@
                         </div> <!-- / .dropdown-menu -->
                     </li> <!-- / .nav-item.dropdown -->
                 [% END # / IF virtualshelves %]
+
                 <!-- Cookie consent button for non logged-in users -->
                 [% IF !loggedinusername %]
                     <li style="display:none" id="cookieConsentDivider" class="divider-vertical" aria-hidden="true"></li>
@@ -91,6 +92,15 @@
                         </a>
                     </li>
                 [% END %]
+
+                [% IF ( Koha.Preference( 'OpacTrustedCheckout' ) && loggedinusername ) %]
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" title="Self check out" id="comenulink" role="button" data-toggle="modal" data-target="#checkoutModal">
+                            <i id="checkout-icon" class="fa fa-barcode fa-icon-black" aria-hidden="true"></i> <span class="checkout-label">Self checkout</span>
+                        </a>
+                    </li>
+                [% END %]
+
             </ul> <!-- / .navbar-nav -->
 
             [% IF Koha.Preference( 'opacuserlogin' ) == 1 ||  Koha.Preference( 'EnableOpacSearchHistory') || Koha.Preference( 'opaclanguagesdisplay' ) %]

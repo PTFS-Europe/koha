@@ -128,6 +128,10 @@
     [% END %]
 [% END %]
 
+[% IF ( Koha.Preference( 'OpacTrustedCheckout' ) && loggedinusername ) %]
+    [% INCLUDE 'modals/checkout.inc' %]
+[% END %]
+
 <!-- JavaScript includes -->
 [% Asset.js("lib/jquery/jquery-3.4.1.min.js") | $raw %]
 [% Asset.js("lib/jquery/jquery-migrate-3.1.0.min.js") | $raw %]
@@ -138,6 +142,9 @@ $.widget.bridge('uitooltip', $.ui.tooltip);
 </script>
 [% Asset.js("lib/bootstrap/js/bootstrap.bundle.min.js") | $raw %]
 [% Asset.js("lib/fontfaceobserver.min.js") | $raw %]
+<script>
+    let logged_in_user_id = "[% logged_in_user.borrowernumber | html %]";
+</script>
 [% Asset.js("js/global.js") | $raw %]
 <script>
     Modernizr.load([
@@ -318,6 +325,7 @@ $(document).ready(function() {
     }
 });
 </script>
+[% INCLUDE 'js-date-format.inc' %]
 [% PROCESS jsinclude %]
 [% IF ( Koha.Preference('OPACUserJS') ) %]
     <script>
@@ -336,6 +344,9 @@ $(document).ready(function() {
 [% END %]
 [% IF Koha.Preference( 'CookieConsent' ) %]
     [% Asset.js("js/cookieconsent.js") | $raw %]
+[% END %]
+[% IF ( Koha.Preference( 'OpacTrustedCheckout' ) && loggedinusername ) %]
+    [% Asset.js("js/modals/checkout.js") | $raw %]
 [% END %]
 [% KohaPlugins.get_plugins_opac_js | $raw %]
 </body>
