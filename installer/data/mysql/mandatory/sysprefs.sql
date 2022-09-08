@@ -162,6 +162,7 @@ INSERT INTO systempreferences ( `variable`, `value`, `options`, `explanation`, `
 ('CookieConsent', '0', NULL, 'Require cookie consent to be displayed', 'YesNo'),
 ('CookieConsentBar', '', '70|10', 'Show the following HTML in the cookie consent bar that is displayed at the bottom of the screen', 'Textarea'),
 ('CookieConsentPopup', '', '70|10', 'Show the following HTML in the cookie consent popup', 'Textarea'),
+('ContentWarningField', '', NULL, 'MARC field to use for content warnings', 'Free'),
 ('CreateAVFromCataloguing', '1', '', 'Ability to create authorized values from the cataloguing module', 'YesNo'),
 ('CronjobLog','0',NULL,'If ON, log information from cron jobs.','YesNo'),
 ('CumulativeRestrictionPeriods',0,NULL,'Cumulate the restriction periods instead of keeping the highest','YesNo'),
