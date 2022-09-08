@@ -179,6 +179,11 @@ Cataloging:
             - and record's last modifier name in MARC subfield
             - pref: MarcFieldForModifierName
             - ". <br/><strong>NOTE:</strong> Use a dollar sign between field and subfield like 123$a."
+        -
+            - Use MARC field
+            - pref: ContentWarningField
+            - for storing content warnings.
+            - "<br/><strong>NOTE:</strong> The field needs to appear in the MARC frameworks to be accessible."
     Display:
         -
             - 'Separate main entry and subdivisions with '
