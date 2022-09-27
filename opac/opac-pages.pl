@@ -25,10 +25,11 @@ use C4::Output qw( output_html_with_http_headers );
 use C4::Languages qw(getTranslatedLanguages accept_language);
 use Koha::Quotes;
 use C4::Members;
-use C4::Overdues;
+use C4::Overdues qw( checkoverdues );
 use Koha::Checkouts;
 use Koha::Holds;
-use Koha::News;
+use Koha::AdditionalContents;
+use Koha::Patron::Messages;
 
 my $input = CGI->new;
 my $dbh   = C4::Context->dbh;
