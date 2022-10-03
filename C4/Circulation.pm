@@ -1475,6 +1475,7 @@ sub AddIssue {
                 $datedue,
                 $issuedate,    # here interpreted as the renewal date
             );
+            $issue = Koha::Checkouts->find( { itemnumber => $item_object->itemnumber } );
         }
         else {
             unless ($datedue) {
