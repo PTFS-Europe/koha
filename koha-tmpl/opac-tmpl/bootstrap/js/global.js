@@ -151,10 +151,25 @@ function confirmModal(message, title, yes_label, no_label, callback) {
     });
 })(jQuery);
 
-$("#scrolltocontent").click(function() {
-    var content = $(".maincontent");
-    if (content.length > 0) {
-        $('html,body').animate({
+$(document).ready(function(){
+
+    $(".loginModal-trigger").on("click",function(e){
+        e.preventDefault();
+        var button = $(this);
+        var context = button.data('return');
+        if ( context ) {
+            $('#modalAuth').append('<input type="hidden" name="return" value="'+window.location+'" />');
+        }
+        $("#loginModal").modal("show");
+    });
+    $("#loginModal").on("shown.bs.modal", function(){
+        $("#muserid").focus();
+    });
+    
+    $("#scrolltocontent").click(function() {
+        var content = $(".maincontent");
+        if (content.length > 0) {
+            $('html,body').animate({
                 scrollTop: content.first().offset().top
             },
         'slow');
