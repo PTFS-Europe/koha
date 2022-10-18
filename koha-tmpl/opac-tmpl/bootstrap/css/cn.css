@@ -1,0 +1,47 @@
+#logo {
+/*    background: url("") left top no-repeat; */
+      background: url("../images/CHSTrustlogo.jpg") no-repeat scroll 0 center / 475px transparent;
+      width: 500px;
+      height:150px;
+}
+#opac-main-search select {
+    max-width: 18em;
+}
+.navbar-inverse .navbar-inner {
+    background-image: none;
+    background-color: #000000;
+    border-color: #000000;
+}
+body {
+    background-color: #FFFFFF;
+}
+#opac-main-search {
+    background: #1E73BE;
+}
+#opac-main-search label {
+    color: #FFFFFF;
+}
+.btn-primary {
+  background-image: none;
+  background-color: #f96345;
+  background-position: 0;
+  border: 1px solid #c9ab37;
+  color: #fff;
+}
+/*
+.navbar-inverse .nav > li > a:focus, .navbar-inverse .nav > li > a:hover {
+    color: #B1B1AC;
+}
+.navbar-inverse .brand, .navbar-inverse .nav > li > a {
+    color: #0066CB;
+}
+#members a {
+    color: #0066CB;
+}
+#members p {
+    color: #0066CB;
+}
+.navbar-inverse .divider-vertical {
+    border-left-color: #FFFFFF;
+    border-right-color: #FFFFFF;
+} */

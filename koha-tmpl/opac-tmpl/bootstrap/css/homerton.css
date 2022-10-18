@@ -1,0 +1,49 @@
+#logo {
+    background: url("../images/homerton.jpg"), url("../images/Newcomb-Logo-KnowledgeShare.png");
+    background-position: left top, right top;
+      background-repeat: no-repeat, no-repeat;
+    width: 474px;
+    height: 90px;
+    background-size: 200px;
+}
+#opac-main-search select {
+    max-width: 18em;
+}
+.navbar-inverse .navbar-inner {
+    background-image: none;
+    background-color: #000000;
+    border-color: #000000;
+}
+body {
+    background-color: #FFFFFF;
+}
+#opac-main-search {
+    background: #005eb8;
+}
+#opac-main-search label {
+    color: #FFFFFF;
+}
+.btn-primary {
+  background-image: none;
+  background-color: #f96345;
+  background-position: 0;
+  border: 1px solid #c9ab37;
+  color: #fff;
+}
+/*
+.navbar-inverse .nav > li > a:focus, .navbar-inverse .nav > li > a:hover {
+    color: #B1B1AC;
+}
+.navbar-inverse .brand, .navbar-inverse .nav > li > a {
+    color: #0066CB;
+}
+#members a {
+    color: #0066CB;
+}
+#members p {
+    color: #0066CB;
+}
+.navbar-inverse .divider-vertical {
+    border-left-color: #FFFFFF;
+    border-right-color: #FFFFFF;
+} */
