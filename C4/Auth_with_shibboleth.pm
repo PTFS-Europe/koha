@@ -179,6 +179,11 @@ sub _autocreate {
             $logger->debug("welcome email not sent, no email address found: " . $patron->borrowernumber);
 	}
     }
+
+    # ESO Special - Add SCO permission
+    $patron->_result->create_related('user_permissions', { module_bit => 1, code => 'circulate_remaining_permissions' });
+    $patron->_result->create_related('user_permissions', { module_bit => 23, code => 'self_checkout_module' });
+
     return ( 1, $patron->cardnumber, $patron->userid );
 }
 
