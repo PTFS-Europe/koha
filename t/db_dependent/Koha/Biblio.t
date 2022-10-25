@@ -662,6 +662,34 @@ subtest 'orders() and active_orders() tests' => sub {
     $schema->storage->txn_rollback;
 };
 
+subtest 'tickets() tests' => sub {
+
+    plan tests => 4;
+
+    $schema->storage->txn_begin;
+
+    my $biblio = $builder->build_sample_biblio();
+    my $tickets = $biblio->tickets;
+    is( ref($tickets), 'Koha::Tickets', 'Koha::Biblio->tickets should return a Koha::Tickets object' );
+    is( $tickets->count, 0, 'Koha::Biblio->tickets should return a count of 0 when there are no related tickets' );
+
+    # Add two tickets
+    foreach (1..2) {
+        $builder->build_object(
+            {
+                class => 'Koha::Tickets',
+                value => { biblio_id => $biblio->biblionumber }
+            }
+        );
+    }
+
+    $tickets = $biblio->tickets;
+    is( ref($tickets), 'Koha::Tickets', 'Koha::Biblio->tickets should return a Koha::Tickets object' );
+    is( $tickets->count, 2, 'Koha::Biblio->tickets should return the correct number of tickets' );
+
+    $schema->storage->txn_rollback;
+};
+
 subtest 'subscriptions() tests' => sub {
 
     plan tests => 4;
