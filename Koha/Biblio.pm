@@ -51,6 +51,7 @@ use Koha::Subscriptions;
 use Koha::SearchEngine;
 use Koha::SearchEngine::Search;
 use Koha::SearchEngine::QueryBuilder;
+use Koha::Tickets;
 
 =head1 NAME
 
