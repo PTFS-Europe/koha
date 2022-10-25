@@ -147,4 +147,102 @@ sub delete {
     };
 }
 
+=head3 list_updates
+
+=cut
+
+sub list_updates {
+    my $c = shift->openapi->valid_input or return;
+
+    return try {
+        my $ticket = Koha::Tickets->find( $c->validation->param('ticket_id') );
+        unless ($ticket) {
+            return $c->render(
+                status  => 404,
+                openapi => { error => "Ticket not found" }
+            );
+        }
+
+        my $updates_set = $ticket->updates;
+        my $updates     = $c->objects->search($updates_set);
+        return $c->render( status => 200, openapi => $updates );
+    }
+    catch {
+        $c->unhandled_exception($_);
+    };
+}
+
+=head3 add_update
+
+=cut
+
+sub add_update {
+    my $c = shift->openapi->valid_input or return;
+
+    my $ticket_id_param = $c->validation->param('ticket_id');
+    my $ticket_update   = $c->validation->param('body');
+    $ticket_update->{ticket_id} //= $ticket_id_param;
+
+    if ( $ticket_update->{ticket_id} != $ticket_id_param ) {
+        return $c->render(
+            status  => 400,
+            openapi => { error => "Ticket Mismatch" }
+        );
+    }
+
+    return try {
+        my $state = delete $ticket_update->{state};
+
+        # Store update
+        my $update = Koha::Ticket::Update->new_from_api($ticket_update)->store;
+        $update->discard_changes;
+
+        # Update ticket state if needed
+        if ( defined($state) && $state eq 'resolved' ) {
+            my $ticket = $update->ticket;
+            $ticket->set(
+                {
+                    resolver_id   => $update->user_id,
+                    resolved_date => $update->date
+                }
+            )->store;
+        }
+
+        # Optionally add to message_queue here to notify reporter
+        if ( $update->public ) {
+            my $notice =
+              ( defined($state) && $state eq 'resolved' )
+              ? 'TICKET_RESOLVE'
+              : 'TICKET_UPDATE';
+            my $letter = C4::Letters::GetPreparedLetter(
+                module      => 'catalog',
+                letter_code => $notice,
+                branchcode  => $update->user->branchcode,
+                tables      => { ticket_updates => $update->id }
+            );
+
+            if ($letter) {
+                my $message_id = C4::Letters::EnqueueLetter(
+                    {
+                        letter                 => $letter,
+                        borrowernumber         => $update->ticket->reporter_id,
+                        message_transport_type => 'email',
+                    }
+                );
+            }
+        }
+
+        # Return
+        $c->res->headers->location(
+            $c->req->url->to_string . '/' . $update->id );
+        return $c->render(
+            status  => 201,
+            openapi => $update->to_api
+        );
+    }
+    catch {
+        $c->unhandled_exception($_);
+    };
+}
+
 1;

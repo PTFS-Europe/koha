@@ -147,3 +147,6 @@
   $ref: paths/tickets.yaml#/~1tickets
 "/tickets/{ticket_id}":
   $ref: paths/tickets.yaml#/~1tickets~1{ticket_id}
+"/tickets/{ticket_id}/updates":
+  $ref: paths/tickets.yaml#/~1tickets~1{ticket_id}~1updates
+
