@@ -1,0 +1,30 @@
+---
+type: object
+properties:
+  update_id:
+    type: integer
+    description: Internal ticket update identifier
+  ticket_id:
+    type: integer
+    description: Internal ticket identifier
+  user:
+    type:
+      - object
+      - "null"
+    description: The object representing the patron who added the update
+  user_id:
+    type: integer
+    description: Internal identifier for the patron who added the update
+  date:
+    type:
+      - string
+      - "null"
+    format: date-time
+    description: Date the ticket update was reported
+  message:
+    type: string
+    description: Ticket update details
+  public:
+    type: boolean
+    description: Is this update intended to be sent to the patron
+additionalProperties: true

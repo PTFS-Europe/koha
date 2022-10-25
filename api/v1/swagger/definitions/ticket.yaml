@@ -48,4 +48,9 @@ properties:
       - "null"
     format: date-time
     description: Date the ticket was resolved_date
+  updates_count:
+    type:
+      - integer
+      - "null"
+    description: Number of updates
 additionalProperties: false
