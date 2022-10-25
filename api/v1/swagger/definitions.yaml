@@ -57,6 +57,8 @@ smtp_server:
   $ref: definitions/smtp_server.yaml
 suggestion:
   $ref: definitions/suggestion.yaml
+ticket:
+  $ref: ./definitions/ticket.yaml
 transfer_limit:
   $ref: definitions/transfer_limit.yaml
 vendor:

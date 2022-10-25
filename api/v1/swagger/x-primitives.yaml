@@ -46,6 +46,12 @@ surname:
     - string
     - "null"
   description: patron's last name
+ticket_id_pp:
+  description: Internal ticket identifier
+  in: path
+  name: ticket_id
+  required: true
+  type: integer
 vendor_id:
   type: integer
   description: internally assigned vendor identifier

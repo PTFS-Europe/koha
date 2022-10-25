@@ -125,6 +125,8 @@
   $ref: paths/public_patrons.yaml#/~1public~1patrons~1{patron_id}~1guarantors~1can_see_charges
 "/public/patrons/{patron_id}/guarantors/can_see_checkouts":
   $ref: paths/public_patrons.yaml#/~1public~1patrons~1{patron_id}~1guarantors~1can_see_checkouts
+"/public/tickets":
+  $ref: paths/tickets.yaml#/~1public~1tickets
 /quotes:
   $ref: paths/quotes.yaml#/~1quotes
 "/quotes/{quote_id}":
@@ -141,3 +143,7 @@
   $ref: paths/suggestions.yaml#/~1suggestions
 "/suggestions/{suggestion_id}":
   $ref: paths/suggestions.yaml#/~1suggestions~1{suggestion_id}
+"/tickets":
+  $ref: paths/tickets.yaml#/~1tickets
+"/tickets/{ticket_id}":
+  $ref: paths/tickets.yaml#/~1tickets~1{ticket_id}
