@@ -1008,6 +1008,20 @@ fieldset {
             }
         }
     }
+
+    div {
+        &.help-block {
+            display: block;
+            margin-top: 5px;
+            margin-bottom: 10px;
+            color: #737373;
+
+            li {
+                list-style-type: unset;
+                list-style-position: inside;
+            }
+        }
+    }
 }
 
 #multi_receiving {
