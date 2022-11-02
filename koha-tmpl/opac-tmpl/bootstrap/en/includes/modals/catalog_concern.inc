@@ -21,9 +21,11 @@
                         <label for="concern_body">Please decribe your concerns: </label>
                         <textarea class="form-control" name="concern_body" id="concern_body" aria-describedby="helpBlock" required="required" rows="15"></textarea>
                         [%- IF CatalogConcernHelp && CatalogConcernHelp.content && CatalogConcernHelp.content.count > 0 -%]
+                        <div class="help-block">
                         [%- FOREACH help IN CatalogConcernHelp.content -%]
-                        <p id="helpBlock" class="help-block">[%- help.content | $raw -%]</p>
+                            [%- help.content | $raw -%]
                         [%- END -%]
+                        </div>
                         [%- END -%]
                         <div class="hidden" id="concern_template">
                         [%- IF CatalogConcernTemplate && CatalogConcernTemplate.content && CatalogConcernTemplate.content.count > 0 -%]
