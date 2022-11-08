@@ -23,6 +23,8 @@ use Koha::Illbatches;
 use Koha::IllbatchStatuses;
 use Koha::Illrequests;
 
+use Try::Tiny qw( catch try );
+
 =head1 NAME
 
 Koha::REST::V1::Illbatches
@@ -140,6 +142,14 @@ sub add {
     # We receive cardnumber, so we need to look up the corresponding
     # borrowernumber
     my $patron = Koha::Patrons->find({ cardnumber => $body->{cardnumber} });
+
+    if ( not defined $patron ) {
+        return $c->render(
+            status  => 404,
+            openapi => { error => "Patron with cardnumber " . $body->{cardnumber} . " not found" }
+        );
+    }
+
     delete $body->{cardnumber};
     $body->{borrowernumber} = $patron->borrowernumber;
 
@@ -162,6 +172,14 @@ sub add {
         );
     }
     catch {
+        if ( blessed $_ ) {
+            if ( $_->isa('Koha::Exceptions::Object::DuplicateID') ) {
+                return $c->render(
+                    status  => 409,
+                    openapi => { error => "A batch named " . $body->{name} . " already exists" }
+                );
+            }
+        }
         $c->unhandled_exception($_);
     };
 }

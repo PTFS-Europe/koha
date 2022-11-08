@@ -28,7 +28,7 @@ use t::lib::TestBuilder;
 use Test::MockObject;
 use Test::MockModule;
 
-use Test::More tests => 12;
+use Test::More tests => 13;
 
 my $schema = Koha::Database->new->schema;
 my $builder = t::lib::TestBuilder->new;
@@ -98,6 +98,16 @@ is(
     "Creation of status calls log_something"
 );
 
+# Try creating a system status and ensure it's not created
+my $cannot_create_system = Koha::IllbatchStatus->new({
+    name => "Jar Jar Binks",
+    code => "GUNGAN",
+    is_system => 1
+});
+$cannot_create_system->create_and_log;
+my $created_but_not_system = Koha::IllbatchStatuses->find({ code => "GUNGAN" });
+is($created_but_not_system->{is_system}, undef, "is_system statuses cannot be created");
+
 ## Status update
 
 # Ensure only name can be updated
@@ -118,19 +128,16 @@ is(
 );
 
 ## Status delete
-
-# Prevent deletion of system statuses
 my $cannot_delete = Koha::IllbatchStatus->new({
     name => "Palapatine",
     code => "SITH",
     is_system => 1
-});
+})->store;
 my $can_delete = Koha::IllbatchStatus->new({
     name => "Windu",
     code => "JEDI",
     is_system => 0
 });
-$cannot_delete->create_and_log;
 $cannot_delete->delete_and_log;
 my $not_deleted = Koha::IllbatchStatuses->find({ code => "SITH" });
 isa_ok( $not_deleted, 'Koha::IllbatchStatus', "is_system statuses cannot be deleted" );

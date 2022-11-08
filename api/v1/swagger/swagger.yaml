@@ -265,12 +265,6 @@ paths:
     $ref: ./paths/illbatchstatuses.yaml#/~1illbatchstatuses
   "/illbatchstatuses/{illbatchstatus_code}":
     $ref: "./paths/illbatchstatuses.yaml#/~1illbatchstatuses~1{illbatchstatus_code}"
-<<<<<<< HEAD
-=======
-  /illrequests:
-    $ref: ./paths/illrequests.yaml#/~1illrequests
->>>>>>> Bug 30719: DB, API & tests
->>>>>>> 573123b36f (Bug 30719: Batch statuses)
   "/import_batches/{import_batch_id}/records/{import_record_id}/matches/chosen":
     $ref: "./paths/import_batches.yaml#/~1import_batches~1{import_batch_id}~1records~1{import_record_id}~1matches~1chosen"
   /import_batch_profiles:

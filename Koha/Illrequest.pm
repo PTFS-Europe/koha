@@ -32,6 +32,7 @@ use Koha::DateUtils qw( dt_from_string );
 use Koha::Exceptions::Ill;
 use Koha::Illcomments;
 use Koha::Illrequestattributes;
+use Koha::Illrequestattribute;
 use Koha::AuthorisedValue;
 use Koha::Illrequest::Logger;
 use Koha::Patron;
@@ -273,11 +274,43 @@ Returns the linked I<Koha::Illrequestattributes> resultset object.
 =cut
 
 sub extended_attributes {
-    my ( $self ) = @_;
+    my ( $self, $attributes ) = @_;
+
+    if ($attributes) {    # setter
+        my $schema = $self->_result->result_source->schema;
+        $schema->txn_do(
+            sub {
+                # Remove the existing ones
+                $self->extended_attributes->delete;
+
+                # Insert the new ones
+                my $new_types = {};
+                for my $attribute (@$attributes) {
+                    $self->add_extended_attribute($attribute);
+                }
+            }
+        );
+    }
 
     my $rs = $self->_result->extended_attributes;
     # We call search to use the filters in Koha::Illrequestattributes->search
     return Koha::Illrequestattributes->_new_from_dbic($rs)->search;
+}
+
+=head3 add_extended_attribute
+
+=cut
+
+sub add_extended_attribute {
+    my ($self, $attribute) = @_;
+
+    return Koha::Illrequestattribute->new(
+        {
+            %$attribute,
+            ( illrequest_id => $self->illrequest_id ),
+        }
+    )->store;
+
 }
 
 =head3 status_alias
@@ -1906,7 +1939,6 @@ sub to_api_mapping {
     return {
         illrequest_id  => 'ill_request_id',
         borrowernumber => 'patron_id',
-        batchid        => 'batch_id',
         branchcode     => 'library_id',
         status_alias   => 'status_av',
         placed         => 'requested_date',
@@ -1987,6 +2019,18 @@ sub strings_map {
             str      => $params->{public} ? $status_alias->lib_opac : $status_alias->lib,
             code     => $status_alias->authorised_value,
             type     => 'av',
+        };
+    }
+
+    my $batch = $self->batch;
+    if ($batch) {
+        $strings->{"batch"} = {
+            id => $batch->id,
+            name => $batch->name,
+            backend => $batch->backend,
+            borrowernumber => $batch->borrowernumber,
+            branchcode => $batch->branchcode,
+            statuscode => $batch->statuscode
         };
     }
 

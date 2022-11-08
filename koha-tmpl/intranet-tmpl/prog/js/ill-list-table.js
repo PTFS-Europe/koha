@@ -79,8 +79,13 @@ $(document).ready(function() {
         },
         "me.borrowernumber": function(){
             let borrowernumber_pre_filter = additional_prefilters.find(e => e.key === 'borrowernumber');
-            if ( additional_prefilters.length == 0 || typeof borrowernumber_pre_filter === undefined) return "";
+            if ( additional_prefilters.length == 0 || typeof borrowernumber_pre_filter === "undefined") return "";
             return { "=": borrowernumber_pre_filter["value"] }
+        },
+        "me.batch_id": function(){
+            let batch_pre_filter = additional_prefilters.find(e => e.key === 'batch_id');
+            if ( additional_prefilters.length == 0 || typeof batch_pre_filter === "undefined") return "";
+            return { "=": batch_pre_filter["value"] }
         },
         "-or": function(){
             let patron = $("#illfilter_patron").val();

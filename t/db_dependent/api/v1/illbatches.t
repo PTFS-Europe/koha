@@ -26,6 +26,7 @@ use t::lib::Mocks;
 use Koha::Illbatch;
 use Koha::Illbatches;
 use Koha::Illrequests;
+use Koha::IllbatchStatuses;
 use Koha::Database;
 
 my $schema  = Koha::Database->new->schema;
@@ -200,7 +201,7 @@ subtest 'get() tests' => sub {
 
 subtest 'add() tests' => sub {
 
-    plan tests =>16;
+    plan tests =>19;
 
     $schema->storage->txn_begin;
 
@@ -230,11 +231,18 @@ subtest 'add() tests' => sub {
         }
     );
 
+    my $batch_status = $builder->build_object(
+        {
+            class => 'Koha::IllbatchStatuses'
+        }
+    );
+
     my $batch_metadata = {
         name           => "Anakin's requests",
         backend        => "Mock",
-        borrowernumber => $librarian->borrowernumber,
-        branchcode     => $branch->branchcode
+        cardnumber     => $librarian->cardnumber,
+        branchcode     => $branch->branchcode,
+        statuscode     => $batch_status->code
     };
 
     # Unauthorized attempt to write
@@ -264,9 +272,12 @@ subtest 'add() tests' => sub {
         ->status_is( 201 )
         ->json_is( '/name'           => $batch_metadata->{name} )
         ->json_is( '/backend'        => $batch_metadata->{backend} )
-        ->json_is( '/borrowernumber' => $batch_metadata->{borrowernumber} )
+        ->json_is( '/borrowernumber' => $librarian->borrowernumber )
         ->json_is( '/branchcode'     => $batch_metadata->{branchcode} )
+        ->json_is( '/statuscode'     => $batch_status->code )
         ->json_has( '/patron' )
+        ->json_has( '/status' )
+        ->json_has( '/requests_count' )
         ->json_has( '/branch' );
 
     # Authorized attempt to create with null id
@@ -316,11 +327,18 @@ subtest 'update() tests' => sub {
     $t->put_ok( "//$unauth_userid:$password@/api/v1/illbatches/$batch_id" => json => { name => 'These are not the droids you are looking for' } )
       ->status_is(403);
 
+    my $batch_status = $builder->build_object(
+        {
+            class => 'Koha::IllbatchStatuses'
+        }
+    );
+
     # Attempt partial update on a PUT
     my $batch_with_missing_field = {
         backend => "Mock",
         borrowernumber => $librarian->borrowernumber,
-        branchcode => $branch->branchcode
+        branchcode => $branch->branchcode,
+        statuscode => $batch_status->code
     };
 
     $t->put_ok( "//$userid:$password@/api/v1/illbatches/$batch_id" => json => $batch_with_missing_field )
@@ -334,7 +352,8 @@ subtest 'update() tests' => sub {
         name           => "Master Ploo Koon",
         backend        => "Mock",
         borrowernumber => $librarian->borrowernumber,
-        branchcode => $branch->branchcode
+        branchcode => $branch->branchcode,
+        statuscode => $batch_status->code
     };
 
     $t->put_ok( "//$userid:$password@/api/v1/illbatches/$batch_id" => json => $batch_with_updated_field )

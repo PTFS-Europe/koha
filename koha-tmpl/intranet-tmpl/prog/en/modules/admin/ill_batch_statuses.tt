@@ -132,7 +132,7 @@
                                 [% FOREACH status IN statuses %]
                                 <tr>
                                     <td>[% status.name | html %]</td>
-                                    <td>[% name.code | html %]</td>
+                                    <td>[% status.code | html %]</td>
                                     <td>[% status.is_system ? "Yes" : "No" | html %]</td>
                                     <td class="actions">
                                         <a class="btn btn-default btn-xs" href="/cgi-bin/koha/admin/ill_batch_statuses.pl?op=add_form&amp;code=[% status.code | uri %]"><i class="fa fa-pencil"></i> Edit</a>
@@ -146,7 +146,7 @@
                         </table>
                     [% ELSE %]
                         <div class="dialog message">
-                            There are no batch statuses defined. <a href="/cgi-bin/koha/admin/debit_types.pl?op=add_form">Create new batch status</a>
+                            There are no batch statuses defined. <a href="/cgi-bin/koha/admin/ill_batch_statuses.pl?op=add_form">Create new batch status</a>
                         </div>
                     [% END %]
                 [% END %]
