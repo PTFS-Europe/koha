@@ -1,4 +1,10 @@
 (function () {
+    // Bail if there aren't any metadata enrichment plugins installed
+    if (typeof metadata_enrichment_services === 'undefined') {
+        console.log('No metadata enrichment plugins found.')
+        return;
+    }
+
     window.addEventListener('load', onload);
 
     // Delay between API requests
@@ -7,7 +13,7 @@
     // Elements we work frequently with
     var textarea = document.getElementById("identifiers_input");
     var nameInput = document.getElementById("name");
-    var cardnumberInput = document.getElementById("cardnumber");
+    var cardnumberInput = document.getElementById("batchcardnumber");
     var branchcodeSelect = document.getElementById("branchcode");
     var processButton = document.getElementById("process_button");
     var createButton = document.getElementById("button_create_batch");
@@ -20,7 +26,8 @@
     var identifierTable = document.getElementById('identifier-table');
     var createRequestsButton = document.getElementById('create-requests-button');
     var statusesSelect = document.getElementById('statuscode');
-
+    var cancelButton = document.getElementById('lhs').querySelector('button');
+    var cancelButtonOriginalText = cancelButton.innerHTML;
 
     // We need a data structure keyed on identifier type, which tells us how to parse that
     // identifier type and what services can get its metadata. We receive an array of
@@ -58,7 +65,6 @@
                 obj[prop] = value;
                 manageBatchItemsDisplay();
                 updateBatchInputs();
-                setFinishButton();
                 disableCardnumberInput();
                 displayPatronName();
                 updateStatusesSelect();
@@ -149,6 +155,7 @@
         });
         $('#ill-batch-modal').on('hidden.bs.modal', function () {
             // Reset our state when we close the modal
+            // TODO: need to also reset progress bar and already processed identifiers
             delete idEl.dataset.batchId;
             delete idEl.dataset.backend;
             batchId = null;
@@ -161,6 +168,7 @@
             };
             textarea.value = '';
             batch.data = {};
+            cancelButton.innerHTML = cancelButtonOriginalText;
             // Remove event listeners we created
             removeEventListeners();
         });
@@ -194,6 +202,7 @@
 
     function initPostCreate() {
         disableCreateButton();
+        cancelButton.innerHTML = ill_batch_create_cancel_button;
     };
 
     function setFinishButton() {
@@ -211,6 +220,8 @@
     // created, and do so
     function requestRequestable() {
         createRequestsButton.setAttribute('disabled', true);
+        createRequestsButton.setAttribute('aria-disabled', true);
+        setFinishButton();
         var toCheck = tableContent.data;
         toCheck.forEach(function (row) {
             if (
@@ -299,6 +310,7 @@
                 tableContent.data = tableContent.data.map(function (row) {
                     if (row.value === identifier) {
                         row.requestId = data.illrequest_id;
+                        row.requestStatus = data.status;
                     }
                     return row;
                 });
@@ -421,16 +433,20 @@
     function processButtonState() {
         if (textarea.value.length > 0) {
             processButton.removeAttribute('disabled');
+            processButton.removeAttribute('aria-disabled');
         } else {
-            processButton.setAttribute('disabled', 1);
+            processButton.setAttribute('disabled', true);
+            processButton.setAttribute('aria-disabled', true);
         }
     };
 
     function disableCardnumberInput() {
         if (batch.data.patron) {
             cardnumberInput.setAttribute('disabled', true);
+            cardnumberInput.setAttribute('aria-disabled', true);
         } else {
             cardnumberInput.removeAttribute('disabled');
+            cardnumberInput.removeAttribute('aria-disabled');
         }
     };
 
@@ -512,7 +528,10 @@
             })
         })
             .then(function (response) {
-                return response.json();
+                if ( response.ok ) {
+                    return response.json();
+                }
+                return Promise.reject(response);
             })
             .then(function (body) {
                 batchId = body.id;
@@ -528,8 +547,14 @@
                 };
                 initPostCreate();
             })
-            .catch(function () {
-                handleApiError(ill_batch_create_api_fail);
+            .catch(function (response) {
+                response.json().then((json) => {
+                    if( json.error ) {
+                        handleApiError(json.error);
+                    } else {
+                        handleApiError(ill_batch_create_api_fail);
+                    }
+                })
             });
     };
 
@@ -706,17 +731,12 @@
 
     function disableProcessButton() {
         processButton.setAttribute('disabled', true);
+        processButton.setAttribute('aria-disabled', true);
     }
 
     function disableCreateButton() {
         createButton.setAttribute('disabled', true);
-    }
-
-    function disableRemoveRowButtons() {
-        var buttons = document.getElementsByClassName('remove-row');
-        for (var button of buttons) {
-            button.setAttribute('disabled', true);
-        }
+        createButton.setAttribute('aria-disabled', true);
     }
 
     async function populateMetadata(identifier) {
@@ -893,6 +913,10 @@
         return data.requestId || '-';
     }
 
+    function createRequestStatus(x, y, data) {
+        return data.requestStatus || '-';
+    }
+
     function buildTable(identifiers) {
         table = KohaTable('identifier-table', {
             processing: true,
@@ -918,8 +942,13 @@
                 },
                 {
                     data: 'requestId',
-                    width: '13%',
+                    width: '6.5%',
                     render: createRequestId
+                },
+                {
+                    data: 'requestStatus',
+                    width: '6.5%',
+                    render: createRequestStatus
                 },
                 {
                     width: '18%',
@@ -936,7 +965,7 @@
     }
 
     function createActions(x, y, data) {
-        return '<button type="button"' + (data.requestId ? ' disabled' : '') + ' class="btn btn-xs btn-danger remove-row">' + ill_button_remove + '</button>';
+        return '<button type="button" aria-label='+ ill_button_remove + (data.requestId ? ' disabled aria-disabled="true"' : '') + ' class="btn btn-xs btn-danger remove-row">' + ill_button_remove + '</button>';
     }
 
     // Redraw the table
@@ -1021,23 +1050,15 @@
     }
 
     function patronAutocomplete() {
-        // Add autocomplete for patron selection
-        $('#batch-form #cardnumber').autocomplete({
-            appendTo: '#batch-form',
-            source: "/cgi-bin/koha/circ/ysearch.pl",
-            minLength: 3,
-            select: function (event, ui) {
-                var field = ui.item.cardnumber;
-                $('#batch-form #cardnumber').val(field)
+        patron_autocomplete(
+            $('#batch-form #batchcardnumber'),
+            {
+              'on-select-callback': function( event, ui ) {
+                $("#batch-form #batchcardnumber").val( ui.item.cardnumber );
                 return false;
+              }
             }
-        })
-            .data("ui-autocomplete")._renderItem = function (ul, item) {
-                return $("<li></li>")
-                    .data("ui-autocomplete-item", item)
-                    .append("<a>" + item.surname + ", " + item.firstname + " (" + item.cardnumber + ") <small>" + item.address + " " + item.city + " " + item.zipcode + " " + item.country + "</small></a>")
-                    .appendTo(ul);
-            };
+          );
     };
 
     function createPatronLink() {

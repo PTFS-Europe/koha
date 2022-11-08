@@ -18,8 +18,8 @@
                                     value="" />
                                 </li>
                                 <li id="batch_patron">
-                                    <label class="required" for="cardnumber">Card number, username or surname:</label>
-                                    <input type="text" autocomplete="off" name="cardnumber" id="cardnumber" type="text" value="" />
+                                    <label class="required" for="batchcardnumber">Card number, username or surname:</label>
+                                    <input type="text" autocomplete="off" name="batchcardnumber" id="batchcardnumber" type="text" value="" />
                                     <span id="patron_link"></span>
                                 </li>
                                 <li id="batch_branch">
@@ -49,7 +49,7 @@
                                     <textarea id="identifiers_input" placeholder="Enter identifiers, one per line"></textarea>
                                 </li>
                                 <li id="process-button">
-                                    <button id="process_button" disabled type="button">Process identifiers</button>
+                                    <button id="process_button" disabled aria-disabled="true" type="button">Process identifiers</button>
                                 </li>
                             </ol>
                         </fieldset>
@@ -64,9 +64,6 @@
                             </div>
                         </div>
                     </div>
-                    <div id="create-requests" style="display:none">
-                        <button id="create-requests-button" type="button" class="btn btn-xs btn-success">Add items to batch</button>
-                    </div>
                     <table id="identifier-table" style="display:none">
                         <thead>
                             <tr id="identifier-table-header">
@@ -74,6 +71,7 @@
                                 <th scope="col">Identifier value</th>
                                 <th scope="col">Metadata</th>
                                 <th scope="col">Request ID</th>
+                                <th scope="col">Request Status</th>
                                 <th scope="col"></th>
                             </tr>
                         </thead>
@@ -81,14 +79,17 @@
                         </tbody>
                     </table>
                 </div>
+                <div id="create-requests" style="display:none">
+                    <button id="create-requests-button" type="button" class="btn btn-primary" aria-label="Add items to batch">Add items to batch</button>
+                </div>
             </div>
             <div class="modal-footer">
                 <div id="lhs">
-                    <button class="btn btn-default" data-dismiss="modal" aria-hidden="false">Close</button>
+                    <button class="btn btn-default" data-dismiss="modal" aria-hidden="false">Cancel</button>
                 </div>
                 <div id="rhs">
                     <button id="button_create_batch" class="btn btn-default" aria-hidden="true" disabled>Continue</button>
-                    <a id="button_finish" disabled type="button" class="btn btn-default" aria-hidden="true">Finish and view batch</a>
+                    <button id="button_finish" disabled type="button" class="btn btn-default" aria-hidden="true">Finish and view batch</button>
                 </div>
             </div>
         </div>

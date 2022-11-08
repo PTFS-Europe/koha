@@ -32,7 +32,7 @@
                 <i class="fa fa-list"></i> List requests
             </a>
         [% END %]
-        [% IF have_batch.size > 0 %]
+        [% IF have_batch.size > 0 && metadata_enrichment_services %]
         <div id="ill-batch">
             <div class="dropdown btn-group">
                 <button class="btn btn-default dropdown-toggle" type="button" id="ill-batch-backend-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
