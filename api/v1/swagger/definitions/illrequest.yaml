@@ -128,7 +128,7 @@ properties:
     description: The request's current status
   status_alias:
     type:
-      - string
+      - object
       - "null"
     description: The ID of a user defined status for this request
   updated:

@@ -51,7 +51,7 @@ $(document).ready(function() {
                     var sel = $('#illfilter_status option:selected').val();
                     if (sel && sel.length > 0) {
                         activeFilters[me] = function() {
-                            table.api().column(13).search(sel);
+                            table.api().column(14).search(sel);
                         }
                     } else {
                         if (activeFilters.hasOwnProperty(me)) {
@@ -83,7 +83,7 @@ $(document).ready(function() {
                     var sel = $('#illfilter_branchname option:selected').val();
                     if (sel && sel.length > 0) {
                         activeFilters[me] = function() {
-                            table.api().column(12).search(sel);
+                            table.api().column(13).search(sel);
                         }
                     } else {
                         if (activeFilters.hasOwnProperty(me)) {
@@ -103,7 +103,7 @@ $(document).ready(function() {
                     var val = $('#illfilter_patron').val();
                     if (val && val.length > 0) {
                         activeFilters[me] = function() {
-                            table.api().column(10).search(val);
+                            table.api().column(11).search(val);
                         }
                     } else {
                         if (activeFilters.hasOwnProperty(me)) {

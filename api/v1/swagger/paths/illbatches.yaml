@@ -72,6 +72,10 @@
         description: Access forbidden
         schema:
           $ref: "../swagger.yaml#/definitions/error"
+      "404":
+        description: Patron with given cardnumber not found
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
       "409":
         description: Conflict in creating resource
         schema:
