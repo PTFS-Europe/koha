@@ -50,7 +50,6 @@ use C4::Auth_with_shibboleth qw( shib_ok get_login_shib login_shib_url logout_sh
 use Net::CIDR;
 use C4::Log qw( logaction );
 use Koha::CookieManager;
-use Koha::Auth::Permissions;
 use Koha::Token;
 
 # use utf8;
