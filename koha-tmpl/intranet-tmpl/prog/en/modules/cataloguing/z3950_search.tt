@@ -118,6 +118,7 @@
             <div class="row">
                 <div class="col-xs-12">
                     <h1>Results</h1>
+                <div class="page-section">
                     <p>
                         You searched for:
                         [% IF ( title ) %]<em>Title: </em><span class="term">[% title | html %]</span> [% END %]
@@ -249,6 +250,7 @@
                     [% ELSE %]
                         <div class="dialog message">Nothing found.</div>
                     [% END  # /IF breeding_loop %]
+                    </div> <!-- /.page-section -->
 
                     <form method="get" action="/cgi-bin/koha/cataloguing/z3950_search.pl">
                         <p>
