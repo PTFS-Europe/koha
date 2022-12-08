@@ -25,7 +25,7 @@ use Koha::Illrequestattributes;
 use Koha::Libraries;
 use Koha::Patrons;
 use Koha::Libraries;
-use Koha::DateUtils qw( format_sqldatetime );
+use Koha::DateUtils qw( format_sqldatetime dt_from_string );
 
 =head1 NAME
 
@@ -61,14 +61,17 @@ sub list {
     my $hidden_statuses = [ split /\|/, $hidden_statuses_string ];
 
     # Get all requests
-    # If necessary, only get those from a specified patron
+    # If necessary, only get those from a specified patrons
+    my $date = dt_from_string->subract( days => 20 );
     my @requests = Koha::Illrequests->search({
         $hidden_statuses
         ? ( status => { 'not in' => $hidden_statuses } )
         : (),
         $args->{borrowernumber}
         ? ( borrowernumber => $args->{borrowernumber} )
-        : ()
+        : (),
+        #branchcode => C4::Context->userenv->{branch},
+        completed => [ undef, { ">=" => $date }]
     })->as_list;
 
     my $fetch_backends = {};
