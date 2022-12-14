@@ -1,0 +1,102 @@
+[% USE raw %]
+[% USE Asset %]
+[% USE KohaDates %]
+[% USE AuthorisedValues %]
+[% USE Branches %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>[% UNLESS blocking_error  %]Discharge for [% patron.firstname | html %] [% patron.surname | html %] ([% patron.cardnumber | html %])[% END %] &rsaquo; Users &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+<body id="discharge" class="discharge">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'patron-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+
+ [% IF blocking_error %]
+ <li>
+ <a href="#" aria-current="page">
+ Users </a>
+ </li>
+ [% ELSE  %]
+ <li>
+ <a href="/cgi-bin/koha/members/members-home.pl">Users</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ Discharge for [% patron.firstname | html %] [% patron.surname | html %] ([% patron.cardnumber | html %])
+ </a>
+ </li>
+ [% END %]
+ </ol>
+</nav>
+
+<div class="main container-fluid">
+ <div class="row">
+ <div class="col-sm-10 col-sm-push-2">
+ <main>
+
+[% INCLUDE 'members-toolbar.inc' %]
+
+<h1>Discharge</h1>
+[% FOR message IN messages %]
+ <div class="dialog [% message.type | html %]">
+ [% IF message.code == "unable_to_generate_pdf" %]
+ An error occurs when generating the PDF file.
+ Please contact the administrator to resolve this problem.
+ [% END %]
+ </div>
+[% END %]
+[% UNLESS can_be_discharged %]
+ <p>Cannot edit return: the user has issued items.</p>
+[% ELSE %]
+ [% IF patron.holds.count %]
+ <p>User has reservations. They will be cancelled if the discharge is generated.</p>
+ [% END %]
+ <form method="post">
+ <input type="submit" value="Generate discharge" name="discharge" />
+ <input type="hidden" value="[% patron.borrowernumber | html %]" name="borrowernumber" />
+ </form>
+[% END %]
+
+[% IF validated_discharges %]
+ <h2>Already validated discharges</h2>
+ <table>
+ <thead>
+ <tr>
+ <th>Requested</th>
+ <th>Validated</th>
+ </tr>
+ </thead>
+ <tbody>
+ [% FOR d IN validated_discharges %]
+ <tr>
+ <td>[% d.needed | $KohaDates with_hours = 1 %]</td>
+ <td>[% d.validated | $KohaDates with_hours = 1 %]</td>
+ </tr>
+ [% END %]
+ </tbody>
+ </table>
+[% END %]
+
+ </main>
+ </div> <!-- /.col-sm-10.col-sm-push-2 -->
+
+ <div class="col-sm-2 col-sm-pull-10">
+ <aside>
+ [% INCLUDE 'circ-menu.inc' %]
+ </aside>
+ </div> <!-- /.col-sm-2.col-sm-pull-10 -->
+ </div> <!-- /.row -->
+
+[% MACRO jsinclude BLOCK %]
+ [% INCLUDE 'str/members-menu.inc' %]
+ [% Asset.js("js/members-menu.js") | $raw %]
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' %]

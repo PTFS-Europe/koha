@@ -1,0 +1,116 @@
+[% USE raw %]
+[% USE Asset %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>008 builder &rsaquo; Cataloguing &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+
+<body id="cat_marc21_field_008" class="cat" style="padding:1em;" onload="loadXmlValues()">
+<h3> 008 Fixed-length data elements--Additional material characteristics--General information</h3>
+
+<table>
+ <tr id="tr_result">
+ </tr>
+</table>
+<h4 id="h4_result">&quot;[% result | html %]&quot;</h4>
+
+<form name="f_pop" id="f_pop" style="display:block" onsubmit="report()" action="">
+ <div id="toolbar">
+ <div class="btn-group">
+ <button type="submit" class="btn btn-default"><i class="fa fa-save"></i> Save</button>
+ </div>
+ <div class="btn-group">
+ <button type="button" class="btn btn-default close_window"><i class="fa fa-remove"></i> Cancel</button>
+ </div>
+ </div>
+
+<input type="hidden" name="plugin_name" value="marc21_field_008.pl" />
+<input type="hidden" id="[% index | html %]" name="index" value="[% index | html %]" />
+<input type="hidden" name="result" id="result" value="[% result | html %]" />
+<table id="table_material_types">
+ <tr id="tr_material_types">
+ <td><label for="material_type" title="Select a type of material to specify the variable values. Pre-populated based on Leader/06.">Type of Material</label></td>
+ <td>
+ <select name="material_type" id="material_type" title="Select a type of material to specify the variable values. Default selection is based on value in the Leader/06." onchange="changeTypeofMaterial(this.form)">
+ <option value="">Select a type of material</option>
+ </select>
+ </td>
+ </tr>
+
+</table>
+</form>
+
+[% MACRO jsinclude BLOCK %]
+ [% Asset.js("lib/hc-sticky.js") | $raw %]
+ [% Asset.js("js/xmlControlfield.js") | $raw %]
+ <script>
+        var Sticky;
+        $(document).ready(function(){
+            Sticky = $("#toolbar");
+            Sticky.hcSticky({
+                stickTo: "#f_pop",
+                stickyClass: "floating"
+            });
+            $(".close_window").on("click", function(e){
+                e.preventDefault();
+                window.close();
+            });
+        });
+        var objXmlControlField;
+        var tr_result;
+        var h4_result;
+
+        function loadXmlValues(){
+            $("#result").val( fix_field_008( $("#result").val() ) ); // fix field before loading elements
+
+            [% IF ( errorXml ) %]
+                alert("[% errorXml | html %]");
+            [% ELSE %]
+                var form = document.f_pop;
+                h4_result = document.getElementById("h4_result");
+                tr_result = document.getElementById("tr_result");
+                objXmlControlField = new xmlControlField('[% tagfield | html %]', 'f_pop', document.getElementById('material_type'), document.getElementById('table_material_types'), 'h4_result', 'tr_result', '', '[% themelang | html %]', '[% marcflavour | html %]');
+                [%# If material type configuration is found using the leader, use that type when rendering. Otherwise, the default of BKS will be used %]
+                [% IF ( material_configuration ) %]
+                    objXmlControlField.idMaterial = "[% material_configuration | html %]";
+                [% END %]
+                objXmlControlField.loadXmlValues();
+                renderResult(tr_result, (form.result.value != "")?form.result.value:returnValueParam("result"));
+            [% END %]
+        } // loadXmlValues
+
+        function changeTypeofMaterial(form){
+            if (form.material_type.options[form.material_type.selectedIndex].value != "" && confirm(_("Show values for '%s' material type?").format(form.material_type.options[form.material_type.selectedIndex].text))) {
+                objXmlControlField.setIdMaterial(form.material_type.options[form.material_type.selectedIndex].value);
+                objXmlControlField.renderTemplate();
+                renderResult(tr_result, form.result.value, true);
+            }
+        } // changeTypeofMaterial
+
+        function report() {
+            var doc   = opener.document;
+            var field = doc.getElementById("[% index | html %]");
+            field.value = document.getElementById("result").value;
+            self.close();
+            return false;
+        }
+
+        function fix_field_008( myfield ) {
+            // If field length < 40, append from default008 starting at last complete data element
+
+            var j, position = [ 6, 7, 11, 15, 18, 35, 38, 39, 40 ], defaultvalue = '[% default008 | $raw %]';
+            for( j=0; j<position.length; j++ ) {
+                if( myfield.length < position[j] ) break;
+            }
+            if( j == 0 ) {
+                return defaultvalue;
+            } else if( j < position.length ) {
+                return myfield.substring( 0, position[j-1] ) + defaultvalue.substring( position[j-1] );
+            }
+            return myfield;
+        }
+    </script>
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' popup_window=1 %]

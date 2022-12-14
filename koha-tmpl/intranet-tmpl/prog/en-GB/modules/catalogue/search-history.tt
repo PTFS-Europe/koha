@@ -1,0 +1,318 @@
+[% USE raw %]
+[% USE Asset %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+[% USE Koha %]
+[% USE KohaDates %]
+<title>Search history &rsaquo; Catalogue &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+
+<body id="catalogue_search-history" class="catalogue">
+
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'cat-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/catalogue/search.pl">Catalogue</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ Search history
+ </a>
+ </li>
+ </ol>
+</nav>
+
+<div class="container-fluid">
+ <div class="row">
+ <div class="col-sm-12 col-md-8 col-md-offset-2">
+
+ <h1>Search history</h1>
+ <div id="tabs" class="toptabs">
+ <ul>
+ <li><a href="#biblio_tab">Catalogue</a></li>
+ <li><a href="#authority_tab">Authority</a></li>
+ </ul>
+ <div id="biblio_tab">
+ [% IF ( current_biblio_searches ) %]
+ <h2>Current session</h2>
+ <form id="current_cat" action="/cgi-bin/koha/catalogue/search-history.pl" method="post">
+ <p class="selections-toolbar">
+ <a class="CheckAll" data-form="current_cat" href="#"><i class="fa fa-check"></i> Select all visible rows</a>
+ <span class="sep">|</span>
+ <a class="CheckNone" data-form="current_cat" href="#"><i class="fa fa-remove"></i> Clear selection on visible rows</a>
+ <span class="sep">|</span>
+ <span class="links">
+ <span class="selections">Select searches to: </span>
+ <a href="#" class="action_delete disabled">Delete</a>
+ </span>
+ </p>
+ <input type="hidden" name="action" value="delete" />
+ <table class="historyt">
+ <thead>
+ <tr>
+ <th></th>
+ <th>Date</th>
+ <th>Search</th>
+ <th>Results</th>
+ </tr>
+ </thead>
+ <tbody>
+ [% FOREACH s IN current_biblio_searches %]
+ <tr>
+ <td><input type="checkbox" name="id" value="[% s.id | html %]" /></td>
+ <td data-order="[% s.time | html %]">[% s.time |$KohaDates  with_hours => 1 %]</td>
+ <td><a href="/cgi-bin/koha/catalogue/search.pl?[% s.query_cgi | $raw %]">[% s.query_desc | html %]</a></td>
+ <td>[% s.total | html %]</td>
+ </tr>
+ [% END %]
+ </tbody>
+ </table>
+ </form>
+ [% END %]
+
+ [% IF ( current_biblio_searches && previous_biblio_searches) %]
+ <hr />
+ [% END %]
+
+ [% IF ( previous_biblio_searches ) %]
+ <h2>Previous sessions</h2>
+ <form id="previous_cat" action="/cgi-bin/koha/catalogue/search-history.pl" method="post">
+ <p class="selections-toolbar">
+ <a class="CheckAll" data-form="previous_cat" href="#"><i class="fa fa-check"></i> Select all visible rows</a>
+ <span class="sep">|</span>
+ <a class="CheckNone" data-form="previous_cat" href="#"><i class="fa fa-remove"></i> Clear selection on visible rows</a>
+ <span class="sep">|</span>
+ <span class="links">
+ <span class="selections">Select searches to: </span>
+ <a href="#" class="action_delete disabled">Delete</a>
+ </span>
+ </p>
+ <input type="hidden" name="action" value="delete" />
+ <table class="historyt">
+ <thead>
+ <tr>
+ <th></th>
+ <th>Date</th>
+ <th>Search</th>
+ <th>Results</th>
+ </tr>
+ </thead>
+ <tbody>
+ [% FOREACH s IN previous_biblio_searches %]
+ <tr>
+ <td><input type="checkbox" name="id" value="[% s.id | html %]" /></td>
+ <td data-order="[% s.time | html %]">[% s.time |$KohaDates  with_hours => 1 %]</td>
+ <td><a href="/cgi-bin/koha/catalogue/search.pl?[% s.query_cgi | $raw %]">[% s.query_desc | html %]</a></td>
+ <td>[% s.total | html %]</td>
+ </tr>
+ [% END %]
+ </tbody>
+ </table>
+ </form>
+ [% END %]
+
+ [% IF !current_biblio_searches && !previous_biblio_searches %]
+ <p>Your catalogue search history is empty.</p>
+ [% END %]
+ </div>
+
+ <div id="authority_tab">
+ [% IF ( current_authority_searches ) %]
+ <h2>Current session</h2>
+ <form id="current_auth" action="/cgi-bin/koha/catalogue/search-history.pl" method="post">
+ <p class="selections-toolbar">
+ <a class="CheckAll" data-form="current_auth" href="#"><i class="fa fa-check"></i> Select all visible rows</a>
+ <span class="sep">|</span>
+ <a class="CheckNone" data-form="current_auth" href="#"><i class="fa fa-remove"></i> Clear selection on visible rows</a>
+ <span class="sep">|</span>
+ <span class="links">
+ <span class="selections">Select searches to: </span>
+ <a href="#" class="action_delete disabled">Delete</a>
+ </span>
+ </p>
+ <input type="hidden" name="action" value="delete" />
+ <table class="historyt">
+ <thead>
+ <tr>
+ <th></th>
+ <th>Date</th>
+ <th>Search</th>
+ <th>Results</th>
+ </tr>
+ </thead>
+ <tbody>
+ [% FOREACH s IN current_authority_searches %]
+ <tr>
+ <td><input type="checkbox" name="id" value="[% s.id | html %]" /></td>
+ <td data-order="[% s.time | html %]">[% s.time |$KohaDates  with_hours => 1 %]</td>
+ <td><a href="/cgi-bin/koha/authorities/authorities-home.pl?[% s.query_cgi | $raw %]">[% s.query_desc | html %]</a></td>
+ <td>[% s.total | html %]</td>
+ </tr>
+ [% END %]
+ </tbody>
+ </table>
+ </form>
+ [% END %]
+
+ [% IF ( current_authority_searches && previous_authority_searches) %]
+ <hr />
+ [% END %]
+
+ [% IF ( previous_authority_searches ) %]
+ <h2>Previous sessions</h2>
+ <form id="previous_auth" action="/cgi-bin/koha/catalogue/search-history.pl" method="post">
+ <p class="selections-toolbar">
+ <a class="CheckAll" data-form="previous_auth" href="#"><i class="fa fa-check"></i> Select all visible rows</a>
+ <span class="sep">|</span>
+ <a class="CheckNone" data-form="previous_auth" href="#"><i class="fa fa-remove"></i> Clear selection on visible rows</a>
+ <span class="sep">|</span>
+ <span class="links">
+ <span class="selections">Select searches to: </span>
+ <a href="#" class="action_delete disabled">Delete</a>
+ </span>
+ </p>
+ <input type="hidden" name="action" value="delete" />
+ <table class="historyt">
+ <thead>
+ <tr>
+ <th></th>
+ <th>Date</th>
+ <th>Search</th>
+ <th>Results</th>
+ </tr>
+ </thead>
+ <tbody>
+ [% FOREACH s IN previous_authority_searches %]
+ <tr>
+ <td><input type="checkbox" name="id" value="[% s.id | html %]" /></td>
+ <td data-order="[% s.time | html %]">[% s.time |$KohaDates  with_hours => 1 %]</td>
+ <td><a href="/cgi-bin/koha/authorities/authorities-home.pl?[% s.query_cgi | $raw %]">[% s.query_desc | html %]</a></td>
+ <td>[% s.total | html %]</td>
+ </tr>
+ [% END %]
+ </tbody>
+ </table>
+ </form>
+ [% END %]
+
+ [% IF !current_authority_searches && !previous_authority_searches %]
+ <p>Your authority search history is empty.</p>
+ [% END %]
+ </div> [% # /authority_tab %]
+ </div> [% # /tabs %]
+ </div> [% # /div.col-md-8 %]
+ </div> [% # /div.row %]
+
+[% MACRO jsinclude BLOCK %]
+ [% INCLUDE 'datatables.inc' %]
+ <script>
+    $(document).ready(function() {
+        // We show table ordered by descending dates by default
+        // (so that the more recent query is shown first)
+        $(".historyt").dataTable($.extend(true, {}, dataTablesDefaults, {
+            "aaSorting": [[ 1, "desc" ]],
+            "aoColumnDefs": [
+                { "aTargets": [ 0 ], "bSortable": false, "bSearchable": false }
+            ],
+            "sPaginationType": "full_numbers"
+        }));
+
+        $('#tabs').tabs();
+
+        // DataTables removes hidden rows from the DOM, so we can't expect a
+        // "regular" submit to work and we need to build another form containing
+        // all form elements, and then submit this form.
+        $('#tabs form').submit(function(e) {
+            e.preventDefault();
+
+            var form = $(this);
+            var table = form.find('table').dataTable();
+
+            var new_form = $('<form>')
+                .attr('action', form.attr('action'))
+                .attr('method', form.attr('method'));
+            form.find('input[type="hidden"]')
+                .add(table.$('input:checkbox:checked'))
+                .each(function() {
+                    var input = $('<input type="hidden">')
+                        .attr('name', $(this).attr('name'))
+                        .attr('value', $(this).attr('value'));
+                    new_form.append(input);
+                });
+            $(document.body).append(new_form);
+            new_form.submit();
+        });
+
+        $(".CheckNone").click(function(e){
+            e.preventDefault();
+            var form = $(this).data("form");
+            $("#" + form ).find('table input[type="checkbox"]').prop('checked', false);
+            enableCheckboxActions($("#" + form ));
+        });
+        $(".CheckAll").click(function(e){
+            e.preventDefault();
+            var form = $(this).data("form");
+            $("#" + form ).find('table input[type="checkbox"]').prop('checked', true);
+            enableCheckboxActions($("#" + form ));
+        });
+
+        $('#tabs table').on('click', 'input:checkbox', function() {
+            var form = $(this).parents("form").first();
+            enableCheckboxActions(form);
+        });
+
+        $(".action_delete").click(function(e){
+            e.preventDefault();
+            var form = $(this).parents("form").first();
+            var table = form.find('table').dataTable();
+            var ids = table.$("input:checkbox:checked");
+            if ( $(ids).length < 1 ) {
+                return false;
+            }
+
+            var msg;
+            if (ids.length == 1) {
+              msg = _("Are you sure you want to delete the selected search history entry?");
+            } else {
+              msg = _("Are you sure you want to delete the %s selected search history entries?").format(ids.length);
+            }
+
+            if ( confirm(msg) ) {
+                form.submit();
+            }
+            return false;
+        });
+
+        $('#tabs form').each(function() {
+            enableCheckboxActions($(this));
+        });
+    });
+
+    function enableCheckboxActions(form){
+        // Enable/disable controls if checkboxes are checked
+        var table = form.find('table').dataTable();
+        var checked_count = table.$("input:checkbox:checked").length;
+        if (checked_count) {
+          if (checked_count == 1) {
+            form.find(".selections").html(_("With selected search: "));
+          } else {
+            form.find(".selections").html(_("With %s selected searches: ").format(checked_count));
+          }
+          form.find(".selections-toolbar .links a").removeClass("disabled");
+        } else {
+          form.find(".selections").html(_("Select searches to: "));
+          form.find(".selections-toolbar .links a").addClass("disabled");
+        }
+    }
+
+    </script>
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' %]

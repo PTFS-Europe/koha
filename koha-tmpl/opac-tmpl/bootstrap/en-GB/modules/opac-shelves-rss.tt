@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<rss version="2.0">
+
+<channel>
+ <title>[% shelf.shelfname | html %]</title>
+ <link>[% OPACBaseURL | html %]/cgi-bin/koha/opac-shelves.pl?rss=1&amp;viewshelf=[% shelf.shelfnumber | html %]</link>
+ <description>RSS feed for public list [% shelf.shelfname | html %]</description>
+
+[% FOREACH i IN itemsloop %]
+ <item>
+ <title>
+ [% i.title | html %]
+ [% IF i.author %]
+ by [% i.author | html %]
+ [% END %]
+ </title>
+ <link>[% OPACBaseURL | html %]/cgi-bin/koha/opac-detail.pl?biblionumber=[% i.biblionumber | html %]</link>
+ </item>
+[% END %]
+
+</channel>
+</rss>

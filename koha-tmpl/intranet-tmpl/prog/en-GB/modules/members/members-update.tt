@@ -1,0 +1,223 @@
+[% USE raw %]
+[% USE Asset %]
+[% USE AuthorisedValues %]
+[% USE Branches %]
+[% USE Categories %]
+[% USE KohaDates %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Update user records &rsaquo; Users &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+
+<body id="pat_update" class="pat">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'patron-search.inc' %]
+
+[% BLOCK display_names %]
+[% SWITCH field %]
+[% CASE 'branchcode'          %]<span>Home library (branchcode)</span>
+[% CASE 'surname'             %]<span>Surname</span>
+[% CASE 'firstname'           %]<span>First name</span>
+[% CASE 'title'               %]<span>Title</span>
+[% CASE 'othernames'          %]<span>Other names</span>
+[% CASE 'initials'            %]<span>Initials</span>
+[% CASE 'streetnumber'        %]<span>Street number</span>
+[% CASE 'streettype'          %]<span>Street type</span>
+[% CASE 'address'             %]<span>Address</span>
+[% CASE 'address2'            %]<span>Address 2</span>
+[% CASE 'city'                %]<span>City</span>
+[% CASE 'state'               %]<span>State</span>
+[% CASE 'zipcode'             %]<span>Postcode</span>
+[% CASE 'country'             %]<span>Country</span>
+[% CASE 'email'               %]<span>Email</span>
+[% CASE 'phone'               %]<span>Primary phone</span>
+[% CASE 'mobile'              %]<span>Other phone</span>
+[% CASE 'fax'                 %]<span>Fax</span>
+[% CASE 'emailpro'            %]<span>Secondary email</span>
+[% CASE 'phonepro'            %]<span>Secondary phone</span>
+[% CASE 'B_streetnumber'      %]<span>Alternate address: Street number</span>
+[% CASE 'B_streettype'        %]<span>Alternate address: Street type</span>
+[% CASE 'B_address'           %]<span>Alternate address: Address</span>
+[% CASE 'B_address2'          %]<span>Alternate address: Address 2</span>
+[% CASE 'B_city'              %]<span>Alternate address: City</span>
+[% CASE 'B_state'             %]<span>Alternate address: County</span>
+[% CASE 'B_zipcode'           %]<span>Alternate address: Postcode</span>
+[% CASE 'B_email'             %]<span>Alternate address: Email</span>
+[% CASE 'B_phone'             %]<span>Alternate address: Phone</span>
+[% CASE 'contactnote'         %]<span>Alternate address: Contact note</span>
+[% CASE 'dateofbirth'         %]<span>Date of birth</span>
+[% CASE 'contactname'         %]<span>Contact: Last name</span>
+[% CASE 'contactfirstname'    %]<span>Contact: First name</span>
+[% CASE 'contacttitle'        %]<span>Contact: Title</span>
+[% CASE 'relationship'        %]<span>Contact: Relationship</span>
+[% CASE 'sex'                 %]<span>Gender</span>
+[% CASE 'autorenew_checkouts' %]<span>Auto-renewal</span>
+[% CASE 'altcontactfirstname' %]<span>Alternate contact: First name</span>
+[% CASE 'altcontactsurname'   %]<span>Alternate contact: Surname</span>
+[% CASE 'altcontactaddress1'  %]<span>Alternate contact: Address</span>
+[% CASE 'altcontactaddress2'  %]<span>Alternate contact: Address 2</span>
+[% CASE 'altcontactaddress3'  %]<span>Alternate contact: City</span>
+[% CASE 'altcontactstate'     %]<span>Alternate contact: State</span>
+[% CASE 'altcontactzipcode'   %]<span>Alternate contact: Postcode</span>
+[% CASE 'altcontactcountry'   %]<span>Alternate contact: Country</span>
+[% CASE 'altcontactphone'     %]<span>Alternate contact: Phone</span>
+[% CASE 'smsalertnumber'      %]<span>SMS alert number</span>
+[% CASE 'extended_attributes' %]<span>Additional attributes and identifiers</span>
+[% CASE %][% field | html %]
+[% END %]
+[% END %]
+
+[% BLOCK display_extended_attributes %]
+ [% IF attrs and attrs.size > 1 %]
+ <ul>
+ [% FOREACH attr IN attrs %]
+ <li>[% PROCESS display_attribute attr=attr type=type %]</li>
+ [% END %]
+ <ul>
+ [% ELSIF attrs %]
+ [% PROCESS display_attribute attr=attrs.0 type=type %]
+ [% END %]
+[% END %]
+
+[% BLOCK display_attribute %]
+ [% IF type.authorised_value_category %]
+ [% AuthorisedValues.GetByCode(type.authorised_value_category,attr.attribute) | html %]
+ [% ELSE %]
+ [% attr.attribute | html %]
+ [% END %]
+[% END %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/members/members-home.pl">Users</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ Update user records </a>
+ </li>
+ </ol>
+</nav>
+
+<div class="main container-fluid">
+ <div class="row">
+ <div class="col-md-8 col-md-offset-2">
+
+ [% IF PendingModifications %]
+ <h2>Update user records</h2>
+ <form method="post" action="members-update-do.pl">
+ <div id="pending_updates">
+ [% FOREACH pm IN PendingModifications %]
+ [% SET borrowernumber = pm.borrowernumber %]
+ <h3 class="panel-header" id="panel-header-[% pm.borrowernumber | html %]"><a href="#panel_modify_[% pm.borrowernumber | uri %]">[% borrowers.$borrowernumber.surname | html %][% IF ( borrowers.$borrowernumber.firstname ) %], [% borrowers.$borrowernumber.firstname | html %][% END %] - [% Categories.GetName( borrowers.$borrowernumber.categorycode ) | html %] ([% Branches.GetName( borrowers.$borrowernumber.branchcode ) | html %]) ([% borrowers.$borrowernumber.cardnumber | html %]) - Requested on [% pm.timestamp | $KohaDates with_hours = 1 %]</a></h3>
+ <div id="panel_modify_[% pm.borrowernumber | html %]">
+ <div class="btn-toolbar">
+ <input type="radio" id="approve_modify_[% pm.borrowernumber | html %]" name="modify_[% pm.borrowernumber | html %]" value="approve" />
+ <label for="approve_modify_[% pm.borrowernumber | html %]">Approve</label>
+
+ <input type="radio" id="deny_modify_[% pm.borrowernumber | html %]" name="modify_[% pm.borrowernumber | html %]" value="deny" />
+ <label for="deny_modify_[% pm.borrowernumber | html %]">Deny</label>
+
+ <input type="radio" id="ignore_modify_[% pm.borrowernumber | html %]" name="modify_[% pm.borrowernumber | html %]" value="ignore" checked="checked"/>
+ <label for="ignore_modify_[% pm.borrowernumber | html %]">Ignore</label>
+ | <a target="_blank" href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% pm.borrowernumber | html %]" >User details</a>
+ </div>
+
+ [% IF borrowers.$borrowernumber.gonenoaddress > 0 %]
+ <div class="dialog message" style="margin-top:.8em">
+ <h4>Users address in doubt</h4>
+ <p>The <strong>Gone no address</strong> flag is set for this user. If this modification request resolves the issue, please unset the flag.</p>
+ <input type="checkbox" id="unset_gna_[% pm.borrowernumber | html %]" name="unset_gna_[% pm.borrowernumber | html %]" value="unset_gna_[% pm.borrowernumber | html %]"/>
+ <label for="unset_gna_[% pm.borrowernumber | html %]">Unset Gone no address for this user</label>
+ </div>
+ [% END %]
+
+ [% IF !pm.extended_attributes and pm.size > 3 or pm.extended_attributes and pm.size > 4 %]
+ [%# timestamp+verification_token+borrowernumber=3 %]
+ <div class="members-update-table">
+ <table>
+ <tr>
+ <th>Field</th>
+ <th>Old value</th>
+ <th>New value</th>
+ </tr>
+
+
+ [% FOREACH key IN pm.keys %]
+ [% IF ( key != "timestamp" and key != "extended_attributes" ) %]
+ [% IF ( ( pm.$key OR borrowers.$borrowernumber.$key ) && ( pm.$key != borrowers.$borrowernumber.$key ) ) %]
+ <tr>
+ <td>[% PROCESS display_names field = key %]</td>
+ [% IF ( key == "dateofbirth" ) %]
+ <td>[% borrowers.$borrowernumber.$key | $KohaDates %]</td>
+ <td>[% pm.$key | $KohaDates %]</td>
+ [% ELSIF key == 'branchcode' %]
+ <td>[% Branches.GetName( borrowers.$borrowernumber.$key ) | html %]</td>
+ <td>[% Branches.GetName( pm.$key ) | html %]</td>
+ [% ELSE %]
+ <td>[% borrowers.$borrowernumber.$key | html %]</td>
+ <td>[% pm.$key | html %]</td>
+ [% END %]
+ </tr>
+ [% END %]
+ [% END %]
+ [% END %]
+ </table>
+ </div>
+ [%  END %]
+ [% IF borrowers.$borrowernumber.modified_attributes %]
+ <div class="members-update-table">
+ <h4>[% PROCESS display_names field='extended_attributes' %]</h4>
+ <table>
+ <tr>
+ <th>Field</th>
+ <th>Old value</th>
+ <th>New value</th>
+ </tr>
+ [% FOREACH attribute_group IN borrowers.$borrowernumber.modified_attributes %]
+ <tr>
+ <td>[% attribute_group.type.description | html %]</td>
+ <td>[% PROCESS display_extended_attributes attrs=attribute_group.before type=attribute_group.type %]</td>
+ <td>[% PROCESS display_extended_attributes attrs=attribute_group.after type=attribute_group.type %]</td>
+ </tr>
+ [% END %]
+ </table>
+ </div>
+ [%  END %]
+ </div>
+ [% END %]
+ </div>
+ <fieldset class="action"><input type="submit" value="Submit" /></fieldset>
+ </form>
+ [% ELSE %]
+ <div class="dialog message">
+ <p>There are no pending user modifications.</p>
+ </div>
+ [% END %]
+
+ </div>
+ </div>
+
+[% MACRO jsinclude BLOCK %]
+ [% INCLUDE 'str/members-menu.inc' %]
+ [% Asset.js("js/members-menu.js") | $raw %]
+ <script>
+        $(function() {
+            $( "#pending_updates" ).accordion({
+                collapsible: true,
+                heightStyle: "content",
+                [%- IF ( active ) -%]
+                    active: $(".panel-header").index( $("#panel-header-[% active | html %]") )
+                [%- ELSE -%]
+                    active: 0
+                [%- END -%]
+            });
+        });
+    </script>
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' %]

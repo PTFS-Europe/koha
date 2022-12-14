@@ -1,0 +1,48 @@
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>UNIMARC field 124d builder</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+
+<body id="cat_unimarc_field_124d" class="cat" style="padding:1em;">
+<h3>UNIMARC field 124d builder</h3>
+<form name="f_pop" action="">
+<table>
+ <tr>
+ <td><label for="f1">Position of platform for photographic or remote sensing image:</label></td>
+ <td>
+ <select name="f1" id="f1">
+ [% IF ( f1a ) %]
+ <option value="a" selected="selected">terrestrial</option>
+ [% ELSE %]
+ <option value="a">terrestrial</option>
+ [% END %]
+ [% IF ( f1b ) %]
+ <option value="b" selected="selected">aerial</option>
+ [% ELSE %]
+ <option value="b">aerial</option>
+ [% END %]
+ [% IF ( f1c ) %]
+ <option value="c" selected="selected">space</option>
+ [% ELSE %]
+ <option value="c">space</option>
+ [% END %]
+ </select>
+ </td></tr>
+</table>
+<fieldset class="action"><input type="button" value="OK" onclick="report();" /> <a href="#" class="cancel close">Cancel</a></fieldset>
+</form>
+
+[% MACRO jsinclude BLOCK %]
+ <script>
+        function report() {
+            var doc = opener.document;
+            var field = doc.getElementById("[% index | html %]");
+            field.value = document.f_pop.f1.value;
+            window.close();
+            return false;
+        }
+    </script>
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' popup_window=1 %]

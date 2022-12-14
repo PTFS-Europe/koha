@@ -1,0 +1,104 @@
+[% USE raw %]
+[% USE Asset %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>SRU search fields mapping for bibliographic records &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+
+<body id="admin_sru_modmapping" class="admin">
+
+<div class="main container-fluid">
+
+ <main>
+ <h1>Modify SRU search fields mapping for bibliographic records</h1>
+
+ <form id="form01" method="post">
+ <fieldset class="rows">
+ <div class="row">
+ <div class="col-xs-6">
+ <ol>
+ <li>
+ <label for="title">Title: </label>
+ <input id="title" type="text" value="[% mapping.title | html %]" />
+ </li>
+ <li>
+ <label for="isbn">ISBN: </label>
+ <input id="isbn" type="text" value="[% mapping.isbn | html %]" />
+ </li>
+ <li>
+ <label for="lccall">LC class number: </label>
+ <input id="lccall" type="text" value="[% mapping.lccall | html %]" />
+ </li>
+ <li>
+ <label for="controlnumber">Control number: </label>
+ <input id="controlnumber" type="text" value="[% mapping.controlnumber | html %]" />
+ </li>
+ <li>
+ <label for="srchany">Any: </label>
+ <input id="srchany" type="text" value="[% mapping.srchany | html %]" />
+ </li>
+ </ol>
+ </div>
+ <div class="col-xs-6">
+ <ol>
+ <li>
+ <label for="author">Author: </label>
+ <input id="author" type="text" value="[% mapping.author | html %]" />
+ </li>
+ <li>
+ <label for="issn">ISSN: </label>
+ <input id="issn" type="text" value="[% mapping.issn | html %]" />
+ </li>
+ <li>
+ <label for="subject">Subject: </label>
+ <input id="subject" type="text" value="[% mapping.subject | html %]" />
+ </li>
+ <li>
+ <label for="dewey">Dewey: </label>
+ <input id="dewey" type="text" value="[% mapping.dewey | html %]" />
+ </li>
+ <li>
+ <label for="stdid">Standard ID: </label>
+ <input id="stdid" type="text" value="[% mapping.stdid | html %]" />
+ </li>
+ </ol>
+ </div>
+ </div>
+ </fieldset>
+ <fieldset class="action">
+ <input type="submit" value="Save" class="submit" />
+ <a class="close cancel" href="#">Cancel</a>
+ </fieldset>
+ </form>
+ </main>
+
+
+[% MACRO jsinclude BLOCK %]
+ [% Asset.js("js/admin-menu.js") | $raw %]
+ <script>
+        $(document).ready(function() {
+            $("#form01").submit(function(event) {
+                if(window.opener) {
+                    var newmap=allInputs();
+                    window.opener.$('#show_sru_fields').val(newmap);
+                    window.close();
+                } else {
+                    // In this case not called as a popup. Just do nothing.
+                    event.preventDefault();
+                }
+            });
+        });
+        function allInputs () {
+            var aInput= new Array();
+            $("form :input").each(function() {
+                if( this.id && $(this).val() ) {
+                    aInput.push(this.id+'='+$(this).val());
+                }
+            });
+            return aInput.join(',');
+        }
+    </script>
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' popup_window=1 %]

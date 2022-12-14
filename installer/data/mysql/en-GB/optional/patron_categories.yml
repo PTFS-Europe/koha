@@ -1,0 +1,174 @@
+---
+description:
+- Sample user types and categories. Types are currently hardcoded but you can manage
+  categories after installation from the administration module.
+- ''
+- Adult patron - default user type
+- '                PT  - Patron'
+- '                ST  - Student'
+- '                BH  - Homebound'
+- ''
+- Child - user with a guarantor
+- '                K   - Kid'
+- '                J   - Juvenile'
+- '                YA  - Young Adult'
+- ''
+- Organisation - user is an institution, not a person
+- '                ILL - Inter-library Loan'
+- '                SC  - School'
+- '                L   - Library'
+- ''
+- Professional - a member of an organisation (organisation is guarantor)
+- '                T   - Teacher'
+- '                S   - Staff'
+- '                B   - Board'
+tables:
+- categories:
+    multiline: []
+    rows:
+    - bulk: ~
+      category_type: A
+      categorycode: PT
+      dateofbirthrequired: 18
+      description: User
+      enrolmentfee: '0.000000'
+      enrolmentperiod: 99
+      finetype: ~
+      issuelimit: ~
+      overduenoticerequired: 1
+      reservefee: '0.000000'
+      upperagelimit: 999
+    - bulk: ~
+      category_type: A
+      categorycode: ST
+      dateofbirthrequired: 18
+      description: Student
+      enrolmentfee: '0.000000'
+      enrolmentperiod: 99
+      finetype: ~
+      issuelimit: ~
+      overduenoticerequired: 1
+      reservefee: '0.000000'
+      upperagelimit: 999
+    - bulk: ~
+      category_type: A
+      categorycode: HB
+      dateofbirthrequired: 18
+      description: Home Bound
+      enrolmentfee: '0.000000'
+      enrolmentperiod: 99
+      finetype: ~
+      issuelimit: ~
+      overduenoticerequired: 1
+      reservefee: '0.000000'
+      upperagelimit: 999
+    - bulk: ~
+      category_type: C
+      categorycode: K
+      dateofbirthrequired: 5
+      description: Kid
+      enrolmentfee: '0.000000'
+      enrolmentperiod: 99
+      finetype: ~
+      issuelimit: ~
+      overduenoticerequired: 1
+      reservefee: '0.000000'
+      upperagelimit: 17
+    - bulk: ~
+      category_type: C
+      categorycode: J
+      dateofbirthrequired: 5
+      description: Juvenile
+      enrolmentfee: '0.000000'
+      enrolmentperiod: 99
+      finetype: ~
+      issuelimit: ~
+      overduenoticerequired: 1
+      reservefee: '0.000000'
+      upperagelimit: 17
+    - bulk: ~
+      category_type: C
+      categorycode: YA
+      dateofbirthrequired: 5
+      description: Young Adult
+      enrolmentfee: '0.000000'
+      enrolmentperiod: 99
+      finetype: ~
+      issuelimit: ~
+      overduenoticerequired: 1
+      reservefee: '0.000000'
+      upperagelimit: 17
+    - bulk: ~
+      category_type: P
+      categorycode: T
+      dateofbirthrequired: 18
+      description: Teacher
+      enrolmentfee: '0.000000'
+      enrolmentperiod: 99
+      finetype: ~
+      issuelimit: ~
+      overduenoticerequired: 0
+      reservefee: '0.000000'
+      upperagelimit: 999
+    - bulk: ~
+      category_type: P
+      categorycode: B
+      dateofbirthrequired: 5
+      description: Board
+      enrolmentfee: '0.000000'
+      enrolmentperiod: 99
+      finetype: ~
+      issuelimit: ~
+      overduenoticerequired: 1
+      reservefee: '0.000000'
+      upperagelimit: 17
+    - bulk: ~
+      category_type: I
+      categorycode: IL
+      dateofbirthrequired: 18
+      description: Inter-Library Loan
+      enrolmentfee: '0.000000'
+      enrolmentperiod: 99
+      finetype: ~
+      issuelimit: ~
+      overduenoticerequired: 1
+      reservefee: '0.000000'
+      upperagelimit: 999
+    - bulk: ~
+      category_type: I
+      categorycode: SC
+      dateofbirthrequired: 18
+      description: School
+      enrolmentfee: '0.000000'
+      enrolmentperiod: 99
+      finetype: ~
+      issuelimit: ~
+      overduenoticerequired: 1
+      reservefee: '0.000000'
+      upperagelimit: 999
+    - bulk: ~
+      category_type: I
+      categorycode: L
+      dateofbirthrequired: 18
+      description: Library
+      enrolmentfee: '0.000000'
+      enrolmentperiod: 99
+      finetype: ~
+      issuelimit: ~
+      overduenoticerequired: 1
+      reservefee: '0.000000'
+      upperagelimit: 999
+    - bulk: ~
+      category_type: S
+      categorycode: S
+      dateofbirthrequired: 18
+      description: Staff
+      enrolmentfee: '0.000000'
+      enrolmentperiod: 99
+      finetype: ~
+      issuelimit: ~
+      overduenoticerequired: 0
+      reservefee: '0.000000'
+      upperagelimit: 999
+    translatable:
+    - description

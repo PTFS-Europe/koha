@@ -1,0 +1,69 @@
+[% USE Koha %]
+[% USE AdditionalContents %]
+[% SET OpacNav = AdditionalContents.get( location => "OpacNav", lang => lang, library => logged_in_user.branchcode || default_branch, blocktitle => 0 ) %]
+[% SET OpacNavBottom = AdditionalContents.get( location => "OpacNavBottom", lang => lang, library => logged_in_user.branchcode || default_branch, blocktitle => 0 ) %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Subject cloud &rsaquo; [% IF ( LibraryNameTitle ) %][% LibraryNameTitle | html %][% ELSE %]Koha online[% END %] catalogue</title>
+[% INCLUDE 'doc-head-close.inc' %]
+[% BLOCK cssinclude %][% END %]
+</head>
+[% INCLUDE 'bodytag.inc' bodyid='opac-tags-subject' %]
+[% INCLUDE 'masthead.inc' %]
+
+ <div class="main">
+ <nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumbs">
+ <ol class="breadcrumb">
+ <li class="breadcrumb-item">
+ <a href="/cgi-bin/koha/opac-main.pl">Home</a>
+ </li>
+ <li class="breadcrumb-item active">
+ <a href="#" aria-current="page">Subject cloud</a>
+ </li>
+ </ol>
+ </nav> <!-- /#breadcrumbs -->
+
+ <div class="container-fluid">
+ <div class="row">
+ [% IF ( OpacNav || OpacNavBottom ) %]
+ <div class="col-lg-2">
+ <div id="navigation">
+ [% INCLUDE 'navigation.inc' %]
+ </div>
+ </div>
+ <div class="col-10 order-first order-md-first order-lg-2">
+ [% ELSE %]
+ <div class="col order-first order-md-first order-lg-2">
+ [% END %]
+
+ <div id="subjectcloud" class="maincontent">
+ <h1>Subject cloud</h1>
+ [% IF Koha.Preference( 'OpacCloud' ) == 1 %]
+ [% IF ( LOOP ) %]
+ <p>This &quot;cloud&quot; shows the most used topics in our catalogue. Click on any subject below to see the items in our collection.</p>
+ <fieldset>
+ <legend>Show</legend>
+ <form class="form-inline" action="/cgi-bin/koha/opac-tags_subject.pl" method="post">
+ <p>up to <input type="text" name="number" value="[% number | html %]" size="4" maxlength="4" /> subjects <input type="submit" class="btn btn-primary" value="OK" /></p>
+ </form>
+ </fieldset>
+
+ [% FOREACH LOO IN LOOP %]
+ <a href="/cgi-bin/koha/opac-search.pl?idx=su&amp;q=&quot;[% LOO.entry | uri %]&quot;" style="font-size:[% LOO.weight | html %]px;">[% LOO.entry | html %]</a>
+ [% END %]
+ [% ELSE %]
+ <p>Note: This feature only available to French catalogues where ISBD subjects have been populated, and an index built by separate script.</p>
+ [% END # / IF LOOP %]
+ [% ELSE %]
+ <div class="alert alert-info">
+ <p>The ISBD cloud is not enabled.</p>
+ </div>
+ [% END # / IF OpacCloud %]
+ </div> <!-- / #subjectcloud -->
+
+ </div> <!-- / .col-10/12 -->
+ </div> <!-- / .row -->
+ </div> <!-- / .container-fluid -->
+ </div> <!-- / .main -->
+
+[% INCLUDE 'opac-bottom.inc' %]
+[% BLOCK jsinclude %][% END %]

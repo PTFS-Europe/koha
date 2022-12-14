@@ -1,0 +1,198 @@
+[% USE raw %]
+[% USE Asset %]
+[% USE Price %]
+[% USE TablesSettings %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Orders by fund &rsaquo; Reports &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+<body id="rep_orders_by_budget" class="rep">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'cat-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/reports/reports-home.pl">Reports</a>
+ </li>
+ [% IF ( get_orders ) %]
+ <li>
+ <a href="/cgi-bin/koha/reports/orders_by_fund.pl">Orders by fund</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ Results
+ </a>
+ </li>
+ [% ELSE %]
+ <li>
+ <a href="#" aria-current="page">
+ Orders by fund
+ </a>
+ </li>
+ [% END %]
+ </ol>
+</nav>
+
+<div class="main container-fluid">
+ <div class="row">
+ <div class="col-sm-10 col-sm-push-2">
+ <main>
+
+
+[% IF ( current_budget_name ) %]<h1>Orders for fund '[% current_budget_name | html %]'</h1>
+[% ELSE %]<h1>Orders by fund</h1>
+[% END %]
+
+[% IF ( get_orders ) %]
+
+ [% IF ( ordersloop ) %]<table id="funds">
+ <thead>
+ <tr>
+ <th>Fund</th>
+ <th>Basket</th>
+ <th>Basket name</th>
+ <th>Basket by</th>
+ <th>Title</th>
+ <th>Currency</th>
+ <th>List price</th>
+ <th>RRP</th>
+ <th>Budgeted cost</th>
+ <th>Quantity</th>
+ <th>Total RRP</th>
+ <th>Total cost</th>
+ <th>Entry date</th>
+ <th>Date received</th>
+ <th>Internal note</th>
+ <th>Vendor note</th>
+ </tr>
+ </thead>
+ <tbody>
+ [% FOREACH ordersloo IN ordersloop %]
+ [% UNLESS ( loop.odd ) %]<tr class="highlight">
+ [% ELSE %] <tr>
+ [% END %]
+ <td>[% ordersloo.budget_name | html %]</td>
+ <td><a href="/cgi-bin/koha/acqui/basket.pl?basketno=[% ordersloo.basketno | uri %]"> [% ordersloo.basketno | html %]</a></td>
+ <td>[% ordersloo.basketname | html %]</td>
+ <td>[% ordersloo.authorisedbyname | html %]</td>
+ <td><a href="/cgi-bin/koha/catalogue/detail.pl?biblionumber=[% ordersloo.biblionumber | uri %]"> [% ordersloo.title | html %]</a></td>
+ <td>[% ordersloo.currency | html %]</td>
+ <td>[% ordersloo.listprice | $Price %]</td>
+ <td>[% ordersloo.rrp | $Price %]</td>
+ <td>[% ordersloo.ecost | $Price %]</td>
+ <td>[% ordersloo.quantity | html %]</td>
+ <td>[% ordersloo.total_rrp | $Price %]</td>
+ <td>[% ordersloo.total_ecost | $Price %]</td>
+ <td>[% ordersloo.entrydate | html %]</td>
+ <td>[% ordersloo.datereceived | html %]</td>
+ <td>[% ordersloo.order_internalnote | html %]</td>
+ <td>[% ordersloo.order_vendornote | html %]</td>
+ </tr>
+ [% END %]
+ </tbody>
+ <tfoot><tr><th>TOTAL</th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th>[% total_quantity | html %]</th><th>[% total_rrp | $Price %]</th><th>[% total_ecost | $Price %]</th><th></th><th></th><th></th><th></th></tr></tfoot>
+ </table>
+ [% END %]
+ [% ELSE %]
+ <form name="f" action="/cgi-bin/koha/reports/orders_by_fund.pl" method="post">
+ <fieldset class="rows">
+ <legend>Filters</legend>
+ <ol><li><label for="budgetfilter">Fund: </label>
+ <select name="budgetfilter" id="budgetfilter">
+ <option value="">All funds</option>
+ <option value="activebudgets">All active funds</option>
+ [% FOREACH budgetsloo IN budgetsloop %]
+ [% IF ( budgetsloo.selected ) %]
+ <option value="[% budgetsloo.value | html %]" selected="selected">
+ [% ELSE %]
+ [% bdgclass=budgetsloo.active? "": "b_inactive" | html %]
+ <option class="[% bdgclass | html %]" value="[% budgetsloo.value | html %]">
+ [% END %]
+ [% budgetsloo.description | html %] [% IF !budgetsloo.active %](inactive)[% END %]
+ </option>
+ [% END %]
+ </select>
+ <label for="showallbudgets" style="float:none;">&nbsp;Show inactive:</label>
+ <input type="checkbox" id="showbudgets" />
+ </li></ol>
+ </fieldset>
+
+ <fieldset class="rows">
+ <legend>Output</legend>
+ <ol><li><label for="outputscreen">To screen into the browser: </label><input type="radio" checked="checked" name="output" id="outputscreen" value="screen" /> </li>
+ <li><label for="outputfile">To a file:</label>
+ <input type="radio" name="output" value="file" id="outputfile" />
+ <label class="inline" for="basename">Named: </label>
+ <input type="text" name="basename" id="basename" value="Export" />
+ <label class="inline" for="MIME">Into an application </label>
+ <select id='MIME' name='MIME'>
+ [% FOREACH outputFormatloo IN outputFormatloop %]
+ <option value="[% outputFormatloo | html %]">[% outputFormatloo | html %]</option>
+ [% END %]
+ </select>
+ <select id='sep' name='sep'>
+ [% FOREACH delimiterloo IN delimiterloop %]
+ [% IF delimiterloo == delimiterPreference %]
+ <option value="[% delimiterloo | html %]">[% delimiterloo | html %]</option>
+ [% END %]
+ [% END %]
+ [% FOREACH delimiterloo IN delimiterloop %]
+ [% IF delimiterloo != delimiterPreference %]
+ <option value="[% delimiterloo | html %]">[% delimiterloo | html %]</option>
+ [% END %]
+ [% END %]
+ </select>
+ </li></ol>
+ </fieldset>
+
+ <fieldset class="action">
+ <input type="submit" value="Submit" />
+ <input type="hidden" name="get_orders" value="1" /></fieldset>
+ </form>
+
+ [% END %]
+
+ </main>
+ </div> <!-- /.col-sm-10.col-sm-push-2 -->
+
+ <div class="col-sm-2 col-sm-pull-10">
+ <aside>
+ [% INCLUDE 'reports-menu.inc' %]
+ </aside>
+ </div> <!-- /.col-sm-2.col-sm-pull-10 -->
+ </div> <!-- /.row -->
+
+[% MACRO jsinclude BLOCK %]
+ [% INCLUDE 'datatables.inc' %]
+ [% INCLUDE 'columns_settings.inc' %]
+ <script>
+        var columns_settings = [% TablesSettings.GetColumns( 'reports', 'orders_by_fund', 'funds-table', 'json' ) | $raw %];
+        [% SET table_settings = TablesSettings.GetTableSettings( 'reports', 'orders_by_fund', 'funds-table' ) %];
+        $(document).ready( function () {
+            var funds_table = KohaTable("funds", {
+                "pageLength": [% table_settings.default_display_length | html %],
+                "order": [[ [% table_settings.default_sort_order | html %], 'asc']],
+                'autoWidth': false,
+            }, columns_settings );
+
+            showallbudgets = $('#budgetfilter').html();
+            $('#budgetfilter .b_inactive').remove();
+
+            $('#showbudgets').click(function(){
+                if ($(this).is(":checked")) {
+                    $('#budgetfilter').html(showallbudgets);
+                } else {
+                    $('#budgetfilter .b_inactive').remove();
+                }
+            });
+        } );
+    </script>
+
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' %]

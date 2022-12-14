@@ -1,0 +1,257 @@
+[% USE Koha %]
+[% USE Branches %]
+[% USE KohaDates %]
+[% USE Price %]
+[% USE ItemTypes %]
+[% USE TablesSettings %]
+[% PROCESS 'member-display-address-style.inc' %]
+[% SET footerjs = 1 %]
+
+[% PROCESS 'accounts.inc' %]
+
+[% INCLUDE 'doc-head-open.inc' %]
+ <title>Summary for [% patron.firstname | html %] [% patron.surname | html %] ([% patron.cardnumber | html %])</title>
+ [% INCLUDE 'doc-head-close.inc' %]
+</head>
+
+<body id="pat_moremember-print" class="pat">
+ <div id="main">
+ <h3><a href="/cgi-bin/koha/circ/circulation.pl?findborrower=[% patron.cardnumber | uri %]">Account summary: [% patron.firstname | html %] [% patron.surname | html %] ([% patron.cardnumber | html %])</a></h3>
+
+ <ul>
+ [% PROCESS 'display-address-style' %]
+ <li>[% IF ( patron.phone ) %][% patron.phone | html %][% ELSE %](no phone number on file)[% END %]</li>
+ <li>[% IF ( patron.email ) %][% patron.email | html %][% ELSE %](no primary email on file)[% END %]</li>
+ [% IF ( patron.emailpro ) %]
+ <li>[% patron.emailpro | html %]</li>
+ [% END %]
+ <li>Registration date: [% patron.dateenrolled | $KohaDates %]</li>
+ <li>Expiration date: [% patron.dateexpiry | $KohaDates %]</li>
+ <li>Library: [% Branches.GetName( patron.branchcode ) | html %]</li>
+ <li>Category: [% patron.category.description | html %]</li>
+ </ul>
+
+ [% IF ( issues ) %]
+ <table id="print-summary-checkouts">
+ <caption>Items issued</caption>
+ <thead>
+ <tr>
+ <th>Title</th>
+ <th>Author</th>
+ <th>Class number</th>
+ <th>Item type</th>
+ <th>Date due</th>
+ <th>Barcode</th>
+ <th>Inventory number</th>
+ <th>Charge</th>
+ <th>Price</th>
+ <th>Status</th>
+ </tr>
+ </thead>
+ <tbody>
+ [% FOREACH issue IN issues %]
+ <tr>
+ <td>
+ [% INCLUDE 'biblio-title.inc' biblio=issue link = 0 %]
+ </td>
+ <td>[% issue.author | html %]</td>
+ <td>[% issue.itemcallnumber | html %]</td>
+ <td>[% ItemTypes.GetDescription( issue.itype ) | html %]</td>
+ <td>[% issue.date_due | $KohaDates  as_due_date => 1 %]</td>
+ <td>[% issue.barcode | html %]</td>
+ <td>[% issue.stocknumber | html %]</td>
+ [% IF ( issue.charge <= 0 ) %]
+ <td class="credit">
+ [% ELSE %]
+ <td class="debit">
+ [% END %]
+ [% issue.charge | $Price %]
+ </td>
+ [% IF ( issue.replacementprice <= 0 ) %]
+ <td class="credit">
+ [% ELSE %]
+ <td class="debit">
+ [% END %]
+ [% issue.replacementprice | $Price %]
+ </td>
+ <td>[% IF ( issue.overdue ) %]Overdue![% ELSE %]&nbsp;[% END %]</td>
+ </tr>
+ [% END %]
+ </tbody>
+ <tfoot>
+ <tr>
+ <td></td>
+ <td></td>
+ <td></td>
+ <td></td>
+ <td></td>
+ <td></td>
+ <td style="text-align: right; font-weight:bold;">Totals:</td>
+ [% IF ( totaldue <= 0 ) %]
+ <td class="credit">
+ [% ELSE %]
+ <td class="debit">
+ [% END %]
+ [% totaldue | $Price %]
+ </td>
+ [% IF ( totalprice <= 0 ) %]
+ <td class="credit">
+ [% ELSE %]
+ <td class="debit">
+ [% END %]
+ [% totalprice | $Price %]
+ </td>
+ <td></td>
+ </tr>
+ </tfoot>
+ </table>
+ [% END %]
+
+ [% IF ( reserves ) %]
+ <table id="print-summary-holds">
+ <caption>Pending reservations</caption>
+ <thead>
+ <tr>
+ <th>Title</th>
+ <th>Author</th>
+ <th>Placed on</th>
+ <th>Expires on</th>
+ <th>Pick up location</th>
+ </tr>
+ </thead>
+ <tbody>
+ [% FOREACH reserve IN reserves %]
+ <tr>
+ <td>[% reserve.title | html %]</td>
+ <td>[% reserve.author | html %]</td>
+ <td>[% reserve.reservedate | $KohaDates %]</td>
+ <td>[% reserve.expirationdate | $KohaDates %]</td>
+ <td>[% reserve.waiting_at | html %]</td>
+ </tr>
+ [% END %]
+ </tbody>
+ </table>
+ [% END %]
+ [% IF accounts && totaldue != 0 %]
+ <table id="print-summary-fines">
+ <caption>Account fines and payments</caption>
+ <thead>
+ <tr>
+ <th>Date</th>
+ <th>Description of charges</th>
+ <th>Note</th>
+ <th>Amount</th>
+ <th>Outstanding</th>
+ </tr>
+ </thead>
+ <tbody>
+ [% FOREACH account IN accounts %]
+ <tr>
+ <td>[% account.date | $KohaDates %]</td>
+ <td>
+ [% PROCESS account_type_description account=account %]
+ [%- IF account.payment_type %]
+ , [% AuthorisedValues.GetByCode('PAYMENT_TYPE', account.payment_type) | html %]
+ [% END %]
+ [%- IF account.description %]
+ , [% account.description | html %]
+ [% END %]
+ &nbsp;
+ [% IF ( account.itemnumber AND account.debit_type_code != 'OVERDUE' ) %]
+ <a href="/cgi-bin/koha/catalogue/moredetail.pl?biblionumber=[% account.item.biblionumber | uri %]&amp;itemnumber=[% account.itemnumber | uri %]">[% account.item.biblio.title | html %]</a>
+ [% END %]
+ </td>
+ <td>
+ [% account.note | html_line_break %]
+ </td>
+ [% IF ( account.amount <= 0 ) %]
+ <td class="credit">
+ [% ELSE %]
+ <td class="debit">
+ [% END %]
+ [% account.amount | $Price %]
+ </td>
+ [% IF ( account.amountoutstanding <= 0 ) %]
+ <td class="credit">
+ [% ELSE %]
+ <td class="debit">
+ [% END %]
+ [% account.amountoutstanding | $Price %]
+ </td>
+ </tr>
+ [% END %]
+ </tbody>
+ <tfoot>
+ <tr>
+ <td></td>
+ <td></td>
+ <td ></td>
+ [% IF ( totaldue < 0 ) %]
+ <td class="credit">
+ [% ELSE %]
+ <td class="debit">
+ [% END %]
+ Total due:
+ </td>
+ [% IF ( totaldue < 0 ) %]
+ <td class="credit">
+ [% ELSE %]
+ <td class="debit">
+ [% END %]
+ [% totaldue | $Price %]
+ </td>
+ </tr>
+ </tfoot>
+ </table>
+ [% END %]
+
+[% MACRO jsinclude BLOCK %]
+ [% INCLUDE 'slip-print.inc' #printThenClose %]
+ [% INCLUDE 'datatables.inc' %]
+ [% INCLUDE 'columns_settings.inc' %]
+ <script>
+        var checkouts_columns = [% TablesSettings.GetColumns( 'circ', 'print_summary', 'print-summary-checkouts', 'json' ) | $raw %];
+        var holds_columns = [% TablesSettings.GetColumns( 'circ', 'print_summary', 'print-summary-holds', 'json' ) | $raw %];
+        var fines_columns = [% TablesSettings.GetColumns( 'circ', 'print_summary', 'print-summary-fines', 'json' ) | $raw %];
+
+        function moveColumnsButton( tableId ){
+            /* Hide the export button */
+            $("#" + tableId + "_wrapper").find("button.export_controls").remove();
+            /* We don't show the table controls toolbar here, so the columns settings button looks better as part of the caption */
+            $("#" + tableId).find("caption").append( $("#" + tableId + "_wrapper").find("button.columns_controls") );
+        }
+
+        $(document).ready(function() {
+
+            KohaTable("print-summary-checkouts", {
+                "dom": "Bt",
+                "paging": false,
+                "bAutoWidth": false,
+                initComplete: function( settings) {
+                    moveColumnsButton( settings.nTable.id );
+                }
+            }, checkouts_columns);
+
+            KohaTable("print-summary-holds", {
+                "dom": "Bt",
+                "paging": false,
+                "bAutoWidth": false,
+                initComplete: function( settings) {
+                    moveColumnsButton( settings.nTable.id );
+                }
+            }, holds_columns);
+
+            KohaTable("print-summary-fines", {
+                "dom": "Bt",
+                "paging": false,
+                "bAutoWidth": false,
+                initComplete: function( settings) {
+                    moveColumnsButton( settings.nTable.id );
+                }
+            }, fines_columns);
+
+        });
+    </script>
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' %]

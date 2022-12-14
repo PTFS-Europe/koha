@@ -1,0 +1,30 @@
+---
+description:
+- 'Sample holidays: Sunday, Christmas, New Year''s'
+tables:
+- repeatable_holidays:
+    multiline: []
+    rows:
+    - branchcode: MPL
+      day: ~
+      description: Sundays
+      id: 2
+      month: ~
+      title: ''
+      weekday: 0
+    - branchcode: MPL
+      day: 1
+      description: New Year's Day
+      id: 3
+      month: 1
+      title: ''
+      weekday: ~
+    - branchcode: MPL
+      day: 25
+      description: Christmas
+      id: 4
+      month: 12
+      title: ''
+      weekday: ~
+    translatable:
+    - description

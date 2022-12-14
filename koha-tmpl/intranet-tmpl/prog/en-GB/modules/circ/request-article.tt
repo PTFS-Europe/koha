@@ -1,0 +1,502 @@
+[% USE raw %]
+[% USE Asset %]
+[% USE Context %]
+[% USE KohaDates %]
+[% USE Branches %]
+[% USE ItemTypes %]
+[% USE AuthorisedValues %]
+[% SET footerjs = 1 %]
+[% SET article_requests_view = 1 %]
+[% SET biblionumber = biblio.biblionumber %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Request article &rsaquo; Circulation &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+
+[% BLOCK cancel_modal %]
+ <div id="cancelModal" class="modal" tabindex="-1" role="dialog" aria-hidden="true">
+ <div class="modal-dialog" role="document">
+ <div class="modal-content">
+ <div class="modal-header">
+ <button type="button" class="closebtn" data-dismiss="modal" aria-hidden="true">×</button>
+ <h3>Confirm deletion</h3>
+ </div>
+
+ <div class="modal-body">
+ <p>Are you sure you want to cancel this article request?</p>
+
+ <fieldset class="action">
+ [% SET ar_cancellation = AuthorisedValues.GetAuthValueDropbox('AR_CANCELLATION') %]
+ [% IF ar_cancellation %]
+ <label for="cancellation-reason" class="col-sm-4">Cancellation reason: </label>
+ <select class="cancellation-reason col-sm-8" name="cancellation-reason" id="modal-cancellation-reason">
+ <option value="" selected>Other reasons</option>
+ [% FOREACH reason IN ar_cancellation %]
+ <option value="[% reason.authorised_value | html %]">[% reason.lib | html %]</option>
+ [% END %]
+ </select>
+ [% END %]
+ </fieldset>
+ <fieldset class="action">
+ <div class="hint col-sm-offset-4">Enter reason</div>
+ <input type="text" class="notes col-sm-offset-4 col-sm-8" name="notes" id="modal-notes"/>
+ </fieldset>
+ </div>
+
+ <div class="modal-footer">
+ <button id="cancelModalConfirmBtn" type="button" class="btn btn-danger" data-dismiss="modal">Confirm cancellation</button>
+ <a href="#" data-dismiss="modal">Cancel</a>
+ </div>
+ </div>
+ </div>
+ </div>
+[% END %]
+
+<body id="circ_request-article" class="circ">
+ [% INCLUDE 'header.inc' %]
+ [% INCLUDE 'circ-search.inc' %]
+
+ <nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+
+ [% IF blocking_error %]
+ <li>
+ <a href="#" aria-current="page">
+ Catalogue </a>
+ </li>
+
+ [% ELSE %]
+ [% INCLUDE 'biblio-title.inc' link = 1 %]
+ <li>
+ <a href="#" aria-current="page">
+ Request article
+ </a>
+ </li>
+ [% END %]
+ </ol>
+ </nav>
+
+[% INCLUDE 'blocking_errors.inc' %]
+<div class="main container-fluid">
+ <div class="row">
+ <div class="col-sm-10 col-sm-push-2">
+ <main>
+
+ <h1>Request article from [% INCLUDE 'biblio-title.inc' link = 1 %]</h1>
+ [% IF error_message %]
+ <div class="dialog alert">
+ [% SWITCH error_message %]
+ [% CASE 'article_request_limit_reached'       %]<p>Patron reached daily limit.</p>
+ [% CASE 'article_request_unhandled_exception' %]<p>An error has occurred. Check the logs.</p>
+ [% END %]
+ </div>
+ [% END %]
+ [% IF no_patrons_found %]
+ <div class="dialog alert">
+ <h3>User not found</h3>
+ <p>No user with this name, please, try another</p>
+ </div>
+ [% ELSIF patrons %]
+ <form id="article_request_patron_results" method="post">
+ <fieldset>
+ <table id="table_borrowers">
+ <thead>
+ <tr>
+ <th></th>
+ <th>Name</th>
+ <th>Cardnumber</th>
+ <th>Category</th>
+ <th>Library</th>
+ <th>Address</th>
+ </tr>
+ </thead>
+ <tbody>
+ [% FOREACH patron IN patrons %]
+ <tr>
+ <td><input type="radio" name="patron_id" value="[% patron.borrowernumber | html %]"/></td>
+ <td>[% patron.surname | html %], [% patron.firstname | html %]</td>
+ <td>[% patron.cardnumber | html %]</td>
+ <td>[% patron.categorycode | html %]</td>
+ <td>[% patron.branchcode | html %]</td>
+ <td>[% patron.address | html %]</td>
+ </tr>
+ [% END %]
+ </tbody>
+ </table>
+ <input type="hidden" name="biblionumber" value="[% biblionumber | html %]" />
+ <fieldset class="action"><input type="submit" value="Select" /></fieldset>
+ </fieldset>
+ </form>
+ [% ELSIF !patron %]
+ <form id="article_requests_patronsearch" action="request-article.pl" method="post">
+ <fieldset class="brief">
+ <label for="patron">User: </label>
+ <div class="hint">Enter user card number or partial name:</div>
+ <input type="text" size="40" id="patron" class="focus" name="patron_cardnumber" />
+ <input type="submit" value="Search" />
+ <input type="hidden" name="biblionumber" value="[% biblio.id | html %]" />
+ </fieldset>
+ </form>
+ [% ELSE %]
+ [% IF biblio.can_article_request( patron ) %]
+
+ <form id="place-article-request" method="post" action="/cgi-bin/koha/circ/request-article.pl">
+ <input type="hidden" name="action" value="create" />
+ <input type="hidden" name="biblionumber" id="biblionumber" value="[% biblio.biblionumber | html %]" />
+ <input type="hidden" name="borrowernumber" id="borrowernumber" value="[% patron.id | html %]" />
+
+ <fieldset class="rows">
+ <legend>Place article request from [% biblio.title | html %] for [% patron.firstname | html %] [% patron.surname | html %] ( [% patron.cardnumber | html %] )</legend>
+ <ul>
+ <li>
+ <label for="title">Title:</label>
+ <input type="text" name="title" id="title" size="50"/>
+ </li>
+
+ <li>
+ <label for="author">Author:</label>
+ <input type="text" name="author" id="author" size="50"/>
+ </li>
+
+ <li>
+ <label for="volume">Volume:</label>
+ <input type="text" name="volume" id="volume" size="50"/>
+ </li>
+
+ <li>
+ <label for="issue">Issue:</label>
+ <input type="text" name="issue" id="issue" size="50"/>
+ </li>
+
+ <li>
+ <label for="date">Date:</label>
+ <input type="text" name="date" id="date" size="50"/>
+ </li>
+
+ <li>
+ <label for="toc_request">Table of contents:</label>
+ <input type="checkbox" name="toc_request" value="1"/>
+ </li>
+
+ <li>
+ <label for="pages">Pages:</label>
+ <input type="text" name="pages" id="pages" size="50"/>
+ </li>
+
+ <li>
+ <label for="chapters">Chapters:</label>
+ <input type="text" name="chapters" id="chapters" size="50"/>
+ </li>
+
+ <li>
+ <label for="patron_notes">User notes:</label>
+ <input type="text" name="patron_notes" id="patron_notes" size="50"/>
+ </li>
+
+ <li>
+ <label for="format">Format:</label>
+ <select name="format" id="format">
+ <option value="PHOTOCOPY">Photocopy</option>
+ <option value="SCAN">Digital scan</option>
+ </select>
+ </li>
+
+ <li>
+ <label for="branchcode">Pickup library:</label>
+ <select name="branchcode" id="branchcode">
+ [% FOREACH b IN Branches.all %]
+ [% IF b.branchcode == Branches.GetLoggedInBranchcode %]
+ <option value="[% b.branchcode | html %]" selected="selected">[% b.branchname | html %]</option>
+ [% ELSE %]
+ <option value="[% b.branchcode | html %]">[% b.branchname | html %]</option>
+ [% END %]
+ [% END %]
+ </select>
+ </li>
+ </ul>
+ </fieldset>
+
+ [% SET article_request_type = biblio.article_request_type( patron ) %]
+ [% IF article_request_type != 'bib_only' %]
+ <table id="current-requests-table" class="ar-table table table-bordered table-striped">
+ <caption>Select item:</caption>
+ <thead>
+ <tr>
+ <th>&nbsp;</th>
+ <th>Item type</th>
+ <th>Barcode</th>
+ <th>Home library</th>
+ <th>Class number</th>
+ <th>Enumeration</th>
+ </tr>
+ </thead>
+
+ <tbody>
+ [% FOREACH item IN biblio.items %]
+ [% IF item.can_article_request( patron ) %]
+ <tr>
+ <td>
+ [% IF article_request_type == 'item_only' && !checked %]
+ [% SET checked = 1 %]
+ <input type="radio" name="itemnumber" value="[% item.itemnumber | html %]" checked="checked" />
+ [% ELSE %]
+ <input type="radio" name="itemnumber" value="[% item.itemnumber | html %]" />
+ [% END %]
+ </td>
+ <td>
+ [% ItemTypes.GetDescription( item.itype ) | html %]
+ </td>
+ <td>
+ [% item.barcode | html %]
+ </td>
+ <td>
+ [% Branches.GetName( item.homebranch ) | html %]
+ </td>
+ <td>
+ [% item.itemcallnumber | html %]
+ </td>
+ <td>
+ [% item.enumchron | html %]
+ </td>
+ </tr>
+ [% END %]
+ [% END %]
+
+ [% IF article_request_type != 'item_only' %]
+ <tr>
+ <td>
+ <input type="radio" name="itemnumber" value="" checked="checked"/>
+ </td>
+ <td colspan="5">
+ Any item
+ </td>
+ </tr>
+ [% END %]
+ </tbody>
+ </table>
+ [% END %]
+
+ <p>
+ <input type="submit" class="btn btn-default" value="Place request" />
+ </p>
+ </form>
+ [% ELSE %]
+ No article requests can be made for this record.
+ [% END %]
+
+ [% END %]
+
+ [% SET biblio_current_article_requests = Context.Scalar( Context.Scalar( biblio, 'article_requests' ), 'filter_by_current' ) %]
+ [% IF biblio_current_article_requests.count > 0 && !patron %]
+ <fieldset class="rows left" id="current-article-requests-fieldset">
+ <legend>Current article requests</legend>
+
+ <table id="current-article-requests-table">
+ <tr>
+ <th>Placed on</th>
+ <th>User</th>
+ <th>Title</th>
+ <th>Author</th>
+ <th>Volume</th>
+ <th>Issue</th>
+ <th>Date</th>
+ <th>TOC</th>
+ <th>Pages</th>
+ <th>Chapters</th>
+ <th>User notes</th>
+ <th>Format</th>
+ <th>Item</th>
+ <th>Status</th>
+ <th>Pickup library</th>
+ <th>&nbsp;</th>
+ </tr>
+
+ [% FOREACH ar IN biblio_current_article_requests %]
+ <tr>
+ <td>[% ar.created_on | $KohaDates %]</td>
+ <td><a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% ar.borrowernumber | uri %]">[% ar.borrower.firstname | html %] [% ar.borrower.surname | html %]</a></td>
+ <td>[% ar.title | html %]</td>
+ <td>[% ar.author | html %]</td>
+ <td>[% ar.volume | html %]</td>
+ <td>[% ar.issue | html %]</td>
+ <td>[% ar.date | html %]</td>
+ <td>[% IF ar.toc_request %]Yes[% END %]</td>
+ <td>[% ar.pages | html %]</td>
+ <td>[% ar.chapters | html %]</td>
+ <td>[% ar.patron_notes | html %]</td>
+ <td>[% IF ar.format == 'PHOTOCOPY' %]Copy[% ELSIF ar.format == 'SCAN' %]Scan[% END %]</td>
+ <td>
+ [% IF ar.item %]
+ <a href="/cgi-bin/koha/catalogue/moredetail.pl?itemnumber=[% ar.itemnumber | uri %]&biblionumber=[% ar.biblionumber | uri %]">[% ar.item.barcode | html %]</a>
+ [% END %]
+ </td>
+ <td>
+ [% IF ar.status == 'PENDING' %]
+ Pending
+ [% ELSIF ar.status == 'PROCESSING' %]
+ Processing
+ [% ELSIF ar.status == 'REQUESTED' %]
+ New
+ [% ELSIF ar.status == 'COMPLETED' %]
+ Completed
+ [% ELSIF ar.status == 'CANCELED' %]
+ Canceled
+ [% END %]
+ </td>
+ <td>
+ <i id="update-processing-[% ar.id | html %]" class="fa fa-cog fa-spin hidden"></i>
+ <select name="branchcode" id="branchcode-[% ar.id | html %]" class="ar-update-branchcode">
+ [% FOREACH b IN Branches.all %]
+ [% IF b.branchcode == ar.branchcode %]
+ <option value="[% b.branchcode | html %]" selected="selected">[% b.branchname | html %]</option>
+ [% ELSE %]
+ <option value="[% b.branchcode | html %]">[% b.branchname | html %]</option>
+ [% END %]
+ [% END %]
+ </select>
+ </td>
+ <td>
+ <a title="Cancel article request" href="#" id="cancel-[% ar.id | html %]" class="ar-cancel-request">
+ <i id="cancel-processing-spinner-[% ar.id | html %]" class="fa fa-cog fa-spin hide"></i>
+ <i id="cancel-processing-[% ar.id | html %]" class="fa fa-times fa-lg" style="color:red"></i>
+ </a>
+ </td>
+ </tr>
+ [% END %]
+ </table>
+ </fieldset>
+ [% PROCESS cancel_modal %]
+ [% END %]
+
+ </main>
+ </div> <!-- /.col-sm-10.col-sm-push-2 -->
+
+ <div class="col-sm-2 col-sm-pull-10">
+ <aside>
+ [% INCLUDE 'biblio-view-menu.inc' %]
+ </aside>
+ </div> <!-- /.col-sm-2.col-sm-pull-10 -->
+ </div> <!-- /.row -->
+
+[% MACRO jsinclude BLOCK %]
+ [% INCLUDE 'datatables.inc' %]
+
+ <script>
+        $('#current-article-requests').ready(function() {
+            $(".hide").hide();
+        });
+
+        $(document).ready(function() {
+            if ( $( "#patron" ).size() ){
+                $( "#patron" ).autocomplete({
+                    source: "/cgi-bin/koha/circ/ysearch.pl",
+                    minLength: 3,
+                    select: function( event, ui ) {
+                        $( "#patron" ).val( ui.item.cardnumber );
+                        $( "#holds_patronsearch" ).submit();
+                        return false;
+                    }
+                })
+                .data( "ui-autocomplete" )._renderItem = function( ul, item ) {
+                    return $( "<li></li>" )
+                    .data( "ui-autocomplete-item", item )
+                    .append(
+                        "<a>"
+                            + ( item.surname ? item.surname.escapeHtml() : "" )
+                            + ", "
+                            + ( item.firstname ? item.firstname.escapeHtml() : "" )
+                            + " (" + ( item.cardnumber ? item.cardnumber.escapeHtml() : "" ) + ")"
+                            + " "
+                            + "<small>"
+                                + ( item.address ? item.address.escapeHtml() : "" )
+                                + " "
+                                + ( item.city ? item.city.escapeHtml() : "" )
+                                + " "
+                                + ( item.zipcode ? item.zipcode.escapeHtml() : "" )
+                                + " "
+                                + ( item.country ? item.country.escapeHtml() : "" )
+                            + "</small>"
+                        + "</a>" )
+                    .appendTo( ul );
+                };
+            }
+
+            $( ".ar-update-branchcode" ).on('focus', function(){
+                previous_branchcode = this.value;
+            }).on('change', function(){
+                var branchcode = this.value;
+                var c = confirm(_("Are you sure you want to change the pickup library from %s to %s for this request?").format( previous_branchcode, branchcode ));
+
+                if ( c ) {
+                    var id = this.id.split("branchcode-")[1];
+                    $("#update-processing-" + id ).css({opacity: 0, visibility: "visible"}).animate({opacity: 1.0}, 200);
+
+                    $.ajax({
+                        type: "POST",
+                        url: '/cgi-bin/koha/svc/article_request',
+                        data: {
+                            action: 'update_branchcode',
+                            id: id,
+                            branchcode: branchcode,
+                        },
+                        success: function( data ) {
+                            $("#update-processing-" + id ).css({opacity: 1.0, visibility: "visible"}).animate({opacity: 0}, 200);
+                        },
+                        dataType: 'json'
+                    });
+
+                } else {
+                    this.value = previous_branchcode;
+                }
+            });
+
+            $('#modal-cancellation-reason').on('change', function(e) {
+                let reason = $(this).val();
+                $('#modal-notes').attr('disabled', !!reason);
+            })
+
+            let cancel_a;
+            $("#cancelModalConfirmBtn").on("click",function(e) {
+                var id = cancel_a.attr('id').split("cancel-")[1];
+                $("#cancel-processing-" + id ).hide('slow');
+                $("#cancel-processing-spinner-" + id ).show('slow');
+
+                let reason = $("#modal-cancellation-reason").val();
+                let notes = $("#modal-notes").val();
+                let query = '?'+(reason?'cancellation_reason='+reason:'notes='+notes)
+
+                $.ajax({
+                    type: "DELETE",
+                    url: '/api/v1/article_requests/'+id+query,
+                    success: function( data ) {
+                        cancel_a.parents('tr').hide('slow');
+                    }
+                });
+            });
+
+
+            $(".ar-cancel-request").on("click", function(){
+                cancel_a = $(this);
+                $('#cancelModal').modal();
+            });
+
+            // Initialize format(s)
+            var supported_formats = "[% Koha.Preference('ArticleRequestsSupportedFormats') | $raw %]";
+            if( !supported_formats.match(/PHOTOCOPY/) )
+                $('#format option[value="PHOTOCOPY"]').remove();
+            if( !supported_formats.match(/SCAN/) )
+                $('#format option[value="SCAN"]').remove();
+
+            if( $('#format option').length > 1 ) {
+            // Select first listed format
+                var first_format = supported_formats.split('|')[0].replace(/^\s*|\s*$/g, '');
+                $('#format option[value="'+first_format+'"]').attr('selected', true);
+            }
+        });
+    </script>
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' %]

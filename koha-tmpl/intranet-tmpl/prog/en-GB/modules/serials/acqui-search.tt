@@ -1,0 +1,17 @@
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Search for vendor &rsaquo; Serials &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+
+<body id="ser_acqui-search" class="ser">
+
+<div class="container-fluid">
+
+<h1>Serial subscription: search for vendor </h1>
+ <form action="/cgi-bin/koha/serials/acqui-search-result.pl" method="post">
+ <label for="text">Vendor name: </label>
+ <input id="text" type="text"  size="25" name="supplier" autofocus="autofocus" />
+ <input type="submit" class="button" value="OK" />
+ </form>
+
+[% INCLUDE 'intranet-bottom.inc' popup_window=1 %]

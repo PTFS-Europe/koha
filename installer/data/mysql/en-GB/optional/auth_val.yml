@@ -1,0 +1,225 @@
+---
+description:
+- Some basic default authorised values for library locations, item lost status, etc.
+- You can change these at any time after installation.
+tables:
+- authorised_values:
+    multiline: []
+    rows:
+    - authorised_value: BSELL
+      category: SUGGEST
+      lib: Bestseller
+    - authorised_value: SCD
+      category: SUGGEST
+      lib: Shelf Copy Damaged
+    - authorised_value: LCL
+      category: SUGGEST
+      lib: Library Copy Lost
+    - authorised_value: AVILL
+      category: SUGGEST
+      lib: Available via ILL
+    translatable:
+    - lib
+- authorised_values:
+    multiline: []
+    rows:
+    - authorised_value: BOOK
+      category: SUGGEST_FORMAT
+      lib: Book
+      lib_opac: Book
+    - authorised_value: LP
+      category: SUGGEST_FORMAT
+      lib: Large print
+      lib_opac: Large print
+    - authorised_value: EBOOK
+      category: SUGGEST_FORMAT
+      lib: EBook
+      lib_opac: Ebook
+    - authorised_value: AUDIOBOOK
+      category: SUGGEST_FORMAT
+      lib: Audiobook
+      lib_opac: Audiobook
+    - authorised_value: DVD
+      category: SUGGEST_FORMAT
+      lib: DVD
+      lib_opac: DVD
+    translatable:
+    - lib
+    - lib_opac
+- authorised_values:
+    multiline: []
+    rows:
+    - authorised_value: '2'
+      category: LOST
+      lib: Long Overdue (Lost)
+    - authorised_value: '1'
+      category: LOST
+      lib: Lost
+    - authorised_value: '3'
+      category: LOST
+      lib: Lost and Paid For
+    - authorised_value: '4'
+      category: LOST
+      lib: Missing
+    - authorised_value: '1'
+      category: DAMAGED
+      lib: Damaged
+    - authorised_value: FIC
+      category: LOC
+      lib: Fiction
+    - authorised_value: CHILD
+      category: LOC
+      lib: Children's Area
+    - authorised_value: DISPLAY
+      category: LOC
+      lib: On Display
+    - authorised_value: NEW
+      category: LOC
+      lib: New Materials Shelf
+    - authorised_value: STAFF
+      category: LOC
+      lib: Staff Office
+    - authorised_value: GEN
+      category: LOC
+      lib: General Stacks
+    - authorised_value: AV
+      category: LOC
+      lib: Audio Visual
+    - authorised_value: REF
+      category: LOC
+      lib: Reference
+    - authorised_value: CART
+      category: LOC
+      lib: Book Cart
+    - authorised_value: PROC
+      category: LOC
+      lib: Processing Center
+    - authorised_value: FIC
+      category: CCODE
+      lib: Fiction
+    - authorised_value: REF
+      category: CCODE
+      lib: Reference
+    - authorised_value: NFIC
+      category: CCODE
+      lib: Non-fiction
+    - authorised_value: '1'
+      category: WITHDRAWN
+      lib: Withdrawn
+    - authorised_value: '-1'
+      category: NOT_LOAN
+      lib: Ordered
+    - authorised_value: '1'
+      category: NOT_LOAN
+      lib: Not For Loan
+    - authorised_value: '2'
+      category: NOT_LOAN
+      lib: Staff Collection
+    - authorised_value: '1'
+      category: RESTRICTED
+      lib: Restricted Access
+    - authorised_value: ADDR
+      category: BOR_NOTES
+      lib: Address Notes
+    translatable:
+    - lib
+- authorised_values:
+    multiline: []
+    rows:
+    - authorised_value: damaged
+      category: OPAC_SUG
+      lib: The copy on the shelf is damaged
+      lib_opac: The copy on the shelf is damaged
+    - authorised_value: bestseller
+      category: OPAC_SUG
+      lib: Upcoming title by popular author
+      lib_opac: Upcoming title by popular author
+    translatable:
+    - lib
+    - lib_opac
+- authorised_values:
+    multiline: []
+    rows:
+    - authorised_value: CIRC
+      category: REPORT_GROUP
+      lib: Circulation
+    - authorised_value: CAT
+      category: REPORT_GROUP
+      lib: Catalog
+    - authorised_value: PAT
+      category: REPORT_GROUP
+      lib: Users
+    - authorised_value: ACQ
+      category: REPORT_GROUP
+      lib: Acquisitions
+    - authorised_value: ACC
+      category: REPORT_GROUP
+      lib: Accounts
+    - authorised_value: SER
+      category: REPORT_GROUP
+      lib: Serials
+    - authorised_value: '000'
+      category: SIP_MEDIA_TYPE
+      lib: Other
+    - authorised_value: '001'
+      category: SIP_MEDIA_TYPE
+      lib: Book
+    - authorised_value: '002'
+      category: SIP_MEDIA_TYPE
+      lib: Magazine
+    - authorised_value: '003'
+      category: SIP_MEDIA_TYPE
+      lib: Bound journal
+    - authorised_value: '004'
+      category: SIP_MEDIA_TYPE
+      lib: Audio tape
+    - authorised_value: '005'
+      category: SIP_MEDIA_TYPE
+      lib: Video tape
+    - authorised_value: '006'
+      category: SIP_MEDIA_TYPE
+      lib: CD/CDROM
+    - authorised_value: '007'
+      category: SIP_MEDIA_TYPE
+      lib: Diskette
+    - authorised_value: '008'
+      category: SIP_MEDIA_TYPE
+      lib: Book with diskette
+    - authorised_value: '009'
+      category: SIP_MEDIA_TYPE
+      lib: Book with CD
+    - authorised_value: '010'
+      category: SIP_MEDIA_TYPE
+      lib: Book with audio tape
+    - authorised_value: 0
+      category: ORDER_CANCELLATION_REASON
+      lib: No reason provided
+    - authorised_value: 1
+      category: ORDER_CANCELLATION_REASON
+      lib: Out of stock
+    - authorised_value: 2
+      category: ORDER_CANCELLATION_REASON
+      lib: Restocking
+    - authorised_value: RET_BY_PATRON
+      category: RETURN_CLAIM_RESOLUTION
+      lib: Returned by user
+    - authorised_value: FOUND_IN_LIB
+      category: RETURN_CLAIM_RESOLUTION
+      lib: Found in library
+    - authorised_value: NOT_FOUND
+      category: HOLD_CANCELLATION
+      lib: Item could not be located on shelves
+    - authorised_value: DAMAGED
+      category: HOLD_CANCELLATION
+      lib: Item was found to be too damaged to fill reservation
+    - authorised_value: NOT_FOUND
+      category: AR_CANCELLATION
+      lib: Item could not be located on shelves
+    - authorised_value: DAMAGED
+      category: AR_CANCELLATION
+      lib: Item was found to be too damaged to fill article request
+    - authorised_value: OPAC
+      category: AR_CANCELLATION
+      lib: Cancelled from the OPAC user page
+    translatable:
+    - lib

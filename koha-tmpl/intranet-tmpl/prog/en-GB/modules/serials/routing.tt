@@ -1,0 +1,159 @@
+[% USE KohaDates %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>[% IF ( op ) %]Create routing list[% ELSE %]Edit routing list[% END %] &rsaquo; [% title | html %] &rsaquo; Serials &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+<body id="ser_routing" class="ser">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'serials-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+
+ [% IF blocking_error %]
+ <li>
+ <a href="#" aria-current="page">
+ Serials
+ </a>
+ </li>
+
+ [% ELSE %]
+ <li>
+ <a href="/cgi-bin/koha/serials/serials-home.pl">Serials</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/serials/subscription-detail.pl?subscriptionid=[% subscriptionid | uri %]"><em>[% title | html %]</em></a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ [% IF ( op ) %]
+ Create routing list
+ [% ELSE %]
+ Edit routing list
+ [% END %]
+ </a>
+ </li>
+ [% END %]
+ </ol>
+</nav>
+
+<div class="main container-fluid">
+ <div class="row">
+ <div class="col-sm-10 col-sm-push-2">
+ <main>
+[% INCLUDE 'blocking_errors.inc' %]
+
+[% IF ( op ) %]
+<h1>Create routing list for <em>[% title | html %]</em></h1>
+[% ELSE %]
+<h1>Edit routing list for <em>[% title | html %]</em></h1>
+[% END %]
+
+<form method="post" action="routing.pl">
+<input type="hidden" name="op" value="save" />
+<input type="hidden" name="subscriptionid" value="[% subscriptionid | html %]" />
+<fieldset class="rows">
+ <ol>
+ <li><label for="date_selected">Issue: </label>
+<select name="date_selected" id="date_selected">
+ [% FOREACH date IN dates %]
+ [% IF ( date.selected ) %]
+ <option value="[% date.serialseq | html %] ([% date.publisheddate | html %])" selected="selected">[% date.serialseq | html %] ([% date.publisheddate | $KohaDates %])</option>
+ [% ELSE %]
+ <option value="[% date.serialseq | html %] ([% date.publisheddate | html %])">[% date.serialseq | html %] ([% date.publisheddate | $KohaDates %])</option>
+ [% END %]
+[% END %]
+</select> [% issue | html %]</li>
+
+<li>
+ <span class="label">Recipients:</span>
+ [% IF memberloop %]
+ <table style="clear:none;margin:0;">
+ <tr><th>Name</th>
+ <th>Rank</th>
+ <th>Delete</th>
+ </tr>
+ [% USE m_loop = iterator(memberloop) %]
+ [% FOREACH member IN m_loop %]
+ <tr><td>[% member.name | html %]</td>
+ <td>
+ <select name="itemrank" class="itemrank" data-subscriptionid="[% subscriptionid | html %]" data-routingid="[% member.routingid | html %]">
+ [% rankings = [1 .. m_loop.size] %]
+ [% SET cur_rank = loop.count() %]
+ [% FOREACH r IN rankings %]
+ [% IF r == cur_rank %]
+ <option selected="selected" value="[% r | html %]">[% r | html %]</option>
+ [% ELSE %]
+ <option value="[% r | html %]">[% r | html %]</option>
+ [% END %]
+ [% END %]
+ </select>
+ </td>
+ <td><a class="btn btn-default btn-xs" href="/cgi-bin/koha/serials/routing.pl?routingid=[% member.routingid | html %]&amp;subscriptionid=[% subscriptionid | html %]&amp;op=delete"><i class="fa fa-trash"></i> Delete</a></td>
+ </tr>
+ [% END %]
+ </table>
+ [% END %]
+
+ <p style="margin-left:10em;">
+ <a href="#" id="add_recipients"><i class="fa fa-plus"></i> Add recipients</a>
+ [% IF memberloop %]
+ <a href="/cgi-bin/koha/serials/routing.pl?subscriptionid=[% subscriptionid | uri %]&amp;op=delete"><i class="fa fa-trash"></i> Delete all</a>
+ [% END %]
+ </p>
+</li>
+
+ <li><label for="notes">Notes:</label><textarea name="notes" id="notes" rows="3" cols="50">[% routingnotes | html %]</textarea></li>
+ </ol>
+
+</fieldset>
+<fieldset class="action"><input type="submit" name="submit" value="Save" /></fieldset>
+</form>
+
+ </main>
+ </div> <!-- /.col-sm-10.col-sm-push-2 -->
+
+ <div class="col-sm-2 col-sm-pull-10">
+ <aside>
+ [% INCLUDE 'serials-menu.inc' %]
+ </aside>
+ </div> <!-- /.col-sm-2.col-sm-pull-10 -->
+ </div> <!-- /.row -->
+[% MACRO jsinclude BLOCK %]
+ <script>
+        $(document).ready(function(){
+            $("#add_recipients").on("click",function(e){
+                e.preventDefault();
+                userPopup();
+            });
+            $(".itemrank").on("change",function(){
+                var subscriptionid = $(this).data("subscriptionid");
+                var routingid = $(this).data("routingid");
+                reorder_item( subscriptionid, routingid, $(this).val());
+            });
+        });
+        function reorder_item(sid,rid,rank){
+            var mylocation = 'reorder_members.pl?subscriptionid='+sid+'&routingid='+rid+'&rank='+rank;
+            window.location.href=mylocation;
+        }
+
+        function userPopup() {
+            window.open("/cgi-bin/koha/serials/add_user_search.pl",
+                'PatronPopup',
+                'width=740,height=450,location=yes,toolbar=no,'
+                + 'scrollbars=yes,resize=yes'
+            );
+        }
+
+        function add_user(borrowernumber) {
+            var myurl = "routing.pl?subscriptionid="+[% subscriptionid | html %]+"&borrowernumber="+borrowernumber+"&op=add";
+            window.location.href = myurl;
+        }
+    </script>
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' %]

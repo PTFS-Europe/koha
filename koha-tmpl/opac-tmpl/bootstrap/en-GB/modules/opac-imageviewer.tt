@@ -1,0 +1,141 @@
+[% USE Koha %]
+[% USE AdditionalContents %]
+[% SET OpacNav = AdditionalContents.get( location => "OpacNav", lang => lang, library => logged_in_user.branchcode || default_branch, blocktitle => 0 ) %]
+[% SET OpacNavBottom = AdditionalContents.get( location => "OpacNavBottom", lang => lang, library => logged_in_user.branchcode || default_branch, blocktitle => 0 ) %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Images for: [% INCLUDE 'biblio-title-head.inc' %] &rsaquo; [% IF ( LibraryNameTitle ) %][% LibraryNameTitle | html %][% ELSE %]Koha online[% END %] catalogue</title>
+[% INCLUDE 'doc-head-close.inc' %]
+[% BLOCK cssinclude %]
+ <style>
+        #largeCoverImg {
+            border : 1px solid #CCCCCC;
+            display : block;
+            margin : auto;
+            padding : 1em;
+        }
+        #thumbnails {
+            text-align : center;
+        }
+        #thumbnails a img {
+            border : 2px solid #8EB3E7;
+        }
+        img.thumbnail {
+            display : block;
+            float : none;
+            margin : .3em 0;
+            padding : .5em;
+        }
+
+        #thumbnails a img.selected {
+            border-color: black;
+            cursor : default;
+            opacity:0.4;
+            filter:alpha(opacity=40); /* For IE8 and earlier */
+        }
+    </style>
+[% END %]
+</head>
+[% INCLUDE 'bodytag.inc' bodyid='opac-imageviewer' %]
+[% INCLUDE 'masthead.inc' %]
+
+ <div class="main">
+ <nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumbs">
+ <ol class="breadcrumb">
+ <li class="breadcrumb-item">
+ <a href="/cgi-bin/koha/opac-main.pl">Home</a>
+ </li>
+ <li class="breadcrumb-item">
+ [% IF ( BiblioDefaultViewmarc ) %]
+ <a href="/cgi-bin/koha/opac-MARCdetail.pl?biblionumber=[% biblionumber |url %]">
+ [% ELSE %]
+ [% IF ( BiblioDefaultViewisbd ) %]
+ <a href="/cgi-bin/koha/opac-ISBDdetail.pl?biblionumber=[% biblionumber |url %]">
+ [% ELSE %]
+ <a href="/cgi-bin/koha/opac-detail.pl?biblionumber=[% biblionumber |url %]">
+ [% END %]
+ [% END %][% INCLUDE 'biblio-title.inc' %]</a>
+ </li>
+ <li class="breadcrumb-item active">
+ <a href="#" aria-current="page">Images</a>
+ </li>
+ </ol>
+ </nav> <!-- /#breadcrumbs -->
+
+ <div class="container-fluid">
+ <div class="row">
+ [% IF ( OpacNav || OpacNavBottom ) %]
+ <div class="col-lg-2">
+ <div id="navigation">
+ [% INCLUDE 'navigation.inc' %]
+ </div>
+ </div>
+ <div class="col-10 order-first order-md-first order-lg-2">
+ [% ELSE %]
+ <div class="col order-first order-md-first order-lg-2">
+ [% END %]
+
+ <div class="row">
+ <div class="col-lg-9 maincontent">
+ <h1 class="title">Images for
+ [% IF ( BiblioDefaultViewmarc ) %]
+ <a class="title" href="/cgi-bin/koha/opac-MARCdetail.pl?biblionumber=[% biblionumber |url %]" title="View details for this title">
+ [% ELSE %]
+ [% IF ( BiblioDefaultViewisbd ) %]
+ <a class="title" href="/cgi-bin/koha/opac-ISBDdetail.pl?biblionumber=[% biblionumber |url %]" title="View details for this title">
+ [% ELSE %]
+ <a class="title" href="/cgi-bin/koha/opac-detail.pl?biblionumber=[% biblionumber |url %]" title="View details for this title">
+ [% END %]
+ [% END %][% INCLUDE 'biblio-title.inc' %]</a> [% biblio.author | html %]
+ </h1>
+ </div> <!-- / col-lg-9 -->
+ </div> <!-- / .row -->
+
+ <div class="row">
+ <div class="col-lg-9">
+ <div id="imageviewer">
+ <div id="largeCover">
+ <img id="largeCoverImg" alt="" src="/cgi-bin/koha/opac-image.pl?imagenumber=[% imagenumber | url %]" />
+ </div>
+ </div> <!-- / #imageviewer -->
+ </div> <!-- / .span12 -->
+
+ [% IF OPACLocalCoverImages == 1 %]
+ [% IF images.count %]
+ <div class="col-lg-3">
+ <div id="thumbnails">
+ [% FOREACH image IN images %]
+ <a href="/cgi-bin/koha/opac-imageviewer.pl?biblionumber=[% biblionumber | url %]&amp;imagenumber=[% image.imagenumber| uri %]" onclick="showCover([% image.imagenumber| html %]); return false;">
+ [% IF loop.first %]
+ <img class="thumbnail selected" id="[% image.imagenumber| html %]" src="/cgi-bin/koha/opac-image.pl?imagenumber=[% image.imagenumber | html %]&amp;thumbnail=1" alt="Thumbnail"/>
+ [% ELSE %]
+ <img class="thumbnail" id="[% image.imagenumber | html %]" src="/cgi-bin/koha/opac-image.pl?imagenumber=[% image.imagenumber | html %]&amp;thumbnail=1" alt="Thumbnail"/>
+ [% END %]
+ </a>
+ [% END %]
+ </div> <!-- /#thumbnails -->
+ </div> <!-- /.col-lg-3 -->
+ [% END %]
+ [% ELSE %]
+ Unfortunately, images are not enabled for this catalog at this time.
+ [% END %]
+ </div> <!-- / .row -->
+ </div> <!-- / .col-lg-10/12 -->
+ </div> <!-- / .row -->
+ </div> <!-- / .container-fluid -->
+ </div> <!-- / .main -->
+
+[% INCLUDE 'opac-bottom.inc' %]
+[% BLOCK jsinclude %]
+ <script>
+        $(document).ready(function(){
+            $("#largeCoverImg").attr("src","[% interface | html %]/[% theme | html %]/images/loading.gif");
+            showCover([% imagenumber | html %]);
+        });
+
+        function showCover(img) {
+            $('.thumbnail').attr('class', 'thumbnail');
+            $('#largeCoverImg').attr('src', '/cgi-bin/koha/opac-image.pl?imagenumber=' + img);
+            $('#' + img + '.thumbnail').attr('class', 'thumbnail selected');
+        }
+    </script>
+[% END %]

@@ -1,0 +1,238 @@
+[% USE raw %]
+[% USE Koha %]
+[% USE KohaDates %]
+[% USE TablesSettings %]
+[% USE AdditionalContents %]
+[% SET OpacNav = AdditionalContents.get( location => "OpacNav", lang => lang, library => logged_in_user.branchcode || default_branch, blocktitle => 0 ) %]
+[% SET OpacNavBottom = AdditionalContents.get( location => "OpacNavBottom", lang => lang, library => logged_in_user.branchcode || default_branch, blocktitle => 0 ) %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Your borrowing history &rsaquo; [% IF ( LibraryNameTitle ) %][% LibraryNameTitle | html %][% ELSE %]Koha online[% END %] catalogue</title>
+[% INCLUDE 'doc-head-close.inc' %]
+[% BLOCK cssinclude %]
+ <style>ul.ui-tabs-nav li a, ul.ui-tabs-nav li span.a  { padding:0.6em 1em; }</style>
+[% END %]
+</head>
+[% INCLUDE 'bodytag.inc' bodyid='opac-readingrecord' %]
+[% INCLUDE 'masthead.inc' %]
+
+[% IF Koha.Preference('AmazonAssocTag') %]
+ [% AmazonAssocTag = '?tag=' _ Koha.Preference('AmazonAssocTag') %]
+[% ELSE %]
+ [% AmazonAssocTag = '' %]
+[% END %]
+
+<div class="main">
+ <nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumbs">
+ <ol class="breadcrumb">
+ <li class="breadcrumb-item">
+ <a href="/cgi-bin/koha/opac-main.pl">Home</a>
+ </li>
+ <li class="breadcrumb-item">
+ <a href="/cgi-bin/koha/opac-user.pl">[% INCLUDE 'patron-title.inc' patron = logged_in_user %]</a>
+ </li>
+ <li class="breadcrumb-item active">
+ <a href="#" aria-current="page">Your borrowing history</a>
+ </li>
+ </ol>
+ </nav> <!-- /#breadcrumbs -->
+
+ <div class="container-fluid">
+ <div class="row">
+ <div class="col col-lg-2 order-2 order-lg-1">
+ <div id="navigation">
+ [% INCLUDE 'navigation.inc' IsPatronPage=1 %]
+ </div>
+ </div>
+ <div class="col-md-12 col-lg-10 order-1">
+
+ <div id="userreadingrecord" class="maincontent">
+ <h1>Borrowing history</h1>
+
+ [% IF READING_RECORD.size == 0 %]
+ You have never borrowed anything from this library.
+ [% ELSE %]
+ <div id="opac-user-readingrec">
+
+ <div class="resultscontrol resort js-hide">
+ <form id="sortform" action="/cgi-bin/koha/opac-readingrecord.pl" method="get">
+ [% UNLESS ( limit ) %]<input type="hidden" name="limit" value="full" />[% END %]
+ <select name="order" id="order">
+ [% IF ( orderbydate ) %]<option value="" selected="selected">Order by date</option>[% ELSE %]<option value="">Order by date</option>[% END %]
+ [% IF ( orderbytitle ) %]<option value="title" selected="selected">Order by title</option>[% ELSE %]<option value="title">Order by title</option>[% END %]
+ [% IF ( orderbyauthor ) %]<option value="author" selected="selected">Order by author</option>[% ELSE %]<option value="author">Order by author</option>[% END %]
+ </select>
+ <input type="submit" value="Go" id="sortsubmit" class="submit clearfix" />
+ </form>
+ </div>
+
+ [% IF limit %]
+ <p>
+ Showing last 50 items. <a href="/cgi-bin/koha/opac-readingrecord.pl?limit=full[% IF ( orderbytitle ) %]&amp;order=title[% END %]">Show all items</a>
+ </p>
+ [% ELSE %]
+ <p>
+ Showing all items. <a href="/cgi-bin/koha/opac-readingrecord.pl?limit=50[% IF ( orderbytitle ) %]&amp;order=title[% END %]">Show last 50 items</a>
+ </p>
+ [% END %]
+
+ [% IF Koha.Preference( 'OnSiteCheckouts' ) == 1 %]
+ <div id="tabs" class="toptabs">
+ <ul class="js-show">
+ <li id="tab_all"><a href="#tabs-container">All</a></li>
+ <li id="tab_checkout"><a href="#tabs-container">Loans</a></li>
+ <li id="tab_onsite_checkout"><a href="#tabs-container">On-site loans</a></li>
+ </ul>
+ [% END %]
+ <div id="tabs-container" style="overflow:hidden">
+ <table id="readingrec" class="table table-bordered table-striped">
+ <caption class="sr-only">Borrowing history</caption>
+ <thead>
+ <tr>
+ <th style="display:none;" class="noExport">Type</th>
+ <th class="NoSort noExport"></th>
+ <th class="anti-the">Title</th>
+ <th>Item type</th>
+ <th>Class number</th>
+ <th>Date</th>
+ [% IF ( OPACMySummaryHTML ) %]
+ <th class="NoSort noExport">Links</th>
+ [% END %]
+ </tr>
+ </thead>
+ <tbody>
+ [% FOREACH issue IN READING_RECORD %]
+ <tr>
+ <td style="display:none;">
+ [% IF issue.onsite_checkout %][% issuetype = 'onsite_checkout' %]
+ [% ELSE %][% issuetype = 'standard_checkout' %]
+ [% END %]
+ [% issuetype | html %]
+ </td>
+ <td>
+ [% IF  OPACAmazonCoverImages %]
+ [% IF  issue.normalized_isbn %]
+ <a href="http://www.amazon.com/gp/reader/[% issue.normalized_isbn | uri %][% AmazonAssocTag | uri %]#reader-link"><img src="https://images-na.ssl-images-amazon.com/images/P/[% issue.normalized_isbn | html %].01.THUMBZZZ.jpg" alt="" class="item-thumbnail" /></a>
+ [% ELSE %]
+ <span class="no-image">No cover image available</span>
+ [% END %]
+ [% END %]
+
+ [% IF GoogleJackets %]
+ [% IF  issue.normalized_isbn %]
+ <div title="[% issue.biblionumber |url %]" class="[% issue.normalized_isbn | html %]" id="gbs-thumbnail[% loop.count | html %]"></div>
+ [% ELSE %]
+ <span class="no-image">No cover image available</span>
+ [% END %]
+ [% END %]
+
+ [% IF BakerTaylorEnabled %]
+ [% bt_id = ( issue.normalized_upc || issue.normalized_isbn ) %]
+ [% IF ( bt_id ) %]
+ <a href="https://[% BakerTaylorBookstoreURL | uri %][% bt_id | uri %]"><img alt="See Baker &amp; Taylor" src="[% BakerTaylorImageURL | html %][% bt_id | html %]" /></a>
+ [% ELSE %]
+ <span class="no-image">No cover image available</span>
+ [% END %]
+ [% END %]
+
+ [% IF SyndeticsEnabled && SyndeticsCoverImages %]
+ <img src="https://secure.syndetics.com/index.aspx?isbn=[% issue.normalized_isbn | html %]/SC.GIF&amp;client=[% SyndeticsClientCode | html %]&amp;type=xw10&amp;upc=[% issue.normalized_upc | html %]&amp;oclc=[% issue.normalized_oclc | html %]" alt="" class="item-thumbnail" />
+ [% END %]
+ </td>
+ <td>
+ [% IF  issue.BiblioDefaultViewmarc %]
+ <a class="title" href="/cgi-bin/koha/opac-MARCdetail.pl?biblionumber=[% issue.biblionumber |url %]">[% INCLUDE 'biblio-title.inc' biblio=issue %]</a>
+ [% ELSIF issue.BiblioDefaultViewisbd %]
+ <a class="title" href="/cgi-bin/koha/opac-ISBDdetail.pl?biblionumber=[% issue.biblionumber |url %]">[% INCLUDE 'biblio-title.inc' biblio=issue %]</a>
+ [% ELSE %]
+ <a class="title" href="/cgi-bin/koha/opac-detail.pl?biblionumber=[% issue.biblionumber |url %]">[% INCLUDE 'biblio-title.inc' biblio=issue %]</a>
+ [% END %]
+ <p class="results-summary item-details">[% issue.author | html %]</p>
+
+ [% IF ( Koha.Preference( 'OpacStarRatings' ) == 'all' ) %]
+ [% INCLUDE 'user-star-ratings.inc' item=issue %]
+ [% END %]
+
+ </td>
+ <td>
+ [% UNLESS ( Koha.Preference('OpacNoItemTypeImages') ) %]
+ [% IF ( issue.imageurl ) %]
+ <img src="[% issue.imageurl | html %]" alt="" />
+ [% END %]
+ [% END %]
+ <span class="tdlabel">Item type:</span>
+ [% issue.translated_description | html %]</td>
+ <td>
+ <span class="tdlabel">Class number:</span>
+ [% issue.itemcallnumber | html %]
+ </td>
+ [% IF issue.returndate %]
+ <td data-order="[% issue.returndate | html %]">
+ <span class="tdlabel">Return date:</span>
+ [% issue.returndate | $KohaDates %]
+ [% ELSE %]
+ <td data-order="Checked out">
+ <em>(Issued)</em>
+ [% END %]
+ </td>
+ [% IF OPACMySummaryHTML %]
+ <td>[% issue.MySummaryHTML | $raw %]</td>
+ [% END %]
+ </tr>
+ [% END # / FOREACH issue %]
+ </tbody>
+ </table>
+ </div> <!-- / .tabs-container -->
+ [% IF ( Koha.Preference( 'OnSiteCheckouts' ) == 1 ) %]
+ </div> <!-- /#tabs -->
+ [% END %]
+ </div> <!-- / .opac-user-readingrec -->
+ [% END # / IF READING_RECORD.size %]
+ </div> <!-- / .userreadingrecord -->
+ </div> <!-- / .col-lg-10 -->
+ </div> <!-- / .row -->
+ </div> <!-- / .container-fluid -->
+</div> <!-- / .main -->
+
+[% INCLUDE 'opac-bottom.inc' %]
+[% BLOCK jsinclude %]
+[% INCLUDE 'datatables.inc' %]
+[% INCLUDE 'columns_settings.inc' %]
+<script>
+    $(document).ready(function(){
+        [% IF ( GoogleJackets ) %]KOHA.Google.GetCoverFromIsbn();[% END %]
+        $('#order').change(function() {
+            $('#sortform').submit();
+        });
+
+        var columns_settings = []; // Empty because there are no columns we want to be configurable
+        var table = KohaTable("#readingrec", {
+            "dom": '<"top"<"table_entries"i><"table_controls"fB>>t',
+            "autoWidth": false,
+            "language": {
+                "search": "_INPUT_",
+                "searchPlaceholder": _("Search")
+            }
+        }, columns_settings);
+
+        var tabs = $("#tabs").tabs({
+            activate: function(e, ui) {
+                var id = $(ui.newTab).attr("id");
+                if ( id == "tab_checkout" ) {
+                    table.fnFilter("standard_checkout", 0);
+                } else if ( id == "tab_onsite_checkout" ) {
+                    table.fnFilter("onsite_checkout", 0);
+                } else { // all
+                    table.fnFilter('', 0);
+                }
+            }
+        });
+    });
+    var borrowernumber = "[% logged_in_user.borrowernumber | html %]";
+    var MSG_YOUR_RATING = _("Your rating: %s, ");
+    var MSG_AVERAGE_RATING = _("Average rating: %s (%s votes)");
+</script>
+ [% IF ( Koha.Preference('OpacStarRatings') == 'all' ) %]
+ [% Asset.js("lib/jquery/plugins/jquery.barrating.min.js") | $raw %]
+ [% Asset.js("js/ratings.js") | $raw %]
+ [% END %]
+[% END %]

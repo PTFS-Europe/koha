@@ -1,0 +1,82 @@
+[% USE HtmlTags %]
+[% INCLUDE 'doc-head-open.inc' %]<title>Database settings &rsaquo; Web installer &rsaquo; Koha</title>
+[% INCLUDE 'installer-doc-head-close.inc' %]
+</head>
+
+<body id="installer" class="installer">
+ <div class="container-fluid">
+ <div class="row">
+ <div id="installer-step2" class="installer-main col-sm-8 col-sm-offset-2 col-md-8 col-md-offset-2">
+
+ <h1 id="logo"><a href="#">Koha</a></h1>
+ <h2>Web installer &rsaquo; Database settings</h2>
+
+ <div id="steps">
+ <ol>
+ <li class="complete"><i class="fa fa-check-square-o" aria-hidden="true"></i> Choose your language</li>
+ <li class="complete"><i class="fa fa-check-square-o" aria-hidden="true"></i> Check Perl dependencies</li>
+ <li class="current open"><i class="fa fa-square-o" aria-hidden="true"></i> Database settings</li>
+ <li class="open"><i class="fa fa-square-o" aria-hidden="true"></i> Set up database</li>
+ <li class="open"><i class="fa fa-square-o" aria-hidden="true"></i> Install basic configuration settings</li>
+ <li class="open"><i class="fa fa-square-o" aria-hidden="true"></i> Onboarding</li>
+ </ol>
+ </div>
+
+ <h3>Database settings:</h3>
+ <ul>
+ <li><em>Database type: </em> [%- dbms | $HtmlTags tag=>'code' -%]</li>
+ <li><em>Database name: </em> [%- dbname | $HtmlTags tag=>'code' -%]</li>
+ <li><em>Database host: </em> [%- hostname | $HtmlTags tag=>'code' -%]</li>
+ <li><em>Database port: </em> [%- port| $HtmlTags tag=>'code' -%] (probably okay if blank)</li>
+ <li><em>Database user: </em> [%- user | $HtmlTags tag=>'code' -%]</li>
+ </ul>
+
+ [% IF ( dbconnection ) %]
+ <form name="checkdbparameters" method="post" action="install.pl">
+ [% IF ( checkdatabaseaccess ) %]
+ <div class="alert alert-success" role="alert"><p>Connection established.</p></div>
+ [% IF ( checkdatabasecreated ) %]
+ <ul>
+ <li>Database [% dbname | $HtmlTags tag=>'code' %] exists.</li>
+ [% IF ( checkgrantaccess ) %]
+ <li>User [% user | $HtmlTags tag=>'code' %] has all required privileges on database [% dbname | $HtmlTags tag=>'code' %].</li>
+ </ul>
+ [% ELSE %]
+ </ul>
+ <p class="error">User [% user | $HtmlTags tag=>'code' %] doesn't have enough privilege on database [% dbname | $HtmlTags tag=>'code' %].</p>
+ <p class="tip">Ask for or make a change in the user's privileges. User [% user | $HtmlTags tag=>'code' %] must have USAGE, INSERT, UPDATE, DELETE, DROP and CREATE privileges on database [% dbname | $HtmlTags tag=>'code' %].</p>
+ <p>Need help? For help with granting permissions, please search online for "[% dbms | $HtmlTags tag=>'code' %] manual grant permissions"
+ </p>
+ [% END %]
+ [% ELSE %]
+ <div class="alert alert-danger" role="alert"><p>No database named [% dbname | $HtmlTags tag=>'code' %] detected.</p></div>
+ <p>Please create the database before continuing.</p>
+ [% END %]
+ [% ELSE %]
+ <div class="alert alert-warning" role="alert">[% error | html %] : [% message | html %]</div>
+ <div class="tip">
+ <ul>
+ <li>Check that your database is running.</li>
+ <li>Check your database settings in [% 'koha-conf.xml' | $HtmlTags Tag=>'code' %].</li>
+ <li>Check the hostname setting in [% INCLUDE txt_kohaconf_xml %]. Some database servers require [% '127.0.0.1' | $HtmlTags tag=>'code' %] rather than [% 'localhost' | $HtmlTags tag=>'code' %].</li>
+ </ul>
+ </div>
+ <p>Please correct these errors. <a href="/cgi-bin/koha/installer/install.pl">Then start the installer again.</a>
+ [% END %]
+ [% UNLESS ( error ) %]
+ <input type="hidden" name="step" value="3" />
+ <p><input value="Continue to the next step" class="btn btn-primary" type="submit" /></p>
+ [% END %]
+ </form>
+ [% ELSE %]
+ <form name="checkinformation" method="post" action="install.pl">
+ <input type="hidden" name="step" value="2" />
+ <input type="hidden" name="checkdb" value="1" />
+ <p><input value="Continue to the next step" class="btn btn-primary" type="submit" /> </p>
+ </form>
+ [% END # / IF dbconnection %]
+ </div> <!-- / #installer-step2 -->
+ </div> <!-- / .row -->
+ </div><!-- / .container-fluid -->
+
+[% INCLUDE 'installer-intranet-bottom.inc' %]

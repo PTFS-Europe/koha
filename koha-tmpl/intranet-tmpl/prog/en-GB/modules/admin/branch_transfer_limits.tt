@@ -1,0 +1,164 @@
+[% USE raw %]
+[% USE Asset %]
+[% USE Branches %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Library return and transfer policy &rsaquo; Administration &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+<style>td { text-align: center; } .sorted { min-width: 50%; }</style>
+</head>
+
+<body id="admin_branch_transfer_limits" class="admin">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'prefs-admin-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/admin/admin-home.pl">Administration</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ Set library return and transfer policy </a>
+ </li>
+ </ol>
+</nav>
+
+<div class="main container-fluid">
+ <div class="row">
+ <div class="col-sm-10 col-sm-push-2">
+ <main>
+
+<h1>Library [% branchcode | html %] - [% Branches.GetName( branchcode ) | html %] Return and transfer policy</h1>
+ <form method="get" action="/cgi-bin/koha/admin/branch_transfer_limits.pl" id="selectlibrary">
+ <label for="branchselect">Select a library :</label>
+ <select name="branchcode" id="branchselect">
+ [% PROCESS options_for_libraries libraries => Branches.all( selected => branchcode, unfiltered => 1 ) %]
+ </select>
+ </form>
+
+<p class="help">Check the boxes for the libraries you allow your items to be transferred to.</p>
+<fieldset>
+ [% IF ( limitType == 'ccode' ) %]<strong>For all collection codes: </strong>[% ELSE %]<strong>For all item types: </strong>[% END %]
+ <a id="CheckAll" href="#"><i class="fa fa-check"></i> Select all</a>
+ |
+ <a id="UncheckAll" href="#"><i class="fa fa-remove"></i> Clear all</a>
+ |
+ <a href="/cgi-bin/koha/admin/transfer_limits.pl">Switch to advanced editor</a>
+</fieldset>
+
+
+ <div id="transferlimit_tabs" class="toptabs">
+ <ul class="ui-tabs-nav">
+ [% FOREACH codes_loo IN codes_loop %]<li><a href="#[% codes_loo.code | uri %]set">[% codes_loo.code | html %]</a></li>[% END %]
+ </ul>
+
+ <form method="post" action="branch_transfer_limits.pl">
+
+ [% FOREACH codes_loo IN codes_loop %]
+ <div id="[% codes_loo.code | html %]set">
+ <h4>Policy for [% codes_loo.limit_phrase | html %]: [% codes_loo.code | html %]</h4>
+
+ <p><a id="CheckAll[% codes_loo.code | html %]table" data-cb="[% codes_loo.code | html %]" class="checkall" href="#"><i class="fa fa-check"></i> Select all</a> | <a id="UncheckAll[% codes_loo.code | html %]table" data-cb="[% codes_loo.code | html %]" class="uncheckall" href="#"><i class="fa fa-remove"></i> Clear all</a></p>
+
+ <table id="[% codes_loo.code | html %]table" class="sorted">
+ <thead>
+ <tr>
+ <th>Library</th>
+ <th>Allow transfer?</th>
+ </tr>
+ </thead>
+
+ <tbody>
+ [% FOREACH to_branch_loo IN codes_loo.to_branch_loop %]
+ <tr>
+ <td><label style="min-width:400px;" for="[% to_branch_loo.code | html %][% to_branch_loo.toBranch | html %]row">[% to_branch_loo.toBranch | html %] - [% Branches.GetName( to_branch_loo.toBranch ) | html %]</label></td>
+ <td>
+ [% IF ( to_branch_loo.isChecked ) %]
+ <input type="checkbox" class="cb cb[% codes_loo.code | html %]" id="[% to_branch_loo.code | html %][% to_branch_loo.toBranch | html %]row" name="[% to_branch_loo.code | html %]_[% to_branch_loo.toBranch | html %]" checked="checked" />
+ [% ELSE %]
+ <input type="checkbox" class="cb cb[% codes_loo.code | html %]" id="[% to_branch_loo.code | html %][% to_branch_loo.toBranch | html %]row" name="[% to_branch_loo.code | html %]_[% to_branch_loo.toBranch | html %]" />
+ [% END %]
+ </td>
+ </tr>
+ [% END %]
+ </tbody>
+ </table>
+ </div>
+ [% END %]
+
+ <fieldset class="action">
+ <input type="hidden" name="updateLimits" value="1" />
+ <input type="hidden" name="branchcode" value="[% branchcode | html %]" />
+ <input type="submit" value="Save" />
+ <a class="cancel" href="/cgi-bin/koha/admin/admin-home.pl">Cancel</a>
+ </fieldset>
+ </form>
+ </div>
+
+ </main>
+ </div> <!-- /.col-sm-10.col-sm-push-2 -->
+
+ <div class="col-sm-2 col-sm-pull-10">
+ <aside>
+ [% INCLUDE 'admin-menu.inc' %]
+ </aside>
+ </div> <!-- /.col-sm-2.col-sm-pull-10 -->
+ </div> <!-- /.row -->
+
+[% MACRO jsinclude BLOCK %]
+ [% Asset.js("js/admin-menu.js") | $raw %]
+ [% INCLUDE 'datatables.inc' %]
+ <script>
+        $(document).ready(function(){
+            $("#CheckAll").on("click", function(e){
+                e.preventDefault();
+                $(".cb").each(function(){
+                    $(this).prop("checked", true);
+                });
+            });
+
+            $("#UncheckAll").on("click", function(e){
+                e.preventDefault();
+                $(".cb").each(function(){
+                    $(this).prop("checked", false);
+                });
+            });
+            $('#transferlimit_tabs').tabs();
+
+             $('#branchselect').change(function() {
+                $('#selectlibrary').submit();
+             });
+
+            var checkall = $(".checkall");
+            var uncheckall = $(".uncheckall");
+
+            $(checkall).on("click", function(e){
+                e.preventDefault();
+                var tid = $(this).data("cb");
+                $(".cb" + tid ).each(function(){
+                    $(this).prop("checked", true);
+                })
+            });
+
+            $(uncheckall).on("click", function(e){
+                e.preventDefault();
+                var tid = $(this).data("cb");
+                $(".cb" + tid ).each(function(){
+                    $(this).prop("checked", false);
+                })
+            });
+
+            $(".sorted").dataTable($.extend(true, {}, dataTablesDefaults, {
+                "aoColumnDefs": [
+                    { "aTargets": [ -1 ], "bSortable": false, "bSearchable": false },
+                ],
+                'bPaginate': false
+            }));
+        });
+    </script>
+[% END %]
+[% INCLUDE 'intranet-bottom.inc' %]

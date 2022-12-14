@@ -1,0 +1,188 @@
+[% USE raw %]
+[% USE Asset %]
+[% USE Koha %]
+[% USE AdditionalContents %]
+[% PROCESS 'opac-authorities.inc' %]
+[% SET OpacNav = AdditionalContents.get( location => "OpacNav", lang => lang, library => logged_in_user.branchcode || default_branch, blocktitle => 0 ) %]
+[% SET OpacNavBottom = AdditionalContents.get( location => "OpacNavBottom", lang => lang, library => logged_in_user.branchcode || default_branch, blocktitle => 0 ) %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>[% summary.mainentry | html %][% IF authtypetext %] ([% authtypetext | html %])[% END %] &rsaquo; Authority search &rsaquo; [% IF ( LibraryNameTitle ) %][% LibraryNameTitle | html %][% ELSE %]Koha online[% END %] catalogue</title>
+[% INCLUDE 'doc-head-close.inc' %]
+[% BLOCK cssinclude %][% END %]
+</head>
+[% INCLUDE 'bodytag.inc' bodyid='opac-authoritiesdetail' bodyclass='scrollto' %]
+[% INCLUDE 'masthead.inc' %]
+
+ <div class="main">
+ <nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumbs">
+ <ol class="breadcrumb">
+ <li class="breadcrumb-item">
+ <a href="/cgi-bin/koha/opac-main.pl">Home</a>
+ </li>
+ <li class="breadcrumb-item">
+ <a href="/cgi-bin/koha/opac-authorities-home.pl">Authority search</a>
+ </li>
+ <li class="breadcrumb-item active">
+ <a href="#" aria-current="page">[% summary.mainentry | html %][% IF authtypetext %] ([% authtypetext | html %])[% END %]</a>
+ </li>
+ </ol>
+ </nav> <!-- /#breadcrumbs -->
+
+ <div class="container-fluid">
+ <div class="row">
+ [% IF ( OpacNav || OpacNavBottom ) %]
+ <div class="col col-lg-2 order-2 order-lg-1">
+ <div id="navigation">
+ [% INCLUDE 'navigation.inc' %]
+ </div>
+ </div>
+ <div class="col-lg-10 order-first order-md-first order-lg-2">
+ [% ELSE %]
+ <div class="col order-first order-md-first order-lg-2">
+ [% END %]
+ <div id="userauthdetails" class="maincontent">
+ <div id="views">
+ <span class="view">
+ <span id="Normalview">Normal view</span>
+ </span>
+ <span class="view">
+ <a id="MARCview" href="/cgi-bin/koha/opac-authoritiesdetail.pl?authid=[% authid | html %]&amp;marc=1">MARC view</a>
+ </span>
+ </div>
+
+ [% IF ( displayhierarchy ) %]
+ <div id="hierarchies">
+ [% PROCESS showhierarchy trees = loophierarchies %]
+ </div>
+ [% END %]
+
+ <h1>[% summary.mainentry | html %][% IF authtypetext %] ([% authtypetext | html %])[% END %]</h1>
+
+ <div class="usedin">
+ [% IF count %]<a href="/cgi-bin/koha/opac-search.pl?type=opac&amp;q=[% authid | uri %]&amp;idx=an,phr">Number of records used in: [% count | html %]</a>[% ELSE %]This authority is not used in any records.[% END %]
+ </div>
+
+ <div class="authstanza">
+ [% FOREACH authorize IN summary.authorized %]
+ <div class="heading authorized auth[% seefro.field | html %]">
+ <span class="label">Preferred form: </span>
+ <span class="authorized">[% authorize.heading | html %]</span>
+ </div>
+ [% END %]
+ [% PROCESS otherscript headings=summary.otherscript wantcategory='preferred' %]
+ </div>
+
+ [% IF summary.seefrom.size %]
+ <div class="authstanza seefrom">
+ <div class="authstanzaheading">Used for/see from:</div>
+ <ul class="seefrom">
+ [% FOREACH seefro IN summary.seefrom %]
+ <li class="heading seefrom auth[% seefro.field | html %]">
+ [% IF seefro.type && seefro.type != 'seefrom' %]
+ <span class="label">[% PROCESS authtypelabel type=seefro.type | trim %]:</span>
+ [% END %]
+ <span class="seefrom">[% PROCESS authheadingdisplay heading=seefro.heading search=seefrosearch authid=seefro.authid %]</span>
+ </li>
+ [% END %]
+ [% PROCESS otherscript headings=summary.otherscript wantcategory='seefrom' %]
+ </ul>
+ </div>
+ [% END %]
+
+ [% IF summary.seealso.size %]
+ <div class="authstanza seealso">
+ <div class="authstanzaheading">See also:</div>
+ <ul class="seelso">
+ [% FOREACH seeals IN summary.seealso %]
+ <li class="heading seealso auth[% seeals.field | html %]">
+ [% IF seeals.type && seeals.type != 'seealso' %]
+ <span class="label">[% PROCESS authtypelabel type=seeals.type | trim %]:</span>
+ [% END %]
+ <span class="seealso">[% PROCESS authheadingdisplay heading=seeals.heading search=seeals.search authid=seeals.authid %]</span>
+ </li>
+ [% END %]
+ [% PROCESS otherscript headings=summary.otherscript wantcategory='seealso' %]
+ </ul>
+ </div>
+ [% END %]
+
+ [% IF marcflavour == 'UNIMARC' && summary.otherscript %]
+ <div class="authstanza">
+ <div class="authstanzaheading">Other forms:</div>
+ <ul>
+ [% FOREACH otherscrip IN summary.otherscript %]
+ <li>
+ [% PROCESS language lang=otherscrip.lang | trim %]:
+ <span class="otherscript">[% otherscrip.term | html %]</span>
+ </li>
+ [% END %]
+ </ul>
+ </div>
+ [% END %]
+
+ [% IF ( MARCURLS ) %]
+ <div class="authstanza online_resources">
+ <span class="label">Online resources:</span>
+ <ul>
+ [% FOREACH MARCurl IN MARCURLS %]
+ <li>[% IF ( MARCurl.part ) %][% MARCurl.part | html %]<br />[% END %]
+ [% IF ( Koha.Preference('OPACURLOpenInNewWindow') ) %]
+ <a href="[% MARCurl.MARCURL | url %]" title="[% MARCurl.MARCURL | html %]" target="_blank" rel="noreferrer">
+ [% ELSE %]
+ <a href="[% MARCurl.MARCURL | url %]" title="[% MARCurl.MARCURL | html %]">
+ [% END %]
+ [% MARCurl.linktext | html %]</a>
+ [% IF ( MARCurl.notes ) %]
+ <ul>
+ [% FOREACH note IN MARCurl.notes %]
+ <li>[% note.note | html %]</li>
+ [% END %]
+ </ul>
+ [% END %]
+ </li>
+ [% END # /FOREACH MARCURLS %]
+ </ul>
+ </div>
+ [% END # / IF MARCURLS %]
+
+ <div id="authdescriptions" class="toptabs">
+ <ul>
+ <li id="tab_descriptions"><a href="#descriptions">Notes</a></li>
+ </ul>
+ <div id="descriptions">
+ <div class="content_set">
+ [% FOREACH note IN summary.notes %]
+ <p class="note auth[% note.field | html %]">[% note.note | html %]</p>
+ [% END %]
+ </div>
+ </div>
+ </div>
+ </div> <!-- / .#userauthdetails -->
+ </div> <!-- / .col-lg-10/12 -->
+ </div> <!-- / .row -->
+ </div> <!-- / .container-fluid -->
+ </div> <!-- / .main -->
+
+[% INCLUDE 'opac-bottom.inc' %]
+[% BLOCK jsinclude %]
+[% IF ( displayhierarchy ) %]
+ [% Asset.js("lib/jquery/plugins/jquery.jstree.js") | $raw %]
+[% END %]
+<script>
+    $(document).ready(function() {
+        $('#authdescriptions').tabs();
+        [% IF ( displayhierarchy ) %]
+            var current_nodes = [];
+            $('.currentauth').each(function() {
+                current_nodes.push('#' + $(this).parent().parents('li:first').attr('id'));
+                });
+            $('#hierarchies').jstree({
+                    "plugins": [ "themes", "html_data"],
+                    "themes": { "theme": "classic",
+                                "icons": false },
+                    "core": { "initially_open": current_nodes }
+                });
+        [% END %]
+    });
+</script>
+[% END %]

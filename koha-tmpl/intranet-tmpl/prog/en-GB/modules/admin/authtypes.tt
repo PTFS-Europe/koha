@@ -1,0 +1,230 @@
+[% USE raw %]
+[% USE Asset %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>
+[% IF op == 'add_form' %]
+ [% IF authority_type.authtypecode.defined %]
+ Modify authority type
+ [% ELSE %]
+ New authority type
+ [% END %] &rsaquo; [% ELSIF op == 'delete_confirm' %]
+ Confirm deletion of authority type &rsaquo; [% END %]
+Authority types &rsaquo; Administration &rsaquo; Koha
+</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+
+<body id="admin_authtypes" class="admin">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'prefs-admin-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/admin/admin-home.pl">Administration</a>
+ </li>
+
+ [% IF op == 'add_form' %]
+ <li>
+ <a href="/cgi-bin/koha/admin/authtypes.pl">Authority types</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ [% IF authority_type.authtypecode.defined %]
+ Modify
+ [% ELSE %]
+ New
+ [% END %] Authority type
+ </a>
+ </li>
+
+ [% ELSIF op == 'delete_confirm' %]
+ <li>
+ <a href="/cgi-bin/koha/admin/authtypes.pl">Authority types</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ Confirm deletion of authority type
+ </a>
+ </li>
+
+ [% ELSE %]
+ <li>
+ <a href="#" aria-current="page">Authority types</a>
+ </li>
+ [% END %]
+ </ol>
+</nav>
+
+<div class="main container-fluid">
+ <div class="row">
+ <div class="col-sm-10 col-sm-push-2">
+ <main>
+
+[% FOR m IN messages %]
+ <div class="dialog [% m.type | html %]">
+ [% SWITCH m.code %]
+ [% CASE 'error_on_update' %]
+ An error occurred when updating this authority type. Perhaps it already exists.
+ [% CASE 'error_on_insert' %]
+ An error occurred when adding this authority type. The authority type code might already exist.
+ [% CASE 'error_on_delete' %]
+ An error occurred when deleting this authority type. Check the logs.
+ [% CASE 'success_on_update' %]
+ Authority type updated successfully.
+ [% CASE 'success_on_insert' %]
+ Authority type added successfully.
+ [% CASE 'success_on_delete' %]
+ Authority type deleted successfully.
+ [% CASE %]
+ [% m.code | html %]
+ [% END %]
+ </div>
+[% END %]
+
+
+
+[% IF op == 'add_form' %]
+ <form action="/cgi-bin/koha/admin/authtypes.pl" name="Aform" method="post" class="validated">
+ <fieldset class="rows">
+ <legend>
+ [% IF authority_type.authtypecode.defined %]
+ Modify authority type
+ [% ELSE %]
+ New authority type
+ [% END %]
+ </legend>
+ <ol>
+ <li>
+ [% IF authority_type.authtypecode.defined %]
+ <span class="label">Authority type</span>
+ <input type="hidden" name="op" value="add_validate" />
+ <input type="hidden" name="checked" value="0" />
+ <input type="hidden" name="authtypecode" value="[% authority_type.authtypecode | html %]" />[% authority_type.authtypecode | html %]
+ [% ELSE %]
+ <div class="hint">10 characters maximum</div>
+ <label for="authtypecode" class="required">Authority type: </label>
+ <input id="authtypecode" type="text" class="required" required="required" name="authtypecode" size="20" maxlength="10" />
+ <span class="required">Required</span>
+ [% END %]
+ </li>
+ <li>
+ <label for="authtypetext" class="required">Description: </label>
+ <input type="text" id="authtypetext" name="authtypetext" size="40" maxlength="80" value="[% authority_type.authtypetext | html %]" class="required" required="required" />
+ <span class="required">Required</span>
+ </li>
+ <li>
+ <label for="summary">Summary: </label>
+ <textarea id="summary" name="summary" cols="55" rows="7">[% authority_type.summary | html %]</textarea>
+ </li>
+ <li>
+ <div class="hint">Note: for 'Authority field to copy', enter the authority field that should be copied from the authority record to the bibliographic record. E.g., in MARC21, field 100 in the authority record should be copied to field 100 in the bibliographic record</div>
+ <label for="auth_tag_to_report">Authority field to copy: </label>
+ <input type="text" id="auth_tag_to_report" name="auth_tag_to_report" size="5" maxlength="3" value="[% authority_type.auth_tag_to_report | html %]" />
+ <input type="hidden" name="op" value="add_validate" />
+ [% IF authority_type.authtypecode.defined %]
+ <input type="hidden" name="is_a_modif" value="1" />
+ [% END %]
+ </li>
+ </ol>
+ </fieldset>
+ <fieldset class="action">
+ <input type="submit" value="Submit" />
+ <a class="cancel" href="/cgi-bin/koha/admin/authtypes.pl">Cancel</a>
+ </fieldset>
+ </form>
+[% END %]
+
+[% IF op == 'delete_confirm' %]
+ <div class="dialog alert">
+ [% IF authorities_using_it %]
+ <h3>This authority type cannot be deleted</h3>
+ <p>This record is used <strong>[% authorities_using_it | html %]</strong> times</p>
+ <a class="cancel" href="/cgi-bin/koha/admin/authtypes.pl">Back to the list</a>
+ [% ELSE %]
+ <h3>Confirm deletion of authority structure definition for <span class="ex">'[% authority_type.authtypetext | html %]' ([% authority_type.authtypecode | html %])</span></h3>
+ <form action="/cgi-bin/koha/admin/authtypes.pl" method="post">
+ <input type="hidden" name="op" value="delete_confirmed" />
+ <input type="hidden" name="authtypecode" value="[% authority_type.authtypecode | html %]" />
+ <button type="submit" class="approve"><i class="fa fa-fw fa-check"></i> Yes, delete</button>
+ </form>
+ <form action="/cgi-bin/koha/admin/authtypes.pl" method="get">
+ <button type="submit" class="deny"><i class="fa fa-fw fa-remove"></i> No, do not delete</button>
+ </form>
+ [% END %]
+ </div>
+[% END %]
+
+[% IF op == 'list' %]
+ <div id="toolbar" class="btn-toolbar">
+ <a id="authtype" class="btn btn-default" href="/cgi-bin/koha/admin/authtypes.pl?op=add_form"><i class="fa fa-plus"></i> New authority type</a>
+ </div>
+
+ <h1>Authority types</h1>
+ <p>Define authority types, then authority MARC structure in the same way you define itemtypes and bibliographic MARC tag structure. Authority values are managed through plugins</p>
+ <table id="authtypes">
+ <thead>
+ <tr>
+ <th>Code</th>
+ <th>Description</th>
+ <th>Summary</th>
+ <th>Auth field copied</th>
+ <th>&nbsp;</th>
+ </tr>
+ </thead>
+ <tbody>
+ [% FOREACH authority_type IN authority_types %]
+ <tr>
+ <td>[% authority_type.authtypecode | html %]</td>
+ <td>[% authority_type.authtypetext | html %]</td>
+ <td>[% authority_type.summary | html %]</td>
+ <td>[% authority_type.auth_tag_to_report | html %]</td>
+ <td>
+ <div class="btn-group dropup">
+ <a class="btn btn-default btn-xs dropdown-toggle" id="authtypeactions[% authority_type.authtypecode | html %]" role="button" data-toggle="dropdown" href="#">
+ Actions <b class="caret"></b></a>
+ <ul class="dropdown-menu pull-right" role="menu" aria-labelledby="authtypeactions[% authority_type.authtypecode | html %]">
+ <li><a href="auth_tag_structure.pl?authtypecode=[% authority_type.authtypecode | uri %]" class="button parameters"><i class="fa fa-eye"></i> MARC structure</a></li>
+ <li><a href="/cgi-bin/koha/admin/authtypes.pl?op=add_form&amp;authtypecode=[% authority_type.authtypecode | uri %]"><i class="fa fa-pencil"></i> Edit</a></li>
+ [% IF authority_type.authtypecode %]<li><a href="/cgi-bin/koha/admin/authtypes.pl?op=delete_confirm&amp;authtypecode=[% authority_type.authtypecode | uri %]"><i class="fa fa-trash"></i> Delete</a></li>[% END %]
+ </ul>
+ </div>
+ </td>
+ </tr>
+ [% END %]
+ <tbody>
+ </table>
+[% END %]
+
+ </main>
+ </div> <!-- /.col-sm-10.col-sm-push-2 -->
+
+ <div class="col-sm-2 col-sm-pull-10">
+ <aside>
+ [% INCLUDE 'admin-menu.inc' %]
+ </aside>
+ </div> <!-- /.col-sm-2.col-sm-pull-10 -->
+ </div> <!-- /.row -->
+
+[% MACRO jsinclude BLOCK %]
+ [% INCLUDE 'datatables.inc' %]
+ [% Asset.js("js/admin-menu.js") | $raw %]
+ <script>
+        $(document).ready(function() {
+            $("#authtypes").dataTable($.extend(true, {}, dataTablesDefaults, {
+                "aoColumnDefs": [
+                    { "aTargets": [ -1 ], "bSortable": false, "bSearchable": false },
+                ],
+                "sPaginationType": "full"
+            }));
+            $("#authtypecode").on("blur",function(){
+                toUC(this);
+            });
+        });
+    </script>
+[% END %]
+[% INCLUDE 'intranet-bottom.inc' %]

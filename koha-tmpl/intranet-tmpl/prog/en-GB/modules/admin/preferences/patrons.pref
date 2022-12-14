@@ -1,0 +1,431 @@
+---
+Patrons:
+  General:
+  - - choices:
+        hardno: Do not
+        hardyes: Do
+        softno: ' Unless overridden by user category, do not'
+        softyes: ' Unless overridden by user category, do'
+      default: no
+      pref: CheckPrevCheckout
+    - '  check borrower loan history to see if the current item has been issued before.'
+  - - ' Trigger a warning if the current item has been issued no longer than'
+    - default: 0
+      pref: CheckPrevCheckoutDelay
+    - ' Unless overridden by user category, do'
+    - Requires <a href='/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=CheckPrevCheckout'>CheckPrevCheckout</a>
+      to be enabled. There is no time limit if 0 or empty.
+  - - choices:
+        '0': Don't enable
+        '1': Enable
+      pref: ExtendedPatronAttributes
+    - ' searching, editing and display of custom attributes on users.'
+  - - choices:
+        '0': Don't allow
+        '1': Allow
+      pref: intranetreadinghistory
+    - ' staff to access a user''s borrowing and reservation history (borrowing history
+      is still stored, regardless of staff being allowed access or not).'
+  - - ' The late fine for all loans will only go up to'
+    - class: currency
+      pref: MaxFine
+    - '[% local_currency %].'
+    - Empty value means no limit. Single item caps are specified in the circulation
+      rules matrix.
+  - - choices:
+        '0': Don't allow
+        '1': Allow
+      pref: patronimages
+    - ' images to be uploaded and shown for users on the staff interface.'
+  - - By default, show
+    - class: integer
+      pref: PatronsPerPage
+    - results per page in the staff interface.
+  - - ' Comma separated list defining the default fields to be used during a user
+      search using the "standard" option:'
+    - class: multi
+      pref: DefaultPatronSearchFields
+    - ' If empty Koha will default to "surname,firstname,othernames,cardnumber,userid".
+      Additional fields added to this preference will be added as search options in
+      the dropdown menu on the user search page.'
+  - - ' Show the following fields from the items database table as columns on the
+      statistics tab on the user record: '
+    - pref: StatisticsFields
+      source: items
+      type: modalselect
+    - 'If empty, defaults to: location|itype|ccode'
+  - - choices:
+        '0': Don't
+        '1': Do
+      pref: EnableBorrowerFiles
+    - enable the ability to upload and attach arbitrary files to a borrower record.
+  - - choices:
+        '0': Don't allow
+        '1': Allow
+      pref: useDischarge
+    - librarians to discharge borrowers and borrowers to request a discharge.
+  - - choices:
+        '0': Don't
+        '1': Do
+      pref: FeeOnChangePatronCategory
+    - ' charge a fee when a user changes to a category with an enrollment fee.'
+  - - choices:
+        '0': Don't
+        '1': Do
+      pref: TrackLastPatronActivity
+    - ' track last user activity.'
+    - ' Every time a user will connect, the borrowers.lastseen will be updated with
+      the current time.'
+  - - choices:
+        '0': Disable
+        '1': Enable
+      pref: AutoApprovePatronProfileSettings
+    - ' automatic approval of user detail changes from the OPAC.'
+    - Requires <a href="/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=OPACPatronDetails">OPACPatronDetails</a>
+      to be activated.
+  - - choices:
+        '0': Allow all permitted users
+        '1': Allow only superlibrarians
+      pref: ProtectSuperlibrarianPrivileges
+    - to access/change superlibrarian privileges.
+    - <br><strong>NOTE:</strong> A permitted user needs to have the 'permissions'
+      flag (if no superlibrarian).
+  - - choices:
+        '0': Allow only staff
+        '1': ' Allow users'
+      pref: AllowPatronToControlAutorenewal
+    - ' to allow/disallow auto-renewal for account. If allowed a user will be able
+      to update their own account to allow/disallow auto-renewal.'
+  - - ' Lock expired users after'
+    - class: integer
+      pref: LockExpiredDelay
+    - days. Leave empty to disable this behavior.
+    - <br><strong>NOTE:</strong> This system preference requires the misc/cronjobs/cleanup_database.pl
+      cronjob. Ask your system administrator to schedule it.
+  Membership expiry:
+  - - When renewing borrowers, base the new expiry date on
+    - choices:
+        combination: the latter of the current and expiry date.
+        dateexpiry: current membership expiry date.
+        now: current date.
+      pref: BorrowerRenewalPeriodBase
+  - - ' Show a notice if the user is about to expire or has expired'
+    - class: integer
+      pref: NotifyBorrowerDeparture
+    - days beforehand.
+  - - ' Send an account expiration notice when a user''s card will expire in'
+    - class: integer
+      pref: MembershipExpiryDaysNotice
+    - days.
+    - <br><strong>NOTE:</strong> This system preference requires the <code>misc/cronjobs/membership_expiry.pl</code>
+      cronjob. Ask your system administrator to schedule it.
+  Notices and notifications:
+  - - choices:
+        '0': Don't allow
+        '1': Allow
+      pref: EnhancedMessagingPreferences
+    - ' staff to manage which notices users will receive and when they will receive
+      them.'
+    - ' <br><strong>NOTE:</strong> This only applies to courtesy notices. To manage
+      if users have also access to these settings, use <a href="/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=EnhancedMessagingPreferencesOPAC">EnhancedMessagingPreferencesOPAC</a>.'
+    - <br><strong>NOTE:</strong> This system preference requires the <code>misc/cronjobs/process_message_queue.pl</code>
+      and the <code>misc/cronjobs/advance_notices.pl</code> cronjob. Ask your system
+      administrator to schedule them.
+  - - choices:
+        '0': Don't show
+        '1': Show
+      pref: EnhancedMessagingPreferencesOPAC
+    - ' user messaging setting on the OPAC.'
+    - <br><strong>NOTE:</strong> <a href="/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=EnhancedMessagingPreferences">EnhancedMessagingPreferences</a>
+      must be enabled.
+  - - choices:
+        '0': Don't send
+        '1': Send
+      pref: AutoEmailOpacUser
+    - ' an email to newly created users with their account details.'
+  - - choices:
+        '0': Don't send
+        '1': Send
+      pref: UseEmailReceipts
+    - ' email receipts to users for payments and writeoffs.'
+  - - Use
+    - choices:
+        B_email: alternate
+        OFF: first valid
+        cardnumber: cardnumber as
+        email: home
+        emailpro: work
+      default: OFF
+      pref: AutoEmailPrimaryAddress
+    - ' user email address for sending out emails.'
+  - - choices:
+        '0': Disable
+        '1': Enable
+      pref: TalkingTechItivaPhoneNotification
+    - ' user phone notifications using Talking Tech i-tiva (overdues, predues and
+      reservation notices currently supported).'
+    - <br/><i class="fa fa-exclamation-triangle"></i> If <a href="/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=TalkingTechItivaPhoneNotification">TalkingTechItivaPhoneNotification</a>
+      is enabled, <a href="/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=PhoneNotification">PhoneNotification</a>
+      should be disabled.
+  - - choices:
+        '0': User relationships
+        '1': Enable
+      pref: PhoneNotification
+    - ' user phone notifications generation. A plugin will be required to process
+      the phone notifications.'
+    - <br/><i class="fa fa-exclamation-triangle"></i> If <a href="/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=PhoneNotification">PhoneNotification</a>
+      is enabled, <a href="/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=TalkingTechItivaPhoneNotification">TalkingTechItivaPhoneNotification</a>
+      should be disabled.
+  - - 'Use the SMS::Send::'
+    - pref: SMSSendDriver
+    - driver to send SMS messages.
+    - '<br>If you would prefer to send SMS via E-mail, set SMSSendDriver to: Email'
+    - <br><strong>NOTE:</strong> Many mobile providers have deprecated support for
+      this feature and it is not recommended for use unless you have a dedicated SMS
+      to Email gateway.
+  - - Define a username/login
+    - pref: SMSSendUsername
+    - and a password
+    - pref: SMSSendPassword
+    - . Override from address with
+    - class: email
+      pref: EmailSMSSendDriverFromAddress
+    - for emails sent using "Email" send driver.
+  - - choices:
+        '0': Disable
+        '1': Enable
+      pref: FallbackToSMSIfNoEmail
+    - ' sending purchase suggestion messages by SMS if no user email is defined.'
+  - - 'Send automatic renewal notices: '
+    - choices:
+        cron: (Deprecated) according to --send-notices cron switch
+        never: User relationships
+        preferences: ' according to user messaging preferences'
+      pref: AutoRenewalNotices
+  Privacy:
+  - - Use the following URL
+    - pref: PrivacyPolicyURL
+    - to refer to your local privacy policy in messages about privacy and data protection.
+      (If you enforce GDPR policy, make sure that this page is not blocked.)
+    - <br><strong>NOTE:</strong> The URL will only be displayed if <a href="/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=GDPR_Policy">GDPR_Policy</a>
+      is set.
+  - - 'Set GDPR policy to:'
+    - choices:
+        '': disabled
+        Enforced: enforced
+        Permissive: permissive
+      pref: GDPR_Policy
+    - ' . GDPR is the EU General Data Protection Regulation. When you enforce, users
+      need to give consent before using the OPAC. If you set to permissive, Koha will
+      warn but not enforce.'
+    - <br><strong>NOTE:</strong> If you enable this you will also have to set the
+      URL of your public privacy policy with the <a href="/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=PrivacyPolicyURL">PrivacyPolicyURL</a>
+      setting.
+  - - ' Lock/expire users that submitted an unsubscribe request (refused consent)
+      after'
+    - pref: UnsubscribeReflectionDelay
+    - ' days, anonymise locked/expired accounts after'
+    - pref: PatronAnonymizeDelay
+    - ' days and remove anonymised user accounts after'
+    - pref: PatronRemovalDelay
+    - 'days.<br>IMPORTANT: No action is performed when these delays are empty (no
+      text). But a zero value (''0'') is interpreted as no delay (do it now)! The
+      actions are performed by the cleanup database cron job.'
+  - - choices:
+        no: Don't require
+        yes: Require
+      pref: CookieConsent
+    - cookie consent to be displayed
+  - - Specify Javascript that requires user consent to run (e.g. tracking code)
+    - initiator: populateConsentJS
+      pref: ConsentJS
+      processor: prepareConsentJS
+      type: modaljs
+  - - Show the following HTML in the cookie consent bar that is displayed at the bottom
+      of the screen
+    - class: code
+      pref: CookieConsentBar
+      syntax: text/html
+      type: textarea
+  - - Show the following HTML in the cookie consent popup
+    - class: code
+      pref: CookieConsentPopup
+      syntax: text/html
+      type: textarea
+  Security:
+  - - ' Login passwords for staff and users must be at least'
+    - class: integer
+      pref: minPasswordLength
+    - characters long.
+  - - choices:
+        '0': Don't require
+        '1': Require
+      pref: RequireStrongPassword
+    - ' a strong password for staff and users'
+    - (must contain at least one digit, one lowercase and one uppercase).
+  - - ' Block a users account if it reaches'
+    - class: integer
+      pref: FailedLoginAttempts
+    - failed login attempts.
+  - - choices:
+        '0': Disable
+        '1': Enable
+      pref: Pseudonymization
+    - pseudonymization to comply with GDPR for personal information.
+    - ' Users and transactions will be copied to a separate table for statistics purpose.'
+    - ' <br/>Use the following fields for users:'
+    - multiple:
+        branchcode: ' User''s library'
+        categorycode: ' User''s category'
+        city: City
+        country: Country
+        dateenrolled: ' Date the user was added to Koha'
+        sex: ' User''s gender'
+        sort1: Sort1
+        sort2: Sort2
+        state: State
+        title: ' User''s title'
+        zipcode: ' Postcode'
+      pref: PseudonymizationPatronFields
+    - '<br/> And the following fields for the transactions:'
+    - multiple:
+        ccode: ' Postcode'
+        datetime: Date and time of the transaction
+        holdingbranch: ' User''s library'
+        homebranch: ' User''s library'
+        itemcallnumber: ' Item''s class number'
+        itemnumber: Itemnumber
+        itemtype: Item type
+        location: Location
+        transaction_branchcode: Library where the transaction occurred
+        transaction_type: Transaction type
+      pref: PseudonymizationTransactionFields
+  User forms:
+  - - ' The following <a href=''http://schema.koha-community.org/__VERSION__/tables/borrowers.html''
+      target=''blank''>database columns</a> must be filled in on the user entry screen:'
+    - pref: BorrowerMandatoryField
+      source: borrowers
+      type: modalselect
+    - <strong>NOTE:</strong> If <a href="/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=autoMemberNum">autoMemberNum</a>
+      is enabled, the system preference <a href="/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=BorrowerMandatoryField">BorrowerMandatoryField</a>
+      must not contain the field <code>cardnumber</code>.
+  - - ' The following <a href=''http://schema.koha-community.org/__VERSION__/tables/borrowers.html''
+      target=''blank''>database columns</a> will not appear on the user entry screen:'
+    - exclusions: branchcode|categorycode
+      pref: BorrowerUnwantedField
+      source: borrowers
+      type: modalselect
+  - - 'Borrowers can have the following titles:'
+    - class: multi
+      pref: BorrowersTitles
+    - (separate multiple choices with |)
+  - - choices:
+        '0': Don't
+        '1': Do
+      pref: autoMemberNum
+    - ' default the card number field on the user addition screen to the next available
+      card number (for example, if the largest currently used card number is 26345000012941,
+      then this field will default to 26345000012942).'
+    - <strong>NOTE:</strong> If <a href="/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=autoMemberNum">autoMemberNum</a>
+      is enabled, the system preference <a href="/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=BorrowerMandatoryField">BorrowerMandatoryField</a>
+      must not contain the field <code>cardnumber</code>.
+  - - ' Card numbers for users must be'
+    - pref: CardnumberLength
+    - characters long. The length can be a single number to specify an exact length,
+      a range separated by a comma (i.e., 'Min,Max'), or a maximum with no minimum
+      (i.e., ',Max').
+    - If <code>cardnumber</code> is included in the <a href="/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=BorrowerMandatoryField">BorrowerMandatoryField</a>
+      list, the minimum length, if not specified here, defaults to one. Maximum cannot
+      be bigger than the database field size of 32.
+  - - choices:
+        '0': Don't
+        '1': Do
+      pref: uppercasesurnames
+    - store and display surnames in upper case.
+  - - 'The following <a href=''http://schema.koha-community.org/__VERSION__/tables/borrowers.html''
+      target=''blank''>database columns</a>:'
+    - pref: PatronQuickAddFields
+      source: borrowers
+      type: modalselect
+    - ' will be added to the user quick add form when entering a new user. Displays
+      only mandatory fields and fields specified here. If applicable the guarantor
+      form will be shown as well, individual fields in that form will be ignored.'
+  - - ' When adding new users or editing existing users, collapse the following fields
+      from the full form (can still be expanded later):'
+    - multiple:
+        additional: Additional attributes and identifiers
+        alt_address: Alternate address
+        alt_contact: Alternate contact
+        debarments: ' User restrictions (existing users)'
+        flags: ' User account flags (existing users)'
+        guarantor: Guarantor information
+        housebound: Housebound roles
+        identity: ' User identity'
+        lib_mgmt: Library management
+        lib_setup: Library setup
+        login: OPAC/Staff interface login
+        messaging: User messaging preferences
+        primary_address: Main address
+        primary_contact: Contact information
+      pref: CollapseFieldsPatronAddForm
+  - - 'The following <a href=''http://schema.koha-community.org/__VERSION__/tables/borrowers.html''
+      target=''blank''>database columns</a>:'
+    - pref: PatronDuplicateMatchingAddFields
+      source: borrowers
+      type: modalselect
+    - ' will be used to detect possible duplicates when adding a new user.'
+  User relationships:
+  - - 'Guarantors can be the following of those they guarantee:'
+    - class: multi
+      pref: borrowerRelationship
+    - (input multiple choices separated by |). Leave empty to deactivate.
+  - - ' When adding a guarantee to a guarantor user fill the following fields in the
+      guarantee''s member entry form from the guarantors record:'
+    - multiple:
+        B_address: Alternate address - Address
+        B_address2: Alternate address - Address 2
+        B_city: Alternate address - City
+        B_country: Alternate address - Country
+        B_email: Alternate address - Email
+        B_phone: Alternate address - Phone
+        B_state: Alternate address - State
+        B_streetnumber: Alternate address - Street number
+        B_streettype: ' Alternate address - Postcode'
+        B_zipcode: ' Alternate address - Postcode'
+        address: Main address - Address
+        address2: Main address - Address 2
+        altcontactaddress1: Alternate contact - Address
+        altcontactaddress2: Alternate contact - Address 2
+        altcontactaddress3: Alternate contact - City
+        altcontactcountry: Alternate contact - Country
+        altcontactfirstname: Alternate contact - First name
+        altcontactphone: Alternate contact - Phone
+        altcontactstate: Alternate contact - State
+        altcontactsurname: Alternate contact - Surname
+        altcontactzipcode: Alternate contact - ZIP/Postal code
+        city: Main address - City
+        contactnote: Alternate address - Contact note
+        country: Main address - Country
+        email: Contact - Primary email
+        emailpro: Contact - Secondary email
+        fax: Contact - Fax
+        mobile: Contact - Other phone
+        phone: Contact - Primary phone
+        phonepro: Contact - Secondary phone
+        state: ' Main address - County'
+        streetnumber: Main address - Street number
+        streettype: ' Main address - County'
+        zipcode: ' Main address - Postcode'
+      pref: PrefillGuaranteeField
+  - - choices:
+        '0': Don't allow
+        '1': Allow
+      pref: AllowStaffToSetCheckoutsVisibilityForGuarantor
+    - ' staff to set the ability for a user''s loans to be viewed by linked users
+      in the OPAC.'
+  - - choices:
+        '0': Don't allow
+        '1': Allow
+      pref: AllowStaffToSetFinesVisibilityForGuarantor
+    - ' staff to set the ability for a users fines to be viewed by linked patrons
+      in the OPAC.'

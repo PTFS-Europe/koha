@@ -1,0 +1,330 @@
+[% USE raw %]
+[% USE Asset %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+
+[% BLOCK ServerType %]
+ [% IF (server.servertype||type) == 'sru' %]
+ SRU
+ [% ELSIF (server.servertype||type) == 'zed' %]
+ Z39.50
+ [% END %]
+[% END %]
+
+<title>
+ [% IF op == 'edit' %]
+ Modify [% PROCESS ServerType %] server [% server.servername | html %] &rsaquo; [% END %]
+
+ [% IF op ==  'add' %]
+ New [% PROCESS ServerType %] server &rsaquo; [% END %]
+
+ Z39.50/SRU servers &rsaquo; Administration &rsaquo; Koha
+</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+
+<body id="admin_z3950servers" class="admin">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'z3950-admin-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/admin/admin-home.pl">Administration</a>
+ </li>
+
+ [% IF op == 'edit' %]
+ <li>
+ <a href="/cgi-bin/koha/admin/z3950servers.pl">Z39.50/SRU servers</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ Modify [% PROCESS ServerType %] server [% server.servername | html %]
+ </a>
+ </li>
+
+ [% ELSIF op == 'add' %]
+ <li>
+ <a href="/cgi-bin/koha/admin/z3950servers.pl">Z39.50/SRU servers</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ New [% PROCESS ServerType %] server
+ </a>
+ </li>
+
+ [% ELSE %]
+ <li>
+ <a href="#" aria-current="page">
+ Z39.50/SRU servers
+ </a>
+ </li>
+ [% END %]
+
+ </ol>
+</nav>
+
+<div class="main container-fluid">
+ <div class="row">
+ <div class="col-sm-10 col-sm-push-2">
+ <main>
+
+[% IF msg_deleted %]
+ <div class="dialog alert">Z39.50/SRU server deleted ([% msg_add | html %])</div>
+[% ELSIF msg_updated %]
+ <div class="dialog message">Z39.50/SRU server updated ([% msg_add | html %])</div>
+[% ELSIF msg_added %]
+ <div class="dialog message">Z39.50/SRU server added ([% msg_add | html %])</div>
+[% ELSIF msg_notfound %]
+ <div class="dialog alert">Error: Server with id [% msg_add | html %] not found</div>
+[% END %]
+
+[% IF ( add_form ) %]
+ <form action="[% script_name | html %]" name="Aform" method="post" id="serverentry">
+ <input type="hidden" name="op" value="add_validated" />
+ <input type="hidden" name="servertype" value="[% server.servertype||type||'zed' | html %]"/>
+ [% IF op == 'edit' %]
+ <h1>Modify [% PROCESS ServerType %] server</h1>
+ <input type="hidden" name="id" value="[% server.id | html %]" />
+ [% ELSE %]
+ <h1>New [% PROCESS ServerType %] server</h1>
+ [% END %]
+ <fieldset class="rows">
+ <ol>
+ <li><label for="name" class="required">Server name: </label>
+ <input type="text" name="servername" id="servername" size="65" maxlength="100" value="[% server.servername | html %]" required="required" /> <span class="required">Required</span>
+ </li>
+
+ <li><label for="host" class="required">Hostname: </label> <input type="text" name="host" id="host" size="30" value="[% server.host | html %]" required="required" /> <span class="required">Required</span>
+ [% IF (server.servertype||type) == 'sru' %]
+ <div class="hint">Includes the domain part, but the path part of the URL should go into Database.</div>
+ [% END %]
+ </li>
+ <li><label for="port" class="required">Port: </label> <input type="text" name="port" id="port" size="5" value="[% server.port | html %]" required="required" /> <span class="required">Required</span>
+ </li>
+ <li><label for="db" class="required">Database: </label> <input type="text" name="db" id="db" value="[% server.db | html %]" required="required" /> <span class="required">Required</span>
+ </li>
+ <li><label for="userid">Userid: </label> <input type="text" name="userid" id="userid" value="[% server.userid | html %]" />
+ </li>
+ <li><label for="password">Password: </label> <input type="text" name="password" id="password" value="[% server.password | html %]" />
+ </li>
+ <li>
+ <label for="checked">Preselected: </label>
+ [% IF ( server.checked ) %]
+ <input type="checkbox" name="checked" id="checked" value="1" checked="checked" />
+ [% ELSE %]
+ <input type="checkbox" name="checked" id="checked" value="1" />
+ [% END %]
+ <span class="hint">Searched by default.</span>
+ </li>
+ <li>
+ <label for="rank">Rank: </label>
+ <input type="text" name="rank" id="rank" size="4" value="[% server.rank | html %]" />
+ <div class="hint">Display order.</div>
+ </li>
+ [% IF (server.servertype||type) == 'zed' %]
+ <li>
+ <label for="attributes">Attributes: </label>
+ <input type="text" name="attributes" id="attributes" size="30" value="[% server.attributes | html %]" />
+ <div class="hint">Additional PQF attributes added to each query.</div>
+ </li>
+ [% END %]
+
+ <li>
+ <label for="syntax">Syntax: </label>
+ <select name="syntax" id="syntax">
+ <option value="UNIMARC">UNIMARC</option>
+ <option value="INTERMARC">INTERMARC</option>
+ <option value="CCF">CCF</option>
+ <option value="USMARC">MARC21/USMARC</option>
+ <option value="UKMARC">UKMARC</option>
+ <option value="NORMARC">NORMARC</option>
+ <option value="LIBRISMARC">LIBRISMARC</option>
+ <option value="DANMARC">DANMARC</option>
+ <option value="FINMARC">FINMARC</option>
+ <option value="CANMARC">CANMARC</option>
+ <option value="SBN">SBN</option>
+ <option value="PICAMARC">PICAMARC</option>
+ <option value="AUSMARC">AUSMARC</option>
+ <option value="IBERMARC">IBERMARC</option>
+ <option value="CATMARC">CATMARC</option>
+ <option value="MALMARC">MALMARC</option>
+ </select>
+ <div class="hint">Z39.50 can send records in various formats. Choose one.</div>
+ </li>
+
+ <li>
+ <label for="encoding">Encoding: </label>
+ <select name="encoding" id="encoding">
+ [% FOREACH enc IN [ 'utf8' 'EUC-KR' 'ISO_5426' 'ISO_6937' 'ISO_8859-1' 'MARC-8' ] %]
+ <option value="[% enc | html %]">[% enc | html %]</option>
+ [% END %]
+ </select>
+ <div class="hint">Z39.50 can send records in various encodings. Choose one.</div>
+ </li>
+
+ <li>
+ <label for="timeout">Timeout: </label>
+ <input type="text" name="timeout" id="timeout" size="4" value="[% server.timeout | html %]" /> seconds
+ <div class="hint">Enter 0 to disable.</div>
+ </li>
+ <li><label for="recordtype">Record type: </label>
+ <select name="recordtype" id="recordtype">
+ <option value="biblio">Bibliographic</option>
+ <option value="authority">Authority</option>
+ </select>
+ </li>
+ [% IF (server.servertype||type) == 'sru' %]
+ <li>
+ <label for="sru_options">Additional SRU options: </label>
+ <input type="text" name="sru_options" id="sru_options" size="50" value="[% server.sru_options | html %]"/>
+ <div class="hint">Separate options by commas. Example: sru=get,sru_version=1.1. See also http://www.indexdata.com/yaz/doc/zoom.html.</div>
+ </li>
+ <li>
+ <label for="sru_fields">SRU Search fields mapping: </label>
+ <input type="hidden" name="sru_fields" id="sru_fields" value="[% server.sru_fields | html %]" />
+ <input type="text" name="show_sru_fields" id="show_sru_fields" size="100" value="[% server.sru_fields | html %]" disabled="disabled" /> <input type="button" id="modify_sru_fields" value="Modify" />
+ </li>
+ [% END %]
+ <li>
+ <label for="add_xslt">XSLT File(s) for transforming results: </label>
+ <input type="text" name="add_xslt" id="add_xslt" size="100" value="[% server.add_xslt | html %]"/>
+ <div class="hint">Separate multiple filenames by commas.</div>
+ </li>
+
+ </ol>
+ </fieldset>
+
+ <fieldset class="action"><input type="submit" value="Save" /> <a class="cancel" href="/cgi-bin/koha/admin/z3950servers.pl">Cancel</a></fieldset>
+ </form>
+[% END %]
+
+[% IF op == 'list' %]
+ <div id="toolbar" class="btn-toolbar">
+ <a id="newserver" class="btn btn-default" href="/cgi-bin/koha/admin/z3950servers.pl?op=add&type=zed"><i class="fa fa-plus"></i> New Z39.50 server</a>
+ <a id="newserver" class="btn btn-default" href="/cgi-bin/koha/admin/z3950servers.pl?op=add&type=sru"><i class="fa fa-plus"></i> New SRU server</a>
+ </div>
+ <h3>Z39.50/SRU servers administration</h3>
+ [% IF id %]
+ You searched for record [% id | html %]
+ [% ELSIF searchfield %]
+ You searched for [% searchfield | html %]
+ [% END %]
+ <table id="serverst">
+
+ <thead><tr><th>Target</th><th>Hostname/Port</th><th>Database</th><th>Userid</th><th>Password</th><th>Preselected</th><th>Rank</th><th>Syntax</th><th>Encoding</th><th>Timeout</th><th>Record type</th><th>Attributes</th><th class="noExport">Actions</th>
+ </tr></thead>
+ <tbody>
+ [% FOREACH loo IN loop %]
+ <tr>
+ <td><a href="/cgi-bin/koha/admin/z3950servers.pl?op=edit&amp;id=[% loo.id | uri %]">[% loo.servername | html %]</a></td><td>[% loo.host | html %]:[% loo.port | html %]</td><td>[% loo.db | html %]</td><td>[% loo.userid | html %]</td><td>[% IF loo.password %]########[% END %]</td><td>[% IF ( loo.checked ) %]Yes[% ELSE %]No[% END %]</td><td>[% loo.rank | html %]</td>
+ <td>[% loo.syntax | html %]</td><td>[% loo.encoding | html %]</td><td>[% loo.timeout | html %]</td>
+ <td>[% IF ( loo.recordtype == 'biblio' )  %]
+ <span>Bibliographic</span>
+ [% ELSIF ( loo.recordtype == 'authority' ) %]
+ <span>Authority</span>
+ [% END %]
+ </td>
+ <td>[% loo.attributes | html %]</td>
+ <td>
+ <div class="btn-group dropup">
+ <a class="btn btn-default btn-xs dropdown-toggle" id="reportactions[% savedreport.id | html %]" role="button" data-toggle="dropdown" href="#">
+ Actions <b class="caret"></b>
+ </a>
+ <ul class="dropdown-menu pull-right" role="menu" aria-labelledby="reportactions[% savedreport.id | html %]">
+ <li><a href="/cgi-bin/koha/admin/z3950servers.pl?op=edit&amp;id=[% loo.id | uri %]"><i class="fa fa-pencil"></i> Edit</a></li>
+ <li><a href="/cgi-bin/koha/admin/z3950servers.pl?op=add&amp;id=[% loo.id | uri %]"><i class="fa fa-copy"></i> Copy</a></li>
+ <li><a href="/cgi-bin/koha/admin/z3950servers.pl?op=delete_confirmed&amp;id=[% loo.id | uri %]" class="delete" data-servername="[% loo.servername | html %]"><i class="fa fa-trash"></i> Delete</a></li>
+ </ul>
+ </div>
+ </td>
+ </tr>
+ [% END %]
+ </tbody>
+ </table>
+[% END %]
+
+ </main>
+ </div> <!-- /.col-sm-10.col-sm-push-2 -->
+
+ <div class="col-sm-2 col-sm-pull-10">
+ <aside>
+ [% INCLUDE 'admin-menu.inc' %]
+ </aside>
+ </div> <!-- /.col-sm-2.col-sm-pull-10 -->
+ </div> <!-- /.row -->
+
+[% MACRO jsinclude BLOCK %]
+ [% Asset.js("js/admin-menu.js") | $raw %]
+ [% IF op == 'list' %]
+ [% INCLUDE 'datatables.inc' %]
+ [% END %]
+
+ <script>
+        [% IF ( add_form ) %]
+            $(document).ready(function(){
+                // Update selects for syntax, encoding and recordtype
+                [% IF server %]
+                    $("#syntax").val('[% server.syntax | html %]');
+                    $("#encoding").val('[% server.encoding | html %]');
+                    $("#recordtype").val('[% server.recordtype | html %]');
+                [% END %]
+                $( "#serverentry" ).validate({
+                    rules: {
+                        servername: { required: true },
+                        host: { required: true },
+                        port: {
+                            required: true,
+                            number: true
+                        },
+                        db: { required: true },
+                        rank: { number: true },
+                        timeout: { number: true }
+                    }
+                });
+                $("#serverentry").submit(function( event ) {
+                    // first test if show_sru_fields exists
+                    if( $('#show_sru_fields').length && $('#show_sru_fields').val()=='' && !confirm( _("No SRU search field mappings have been defined. This means that all field searches will go through the whole record. Continue?"))) {
+                        return false;
+                    }
+                    // copy show_sru_fields to hidden counterpart
+                    $('#sru_fields').val( $('#show_sru_fields').val() );
+                    // enable recordtype to include field in post
+                    $('#recordtype').prop('disabled',false);
+                });
+                $("#servername").on("blur",function(){
+                    toUC(this);
+                });
+                $("#modify_sru_fields").on("click",function(){
+                    ModMapping();
+                });
+            });
+            function ModMapping () {
+                var map= $('#show_sru_fields').val();
+                var type= $('#recordtype').val();
+                window.open('/cgi-bin/koha/admin/sru_modmapping.pl?mapping='+map + '&type=' + type,'popup','width=800,height=400,resizable=yes,toolbar=false,scrollbars=yes,top');
+            }
+        [% ELSE %]
+            $(document).ready(function() {
+                $("#serverst").dataTable($.extend(true, {}, dataTablesDefaults, {
+                    "aoColumnDefs": [
+                        { "aTargets": [-1], "bSortable": false, "bSearchable": false },
+                    ],
+                    "sPaginationType": "full"
+                }));
+                $(".delete").on("click",function(e){
+                    var servername = $(this).data("servername");
+                    if( confirm( _("Are you sure you want to delete server %s?").format(servername) ) ) {
+                        return true;
+                    } else {
+                        e.preventDefault();
+                    }
+                });
+            });
+        [% END %]
+    </script>
+[% END %]
+[% INCLUDE 'intranet-bottom.inc' %]

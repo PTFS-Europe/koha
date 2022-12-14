@@ -1,0 +1,1206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE stylesheet>
+
+<Tagfield tag="007" xmlns="http://koha-community.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="./marc21_field_CF.xsd">
+ <Material id="MPS"><name>Maps</name><description></description>
+ <Position pos="00"><name>Category of material</name><description></description>
+ <Value code="a"><description>Map</description></Value>
+ </Position>
+ <Position pos="01"><name>Specific material designation</name><description>Special class of cartographic material to which the item belongs. Usually the class of physical object, e.g., a diagram.</description>
+ <Value code="d"><description>Atlas</description></Value>
+ <Value code="g"><description>Diagram</description></Value>
+ <Value code="j"><description>Map</description></Value>
+ <Value code="k"><description>Profile</description></Value>
+ <Value code="q"><description>Model</description></Value>
+ <Value code="r"><description>Remote-sensing image</description></Value>
+ <Value code="s"><description>Section</description></Value>
+ <Value code="u"><description>Unspecified</description></Value>
+ <Value code="y"><description>View</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="02"><name>Undefined</name><description>Contains a blank (#) or a fill character (|).</description>
+ </Position>
+ <Position pos="03"><name>Color</name><description>Whether the item is in one color or multicolored</description>
+ <Value code="a"><description>One colour</description></Value>
+ <Value code="c"><description>Multicoloured</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="04"><name>Physcial Description</name><description>Material out of which the cartographic item is made.</description>
+ <Value code="a"><description>Paper</description></Value>
+ <Value code="b"><description>Wood</description></Value>
+ <Value code="c"><description>Stone</description></Value>
+ <Value code="d"><description>Metal</description></Value>
+ <Value code="e"><description>Synthetic</description></Value>
+ <Value code="f"><description>Skin</description></Value>
+ <Value code="g"><description>Textiles</description></Value>
+ <Value code="i"><description>Plastic</description></Value>
+ <Value code="j"><description>Glass</description></Value>
+ <Value code="l"><description>Vinyl</description></Value>
+ <Value code="n"><description>Vellum</description></Value>
+ <Value code="p"><description>Plaster</description></Value>
+ <Value code="q"><description>Flexible base photographic, positive</description></Value>
+ <Value code="r"><description>Flexible base photographic, negative</description></Value>
+ <Value code="s"><description>Non-flexible base photographic, positive</description></Value>
+ <Value code="t"><description>Non-flexible base photographic, negative</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="v"><description>Leather</description></Value>
+ <Value code="w"><description>Parchment</description></Value>
+ <Value code="x"><description>Not applicable</description></Value>
+ <Value code="y"><description>Other photographic medium</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="05"><name>Type of reproduction</name><description>Whether the cartographic item is a facsimile or other type of reproduction.</description>
+ <Value code="f"><description>Facsimile</description></Value>
+ <Value code="n"><description>Not applicable</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="06"><name>Production/reproduction details</name><description>Photographic technique used to produce the cartographic item.</description>
+ <Value code="a"><description>Photocopy, blueline print</description></Value>
+ <Value code="b"><description>Photocopy</description></Value>
+ <Value code="c"><description>Pre-production</description></Value>
+ <Value code="d"><description>Film</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="07"><name>Positive/negative aspect</name><description>Positive/negative aspect of the photocopy or film of the cartographic item, also referred to as polarity.</description>
+ <Value code="a"><description>Positive</description></Value>
+ <Value code="b"><description>Negative</description></Value>
+ <Value code="m"><description>Mixed polarity</description></Value>
+ <Value code="n"><description>Not applicable</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ </Material>
+ <Material id="ER"><name>Electronic resources</name><description></description>
+ <Position pos="00"><name>Category of material</name><description>One-character alphabetic code that indicates the category of material to which the item belongs is electronic resource (e.g, programs, data files, image files, digitised audio and video tapes, etc.).</description>
+ <Value code="c"><description>Electronic resource</description></Value>
+ </Position>
+ <Position pos="01"><name>Specific material designation</name><description>Special class of material (usually the class of physical object) to which an item belongs (e.g., a magnetic disk).</description>
+ <Value code="a"><description>Tape cartridge</description></Value>
+ <Value code="b"><description>Chip cartridge</description></Value>
+ <Value code="c"><description>Computer optical disc cartridge</description></Value>
+ <Value code="d"><description>Computer disc, type unspecified</description></Value>
+ <Value code="e"><description>Computer disc cartridge</description></Value>
+ <Value code="f"><description>Tape cassette</description></Value>
+ <Value code="h"><description>Tape reel</description></Value>
+ <Value code="j"><description>Magnetic disk</description></Value>
+ <Value code="k"><description>Computer card</description></Value>
+ <Value code="m"><description>Magneto-optical disc</description></Value>
+ <Value code="o"><description>Optical disc</description></Value>
+ <Value code="r"><description>Remote</description></Value>
+ <Value code="s"><description>Standalone device</description></Value>
+ <Value code="u"><description>Unspecified</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="02"><name>Undefined</name><description>Contains a blank (#) or a fill character (|).</description>
+ </Position>
+ <Position pos="03"><name>Color</name><description>Whether the item is one color or multicolored.</description>
+ <Value code="a"><description>One colour</description></Value>
+ <Value code="b"><description>Black-and-white</description></Value>
+ <Value code="c"><description>Multicoloured</description></Value>
+ <Value code="g"><description>Gray scale</description></Value>
+ <Value code="m"><description>Mixed</description></Value>
+ <Value code="n"><description>Not applicable</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="04"><name>Dimensions</name><description>Dimensions of the medium used to encode the electronic resource. Only the most common dimensions are indicated. In many cases the dimensions apply to the container in which a magnetic or optical medium is encased. The field 007/04 code corresponding to the dimensions given in the description of the item are used. If no code exactly matches the dimensions of the medium (or container), code z is used.
+ </description>
+ <Value code="a"><description>3 1/2 in.</description></Value>
+ <Value code="e"><description>12 in.</description></Value>
+ <Value code="g"><description>4 3/4 in. or 12 cm.</description></Value>
+ <Value code="i"><description>1 1/8 x 2 3/8 in.</description></Value>
+ <Value code="j"><description>3 7/8 x 2 1/2 in.</description></Value>
+ <Value code="n"><description>Not applicable</description></Value>
+ <Value code="o"><description>5 1/4 in.</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="v"><description>8 in.</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="05"><name>Sound</name><description>Whether the production of sound is an integral part of an electronic resource.</description>
+ <Value code="#"><description>No sound (silent)</description></Value>
+ <Value code="a"><description>Sound</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="06-08"><name>Image bit depth</name><description>Exact bit depth of the scanned image(s) that comprise the electronic resource, or a three-character alphabetic code which indicates that the exact bit depth cannot be recorded. Since only exact bit depth is useful, coding should not include missing digits represented by hyphens (-).</description>
+ <Value code="001-999"><description>Exact bit depth</description></Value>
+ <Value code="mmm"><description>Multiple</description></Value>
+ <Value code="nnn"><description>Not applicable</description></Value>
+ <Value code="---"><description>Unknown</description></Value>
+ <Value code="|||"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="09"><name>File formats</name><description>Whether the file(s) which comprise the electronic resource are of the same format or type for digitally reformatted materials.</description>
+ <Value code="a"><description>One file format</description></Value>
+ <Value code="m"><description>Multiple file formats</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="10"><name>Quality assurance target(s)</name><description>Whether quality assurance targets have been included appropriately at the time of reformatting/creation of the electronic resource. </description>
+ <Value code="a"><description>Absent</description></Value>
+ <Value code="n"><description>Not applicable</description></Value>
+ <Value code="p"><description>Present</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="11"><name>Antecedent/Source</name><description>Information about the source of a digital file important to the creation, use and management of digitally reformatted materials. </description>
+ <Value code="a"><description>File reproduced from original</description></Value>
+ <Value code="b"><description>File reproduced from microform</description></Value>
+ <Value code="c"><description>File reproduced from an electronic resource</description></Value>
+ <Value code="d"><description>File reproduced from an intermediate (not microform)</description></Value>
+ <Value code="m"><description>Mixed</description></Value>
+ <Value code="n"><description>Not applicable</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="12"><name>Level of compression</name><description>Kind of compression the electronic resource has been subjected to. Used to judge the fidelity of the file to the original.</description>
+ <Value code="a"><description>Uncompressed</description></Value>
+ <Value code="b"><description>Lossless</description></Value>
+ <Value code="d"><description>Lossy</description></Value>
+ <Value code="m"><description>Mixed</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="13"><name>Reformatting quality</name><description>Reformatting quality of the electronic resource; an overall assessment of the physical quality of the electronic resource in relation to its intended use. It can be used to judge the level of quality of a file, and an institution's commitment to maintain its availability over time.</description>
+ <Value code="a"><description>Access</description></Value>
+ <Value code="n"><description>Not applicable</description></Value>
+ <Value code="p"><description>Preservation</description></Value>
+ <Value code="r"><description>Replacement</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ </Material>
+ <Material id="GL"><name>Globe</name><description></description>
+ <Position pos="00"><name>Category of material</name><description>One-character alphabetic code that indicates the category of material to which the item belongs is globe, which is defined as the model of a celestial body, usually the Earth or the celestial sphere, depicted on the surface of a sphere. Code d is used when 008/25 (Type of cartographic material) contains code d. A fill character (|) is not allowed in this position.</description>
+ <Value code="d"><description>Globe</description></Value>
+ </Position>
+ <Position pos="01"><name>Specific material designation</name><description>Special class of material (usually the class of physical object) to which an item belongs, e.g., a celestial globe.</description>
+ <Value code="a"><description>Celestial globe</description></Value>
+ <Value code="b"><description>Planetary or lunar globe</description></Value>
+ <Value code="c"><description>Terrestrial globe</description></Value>
+ <Value code="e"><description>Earth moon globe</description></Value>
+ <Value code="u"><description>Unspecified</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="02"><name>Undefined</name><description>Contains a blank (#) or a fill character (|).</description>
+ </Position>
+ <Position pos="03"><name>Color</name><description>Whether the globe is in one color or multicolored.</description>
+ <Value code="a"><description>One colour</description></Value>
+ <Value code="c"><description>Multicoloured</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="04"><name>Physicial medium</name><description>Material out of which the globe is made.</description>
+ <Value code="a"><description>Paper</description></Value>
+ <Value code="b"><description>Wood</description></Value>
+ <Value code="c"><description>Stone</description></Value>
+ <Value code="d"><description>Metal</description></Value>
+ <Value code="e"><description>Synthetic</description></Value>
+ <Value code="f"><description>Skin</description></Value>
+ <Value code="g"><description>Textile</description></Value>
+ <Value code="i"><description>Plastic</description></Value>
+ <Value code="l"><description>Vinyl</description></Value>
+ <Value code="n"><description>Vellum</description></Value>
+ <Value code="p"><description>Plaster</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="v"><description>Leather</description></Value>
+ <Value code="w"><description>Parchment</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="05"><name>Type of reproduction</name><description>Whether the globe is a facsimile or other type of reproduction.</description>
+ <Value code="f"><description>Facsimile</description></Value>
+ <Value code="n"><description>Not applicable</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ </Material>
+ <Material id="TM"><name>Tactile material</name><description></description>
+ <Position pos="00"><name>Category of material</name><description>One-character alphabetic code that indicates the category of material to which the item belongs is tactile material. Used for material intended to be read by touch. A fill character (|) is not allowed in this position.</description>
+ <Value code="f"><description>Tactile material</description></Value>
+ </Position>
+ <Position pos="01"><name>Specific material designation</name><description>Special class of tactile materialspecific material to which the item belongs.</description>
+ <Value code="a"><description>Moon</description></Value>
+ <Value code="b"><description>Braille</description></Value>
+ <Value code="c"><description>Combination</description></Value>
+ <Value code="d"><description>Tactile, with no writing system</description></Value>
+ <Value code="u"><description>Unspecified</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="02"><name>Undefined</name><description>Contains a blank (#) or a fill character (|).</description>
+ </Position>
+ <Position pos="03-04"><name>Class of braille writing</name><description>Family of braille to which the item belongs. This is not the particular braille code, but the type of braille code used, representing different types of written symbols. Up to two braille types may be indicated, or the cataloguing agency can choose to encode only the predominate type. Multiple codes are coded in order of predominance, if any. If fewer than two codes are assigned, the codes are left justified and unused positions contain blanks (#).</description>
+ <Value code="#"><description>No specified class of braille writing</description></Value>
+ <Value code="a"><description>Literary braille</description></Value>
+ <Value code="b"><description>Format code braille</description></Value>
+ <Value code="c"><description>Mathematics and scientific braille</description></Value>
+ <Value code="d"><description>Computer braille</description></Value>
+ <Value code="e"><description>Music braille</description></Value>
+ <Value code="m"><description>Multiple braille types</description></Value>
+ <Value code="n"><description>Not applicable</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="||"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="05"><name>Level of contraction</name><description>Whether contractions are used. Contractions are abbreviations consisting of one or more braille or Moon characters to represent common letter combinations.</description>
+ <Value code="a"><description>Uncontracted</description></Value>
+ <Value code="b"><description>Contracted</description></Value>
+ <Value code="m"><description>Combination</description></Value>
+ <Value code="n"><description>Not applicable</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="06"><name>Braille music format 1</name><description>Three-character code that indicates the braille music format of the item. The music formats are the way measures, sections, parts, and related information, such as words, are presented in relation to each other. Up to three formats may be indicated, left justified in order of predominance. If fewer than three codes are assigned, the codes are left justified and unused positions contain blanks (#).</description>
+ <Value code="#"><description>No specified braille music format</description></Value>
+ <Value code="a"><description>Bar over bar</description></Value>
+ <Value code="b"><description>Bar by bar</description></Value>
+ <Value code="c"><description>Line over line</description></Value>
+ <Value code="d"><description>Paragraph</description>></Value>
+ <Value code="e"><description>Single line</description></Value>
+ <Value code="f"><description>Section by section</description></Value>
+ <Value code="g"><description>Line by line</description></Value>
+ <Value code="h"><description>Open score</description></Value>
+ <Value code="i"><description>Spanner short form scoring</description></Value>
+ <Value code="j"><description>Short form scoring</description></Value>
+ <Value code="k"><description>Outline</description></Value>
+ <Value code="l"><description>Vertical score</description></Value>
+ <Value code="n"><description>Not applicable</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="07"><name>Braille music format 2</name><description></description>
+ <Value code="#"><description>No specified braille music format</description></Value>
+ <Value code="a"><description>Bar over bar</description></Value>
+ <Value code="b"><description>Bar by bar</description></Value>
+ <Value code="c"><description>Line over line</description></Value>
+ <Value code="d"><description>Paragraph</description>></Value>
+ <Value code="e"><description>Single line</description></Value>
+ <Value code="f"><description>Section by section</description></Value>
+ <Value code="g"><description>Line by line</description></Value>
+ <Value code="h"><description>Open score</description></Value>
+ <Value code="i"><description>Spanner short form scoring</description></Value>
+ <Value code="j"><description>Short form scoring</description></Value>
+ <Value code="k"><description>Outline</description></Value>
+ <Value code="l"><description>Vertical score</description></Value>
+ <Value code="n"><description>Not applicable</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="08"><name>Braille music format 3</name><description></description>
+ <Value code="#"><description>No specified braille music format</description></Value>
+ <Value code="a"><description>Bar over bar</description></Value>
+ <Value code="b"><description>Bar by bar</description></Value>
+ <Value code="c"><description>Line over line</description></Value>
+ <Value code="d"><description>Paragraph</description>></Value>
+ <Value code="e"><description>Single line</description></Value>
+ <Value code="f"><description>Section by section</description></Value>
+ <Value code="g"><description>Line by line</description></Value>
+ <Value code="h"><description>Open score</description></Value>
+ <Value code="i"><description>Spanner short form scoring</description></Value>
+ <Value code="j"><description>Short form scoring</description></Value>
+ <Value code="k"><description>Outline</description></Value>
+ <Value code="l"><description>Vertical score</description></Value>
+ <Value code="n"><description>Not applicable</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="09"><name>Special physical characteristics</name><description>Other special physical characteristics about the braille.</description>
+ <Value code="a"><description>Print/braille</description></Value>
+ <Value code="b"><description>Jumbo or enlarged braille</description></Value>
+ <Value code="n"><description>Not applicable</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ </Material>
+ <Material id="PG"><name>Projected graphic</name><description></description>
+ <Position pos="00"><name>Category of material</name><description>One-character alphabetic code that indicates the category of material to which the item belongs is projected graphic which is defined as a two-dimensional representation intended to be projected without motion by means of an optical device, for example, a filmstrip, slide, or transparency. A fill character (|) is not allowed in this position.</description>
+ <Value code="g"><description>Projected graphic</description></Value>
+ </Position>
+ <Position pos="01"><name>Specific material designation</name><description>Special class of projected graphic to which the item belongs, e.g., a slide.</description>
+ <Value code="c"><description>Filmstrip cartridge</description></Value>
+ <Value code="d"><description>Filmslip</description></Value>
+ <Value code="f"><description>Filmstrip, type unspecified</description></Value>
+ <Value code="o"><description>Filmstrip roll</description></Value>
+ <Value code="s"><description>Slide</description></Value>
+ <Value code="t"><description>Transparency</description></Value>
+ <Value code="u"><description>Unspecified</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="02"><name>Undefined</name><description>Contains a blank (#) or a fill character (|).</description></Position>
+ <Position pos="03"><name>Color</name><description>Colour characteristics of the nonprojected graphic.</description>
+ <Value code="a"><description>One colour</description></Value>
+ <Value code="b"><description>Black-and-white</description></Value>
+ <Value code="c"><description>Multicoloured</description></Value>
+ <Value code="h"><description>Hand colored</description></Value>
+ <Value code="m"><description>Mixed</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="04"><name>Base of emulsion</name><description>Type of material for the base of the emulsion of a photonegative, filmstrip, slide, or transparency.</description>
+ <Value code="d"><description>Glass</description></Value>
+ <Value code="e"><description>Synthetic</description></Value>
+ <Value code="j"><description>Safety film</description></Value>
+ <Value code="k"><description>Film base, other than safety film</description></Value>
+ <Value code="m"><description>Mixed collection</description></Value>
+ <Value code="o"><description>Paper</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="05"><name>Sound on medium or separate</name><description>Whether the sound is on or is separate from the projected graphic (i.e., on the accompanying material). </description>
+ <Value code="#"><description>No sound (silent)</description></Value>
+ <Value code="a"><description>Sound on medium</description></Value>
+ <Value code="b"><description>Sound separate from medium</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="06"><name>Medium for sound</name><description>Specific medium used to carry the sound of an item (whether the sound is on the projected graphic or separate) and the type of sound playback required for the item.</description>
+ <Value code="#"><description>No sound (silent)</description></Value>
+ <Value code="a"><description>Optical sound track on motion picture film</description></Value>
+ <Value code="b"><description>Magnetic sound track on motion picture film</description></Value>
+ <Value code="c"><description>Magnetic audio tape in cartridge</description></Value>
+ <Value code="d"><description>Sound disc</description></Value>
+ <Value code="e"><description>Magnetic audio tape on reel</description></Value>
+ <Value code="f"><description>Magnetic audio tape in cassette</description></Value>
+ <Value code="g"><description>Optical and magnetic sound track on motion picture film</description></Value>
+ <Value code="h"><description>Videotape</description></Value>
+ <Value code="i"><description>Videodisc</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="07"><name>Dimensions</name><description>Width or dimensions of the projected graphic item.</description>
+ <Value code="a"><description>Standard 8 mm. film width</description></Value>
+ <Value code="b"><description>Super 8 mm./single 8 mm. film width</description></Value>
+ <Value code="c"><description>9.5 mm. film width</description></Value>
+ <Value code="d"><description>16 mm. film width</description></Value>
+ <Value code="e"><description>28 mm. film width</description></Value>
+ <Value code="f"><description>35 mm. film width</description></Value>
+ <Value code="g"><description>70 mm. film width</description></Value>
+ <Value code="j"><description>2x2 in. or 5x5 cm. slide</description></Value>
+ <Value code="k"><description>2 1/4 x 2 1/4 in. or 6x6 cm. slide</description></Value>
+ <Value code="s"><description>4x5 in. or 10x13 cm. transparency</description></Value>
+ <Value code="t"><description>5x7 in. or 13x18 cm. transparency</description></Value>
+ <Value code="v"><description>8x10 in. or 21x26 cm. transparency</description></Value>
+ <Value code="w"><description>9x9 in. or 23x23 cm. transparency</description></Value>
+ <Value code="x"><description>10x10 in. or 26x26 cm. transparency</description></Value>
+ <Value code="y"><description>7x7 in. or 18x18 cm. transparency</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="08"><name>Secondary support material</name><description>Type of material of the mount of a slide or transparency for a projected graphic.</description>
+ <Value code="#"><description>No secondary support</description></Value>
+ <Value code="c"><description>Cardboard</description></Value>
+ <Value code="d"><description>Glass</description></Value>
+ <Value code="e"><description>Synthetic</description></Value>
+ <Value code="h"><description>Metal</description></Value>
+ <Value code="j"><description>Metal and glass</description></Value>
+ <Value code="k"><description>Synthetic and glass</description></Value>
+ <Value code="m"><description>Mixed collection</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ </Material>
+ <Material id="MF"><name>Microform</name><description></description>
+ <Position pos="00"><name>Category of material</name><description>One-character alphabetic code that indicates the category of material to which the item belongs is microform. Microform is a generic term for any medium, transparent or opaque, bearing microimages. A microimage is a unit (e.g., a page) of textual, graphic, or computer-generated material that is contained on aperture cards, microfiche, microfilm, microopaques, or other microformats and that is too small to be read without magnification. Microforms may be reproductions of existing textual or graphic materials or they may be original publications. A fill character (|) is not allowed in this position.</description>
+ <Value code="h"><description>Microform</description></Value>
+ </Position>
+ <Position pos="01"><name>Specific material designation</name><description>Special class of microform to which the item belongs. (e.g., a microopaque).</description>
+ <Value code="a"><description>Aperture card</description></Value>
+ <Value code="b"><description>Microfilm cartridge</description></Value>
+ <Value code="c"><description>Microfilm cassette</description></Value>
+ <Value code="d"><description>Microfilm reel</description></Value>
+ <Value code="e"><description>Microfiche</description></Value>
+ <Value code="f"><description>Microfiche cassette</description></Value>
+ <Value code="g"><description>Microopaque</description></Value>
+ <Value code="h"><description>Microfilm slip</description></Value>
+ <Value code="j"><description>Microfilm roll</description></Value>
+ <Value code="u"><description>Unspecified</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="02"><name>Undefined</name><description>Contains a blank (#) or a fill character (|).</description></Position>
+ <Position pos="03"><name>Positive/negative aspect</name><description>Positive/negative polarity of the microform.</description>
+ <Value code="a"><description>Positive</description></Value>
+ <Value code="b"><description>Negative</description></Value>
+ <Value code="m"><description>Mixed polarity</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="04"><name>Dimensions</name><description>Dimensions of the microform; does not indicate the dimensions of the image.</description>
+ <Value code="a"><description>8 mm.</description></Value>
+ <Value code="d"><description>16 mm.</description></Value>
+ <Value code="f"><description>35 mm.</description></Value>
+ <Value code="g"><description>70 mm.</description></Value>
+ <Value code="h"><description>105 mm.</description></Value>
+ <Value code="l"><description>3x5 in. or 8x13 cm.</description></Value>
+ <Value code="m"><description>4x6 in. or 11x15 cm.</description></Value>
+ <Value code="o"><description>6x9 in. or 16x23 cm.</description></Value>
+ <Value code="p"><description>3 1/4 x 7 3/8 in. or 9x19 cm.</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="05"><name>Reduction ratio range</name><description>Reduction ratio range for a microform. The specific reduction ratio is recorded in 007/06-08 (Reduction ratio).</description>
+ <Value code="a"><description>Low reduction ratio</description></Value>
+ <Value code="b"><description>Normal reduction</description></Value>
+ <Value code="c"><description>High reduction</description></Value>
+ <Value code="d"><description>Very high reduction</description></Value>
+ <Value code="e"><description>Ultra high reduction</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="v"><description>Reduction rate varies</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="06-08"><name>Reduction ratio</name><description>Number specifying the reduction ratio for a microform, recorded as three digits. The number is right justified and each unused position contains a zero (e.g., 015, 048). A hyphen is used for any unknown portion of the reduction ratio (e.g., 03-, 1--, or ---)</description>
+ <Value code="#"><description>Ratio element is not applicable</description></Value>
+ <Value code="1"><description>Ratio</description></Value>
+ <Value code="2"><description>Ratio</description></Value>
+ <Value code="3"><description>Ratio</description></Value>
+ </Position>
+ <Position pos="09"><name>Color</name><description>Color of the image for microforms.</description>
+ <Value code="b"><description>Black-and-white</description></Value>
+ <Value code="c"><description>Multicoloured</description></Value>
+ <Value code="m"><description>Mixed</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="10"><name>Emulsion on film</name><description>Type of light-sensitive material on the film.</description>
+ <Value code="a"><description>Silver halide</description></Value>
+ <Value code="b"><description>Diazo</description></Value>
+ <Value code="c"><description>Vesicular</description></Value>
+ <Value code="m"><description>Mixed emulsion</description></Value>
+ <Value code="n"><description>Not applicable</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="11"><name>Generation</name><description>Generation aspect of a microform. </description>
+ <Value code="a"><description>First generation (master)</description></Value>
+ <Value code="b"><description>Printing master</description></Value>
+ <Value code="c"><description>Service copy</description></Value>
+ <Value code="m"><description>Mixed generation</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="12"><name>Base of film</name><description>Base of the film.</description>
+ <Value code="a"><description>Safety base, undetermined</description></Value>
+ <Value code="c"><description>Safety base, acetate undetermined</description></Value>
+ <Value code="d"><description>Safety base, diacetate</description></Value>
+ <Value code="i"><description>Nitrate base</description></Value>
+ <Value code="m"><description>Mixed base (nitrate and safety)</description></Value>
+ <Value code="n"><description>Not applicable</description></Value>
+ <Value code="p"><description>Safety base, polyester</description></Value>
+ <Value code="r"><description>Safety base, mixed</description></Value>
+ <Value code="t"><description>Safety base, triacetate</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ </Material>
+ <Material id="NG"><name>Nonprojected graphic</name><description></description>
+ <Position pos="00"><name>Category of material</name><description></description>
+ <Value code="k"><description>Nonprojected graphic</description></Value>
+ </Position>
+ <Position pos="01"><name>Specific material designation</name><description>Special class of nonprojected graphic to which the item belongs, (e.g., a picture).</description>
+ <Value code="a"><description>Activity card</description></Value>
+ <Value code="c"><description>Collage</description></Value>
+ <Value code="d"><description>Drawing</description></Value>
+ <Value code="e"><description>Painting</description></Value>
+ <Value code="f"><description>Photomechanical print</description></Value>
+ <Value code="g"><description>Photonegative</description></Value>
+ <Value code="h"><description>Photoprint</description></Value>
+ <Value code="i"><description>Picture</description></Value>
+ <Value code="j"><description>Print</description></Value>
+ <Value code="k"><description>Poster</description></Value>
+ <Value code="l"><description>Technical drawing</description></Value>
+ <Value code="n"><description>Chart</description></Value>
+ <Value code="o"><description>Flash card</description></Value>
+ <Value code="p"><description>Postcard</description></Value>
+ <Value code="q"><description>Icon</description></Value>
+ <Value code="r"><description>Radiograph</description></Value>
+ <Value code="s"><description>Study print</description></Value>
+ <Value code="u"><description>Unspecified</description></Value>
+ <Value code="v"><description>Photograph, type unspecified</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="02"><name>Undefined</name><description>Contains a blank (#) or a fill character (|).</description>
+ </Position>
+ <Position pos="03"><name>Color</name><description>Colour characteristics of the nonprojected graphic.</description>
+ <Value code="a"><description>One colour</description></Value>
+ <Value code="b"><description>Black-and-white</description></Value>
+ <Value code="c"><description>Multicoloured</description></Value>
+ <Value code="h"><description>Hand colored</description></Value>
+ <Value code="m"><description>Mixed</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="04"><name>Primary support material</name><description>Type of material used for the support or base on which an image is printed or executed.</description>
+ <Value code="a"><description>Canvas</description></Value>
+ <Value code="b"><description>Bristol board</description></Value>
+ <Value code="c"><description>Cardboard/illustration board</description></Value>
+ <Value code="d"><description>Glass</description></Value>
+ <Value code="e"><description>Synthetic</description></Value>
+ <Value code="f"><description>Skin</description></Value>
+ <Value code="g"><description>Textile</description></Value>
+ <Value code="h"><description>Metal</description></Value>
+ <Value code="i"><description>Plastic</description></Value>
+ <Value code="l"><description>Vinyl</description></Value>
+ <Value code="m"><description>Mixed collection</description></Value>
+ <Value code="n"><description>Vellum</description></Value>
+ <Value code="o"><description>Paper</description></Value>
+ <Value code="p"><description>Plaster</description></Value>
+ <Value code="q"><description>Hardboard</description></Value>
+ <Value code="r"><description>Porcelain</description></Value>
+ <Value code="s"><description>Stone</description></Value>
+ <Value code="t"><description>Wood</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="v"><description>Leather</description></Value>
+ <Value code="w"><description>Parchment</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="05"><name>Secondary support material</name><description>Type of material (other than normal museum matting) to which the primary support (007/04) is attached.</description>
+ <Value code="#"><description>No secondary support</description></Value>
+ <Value code="a"><description>Canvas</description></Value>
+ <Value code="b"><description>Bristol board</description></Value>
+ <Value code="c"><description>Cardboard/illustration board</description></Value>
+ <Value code="d"><description>Glass</description></Value>
+ <Value code="e"><description>Synthetic</description></Value>
+ <Value code="f"><description>Skin</description></Value>
+ <Value code="g"><description>Textile</description></Value>
+ <Value code="h"><description>Metal</description></Value>
+ <Value code="i"><description>Plastic</description></Value>
+ <Value code="l"><description>Vinyl</description></Value>
+ <Value code="m"><description>Mixed collection</description></Value>
+ <Value code="n"><description>Vellum</description></Value>
+ <Value code="o"><description>Paper</description></Value>
+ <Value code="p"><description>Plaster</description></Value>
+ <Value code="q"><description>Hardboard</description></Value>
+ <Value code="r"><description>Porcelain</description></Value>
+ <Value code="s"><description>Stone</description></Value>
+ <Value code="t"><description>Wood</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="v"><description>Leather</description></Value>
+ <Value code="w"><description>Parchment</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ </Material>
+ <Material id="MP"><name>Motion picture</name><description></description>
+ <Position pos="00"><name>Category of material</name><description></description>
+ <Value code="m"><description>Motion picture</description></Value>
+ </Position>
+ <Position pos="01"><name>Specific material designation</name><description>Special class of motion picture to which the item belongs., e.g., a film reel.</description>
+ <Value code="c"><description>Film cartridge</description></Value>
+ <Value code="f"><description>Film cassette</description></Value>
+ <Value code="o"><description>Film roll</description></Value>
+ <Value code="r"><description>Film reel</description></Value>
+ <Value code="u"><description>Unspecified</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="02"><name>Undefined</name><description>Contains a blank (#) or a fill character (|).</description>
+ </Position>
+ <Position pos="03"><name>Color</name><description>Color characteristics of a motion picture.</description>
+ <Value code="b"><description>Black-and-white</description></Value>
+ <Value code="c"><description>Multicoloured</description></Value>
+ <Value code="h"><description>Hand colored</description></Value>
+ <Value code="m"><description>Mixed</description></Value>
+ <Value code="n"><description>Not applicable</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="04"><name>Motion picture presentation format</name><description>Presentation format for motion pictures.</description>
+ <Value code="a"><description>Standard sound aperture (reduced frame)</description></Value>
+ <Value code="b"><description>Nonanamorphic (wide-screen)</description></Value>
+ <Value code="c"><description>3D</description></Value>
+ <Value code="d"><description>Anamorphic (wide-screen)</description></Value>
+ <Value code="e"><description>Other wide-screen format</description></Value>
+ <Value code="f"><description>Standard silent aperture (full frame)</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="05"><name>Sound on medium or separate</name><description>Whether the sound is on the item or separate from the item. </description>
+ <Value code="#"><description>No sound (silent)</description></Value>
+ <Value code="a"><description>Sound on medium</description></Value>
+ <Value code="b"><description>Sound separate from medium</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="06"><name>Medium for sound</name><description>Specific medium used to carry the sound of an item (whether that sound is carried on the item itself or is in the form of accompanying material) and the type of sound playback required.</description>
+ <Value code="#"><description>No sound (silent)</description></Value>
+ <Value code="a"><description>Optical sound track on motion picture film</description></Value>
+ <Value code="b"><description>Magnetic sound track on motion picture film</description></Value>
+ <Value code="c"><description>Magnetic audio tape in cartridge</description></Value>
+ <Value code="d"><description>Sound disc</description></Value>
+ <Value code="e"><description>Magnetic audio tape on reel</description></Value>
+ <Value code="f"><description>Magnetic audio tape in cassette</description></Value>
+ <Value code="g"><description>Optical and magnetic sound track on motion picture film</description></Value>
+ <Value code="h"><description>Videotape</description></Value>
+ <Value code="i"><description>Videodisc</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="07"><name>Dimensions</name><description>Width of a motion picture.</description>
+ <Value code="a"><description>Standard 8 mm.</description></Value>
+ <Value code="b"><description>Super 8 mm./single 8 mm.</description></Value>
+ <Value code="c"><description>9.5 mm.</description></Value>
+ <Value code="d"><description>16 mm.</description></Value>
+ <Value code="e"><description>28 mm.</description></Value>
+ <Value code="f"><description>35 mm.</description></Value>
+ <Value code="g"><description>70 mm.</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="08"><name>Configuration of playback channels</name><description>Configuration of playback channels for the sound portion of a motion picture.</description>
+ <Value code="k"><description>Mixed</description></Value>
+ <Value code="m"><description>Monaural</description></Value>
+ <Value code="n"><description>Not applicable</description></Value>
+ <Value code="q"><description>Quadraphonic, multichannel, or surround</description></Value>
+ <Value code="s"><description>Stereophonic</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="09"><name>Production elements</name><description>Whether the film is part of a complete production or is a preliminary or post-production element.</description>
+ <Value code="a"><description>Workprint</description></Value>
+ <Value code="b"><description>Trims</description></Value>
+ <Value code="c"><description>Outtakes</description></Value>
+ <Value code="d"><description>Rushes</description></Value>
+ <Value code="e"><description>Mixing tracks</description></Value>
+ <Value code="f"><description>Title bands/inter-title rolls</description></Value>
+ <Value code="g"><description>Production rolls</description></Value>
+ <Value code="n"><description>Not applicable</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="10"><name>Positive/negative aspect</name><description>Whether the film is positive or negative.</description>
+ <Value code="a"><description>Positive</description></Value>
+ <Value code="b"><description>Negative</description></Value>
+ <Value code="n"><description>Not applicable</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="11"><name>Generation</name><description>How far away from the original material the item is (e.g., the actual negative film or original videotape in the camera). Generation data is used to evaluate the quality of available copies, to make preservation decisions, and to identify materials available for viewing and research.</description>
+ <Value code="d"><description>Duplicate</description></Value>
+ <Value code="e"><description>Master</description></Value>
+ <Value code="o"><description>Original</description></Value>
+ <Value code="r"><description>Reference print/viewing copy</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="12"><name>Base of film</name><description></description>
+ <Value code="a"><description>Safety base, undetermined</description></Value>
+ <Value code="c"><description>Safety base, acetate undetermined</description></Value>
+ <Value code="d"><description>Safety base, diacetate</description></Value>
+ <Value code="i"><description>Nitrate base</description></Value>
+ <Value code="m"><description>Mixed base (nitrate and safety)</description></Value>
+ <Value code="n"><description>Not applicable</description></Value>
+ <Value code="p"><description>Safety base, polyester</description></Value>
+ <Value code="r"><description>Safety base, mixed</description></Value>
+ <Value code="t"><description>Safety base, triacetate</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="13"><name>Refined categories of colour</name><description>More specific color characteristics of the moving image than are contained in 007/03 (Color). </description>
+ <Value code="a"><description>3 layer color</description></Value>
+ <Value code="b"><description>2 color, single strip</description></Value>
+ <Value code="c"><description>Undetermined 2 colour</description></Value>
+ <Value code="d"><description>Undetermined 3 colour</description></Value>
+ <Value code="e"><description>3 strip color</description></Value>
+ <Value code="f"><description>2 strip color</description></Value>
+ <Value code="g"><description>Red strip</description></Value>
+ <Value code="h"><description>Blue or green strip</description></Value>
+ <Value code="i"><description>Cyan strip</description></Value>
+ <Value code="j"><description>Magenta strip</description></Value>
+ <Value code="k"><description>Yellow strip</description></Value>
+ <Value code="l"><description>S E N 2</description></Value>
+ <Value code="m"><description>S E N 3</description></Value>
+ <Value code="n"><description>Not applicable</description></Value>
+ <Value code="p"><description>Sepia tone</description></Value>
+ <Value code="q"><description>Other tone</description></Value>
+ <Value code="r"><description>Tint</description></Value>
+ <Value code="s"><description>Tinted and toned</description></Value>
+ <Value code="t"><description>Stencil colour</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="v"><description>Hand colored</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="14"><name>Kind of colour stock or print</name><description>Type of color film stock or color print the item represents.</description>
+ <Value code="a"><description>Imbibition dye transfer prints</description></Value>
+ <Value code="b"><description>Three-layer stock</description></Value>
+ <Value code="c"><description>Three layer stock, low fade</description></Value>
+ <Value code="d"><description>Duplitised stock</description></Value>
+ <Value code="n"><description>Not applicable</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="15"><name>Deterioration stage</name><description>Level of deterioration of the motion picture film.</description>
+ <Value code="a"><description>None apparent</description></Value>
+ <Value code="b"><description>Nitrate: suspicious odor</description></Value>
+ <Value code="c"><description>Nitrate: pungent odor</description></Value>
+ <Value code="d"><description>Nitrate: brownish, discolouration, fading, dusty</description></Value>
+ <Value code="e"><description>Nitrate: sticky</description></Value>
+ <Value code="f"><description>Nitrate: frothy, bubbles, blisters</description></Value>
+ <Value code="g"><description>Nitrate: congealed</description></Value>
+ <Value code="h"><description>Nitrate: powder</description></Value>
+ <Value code="k"><description>Non-nitrate: detectable deterioration</description></Value>
+ <Value code="l"><description>Non-nitrate: advanced deterioration</description></Value>
+ <Value code="m"><description>Non-nitrate: disaster</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="16"><name>Completeness</name><description>Whether or not the item being catalogued is judged to be complete.</description>
+ <Value code="c"><description>Complete</description></Value>
+ <Value code="i"><description>Incomplete</description></Value>
+ <Value code="n"><description>Not applicable</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="17-22"><name>Film inspection date</name><description>Six characters that indicate the most recent film inspection date; the date is recorded in the pattern ccyymm (century/year/month). A hyphen is used for any unknown portion of the date. Six fill characters (||||||) are used if no attempt is made to code these character positions.</description>
+ </Position>
+ </Material>
+ <Material id="KT"><name>Kit</name><description></description>
+ <Position pos="00"><name>Category of material</name><description></description>
+ <Value code="o"><description>Kit</description></Value>
+ </Position>
+ <Position pos="01"><name>Specific material designation</name><description>Special class of textual material to which an item belongs.</description>
+ <Value code="u"><description>Unspecified</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ </Material>
+ <Material id="NM"><name>Notated music</name><description></description>
+ <Position pos="00"><name>Category of material</name><description></description>
+ <Value code="q"><description>Notated music</description></Value>
+ </Position>
+ <Position pos="01"><name>Specific material designation</name><description>Special class of textual material to which an item belongs.</description>
+ <Value code="u"><description>Unspecified</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ </Material>
+ <Material id="RI"><name>Remote-sensing image</name><description></description>
+ <Position pos="00"><name>Category of material</name><description></description>
+ <Value code="r"><description>Remote-sensing image</description></Value>
+ </Position>
+ <Position pos="01"><name>Specific material designation</name><description>Special class of material, usually the class of physical object, to which an item belongs.</description>
+ <Value code="u"><description>Unspecified</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="02"><name>Undefined</name><description>Contains blank (#) or a fill character (|).</description>
+ </Position>
+ <Position pos="03"><name>Altitude of sensor</name><description>General position of the sensor relative to to the object under study.</description>
+ <Value code="a"><description>Surface</description></Value>
+ <Value code="b"><description>Airborne</description></Value>
+ <Value code="c"><description>Spaceborne</description></Value>
+ <Value code="n"><description>Not applicable</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="04"><name>Attitude of sensor</name><description>General angle of the device from which the remote-sensing image is made.</description>
+ <Value code="a"><description>Low oblique</description></Value>
+ <Value code="b"><description>High oblique</description></Value>
+ <Value code="c"><description>Vertical</description></Value>
+ <Value code="n"><description>Not applicable</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="05"><name>Cloud cover</name><description>Amount of cloud cover that was present when a remote-sensing image was made.</description>
+ <Value code="0"><description>0-9%</description></Value>
+ <Value code="1"><description>10-19%</description></Value>
+ <Value code="2"><description>20-29%</description></Value>
+ <Value code="3"><description>30-39%</description></Value>
+ <Value code="4"><description>40-49%</description></Value>
+ <Value code="5"><description>50-59%</description></Value>
+ <Value code="6"><description>60-69%</description></Value>
+ <Value code="7"><description>70-79%</description></Value>
+ <Value code="8"><description>80-89%</description></Value>
+ <Value code="9"><description>90-100%</description></Value>
+ <Value code="n"><description>Not applicable</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="06"><name>Platform construction type</name><description>Type of construction of the platform serving as the base for the remote-sensing device. For the purposes of this data element, "platform" refers to any structure that serves as a base, not only flat surfaces.</description>
+ <Value code="a"><description>Balloon</description></Value>
+ <Value code="b"><description>Aircraft--low altitude</description></Value>
+ <Value code="c"><description>Aircraft--medium altitude</description></Value>
+ <Value code="d"><description>Aircraft--high altitude</description></Value>
+ <Value code="e"><description>Manned spacecraft</description></Value>
+ <Value code="f"><description>Unmanned spacecraft</description></Value>
+ <Value code="g"><description>Land-based remote-sensing device</description></Value>
+ <Value code="h"><description>Water surface-based remote-sensing device</description></Value>
+ <Value code="i"><description>Submersible remote-sensing device</description></Value>
+ <Value code="n"><description>Not applicable</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="07"><name>Platform use category</name><description>Primary use intended for the platform specified in 007/06 (Platform construction type).</description>
+ <Value code="a"><description>Meteorological</description></Value>
+ <Value code="b"><description>Surface observing</description></Value>
+ <Value code="c"><description>Space observing</description></Value>
+ <Value code="m"><description>Mixed uses</description></Value>
+ <Value code="n"><description>Not applicable</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="08"><name>Sensor type</name><description>For the recording mode of the remote-sensing device, specifically, whether the sensor is involved in the creation of the transmission it eventually measures.</description>
+ <Value code="a"><description>Active</description></Value>
+ <Value code="b"><description>Passive</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="09-10"><name>Data type</name><description>Spectral, acoustic, or magnetic characteristics of the data received by the device producing the remote-sensing image. It can be used to indicate both the wave length of radiation measured and the type of sensor used to measure it.</description>
+ <Value code="aa"><description>Visible light</description></Value>
+ <Value code="da"><description>Near infrared</description></Value>
+ <Value code="db"><description>Middle infrared</description></Value>
+ <Value code="dc"><description>Far infrared</description></Value>
+ <Value code="dd"><description>Thermal infrared</description></Value>
+ <Value code="de"><description>Shortwave infrared (SWIR)</description></Value>
+ <Value code="df"><description>Reflective infrared</description></Value>
+ <Value code="dv"><description>Combinations</description></Value>
+ <Value code="dz"><description>Other infrared data</description></Value>
+ <Value code="ga"><description>Sidelooking airborne radar (SLAR)</description></Value>
+ <Value code="gb"><description>Synthetic aperture radar (SAR)-Single frequency</description></Value>
+ <Value code="gc"><description>SAR-multi-frequency (multichannel)</description></Value>
+ <Value code="gd"><description>SAR-like polarisation</description></Value>
+ <Value code="ge"><description>SAR-cross polarisation</description></Value>
+ <Value code="gf"><description>Infometric SAR</description></Value>
+ <Value code="gg"><description>polarmetric SAR</description></Value>
+ <Value code="gu"><description>Passive microwave mapping</description></Value>
+ <Value code="gz"><description>Other microwave data</description></Value>
+ <Value code="ja"><description>Far ultraviolet</description></Value>
+ <Value code="jb"><description>Middle ultraviolet</description></Value>
+ <Value code="jc"><description>Near ultraviolet</description></Value>
+ <Value code="jv"><description>Ultraviolet combinations</description></Value>
+ <Value code="jz"><description>Other ultraviolet data</description></Value>
+ <Value code="ma"><description>Multi-spectral, multidata</description></Value>
+ <Value code="mb"><description>Multi-temporal</description></Value>
+ <Value code="mm"><description>Combination of various data types</description></Value>
+ <Value code="nn"><description>Not applicable</description></Value>
+ <Value code="pa"><description>Sonar--water depth</description></Value>
+ <Value code="pb"><description>Sonar--bottom topography images, sidescan</description></Value>
+ <Value code="pc"><description>Sonar--bottom topography, near-surface</description></Value>
+ <Value code="pd"><description>Sonar--bottom topography, near-bottom</description></Value>
+ <Value code="pe"><description>Seismic surveys</description></Value>
+ <Value code="pz"><description>Other acoustical data</description></Value>
+ <Value code="ra"><description>Gravity anomalies (general)</description></Value>
+ <Value code="rb"><description>Free-air</description></Value>
+ <Value code="rc"><description>Bouger</description></Value>
+ <Value code="rd"><description>Isostatic</description></Value>
+ <Value code="sa"><description>Magnetic field</description></Value>
+ <Value code="ta"><description>radiometric surveys</description></Value>
+ <Value code="uu"><description>Unknown</description></Value>
+ <Value code="zz"><description>Other</description></Value>
+ <Value code="||"><description>No attempt to code</description></Value>
+ </Position>
+ </Material>
+ <Material id="SR"><name>Sound recording</name><description></description>
+ <Position pos="00"><name>Category of material</name><description></description>
+ <Value code="s"><description>Sound recording</description></Value>
+ </Position>
+ <Position pos="01">Specific material designation<name></name><description>Special class of sound recording to which the item belongs (e.g., a cylinder).</description>
+ <Value code="b"><description>Belt</description></Value>
+ <Value code="d"><description>Sound disc</description></Value>
+ <Value code="e"><description>Cylinder</description></Value>
+ <Value code="g"><description>Sound cartridge</description></Value>
+ <Value code="i"><description>Sound-track film</description></Value>
+ <Value code="q"><description>Roll</description></Value>
+ <Value code="r"><description>Remote</description></Value>
+ <Value code="s"><description>Sound cassette</description></Value>
+ <Value code="t"><description>Sound-tape reel</description></Value>
+ <Value code="u"><description>Unspecified</description></Value>
+ <Value code="w"><description>Wire recording</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="02"><name>Undefined</name><description>Contains a blank (#) or fill character (|)</description>
+ </Position>
+ <Position pos="03"><name>Speed</name><description>Playback speed of the sound recording. This code is only intended to relate to the playing speed of a sound recording rendered on a mechanical device.</description>
+ <Value code="d"><description>Sound disc</description></Value>
+ <Value code="a"><description>16 rpm (discs)</description></Value>
+ <Value code="b"><description>33 1/3 rpm (discs)</description></Value>
+ <Value code="c"><description>45 rpm (discs)</description></Value>
+ <Value code="d"><description>78 rpm (discs)</description></Value>
+ <Value code="e"><description>8 rpm (discs)</description></Value>
+ <Value code="f"><description>1.4 m. per second (discs)</description></Value>
+ <Value code="h"><description>120 rpm (cylinders)</description></Value>
+ <Value code="i"><description>160 rpm (cylinders)</description></Value>
+ <Value code="k"><description>15/16 ips (tapes)</description></Value>
+ <Value code="l"><description>1 7/8 ips (tapes)</description></Value>
+ <Value code="m"><description>3 3/4 ips (tapes)</description></Value>
+ <Value code="n"><description>Not applicable</description></Value>
+ <Value code="o"><description>7 1/2 ips (tapes)</description></Value>
+ <Value code="p"><description>15 ips (tapes)</description></Value>
+ <Value code="r"><description>30 ips (tape)</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="04"><name>Configuration of playback channels</name><description>Configuration of playback channels for a sound recording.</description>
+ <Value code="m"><description>Monaural</description></Value>
+ <Value code="q"><description>Quadraphonic, multichannel, or surround</description></Value>
+ <Value code="s"><description>Stereophonic</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="05"><name>Groove width/groove pitch</name><description>Width of the groove of the recording for discs or the pitch of the groove for cylinders.</description>
+ <Value code="m"><description>Microgroove/fine</description></Value>
+ <Value code="n"><description>Not applicable</description></Value>
+ <Value code="s"><description>Coarse/standard</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="06"><name>Dimensions</name><description>Diameter of an open reel or disc, or the dimensions of a cassette, cartridge, or cylinder.</description>
+ <Value code="a"><description>3 in. diameter</description></Value>
+ <Value code="b"><description>5 in. diameter</description></Value>
+ <Value code="c"><description>7 in. diameter</description></Value>
+ <Value code="d"><description>10 in. diameter</description></Value>
+ <Value code="e"><description>12 in. diameter</description></Value>
+ <Value code="f"><description>16 in. diameter</description></Value>
+ <Value code="g"><description>4 3/4 in. or 12 cm. diameter</description></Value>
+ <Value code="j"><description>3 7/8 x 2 1/2 in.</description></Value>
+ <Value code="n"><description>Not applicable</description></Value>
+ <Value code="o"><description>5 1/4 x 3 7/8 in.</description></Value>
+ <Value code="s"><description>2 3/4 x 4 in.</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="07"><name>Tape width</name><description>Width of the tape.</description>
+ <Value code="l"><description>1/8 in.</description></Value>
+ <Value code="m"><description>1/4 in.</description></Value>
+ <Value code="n"><description>Not applicable</description></Value>
+ <Value code="o"><description>1/2 in.</description></Value>
+ <Value code="p"><description>1 in.</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="08"><name>Tape configuration</name><description>Number of tracks on a tape.</description>
+ <Value code="a"><description>Full (1) track</description></Value>
+ <Value code="b"><description>Half (2) track</description></Value>
+ <Value code="c"><description>Quarter (4) track</description></Value>
+ <Value code="d"><description>Eight track</description></Value>
+ <Value code="e"><description>Twelve track</description></Value>
+ <Value code="f"><description>Sixteen track</description></Value>
+ <Value code="n"><description>Not applicable</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="09"><name>Kind of disc, cylinder or tape</name><description></description>
+ <Value code="a"><description>Master tape</description></Value>
+ <Value code="b"><description>Tape duplication master</description></Value>
+ <Value code="d"><description>Disc master (negative)</description></Value>
+ <Value code="i"><description>Instantaneous (recorded on the spot)</description></Value>
+ <Value code="m"><description>Mass-produced</description></Value>
+ <Value code="n"><description>Not applicable</description></Value>
+ <Value code="r"><description>Mother (positive)</description></Value>
+ <Value code="s"><description>Stamper (negative)</description></Value>
+ <Value code="t"><description>Test pressing</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="10"><name>Kind of material</name><description>Kind of material used in the manufacture of sound recordings (both instantaneous and mass-produced). This code is only intended to relate to a sound recording rendered on a mechanical device.</description>
+ <Value code="a"><description>Lacquer coating</description></Value>
+ <Value code="b"><description>Cellulose nitrate</description></Value>
+ <Value code="c"><description>Acetate tape with ferrous oxide</description></Value>
+ <Value code="g"><description>Glass with lacquer</description></Value>
+ <Value code="i"><description>Aluminum with lacquer</description></Value>
+ <Value code="l"><description>Metal</description></Value>
+ <Value code="m"><description>Plastic with metal</description></Value>
+ <Value code="n"><description>Not applicable</description></Value>
+ <Value code="p"><description>Plastic</description></Value>
+ <Value code="r"><description>Paper with lacquer or ferrous oxide</description></Value>
+ <Value code="s"><description>Shellac</description></Value>
+ <Value code="w"><description>Wax</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="11"><name>Kind of cutting</name><description>Kind of cutting of the grooves used on a disc.</description>
+ <Value code="a"><description>Lacquer coating</description></Value>
+ <Value code="h"><description>Hill-and-dale cutting</description></Value>
+ <Value code="l"><description>Lateral or combined cutting</description></Value>
+ <Value code="n"><description>Not applicable</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="12"><name>Special playback characteristics</name><description>Playback characteristics for sound recordings, including special equipment or equalisation necessary for proper playback. This code is not used to indicate special processes used during recording unless those processes must be applied during playback.</description>
+ <Value code="a"><description>Lacquer coating</description></Value>
+ <Value code="a"><description>NAB standard</description></Value>
+ <Value code="b"><description>CCIR standard</description></Value>
+ <Value code="c"><description>Dolby-B encoded</description></Value>
+ <Value code="d"><description>dbx encoded</description></Value>
+ <Value code="e"><description>Digital recording</description></Value>
+ <Value code="f"><description>Dolby-A encoded</description></Value>
+ <Value code="g"><description>Dolby-C encoded</description></Value>
+ <Value code="h"><description>CX encoded</description></Value>
+ <Value code="n"><description>Not applicable</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="13"><name>Capture and storage technique</name><description>How the sound was originally captured and stored. Re-releases of recordings should be coded for the original capture and storage technique, even though such re-releases may have been enhanced using another technique.</description>
+ <Value code="a"><description>Acoustical capture, direct storage</description></Value>
+ <Value code="b"><description>Direct storage, not acoustical</description></Value>
+ <Value code="d"><description>Digital storage</description></Value>
+ <Value code="e"><description>Analog electrical storage</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ </Material>
+ <Material id="TC"><name>Text</name><description></description>
+ <Position pos="00"><name>Category of material</name><description></description>
+ <Value code="t"><description>Text</description></Value>
+ </Position>
+ <Position pos="01"><name>Specific material designation</name><description></description>
+ <Value code="a"><description>Regular print</description></Value>
+ <Value code="b"><description>Large print</description></Value>
+ <Value code="c"><description>Braille</description></Value>
+ <Value code="d"><description>Loose-leaf</description></Value>
+ <Value code="u"><description>Unspecified</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ </Material>
+ <Material id="VR"><name>Videorecording</name><description></description>
+ <Position pos="00"><name>Category of material</name><description>One-character alphabetic code that indicates the category of material to which the item belongs is videorecording, which is defined as a recording on which visual images, usually in motion and accompanied by sound, have been registered. It is designed for playback on a television receiver, or video monitor. A fill character (|) is not allowed in this position.</description>
+ <Value code="v"><description>Videorecording</description></Value>
+ </Position>
+ <Position pos="01"><name>Specific material designation</name><description>Special class of videorecording to which an item belongs.</description>
+ <Value code="c"><description>Videocartridge</description></Value>
+ <Value code="d"><description>Videodisc</description></Value>
+ <Value code="f"><description>Videocassette</description></Value>
+ <Value code="r"><description>Videoreel</description></Value>
+ <Value code="u"><description>Unspecified</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="02"><name>Undefined</name><description>Contains a blank (#) or a fill character (|).</description>
+ </Position>
+ <Position pos="03"><name>Color</name><description>Color characteristics of a videorecording.</description>
+ <Value code="a"><description>One colour</description></Value>
+ <Value code="b"><description>Black-and-white</description></Value>
+ <Value code="c"><description>Multicoloured</description></Value>
+ <Value code="m"><description>Mixed</description></Value>
+ <Value code="n"><description>Not applicable</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="04"><name>Videorecording format</name><description>Videotape or videodisc recording format.</description>
+ <Value code="a"><description>Beta (1/2 in., videocassette)</description></Value>
+ <Value code="b"><description>VHS (1/2 in., videocassette)</description></Value>
+ <Value code="c"><description>U-matic (3/4 in., videocasstte)</description></Value>
+ <Value code="d"><description>EIAJ (1/2 in., reel)</description></Value>
+ <Value code="e"><description>Type C (1 in., reel)</description></Value>
+ <Value code="f"><description>Quadruplex (1 in. or 2 in., reel)</description></Value>
+ <Value code="g"><description>Laserdisc</description></Value>
+ <Value code="h"><description>CED (Capacitance Electronic Disc) videodisc</description></Value>
+ <Value code="i"><description>Betacam (1/2 in., videocassette)</description></Value>
+ <Value code="j"><description>Betacam SP (1/2 in., videocassette)</description></Value>
+ <Value code="k"><description>Super-VHS (1/2 in., videocassette)</description></Value>
+ <Value code="m"><description>M-II (1/2 in., videocassette)</description></Value>
+ <Value code="o"><description>D-2 (3/4 in., videocassette)</description></Value>
+ <Value code="p"><description>8 mm.</description></Value>
+ <Value code="q"><description>Hi-8 mm.</description></Value>
+ <Value code="s"><description>Blu-ray disc</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="v"><description>DVD</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="05"><name>Sound on medium or separate</name><description>Whether the sound is on the item or separate from the item (i.e., on the accompanying material). </description>
+ <Value code="#"><description>No sound (silent)</description></Value>
+ <Value code="a"><description>Sound on medium</description></Value>
+ <Value code="b"><description>Sound separate from medium</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="06"><name>Medium for sound</name><description>Specific medium used to carry the sound of an item, whether that sound is carried on the videorecording or is separate, and the type of sound playback required for the item.</description>
+ <Value code="#"><description>No sound (silent)</description></Value>
+ <Value code="a"><description>Optical sound track on motion picture film</description></Value>
+ <Value code="b"><description>Magnetic sound track on motion picture film</description></Value>
+ <Value code="c"><description>Magnetic audio tape in cartridge</description></Value>
+ <Value code="d"><description>Sound disc</description></Value>
+ <Value code="e"><description>Magnetic audio tape on reel</description></Value>
+ <Value code="f"><description>Magnetic audio tape in cassette</description></Value>
+ <Value code="g"><description>Optical and magnetic sound track on motion picture film</description></Value>
+ <Value code="h"><description>Videotape</description></Value>
+ <Value code="i"><description>Videodisc</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="07"><name>Dimensions</name><description> Width of the videorecording. For videorecordings, only codes that exactly match the measurements of the item as given in the physical description should be used. If no code exactly matches, code z is used.</description>
+ <Value code="a"><description>8 mm.</description></Value>
+ <Value code="m"><description>1/4 in.</description></Value>
+ <Value code="o"><description>1/2 in.</description></Value>
+ <Value code="p"><description>1 in.</description></Value>
+ <Value code="q"><description>2 in.</description></Value>
+ <Value code="r"><description>3/4 in.</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ <Position pos="08"><name>Configuration of playback channels</name><description>Configuration of intended playback channels for the sound portion of a videorecording.</description>
+ <Value code="k"><description>Mixed</description></Value>
+ <Value code="m"><description>Monaural</description></Value>
+ <Value code="n"><description>Not applicable</description></Value>
+ <Value code="q"><description>Quadraphonic, multichannel, or surround</description></Value>
+ <Value code="s"><description>Stereophonic</description></Value>
+ <Value code="u"><description>Unknown</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ </Material>
+ <Material id="UN"><name>Unspecified</name><description></description>
+ <Position pos="00"><name>Category of material</name><description>One-character alphabetic code that indicates the category of material to which the item belongs is unspecified, which means that the item is not identified by one of the other 007 code values or that its multiple physical forms are not being specifically denoted (for instance, when the item in hand is a collection containing different material categories and an institution chooses not to input separate 007 fields for the various components). A fill character (|) is not allowed in this position.</description>
+ <Value code="z"><description>Unspecified</description></Value>
+ </Position>
+ <Position pos="01"><name>Specific material designation</name><description>Special class of material to which the item belongs</description>
+ <Value code="m"><description>Multiple physical forms</description></Value>
+ <Value code="u"><description>Unspecified</description></Value>
+ <Value code="z"><description>Other</description></Value>
+ <Value code="|"><description>No attempt to code</description></Value>
+ </Position>
+ </Material>
+</Tagfield>

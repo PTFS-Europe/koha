@@ -1,0 +1,348 @@
+[% USE raw %]
+[% USE Asset %]
+[% USE AuthorisedValues %]
+[% USE ItemTypes %]
+[% USE Branches %]
+[% USE TablesSettings %]
+[% PROCESS 'i18n.inc' %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Course details for [% course.course_name | html %] &rsaquo; Course reserves &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+[% FILTER collapse %]
+ <style>
+        #instructors {
+            float: left;
+        }
+        .instructor_line {
+            padding: 0 .1em;
+        }
+        .biblio-level-info {
+            background-color: #f3f3f3;
+            border-radius:5px;
+            box-shadow: 0px 1px 1px 0px rgba(50, 50, 50, 0.2);
+            display:block;
+            font-style: italic;
+            margin: -3px 0 0 -3px;
+            padding:.5em;
+            position:absolute;
+        }
+    </style>
+[% END %]
+</head>
+
+<body id="courses_course_details" class="course">
+
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'cat-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/course_reserves/course-reserves.pl">Course reserves</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ Course details for <em>[% course.course_name | html %]</em>
+ </a>
+ </li>
+ </ol>
+</nav>
+
+ <div class="main container-fluid">
+ <div class="row">
+ <div class="col-md-10 col-md-offset-1">
+
+ [% IF CAN_user_coursereserves_add_reserves OR CAN_user_coursereserves_manage_courses OR CAN_user_coursereserves_manage_courses %]
+ <div id="toolbar">
+ [% IF CAN_user_coursereserves_add_reserves %]
+ <a class="btn btn-default" id="add_items" href="/cgi-bin/koha/course_reserves/add_items.pl?course_id=[% course.course_id | html %]"><i class="fa fa-plus"></i> Add reserves</a>
+ <a class="btn btn-default" id="add_items" href="/cgi-bin/koha/course_reserves/batch_add_items.pl?course_id=[% course.course_id | html %]"><i class="fa fa-plus"></i> Batch add reserves</a>
+ [% END %]
+ [% IF CAN_user_coursereserves_delete_reserves && course_reserves %]
+ <a class="btn btn-default" id="rm_items" href="/cgi-bin/koha/course_reserves/course-details.pl?course_id=[% course.course_id | html %]&amp;action=rm_all"><i class="fa fa-minus"></i> Remove all reserves</a>
+ [% END %]
+ [% IF ( CAN_user_coursereserves_manage_courses ) %]
+ <a class="btn btn-default" id="edit_course" href="/cgi-bin/koha/course_reserves/course.pl?course_id=[% course.course_id | html %]"><i class="fa fa-pencil"></i> Edit course</a>
+ [% END %]
+ [% IF ( CAN_user_coursereserves_manage_courses ) %]
+ <a class="btn btn-default" id="delete_course" href="/cgi-bin/koha/course_reserves/mod_course.pl?course_id=[% course.course_id | html %]&amp;action=del"><i class="fa fa-trash"></i> Delete course</a>
+ [% END %]
+ </div><!-- /toolbar -->
+ [% END %]
+
+ <div class="rows">
+ <ol>
+ <li><span class="label">Course name</span> [% course.course_name | html %]</li>
+ <li><span class="label">[% tp('Semester', 'Term') | html %]</span> [% AuthorisedValues.GetByCode( 'TERM', course.term ) | html %]</li>
+ <li><span class="label">Department</span> [% AuthorisedValues.GetByCode( 'DEPARTMENT', course.department ) | html %]</li>
+ <li><span class="label">Course number</span> [% course.course_number | html %]</li>
+ <li><span class="label">Section</span> [% course.section | html %]</li>
+ <li>
+ <span class="label">Instructors</span>
+ <div id="instructors">
+ [% FOREACH i IN course.instructors %]
+ <div class="instructor_line">
+ <a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% i.borrowernumber | uri %]">[% i.firstname | html %] [% i.surname | html %]</a>
+ </div>
+ [% END %]
+ </div>
+ </li>
+ <li><span class="label">Staff note</span> [% course.staff_note | html %]</li>
+ <li><span class="label">Public note</span> [% course.public_note | $raw %]</li>
+ <li><span class="label">Student count</span> [% course.students_count | html %]</li>
+ <li><span class="label">Status</span> [% IF course.enabled == 'yes' %]Active[% ELSE %]Inactive[% END %]</li>
+ </ol>
+ </div>
+
+ [% IF course_reserves %]
+ <h1>Reserves</h1>
+ <table id="course_reserves_table">
+ <thead>
+ <tr>
+ <th class="anti-the">Title</th>
+ <th>Author</th>
+ <th>Barcode</th>
+ <th>Class number</th>
+ [% IF item_level_itypes %]<th>Item type</th>[% END %]
+ <th>Collection</th>
+ <th>Location</th>
+ <th>Home library</th>
+ <th>Holding library</th>
+ <th>Staff note</th>
+ <th>Public note</th>
+ <th>Link</th>
+ <th class="NoSort">Other course reserves</th>
+ <th>Status</th>
+ [% IF CAN_user_coursereserves_add_reserves || CAN_user_coursereserves_delete_reserves %]
+ <th class="NoSort noExport">Actions</th>
+ [% END %]
+ </tr>
+ </thead>
+
+ <tbody>
+ [% FOREACH cr IN course_reserves %]
+ <tr>
+ <td><a href="/cgi-bin/koha/catalogue/detail.pl?biblionumber=[% cr.biblio.biblionumber | uri %]">[% INCLUDE 'biblio-title.inc' biblio=cr.biblio %]</a></td>
+ <td>[% cr.biblio.author | html %]</td>
+
+ [% IF cr.item %]
+ <td><a href="/cgi-bin/koha/catalogue/moredetail.pl?itemnumber=[% cr.item.itemnumber | uri %]&amp;biblionumber=[% cr.biblio.biblionumber | uri %]&amp;bi=[% cr.biblioitem.biblioitemnumber | uri %]">[% cr.item.barcode | html %]</a></td>
+
+
+
+ <td>[% cr.item.itemcallnumber | html %]</td>
+ [% IF item_level_itypes %]
+ <td>
+ [% IF cr.course_item.itype_enabled %]
+ [% IF cr.course_item.enabled == 'yes' %]
+ <strong>[% ItemTypes.GetDescription( cr.item.effective_itemtype ) | html %]</strong>
+ ([% ItemTypes.GetDescription( cr.course_item.itype_storage ) | html %])
+ [% ELSE %]
+ [% ItemTypes.GetDescription( cr.course_item.itype ) | html %]
+ (<strong>[% ItemTypes.GetDescription( cr.item.effective_itemtype) | html %]</strong>)
+ [% END %]
+ [% ELSE %]
+ <em>Unchanged</em>
+ [% IF cr.item.itype %]
+ ([% ItemTypes.GetDescription( cr.item.itype ) | html %])
+ [% END %]
+ [% END %]
+ </td>
+ [% END %]
+ <td>
+ [% IF cr.course_item.ccode_enabled %]
+ [% IF cr.course_item.enabled == 'yes' %]
+ <strong>[% AuthorisedValues.GetDescriptionByKohaField( kohafield => 'items.ccode', authorised_value => cr.item.ccode ) | html %]</strong>
+ [% IF cr.item.ccode %]
+ ([% AuthorisedValues.GetDescriptionByKohaField( kohafield => 'items.ccode', authorised_value => cr.course_item.ccode_storage ) | html %])
+ [% END %]
+ [% ELSE %]
+ [% AuthorisedValues.GetDescriptionByKohaField( kohafield => 'items.ccode', authorised_value => cr.course_item.ccode ) | html %]
+ [% IF cr.item.ccode %]
+ (<strong>[% AuthorisedValues.GetDescriptionByKohaField( kohafield => 'items.ccode', authorised_value => cr.item.ccode ) | html %]</strong>)
+ [% END %]
+ [% END %]
+ [% ELSE %]
+ <em>Unchanged</em>
+ [% IF cr.item.ccode %]
+ ([% AuthorisedValues.GetDescriptionByKohaField( kohafield => 'items.ccode', authorised_value => cr.item.ccode ) | html %])
+ [% END %]
+ [% END %]
+ </td>
+ <td>
+ [% IF cr.course_item.location_enabled %]
+ [% IF cr.course_item.enabled == 'yes' %]
+ <strong>[% AuthorisedValues.GetByCode( 'LOC', cr.item.permanent_location ) | html %]</strong>
+ [% IF cr.item.permanent_location %]
+ ([% AuthorisedValues.GetByCode( 'LOC', cr.course_item.location_storage ) | html %])
+ [% END %]
+ [% ELSE %]
+ [% AuthorisedValues.GetByCode( 'LOC', cr.course_item.location ) | html %]
+ [% IF cr.item.permanent_location %]
+ (<strong>[% AuthorisedValues.GetByCode( 'LOC', cr.item.permanent_location ) | html %]</strong>)
+ [% END %]
+ [% END %]
+ [% ELSE %]
+ <em>Unchanged</em>
+ [% IF cr.item.permanent_location %]
+ ([% AuthorisedValues.GetByCode( 'LOC', cr.item.permanent_location ) | html %])
+ [% END %]
+ [% END %]
+ </td>
+ <td>
+ [% IF cr.course_item.homebranch_enabled %]
+ [% IF cr.course_item.enabled == 'yes' %]
+ <strong>[% Branches.GetName( cr.item.homebranch ) | html %]</strong>
+ [% IF cr.item.homebranch %]
+ ([% Branches.GetName( cr.course_item.homebranch_storage ) | html %])
+ [% END %]
+ [% ELSE %]
+ [% Branches.GetName( cr.course_item.homebranch ) | html %]
+ [% IF cr.item.homebranch %]
+ (<strong>[% Branches.GetName( cr.item.homebranch ) | html %]</strong>)
+ [% END %]
+ [% END %]
+ [% ELSE %]
+ <em>Unchanged</em>
+ [% IF cr.item.homebranch %]
+ ([% Branches.GetName( cr.item.homebranch ) | html %])
+ [% END %]
+ [% END %]
+ </td>
+ <td>
+ [% IF cr.course_item.holdingbranch_enabled %]
+ [% IF cr.course_item.enabled == 'yes' %]
+ <strong>[% Branches.GetName( cr.item.holdingbranch ) | html %]</strong>
+ [% IF cr.item.holdingbranch %]
+ ([% Branches.GetName( cr.course_item.holdingbranch_storage ) | html %])
+ [% END %]
+ [% ELSE %]
+ [% Branches.GetName( cr.course_item.holdingbranch ) | html %]
+ [% IF cr.item.holdingbranch %]
+ (<strong>[% Branches.GetName( cr.item.holdingbranch ) | html %]</strong>)
+ [% END %]
+ [% END %]
+ [% ELSE %]
+ <em>Unchanged</em>
+ [% IF cr.item.holdingbranch %]
+ ([% Branches.GetName( cr.item.holdingbranch ) | html %])
+ [% END %]
+ [% END %]
+ </td>
+ [% ELSE # record-level course reserve %]
+ <td>
+ <div class="biblio-level-info">Item information is not available for record-level course reserve</div>
+ </td>
+ <td><!-- Call number --></td>
+ <td><!-- Item type --></td>
+ <td><!-- Collection --></td>
+ <td><!-- Location --></td>
+ <td><!-- Home library --></td>
+ <td><!-- Holding library --></td>
+ [% END %]
+
+ <td>[% IF (cr.staff_note) %]
+ [% cr.staff_note | html %]
+ [% ELSIF (cr.item.itemnotes_nonpublic) %]
+ [% cr.item.itemnotes_nonpublic | html %]
+ [% END %]
+ </td>
+ <td>[% IF (cr.public_note) %]
+ [% cr.public_note | $raw %]
+ [% ELSIF (cr.item.itemnotes) %]
+ [% cr.item.itemnotes | $raw %]
+ [% END %]
+ </td>
+
+ <td>
+ [% IF (cr.item.uri) %]
+ <a href="[% cr.item.uri | url %]">Item URI</a>
+ [% ELSIF (cr.biblioitem.url) %]
+ <a href="[% cr.biblioitem.url | url %]">Record URL</a>
+ [% END %]
+ </td>
+
+ <td>
+ [% FOREACH c IN cr.courses %]
+ [% UNLESS cr.course_id == c.course_id %]
+ <p>
+ <a href="course-details.pl?course_id=[% c.course_id | uri %]">
+ [% c.course_name | html %]
+ [% IF c.section %] [% c.section | html %] [% END %]
+ [% IF c.term %] [% AuthorisedValues.GetByCode( 'TERM', c.term ) | html %] [% END %]
+ </a>
+ </p>
+ [% END %]
+ [% END %]
+ </td>
+
+ <td class="status">
+ <span>
+ [% IF cr.item.onloan %] Issued [% ELSE %] Available [% END %] </span>
+ </td>
+
+ [% IF CAN_user_coursereserves_add_reserves || CAN_user_coursereserves_delete_reserves %]
+ <td class="actions">
+ [% IF CAN_user_coursereserves_add_reserves %]
+ <a class="btn btn-default btn-xs" href="add_items.pl?course_id=[% course.course_id | html %]&amp;itemnumber=[% cr.item.itemnumber | html %]&amp;biblionumber=[% cr.biblio.biblionumber | html %]&amp;action=lookup&amp;return=[% course.course_id | html %]&amp;is_edit=1"><i class="fa fa-pencil"></i> Edit</a>
+ [% END %]
+
+ [% IF CAN_user_coursereserves_delete_reserves %]
+ <a class="btn btn-default btn-xs delete_item" href="course-details.pl?course_id=[% course.course_id | html %]&amp;action=del_reserve&amp;cr_id=[% cr.cr_id | html %]">
+ <i class="fa fa-trash"></i> Remove</a>
+ [% END %]
+ </td>
+ [% END %]
+
+ </tr>
+ [% END %]
+ </tbody>
+ </table>
+ [% END %]
+ </div>
+ </div>
+
+[% MACRO jsinclude BLOCK %]
+ [% INCLUDE 'datatables.inc' %]
+ [% INCLUDE 'columns_settings.inc' %]
+ <script>
+        var columns_settings = [% TablesSettings.GetColumns( 'coursereserves', 'reserves', 'course_reserves_table', 'json' ) | $raw %];
+        $(document).ready(function(){
+            var rtable = KohaTable("course_reserves_table", {
+                "sPaginationType": "full",
+                "bAutoWidth": false,
+            }, columns_settings );
+
+            $(".delete_item").click(function(){
+                return confirmDelete(_("Are you sure you want to remove this item from the course?"));
+            });
+
+            $("#rm_items").click(function(){
+                return confirmDelete(_("Are you sure you want to remove all items from the course?"));
+            });
+
+            $("#delete_course").click(function(){
+                [% SET count = course_reserves.size || 0 %]
+                [% IF count == 1 %]
+                    return confirmDelete(_("Are you sure you want to delete this course? There is %s attached item.").format([% count | html %]) );
+                [% ELSIF count > 1 %]
+                    return confirmDelete(_("Are you sure you want to delete this course? There are %s attached items.").format([% count | html %]) );
+                [% ELSE %]
+                    return confirmDelete(_("Are you sure you want to delete this course?"));
+                [% END %]
+            });
+            $(".disabled").tooltip().on("click", function(e){
+                e.preventDefault();
+                if( $(this).hasClass("checkedout") ){
+                    alert(_("This item cannot be removed. It is issued"));
+                }
+            });
+        });
+    </script>
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' %]

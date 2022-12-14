@@ -1,0 +1,94 @@
+[% USE raw %]
+[% USE Asset %]
+[% USE Branches %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Clone circulation and fine rules &rsaquo; Circulation and fine rules &rsaquo; Administration &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+<body id="admin_clone-rules" class="admin">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'prefs-admin-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/admin/admin-home.pl">Administration</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/admin/smart-rules.pl">Circulation and fine rules</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ Clone circulation and fine rules
+ </a>
+ </li>
+ </ol>
+</nav>
+
+<div class="main container-fluid">
+ <div class="row">
+ <div class="col-sm-10 col-sm-push-2">
+ <main>
+
+ <h2>Cloning circulation and fine rules
+ [% IF frombranch == "*" %] from standard rules [% ELSIF frombranch %] from "[% Branches.GetName( frombranch ) | html %]"[% END %]
+ [% IF tobranch %] to "[% Branches.GetName( tobranch ) | html %]"[% END %]
+ </h2>
+
+ [% IF ( result ) %]
+ [% IF ( error ) %]
+ <div class="dialog alert">Cloning of circulation and fine rules failed!</div>
+ [% ELSE %]
+ <div class="dialog message"><p>The rules have been cloned.</p></div>
+ [% END %]
+ <a href="/cgi-bin/koha/admin/smart-rules.pl">Return to circulation and fine rules</a>
+ [% ELSE %]
+
+ <p class="help">Use carefully! If the destination library already has circulation and fine rules, they will be deleted without warning!</p>
+ <form action="/cgi-bin/koha/admin/clone-rules.pl" method="post">
+ [% UNLESS ( frombranch ) %]
+ <fieldset>
+ <legend>Please choose a library to clone rules from:</legend>
+ <label for="frombranch">Source library:</label>
+ <select name="frombranch" id="frombranch">
+ <option value="">Default</option>
+ [% PROCESS options_for_libraries libraries => Branches.all() %]
+ </select>
+ [% IF ( tobranch ) %]<input type="hidden" name="tobranch" value="[% tobranch | html %]" />[% END %]
+ </fieldset>
+ [% END %]
+
+ [% UNLESS ( tobranch ) %]
+ <fieldset>
+ <legend>Please choose the library to clone the rules to:</legend>
+ <label for="tobranch">Destination library:</label>
+ <select name="tobranch" id="tobranch">
+ <option value="">Default</option>
+ [% PROCESS options_for_libraries libraries => Branches.all() %]
+ </select>
+ [% IF ( frombranch ) %]<input type="hidden" name="frombranch" value="[% frombranch | html %]" />[% END %]
+ </fieldset>
+ [% END %]
+ <input type="submit" value="Submit" />
+ </form>
+
+ [% END %]
+ </main>
+ </div> <!-- /.col-sm-10.col-sm-push-2 -->
+
+ <div class="col-sm-2 col-sm-pull-10">
+ <aside>
+ [% INCLUDE 'admin-menu.inc' %]
+ </aside>
+ </div> <!-- /.col-sm-2.col-sm-pull-10 -->
+ </div> <!-- /.row -->
+
+[% MACRO jsinclude BLOCK %]
+ [% Asset.js("js/admin-menu.js") | $raw %]
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' %]

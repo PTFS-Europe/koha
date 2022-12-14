@@ -1,0 +1,48 @@
+[% USE raw %]
+[% USE Koha %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>ISBD view &rsaquo; [% IF ( LibraryNameTitle ) %][% LibraryNameTitle | html %][% ELSE %]Koha online[% END %] catalogue</title>
+[% INCLUDE 'doc-head-close.inc' %]
+[% BLOCK cssinclude %][% END %]
+</head>
+[% INCLUDE 'bodytag.inc' bodyid='opac-isbddetail' bodyclass='scrollto' %]
+[% INCLUDE 'masthead.inc' %]
+<div class="main">
+
+ <nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumbs">
+ <ol class="breadcrumb">
+ <li class="breadcrumb-item">
+ <a href="/cgi-bin/koha/opac-main.pl">Home</a>
+ </li>
+ <li class="breadcrumb-item active">
+ <a href="#" aria-current="page">ISBD view</a>
+ </li>
+ </ol>
+ </nav> <!-- /#breadcrumbs -->
+
+ <div class="container-fluid">
+ <div class="row">
+ <div class="col-lg-9">
+ <div id="opac-detail" class="maincontent">
+ <div id="usermarcdetail">
+ <div id="catalogue_detail_biblio">
+ <div id="views">
+ <span class="view"><a id="Normalview" class="btn btn-link" href="/cgi-bin/koha/opac-detail.pl?biblionumber=[% biblio.biblionumber | html %]"><i class="fa fa-file-text-o" aria-hidden="true"></i> Normal view</a></span>
+ <span class="view"><a id="MARCview" class="btn btn-link" href="/cgi-bin/koha/opac-MARCdetail.pl?biblionumber=[% biblio.biblionumber | html %]"><i class="fa fa-list-alt" aria-hidden="true"></i> MARC view</a></span>
+ <span class="view current-view"><span id="ISBDview"><i class="fa fa-list-ul" aria-hidden="true"></i> ISBD view</span></span></div>
+ <h1 class="title">[% INCLUDE 'biblio-title.inc' %]</h1>
+ <div id="isbdcontents">[% ISBD | $raw %]</div>
+
+ </div> <!-- / #catalogue_detail_biblio -->
+ </div> <!-- / #usermarcdetail -->
+ </div> <!-- / #opac-detail -->
+ </div> <!-- / .col-lg-9 -->
+ <div class="col-lg-3">
+ [% INCLUDE 'opac-detail-sidebar.inc' %]
+ </div>
+ </div> <!-- / .row -->
+ </div> <!-- / .container-fluid -->
+</div> <!-- / .main -->
+
+[% INCLUDE 'opac-bottom.inc' %]
+[% BLOCK jsinclude %][% END %]

@@ -1,0 +1,508 @@
+[% USE Koha %]
+[% USE raw %]
+[% USE Asset %]
+[% SET footerjs = 1 %]
+[% USE TablesSettings %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>
+[% IF op == 'add_form' %]
+ [% IF library %]
+ Modify library
+ [% ELSE %]
+ New library [% library.branchcode | html %]
+ [% END %] &rsaquo; [% ELSIF op == 'delete_confirm' %]
+ Confirm deletion of library '[% library.branchcode | html %]' &rsaquo; [% END %]
+Libraries &rsaquo; Administration &rsaquo; Koha
+</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+
+<body id="admin_branches" class="admin">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'prefs-admin-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/admin/admin-home.pl">Administration</a>
+ </li>
+
+ [% IF op == 'add_form'  %]
+ <li>
+ <a href="/cgi-bin/koha/admin/branches.pl">Libraries</a>
+ </li>
+ [% IF library %]
+ <li>
+ <a href="#" aria-current="page">
+ Modify library
+ </a>
+ </li>
+ [% ELSE %]
+ <li>
+ <a href="#" aria-current="page">
+ New library [% library.branchcode | html %]
+ </a>
+ </li>
+ [% END %]
+
+ [% ELSIF op == 'delete_confirm' %]
+ <li>
+ <a href="/cgi-bin/koha/admin/branches.pl">Libraries</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ Confirm deletion of library '[% library.branchcode | html %]'
+ </a>
+ </li>
+
+ [% ELSE %]
+ <li>
+ <a href="#" aria-current="page">
+ Libraries
+ </a>
+ </li>
+ [% END %]
+ </ol>
+</nav>
+
+<div class="main container-fluid">
+ <div class="row">
+ <div class="col-sm-10 col-sm-push-2">
+ <main>
+
+[% FOREACH m IN messages %]
+ <div class="dialog [% m.type | html %]">
+ [% SWITCH m.code %] [% CASE 'error_on_update' %] An error occurred when updating this library. Perhaps it already exists. [% CASE 'error_on_insert' %] An error occurred when adding this library. The branchcode might already exist. [% CASE 'error_on_delete' %] An error occurred when deleting this library. Check the logs. [% CASE 'success_on_update' %] Library updated successfully. [% CASE 'success_on_insert' %] Library added successfully. [% CASE 'success_on_delete' %] Library deleted successfully. [% CASE 'cannot_delete_library' %] This library cannot be deleted. Users or items are still using it [% IF m.data.patrons_count and m.data.items_count %] ([% m.data.patrons_count | html %] users and [% m.data.items_count | html %] items). [% ELSIF m.data.patrons_count %] ([% m.data.patrons_count | html %] patrons). [% ELSIF m.data.items_count %] ([% m.data.items_count | html %] items). [% END %] [% CASE 'error_on_update_category' %] An error occurred when updating this library category. Perhaps it already exists. [% CASE 'error_on_insert_category' %] An error occurred when adding this library category. The categorycode might already exist. [% CASE 'error_on_delete_category' %] An error occurred when deleting this library category. Check the logs. [% CASE 'success_on_update_category' %] Library category updated successfully. [% CASE 'success_on_insert_category' %] Library category added successfully. [% CASE 'success_on_delete_category' %] Library category deleted successfully. [% CASE 'cannot_delete_category' %] This library category cannot be deleted. [% m.data.libraries_count | html %] libraries are still using it. [% CASE %] [% m.code | html %] [% END %] </div>
+[% END %]
+
+[% IF op == 'list' %]
+ <div id="toolbar" class="btn-toolbar">
+ <a class="btn btn-default" id="newbranch" href="/cgi-bin/koha/admin/branches.pl?op=add_form"><i class="fa fa-plus"></i> New library</a>
+ </div>
+[% END %]
+
+[% IF op == 'add_form' %]
+ <h3>[% IF library %]Modify library[% ELSE %]New library[% END %]</h3>
+ <form action="/cgi-bin/koha/admin/branches.pl" id="Aform" name="Aform" class="validated" method="post">
+ <fieldset class="rows">
+ <input type="hidden" name="op" value="add_validate" />
+ [% IF library %]
+ <input type="hidden" name="is_a_modif" value="1" />
+ [% END %]
+ <ol>
+ <li>
+ [% IF library %]
+ <span class="label">Library code: </span>
+ <input type="hidden" name="branchcode" value="[% library.branchcode | html %]" />
+ [% library.branchcode | html %]
+ [% ELSE %]
+ <label for="branchcode" class="required">Library code: </label>
+ <input type="text" name="branchcode" id="branchcode" size="10" maxlength="10" value="[% library.branchcode | html %]" class="required focus" required="required" />
+ <span class="required">Required</span>
+ [% END %]
+ </li>
+ <li>
+ <label for="branchname" class="required">Name: </label>
+ [% IF library %]
+ <input type="text" name="branchname" id="branchname" size="80" value="[% library.branchname | html %]" class="required focus" required="required" />
+ [% ELSE %]
+ <input type="text" name="branchname" id="branchname" size="80" value="[% library.branchname | html %]" class="required" required="required" />
+ [% END %]
+ <span class="required">Required</span>
+ </li>
+ </ol>
+ </fieldset>
+ [% IF categories %]
+ <fieldset class="rows"><legend>Group(s):</legend>
+ <ol>
+ [% FOREACH category IN categories %]
+ <li>
+ <label for="[% category.categorycode | html %]">[% category.categoryname | html %]: </label>
+ [% IF category and selected_categorycodes.grep(category.categorycode).size %]
+ <input type="checkbox" id="[% category.categorycode | html %]" name="selected_categorycode_[% category.categorycode | html %]" checked="checked" />
+ [% ELSE %]
+ <input type="checkbox" id="[% category.categorycode | html %]" name="selected_categorycode_[% category.categorycode | html %]" />
+ [% END %]
+ <div class="hint">[% category.codedescription | html %]</div>
+ </li>
+ [% END %]
+ </ol>
+ </fieldset>
+ [% END %]
+ <fieldset class="rows">
+ <ol>
+ <li><label for="branchaddress1">Address line 1: </label><input type="text" name="branchaddress1" id="branchaddress1" size="60" value="[% library.branchaddress1 | html %]" /></li>
+ <li><label for="branchaddress2">Address line 2: </label><input type="text" name="branchaddress2" id="branchaddress2" size="60" value="[% library.branchaddress2 | html %]" /></li>
+ <li><label for="branchaddress3">Address line 3: </label><input type="text" name="branchaddress3" id="branchaddress3" size="60" value="[% library.branchaddress3 | html %]" /></li>
+ <li><label for="branchcity">City: </label><input type="text" name="branchcity" id="branchcity" size="60" value="[% library.branchcity | html %]" /></li>
+ <li><label for="branchstate">State: </label><input type="text" name="branchstate" id="branchstate" size="60" value="[% library.branchstate | html %]" /></li>
+ <li><label for="branchzip">Postcode: </label><input type="text" name="branchzip" id="branchzip"  size="25" maxlength="25" value="[% library.branchzip | html %]" /></li>
+ <li><label for="branchcountry">Country: </label><input type="text" name="branchcountry" id="branchcountry" size="60" value="[% library.branchcountry | html %]" /></li>
+ <li><label for="branchphone">Phone: </label><input type="text" name="branchphone" id="branchphone" size="60" value="[% library.branchphone | html %]" /></li>
+ <li><label for="branchfax">Fax: </label><input type="text" name="branchfax" id="branchfax" size="60" value="[% library.branchfax | html %]" /></li>
+ <li><label for="branchemail">Email: </label><input type="text" name="branchemail" id="branchemail" class="email"  size="80" value="[% library.branchemail | html %]" /></li>
+ [% IF (Koha.Preference('ILLModule')) %]
+ <li>
+ <label for="branchillemail">ILL staff email: </label>
+ <input type="text" name="branchillemail" id="branchillemail" class="email"  size="80" value="[% library.branchillemail | html %]" />
+ <div class="hint">
+ [% IF ( CAN_user_parameters_manage_sysprefs ) %]
+ Default: <a target="_blank" href="/cgi-bin/koha/admin/preferences.pl?tab=&op=search&searchfield=ILLDefaultStaffEmail">ILLDefaultStaffEmail</a> system preference
+ [% ELSE %]
+ Default: ILLDefaultStaffEmail system preference
+ [% END %]
+ </div>
+ </li>
+ [% END %]
+ <li>
+ <label for="branchreplyto">Reply-To: </label>
+ <input type="text" name="branchreplyto" id="branchreplyto" class="email"  size="80" value="[% library.branchreplyto | html %]" />
+ <div class="hint">
+ [% IF ( CAN_user_parameters_manage_sysprefs ) %]
+ Default: <a target="_blank" href="/cgi-bin/koha/admin/preferences.pl?tab=&op=search&searchfield=ReplyToDefault">ReplyToDefault</a> system preference
+ [% ELSE %]
+ Default: ReplyToDefault system preference
+ [% END %]
+ </div>
+ </li>
+ <li>
+ <label for="branchreturnpath">Return-Path: </label>
+ <input type="text" name="branchreturnpath" id="branchreturnpath" class="email"  size="80" value="[% library.branchreturnpath | html %]" />
+ <div class="hint">
+ [% IF ( CAN_user_parameters_manage_sysprefs ) %]
+ Default: <a target="_blank" href="/cgi-bin/koha/admin/preferences.pl?tab=&op=search&searchfield=ReturnpathDefault">ReturnpathDefault</a> system preference
+ [% ELSE %]
+ Default: ReturnpathDefault system preference
+ [% END %]
+ </div>
+ </li>
+ <li><label for="smtp_server">SMTP server: </label>
+ <select name="smtp_server" id="smtp_server">
+ [% IF selected_smtp_server.is_system_default %]
+ <option value="*" selected="selected">Default</option>
+ [% ELSE %]
+ <option value="*">Default</option>
+ [% END %]
+ [% FOREACH smtp_server IN smtp_servers %]
+ [% IF smtp_server.id == selected_smtp_server.id %]
+ <option value="[% smtp_server.id | html %]" selected="selected">[% smtp_server.name | html %]</option>
+ [% ELSE %]
+ <option value="[% smtp_server.id | html %]">[% smtp_server.name | html %]</option>
+ [% END %]
+ [% END %]
+ </select>
+ </li>
+ <li><label for="branchurl">URL: </label><input type="text" name="branchurl" id="branchurl"  size="80" value="[% library.branchurl | html %]" class="url" /></li>
+ <li><label for="opac_info">OPAC info: </label><textarea name="opac_info" id="opac_info">[% library.opac_info | $raw %]</textarea></li>
+ <li>
+ <label for="branchip">IP: </label>
+ <input type="text" name="branchip" id="branchip"  size="15" maxlength="15" value="[% library.branchip | html %]" />
+ <div class="hint">Can be entered as a single IP, or a subnet such as 192.168.1.*</div>
+ </li>
+ <li>
+ <label for="marcorgcode">MARC organisation code</label>
+ <input type="text" name="marcorgcode" id="marcorgcode" size="16" maxlength="16" value="[% library.marcorgcode | html %]" />
+ <div class="hint">
+ [% IF ( CAN_user_parameters_manage_sysprefs ) %]
+ If not filled in defaults to system preference <a target="_blank" href="/cgi-bin/koha/admin/preferences.pl?tab=&op=search&searchfield=MARCOrgCode">MARCOrgCode</a>.
+ [% ELSE %]
+ If not filled in defaults to system preference MARCOrgCode.
+ [% END %]
+ You can obtain your code from <a href="http://www.loc.gov/marc/organizations/orgshome.html" target="_blank">Library of Congress</a>.
+ </div>
+ </li>
+ <li><label for="branchnotes">Notes: </label><input type="text" name="branchnotes" id="branchnotes" size="80" value="[% library.branchnotes | html %]" /></li>
+ <li><label for="pickup_location">Pickup location: </label>
+ <select name="pickup_location" id="pickup_location">
+ [% IF !library || library.pickup_location == 1 %]
+ <option value="1" selected="selected">Yes</option>
+ <option value="0">No</option>
+ [% ELSE %]
+ <option value="1">Yes</option>
+ <option value="0" selected="selected">No</option>
+ [% END %]
+ </select>
+ </li>
+ <li><label for="public">Public: </label>
+ <select name="public" id="public">
+ [% IF !library || library.public == 1 %]
+ <option value="1" selected="selected">Yes</option>
+ <option value="0">No</option>
+ [% ELSE %]
+ <option value="1">Yes</option>
+ <option value="0" selected="selected">No</option>
+ [% END %]
+ </select>
+ <div class="hint">Set to 'yes' to show this library on the Libraries page in the OPAC.</div>
+ </li>
+ </ol>
+ </fieldset>
+ <fieldset class="action">
+ <input type="submit" value="Submit" />
+ <a class="cancel" href="/cgi-bin/koha/admin/branches.pl">Cancel</a>
+ </fieldset>
+ </form>
+[% END %]
+
+[% IF op == 'delete_confirm' and not ( items_count or patrons_count )%]
+ <div class="dialog alert">
+ <form action="/cgi-bin/koha/admin/branches.pl" method="post">
+ <h3>Are you sure you want to delete [% library.branchname | html %] ([% library.branchcode | html %])?</h3>
+ <input type="hidden" name="op" value="delete_confirmed" />
+ <input type="hidden" name="branchcode" value="[% library.branchcode | html %]" />
+ <input type="hidden" name="branchname" value="[% library.branchname | html %]">
+ <button type="submit" class="approve"><i class="fa fa-fw fa-check"></i> Yes, delete</button>
+ </form>
+ <form action="/cgi-bin/koha/admin/branches.pl" method="get">
+ <button type="submit" class="deny"><i class="fa fa-fw fa-remove"></i> No, do not delete</button>
+ </form>
+ </div>
+[% END %]
+
+[% IF op == 'list' %]
+ <h3>Libraries</h3>
+ [% IF libraries_count > 0 %]
+ <table id="libraries">
+ <thead>
+ <tr>
+ <th>Name</th>
+ <th>Code</th>
+ <th>Address</th>
+ <th>MARC organisation code</th>
+ <th>IP</th>
+ <th>Pickup location</th>
+ <th>Public</th>
+ <th>SMTP server</th>
+ <th data-class-name="actions noExport">Actions</th>
+ </tr>
+ </thead>
+ </table>
+ [% ELSE %]
+ <div class="dialog message">There are no libraries defined. <a href="/cgi-bin/koha/admin/branches.pl?op=add_form">Start defining libraries</a>.</div>
+ [% END %]
+[% END %]
+
+ </main>
+ </div> <!-- /.col-sm-10.col-sm-push-2 -->
+
+ <div class="col-sm-2 col-sm-pull-10">
+ <aside>
+ [% INCLUDE 'admin-menu.inc' %]
+ </aside>
+ </div> <!-- /.col-sm-2.col-sm-pull-10 -->
+ </div> <!-- /.row -->
+
+[% MACRO jsinclude BLOCK %]
+ [% Asset.js("js/admin-menu.js") | $raw %]
+ [% INCLUDE 'datatables.inc' %]
+ [% INCLUDE 'columns_settings.inc' %]
+ [% Asset.js("lib/tiny_mce/tinymce.min.js") | $raw %]
+ [% INCLUDE 'str/tinymce_i18n.inc' %]
+ <script>
+        var columns_settings = [% TablesSettings.GetColumns( 'admin', 'libraries', 'libraries', 'json' ) | $raw %];
+        $(document).ready(function() {
+
+            var libraries_url = '/api/v1/libraries';
+            var libraries = $("#libraries").kohaTable({
+                "ajax": {
+                    "url": libraries_url
+                },
+                'embed': [ 'smtp_server' ],
+                'emptyTable': '<div class="dialog message">'+_("There are no libraries defined.")+' <a href="/cgi-bin/koha/admin/branches.pl?op=add_form">'+_("Start defining libraries")+'</a>.</div>',
+                "columnDefs": [ {
+                    "targets": [0,1,3,4,7,9,10,11,12,13,14,15,16],
+                    "render": function (data, type, row, meta) {
+                        if ( type == 'display' ) {
+                            if ( data != null ) {
+                                return data.escapeHtml();
+                            }
+                            else {
+                                return "";
+                            }
+                        }
+                        return data;
+                    }
+                } ],
+                "columns": [
+                    {
+                        "data": "name",
+                        "searchable": true,
+                        "orderable": true
+                    },
+                    {
+                        "data": "library_id",
+                        "searchable": true,
+                        "orderable": true
+                    },
+                    {
+                        "data": function( row, type, val, meta ) {
+                            const library_info = [];
+                            if ( row.address1 != null ) library_info.push(row.address1.escapeHtml());
+                            if ( row.address2 != null ) library_info.push(row.address2.escapeHtml());
+                            if ( row.address3 != null ) library_info.push(row.address3.escapeHtml());
+                            // geographical_location = city, state postal_code
+                            const locations = [];
+                            if ( row.city != null ) locations.push(row.city.escapeHtml());
+                            if ( row.state != null ) locations.push(row.state.escapeHtml());
+                            const geographical_location = locations.join(', ');
+                            if ( geographical_location != '' && row.postal_code != null) {
+                                library_info.push(geographical_location+' '+row.postal_code.escapeHtml());
+                            }
+                            else {
+                                library_info.push(geographical_location);
+                            }
+                            if ( row.country != null ) library_info.push(row.country.escapeHtml());
+                            if ( row.phone != null ) library_info.push(_("Ph: ") + row.phone.escapeHtml());
+                            if ( row.fax != null ) library_info.push(_("Fax: ") + row.fax.escapeHtml());
+                            if ( row.email != null ) library_info.push('<a href="mailto:'+encodeURIComponent(row.email)+'">'+row.email.escapeHtml()+'</a>');
+                            if ( row.url != null ) library_info.push('<a href="'+encodeURIComponent(row.url)+'">'+row.url.escapeHtml()+'</a>');
+                            if ( row.notes != null ) library_info.push(_("Notes")+': '+row.notes.escapeHtml());
+                            return library_info.join('<br/>');
+                        },
+                        "searchable": false,
+                        "orderable": false
+                    },
+                    {
+                        "data": "marc_org_code",
+                        "searchable": true,
+                        "orderable": true
+                    },
+                    {
+                        "data": "ip",
+                        "searchable": true,
+                        "orderable": true
+                    },
+                    {
+                        "data": "pickup_location",
+                        "searchable": true,
+                        "orderable": true,
+                        "render": function( data, type, row, meta ) {
+                            return (data) ? _("Yes") : _("No");
+                        }
+                    },
+                    {
+                        "data": "public",
+                        "searchable": true,
+                        "orderable": true,
+                        "render": function( data, type, row, meta ) {
+                            return (data) ? _("Yes") : _("No");
+                        }
+                    },
+                    {
+                        "data": "smtp_server",
+                        "render": function( data, type, row, meta ) {
+                            if ( data.smtp_server_id ) {
+                                return '<a href="/cgi-bin/koha/admin/smtp_servers.pl?op=edit_form&smtp_server_id='+encodeURIComponent(data.smtp_server_id)+'">'+data.name.escapeHtml()+'</a>';
+                            }
+                            else {
+                                return _("Default");
+                            }
+                        },
+                        "searchable": false,
+                        "visible": true,
+                        "orderable": false
+                    },
+                    {
+                        "data": function( row, type, val, meta ) {
+
+                            var result = '<a class="btn btn-default btn-xs" href="/cgi-bin/koha/admin/branches.pl?op=add_form&amp;branchcode='+encodeURIComponent(row.library_id)+'" role="button"><i class="fa fa-pencil" aria-hidden="true"></i> '+_("Edit")+'</a>';
+                            result += '<form action="/cgi-bin/koha/admin/branches.pl" method="post">';
+                            result += '<input type="hidden" name="branchcode" value="'+row.library_id.escapeHtml()+'" />'+"\n";
+                            result += '<input type="hidden" name="op" value="delete_confirm" />';
+                            result += '<button type="submit" id="delete_library_'+row.library_id.escapeHtml()+'" class="btn btn-default btn-xs" role="button"><i class="fa fa-trash" aria-hidden="true"></i> '+_("Delete")+'</button></form>';
+
+                            return result;
+
+                        },
+                        "searchable": false,
+                        "orderable": false
+                    },
+                    {
+                        "data": "address1",
+                        "searchable": true,
+                        "visible": false,
+                        "orderable": false
+                    },
+                    {
+                        "data": "address2",
+                        "searchable": true,
+                        "visible": false,
+                        "orderable": false
+                    },
+                    {
+                        "data": "address3",
+                        "searchable": true,
+                        "visible": false,
+                        "orderable": false
+                    },
+                    {
+                        "data": "city",
+                        "searchable": true,
+                        "visible": false,
+                        "orderable": false
+                    },
+                    {
+                        "data": "state",
+                        "searchable": true,
+                        "visible": false,
+                        "orderable": false
+                    },
+                    {
+                        "data": "postal_code",
+                        "searchable": true,
+                        "visible": false,
+                        "orderable": false
+                    },
+                    {
+                        "data": "country",
+                        "searchable": true,
+                        "visible": false,
+                        "orderable": false
+                    },
+                    {
+                        "data": "opac_info",
+                        "searchable": true,
+                        "visible": false,
+                        "orderable": false
+                    },
+                    {
+                        "data": "notes",
+                        "searchable": true,
+                        "visible": false,
+                        "orderable": false
+                    }
+                ]
+            }, columns_settings);
+
+            [% UNLESS library %]
+                $("#Aform").on("submit", function( event ) {
+                    if ( $("#branchcode").val().match(/\s/) ) {
+                        event.preventDefault();
+                        alert(_("The library code entered contains whitespace characters. Please remove any whitespace characters from the library code"));
+                        return false;
+                    } else {
+                        return true;
+                    }
+                });
+            [% END %]
+        });
+
+        tinyMCE.init({
+            branding : false,
+            relative_urls : false,
+            content_css : "[% interface | html %]/[% theme | html %]/css/tinymce.css",
+            menubar : "file edit view insert format tools table",
+            mode : "specific_textareas",
+            plugins : "autoresize table hr link image charmap lists code emoticons",
+            toolbar : [
+                "formatselect | bold italic | cut copy paste | alignleft aligncenter alignright | outdent indent | image link unlink anchor cleanup hr",
+                "table | bullist numlist | undo redo | removeformat | emoticons charmap | forecolor backcolor | code"
+            ],
+        });
+    </script>
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' %]

@@ -1,0 +1,54 @@
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>UNIMARC field 225a builder &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+
+<body id="cat_unimarc_field_225a_bis" class="cat">
+
+ <div class="container-fluid">
+ <h1>UNIMARC field 225a builder</h1>
+ <div class="autocomplete">
+ <form>
+ <div id="fieldautocomplete" class="autocomplete">
+ <fieldset>
+ <input autocomplete="off" id="findvalue" name="findvalue" size="40" class="focus" type="text" />
+ <fieldset class="action">
+ <input type="submit" class="submit" value="Choose" />
+ </fieldset>
+ </fieldset>
+ </div>
+ </form>
+ </div>
+ </div>
+
+[% MACRO jsinclude BLOCK %]
+ <script>
+        $(document).ready(function(){
+            $("#findvalue").autocomplete({
+                source: "/cgi-bin/koha/cataloguing/ysearch.pl?table=biblioitems&field=collectiontitle",
+                minLength: 3,
+                select: function(event, ui) {
+                    $("#findvalue").val(ui.item.fieldvalue);
+                    return false;
+                }
+            })
+            .data("ui-autocomplete")._renderItem = function(ul, item) {
+                return $("<li></li>")
+                    .data("ui-autocomplete-item", item)
+                    .append("<a>" + item.fieldvalue + "</a>")
+                    .appendTo(ul);
+            };
+
+            $('form').submit(function() {
+                var field = opener.document.getElementById("[% index | html %]");
+                field.value = $('#findvalue').val();
+
+                window.close();
+                return false;
+            });
+        });
+    </script>
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' popup_window=1 %]

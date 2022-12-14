@@ -1,0 +1,233 @@
+---
+description:
+- Sample label and user card data
+tables:
+- creator_layouts:
+    multiline:
+    - layout_xml
+    rows:
+    - barcode_type: CODE39
+      callnum_split: 0
+      creator: Labels
+      font: TR
+      font_size: 3
+      format_string: title, author, isbn, issn, itemtype, barcode, itemcallnumber
+      guidebox: 0
+      layout_id: 17
+      layout_name: Label Test
+      layout_xml:
+      - <opt></opt>
+      printing_type: BIBBAR
+      start_label: 1
+      text_justify: L
+      units: POINT
+    - barcode_type: CODE39
+      callnum_split: 0
+      creator: Labels
+      font: TR
+      font_size: 3
+      format_string: title, author, isbn, issn, itemtype, barcode, itemcallnumber
+      guidebox: 0
+      layout_id: 18
+      layout_name: DEFAULT
+      layout_xml:
+      - <opt></opt>
+      printing_type: BAR
+      start_label: 1
+      text_justify: L
+      units: POINT
+    - barcode_type: CODE39
+      callnum_split: 0
+      creator: Labels
+      font: TR
+      font_size: 3
+      format_string: title, author, isbn, issn, itemtype, barcode, itemcallnumber
+      guidebox: 0
+      layout_id: 19
+      layout_name: DEFAULT
+      layout_xml:
+      - <opt></opt>
+      printing_type: BAR
+      start_label: 1
+      text_justify: L
+      units: POINT
+    - barcode_type: CODE39
+      callnum_split: 0
+      creator: Patroncards
+      font: TR
+      font_size: 10
+      format_string: barcode
+      guidebox: 0
+      layout_id: 20
+      layout_name: Test Layout
+      layout_xml:
+      - <opt page_side="F" units="POINT">
+      - '  <images name="image_1" Dx="72" Ox="0" Oy="0" Sx="0" Sy="0" Tx="4.5" Ty="63">'
+      - '    <data_source image_name="none" image_source="patronimages" />'
+      - '  </images>'
+      - '  <text>&lt;firstname&gt; &lt;surname&gt;</text>'
+      - '  <text enable="1" font="TR" font_size="10" llx="100" lly="100" text_alignment="L"
+        />'
+      - '  <text>Branch: &lt;branchcode&gt;</text>'
+      - '  <text enable="1" font="TR" font_size="10" llx="100" lly="75" text_alignment="L"
+        />'
+      - '  <text>Expires: August 31, 2010</text>'
+      - '  <text font="TR" font_size="6" llx="115" lly="65" text_alignment="L" />'
+      - </opt>
+      printing_type: BAR
+      start_label: 1
+      text_justify: L
+      units: POINT
+    translatable:
+    - layout_name
+    - layout_xml
+- creator_templates:
+    multiline: []
+    rows:
+    - col_gap: 0.13
+      cols: 3
+      creator: Labels
+      label_height: 1
+      label_width: 2.63
+      left_margin: 0.23
+      left_text_margin: 0
+      page_height: 11
+      page_width: 8.5
+      profile_id: 1
+      row_gap: 0
+      rows: 10
+      template_code: Avery 5160 | 1 x 2-5/8
+      template_desc: 3 columns, 10 rows of labels
+      template_id: 1
+      top_margin: 0.35
+      top_text_margin: 0.139
+      units: INCH
+    - col_gap: 0.0625
+      cols: 5
+      creator: Labels
+      label_height: 1
+      label_width: 1.5
+      left_margin: 0.25
+      left_text_margin: 0
+      page_height: 11
+      page_width: 8.5
+      profile_id: 13
+      row_gap: 0
+      rows: 10
+      template_code: Demco WS14942260
+      template_desc: 1" X 1.5" Spine Label | Setup for up to four lines of text
+      template_id: 7
+      top_margin: 0.5
+      top_text_margin: 0.236
+      units: INCH
+    - col_gap: 0.0625
+      cols: 5
+      creator: Labels
+      label_height: 1
+      label_width: 1.5
+      left_margin: 0.3
+      left_text_margin: 0
+      page_height: 11
+      page_width: 8.5
+      profile_id: 14
+      row_gap: 0
+      rows: 10
+      template_code: Demco WS14942260
+      template_desc: 1" X 1.5" Spine Label | Setup for five lines of text
+      template_id: 12
+      top_margin: 0.53
+      top_text_margin: 0.139
+      units: INCH
+    - col_gap: 0
+      cols: 0
+      creator: Labels
+      label_height: 0
+      label_width: 0
+      left_margin: 0
+      left_text_margin: 0
+      page_height: 5
+      page_width: 0
+      profile_id: 0
+      row_gap: 0
+      rows: 0
+      template_code: DEFAULT TEMPLATE 01
+      template_desc: Default description
+      template_id: 22
+      top_margin: 0
+      top_text_margin: 0
+      units: POINT
+    - col_gap: 0.4375
+      cols: 2
+      creator: Patroncards
+      label_height: 1.9375
+      label_width: 3.1875
+      left_margin: 0.875
+      left_text_margin: 0
+      page_height: 11
+      page_width: 8.5
+      profile_id: 16
+      row_gap: 0.1875
+      rows: 4
+      template_code: HB-PC0001
+      template_desc: A template for home brewed user card forms
+      template_id: 23
+      top_margin: 0.6875
+      top_text_margin: 0
+      units: INCH
+    translatable:
+    - template_desc
+- printers_profile:
+    multiline: []
+    rows:
+    - creator: Labels
+      creep_horz: 3
+      creep_vert: 0
+      offset_horz: -2
+      offset_vert: 9
+      paper_bin: Bypass
+      printer_name: Library Laser
+      profile_id: 1
+      template_id: 1
+      units: POINT
+    - creator: Labels
+      creep_horz: 0
+      creep_vert: 0
+      offset_horz: 0
+      offset_vert: 0
+      paper_bin: Tray 1
+      printer_name: Library Laser
+      profile_id: 13
+      template_id: 7
+      units: POINT
+    - creator: Labels
+      creep_horz: 0
+      creep_vert: 0
+      offset_horz: 0
+      offset_vert: 0
+      paper_bin: Tray 2
+      printer_name: Library Laser
+      profile_id: 14
+      template_id: 12
+      units: POINT
+    - creator: Patroncards
+      creep_horz: 0
+      creep_vert: 0
+      offset_horz: 0
+      offset_vert: 0
+      paper_bin: Test Bin
+      printer_name: Test Printer 01
+      profile_id: 16
+      template_id: 23
+      units: POINT
+    - creator: Labels
+      creep_horz: 0
+      creep_vert: 0
+      offset_horz: 0
+      offset_vert: 0
+      paper_bin: Tray 3
+      printer_name: Library Laser
+      profile_id: 22
+      template_id: 0
+      units: POINT
+    translatable:
+    - printer_name

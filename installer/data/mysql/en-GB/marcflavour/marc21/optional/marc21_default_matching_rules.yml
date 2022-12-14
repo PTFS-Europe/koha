@@ -1,0 +1,51 @@
+---
+description:
+- 'Selected matching rules for MARC 21 bibliographic records, including:'
+- ''
+- ISBN
+- ISSN
+sql_statements:
+- INSERT INTO matchpoints (matcher_id, search_index, score) SELECT matcher_id, 'isbn',
+  1000 FROM marc_matchers WHERE code = 'ISBN';
+- INSERT INTO matcher_matchpoints SELECT matcher_id, matchpoint_id FROM matchpoints
+  WHERE search_index = 'isbn';
+- INSERT INTO matchpoint_components (matchpoint_id, sequence, tag, subfields) SELECT
+  matchpoint_id, 1, '020', 'a' FROM matchpoints WHERE search_index = 'isbn';
+- INSERT INTO matchpoint_component_norms (matchpoint_component_id, sequence, norm_routine)
+  SELECT matchpoint_component_id, 1, 'ISBN' FROM matchpoint_components WHERE tag =
+  '020';
+- INSERT INTO matchpoints (matcher_id, search_index, score) SELECT matcher_id, 'issn',
+  1000 FROM marc_matchers WHERE code = 'ISSN';
+- INSERT INTO matcher_matchpoints SELECT matcher_id, matchpoint_id FROM matchpoints
+  WHERE search_index = 'issn';
+- INSERT INTO matchpoint_components (matchpoint_id, sequence, tag, subfields) SELECT
+  matchpoint_id, 1, '022', 'a' FROM matchpoints WHERE search_index = 'issn';
+- INSERT INTO matchpoint_component_norms (matchpoint_component_id, sequence, norm_routine)
+  SELECT matchpoint_component_id, 1, 'ISSN' FROM matchpoint_components WHERE tag =
+  '022';
+- INSERT INTO matchpoints (matcher_id, search_index, score) SELECT matcher_id, 'local-number',
+  1000 FROM marc_matchers WHERE code = 'KohaBiblio';
+- INSERT INTO matcher_matchpoints SELECT matcher_id, matchpoint_id FROM matchpoints
+  WHERE search_index = 'local-number';
+- INSERT INTO matchpoint_components (matchpoint_id, sequence, tag, subfields) SELECT
+  matchpoint_id, 1, '999', 'c' FROM matchpoints WHERE search_index = 'local-number';
+- INSERT INTO matchpoint_component_norms (matchpoint_component_id, sequence, norm_routine)
+  SELECT matchpoint_component_id, 1, 'Biblionumber' FROM matchpoint_components WHERE
+  tag = '999';
+tables:
+- marc_matchers:
+    multiline: []
+    rows:
+    - code: ISBN
+      description: 020$a
+      record_type: biblio
+      threshold: 1000
+    - code: ISSN
+      description: 022$a
+      record_type: biblio
+      threshold: 1000
+    - code: KohaBiblio
+      description: 999$c
+      record_type: biblio
+      threshold: 1000
+    translatable: []

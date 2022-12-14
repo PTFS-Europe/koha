@@ -1,0 +1,45 @@
+---
+description:
+- Sample news items
+tables:
+- additional_contents:
+    multiline:
+    - content
+    rows:
+    - category: news
+      code: News_1
+      content:
+      - Welcome to Koha. Koha is a full-featured open-source ILS. Developed initially
+        in New Zealand by Katipo Communications Ltd and first deployed in January
+        of 2000 for Horowhenua Library Trust, Koha is currently maintained by a team
+        of software providers and library technology staff from around the globe.
+      expirationdate: 2099-01-10
+      lang: default
+      location: staff_only
+      number: 1
+      published_on: 2007-10-29 05:25:58
+      title: Welcome to Koha
+    - category: news
+      code: News_2
+      content:
+      - 'Now that you''ve installed Koha, what''s next? Here are some suggestions:'
+      - <ul>
+      - <li><a href="http://koha-community.org/documentation/">Read Koha Documentation</a></li>
+      - <li><a href="http://wiki.koha-community.org">Read/Write to the Koha Wiki</a></li>
+      - <li><a href="http://koha-community.org/support/">Read and Contribute to Discussions</a></li>
+      - <li><a href="http://bugs.koha-community.org">Report Koha Bugs</a></li>
+      - <li><a href="http://wiki.koha-community.org/wiki/Version_Control_Using_Git">Submit
+        Patches to Koha using Git (Version Control System)</a></li>
+      - <li><a href="http://koha-community.org/support/">Chat with Koha users and
+        developers</a></li>
+      - </ul>
+      - ''
+      expirationdate: 2099-01-10
+      lang: default
+      location: staff_only
+      number: 2
+      published_on: 2007-10-29 05:34:45
+      title: What's Next?
+    translatable:
+    - title
+    - content

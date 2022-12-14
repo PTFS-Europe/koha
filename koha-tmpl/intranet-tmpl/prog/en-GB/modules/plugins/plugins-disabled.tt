@@ -1,0 +1,36 @@
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Upload plugin &rsaquo; Plugins &rsaquo; Tools &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+[% INCLUDE 'calendar.inc' %]
+</head>
+
+<body id="plugins_plugins_disabled" class="plugins">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'circ-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/plugins/plugins-home.pl">Plugins</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ Plugins disabled
+ </a>
+ </li>
+ </ol>
+</nav>
+
+ <div class="container-fluid">
+ <div class="row">
+ <div class="col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3">
+ <h1>Plugins disabled!</h1>
+
+ <p>To enable Koha plugins, the flag enable_plugins must be set in the Koha configuration file</p>
+ </div>
+ </div>
+
+[% INCLUDE 'intranet-bottom.inc' %]

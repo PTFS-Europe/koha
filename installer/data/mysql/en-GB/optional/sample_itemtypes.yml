@@ -1,0 +1,57 @@
+---
+description:
+- A set of default item types.
+tables:
+- itemtypes:
+    multiline: []
+    rows:
+    - description: Books
+      imageurl: bridge/book.png
+      itemtype: BK
+      notforloan: 0
+      rentalcharge: 0
+      summary: ''
+    - description: Mixed Materials
+      imageurl: bridge/kit.png
+      itemtype: MX
+      notforloan: 0
+      rentalcharge: 5
+      summary: ''
+    - description: Computer Files
+      imageurl: bridge/computer_file.png
+      itemtype: CF
+      notforloan: 0
+      rentalcharge: 5
+      summary: ''
+    - description: Maps
+      imageurl: bridge/map.png
+      itemtype: MP
+      notforloan: 0
+      rentalcharge: 5
+      summary: ''
+    - description: Visual Materials
+      imageurl: bridge/dvd.png
+      itemtype: VM
+      notforloan: 1
+      rentalcharge: 5
+      summary: ''
+    - description: Music
+      imageurl: bridge/sound.png
+      itemtype: MU
+      notforloan: 0
+      rentalcharge: 5
+      summary: ''
+    - description: Continuing Resources
+      imageurl: bridge/periodical.png
+      itemtype: CR
+      notforloan: 0
+      rentalcharge: 5
+      summary: ''
+    - description: Reference
+      imageurl: bridge/reference.png
+      itemtype: REF
+      notforloan: 1
+      rentalcharge: 0
+      summary: ''
+    translatable:
+    - description

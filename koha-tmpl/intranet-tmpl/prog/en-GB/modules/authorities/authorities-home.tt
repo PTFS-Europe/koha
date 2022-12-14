@@ -1,0 +1,39 @@
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Authorities &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+
+<body id="auth_authorities_home" class="auth">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'authorities-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ Authorities
+ </a>
+ </li>
+ </ol>
+</nav>
+
+<div class="main container-fluid">
+ <div class="row">
+ <div class="col-md-8 col-md-offset-2">
+
+ [% INCLUDE 'authorities-toolbar.inc' %]
+
+ <div id="merge_in_progress"></div>
+
+ </div>
+ </div>
+
+[% MACRO jsinclude BLOCK %]
+ [% INCLUDE 'authorities_js.inc' %]
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' %]

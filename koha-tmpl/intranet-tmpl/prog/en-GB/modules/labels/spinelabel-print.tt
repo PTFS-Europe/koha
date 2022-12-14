@@ -1,0 +1,52 @@
+[% USE raw %]
+[% USE Asset %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Spine labels &rsaquo; Tools &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' popup => 1 %]
+[% Asset.css("css/spinelabel.css") | $raw %]
+<style>
+    @media print {
+        .noprint { display: none; }
+    }
+</style>
+[% IF ( IntranetUserCSS ) %]<style>[% IntranetUserCSS | $raw %]</style>[% END %]
+</head>
+
+ [% IF ( BarcodeNotFound ) %]
+ <body id="labels_spinelabel-print" class="tools labels">
+ <div class="dialog message">The barcode [% Barcode | html %] was not found.</div>
+ <div id="print_button" class="noprint">
+ <button class="btn btn-default close-window">Close</button>
+ </div>
+ [% ELSE %]
+ <body id="labels_spinelabel-print" class="tools labels">
+ <div id="spinelabel">
+ [% content | $raw %]
+ </div>
+ <div id="print_button" class="noprint">
+ <button class="btn btn-default print-label"><i class="fa fa-print"></i> Print this label</button>
+ </div>
+ [% END %]
+
+[% Asset.js( "lib/jquery/jquery-2.2.3.min.js" ) | $raw %]
+[% Asset.js( "lib/jquery/jquery-migrate-1.3.0.min.js" ) | $raw %]
+[% IF ( autoprint ) %]
+ [% INCLUDE 'slip-print.inc' #printThenClose %]
+[% END %]
+<script>
+    $(document).ready(function(){
+        $(".print-label").on("click", function(e){
+            e.preventDefault();
+            window.print();
+            window.close();
+        });
+
+        $(".close-window").on("click", function(e){
+            e.preventDefault();
+            window.close();
+        });
+    });
+</script>
+
+[% INCLUDE 'popup-bottom.inc' %]

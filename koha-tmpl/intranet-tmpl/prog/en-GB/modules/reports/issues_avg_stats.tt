@@ -1,0 +1,273 @@
+[% USE Branches %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Average loan time &rsaquo; Reports &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+
+<body id="rep_issues_avg_stats" class="rep">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'cat-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/reports/reports-home.pl">Reports</a>
+ </li>
+ [% IF ( do_it ) %]
+ <li>
+ <a href="/cgi-bin/koha/reports/issues_avg_stats.pl">Average loan time</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ Results
+ </a>
+ </li>
+ [% ELSE %]
+ <li>
+ <a href="#" aria-current="page">
+ Average loan time
+ </a>
+ </li>
+ [% END %]
+ </ol>
+</nav>
+
+<div class="main container-fluid">
+ <div class="row">
+ <div class="col-sm-10 col-sm-push-2">
+ <main>
+
+[% IF ( do_it ) %]
+ [% FOREACH mainloo IN mainloop %]
+ <h1>Average loan period</h1>
+ [% IF ( mainloo.loopfilter ) %]
+ <p>Filtered on:</p>
+ [% FOREACH loopfilte IN mainloo.loopfilter %]
+ <p>[% IF ( loopfilte.err ) %] [% END %] [% loopfilte.crit | html %] =[% loopfilte.filter | html %][% IF ( loopfilte.err ) %] [% END %]</p>
+ [% END %]
+ [% END %]
+ 
+ <table>
+ <tr>
+ <th>[% mainloo.line | html %] / [% mainloo.column | html %]</th>
+ [% FOREACH loopco IN mainloo.loopcol %]
+ <th>[% loopco.coltitle | html %]</th>
+ [% END %]
+ <th>TOTAL</th>
+ </tr>
+ [% FOREACH loopro IN mainloo.looprow %]
+ <tr>
+ [% IF ( loopro.hilighted ) %]<td class="hilighted">[% ELSE %]<td>[% END %]
+ [% loopro.rowtitle | html %]</td>
+ [% FOREACH loopcel IN loopro.loopcell %]
+ [% IF ( loopcel.hilighted ) %]<td class="hilighted">[% ELSE %]<td>[% END %]
+ [% IF ( loopcel.value ) %][% loopcel.value | html %][% END %]
+ </td>
+ [% END %]
+ [% IF ( loopro.hilighted ) %]<td>[% ELSE %]<td>[% END %]
+ [% loopro.totalrow | html %]
+ </td>
+ </tr>
+ [% END %]
+ <tr>
+ <th>TOTAL</th>
+ [% FOREACH loopfoote IN mainloo.loopfooter %]
+ <th>
+ [% loopfoote.totalcol | html %]
+ </th>
+ [% END %]
+ <th>[% mainloo.total | html %]</th>
+ </tr>
+ </table>
+ [% END %]
+[% ELSE %]
+
+ <form method="post" action="/cgi-bin/koha/reports/issues_avg_stats.pl">
+ <fieldset class="rows">
+ <legend>Average loan period statistics</legend>
+ <table>
+ <thead>
+ <tr>
+ <th>Title</th>
+ <th>Row</th>
+ <th>Column</th>
+ <th>Filter</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr class="hilighted">
+ <td>Issue date</td>
+ <td><input type="radio" name="Line" value="timestamp" /></td>
+ <td><input type="radio" checked="checked" name="Column" value="timestamp" /></td>
+ <td>
+ <label for="checkoutfrom">From</label>
+ <input type="text" size="10" id="checkoutfrom" name="Filter" data-date_to="checkouto" class="flatpickr" />
+
+ <label for="checkouto">To</label>
+ <input size="10" id="checkouto" name="Filter" value="" type="text" class="flatpickr" />
+ <span class="hint">[% INCLUDE 'date-format.inc' %]</span>
+ </td>
+ </tr>
+ <tr class="hilighted"> 
+ <td>&nbsp;</td>
+ <td colspan="2">by <select name="IssueDisplay">
+ <option value=""> </option>
+ <option value ="1">Day</option>
+ <option value ="2">Month</option>
+ <option value ="3">Year</option>
+ </select>
+
+ </td>
+ <td><!--Preparing Month and Day Selection--><input type="hidden" name="Filter" value="" /><input type="hidden" name="Filter" value="" /></td>
+ </tr>
+ <tr>
+ <td>Returns</td>
+ <td><input type="radio" name="Line" value="returndate" /></td>
+ <td><input type="radio" name="Column" value="returndate" /></td>
+ <td>
+ <label for="checkinfrom">From</label>
+ <input type="text" size="10" id="checkinfrom" name="Filter" data-date_to="checkinto" class="flatpickr" />
+
+ <label for="checkinto">To</label>
+ <input type="text" size="10" id="checkinto" name="Filter" value="" class="flatpickr" />
+ <span class="hint">[% INCLUDE 'date-format.inc' %]</span>
+ </td>
+ </tr>
+ <tr> 
+ <td>&nbsp;</td>
+ <td colspan="2">by <select name="ReturnDisplay">
+ <option value=""> </option>
+ <option value ="1">Day</option>
+ <option value ="2">Month</option>
+ <option value ="3">Year</option>
+ </select>
+ 
+ </td>
+ <td><input type="hidden" name="Filter" value="" /><input type="hidden" name="Filter" value="" /></td>
+ </tr>
+ <tr class="hilighted">
+ <td>User category</td>
+ <td><input type="radio" checked="checked" name="Line" value="borrowers.categorycode" /></td>
+ <td><input type="radio" name="Column" value="borrowers.categorycode" /></td>
+ <td>
+ <select name="Filter" id="borcat">
+ <option value=""></option>
+ [% FOREACH patron_category IN patron_categories %]
+ <option value="[%- patron_category.categorycode | html -%]">[%- patron_category.description | html -%]</option>
+ [% END %]
+ </select>
+ </td>
+ </tr>
+ <tr>
+ <td>Item type</td>
+ <td><input type="radio" name="Line" value="itemtype" /></td>
+ <td><input type="radio" name="Column" value="itemtype" /></td>
+ <td>
+ <select name="Filter" id="itemtypes">
+ <option value=""></option>
+ [% FOREACH itemtype IN itemtypes %]
+ <option value="[%- itemtype.itemtype | html -%]">[%- itemtype.translated_description | html -%]</option>
+ [% END %]
+ </select>
+ </td>
+ </tr>
+ <tr class="hilighted">
+ <td>Library</td>
+ <td><input type="radio" name="Line" value="branchcode" /></td>
+ <td><input type="radio" name="Column" value="branchcode" /></td>
+ <td>
+ <select name="Filter" id="branch">
+ <option value=""></option>
+ [% PROCESS options_for_libraries libraries => Branches.all() %]
+ </select>
+ </td>
+ </tr>
+ [% IF ( hassort1 ) %]
+ <tr class="hilighted"> 
+ <td>Sort1</td>
+ <td><input type="radio" name="Line" value="borrowers.sort1" /></td>
+ <td><input type="radio" name="Column" value="borrowers.sort1" /></td>
+ <td>
+ <select name="Filter" id="sort1">
+ <option value=""></option>
+ [%- FOREACH value IN Sort1.values %]
+ <option value="[%- value | html -%]">[%- value | html -%]</option>
+ [%- END %]
+ </select>
+ </td>
+ </tr>
+ [% END %]
+ [% IF ( hassort2 ) %]
+ [% IF ( HglghtSort2 ) %]<tr class="hilighted"> [% ELSE %]<tr>[% END %] 
+ <td>Sort2</td>
+ <td><input type="radio" name="Line" value="borrowers.sort2" /></td>
+ <td><input type="radio" name="Column" value="borrowers.sort2" /></td>
+ <td>
+ <select name="Filter" id="sort2">
+ <option value=""></option>
+ [%- FOREACH value IN Sort2.values %]
+ <option value="[%- value | html -%]">[%- value | html -%]</option>
+ [%- END %]
+ </select>
+ </td>
+ </tr>
+ [% END %]
+ </tbody>
+ </table><br /></fieldset>
+ 
+ 
+ <fieldset class="rows">
+ <legend>Output</legend>
+ <ol>
+ <li>
+ <label for="outputscreen">To screen into the browser: </label><input type="radio" checked="checked" name="output" id="outputscreen" value="screen" />
+ </li>
+ <li>
+ <label for="outputfile">To a file:</label> <input type="radio" name="output" value="file" id="outputfile" />
+ <label class="inline" for="basename">Named: </label><input type="text" name="basename" id="basename" value="Export" />
+ <label class="inline" for="MIME">Into an application: </label>
+ <select name="MIME" id="MIME">
+ <option value="CSV">CSV</option>
+ </select>
+ <select name="sep" id="sep">
+ [% FOREACH value IN CGIsepChoice.values.sort() %]
+ [% IF ( value == CGIsepChoice.default ) %]
+ <option value="[% value | html %]" selected="selected">[% value | html %]</option>
+ [% ELSE %]
+ <option value="[% value | html %]">[% value | html %]</option>
+ [% END %]
+ [% END %]
+ </select>
+ </li>
+ </ol>
+ </fieldset>
+
+ <fieldset class="action">
+ <input type="hidden" name="Filter" value="" />
+ <input type="hidden" name="report_name" value="[% report_name | html %]" />
+ <input type="hidden" name="do_it" value="1" />
+ <input type="submit" value="Submit" />
+ </fieldset>
+ </form>
+[% END %]
+
+ </main>
+ </div> <!-- /.col-sm-10.col-sm-push-2 -->
+
+ <div class="col-sm-2 col-sm-pull-10">
+ <aside>
+ [% INCLUDE 'reports-menu.inc' %]
+ </aside>
+ </div> <!-- /.col-sm-2.col-sm-pull-10 -->
+ </div> <!-- /.row -->
+
+
+[% MACRO jsinclude BLOCK %]
+ [% INCLUDE 'calendar.inc' %]
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' %]

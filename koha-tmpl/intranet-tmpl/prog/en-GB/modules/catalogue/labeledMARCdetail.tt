@@ -1,0 +1,107 @@
+[% USE raw %]
+[% USE Koha %]
+[% USE Asset %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+
+<title>
+ [% IF ( unknownbiblionumber ) %] Unknown record [% ELSE %] Labeled MARC details for [% bibliotitle | html %] [% END %] &rsaquo; Catalogue &rsaquo; Koha </title>
+
+ [% INCLUDE 'doc-head-close.inc' %]
+</head>
+
+<body id="catlaog_labeledMARCdetail" class="catalog">
+ [% INCLUDE 'header.inc' %]
+ [% INCLUDE 'cat-search.inc' %]
+
+ <nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/catalogue/search.pl">Catalogue</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ [% IF ( unknownbiblionumber ) %]
+ Unknown record
+ [% ELSE %]
+ MARC details for <em>[% bibliotitle | html %]</em>
+ [% END %]
+ </a>
+ </li>
+ </ol>
+ </nav>
+
+<div class="main container-fluid">
+ <div class="row">
+ <div class="col-sm-10 col-sm-push-2">
+ <main>
+
+ [% IF ( unknownbiblionumber ) %]
+ <div class="dialog message">The record you requested does not exist ([% biblionumber | html %]).</div>
+ [% ELSE %]
+
+ [% INCLUDE 'cat-toolbar.inc' %]
+
+ [% UNLESS ( popup ) %]
+ <h1>Labeled MARC biblio : [% biblionumber | html %] ( [% bibliotitle | html %] )</h1>
+ [% END %]
+ <p><strong>With framework:
+ <select name="Frameworks" id="Frameworks" onchange="Changefwk(this);">
+ <option value="">Default</option>
+ [% FOREACH framework IN frameworks %]
+ [% IF framework.frameworkcode == frameworkcode %]
+ <option value="[% framework.frameworkcode | html %]" selected="selected">[% framework.frameworktext | html %]</option>
+ [% ELSE %]
+ <option value="[% framework.frameworkcode | html %]">[% framework.frameworktext | html %]</option>
+ [% END %]
+ [% END %]
+ </select>
+ </strong></p>
+ <!-- div id="bibliotabs" class="toptabs numbered" -->
+ <div>
+ <table class="labeledmarc-table">
+ [% FOREACH marc_dat IN marc_data %]
+ <tr>
+ <td class="labeledmarc-label">[% marc_dat.label | html %]</td>
+ <td class="labeledmarc-value">[% marc_dat.value | html %]</td>
+ </tr>
+ [% END %]
+ </table>
+ </div>
+ </main>
+ </div> <!-- /.col-sm-10.col-sm-push-2 -->
+
+ <div class="col-sm-2 col-sm-pull-10">
+ <aside>
+ [% INCLUDE 'biblio-view-menu.inc' %]
+ </aside>
+ </div> <!-- /.col-sm-2.col-sm-pull-10 -->
+ </div> <!-- /.row -->
+[% END %]
+
+[% MACRO jsinclude BLOCK %]
+ [% INCLUDE 'catalog-strings.inc' %]
+ [% Asset.js("js/catalog.js") | $raw %]
+ [% Asset.js("js/browser.js") | $raw %]
+ <script>
+    //<![CDATA[
+        var browser = KOHA.browser('[% searchid | html %]', parseInt('[% biblionumber | html %]', 10));
+        browser.show();
+        $(document).ready(function() {
+            $("#Frameworks").on("change",function(){
+                Changefwk(this);
+            });
+        });
+        function Changefwk(FwkList)
+        {
+            var fwk = FwkList.options[FwkList.selectedIndex].value;
+            window.location = "labeledMARCdetail.pl?biblionumber=[% biblionumber | html %]&frameworkcode="+fwk;
+        }
+    //]]>
+    </script>
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' %]

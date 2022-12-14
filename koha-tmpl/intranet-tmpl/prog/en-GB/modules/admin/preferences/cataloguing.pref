@@ -1,0 +1,329 @@
+---
+Cataloging:
+  Display:
+  - - 'Separate main entry and subdivisions with '
+    - class: short
+      pref: AuthoritySeparator
+    - (non-XSLT view only).
+  - - Show
+    - pref: URLLinkText
+    - as the text of links embedded in MARC records and items.
+  - - choices:
+        '0': Don't use
+        '1': Use
+      pref: UseControlNumber
+    - record control number ($w subfields) and control number (001) for linking of
+      bibliographic records.
+  - - Use
+    - class: url
+      pref: MarcFieldDocURL
+    - as the URL for MARC field documentation.
+    - Possible substitutions are <tt>{MARC}</tt> (marc flavour, eg. "MARC21" or "UNIMARC"),
+      <tt>{FIELD}</tt> (field number, eg. "000" or "048"), <tt>{LANG}</tt> (user language,
+      eg. "en" or "fi-FI").
+    - If left empty, the format documentation on http://loc.gov (MARC21) or http://archive.ifla.org
+      (UNIMARC) is used.
+    - For example <tt>http://fielddoc.example.com/?marc={MARC}&field={FIELD}&language={LANG}</tt>
+  - - choices:
+        '0': Display
+        '1': Don't display
+      pref: hide_marc
+    - MARC tag numbers, subfield codes and indicators in MARC views.
+  - - choices:
+        economical: Do
+        standard: Don't
+      pref: LabelMARCView
+    - collapse repeated tags of the same type into one tag entry on the display.
+  - - By default, display bibliographic records in
+    - choices:
+        isbd: ISBD form (see below).
+        labeled_marc: labelled MARC form.
+        marc: MARC form.
+        normal: normal form.
+      pref: IntranetBiblioDefaultView
+  - - 'Use the following as the staff interface ISBD template:'
+    - class: code
+      pref: ISBD
+      syntax: text/html
+      type: textarea
+  - - choices:
+        '0': Don't hide
+        '1': Hide
+      pref: OpacSuppression
+    - bibliographic records marked as suppressed from OPAC search results.
+    - <br />Restrict the suppression to IP addresses outside of the IP range
+    - class: short
+      pref: OpacSuppressionByIPRange
+    - (Leave blank if not used. Define a range like <code>192.168.</code>.)
+    - <br />Redirect the opac detail page for suppressed records to
+    - choices:
+        '0': the 404 error page ('Not found').
+        '1': an explanatory page ('This record is blocked').
+      pref: OpacSuppressionRedirect
+    - '<br />Display the following message on the redirect page for suppressed bibliographic
+      records:'
+    - class: code
+      pref: OpacSuppressionMessage
+      type: textarea
+  - - choices:
+        '0': Don't separate
+        '1': Separate
+      pref: SeparateHoldings
+    - items display into two tabs, where the first tab contains items whose
+    - choices:
+        holdingbranch: holding library
+        homebranch: home library
+      pref: SeparateHoldingsBranch
+    - is the logged in user's library. The second tab will contain all other items.
+  - - Don't show
+    - class: multi
+      pref: NotesToHide
+    - 'note fields in the ''Title notes'' tab and in the ''Description'' tab on the
+      OPAC and staff interface detail pages. Use a comma to separate multiple fields.
+      Examples: 500,502 (MARC21); 300,328 (UNIMARC).'
+    - <br />
+    - For hiding fields from other pages like the normal view, use the visibility
+      settings for subfields in the MARC bibliographic frameworks section of the administration
+      module.
+  - - choices:
+        '0': Don't display
+        '1': Display
+      pref: AcquisitionDetails
+    - acquisition details on the bibliographic record detail page.
+  - - 'Show the following fields for deleted records after a merge:'
+    - pref: MergeReportFields
+    - '.<br />For example: ''001,245ab,600'''
+    - 'displays:'
+    - <ul>
+    - <li>value of 001</li>
+    - <li>subfields a and b of fields 245</li>
+    - <li>all subfields of fields 600</li>
+  - - Show a list of component records, as linked via field 773, in
+    - choices:
+        both: both staff interface and OPAC
+        nowhere: no
+        opac: OPAC
+        staff: staff interface
+      pref: ShowComponentRecords
+    - record detail pages.
+    - A maximum of
+    - pref: MaxComponentRecords
+    - records will be displayed.
+    - <br/> UNIMARC is not supported.
+  Exporting:
+  - - 'Include the following fields when exporting BibTeX:'
+    - pref: BibtexExportAdditionalFields
+      syntax: text/x-yaml
+      type: textarea
+    - 'Use one line per tag in the format BT_TAG: TAG$SUBFIELD ( e.g. lccn: 010$a
+      ).'
+    - <br/>
+    - 'To specify multiple marc tags/subfields as targets for a repeating BibTex tag,
+      use the following format: BT_TAG: [TAG2$SUBFIELD1, TAG2$SUBFIELD2] ( e.g. notes:
+      [501$a, 505$g] ).'
+    - <br/>
+    - All values of repeating tags and subfields will be printed with the given BibTeX
+      tag.
+    - <br/>
+    - Use '@' ( with quotes ) as the BT_TAG to replace the bibtex record type with
+      a field value of your choosing.
+  - - 'Include the following fields when exporting RIS:'
+    - pref: RisExportAdditionalFields
+      syntax: text/x-yaml
+      type: textarea
+    - 'Use one line per tag in the format RIS_TAG: TAG$SUBFIELD ( e.g. LC: 010$a ).'
+    - <br/>
+    - 'To specify multiple MARC tags/subfields as targets for a repeating RIS tag,
+      use the following format: RIS_TAG: [TAG2$SUBFIELD1, TAG2$SUBFIELD2] ( e.g. NT:
+      [501$a, 505$g] ).'
+    - <br/>
+    - All values of repeating tags and subfields will be printed with the given RIS
+      tag.
+    - <br/>
+    - Use of TY ( record type ) as a key will <em>replace</em> the default TY with
+      the field value of your choosing.
+  Importing:
+  - - When matching on ISBN with the record import tool,
+    - choices:
+        '0': don't
+        '1': do
+      pref: AggressiveMatchOnISBN
+    - ' attempt to match aggressively by trying all variations of the ISBNs in the
+      imported record as a phrase in the ISBN fields of already catalogued records.'
+  - - Display the MARC field/subfields
+    - pref: AdditionalFieldsInZ3950ResultSearch
+    - ' in the ''Additional fields'' column of Z39.50 search results (use comma as
+      delimiter e.g.: "<code>001, 082$ab, 090$ab</code>")'
+  - - When matching on ISSN with the record import tool,
+    - choices:
+        '0': don't
+        '1': do
+      pref: AggressiveMatchOnISSN
+    - ' attempt to match aggressively by trying all variations of the ISSNs in the
+      imported record as a phrase in the ISSN fields of already catalogued records.'
+  - - choices:
+        '0': ' class number'
+        '1': Use
+      pref: MARCOverlayRules
+    - MARC overlay rules for incoming records, to decide which action to take for
+      each field.
+  Interface:
+  - - Use
+    - choices: class-sources
+      pref: DefaultClassificationSource
+    - as the default classification source.
+  - - choices:
+        '0': Display
+        '1': Don't display
+      pref: advancedMARCeditor
+    - descriptions of fields and subfields in the MARC editor.
+  - - choices:
+        '0': Don't display
+        '1': Display
+      pref: EasyAnalyticalRecords
+    - easy ways to create analytical record relationships.
+  - - choices:
+        '0': Don't enable
+        '1': Enable
+      default: 0
+      pref: EnableAdvancedCatalogingEditor
+    - ' the advanced cataloguing editor.'
+    - <br/> <strong>NOTE:</strong>
+    - ' the advanced cataloguing editor.'
+  - - When saving in a MARC/MARCXML file in the advanced cataloging editor or exporting
+      from the detail page in the staff interface, use the
+    - choices:
+        biblionumber: bibliographic record number
+        controlnumber: ' class number'
+      default: biblionumber
+      pref: DefaultSaveRecordFileID
+    - in the file name.
+  - - choices:
+        '0': Don't allow
+        '1': Allow
+      default: 1
+      pref: CreateAVFromCataloguing
+    - authorized values to be created within the cataloguing module. Librarian will
+      need the manage_auth_values subpermission.
+  Record structure:
+  - - 'Fill in the default language for field 008 Range 35-37 of MARC21 records (e.g.
+      eng, nor, ger, see <a href=''http://www.loc.gov/marc/languages/language_code.html''>MARC
+      Code List for Languages</a>):'
+    - pref: DefaultLanguageField008
+    - ' Empty defaults to eng.'
+  - - 'Fill in the default country code for field 008 Range 15-17 of MARC21 - Place
+      of publication, production, or execution. (See <a href=''http://www.loc.gov/marc/countries/countries_code.html''>MARC
+      Code List for Countries</a>):'
+    - pref: DefaultCountryField008
+    - ' Empty defaults to ||| - No attempt to code.'
+  - - Interpret and store MARC records in the
+    - choices:
+        MARC21: MARC21
+        UNIMARC: UNIMARC
+      pref: marcflavour
+    - format.
+  - - Use the item type of the
+    - choices:
+        '0': bibliographic record
+        '1': specific item
+      pref: item-level_itypes
+    - as the authoritative item type (for determining circulation and fines rules,
+      for displaying an item type icon on either opac detail or results page, etc).
+  - - Map the MARC subfields
+    - pref: itemcallnumber
+    - ' to an item''s class number. List multiple comma-separated fields to check
+      them sequentially. Each field can include multiple subfields. The order of the
+      subfields in the record will be preserved. For example: ''082ab,092ab'' will
+      look in the 082$a and 082$b, then the 092$a and 092$b.'
+    - 'Examples for MARC21: Dewey: 082ab,092ab; LOC: 050ab,090ab; from the Koha record:
+      942hi. Examples for UNIMARC: Dewey: 676a; LOC: 680ab.'
+  - - Display MARC subfield
+    - pref: AlternateHoldingsField
+    - as holdings information for records that do not have items (this can contain
+      multiple subfields to look in, for example <code>852abhi</code> would look in
+      852 subfields a, b, h, and i), with the subfields separated by
+    - pref: AlternateHoldingsSeparator
+    - .
+  - - ' Fill in the <a href="http://www.loc.gov/marc/organizations/orgshome.html">MARC
+      organisation code</a>'
+    - pref: MARCOrgCode
+    - by default in new MARC21 records (leave blank to disable). This can be also
+      set on libraries level.
+  - - When items are created, give them the temporary location of
+    - class: short
+      pref: NewItemsDefaultLocation
+    - (should be a location code, or blank to disable).
+  - - choices:
+        '0': Don't copy
+        '1': Copy
+      pref: z3950NormalizeAuthor
+    - authors from the UNIMARC
+    - class: multi
+      pref: z3950AuthorAuthFields
+    - tags (separated by commas) to the correct author tags when importing a record
+      using Z39.50.
+  - - Barcodes are
+    - choices:
+        EAN13: incremental EAN-13 barcodes.
+        OFF: not generated automatically.
+        annual: generated in the form <year>-0001, <year>-0002.
+        hbyymmincr: generated in the form <branchcode>yymm0001.
+        incremental: generated in the form 1, 2, 3.
+      pref: autoBarcode
+  - - When a new item is added,
+    - choices:
+        '0': the new item is not prefilled with last created item values.
+        '1': the new item is prefilled with last created item values.
+      pref: PrefillItem
+  - - 'Define a list of subfields to use when prefilling items (separated by space):'
+    - pref: SubfieldsToUseWhenPrefill
+  - - cataloguing.pref#UNIMARCField100Language# Use the language (ISO 690-2)
+    - class: short
+      pref: UNIMARCField100Language
+    - as default language in the UNIMARC field 100 when creating a new record or in
+      the field plugin.
+  - - ' List of subfields for which editing is authorised when the edit_items_restricted
+      permission is enabled, separated by spaces:'
+    - pref: SubfieldsToAllowForRestrictedEditing
+    - 'Examples:'
+    - 'UNIMARC: "995$f 995$h 995$j"'
+    - 'MARC21: "952$a 952$b 952$c"'
+    - Note that the FA framework is excluded from the permission.
+    - If the system preference is empty, no fields are restricted.
+  - - ' List of subfields for which editing is authorised when the items_batchmod_restricted
+      permission is enabled, separated by spaces:'
+    - pref: SubfieldsToAllowForRestrictedBatchmod
+    - 'Examples:'
+    - 'UNIMARC: "995$f 995$h 995$j"'
+    - 'MARC21: "952$a 952$b 952$c"'
+    - Note that the FA framework is excluded from the permission.
+    - If the system preference is empty, no fields are restricted.
+  - - Store record's creator borrowernumber in MARC subfield
+    - pref: MarcFieldForCreatorId
+    - and record's creator name in MARC subfield
+    - pref: MarcFieldForCreatorName
+    - .
+    - Store record's last modifier borrowernumber in MARC subfield
+    - pref: MarcFieldForModifierId
+    - and record's last modifier name in MARC subfield
+    - pref: MarcFieldForModifierName
+    - . <br/><strong>NOTE:</strong> Use a dollar sign between field and subfield like
+      123$a.
+  Spine labels:
+  - - When using the quick spine label printer,
+    - choices:
+        '0': don't
+        '1': do
+      pref: SpineLabelAutoPrint
+    - automatically pop up a print dialog.
+  - - 'Include the following fields on a quick-printed spine label:'
+    - (Enter in columns from the <code>biblio</code>, <code>biblioitems</code> or
+      <code>items</code> tables, surrounded by &lt; and &gt;.)
+    - pref: SpineLabelFormat
+      type: textarea
+  - - choices:
+        '0': Don't display
+        '1': Display
+      pref: SpineLabelShowPrintOnBibDetails
+    - buttons on the bibliographic details page to print item spine labels.
+  - []

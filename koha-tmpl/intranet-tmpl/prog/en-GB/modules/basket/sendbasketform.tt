@@ -1,0 +1,41 @@
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Sending your folder &rsaquo; [% IF ( LibraryNameTitle ) %][% LibraryNameTitle | html %][% ELSE %]Koha online[% END %] catalogue</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+<body style="padding: 1em;" id="cart_sendbasketform" class="cart">
+<div class="container">[% IF ( email_add ) %]
+
+ [% IF ( SENT ) %]
+ <h3>Message sent</h3>
+ <p>The folder was sent to: [% email_add | html %]</p>
+ <p><a class="focus close" href="#">Close window</a></p>
+ [% END %]
+ [% IF ( error ) %]
+ <p>Problem sending the folder...</p>
+ [% END %]
+ 
+[% ELSE %]
+
+[% INCLUDE 'blocking_errors.inc' %]
+<form action="/cgi-bin/koha/basket/sendbasket.pl" method="post">
+
+<fieldset class="rows"> 
+<legend>Sending your folder</legend>
+<ol> <li>
+ <label for="email_add">Email address:</label>
+ <input type="text" id="email_add" name="email_add" size="43" class="focus" />
+ </li>
+ <li>
+ <label for="comment">Comment:</label>
+ <textarea id="comment" name="comment" rows="4" cols="40"></textarea>
+ </li>
+ </ol>
+ </fieldset>
+ <fieldset class="action"> <input type="submit" value="Send" /> <a class="cancel close" href="#">Cancel</a> </fieldset>
+ <input type="hidden" name="bib_list" value="[% bib_list | html %]" />
+ <input type="hidden" name="csrf_token" value="[% csrf_token | html %]" />
+</form>
+
+[% END %]</div>
+</body>
+</html>

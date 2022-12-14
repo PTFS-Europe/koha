@@ -1,0 +1,238 @@
+[% USE Koha %]
+[% USE Branches %]
+[% USE ItemTypes %]
+[% USE AuthorisedValues %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Transfers &rsaquo; Circulation &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+<body id="circ_branchtransfers" class="circ">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'circ-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/circ/circulation-home.pl">Circulation</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ Transfers
+ </a>
+ </li>
+ </ol>
+</nav>
+
+<div class="main container-fluid">
+ <div class="row">
+ [% IF Koha.Preference('CircSidebar') %]
+ <div class="col-sm-10 col-sm-push-2">
+ [% ELSE %]
+ <div class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
+ [% END %]
+ <main>
+
+[% IF ( found ) %]
+ <h3>Reserve found</h3>
+ <table>
+ <caption>
+ [% IF ( reserved ) %]
+ Reserve found for [% INCLUDE 'patron-title.inc' patron => hold.patron | html %] (<a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% borrowernumber | uri %]">[% borrowernumber | html %]</a>).
+ [% END %]
+ [% IF ( waiting ) %]
+ Item is marked waiting at [% branchname | html %] for [% name | html %] (<a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% borrowernumber | uri %]">[% borrowernumber | html %]</a>). [% END %] [% IF ( transferred ) %] Item has been trapped to fill a reservation and is in transit for [% name | html %] (<a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% borrowernumber | uri %]">[% borrowernumber | html %]</a>).
+ [% END %]
+ </caption>
+ <tr>
+ <th>
+ [% IF ( reserved ) %]
+ Set reserve to transit and transfer book to [% Branches.GetName( hold.branchcode ) | html %]:
+ [% END %]
+ [% IF ( waiting or transferred ) %]Cancel reservation and then attempt transfer: [% END %]
+ </th>
+ <td>
+ <form method="post" name="mainform" id="mainform" action="branchtransfers.pl">
+ [% FOREACH trsfitemloo IN trsfitemloop %]
+ <input type="hidden" name="bc-[% trsfitemloo.counter | html %]" value="[% trsfitemloo.item.barcode | html %]" />
+ <input type="hidden" name="fb-[% trsfitemloo.counter | html %]" value="[% trsfitemloo.frombrcd | html %]" />
+ <input type="hidden" name="tb-[% trsfitemloo.counter | html %]" value="[% trsfitemloo.tobrcd | html %]" />
+ [% END %]
+ <input type="hidden" name="reserve_id" value="[% hold.reserve_id | html %]" />
+ <input type="hidden" name="itemnumber" value="[% itemnumber | html %]" />
+ <input type="hidden" name="borrowernumber" value="[% borrowernumber | html %]" />
+ <input type="hidden" name="tobranchcd" value="[% tobranchcd | html %]" />
+ <input type="hidden" name="barcode" value="[% barcode | html %]" />
+ [% IF ( waiting or transferred or processing ) %]
+ <input type="hidden" name="request" value="KillWaiting" />
+ <input type="submit" value="Cancel" />
+ [% END %]
+ [% IF ( reserved ) %]
+ <input type="hidden" name="request" value="SetTransit" />
+ <input type="submit" value="Transfer" />
+ [% END %]
+ </form>
+ </td>
+ </tr>
+ [% IF ( reserved ) %]
+ <tr>
+ <th>Cancel reservation and then attempt transfer:</th>
+ <td>
+ <form method="post" name="mainform" id="mainform" action="branchtransfers.pl">
+ [% FOREACH trsfitemloo IN trsfitemloop %]
+ <input type="hidden" name="bc-[% trsfitemloo.counter | html %]" value="[% trsfitemloo.item.barcode | html %]" />
+ <input type="hidden" name="fb-[% trsfitemloo.counter | html %]" value="[% trsfitemloo.frombrcd | html %]" />
+ <input type="hidden" name="tb-[% trsfitemloo.counter | html %]" value="[% trsfitemloo.tobrcd | html %]" />
+ [% END %]
+ <input type="hidden" name="reserve_id" value="[% hold.reserve_id | html %]" />
+ <input type="hidden" name="biblionumber" value="[% biblionumber | html %]" />
+ <input type="hidden" name="borrowernumber" value="[% borrowernumber | html %]" />
+ <input type="hidden" name="tobranchcd" value="[% tobranchcd | html %]" />
+ <input type="hidden" name="request" value="KillReserved" />
+ <input type="submit" value="Cancel" />
+ </form>
+ </td>
+ </tr>
+ [% END %]
+ <tr>
+ <th>Ignore and return to transfers: </th>
+ <td>
+ <form method="post" name="mainform" id="mainform" action="branchtransfers.pl">
+ <input type="hidden" name="tobranchcd" value="[% tobranchcd | html %]" />
+ <input type="hidden" name="barcode" />
+ [% FOREACH trsfitemloo IN trsfitemloop %]
+ <input type="hidden" name="bc-[% trsfitemloo.counter | html %]" value="[% trsfitemloo.item.barcode | html %]" />
+ <input type="hidden" name="fb-[% trsfitemloo.counter | html %]" value="[% trsfitemloo.frombrcd | html %]" />
+ <input type="hidden" name="tb-[% trsfitemloo.counter | html %]" value="[% trsfitemloo.tobrcd | html %]" />
+ [% END %]
+ <input type="submit" value="Ignore" />
+ </form>
+ </td>
+ </tr>
+ </table>
+
+[% ELSE %]
+ [% IF ( reqmessage ) %]
+ <div class="dialog message">
+ <ul>
+ [% IF ( cancelled ) %]
+ <li>Reserve cancelled</li>
+ [% END %]
+ [% IF ( settransit ) %]
+ <li>Item is now in transit to [% Branches.GetName(tobranchcd) | html %]</li>
+ [% END %]
+ </ul>
+ </div>
+ [% END %]
+
+ [% IF ( errmsgloop ) %]
+ <div class="dialog message">
+ <ul>
+ [% FOREACH errmsgloo IN errmsgloop %]
+ [% IF ( errmsgloo.errbadcode ) %]
+ <li>No item with barcode: [% errmsgloo.msg | html %]</li>
+ [% END %]
+ [% IF ( errmsgloo.errispermanent ) %]
+ <li>Please return item to home library: [% Branches.GetName( errmsgloo.msg ) | html %]</li>
+ [% END %]
+ [% IF ( errmsgloo.errnotallowed ) %]
+ <li>Transfer is not allowed for:
+ <ol>
+ [% IF ( Koha.Preference('BranchTransferLimitsType') == 'itemtype' ) %]
+ <li>Item type: <strong>[% ItemTypes.GetDescription( errmsgloo.code ) | html %]</strong></li>
+ [% ELSE %]
+ <li>Collection: <strong>[% AuthorisedValues.GetDescriptionByKohaField( kohafield => 'items.ccode', authorised_value => errmsgloo.code ) | html %]</strong></li>
+ [% END %]
+ <li>Originating library: <strong>[% Branches.GetName( errmsgloo.fbr ) | html %]</strong></li>
+ <li>Destination library: <strong>[% Branches.GetName( errmsgloo.tbr ) | html %]</strong></li>
+ </ol>
+ </li>
+ [% END %]
+ [% IF ( errmsgloo.errdesteqholding ) %]
+ <li>Item is already at destination library.</li>
+ [% END %]
+ [% IF ( errmsgloo.errwasreturned ) %]
+ <li>Item was on loan to <a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% errmsgloo.patron.borrowernumber | uri %]">
+ [% errmsgloo.patron.firstname | html %] [% errmsgloo.patron.surname | html %]
+ ([% errmsgloo.patron.cardnumber | html %])</a> and has been returned.</li>
+ [% END %]
+ [% END %]
+ </ul>
+ </div>
+ [% END %]
+
+<div id="branchtransfers">
+ <form method="post" name="mainform" id="mainform" action="/cgi-bin/koha/circ/branchtransfers.pl">
+ <fieldset class="brief">
+ <legend>Transfer</legend>
+ <ol>
+ <li>
+ <label for="tobranchcd">Destination library: </label>
+ <select name="tobranchcd" id="tobranchcd">
+ [% PROCESS options_for_libraries libraries => Branches.all( selected => tobranchcd, unfiltered => 1) %]
+ </select>
+ </li>
+ <li>
+ <label for="barcode">Enter barcode: </label>
+ <input name="barcode" id="barcode" size="15" class="focus" type="text" /> <input type="submit" value="Submit" />
+ </li>
+ </ol>
+ </fieldset>
+ [% FOREACH trsfitemloo IN trsfitemloop %]
+ <input type="hidden" name="bc-[% trsfitemloo.counter | html %]" value="[% trsfitemloo.item.barcode | html %]" />
+ <input type="hidden" name="fb-[% trsfitemloo.counter | html %]" value="[% trsfitemloo.frombrcd | html %]" />
+ <input type="hidden" name="tb-[% trsfitemloo.counter | html %]" value="[% trsfitemloo.tobrcd | html %]" />
+ [% END %]
+ </form>
+</div>
+
+ [% IF ( trsfitemloop ) %]
+ <table>
+ <caption>Transferred items</caption>
+ <tr>
+ <th class="tf-title">Title</th>
+ <th class="tf-author">Author</th>
+ <th class="tf-barcode">Barcode</th>
+ <th class="tf-location">Shelving location</th>
+ <th class="tf-itemcallnumber">Class number</th>
+ <th class="tf-itemtype">Item type</th>
+ <th class="tf-ccode">Collection</th>
+ <th class="tf-origin">Origin</th>
+ <th class="tf-destination">Destination</th>
+ </tr>
+ [% FOREACH trsfitemloo IN trsfitemloop %]
+ <tr>
+ <td class="tf-title">
+ [% INCLUDE 'biblio-title.inc' biblio=trsfitemloo.item.biblio link=1 %]
+ </a>
+ </td>
+ <td class="tf-author">[% trsfitemloo.item.biblio.author | html %]</td>
+ <td class="tf-barcode"><a href="/cgi-bin/koha/catalogue/moredetail.pl?biblionumber=[% trsfitemloo.item.biblionumber | uri %]&amp;itemnumber=[% trsfitemloo.item.itemnumber | uri %]#item[% trsfitemloo.item.itemnumber | uri %]">[% trsfitemloo.item.barcode | html %]</a></td>
+ <td class="tf-location"><span class="shelvingloc">[% AuthorisedValues.GetDescriptionByKohaField( kohafield => 'items.location', authorised_value => trsfitemloo.item.location ) | html %]</span></td>
+ <td class="tf-itemcallnumber">[% trsfitemloo.item.itemcallnumber | html %]</td>
+ <td class="tf-itemtype">[% ItemTypes.GetDescription( trsfitemloo.item.effective_itemtype ) | html %]</td>
+ <td class="tf-ccode">[% AuthorisedValues.GetDescriptionByKohaField( kohafield => 'items.ccode', authorised_value => trsfitemloo.item.ccode ) | html %]</td>
+ <td class="tf-origin">[% Branches.GetName( trsfitemloo.frombrcd ) | html %]</td>
+ <td class="tf-destination">[% Branches.GetName( trsfitemloo.tobrcd ) | html %]</td>
+ </tr>
+ [% END %]
+ </table>
+ [% END %]
+ 
+ 
+[% END %]
+
+ </main>
+ </div> <!-- /.col-sm-10.col-sm-push-2 -->
+ [% IF Koha.Preference('CircSidebar') %]
+ <div class="col-sm-2 col-sm-pull-10">
+ <aside>
+ [% INCLUDE 'circ-nav.inc' %]
+ </aside>
+ </div> <!-- /.col-sm-2.col-sm-pull-10 -->
+ [% END %]
+ </div> <!-- /.row -->
+
+[% INCLUDE 'intranet-bottom.inc' %]

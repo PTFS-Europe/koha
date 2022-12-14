@@ -1,0 +1,295 @@
+[% USE raw %]
+[% USE To %]
+[% USE Asset %]
+[% USE Koha %]
+[% USE HtmlId %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>System preferences &rsaquo; Administration &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+[% Asset.css("css/preferences.css") | $raw %]
+[% Asset.css("lib/jquery/plugins/multiple-select/multiple-select.css") | $raw %]
+[% Asset.css("css/humanmsg.css") | $raw %]
+[% Asset.css("lib/codemirror/codemirror.min.css") | $raw %]
+[% Asset.css("lib/codemirror/lint.min.css") | $raw %]
+</head>
+<body id="admin_preferences" class="admin">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'prefs-admin-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/admin/admin-home.pl">Administration</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ System preferences
+ </a>
+ </li>
+ </ol>
+</nav>
+
+<div class="main container-fluid">
+ <div class="row">
+ <div class="col-sm-10 col-sm-push-2">
+ <main>
+
+ [% IF ( jump_not_found ) %]
+ <h2>System preferences</h2>
+ <div class="dialog alert">
+ Could not find a system preference named <code>[% jumpfield | html %]</code>.
+ </div>
+ [% END %]
+ [% IF ( search_not_found ) %]
+ <div class="dialog alert">
+ No system preferences matched your search for: <strong>[% searchfield | html %]</strong>
+ </div>
+ [% ELSIF searchfield %]
+ <h1>You searched for: [% searchfield | html %]</h1>
+ [% END %]
+ [% FOREACH TAB IN TABS %]
+ <div class="prefs-tab">
+ <h2>[% TAB.tab_title | html %] preferences</h2>
+ <form action="/cgi-bin/koha/admin/preferences.pl" method="post">
+ [% UNLESS ( searchfield ) %]<div id="toolbar"><button class="save-all submit" type="submit">Save all [% TAB.tab_title | html %] preferences</button></div>[% END %]
+ <input type="hidden" name="op" value="save" />
+ <input type="hidden" name="tab" value="[% TAB.tab_id | html %]" />
+
+ [% FOREACH LINE IN TAB.LINES %]
+ [% IF ( LINE.is_group_title ) %]
+ [% UNLESS ( loop.first ) %]</tbody></table>[% END %]
+ <div class="row">
+ <div class="col-sm-6">
+ <h3 id="[% LINE.title | $HtmlId %]"><i class="fa fa-caret-down"></i> [% LINE.title | html %]</h3>
+ </div>
+ <div class="col-sm-6">
+ [% IF ( searchfield ) %]
+ <div class="pull-right"><a class="btn btn-link" href="/cgi-bin/koha/admin/preferences.pl?tab=[% TAB.tab_id | html %]#[% LINE.title | $HtmlId %]"><i class="fa fa-list-ul"></i> View all [% LINE.title | html %] preferences</a></div>
+ [% END %]
+ </div>
+ </div>
+
+ <table class="preferences" id="collapse_[% LINE.title | $HtmlId %]">
+ <thead><tr><th>Preference</th><th>Value</th></tr></thead>
+ [% UNLESS ( loop.last ) %]<tbody>[% END %]
+ [% ELSE %]
+ [% IF ( loop.first ) %]<table class="preferences"><thead><tr><th>Preference</th><th>Value</th></tr></thead><tbody>[% END %]
+ <tr class="name-row">
+ <td class="name-cell">
+ <code>
+ [% FOREACH NAME IN LINE.NAMES %]
+ <label for="pref_[% NAME.name | html %]" class="nowrap">
+ <a href="/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=[% NAME.name | uri %]">
+ <i class="fa fa-bookmark" aria-hidden="true"></i></a>
+ [% IF ( NAME.jumped ) %]
+ <span class="term" id="jumped">[% NAME.name | html %]</span>
+ [% ELSIF ( NAME.highlighted ) %]
+ <span class="term">[% NAME.name | html %]</span>
+ [% ELSE %]
+ [% NAME.name | html %]
+ [% END %]
+
+ [% IF NAME.overridden %]
+ <span class="overridden" title="The system preference [% NAME.name | html %] may have been overridden from this value by one or more virtual hosts.">
+ [Overridden]
+ </span>
+ [% END %]
+ </label>
+ [% UNLESS ( loop.last ) %]<br />[% END %]
+ [% END %]
+ </code>
+ </td>
+ <td><div>
+ [% FOREACH CHUNK IN LINE.CHUNKS %]
+ [% IF ( CHUNK.type_text ) %]
+ [% CHUNK.contents | $raw %]
+ [% ELSIF ( CHUNK.type_input ) %]
+ [% IF CHUNK.name == 'UsageStatsGeolocation' %]
+ <input type="[%IF CHUNK.input_type %][% CHUNK.input_type | html %][% ELSE %]text[% END %]" name="pref_[% CHUNK.name | html %]" id="pref_[% CHUNK.name | html %]" class="preference preference-[% CHUNK.class or "short" | html %]" value="[% CHUNK.value | html %]" autocomplete="off" readonly="readonly" size="40" style="width: auto;"/> [% IF ( CHUNK.dateinput ) %]<span class="hint">[% INCLUDE 'date-format.inc' %]</span>[% END %]
+ [% ELSE %]
+ <input type="[%IF CHUNK.input_type %][% CHUNK.input_type | html %][% ELSE %]text[% END %]" name="pref_[% CHUNK.name | html %]" id="pref_[% CHUNK.name | html %]" class="preference preference-[% CHUNK.class or "short" | html %]" value="[% CHUNK.value | html %]" autocomplete="off" /> [% IF ( CHUNK.dateinput ) %]<span class="hint">[% INCLUDE 'date-format.inc' %]</span>[% END %]
+ [% END %]
+ [% ELSIF ( CHUNK.type_select ) %]
+ [% IF CHUNK.disabled %]
+ <select name="pref_[% CHUNK.name | html %]" id="pref_[% CHUNK.name | html %]" disabled="disabled" class="preference preference-[% CHUNK.class or "choice" | html %]">
+ [% ELSE %]
+ <select name="pref_[% CHUNK.name | html %]" id="pref_[% CHUNK.name | html %]" class="preference preference-[% CHUNK.class or "choice" | html %]">
+ [% END %]
+ [% FOREACH CHOICE IN CHUNK.CHOICES.sort('value') %]
+ [% IF ( CHOICE.selected ) %]
+ <option value="[% CHOICE.value | html %]" selected="selected">
+ [% ELSE %]
+ <option value="[% CHOICE.value | html %]">
+ [% END %]
+ [% CHOICE.text | html %]
+ </option>
+ [% END %]
+ </select>
+ [% ELSIF ( CHUNK.type_modalselect ) %]
+ <input type="text" name="pref_[% CHUNK.name | html %]" id="pref_[% CHUNK.name | html %]" class="modalselect preference preference-[% CHUNK.type | html %]" data-source="[% CHUNK.source | html %]" data-exclusions="[% CHUNK.exclusions | html %]" readonly="readonly" value="[% CHUNK.value | html %]"/>
+ [% ELSIF ( CHUNK.type_modaljs ) %]
+ <input type="text" name="pref_[% CHUNK.name | html %]" data-initiator="[% CHUNK.initiator | html %]" data-processor="[% CHUNK.processor %]" id="pref_[% CHUNK.name | html %]" class="modaljs preference preference-[% CHUNK.type | html %]" readonly="readonly" value="[% CHUNK.value | html %]"/>
+ [% ELSIF ( CHUNK.type_multiple ) %]
+ <select name="pref_[% CHUNK.name | html %]" id="pref_[% CHUNK.name | html %]" class="preference preference-[% CHUNK.class or "choice" | html %]" multiple="multiple">
+ [% FOREACH CHOICE IN CHUNK.CHOICES %][% IF ( CHOICE.selected ) %]<option value="[% CHOICE.value | html %]" selected="selected">[% ELSE %]<option value="[% CHOICE.value | html %]">[% END %][% CHOICE.text | html %]</option>[% END %]
+ </select>
+ [% ELSIF ( CHUNK.type_textarea )%]
+ [% IF ( CHUNK.syntax == "text/html" && Koha.Preference('UseWYSIWYGinSystemPreferences') ) %]
+ <textarea name="pref_[% CHUNK.name | html %]" id="pref_[% CHUNK.name | html %]" class="preference preference-[% CHUNK.class or "short" | html %] mce" rows="20" cols="60">[% CHUNK.value | html %]</textarea>
+ [% ELSE %]
+ <a class="expand-textarea" id="expand_[% CHUNK.name | html %]" data-target="[% CHUNK.name | html %]" data-syntax="[% CHUNK.syntax | html %]" href="#">Click to edit</a>
+ <textarea style="display:none" name="pref_[% CHUNK.name | html %]" id="pref_[% CHUNK.name | html %]" class="preference preference-[% CHUNK.class or "short" | html %] codemirror" rows="10" cols="40">[% CHUNK.value | html %]</textarea>
+ <a class="collapse-textarea" id="collapse_[% CHUNK.name | html %]" data-target="[% CHUNK.name | html %]" data-syntax="[% CHUNK.syntax | html %]" style="display:none" href="#">Click to collapse</br></a>
+ [% END %]
+ [% ELSIF ( CHUNK.type_languages ) %]
+ <ul class="sortable">
+ [% FOREACH language IN CHUNK.languages %]
+ [% IF ( language.plural ) %]
+ <li>
+ [% IF ( language.native_description ) %]
+ [% language.native_description | html %]
+ [% ELSE %]
+ [% language.rfc4646_subtag | html %]
+ [% END %]
+ [% IF language.sublanguages_loop.size > 0 %]
+ <ul>
+ [% FOREACH sublanguages_loo IN language.sublanguages_loop %]
+ <li>
+ <label for="pref_[% CHUNK.name | html %]_[% sublanguages_loo.rfc4646_subtag | html %]">[% sublanguages_loo.native_description | html %] [% sublanguages_loo.script_description | html %] [% sublanguages_loo.region_description | html %] [% sublanguages_loo.variant_description | html %]([% sublanguages_loo.rfc4646_subtag | html %])</label>
+ [% IF ( sublanguages_loo.enabled ) %]
+ <input value="[% sublanguages_loo.rfc4646_subtag | html %]" name="pref_[% CHUNK.name | html %]" id="pref_[% CHUNK.name | html %]_[% sublanguages_loo.rfc4646_subtag | html %]" type="checkbox" checked="checked" class="preference preference-checkbox"/>
+ [% ELSE %]
+ <input value="[% sublanguages_loo.rfc4646_subtag | html %]" name="pref_[% CHUNK.name | html %]" id="pref_[% CHUNK.name | html %]_[% sublanguages_loo.rfc4646_subtag | html %]" type="checkbox" class="preference preference-checkbox"/>
+ [% END %]
+ </li>
+ [% END # FOREACH sublanguages %]
+ </ul>
+ [% END %]
+ </li>
+ [% ELSE %]
+ <li>
+ <label for="pref_[% CHUNK.name | html %]_[% language.rfc4646_subtag | html %]">[% language.native_description | html %] ([% language.rfc4646_subtag | html %])</label>
+ [% IF ( language.group_enabled ) %]
+ <input value="[% language.rfc4646_subtag | html %]" name="pref_[% CHUNK.name | html %]" id="pref_[% CHUNK.name | html %]_[% language.rfc4646_subtag | html %]" type="checkbox" checked="checked" class="preference preference-checkbox"/>
+ [% ELSE %]
+ <input value="[% language.rfc4646_subtag | html %]" name="pref_[% CHUNK.name | html %]" id="pref_[% CHUNK.name | html %]_[% language.rfc4646_subtag | html %]" type="checkbox" class="preference preference-checkbox"/>
+ [% END %]
+ </li>
+ [% END # IF language.plural %]
+ [% END # FOREACH language %]
+ </ul> <!-- / ul.sortable -->
+ [% END %]
+ [% END %]
+ [% IF LINE.WARNINGS.size %]
+ [% FOR w IN LINE.WARNINGS %]
+ <div class="dialog alert">
+ [% SWITCH w %]
+ [% CASE "bcrypt_config_not_set" %]Pseudonymization must only be turned on if the 'bcrypt_settings' configuration entry exists and is correctly filled in the Koha configuration file.
+ [% CASE %]Unknown warning "[% w | html %]"
+ [% END %]
+ </div>
+ [% END %]
+ [% END %]
+ </div></td>
+ </tr>
+ [% IF ( loop.last ) %]</tbody></table>[% END %]
+ [% END %]
+ [% END %]
+ <fieldset class="action"><button class="save-all submit" type="submit">Save all [% TAB.tab_title | html %] preferences</button> <a href="/cgi-bin/koha/admin/preferences.pl" class="force_reload cancel">Cancel</a></fieldset>
+ </form>
+ </div>
+ [% END %]
+
+ </main>
+ </div> <!-- /.col-sm-10.col-sm-push-2 -->
+
+ <div class="col-sm-2 col-sm-pull-10">
+ <aside>
+ [% INCLUDE 'prefs-menu.inc' %]
+ </aside>
+ </div> <!-- /.col-sm-2.col-sm-pull-10 -->
+ </div> <!-- /.row -->
+
+<!-- Modal -->
+<div class="modal" id="prefModal" tabindex="-1" role="dialog" aria-labelledby="prefModalLabel">
+ <div class="modal-dialog modal-wide" role="document">
+ <div class="modal-content">
+ <div class="modal-header">
+ <button type="button" class="closebtn" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+ <h4 class="modal-title" id="prefModalLabel">Modal title</h4>
+ </div>
+ <div class="modal-body">
+ <p>
+ <a href="#" id="select_all"><i class="fa fa-check"></i> Select all</a>
+ |
+ <a href="#" id="clear_all"><i class="fa fa-remove"></i> Clear all</a>
+ </p>
+ <form action="#" id="prefModalForm">
+ </form>
+ </div>
+ <div class="modal-footer">
+ <button id="saveModalPrefs" data-target="" type="button" class="btn btn-default">Save</button>
+ <button type="button" class="btn btn-link cancel" data-dismiss="modal">Cancel</button>
+ </div>
+ </div>
+ </div>
+</div>
+
+[% MACRO jsinclude BLOCK %]
+ [% INCLUDE 'datatables.inc' %]
+ [% Asset.js("lib/hc-sticky.js") | $raw %]
+ [% Asset.js("lib/jquery/plugins/multiple-select/jquery.multiple.select.js") | $raw %]
+ [% Asset.js( "lib/codemirror/codemirror.min.js" ) | $raw %]
+ [% Asset.js( "lib/codemirror/css.min.js" ) | $raw %]
+ [% Asset.js( "lib/codemirror/javascript.min.js" ) | $raw %]
+ [% Asset.js( "lib/codemirror/xml.min.js" ) | $raw %]
+ [% Asset.js( "lib/codemirror/yaml.min.js" ) | $raw %]
+ [% Asset.js( "lib/codemirror/lint.min.js" ) | $raw %]
+ [% Asset.js( "lib/linters/jshint.min.js" ) | $raw %]
+ [% Asset.js( "lib/linters/htmlhint.min.js" ) | $raw %]
+ [% Asset.js( "lib/linters/csslint.min.js" ) | $raw %]
+ [% Asset.js( "lib/linters/js-yaml.min.js" ) | $raw %]
+ [% Asset.js( "lib/codemirror/html-lint.min.js" ) | $raw %]
+ [% Asset.js( "lib/codemirror/javascript-lint.min.js" ) | $raw %]
+ [% Asset.js( "lib/codemirror/css-lint.min.js" ) | $raw %]
+ [% Asset.js( "lib/codemirror/yaml-lint.min.js" ) | $raw %]
+
+ <script>
+        var Sticky;
+        var themelang = "[% themelang | html %]";
+        $(document).ready(function(){
+            [% UNLESS ( searchfield ) %]
+                Sticky = $("#toolbar");
+                Sticky.hcSticky({
+                    stickTo: "main",
+                    stickyClass: "floating"
+                });
+            [% END %]
+            $("select[multiple='multiple']").multipleSelect( {
+                placeholder: _("Please select ..."),
+                selectAllText: _("Select all"),
+                allSelected: _("All selected"),
+                countSelected: _("# of % selected"),
+                noMatchesFound: _("No matches found")
+            } );
+            $(".force_reload").on("click",function(e){
+                e.preventDefault();
+                window.location.reload(true);
+            });
+        });
+        // This is here because of its dependence on template variables, everything else should go in js/pages/preferences.js - jpw
+        var to_highlight = "[% To.json( searchfield ) | html %]";
+        var search_jumped = [% IF ( search_jumped ) %]true[% ELSE %]false[% END %];
+    </script>
+ [% Asset.js("lib/jquery/plugins/humanmsg.js") | $raw %]
+ [% Asset.js("js/ajax.js") | $raw %]
+ [% Asset.js("js/pages/preferences.js") | $raw %]
+ [%# Add WYSIWYG editor for htmlarea system preferences %]
+ [% INCLUDE 'wysiwyg-systempreferences.inc' %]
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' %]

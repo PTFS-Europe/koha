@@ -1,0 +1,60 @@
+[% USE Koha %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Sending your list &rsaquo; [% IF ( LibraryNameTitle ) %][% LibraryNameTitle | html %][% ELSE %]Koha online[% END %] catalogue</title>
+[% INCLUDE 'doc-head-close.inc' %]
+[% BLOCK cssinclude %][% END %]
+</head>
+[% INCLUDE 'bodytag.inc' bodyid='sendshelf' bodyclass='popup' %]
+ <div class="main">
+ <div class="container-fluid">
+ <div class="row">
+ <div class="col order-first order-md-first order-lg-2">
+ <div id="usersendshelfform" class="maincontent">
+ [% IF ( email ) %]
+ [% IF ( SENT ) %]
+ <h1>Message sent</h1>
+ <div class="alert alert-success">
+ <p>The list was sent to: [% email | html %]</p>
+ </div>
+ <p><a class="focus close" href="/cgi-bin/koha/opac-shelves.pl?op=view&amp;shelfnumber=[% shelfid | html %]">Back to lists</a></p>
+ [% END %]
+ [% IF ( error ) %]
+ <div class="alert alert-warning">
+ <p>There was an error sending the list.</p>
+ </div>
+ [% END %]
+ [% ELSE %]
+ [% IF ( invalidlist ) %]
+ <div class="alert alert-warning">
+ <p>You do not have permission to send this list.</p>
+ </div>
+ <p><a class="button close" href="/cgi-bin/koha/opac-shelves.pl?op=view&amp;shelfnumber=[% shelfid | html %]">Back to lists</a></p>
+ [% ELSE %]
+ <form action="/cgi-bin/koha/opac-sendshelf.pl" method="post" id="sendshelfform">
+ <legend><h1>Sending your list</h1></legend>
+ <fieldset>
+ <label for="email">Email address:</label>
+ <input type="text" id="email" name="email" size="43" class="focus" />
+
+ <label for="comment">Comment:</label>
+ <textarea id="comment" name="comment" rows="4" cols="40"></textarea>
+
+ <input type="hidden" name="shelfid" value="[% shelfid | html %]" />
+ </fieldset>
+ [% IF Koha.Preference('OPACHoldRequests') || Koha.Preference('OpacRenewalAllowed') %]<p id="donotrequestbymail">Please do not use this mail to request or renew books.</p>[% END %]
+ <fieldset class="action">
+ <input type="submit" value="Send" class="btn btn-primary" />
+ <a class="cancel close" href="/cgi-bin/koha/opac-shelves.pl?op=view&amp;shelfnumber=[% shelfid | html %]">Cancel</a>
+ </fieldset>
+ </form>
+
+ [% END # / IF invalidlist %]
+ [% END # / IF email %]
+ </div> <!-- / #usersendshelfform -->
+ </div> <!-- / .span12 -->
+ </div> <!-- / .row -->
+ </div> <!-- / .container-fluid -->
+ </div> <!-- / .main -->
+
+[% INCLUDE 'opac-bottom.inc' is_popup=1 %]
+[% BLOCK jsinclude %][% END %]

@@ -1,0 +1,504 @@
+[% USE raw %]
+[% USE Asset %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Stage MARC records for import &rsaquo; Tools &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+<style>
+    #fileuploadstatus,#fileuploadfailed,#fileuploadcancel,#jobpanel,#jobstatus,#jobfailed { display : none; }
+</style>
+
+[% Asset.css("css/humanmsg.css") | $raw %]
+
+</head>
+<body id="tools_stage-marc-import" class="tools">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'cat-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/tools/tools-home.pl">Tools</a>
+ </li>
+
+ [% IF ( uploadmarc ) %]
+ <li>
+ <a href="/cgi-bin/koha/tools/stage-marc-import.pl">Stage MARC records for import</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ MARC staging results
+ </a>
+ </li>
+ [% ELSE %]
+ <li>
+ <a href="#" aria-current="page">
+ Stage MARC records for import
+ </a>
+ </li>
+ [% END %]
+ </ol>
+</nav>
+
+<div class="main container-fluid">
+ <div class="row">
+ <div class="col-sm-10 col-sm-push-2">
+ <main>
+
+[% IF ( uploadmarc ) %]
+<div id="toolbar" class="btn-toolbar">
+ <a class="btn btn-default" href="/cgi-bin/koha/tools/stage-marc-import.pl"><i class="fa fa-plus"></i> Stage MARC records</a>
+ <a class="btn btn-default" href="/cgi-bin/koha/tools/manage-marc-import.pl?import_batch_id=[% import_batch_id | html %]"><i class="fa fa-list-ul"></i> Manage staged records</a>
+</div>
+[% END %]
+
+[% IF ( uploadmarc ) %]
+<h1>MARC staging results</h1>
+<ul>
+ [% SWITCH (record_type) %]
+ [% CASE 'biblio' %]
+ <li>Processing bibliographic records</li>
+ [% CASE 'auth' %]
+ <li>Processing authority records</li>
+ [% END %]
+ <li>[% total | html %] records in file</li>
+ <li>[% import_errors | html %] records not staged because of MARC error</li>
+ <li>[% staged | html %] records staged</li>
+ [% IF ( checked_matches ) %]
+ <li>[% matched | html %] records with at least one match in the catalogue per matching rule &quot;[% matcher_code | html %]&quot;</li>
+ [% ELSE %]
+ [% IF ( matcher_failed ) %]
+ <li>Record matching failed -- unable to retrieve selected matching rule.</li>
+ [% ELSE %]
+ <li>Did not check for matches with existing records in catalogue</li>
+ [% END %]
+ [% END %]
+ [% IF record_type == 'biblio' %]
+ <li>[% num_items | html %] item records found and staged</li>
+ [% END %]
+ [% IF ( label_batch ) %]
+ <li>New label batch created: # [% label_batch | html %] </li>
+ [% END %]
+</ul>
+[% IF basketno && booksellerid %]
+<p>
+ <a id="addtobasket" class="btn btn-default" href="/cgi-bin/koha/acqui/addorderiso2709.pl?import_batch_id=[% import_batch_id | html %]&basketno=[% basketno | html %]&booksellerid=[% booksellerid | html %]">Add staged files to basket</a>
+</p>
+[% END %]
+[% ELSE %]
+<h1>Stage MARC records for import</h1>
+<ul>
+ <li>Select a MARC file to stage in the import reservoir. It will be parsed, and each valid record staged for later import into the catalogue.</li>
+ <li>You can enter a name for this import. It may be useful, when creating a record, to remember where the suggested MARC data comes from!</li>
+</ul>
+<form method="post" action="[% SCRIPT_NAME | html %]" id="uploadfile" enctype="multipart/form-data">
+<fieldset class="rows" id="uploadform">
+<legend>Upload a file to stage</legend>
+<ol>
+ <li>
+ <div id="fileuploadform">
+ <label for="fileToUpload">File: </label>
+ <input type="file" id="fileToUpload" name="fileToUpload" />
+ </div>
+ </li>
+</ol>
+ <fieldset class="action">
+ <button id="fileuploadbutton">Upload file</button>
+ <button id="fileuploadcancel">Cancel</button>
+ </fieldset>
+</fieldset>
+
+ <div id="fileuploadpanel">
+ <div id="fileuploadstatus" class="progress_panel">Upload progress:
+ <progress id="fileuploadprogress" max="100" value="0">
+ </progress>
+ <span class="fileuploadpercent"></span>%
+ </div>
+ <div id="fileuploadfailed"></div>
+ </div>
+</form>
+
+<fieldset class="rows" id="profile_fieldset">
+ <legend>Pre-fill values with profile?</legend>
+ <ol>
+ <li>
+ <label for="profile">Profile: </label>
+ <select name="profile" id="profile">
+ <option value="">Do not use profile</option>
+ </select>
+ <div class="hint">When you select a profile it pre-fills your form with profile values.</div>
+ <div class="hint">Later you can modify your form and that's what matters on import.</div>
+ </li>
+ </ol>
+</fieldset>
+
+ <form method="post" id="processfile" action="[% SCRIPT_NAME | html %]" enctype="multipart/form-data">
+[% IF basketno && booksellerid %]
+ <input type="hidden" name="basketno" id="basketno" value="[% basketno | html %]" />
+ <input type="hidden" name="booksellerid" id="booksellerid" value="[% booksellerid | html %]" />
+[% END %]
+ <input type="hidden" name="profile_id" id="profile_id"/>
+<fieldset class="rows">
+ <input type="hidden" name="uploadedfileid" id="uploadedfileid" value="" />
+ <input type="hidden" name="runinbackground" id="runinbackground" value="" />
+ <input type="hidden" name="completedJobID" id="completedJobID" value="" />
+ <legend>Settings</legend>
+ <ol><li>
+ <label for="comments">Comments about this file: </label>
+ <input type="text" id="comments" name="comments" />
+ 
+ </li>
+ <li>
+ <label for='record_type'>Record type:</label>
+ <select name='record_type' id='record_type'>
+ <option value='biblio' selected='selected'>Bibliographic</option>
+ <option value='auth'>Authority</option>
+ </select>
+ </li>
+ <li>
+ <label for="encoding">Character encoding: </label>
+ <select name="encoding" id="encoding">
+ <option value="UTF-8" selected="selected">UTF-8 (Default)</option>
+ <option value="MARC-8">MARC 8</option>
+ <option value="ISO_5426">ISO 5426</option>
+ <option value="ISO_6937">ISO 6937</option>
+ <option value="ISO_8859-1">ISO 8859-1</option>
+ <option value="EUC-KR">EUC-KR</option>
+ </select>
+ </li>
+ <li>
+ <label for='format'>Format:</label>
+ <select name='format' id='format'>
+ <option value='ISO2709'>MARC</option>
+ <option value='MARCXML'>MARCXML</option>
+ [% FOREACH p IN plugins %]
+ <option value="[% p.metadata.class | html %]">[% p.metadata.name | html %] ( other format via plugin)</option>
+ [% END %]
+ </select>
+ </li>
+</ol></fieldset>
+
+ [% IF MarcModificationTemplatesLoop %]
+ <fieldset class="rows">
+ <legend>Modify records using a MARC modification template?</legend>
+ <ol>
+ <li>
+ <label for="comments">Template: </label>
+ <select name="marc_modification_template_id" id="marc_modification_template_id">
+ <option value="">Do not use template</option>
+ [% FOREACH mmt IN MarcModificationTemplatesLoop %]
+ <option value="[% mmt.template_id | html %]">[% mmt.name | html %]</option>
+ [% END %]
+ </select>
+ </li>
+ </ol>
+ </fieldset>
+ [% END %]
+
+ <fieldset class="rows">
+ <legend>Look for existing records in catalogue?</legend>
+ <ol><li><label for="matcher">Record matching rule:</label>
+ <select name="matcher" id="matcher">
+ <option value="">Do not look for matching records</option> 
+ [% FOREACH available_matcher IN available_matchers %]
+ <option value="[% available_matcher.matcher_id | html %]">[% available_matcher.code | html %] ([% available_matcher.description | html %])
+ </option>
+ [% END %]
+ </select>
+ </li>
+ <li><label for="overlay_action">Action if matching record found: </label>
+ [% INCLUDE 'tools-overlay-action.inc' %]
+ </li>
+ <li><label for="nomatch_action">Action if no match is found: </label>
+ [% INCLUDE 'tools-nomatch-action.inc' %]
+ </li>
+ </ol>
+ </fieldset>
+ <fieldset class="rows" id="items">
+ <legend>Check for embedded item record data?</legend>
+ <ol>
+ <li class="radio">
+ <input type="radio" id="parse_itemsyes" name="parse_items" value="1" checked="checked" />
+ <label for="parse_itemsyes">Yes</label>
+ </li>
+ <li class="radio">
+ <input type="radio" id="parse_itemsno" name="parse_items" value="0" />
+ <label for="parse_itemsno">No (If you do not check for items while staging you may not change this option later)
+ </label>
+ </li>
+ </ol>
+ <ol>
+ <li><label for="item_action">How to process items: </label>
+ [% INCLUDE 'tools-item-action.inc' %]
+ </li>
+ </ol>
+ </fieldset>
+ <fieldset class="action">
+ <input type="button" id="mainformsubmit" value="Stage for import" />
+ <button id="add_profile" disabled>Save profile</button>
+ <input type="text" id="profile_name" name="profile_name" placeholder="Profile name"/>
+ <button id="del_profile" disabled>Remove profile</button>
+ </fieldset>
+ 
+ <div id="jobpanel"><div id="jobstatus" class="progress_panel">Job progress: <div id="jobprogress"></div> <span id="jobprogresspercent"></span>%</div>
+ <div id="jobfailed"></div></div>
+ 
+</form>
+[% END %]
+
+ </main>
+ </div> <!-- /.col-sm-10.col-sm-push-2 -->
+
+ <div class="col-sm-2 col-sm-pull-10">
+ <aside>
+ [% INCLUDE 'tools-menu.inc' %]
+ </aside>
+ </div> <!-- /.col-sm-2.col-sm-pull-10 -->
+ </div> <!-- /.row -->
+
+[% MACRO jsinclude BLOCK %]
+ [% Asset.js("js/tools-menu.js") | $raw %]
+ [% Asset.js("lib/jquery/plugins/humanmsg.js") | $raw %]
+ [% Asset.js("js/background-job-progressbar.js") | $raw %]
+ [% Asset.js("js/file-upload.js") | $raw %]
+ <script>
+        var xhr;
+        var PROFILE_SAVE_MSG = _("Profile saved");
+        var PROFILE_DEL_MSG = _("Profile deleted");
+        $(document).ready(function(){
+            $("#processfile").hide();
+            $('#profile_fieldset').hide();
+            $("#record_type").change(function() {
+                if ($(this).val() == 'auth') {
+                    $('#items').hide();
+                } else {
+                    $('#items').show();
+                }
+            });
+            $("#fileuploadbutton").on("click",function(e){
+                e.preventDefault();
+                StartUpload();
+            });
+            $("#fileuploadcancel").on("click",function(e){
+                e.preventDefault();
+                CancelUpload();
+            });
+            $("#mainformsubmit").on("click",function(){
+                return CheckForm( document.getElementById("processfile"));
+            });
+            getProfiles();
+            $('#profile').change(function(){
+                if(this.value=='') {
+                    $("#mod_profile, #del_profile").prop("disabled",true);
+                    $("#profile_id").val("");
+                    $("#comments").val("");
+                    $("#record_type").val('biblio').change();
+                    $("#encoding").val('UTF-8').change();
+                    $("#format").val('ISO2709').change();
+                    $("#marc_modification_template_id").val("").change();
+                    $("#matcher").val("").change();
+                    $("#overlay_action").val('replace').change();
+                    $("#nomatch_action").val('create_new').change();
+                    $("#parse_itemsyes").prop("checked", true).change();
+                    $("#item_action").val('always_add').change();
+                    $("#profile_name").val('').keyup();
+                } else {
+                    const profile = $('option:selected', this).data('profile');
+                    $("#profile_id").val(profile.profile_id);
+                    $("#mod_profile, #del_profile").prop("disabled", null);
+                    $("#comments").val(profile.comments);
+                    $("#record_type").val(profile.record_type).change();
+                    $("#encoding").val(profile.encoding).change();
+                    $("#format").val(profile.format).change();
+                    $("#marc_modification_template_id").val(profile.template_id).change();
+                    $("#matcher").val(profile.matcher_id).change();
+                    $("#overlay_action").val(profile.overlay_action).change();
+                    $("#nomatch_action").val(profile.nomatch_action).change();
+                    $("input[name='parse_items'][value='"+(profile.parse_items?'1':'0')+"']").prop("checked", true).change();
+                    $("#item_action").val(profile.item_action).change();
+                    $("#profile_name").val(profile.name).keyup();
+                }
+            });
+
+            $("#profile_name").keyup(function(){
+                $("#add_profile").prop("disabled", this.value.trim()=='');
+            });
+
+            $("#add_profile").click(function(event) {
+                event.preventDefault();
+                var name = $("#profile_name").val().trim();
+                if(!name) {
+                    alert(_("Profile must have a name"));
+                    return;
+                }
+
+                var profile = $("#profile option[value!='']")
+                    .map(function() {
+                        return $(this).data('profile');
+                    })
+                    .filter(function() {
+                        return this.name == name;
+                    });
+
+                if(profile.length) {
+                    if(!confirm(_("There is another profile with this name.")+"\n\n"+_("Do you want to update it with new values?"))) {
+                        return;
+                    }
+                }
+
+                new Promise(function(resolve, reject) {
+
+                    const params = {
+                        comments: $("#comments").val() || null,
+                        record_type: $("#record_type").val() || null,
+                        encoding: $("#encoding").val() || null,
+                        format: $("#format").val() || null,
+                        template_id: $("#marc_modification_template_id").val() || null,
+                        matcher_id: $("#matcher").val() || null,
+                        overlay_action: $("#overlay_action").val() || null,
+                        nomatch_action: $("#nomatch_action").val() || null,
+                        parse_items: !!parseInt($("input[name='parse_items']:checked").val()) || null,
+                        item_action: $("#item_action").val() || null,
+                        name: name
+                    };
+
+                    if(profile.length) {
+                        $.ajax({
+                            url: "/api/v1/import_batch_profiles/"+profile[0].profile_id,
+                            method: "PUT",
+                            data: JSON.stringify(params),
+                            contentType: 'application/json'
+                        })
+                        .done(resolve)
+                        .fail(reject);
+                    } else {
+                        $.ajax({
+                            url: "/api/v1/import_batch_profiles/",
+                            method: "POST",
+                            data: JSON.stringify(params),
+                            contentType: 'application/json'
+                        })
+                        .done(resolve)
+                        .fail(reject);
+                    }
+                })
+                .then(function(profile) {
+                    humanMsg.displayAlert(PROFILE_SAVE_MSG);
+                    return getProfiles(profile.profile_id);
+                })
+                .catch(function(error) {
+                    alert(_("An error occurred")+"\n\n"+((error.responseJSON && error.responseJSON.error) || error.responseText || error.statusText));
+                })
+            });
+
+            $("#del_profile").click(function(event) {
+                event.preventDefault();
+                var id = $("#profile").val();
+                if(!id) return;
+                if(!confirm(_("Are you sure you want to delete this profile?"))) {
+                    return;
+                }
+                new Promise(function(resolve, reject) {
+                    $.ajax({
+                        url: "/api/v1/import_batch_profiles/"+id,
+                        method: "DELETE"
+                    })
+                    .done(resolve)
+                    .fail(reject);
+                })
+                .then(function() {
+                    humanMsg.displayAlert(PROFILE_DEL_MSG);
+                    return getProfiles();
+                })
+                .catch(function(error) {
+                    alert(_("An error occurred")+"\n\n"+((error.responseJSON && error.responseJSON.error) || error.responseText || error.statusText));
+                })
+            });
+        });
+
+        function CheckForm(f) {
+            if ($("#fileToUpload").value == '') {
+                alert(_("Please upload a file first."));
+            } else {
+                return submitBackgroundJob(f);
+            }
+            return false;
+        }
+        function StartUpload() {
+            if( $('#fileToUpload').prop('files').length == 0 ) return;
+            $('#fileuploadbutton').hide();
+            $("#fileuploadfailed").hide();
+            $("#processfile").hide();
+            $('#profile_fieldset').hide();
+            $("#fileuploadstatus").show();
+            $("#uploadedfileid").val('');
+            xhr= AjaxUpload( $('#fileToUpload'), $('#fileuploadprogress'), 'temp=1', cbUpload );
+            $("#fileuploadcancel").show();
+        }
+        function CancelUpload() {
+            if( xhr ) xhr.abort();
+            $("#fileuploadstatus").hide();
+            $('#fileuploadbutton').show();
+            $("#fileuploadcancel").hide();
+            $("#fileuploadfailed").show();
+            $("#fileuploadfailed").text( _("Upload status: Cancelled ") );
+        }
+        function cbUpload( status, fileid, errors ) {
+            if( status=='done' ) {
+                $("#uploadedfileid").val( fileid );
+                $('#fileToUpload').prop('disabled',true);
+                $('#fileuploadbutton').prop('disabled',true);
+                $('#fileuploadbutton').show();
+                $("#fileuploadcancel").hide();
+                var filename=$('#fileToUpload').prop('files')[0].name;
+                if( filename.match( new RegExp(/\.[^.]+xml$/) ) ) {
+                    $('#format').val('MARCXML');
+                }
+                $("#processfile").show();
+                $('#profile_fieldset').show();
+            } else {
+                var errMsgs = [ _("Error code 0 not used"), _("File already exists"), _("Directory is not writeable"), _("Root directory for uploads not defined"), _("Temporary directory for uploads not defined") ];
+                var errCode = errors[$('#fileToUpload').prop('files')[0].name].code;
+                $('#fileuploadbutton').show();
+                $("#fileuploadcancel").hide();
+                $("#fileuploadstatus").hide();
+                $("#fileuploadfailed").show();
+                $("#fileuploadfailed").text( _("Upload status: ") +
+                    ( status=='failed'? _("Failed") + " - (" + errCode + ") " + errMsgs[errCode]:
+                    ( status=='denied'? _("Denied"): status ))
+                );
+            }
+        }
+
+        function getProfiles(id) {
+            const select = $("#profile");
+            $("option[value!='']", select).remove();
+            return new Promise(function(resolve, reject) {
+                $.ajax("/api/v1/import_batch_profiles")
+                .then(resolve, reject);
+            })
+            .then(function(profiles) {
+                profiles.forEach(function(profile) {
+                    const opt = $("<option/>");
+                    select.append(opt);
+                    if(id && profile.profile_id == id) {
+                        opt.prop('selected', true);
+                    }
+                    opt.attr("value", profile.profile_id);
+                    opt.text(profile.name);
+                    opt.data("profile", profile);
+                });
+            })
+            .then(function(){
+                select.change();
+            });
+        }
+
+
+    </script>
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' %]

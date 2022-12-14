@@ -1,0 +1,24 @@
+[% INCLUDE 'doc-head-open.inc' %]
+ <title>Convert report &rsaquo; Reports &rsaquo; Koha</title>
+ <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+ </head>
+ <body id="rep_report_convert" class="rep">
+ <div>
+ [% IF msg == 'no_report' %]
+ There is no valid report for this id.
+ [% ELSIF msg == 'can_be_updated' %]
+ <div id="col1">
+ <h3>Existing SQL</h3>
+ <span class="show_sql">[% current_sql | html_entity %]</span>
+ </div>
+
+ <div id="col2">
+ <h3>Updated SQL</h3>
+ <span class="show_sql">[% updated_sql | html_entity %]</span>
+ </div>
+ [% ELSE %]
+ Something went wrong.
+ [% END %]
+ </div>
+ </body>
+</html>

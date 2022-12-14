@@ -1,0 +1,159 @@
+[% USE raw %]
+[% USE Asset %]
+[% SET footerjs = 1 %]
+[% PROCESS 'authorities.inc' %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>[% IF ( unknownauthid ) %]
+ Unknown authority record
+ [% ELSE %]
+ Details for authority #[% authid | html %] ([% authtypetext | html %])
+ [% END %] &rsaquo; Authorities &rsaquo; Koha
+</title>
+[% INCLUDE 'doc-head-close.inc' %]
+[% Asset.css("css/addbiblio.css") | $raw %]
+</head>
+
+<body id="auth_detail" class="auth">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'authorities-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/authorities/authorities-home.pl">Authorities</a>
+ </li>
+
+ <li>
+ <a href="#" aria-current="page">
+ [% IF ( unknownauthid ) %]
+ Unknown authority record
+ [% ELSE %]
+ Details for authority #[% authid | html %] ([% authtypetext | html %])
+ [% END %]
+ </a>
+ </li>
+ </ol>
+</nav>
+
+<div class="main container-fluid">
+ <div class="row">
+ <div class="col-md-8 col-md-offset-2">
+
+ [% INCLUDE 'authorities-toolbar.inc' %]
+ 
+[% IF ( displayhierarchy ) %]
+<div id="hierarchies">
+[% PROCESS showhierarchy trees = loophierarchies %]
+</div>
+[% END %]
+
+
+[% IF ( unknownauthid ) %]
+ <div class="dialog message">The authority record you requested does not exist ([% errauthid | html %]).</div>
+[% ELSE %]
+<h1>Authority #[% authid | html %] ([% authtypetext | html %])</h1>
+
+<div id="action">
+ [% IF count %]
+ Used in <a href="/cgi-bin/koha/catalogue/search.pl?type=intranet&amp;op=do_search&amp;q=an=[% authid | uri %]">[% count | html %] record(s)</a>
+ [% ELSE %]
+ This authority is not used in any records.
+ [% END %]
+</div>
+
+<div id="authoritiestabs" class="toptabs numbered">
+ <ul>
+ [% FOREACH BIG_LOO IN BIG_LOOP %]
+ <li>
+ <a href="#tab[% BIG_LOO.number | uri %]XX">[% BIG_LOO.number | html %]</a>
+ </li>
+ [% END %]
+ </ul>
+
+[% FOREACH BIG_LOO IN BIG_LOOP %]
+ <div id="tab[% BIG_LOO.number | html %]XX">
+ [% FOREACH innerloo IN BIG_LOO.innerloop %]
+ [% IF ( innerloo.tag_number ) %]
+ <div class="tag">
+ <div class="tag_title">
+ <span class="tag_num marc_field">[% innerloo.tag_number | html %]</span>
+ [% IF (innerloo.defined("ind1") ) %]
+ <span class="tag_ind1">[% innerloo.ind1 | html %]</span><span class="tag_ind2">[% innerloo.ind2 | html %]</span>
+ [% END %]
+ [% IF (innerloo.tag_desc) %]
+ <span class="dashwrapper"> -</span> <span class="tag_desc marc_field">[% innerloo.tag_desc | html %]</span>
+ [% END %]
+ </div>
+ [% ELSE %]
+ <div class="tag">
+ [% END %]
+ [% FOREACH subfiel IN innerloo.subfield %]
+ <div class="auth_subfield">
+ <div class="subfield_info marc_field">
+ [% UNLESS ( subfiel.hide_marc ) %]
+ <span class="marc_subfield">[% subfiel.marc_subfield | html %]</span>
+ [% END %]
+ <span class="marc_subfield_desc">[% subfiel.long_desc | html %]</span>
+ </div> <!-- /.subfield_info.marc_field -->
+ <div class="subfield_content marc_field">
+ <span class="subfield_value">
+ [% IF ( subfiel.is_url ) %]
+ <a href="[% subfiel.marc_value | url %]">[% subfiel.marc_value | html %]</a>
+ [% ELSE %]
+ [% subfiel.marc_value | html %]
+ [% END %]
+ </span>
+ [% IF ( subfiel.link ) %]
+ <a href="/cgi-bin/koha/catalogue/search.pl?op=do_search&amp;marclist=[% subfiel.link | uri %]&amp;operator==&amp;type=intranet&amp;value=[% subfiel.marc_value |url %]">
+ <img src="[% interface | html %]/[% theme | html %]/images/filefind.png" height="15" title="Search on [% subfiel.marc_value | html %]">
+ </a>
+ [% END %]
+ [% IF ( subfiel.authority ) %]
+ <a href="/cgi-bin/koha/authorities/detail.pl?authid=[% subfiel.authority | uri %]" class="button">Auth</a>
+ [% END %]
+ </div> <!-- /.subfield_content.marc_field -->
+ </div> <!-- /.auth_subfield -->
+ [% END %]
+ </div>
+ [% END %]
+ </div>
+[% END %]
+</div>
+</div>
+</div>
+[% END %]
+
+[% MACRO jsinclude BLOCK %]
+ [% INCLUDE 'authorities_js.inc' %]
+ [% IF ( displayhierarchy ) %]
+ [% Asset.js("lib/jquery/plugins/jquery.jstree.js") | $raw %]
+ [% END %]
+ <script>
+        $(document).ready(function() {
+            var editAuth = $("#editAuth");
+            var editAuthLink = editAuth.attr("href");
+            $('#authoritiestabs').tabs({
+                activate: function( event, ui ){
+                    editAuth.attr("href", editAuthLink + "#" + ui.newPanel.attr('id') );
+                }
+            });
+            [% IF ( displayhierarchy ) %]
+                var current_nodes = [];
+                $('.currentauth').each(function() {
+                    current_nodes.push('#' + $(this).parent().parents('li:first').attr('id'));
+                    });
+                $('#hierarchies').jstree({
+                        "plugins": [ "themes", "html_data"],
+                        "themes": { "theme": "classic",
+                                    "icons": false },
+                        "core": { "initially_open": current_nodes }
+                    });
+            [% END %]
+         });
+    </script>
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' %]

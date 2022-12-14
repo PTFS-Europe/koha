@@ -1,0 +1,69 @@
+[% USE raw %]
+[% USE Asset %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]<title>Quick spine label creator &rsaquo; Tools &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+
+<body id="labels_spinelabel-home" class="tools labels">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'cat-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/tools/tools-home.pl">Tools</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ Quick spine label creator
+ </a>
+ </li>
+ </ol>
+</nav>
+
+<div class="main container-fluid">
+ <div class="row">
+ <div class="col-sm-10 col-sm-push-2">
+ <main>
+
+ <h2>Quick spine label creator</h2>
+ <form action="/cgi-bin/koha/labels/spinelabel-print.pl" method="post" id="spinelabelprint">
+ <fieldset class="brief">
+ <ol>
+ <li><label for="barcode">Barcode: </label>
+ <input type="text" name="barcode" id="barcode" class="focus" required="required" />
+ </li>
+ </ol>
+ <fieldset class="action"><input type="submit" value="View spine label" /></fieldset>
+ </fieldset>
+ </form>
+
+ </main>
+ </div> <!-- /.col-sm-10.col-sm-push-2 -->
+
+ <div class="col-sm-2 col-sm-pull-10">
+ <aside>
+ [% INCLUDE 'tools-menu.inc' %]
+ </aside>
+ </div> <!-- /.col-sm-2.col-sm-pull-10 -->
+ </div> <!-- /.row -->
+
+[% MACRO jsinclude BLOCK %]
+ [% Asset.js("js/tools-menu.js") | $raw %]
+ <script>
+        $(document).ready(function(){
+            $("#spinelabelprint").on("submit", function(e){
+                e.preventDefault();
+                var params = $(this).serialize();
+                openWindow("/cgi-bin/koha/labels/spinelabel-print.pl?" + params,"Print spine label",400,400);
+                $("#barcode").val("").focus();
+            });
+        });
+    </script>
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' %]

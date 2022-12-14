@@ -1,0 +1,94 @@
+[% USE raw %]
+[% USE Asset %]
+[% USE KohaDates %]
+[% USE Branches %]
+[% USE Koha %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Club enrollments &rsaquo; User clubs &rsaquo; Tools &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+
+<body id="club_enrollments" class="clubs">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'cat-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/tools/tools-home.pl">Tools</a>
+ </li>
+ <li>
+ <a href="clubs.pl">User clubs</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ Club enrollments
+ </a>
+ </li>
+ </ol>
+</nav>
+
+<div class="main container-fluid">
+ <div class="row">
+ <div class="col-sm-10 col-sm-push-2">
+ <main>
+ [% IF !club %]
+ <div class="dialog message">The club you requested does not exist.</div>
+ [% ELSE %]
+ <h1>Club enrollments for <em>[% club.name | html %]</em></h1>
+
+ <table id="enrollments-table">
+ <thead>
+ <tr>
+ <th>Name</th>
+ <th>Card number</th>
+ </tr>
+ </thead>
+
+ <tbody>
+ [% FOREACH e IN club.club_enrollments %]
+ [% SET p = e.patron %]
+ <tr>
+ <td>
+ <a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% p.id | uri %]">[% p.surname | html %], [% p.firstname | html %]</a>
+ </td>
+ <td>
+ [% p.cardnumber | html %]
+ </td>
+ </tr>
+ [% END %]
+ </tbody>
+ </table>
+ [% END %]
+
+ </main>
+ </div> <!-- /.col-sm-10.col-sm-push-2 -->
+
+ <div class="col-sm-2 col-sm-pull-10">
+ <aside>
+ [% INCLUDE 'tools-menu.inc' %]
+ </aside>
+ </div> <!-- /.col-sm-2.col-sm-pull-10 -->
+ </div> <!-- /.row -->
+
+[% MACRO jsinclude BLOCK %]
+ [% INCLUDE 'datatables.inc' %]
+ [% Asset.js("js/tools-menu.js") | $raw %]
+ <script>
+        $(document).ready(function() {
+            eTable = $('#enrollments-table').dataTable($.extend(true, {}, dataTablesDefaults, {
+                "sPaginationType": "full",
+                "sDom": 'C<"top pager"ilpf><"#filter_c">tr<"bottom pager"ip>',
+                "aoColumnDefs": [
+                        { "aTargets": [ -1, -2 ], "bSortable": false, "bSearchable": false },
+                ]
+            } ));
+        });
+    </script>
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' %]

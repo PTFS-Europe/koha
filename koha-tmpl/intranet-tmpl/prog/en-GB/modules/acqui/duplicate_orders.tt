@@ -1,0 +1,431 @@
+[% USE raw %]
+[% USE Asset %]
+[% USE Koha %]
+[% USE KohaDates %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>
+[% UNLESS blocking_error %]
+Basket [% basket.basketno | html %] &rsaquo; Duplicate existing orders &rsaquo; [% END %]
+Acquisitions &rsaquo; Koha
+</title>
+[% INCLUDE 'doc-head-close.inc' %]
+<style>
+    .picked_to_duplicate > td { background-color: #bcdb89 !important; }
+    span.hint { margin-left: 1em; }
+</style>
+</head>
+
+<body id="acq_duplicate_orders" class="acq">
+
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'acquisitions-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/acqui/acqui-home.pl">Acquisitions</a>
+ [% UNLESS blocking_error %]
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/acqui/supplier.pl?booksellerid=[% vendor.id | uri %]">[% vendor.name | html %]</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/acqui/basket.pl?basketno=[% basket.basketno | uri %]">Basket [% basket.basketno | html %]</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ Duplicate existing orders
+ </a>
+ </li>
+ [% END %]
+ </ol>
+</nav>
+
+<div class="main container-fluid">
+ <div class="row">
+ <div class="col-sm-10 col-sm-push-2">
+ <main>
+
+[% INCLUDE 'blocking_errors.inc' %]
+
+<h2>Duplicate existing orders</h2>
+
+[% IF op == 'search' || op == 'select' %]
+<form action="/cgi-bin/koha/acqui/duplicate_orders.pl" method="post">
+ <fieldset class="rows">
+ <legend>
+ [% IF op == 'search' %]
+ <span>Search orders</span>
+ [% ELSE %]
+ <span>Refine search</span>
+ [% END %]
+ <span class="toggle_orders_filters" id="show_orders_filters"><a href="#">[+]</a></span>
+ <span class="toggle_orders_filters" id="hide_orders_filters"><a href="#">[-]</a></span>
+ </legend>
+ <div id="orders_filters">
+ [% INCLUDE 'filter-orders.inc' %]
+ <input type="hidden" name="op" value="select" />
+ <input type="hidden" name="basketno" value="[% basket.basketno | html %]" />
+
+ <input type="hidden" name="ordernumbers" value="[% ordernumbers.join(',') | html %]" />
+ <fieldset class="action"><input type="submit" value="Search" /></fieldset>
+ </div>
+ </fieldset>
+</form>
+[% END %]
+
+[% BLOCK display_order_line %]
+ [% IF selected %]
+ <tr class="picked_to_duplicate" data-ordernumber="[% order.ordernumber | html %]">
+ [% ELSE %]
+ <tr data-ordernumber="[% order.ordernumber | html %]">
+ [% END %]
+ <td>
+ [% IF can_check %]
+ [% IF selected %]
+ <input type="checkbox" name="ordernumber" value="[% order.ordernumber | html %]" checked="checked" />
+ [% ELSE %]
+ <input type="checkbox" name="ordernumber" value="[% order.ordernumber | html %]" />
+ [% END %]
+ [% END %]
+ [% order.ordernumber | html %]
+ [% IF order.ordernumber != order.parent_ordernumber %]([% order.parent_ordernumber | html %])[% END %]
+ </td>
+ <td>
+ [% SWITCH order.orderstatus %]
+ [% CASE 'new' %]New
+ [% CASE 'ordered' %]Ordered
+ [% CASE 'partial' %]Partially received
+ [% CASE 'complete' %]Received
+ [% CASE 'cancelled' %]Cancelled
+ [% END %]
+ </td>
+ <td>[% order.basketname | html %] (<a href="basket.pl?basketno=[% order.basketno | uri %]">[% order.basketno | html %]</a>)</td>
+ <td>[% order.authorisedbyname | html %]</td>
+ <td>
+ [% IF ( order.basketgroupid ) %]
+ [% order.groupname | html %] (<a href="basketgroup.pl?op=add&booksellerid=[% order.id | uri %]&basketgroupid=[% order.basketgroupid | uri %]">[% order.basketgroupid | html %]</a>)
+ [% ELSE %]
+ &nbsp;
+ [% END %]
+ </td>
+ <td>[% IF ( order.invoicenumber ) %]
+ <a href="/cgi-bin/koha/acqui/parcel.pl?invoiceid=[% order.invoiceid | uri %]">[% order.invoicenumber | html %]</a>
+ [% ELSE %]
+ &nbsp;
+ [% END %]
+ </td>
+ <td>
+ <a href="/cgi-bin/koha/catalogue/detail.pl?biblionumber=[% order.biblionumber | uri %]">[% order.title |html %]</a>
+ <br />[% order.author | html %] <br /> [% order.isbn | html %]
+ </td>
+ <td><a href="/cgi-bin/koha/acqui/supplier.pl?booksellerid=[% order.id | uri %]">[% order.name | html %]</a></td>
+ <td data-order="[% order.creationdate | html %]">[% order.creationdate | $KohaDates %]</td>
+ <td data-order="[% order.datereceived | html %]">
+ [% order.datereceived | $KohaDates %]
+ </td>
+ <td>[% order.quantityreceived | html %]</td>
+ <td>[% order.quantity | html %]</td>
+ <td>[% order.ecost | html %]</td>
+ <td>[% order.budget_name | html %]</td>
+ </tr>
+[% END %]
+
+
+[% IF op == 'select' && ( result_order_loop || selected_order_loop ) %]
+ <div id="xxx">
+ <form method="post" action="/cgi-bin/koha/acqui/duplicate_orders.pl">
+ <table id="table_orders">
+ <caption>
+ <span class="actions"><a href="#" id="select_all"><i class="fa fa-check"></i> Select all</a>
+ | <a href="#" id="clear_all"><i class="fa fa-remove"></i> Clear all</a></span>
+ </caption>
+
+ <thead>
+ <tr>
+ <th>Order line (parent)</th>
+ <th>Status</th>
+ <th>Basket</th>
+ <th>Basket creator</th>
+ <th>Basket group</th>
+ <th>Invoice number</th>
+ <th class="anti-the">Summary</th>
+ <th>Vendor</th>
+ <th>Placed on</th>
+ <th>Received on</th>
+ <th>Quantity received</th>
+ <th>Quantity ordered</th>
+ <th>Unit cost</th>
+ <th>Fund</th>
+ </tr>
+ </thead>
+ <tfoot>
+ [% FOREACH order IN selected_order_loop %]
+ [% INCLUDE display_order_line selected => 1 can_check => 1%]
+ [% END %]
+ </tfoot>
+ <tbody>
+ [% FOREACH order IN result_order_loop %]
+ [% INCLUDE display_order_line can_check => 1 %]
+ [% END %]
+ </tbody>
+ </table>
+ <fieldset class="action">
+ <input type="hidden" name="op" value="batch_edit" />
+ <input type="hidden" name="basketno" value="[% basket.basketno | html %]" />
+ <button type="submit" class="btn btn-default go_to_batch_edit">Next <i class="fa fa-fw fa-arrow-right"></i></button>
+ </fieldset>
+ </form>
+ </div>
+
+[% ELSIF op == "batch_edit" %]
+
+<form method="post" action="/cgi-bin/koha/acqui/duplicate_orders.pl" id="batch_edit_form">
+ <div id="accounting_details">
+ <p>Duplicate all the orders with the following accounting details:</p>
+ <fieldset class="rows" style="float:none;">
+ <legend>Accounting details</legend>
+ <div class="hint" style="margin: 1em 1em 0">Check boxes to duplicate the original values</div>
+ <ol>
+ <li>
+ <label for="all_currency">Currency:</label>
+ <input type="checkbox" name="copy_existing_value" value="currency" title="Copy existing value" />
+ <select name="all_currency" id="all_currency">
+ [% FOREACH currency IN currencies %]
+ [% IF currency.currency == vendor.listprice %]
+ <option value="[% currency.currency | html %]" selected="selected">[% currency.currency | html %]</option>
+ [% ELSIF not currency.archived %]
+ <option value="[% currency.currency | html %]">[% currency.currency | html %]</option>
+ [% END %]
+ [% END %]
+ </select>
+ <span class="hint" id="hint_currency">The original currency value will be copied</span>
+ </li>
+ <li>
+ <label for="all_budget_id">Fund: </label>
+ <input type="checkbox" name="copy_existing_value" value="budget_id" title="Copy existing value" />
+ <select id="all_budget_id" name="all_budget_id">
+ <option value="">Select a fund</option>
+ [% FOREACH budget_loo IN budget_loop %]
+ [% IF ( budget_loo.b_active ) %]<option value="[% budget_loo.b_id | html %]" data-sort1-authcat="[% budget_loo.b_sort1_authcat | html %]" data-sort2-authcat="[% budget_loo.b_sort2_authcat | html %]">[% budget_loo.b_txt | html %]</option>
+ [% ELSE %]<option value="[% budget_loo.b_id | html %]" class="b_inactive" data-sort1-authcat="[% budget_loo.b_sort1_authcat | html %]" data-sort2-authcat="[% budget_loo.b_sort2_authcat | html %]">[% budget_loo.b_txt | html %] (inactive)</option>
+ [% END %]
+ [% END %]
+ </select>
+ <label for="all_showallbudgets" style="float:none;width:auto;margin-right:0;">&nbsp;Show inactive:</label>
+ <input type="checkbox" id="all_showallbudgets" />
+ <span class="hint" id="hint_budget_id">The original fund will be used</span>
+ </li>
+ <li>
+ <label for="all_order_internalnote">Internal note: </label>
+ <input type="checkbox" name="copy_existing_value" value="order_internalnote" title="Copy existing value" />
+ <textarea id="all_order_internalnote" cols="30" rows="3" name="all_order_internalnote"></textarea>
+ <span class="hint" id="hint_order_internalnote">The original internal note will be used</span>
+ </li>
+ <li>
+ <label for="all_order_vendornote">Vendor note: </label>
+ <input type="checkbox" name="copy_existing_value" value="order_vendornote" title="Copy existing value" />
+ <textarea id="all_order_vendornote" cols="30" rows="3" name="all_order_vendornote"></textarea>
+ <span class="hint" id="hint_order_vendornote">The original vendor note will be used</span>
+ </li>
+ <li>
+ <div class="hint">The 2 following fields are available for your own usage. They can be useful for statistical purposes</div>
+ <label for="all_sort1">Statistic 1: </label>
+ <input type="checkbox" name="copy_existing_value" value="sort1" title="Copy existing value" />
+ <input type="text" id="all_sort1" size="20" name="all_sort1" value="" />
+ <span class="hint" id="hint_sort1">The original statistic 1 will be used</span>
+
+ </li>
+ <li>
+ <label for="all_sort2">Statistic 2: </label>
+ <input type="checkbox" name="copy_existing_value" value="sort2" title="Copy existing value" />
+ <input type="text" id="all_sort2" size="20" name="all_sort2" value="" />
+ <span class="hint" id="hint_sort2">The original statistic 2 will be used</span>
+ </li>
+ </ol>
+ </fieldset>
+ </div>
+
+ <fieldset class="action">
+ [% FOREACH ordernumber IN ordernumbers %]
+ <input type="hidden" name="ordernumber" value="[% ordernumber | html %]" />
+ [% END %]
+ <input type="hidden" name="op" value="do_duplicate" />
+ <input type="hidden" name="basketno" value="[% basket.basketno | html %]" />
+ <!-- origquantityrec only here for javascript compatibility (additem.js needs it, useless here, useful when receiveing an order -->
+ <input id="origquantityrec" readonly="readonly" type="hidden" name="origquantityrec" value="1" />
+ <button type="submit" class="btn btn-default">Duplicate orders</button>
+ <a class="cancel" href="/cgi-bin/koha/acqui/duplicate_orders.pl?basketno=[% basket.basketno | html %]">Cancel</a>
+ </fieldset>
+</form>
+
+[% ELSIF op == 'duplication_done' %]
+ [% IF new_orders %]
+ <table id="table_neworders">
+ <thead>
+ <tr>
+ <th>Order line</th>
+ <th>Status</th>
+ <th>Basket</th>
+ <th>Basket creator</th>
+ <th>Basket group</th>
+ <th>Invoice number</th>
+ <th class="anti-the">Summary</th>
+ <th>Vendor</th>
+ <th>Placed on</th>
+ <th>Received on</th>
+ <th>Quantity received</th>
+ <th>Quantity ordered</th>
+ <th>Unit cost</th>
+ <th>Fund</th>
+ </tr>
+ </thead>
+ <tbody>
+ [% FOREACH order IN new_orders %]
+ [% INCLUDE display_order_line %]
+ [% END %]
+ </tbody>
+ </table>
+ <a class="btn btn-default" href="/cgi-bin/koha/acqui/basket.pl?basketno=[% basket.basketno | html %]"><i class="fa fa-fw fa-arrow-left"></i> Return to the basket</a
+    [% ELSE %]
+        <span>No order has been duplicated. Maybe something wrong happened?</span>
+ [% END %]
+[% END %]
+
+</main>
+</div> <!-- /.col-sm-10.col-sm-push-2 -->
+
+<div class="col-sm-2 col-sm-pull-10">
+ <aside>
+ [% INCLUDE 'acquisitions-menu.inc' %]
+ </aside>
+</div> <!-- /.col-sm-2.col-sm-pull-10 -->
+</div>
+
+[% MACRO jsinclude BLOCK %]
+ [% Asset.js("js/acquisitions-menu.js") | $raw %]
+ [% INCLUDE 'calendar.inc' %]
+ [% INCLUDE 'datatables.inc' %]
+ [% INCLUDE 'columns_settings.inc' %]
+ [% Asset.js("js/autocomplete/patrons.js") | $raw %]
+ [% Asset.js("js/acq.js") | $raw %]
+ [% Asset.js("js/funds_sorts.js") | $raw %]
+ <script>
+        function update_ordernumber_list(){
+            var ordernumbers = [];
+            $("input[name='ordernumber']").filter(":checked").each(function(){
+                ordernumbers.push($(this).val());
+            });
+            $("input[name='ordernumbers']").val(ordernumbers.join(','));
+        }
+
+        var MSG_REMOVE_PATRON = _("Remove");
+        var MSG_NO_ITEM_SELECTED = _("Nothing is selected.");
+        var MSG_NO_FUND_SELECTED = _("No fund selected.");
+        $(document).ready(function() {
+            $('span.hint').hide();
+            var columns_settings;// = [% TablesSettings.GetColumns( 'acqui', 'histsearch', 'histsearcht', 'json' ) | $raw %];
+            KohaTable("table_orders", {
+                "bPaginate": false
+            }, columns_settings );
+
+            [% IF op == 'search' OR op == 'select' %]
+                patron_autocomplete({
+                    patron_container: $("#basket_creators"),
+                    input_autocomplete: $("#find_patron"),
+                    patron_input_name: 'created_by',
+                    field_to_retrieve: 'borrowernumber'
+                });
+            [% END %]
+
+            $("#show_orders_filters, #hide_orders_filters").on('click', function(e) {
+                e.preventDefault();
+                $('#orders_filters').toggle();
+                $('.toggle_orders_filters').toggle();
+            });
+            [% IF op == 'search' OR op == 'select' AND NOT result_order_loop %]
+                $("#show_orders_filters").hide();
+                $("#orders_filters").show();
+            [% ELSE %]
+                $("#hide_orders_filters").hide();
+                $("#orders_filters").hide();
+            [% END %]
+
+            $("input[name='ordernumber']").on("change", function(){
+                if ( $(this).is(':checked') ) {
+                    $(this).parents("tr").addClass("picked_to_duplicate");
+                } else {
+                    $(this).parents("tr").removeClass("picked_to_duplicate");
+                }
+            }).on("click", function(e){
+                update_ordernumber_list();
+            });
+
+            $("#select_all").on("click",function(e){
+                e.preventDefault();
+                selectAll();
+                update_ordernumber_list();
+            });
+
+            $("#clear_all").on("click",function(e){
+                e.preventDefault();
+                clearAll();
+                update_ordernumber_list();
+            });
+            function selectAll () {
+                $("#table_orders").find("input[type='checkbox'][name='ordernumber']").each(function(){
+                    $(this).prop("checked", true).change();
+                });
+                return false;
+            }
+            function clearAll () {
+                $("#table_orders").find("input[type='checkbox'][name='ordernumber']").each(function(){
+                    $(this).prop("checked", false).change();
+                });
+                return false;
+            }
+
+            $(".go_to_batch_edit").on("click",function(e){
+                if ($("input[name='ordernumber']").filter(":checked").length == 0){
+                    alert(MSG_NO_ITEM_SELECTED);
+                    e.preventDefault();
+                }
+            });
+
+            $("#batch_edit_form").on("submit", function(e){
+                var budget_value_will_be_reused = $("input[name='copy_existing_value'][value='budget_id']").is(':checked');
+                if ( ! budget_value_will_be_reused ) {
+                    if ($("#all_budget_id").find("option:selected").attr("value") == "" ) {
+                        alert(MSG_NO_FUND_SELECTED);
+                        e.preventDefault();
+                    }
+                }
+            });
+            $("input[name='copy_existing_value']").click(function(){
+                render_disabled(this);
+            });
+
+            $("input[name='copy_existing_value']").each(function(){
+                render_disabled(this);
+            });
+        });
+        function render_disabled (elt) {
+            var field = $(elt).val();
+            var hint_node = $("#hint_" + field);
+            var input_element = $(elt).parent().find("[name='all_"+field+"']");
+            if ($(elt).is(":checked")) {
+                $(input_element).prop('disabled', true);
+                $(hint_node).show();
+            } else {
+                $(input_element).prop('disabled', false);
+                $(hint_node).hide();
+            }
+        }
+    </script>
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' %]

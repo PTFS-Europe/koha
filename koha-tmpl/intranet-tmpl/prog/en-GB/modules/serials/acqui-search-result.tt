@@ -1,0 +1,58 @@
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Select vendor &rsaquo; Serials &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+
+<body id="ser_acqui-search-result" class="ser">
+
+<div class="main container-fluid">
+
+<h1>Vendor search results</h1>
+[% UNLESS count %]
+ <h2>Your search returned no results.</h2>
+[% ELSIF ( supplier.length < 1 ) %]
+ <h2>Vendor search: [% count | html %] result(s) found</h2>
+[% ELSE %]
+ <h2>Vendor search: [% count | html %] result(s) found for '[% supplier | html %]'</h2>
+[% END %]
+
+[% IF ( loop_suppliers ) %]
+<table>
+ <tr>
+ <th>Vendor</th>
+ <th>Select</th>
+ </tr>
+ [% FOREACH loop_supplier IN loop_suppliers %]
+ <tr>
+ <td>[% loop_supplier.name | html %]</td>
+ <td><a class="btn btn-default btn-xs select_vendor" href="#" data-vendorid="[% loop_supplier.aqbooksellerid | html %]" data-vendorname="[% loop_supplier.name | html %]">Choose</a></td>
+ </tr>
+ [% END %]
+</table>
+[% END %]
+
+ <p><a href="/cgi-bin/koha/serials/acqui-search.pl">Perform a new search</a></p>
+
+ <div id="closewindow"><a href="#" class="btn btn-default btn-default close">Cancel</a></div>
+
+[% MACRO jsinclude BLOCK %]
+ <script>
+    function GetIt(aqbooksellerid,name){
+      opener.document.f.aqbooksellerid.value = aqbooksellerid;
+      opener.document.f.aqbooksellername.value = name;
+      window.close();
+    }
+
+    $(document).ready(function(){
+        $(".select_vendor").on("click",function(e){
+            e.preventDefault();
+            var vendorname = $(this).data("vendorname");
+            var vendorid = $(this).data("vendorid");
+            GetIt( vendorid, vendorname );
+        });
+    });
+  </script>
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' popup_window=1 %]

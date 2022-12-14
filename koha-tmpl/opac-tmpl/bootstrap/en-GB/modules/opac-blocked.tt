@@ -1,0 +1,39 @@
+[% USE raw %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>
+ Record blocked &rsaquo; [% IF ( LibraryNameTitle ) %] [% LibraryNameTitle | html %] [% ELSE %] Koha online [% END %] catalogue </title>
+[% INCLUDE 'doc-head-close.inc' %]
+[% BLOCK cssinclude %][% END %]
+</head>
+[% INCLUDE 'bodytag.inc' bodyid='opac-blocked' %]
+[% INCLUDE 'masthead.inc' %]
+<div class="main">
+ <nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumbs">
+ <ol class="breadcrumb">
+ <li class="breadcrumb-item">
+ <a href="/cgi-bin/koha/opac-main.pl">Home</a>
+ </li>
+ <li class="breadcrumb-item active">
+ <a href="#" aria-current="page">Blocked record</a>
+ </li>
+ </ol>
+ </nav> <!-- /#breadcrumbs -->
+
+ <div class="container-fluid">
+ <div class="row justify-content-center">
+ <div class="col-md-10 col-lg-6">
+ <div id="opac-blocked-message" class="maincontent">
+ <h1>Blocked</h1>
+ <p>You are not authorised to view this record.</p>
+ [% IF ( OpacSuppressionMessage ) %]
+ <div id="opacsuppressionmessage">
+ [% OpacSuppressionMessage | $raw %]
+ </div>
+ [% END %]
+ </div>
+ </div>
+ </div>
+ </div>
+
+[% INCLUDE 'opac-bottom.inc' %]
+[% BLOCK jsinclude %][% END %]

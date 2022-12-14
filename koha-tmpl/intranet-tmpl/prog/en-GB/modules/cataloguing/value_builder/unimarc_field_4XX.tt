@@ -1,0 +1,235 @@
+[% SET footerjs = 1 %]
+[% USE raw %]
+[% USE To %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>4XX plugin &rsaquo; Cataloguing &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+
+<body id="cat_unimarc_field_4XX" class="cat" style="padding:1em;">
+
+<h3>UNIMARC field 4XX builder</h3>
+[% UNLESS ( fillinput ) %]
+ [% IF ( Search ) %]
+ <div id="UNIMARC_Field_4XX_search">
+ <h2> Search on </h2>
+ <form name="f" method="post" action="/cgi-bin/koha/cataloguing/plugin_launcher.pl?plugin_name=unimarc_field_4XX.pl">
+ 
+ <p>
+ <input type="hidden" name="plugin_name" value="unimarc_field_4XX.pl" />
+ <input type="hidden" name="index" value="[% index | html %]" /> 
+ <input type="hidden" name="result" value="unimarc field 4 [% index | html %]" />
+ <input type="hidden" name="op" value="do_search" />
+ <label class="label100" for="searchbox">Any word</label>
+ <input type="text" name="search" id="searchbox" size="35" /><br />
+ <label for="itypeloop">Item type:</label>
+ <select name="itype" id="itypeloop">
+ <option value="">All item types</option>
+ [% FOREACH itypeloo IN itypeloop %]
+ <option value="[% itypeloo.itemtype | html %]">[% itypeloo.description | html %]</option>
+ [% END %]
+ </select>
+ </p>
+ <p>
+ <input type="submit" value="Start search" />
+ </p>
+ 
+ </div>
+ </form>
+ 
+ [% ELSE %]
+ 
+
+ <h2>Search results</h2>
+ <div id="UNIMARC_Field_4XX_resultnumber">
+ <p>[% IF ( displayprev ) %] <a class="resultnumber" href="/cgi-bin/koha/cataloguing/plugin_launcher.pl?plugin_name=unimarc_field_4XX.pl&amp;index=[% index | html %]&amp;startfrom=[% startfromprev | html %]&amp;search=[% search |uri %]&amp;resultsperpage=[% resultsperpage | html %]&amp;type=intranet&amp;op=do_search">&lt;&lt; Previous</a>[% END %]
+ [% FOREACH number IN numbers %]
+ [% IF ( number.highlight ) %] <span class="highlight">[% number.number | html %]</span>
+ [% ELSE %] <a class="resultnumber" href="/cgi-bin/koha/cataloguing/plugin_launcher.pl?plugin_name=unimarc_field_4XX.pl&amp;index=[% index | html %]&amp;startfrom=[% number.startfrom | html %]&amp;search=[% number.search |uri %]&amp;resultsperpage=[% number.resultsperpage | html %]&amp;type=intranet&amp;op=do_search">[% number.number | html %]</a>
+ [% END %]
+ [% END %]
+ [% IF ( displaynext ) %]
+ <a class="resultnumber" href="/cgi-bin/koha/cataloguing/plugin_launcher.pl?plugin_name=unimarc_field_4XX.pl&amp;index=[% index | html %]&amp;startfrom=[% startfromnext | html %]&amp;search=[% search |uri %]&amp;resultsperpage=[% resultsperpage | html %]&amp;type=intranet&amp;op=do_search">Next&gt;&gt;</a>
+ [% END %]</p>
+ <p class="resultcount">
+ [% IF ( total ) %]Results [% from | html %] to [% to | html %] of [% total | html %]
+ [% ELSE %]No results found
+ [% END %]</p></div>
+ <div id="resultlist">
+ <table>
+ <tr>
+ <th>Summary</th>
+ <th>Item count</th>
+ <th>Location</th>
+ <th>&nbsp;</th>
+ </tr>
+ [% FOREACH resul IN result %]
+ [% IF ( resul.title ) %]
+ <tr>
+ [% IF ( resul.even ) %]<td class="hilighted">
+ [% ELSE %]<td>[% END %]
+ [% IF ( resul.MARC_ON ) %]
+ <a class="transparent resultlist" href="/cgi-bin/koha/MARCdetail.pl?biblionumber=[% resul.biblionumber |url %]">[% resul.title | html %]</a>
+ [% ELSE %]
+ <a class="transparent resultlist" href="/cgi-bin/koha/catalogue/detail.pl?biblionumber=[% resul.biblionumber |url %]">[% resul.fulltitle | html %]</a>[% END %]
+ <p>[% resul.author | html %]
+ [% IF ( resul.publishercode ) %]- [% resul.publishercode | html %][% END %]
+ [% IF ( resul.place ) %] ; [% resul.place | html %][% END %]
+ [% IF ( resul.pages ) %] - [% resul.pages | html %][% END %]
+ [% IF ( resul.notes ) %] : [% resul.notes | html %][% END %]
+ [% IF ( resul.item('size') ) %] ; [% resul.item('size') | html %][% END %]
+ </p>
+ </td>
+ [% IF ( resul.even ) %]<td align="center" class="hilighted">
+ [% ELSE %]<td align="center">[% END %]
+ [% resul.totitem | html %]
+ </td>
+ [% IF ( resul.even ) %]<td class="hilighted">
+ [% ELSE %]<td>[% END %]
+ [% resul.CN | html %]
+ </td>
+ <td>
+ [% IF ( resul.biblionumber ) %]
+ <a href="#" class="btn btn-default btn-xs redirect_link" data-url="/cgi-bin/koha/cataloguing/plugin_launcher.pl?plugin_name=unimarc_field_4XX.pl&amp;index=[% index | html %]&amp;biblionumber=[% resul.biblionumber | html %]&amp;type=intranet&amp;op=fillinput">Choose</a>
+ [% ELSE %]
+ <a href="#" class="btn btn-default btn-xs redirect_link" data-url="/cgi-bin/koha/cataloguing/plugin_launcher.pl?plugin_name=unimarc_field_4XX.pl&amp;index=[% index | html %]&amp;type=intranet&amp;op=fillinput">Clear field</a>
+ [% END %]
+ </td>
+ </tr>
+ [% END %]
+ [% END %]
+ </table>
+ </div>
+ <div id="resultnumber">
+ <p>
+ [% IF ( displayprev ) %]
+ <a class="resultnumber" href="/cgi-bin/koha/cataloguing/plugin_launcher.pl?plugin_name=unimarc_field_4XX.pl&amp;amp;index=[% index | html %]&amp;amp;startfrom=[% startfromprev | html %]&amp;amp;search=[% search |uri %]&amp;amp;resultsperpage=[% resultsperpage | html %]&amp;amp;type=intranet&amp;amp;op=do_search">
+ &lt;&lt; Previous
+ </a>
+ [% END %]
+
+ [% FOREACH number IN numbers %]
+ [% IF ( number.highlight ) %]
+ <span class="highlight">
+ [% number.number | html %]
+ </span>
+ [% ELSE %]
+ <a class="resultnumber" href="/cgi-bin/koha/cataloguing/plugin_launcher.pl?plugin_name=unimarc_field_4XX.pl&amp;index=[% index | html %]&amp;startfrom=[% number.startfrom | html %]&amp;search=[% number.search |uri %]&amp;resultsperpage=[% number.resultsperpage | html %]&amp;type=intranet&amp;op=do_search">
+ [% number.number | html %]
+ </a>
+ [% END %]
+ [% END %]
+
+ [% IF ( displaynext ) %]
+ <a class="resultnumber" href="/cgi-bin/koha/cataloguing/plugin_launcher.pl?plugin_name=unimarc_field_4XX.pl&amp;index=[% index | html %]&amp;startfrom=[% startfromnext | html %]&amp;search=[% search |uri %]&amp;resultsperpage=[% resultsperpage | html %]&amp;type=intranet&amp;op=do_search">
+ Next&gt;&gt;
+ </a>
+ [% END %]
+ </p>
+ </div>
+
+ [% END %]
+
+[% END %]
+
+[% MACRO jsinclude BLOCK %]
+ <script>
+        $(document).ready(function(){
+            $(".redirect_link").on("click", function(e){
+                e.preventDefault();
+                var redirect_url = $(this).data("url");
+                jumpfull( redirect_url );
+            });
+        });
+
+        function jumpfull(page){
+            window.open(page,'','width=100,height=100,resizable=yes,toolbar=false,scrollbars=yes,top');
+        }
+    </script>
+ [% IF ( fillinput ) %]
+ <script>
+            function go() {
+                var index_start = "[% index | html %]";
+                var whichfield;
+                try {
+                    whichfield = opener.opener.document.getElementById(index_start);
+                } catch(e) {
+                    return;
+                }
+
+                // browse all its subfields
+
+                var subfields = whichfield.closest('ul').getElementsByTagName('input');
+
+                var re = /^tag_\d*_code_/;
+                for(var i=0, len = subfields.length ; i< len ; i++) {
+                    if(subfields[i].hasAttribute('name') == 0) { continue; }  // div elements specific to Select2
+                    if(subfields[i].getAttribute('name').match(re)){ // it s a subfield
+                        var code     = subfields[i];
+                        var subfield = subfields[i+1];
+
+                        if(code.value == '9'){
+                                subfield.value = "[% To.json( subfield_value_9 ) | html %]";
+                        }
+                        if(code.value == '0'){
+                                subfield.value = "[% To.json( subfield_value_0 ) | html %]";
+                        }
+                        if(code.value == 'a'){
+                                subfield.value = "[% To.json( subfield_value_a ) | html %]";
+                        }
+                        if(code.value == 'c'){
+                                subfield.value = "[% To.json( subfield_value_c ) | html %]";
+                        }
+                        if(code.value == 'd'){
+                                subfield.value = "[% To.json( subfield_value_d ) | html %]";
+                        }
+                        if(code.value == 'e'){
+                                subfield.value = "[% To.json( subfield_value_e ) | html %]";
+                        }
+                        if(code.value == 'h'){
+                                subfield.value = "[% To.json( subfield_value_h ) | html %]";
+                        }
+                        if(code.value == 'i'){
+                                subfield.value = "[% To.json( subfield_value_i ) | html %]";
+                        }
+                        if(code.value == 'l'){
+                                subfield.value = "[% To.json( subfield_value_l ) | html %]";
+                        }
+                        if(code.value == 'n'){
+                                subfield.value = "[% To.json( subfield_value_n ) | html %]";
+                        }
+                        if(code.value == 'o'){
+                                subfield.value = "[% To.json( subfield_value_o ) | html %]";
+                        }
+                        if(code.value == 'p'){
+                                subfield.value = "[% To.json( subfield_value_p ) | html %]";
+                        }
+                        if(code.value == 't'){
+                                subfield.value = "[% To.json( subfield_value_t ) | html %]";
+                        }
+                        if(code.value == 'u'){
+                                subfield.value = "[% To.json( subfield_value_u ) | html %]";
+                        }
+                        if(code.value == 'v'){
+                                subfield.value = "[% To.json( subfield_value_v ) | html %]";
+                        }
+                        if(code.value == 'x'){
+                                subfield.value = "[% To.json( subfield_value_x ) | html %]";
+                        }
+                        if(code.value == 'y'){
+                                subfield.value = "[% To.json( subfield_value_y ) | html %]";
+                        }
+                    }
+                }
+                return false;
+            }
+
+            window.onload = go();
+            opener.close();
+            window.close();
+        </script>
+
+ [% END %]
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' popup_window=1 %]

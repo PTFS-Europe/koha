@@ -1,0 +1,40 @@
+---
+description:
+- CSV profiles
+- ''
+- Default CSV export profiles; including one for exporting serial claims.
+tables:
+- export_format:
+    multiline:
+    - content
+    rows:
+    - content:
+      - SUPPLIER=aqbooksellers.name|TITLE=subscription.title|ISSUE NUMBER=serial.serialseq|LATE
+        SINCE=serial.planneddate
+      csv_separator: ','
+      description: Default CSV export for serial issue claims
+      profile: issues to claim
+      type: sql
+      used_for: late_issues
+    - content:
+      - Title[% separator %]Author[% separator %]Publication year[% separator %]ISBN[%
+        separator %]Quantity[% separator %]Number of claims
+      - '[% FOR order IN orders ~%]'
+      - '[%~ SET biblio = order.biblio ~%]'
+      - '"[% biblio.title %]"[% separator ~%]'
+      - '"[% biblio.author %]"[% separator ~%]'
+      - '"[% bibio.biblioitem.publicationyear %]"[% separator ~%]'
+      - '"[% biblio.biblioitem.isbn %]"[% separator ~%]'
+      - '"[% order.quantity%]"[% separator ~%]'
+      - '"[% order.claims.count%][% IF order.claims.count %]([% FOR c IN order.claims
+        %][% c.claimed_on | $KohaDates %][% UNLESS loop.last %], [% END %][% END %])[%
+        END %]"'
+      - '[% END %]'
+      csv_separator: ','
+      description: Default CSV export for late orders
+      profile: Late orders (CSV profile)
+      type: sql
+      used_for: late_orders
+    translatable:
+    - profile
+    - description

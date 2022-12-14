@@ -1,0 +1,90 @@
+[% USE KohaDates %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Subscription history &rsaquo; Serials &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+
+<body id="ser_subscription_history" class="ser">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'serials-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/serials/serials-home.pl">Serials</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ Subscription history
+ </a>
+ </li>
+ </ol>
+</nav>
+
+<div class="main container-fluid">
+ <div class="row">
+ <div class="col-sm-10 col-sm-push-2">
+ <main>
+
+ <h1>Subscription history for [% title | html %]</h1>
+
+ <div id="subscription_form_history">
+ <form method="post" action="/cgi-bin/koha/serials/subscription-history.pl">
+ <input type="hidden" name="op" value="mod" />
+ <input type="hidden" name="subscriptionid" value="[% subscriptionid | html %]" />
+ <p>Hint : you can update the serial history manually. This can be useful for an old subscription or to clean the existing history. Modify those fields with care, as future serial receive will continue to update them automatically.</p>
+ <table>
+ <tr>
+ <td>Subscription start date</td>
+ <td>
+ <input type="text" size="10" name="histstartdate" value="[% histstartdate | $KohaDates %]" class="flatpickr" data-date_to="histenddate" /> (start date of the 1st subscription)
+ <div class="hint">[% INCLUDE 'date-format.inc' %]</div>
+ </td>
+ </tr>
+ <tr>
+ <td>Subscription end date</td>
+ <td>
+ <input type="text" size="10" id="histenddate" name="histenddate" value="[% histenddate | $KohaDates %]" class="flatpickr" />(if empty, subscription is still active)
+ <div class="hint">[% INCLUDE 'date-format.inc' %]</div>
+ </td>
+ </tr>
+ <tr>
+ <td>Received issues</td>
+ <td><textarea name="receivedlist" cols="60" rows="5">[% receivedlist | html %]</textarea></td>
+ </tr>
+ <tr>
+ <td>Missing issues</td>
+ <td><textarea name="missinglist" cols="60" rows="5">[% missinglist | html %]</textarea></td>
+ </tr>
+ <tr>
+ <td>Note for OPAC</td>
+ <td><textarea name="opacnote" cols="60" rows="5">[% opacnote | html %]</textarea></td>
+ </tr>
+ <tr>
+ <td>Note for staff</td>
+ <td><textarea name="librariannote" cols="60" rows="5">[% librariannote | html %]</textarea></td>
+ </tr>
+ </table>
+ <input type="submit" value="Save subscription history"  />
+ </form>
+ </div>
+
+ </main>
+ </div> <!-- /.col-sm-10.col-sm-push-2 -->
+
+ <div class="col-sm-2 col-sm-pull-10">
+ <aside>
+ [% INCLUDE 'serials-menu.inc' %]
+ </aside>
+ </div> <!-- /.col-sm-2.col-sm-pull-10 -->
+ </div> <!-- /.row -->
+
+[% MACRO jsinclude BLOCK %]
+ [% INCLUDE 'calendar.inc' %]
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' %]

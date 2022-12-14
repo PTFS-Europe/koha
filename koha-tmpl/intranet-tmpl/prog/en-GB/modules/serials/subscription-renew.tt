@@ -1,0 +1,100 @@
+[% USE Koha %]
+[% USE Branches %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+[% IF subscription %]
+<title>Serials subscription renew #[% subscription.subscriptionid | html %] &rsaquo; Koha</title>
+[% ELSE %]
+<title>Serials subscription renew &rsaquo; Koha</title>
+[% END %]
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+
+<body id="ser_subscription-renew" class="ser">
+ <div class="container-fluid">
+
+[% INCLUDE 'blocking_errors.inc' %]
+
+[% IF op == 'renew' OR op =='multi_renew' %]
+ [% IF op == 'renew' %]
+ <span>Subscription renewed.<span>
+ [% ELSE %]
+ <span>Subscriptions renewed.<span>
+ [% END %]
+
+ <div id="closewindow">
+ <a class="btn btn-default btn-default close" href="#">Close</a>
+ </div>
+[% ELSE %]
+
+<form name="f" action="/cgi-bin/koha/serials/subscription-renew.pl" method="post">
+ <input type="hidden" name="op" value="renew" />
+ <input type="hidden" name="subscriptionid" value="[% subscription.subscriptionid | html %]" />
+ <fieldset class="rows"><legend>Subscription renewal for [% subscription.bibliotitle | html %]</legend>
+ <ol>
+ <li>
+ <label for="startdate">Start date: </label>
+ <input type="text" size="10" id="startdate" name="startdate" value="[% startdate | html %]" class="flatpickr"/>
+ <div class="hint">[% INCLUDE 'date-format.inc' %]</div>
+ </li>
+ <li>
+ <label>Subscription length:</label>
+ <select name="subtype" id="subtype">
+ [% FOREACH st IN [['numberlength', 'issues'], ['weeklength', 'weeks'], ['monthlength', 'months']] %]
+ [% SET subtype = st.0 %]
+ [% SET value = st.1 %]
+ [% IF subscription.$subtype %]
+ <option value="[% value | html %]" selected="selected">
+ [% ELSE %]
+ <option value="[% value | html %]">
+ [% END %]
+ [% SWITCH subtype %]
+ [% CASE 'numberlength'%]issues
+ [% CASE 'weeklength'  %]weeks
+ [% CASE 'monthlength' %]months
+ [% END %]
+ </option>
+ [% END %]
+ </select>
+ <input type="text" name="sublength" id="sublength" size="3" value="[% subscription.numberlength || subscription.weeklength || subscription.monthlength | html %]" />(enter amount in numerals)
+ <input type="hidden" name="issuelengthcount">
+ </li>
+
+ [% IF Koha.Preference('RenewSerialAddsSuggestion') %]
+ <li>
+ <label for="branchcode">Library:</label>
+ <select name="branchcode" id="branchcode" style="width: 20em;">
+ [% UNLESS ( Independentbranches ) %]
+ <option value="">None</option>
+ [% END %]
+ [% IF CAN_user_serials_superserials %]
+ [% PROCESS options_for_libraries libraries => Branches.all(selected => subscription.branchcode) %]
+ [% END %]
+ </select> (select a library)
+ </li>
+
+ <li>
+ <label for="note">Note for the librarian that will manage your renewal request: </label>
+ <textarea name="note" id="note" rows="5" cols="50"></textarea>
+ </li>
+ [% END %]
+</ol>
+</fieldset>
+<fieldset class="action"><input type="submit" value="Submit" class="button" /></fieldset>
+</form>
+[% END %]
+
+[% MACRO jsinclude BLOCK %]
+ [% INCLUDE 'calendar.inc' %]
+ <script>
+        $(document).ready(function(){
+            $(".close").on("click", function(e){
+                e.preventDefault();
+                window.opener.location.reload(false);
+                self.close();
+            });
+        });
+    </script>
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' popup_window=1 %]

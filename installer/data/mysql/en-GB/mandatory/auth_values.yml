@@ -1,0 +1,38 @@
+---
+description:
+- Default Koha system authorised values
+tables:
+- authorised_values:
+    multiline: []
+    rows:
+    - authorised_value: '0'
+      category: YES_NO
+      lib: No
+      lib_opac: No
+    - authorised_value: '1'
+      category: YES_NO
+      lib: Yes
+      lib_opac: Yes
+    - authorised_value: SIP00
+      category: PAYMENT_TYPE
+      lib: Cash via SIP2
+      lib_opac: Cash
+    - authorised_value: SIP01
+      category: PAYMENT_TYPE
+      lib: Visa via SIP2
+      lib_opac: Visa
+    - authorised_value: SIP02
+      category: PAYMENT_TYPE
+      lib: Creditcard via SIP2
+      lib_opac: Creditcard
+    translatable:
+    - lib
+    - lib_opac
+- authorised_values:
+    multiline: []
+    rows:
+    - authorised_value: EW
+      category: HSBND_FREQ
+      lib: Every week
+    translatable:
+    - lib

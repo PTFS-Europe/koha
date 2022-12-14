@@ -1,0 +1,18 @@
+<form><table><caption>Merge</caption>
+[% FOREACH field IN fields %]
+<tr>
+<td>[% field.from | html %]</td>
+<td>[% field.tag | html %] <input type="checkbox" name="selected_field" value="[% field.id | html %]">
+</td>
+<td><dl>
+[% FOREACH subfield IN field.subfields %]
+ <dt>[% subfield.key | html %]</dt>
+ <dd>[% subfield.value | html %]</dd>
+[% END %]
+</dl>
+</td>
+</tr>
+[% END %]
+</table>
+<input type="submit" value="selection" />
+</form>

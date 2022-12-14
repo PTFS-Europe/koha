@@ -1,0 +1,166 @@
+[% USE raw %]
+[% USE Asset %]
+[% USE Koha %]
+[% USE Branches %]
+[% USE Desks %]
+[% USE Categories %]
+[% USE Registers %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>
+ [% IF ( loginprompt ) %]Log in to Koha[% END %]
+ [% IF too_many_login_attempts %]This account has been locked.
+ [% ELSIF invalid_username_or_password %]Invalid username or password[% END %]
+ [% IF ( different_ip ) %]IP address change[% END %]
+ [% IF ( timed_out ) %]Session timed out[% END %]
+ [% IF ( nopermission ) %]Access denied[% END %] &rsaquo; Koha
+</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+<body id="main_auth" class="main_main-auth">
+
+<div class="main container-fluid">
+
+<div id="login">
+<h1><a href="http://koha-community.org">Koha</a></h1>
+[% IF (Koha.Preference('StaffLoginInstructions')) %]<div id="login_instructions">[% Koha.Preference('StaffLoginInstructions') | $raw %]</div>[% END %]
+[% IF ( nopermission ) %]
+<div id="login_error">
+ <strong>Error:</strong>
+ You do not have permission to access this page.
+</div>
+<p><strong>Log in as a different user</strong></p></h2>
+[% END %]
+
+[% IF ( timed_out ) %]
+<div id="login_error"><strong>Error: </strong>Session timed out.<br /> Please log in again</div>
+[% END %]
+
+[% IF ( different_ip ) %]
+<div id="login_error"><strong>Error: </strong>IP address has changed. Please log in again </div>
+[% END %]
+
+[% IF ( wrongip ) %]
+<div id="login_error"><strong>Error: </strong>Autolocation is switched on and you are logging in with an IP address that doesn't match your library. </div>
+[% END %]
+
+[% IF too_many_login_attempts %]
+ <div id="login_error"><strong>Error: </strong>This account has been locked!</div>
+ [% IF Categories.can_any_reset_password && Koha.Preference('OpacBaseURL') %]
+ <a href="[% Koha.Preference('OpacBaseURL') | url %]/cgi-bin/koha/opac-password-recovery.pl">You must reset your password</a>.
+ [% END %]
+[% ELSIF invalid_username_or_password %]
+<div id="login_error"><strong>Error: </strong>Invalid username or password</div>
+[% END %]
+
+[% IF (shibbolethAuthentication) %]
+<!-- This is what is displayed if shib login has failed -->
+[% IF (invalidShibLogin ) %]
+<div id="login_error"><Strong>Error: </strong>Shibboleth login failed</div>
+[% END %]
+<p>If you have a shibboleth account, please <a href="[% shibbolethLoginUrl | $raw %]">click here</a> to login.</p>
+[% END %]
+
+[% UNLESS Koha.Preference('staffShibOnly') %]
+ <!-- login prompt time-->
+ <form action="[% script_name | html %]" method="post" name="loginform" id="loginform">
+ <input type="hidden" name="koha_login_context" value="intranet" />
+ [% FOREACH INPUT IN INPUTS %]
+ <input type="hidden" name="[% INPUT.name | html %]" value="[% INPUT.value | html %]" />
+ [% END %]
+ <p><label for="userid">Username:</label>
+ <input type="text" name="userid" id="userid" class="input focus" value="[% userid | html %]" size="20" tabindex="1" autocomplete="off" />
+ </p>
+ <p><label for="password">Password:</label>
+ <input type="password" name="password" id="password" class="input" value="" size="20" tabindex="2" autocomplete="off" />
+ </p>
+
+ [% UNLESS IndependentBranches %]
+ <p>
+ <label for="branch">Library:</label>
+ <select name="branch" id="branch" class="input" tabindex="3">
+ <option value="">My library</option>
+ [% FOREACH l IN Branches.all( unfiltered => 1 ) %]
+ <option value="[% l.branchcode | html %]">[% l.branchname | html %]</option>
+ [% END %]
+ </select>
+ </p>
+
+ [% IF Koha.Preference('UseCirculationDesks') && Desks.all %]
+ <p>
+ <label for="desk">Desk:</label>
+ <select name="desk_id" id="desk_id" class="input" tabindex="3">
+ <option id="nodesk" value="">---</option>
+ [% FOREACH d IN Desks.all %]
+ <option class="[% d.branchcode | html %]" value="[% d.desk_id | html %]" disabled >[% d.desk_name | html %]</option>
+ [% END %]
+ </select>
+ </p>
+ [% END %]
+
+ [% IF Koha.Preference('UseCashRegisters') && Registers.all().size %]
+ <p>
+ <label for="register_id">Cash register:</label>
+ <select name="register_id" id="register_id" class="input" tabindex="4">
+ <option id="noregister" value="" selected="selected">Library default</option>
+ [% PROCESS options_for_registers registers => Registers.all() %]
+ </select>
+ </p>
+ [% END %]
+
+ [% END %]
+
+ <!-- <p><label><input name="rememberme" type="checkbox" id="rememberme" value="forever" tabindex="3" />Remember me</label></p> -->
+
+ <p class="submit"><input id="submit-button" type="submit" value="Log in" tabindex="4" /></p>
+ </form>
+
+ [% IF ( casAuthentication ) %]
+ <h4>Cas login</h4>
+
+ [% IF ( invalidCasLogin ) %]
+ <!-- This is what is displayed if cas login has failed -->
+ <p>Sorry, the CAS login failed.</p>
+ [% END %]
+
+ [% IF ( casServerUrl ) %]
+ <p><a href="[% casServerUrl | $raw %]">If you have a CAS account, please click here to login</a>.<p>
+ [% END %]
+
+ [% IF ( casServersLoop ) %]
+ <p>If you have a CAS account, please choose against which one you would like to authenticate:</p>
+ <ul>
+ [% FOREACH casServer IN casServersLoop %]
+ <li><a href="[% casServer.value | $raw %]">[% casServer.name | html %]</a></li>
+ [% END %]
+ [% END %]
+ [% END %]
+[% END %]
+
+[% IF ( nopermission ) %]
+ <p><a id="previous_page" href="javascript:window.history.back()">[Previous page]</a>
+ <a id="mainpage" href="/">[Main page]</a></p>
+[% END %]
+
+
+<!--<ul> -->
+<!-- <li><a href="/cgi-bin/koha/lostpassword.pl" title="Password lost and found">Lost your password?</a></li> -->
+<!-- </ul> -->
+
+</div>
+
+[% MACRO jsinclude BLOCK %]
+ [% Asset.js("js/desk_selection.js") | $raw %]
+ [% Asset.js("js/register_selection.js") | $raw %]
+ <script>
+        $(document).ready( function() {
+            if ( document.location.hash ) {
+                $( '#loginform' ).append( '<input name="auth_forwarded_hash" type="hidden" value="' + document.location.hash + '"/>' );
+            }
+            // Clear last borrowers, rememberd sql reports, carts, etc.
+            logOut();
+        });
+    </script>
+[% END %]
+<!-- the main div is closed in intranet-bottom.inc -->
+[% INCLUDE 'intranet-bottom.inc' %]

@@ -1,0 +1,55 @@
+---
+Tools:
+  ' User cards':
+  - - Limit the number of creator images stored in the database to
+    - class: Integer
+      pref: ImageLimit
+    - images.
+  Barcodes:
+  - - Split barcodes on the following separator chars
+    - default: \s\r\n
+      pref: BarcodeSeparators
+    - 'in batch item modification and inventory.<br/>Note: Type \r for carriage return,
+      \n for newline and \s for whitespace. Possible candidates to include also are
+      pipe char |, hyphen (precede with backslash), comma, semicolon, dot, etc.'
+  Batch item:
+  - - Process up to
+    - class: integer
+      pref: MaxItemsToProcessForBatchMod
+    - items in a single item modification batch.
+  - - Display up to
+    - class: integer
+      pref: MaxItemsToDisplayForBatchDel
+    - items in a single item deletion batch.
+  - - Display up to
+    - class: integer
+      pref: MaxItemsToDisplayForBatchMod
+    - items in a single item modification batch.
+  News:
+  - - 'Show the author for news items:'
+    - choices:
+        both: both OPAC and staff interface
+        none: not at all
+        opac: OPAC only
+        staff: staff interface only
+      pref: NewsAuthorDisplay
+    - .
+  - - By default edit additional contents and news items with
+    - choices:
+        codemirror: a text editor (CodeMirror)
+        tinymce: a WYSIWYG editor (TinyMCE)
+      pref: AdditionalContentsEditor
+    - .
+  Reports:
+  - - By default, show
+    - class: integer
+      pref: NumSavedReports
+    - reports on the saved reports page. A value of 20 is recommended. If empty, all
+      reports will be shown.
+  Upload:
+  - - Automatically delete temporary uploads older than
+    - class: integer
+      pref: UploadPurgeTemporaryFilesDays
+    - 'days in cleanup_database cron job. NOTE: If you leave this field empty, the
+      cron job will not delete any files. On the other hand a value of 0 means: delete
+      all temporary files.'

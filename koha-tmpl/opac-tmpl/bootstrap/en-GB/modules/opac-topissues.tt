@@ -1,0 +1,152 @@
+[% USE Koha %]
+[% USE Branches %]
+[% USE AuthorisedValues %]
+[% USE ItemTypes %]
+[% USE AdditionalContents %]
+[% SET OpacNav = AdditionalContents.get( location => "OpacNav", lang => lang, library => logged_in_user.branchcode || default_branch, blocktitle => 0 ) %]
+[% SET OpacNavBottom = AdditionalContents.get( location => "OpacNavBottom", lang => lang, library => logged_in_user.branchcode || default_branch, blocktitle => 0 ) %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Most popular titles &rsaquo; [% IF ( LibraryNameTitle ) %][% LibraryNameTitle | html %][% ELSE %]Koha online[% END %] catalog</title>
+[% INCLUDE 'doc-head-close.inc' %]
+[% BLOCK cssinclude %]
+ <style>
+        #search-facets fieldset {
+            border: 0;
+            margin: 0;
+            padding: .3em;
+        }
+        #search-facets ol{
+            padding: .3em;
+        }
+        #search-facets li {
+            list-style-type: none;
+            padding: 4px 4px;
+        }
+        #search-facets label{
+            font-weight: bold;
+            display: block;
+            margin: .2em 0;
+        }
+        #search-facets fieldset.action {
+            padding-left: 4px;
+            margin: .3em;
+        }
+        #search-facets select {
+            max-width: 100%;
+        }
+    </style>
+[% END %]
+</head>
+[% INCLUDE 'bodytag.inc' bodyid='opac-topissues' bodyclass='scrollto' %]
+[% INCLUDE 'masthead.inc' %]
+
+ <div class="main">
+ <nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumbs">
+ <ol class="breadcrumb">
+ <li class="breadcrumb-item">
+ <a href="/cgi-bin/koha/opac-main.pl">Home</a>
+ </li>
+ <li class="breadcrumb-item active">
+ <a href="#" aria-current="page">Most popular titles</a>
+ </li>
+ </ol>
+ </nav> <!-- /#breadcrumbs -->
+
+ <div class="container-fluid">
+ <div class="row">
+ <div class="col-lg-2">
+ <div id="usertopissues">
+ [% INCLUDE 'opac-topissues.inc' %]
+ [% IF ( OpacNav || OpacNavBottom ) %]
+ [% INCLUDE 'navigation.inc' %]
+ [% END %]
+ </div>
+ </div>
+ <div class="col-10 order-first order-md-first order-lg-2">
+ <div id="topissues" class="maincontent">
+
+ <h1>Top issues</h1>
+
+ [% IF ( results ) %]
+ <table id="topissuest" class="table table-bordered table-striped">
+ <caption>
+ The [% limit | html %] most issued [% IF selected_itemtype %] [% ItemTypes.GetDescription(selected_itemtype) | html %] [% END %] [% IF ( branch ) %] at [% Branches.GetName( branch ) | html %] [% END %] [% IF ( timeLimit != 999 ) %] in the past [% timeLimitFinite | html %] months [% ELSE %] of all time [% END %] </caption>
+ <thead>
+ <tr>
+ <th class="anti-the">Title</th>
+ <th>[% IF ( ccodesearch ) %]Collection[% ELSE %]Item type[% END %]</th>
+ <th class="title-num">Loans</th>
+ [% IF Koha.Preference( 'opacuserlogin' ) == 1 %]
+ <th class="NoSort">&nbsp;</th>
+ [% END %]
+ </tr>
+ </thead>
+ <tbody>
+ [% FOREACH result IN results %]
+ <tr>
+ <td>
+ <a class="title" href="/cgi-bin/koha/opac-detail.pl?biblionumber=[% result.biblionumber | html %]">[% result.title | html %]</a><p>[% result.author | html %]
+ [% IF ( result.publishercode ) %]- [% result.publishercode | html %][% END %]
+ [% IF ( result.place ) %][% result.place | html %][% END %]
+ [% IF ( result.publicationyear ) %]
+ [% result.publicationyear | html %]
+ [% ELSIF ( result.copyrightdate ) %]
+ [% result.copyrightdate | html %]
+ [% END %]
+ [% IF ( result.pages ) %] - [% result.pages | html %][% END %]
+ [% IF ( result.item('size') ) %][% result.item('size') | html %][% END %]</p>
+ </td>
+ <td>
+ [% IF Koha.Preference('AdvancedSearchTypes') == 'ccode' %]
+ <span class="tdlabel">Collection</span>
+ [% AuthorisedValues.GetByCode('ccode', result.ccode, 1) | html %]
+ [% ELSE %]
+ <span class="tdlabel">Item type</span>
+ [% ItemTypes.GetDescription(result.itemtype) | html %]
+ [% END %]
+ </td>
+ <td>
+ <span class="tdlabel">Loans: </span>
+ <span title="[% result.count | html %]">[% result.count | html %]</span>
+ </td>
+ [% IF Koha.Preference( 'opacuserlogin' ) == 1 %]
+ <td>
+ [% IF Koha.Preference( 'OPACHoldRequests' ) == 1 %]
+ [% UNLESS ( result.norequests ) %]
+ <a class="btn btn-link btn-sm hold" href="/cgi-bin/koha/opac-reserve.pl?biblionumber=[% result.biblionumber | uri %]"><i class="fa fa-fw fa-bookmark" aria-hidden="true"></i> Place a reservation</a>
+ [% END %]
+ [% END %]
+ </td>
+ [% END %]
+ </tr>
+ [% END %]
+ </tbody>
+ </table>
+ [% ELSE %]
+ No results, try to change filters.
+ [% END # / IF results %]
+ </div> <!-- / #topissues -->
+ </div> <!-- / .col-lg-10 -->
+ </div> <!-- / .row -->
+ </div> <!-- / .container-fluid -->
+ </div> <!-- / .main -->
+
+[% INCLUDE 'opac-bottom.inc' %]
+[% BLOCK jsinclude %]
+ [% INCLUDE 'datatables.inc' %]
+ <script>
+        $(function() {
+            $("#topissuest").dataTable($.extend(true, {}, dataTablesDefaults, {
+                "sorting": [[2, "desc"]],
+                "columnDefs": [
+                    { "sortable": false, "searchable": false, 'targets': [ 'NoSort' ] },
+                    { "type": "anti-the", "targets" : [ "anti-the" ] },
+                    { "type": "title-numeric", "targets" : [ "title-num"] },
+                ]
+            }));
+        });
+        function Dopop(link) {
+            newin=window.open(link,'width=500,height=400,toolbar=false,scrollbars=yes');
+        }
+    </script>
+[% END %]

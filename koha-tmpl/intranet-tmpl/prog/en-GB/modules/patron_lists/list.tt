@@ -1,0 +1,313 @@
+[% USE raw %]
+[% USE Asset %]
+[% USE KohaDates %]
+[% USE TablesSettings %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+[% INCLUDE 'columns_settings.inc' %]
+<title>Add users &rsaquo; [% list.name | html %] &rsaquo; User lists &rsaquo; Tools &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+
+<style>
+    #add_patrons_by_search {
+        display: none;
+    }
+    #patron_ids_line {
+        display: none;
+    }
+    #patron_ids_submit {
+        display: none;
+    }
+    #searchheader {
+        margin-top: 1em;
+    }
+</style>
+</head>
+
+<body id="patlist_list" class="pat patlist">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'cat-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/tools/tools-home.pl">Tools</a>
+ </li>
+ <li>
+ <a href="lists.pl">User lists</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/patron_lists/list.pl?patron_list_id=[% list.id | uri %]">[% list.name | html %]</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ Add users </a>
+ </li>
+ </ol>
+</nav>
+
+<div class="main container-fluid">
+ <div class="row">
+ <div class="col-sm-10 col-sm-push-2">
+ <main>
+
+ <h1>[% list.name | html %]</h1>
+
+ [% IF ( not_found.size > 0 ) %]
+ [% IF id_column == 'borrowernumbers' %]
+ <div class="dialog alert"><p>Warning, the following borrowernumbers were not found:</p></div>
+ [% ELSE %]
+ <div class="dialog alert"><p>Warning, the following cardnumbers were not found:</p></div>
+ [% END %]
+ <table style="margin:auto;">
+ <thead>
+ [% IF id_column == 'borrowernumbers' %]
+ <tr><th>Borrowernumbers not found</th></tr>
+ [% ELSE %]
+ <tr><th>Cardnumbers not found</th></tr>
+ [% END %]
+ </thead>
+ <tbody>
+ [% FOREACH nf IN not_found %]
+ <tr><td>[% nf | html %]</td></td>
+ [% END %]
+ </tbody>
+ </table>
+ [% END %]
+
+ [% IF ( existed.size > 0 ) %]
+ [% IF id_column == 'borrowernumbers' %]
+ <div class="dialog alert"><p>Warning, the following borrowernumbers were already in this list:</p></div>
+ [% ELSE %]
+ <div class="dialog alert"><p>Warning, the following cardnumbers were already in this list:</p></div>
+ [% END %]
+ <table style="margin:auto;">
+ <thead>
+ [% IF id_column == 'borrowernumbers' %]
+ <tr><th>Borrowernumbers already in list</th></tr>
+ [% ELSE %]
+ <tr><th>Cardnumbers already in list</th></tr>
+ [% END %]
+ </thead>
+ <tbody>
+ [% FOREACH ed IN existed %]
+ <tr><td>[% ed | html %]</td></td>
+ [% END %]
+ </tbody>
+ </table>
+ [% END %]
+
+ <form action="list.pl" id="add_patrons" method="post" class="clearfix">
+ <fieldset class="rows">
+ <legend>Add users</legend>
+ <ol>
+ <li id="patron_search_line">
+ <label for="find_patron">User search: </label>
+ <input autocomplete="off" id="find_patron" type="text" style="width:150px" class="noEnterSubmit" />
+ </li>
+ <li id="add_patrons_by_search"><a href="#">
+ <span class="label">&nbsp;</span>
+ <i class="fa fa-plus"></i> Search for users</a></li>
+ <li id="add_patrons_by_id"><a href="#">
+ <span class="label">&nbsp;</span>
+ <i class="fa fa-plus"></i> Add multiple patrons</a></li>
+ <span id="patron_ids_line">
+ <li><strong>Choose type of IDs to enter:</strong></li>
+ <li class="radio">
+ <label class="id_choice" for="add_by_cardnumbers">
+ <input id="add_by_cardnumbers" type="radio" name="id_column" value="cardnumbers" checked="checked">
+ <span class="add_by_cardnumbers">Cardnumbers</span>
+ </label>
+ <label class="id_choice" for="add_by_borrowernumbers">
+ <input id="add_by_borrwernumbers" type="radio" name="id_column" value="borrowernumbers">
+ <span class="add_by_borrowernumbers">Borrowernumbers</span>
+ </label>
+ </li>
+ <li>
+ <label for="patrons_by_id">List (one ID per line):</label>
+ <textarea id="patrons_by_id" name="patrons_by_id" id="" cols="30" rows="10"></textarea>
+ </li>
+ </span>
+ </ol>
+ </fieldset>
+ <fieldset id="patron_ids_submit" class="action">
+ <input type="submit" value="Submit" />
+ </fieldset>
+
+ <div class="clearfix"></div>
+
+ <fieldset id="patrons_to_add_fieldset">
+ <legend>Users to be added</legend>
+ <div id="patrons_to_add"></div>
+
+ <fieldset class="action">
+ <input type="hidden" name="patron_list_id" value="[% list.patron_list_id | html %]" />
+ <input type="submit" value="Add users" />
+ <a href="lists.pl" class="cancel">Cancel</a>
+ </fieldset>
+ </fieldset>
+ </form>
+
+ <form action="list.pl" id="remove_patrons" method="post">
+
+ <div class="searchheader" id="searchheader">
+ <span class="checkall"><a id="CheckAll" href="#"><i class="fa fa-check"></i> Select all</a></span> |
+ <span class="clearall"><a id="CheckNone" href="#"><i class="fa fa-remove"></i> Clear all</a></span> |
+ <div class="btn-group">
+ <button class="btn btn-default btn-xs list-remove" type="submit"><i class="fa fa-trash"></i> Remove selected</button>
+ </div>
+ |
+ <div class="btn-group">
+ <button class="btn btn-default btn-xs merge-patrons"><i class="fa fa-compress"></i> Merge selected users</button>
+ </div>
+ </div>
+
+ <table id="patron-list-table">
+ <thead>
+ <tr>
+ <th class="NoSort">&nbsp;</th>
+ <th>Card</th>
+ <th>First name</th>
+ <th>Surname</th>
+ <th>Address</th>
+ <th>Category</th>
+ <th>Library</th>
+ <th>Expires on</th>
+ <th>Circ notes</th>
+ </tr>
+ </thead>
+
+ <tbody>
+ [% FOREACH p IN list.patron_list_patrons %]
+ <tr>
+ <td>
+ <input type="checkbox" name="patrons_to_remove" class="selection" value="[% p.patron_list_patron_id | html %]" />
+ <input type="hidden" id="borrowernumber_[% p.patron_list_patron_id | html %]" value="[% p.borrowernumber.id | html %]" />
+ </td>
+ <td>
+ <a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% p.borrowernumber.borrowernumber | uri %]">
+ [% p.borrowernumber.cardnumber | html %]
+ </a>
+ </td>
+ <td>[% p.borrowernumber.firstname | html %]</td>
+ <td>[% p.borrowernumber.surname | html %]</td>
+ <td>
+ [% p.borrowernumber.address | html %]
+ [% p.borrowernumber.address2 | html %]
+ [% p.borrowernumber.city | html %]
+ [% p.borrowernumber.state | html %]
+ [% p.borrowernumber.country | html %]
+ </td>
+ <td>[% p.borrowernumber.categorycode.description | html %] ([% p.borrowernumber.categorycode.categorycode | html %])</td>
+ <td>[% p.borrowernumber.branchcode.branchname | html %]</td>
+ <td data-order="[% p.borrowernumber.dateexpiry | html %]">[% p.borrowernumber.dateexpiry | $KohaDates %]</td>
+ <td>[% p.borrowernumber.borrowernotes | html %]</td>
+ </tr>
+ [% END %]
+ </tbody>
+ </table>
+
+ <input type="hidden" name="patron_list_id" value="[% list.patron_list_id | html %]" />
+ <button type="submit" class="btn btn-default btn-sm list-remove"><i class="fa fa-trash" aria-hidden="true"></i> Remove selected users</button>
+ <button class="btn btn-default btn-sm merge-patrons" type="submit"><i class="fa fa-compress"></i> Merge selected users</button>
+ </form>
+
+ </main>
+ </div> <!-- /.col-sm-10.col-sm-push-2 -->
+
+ <div class="col-sm-2 col-sm-pull-10">
+ <aside>
+ [% INCLUDE 'tools-menu.inc' %]
+ </aside>
+ </div> <!-- /.col-sm-2.col-sm-pull-10 -->
+ </div> <!-- /.row -->
+
+[% MACRO jsinclude BLOCK %]
+ [% Asset.js("js/tools-menu.js") | $raw %]
+ [% INCLUDE 'datatables.inc' %]
+
+ [% Asset.js("js/autocomplete/patrons.js") | $raw %]
+ <script>
+        var MSG_REMOVE_PATRON = _("Remove");
+        $(document).ready(function() {
+            $('#patrons_to_add_fieldset').hide();
+
+                var columns_settings_table = [% TablesSettings.GetColumns('members', 'patron-lists', 'patron-list-table', 'json') | $raw %]
+                KohaTable('patron-list-table', {
+                    "order": [[ 3, "asc" ]],
+                    "sPaginationType": "full"
+                }, columns_settings_table);
+
+            patron_autocomplete({
+                patron_container: $("#patrons_to_add"),
+                input_autocomplete: $("#find_patron"),
+                patron_input_name: 'patrons_to_add'
+            });
+
+            $("body").on("click", "#CheckAll", function(e){
+                e.preventDefault();
+                $("input[type='checkbox']","#patron-list-table").each(function(){
+                    $(this).prop("checked",1);
+                });
+            });
+            $("body").on("click", "#CheckNone", function(e){
+                e.preventDefault();
+                $("input[type='checkbox']","#patron-list-table").each(function(){
+                    $(this).prop("checked",0);
+                });
+            });
+
+            $("#remove_patrons").submit(function(){
+                var checkedItems = $("input:checked");
+                if ($(checkedItems).size() == 0) {
+                    alert(_("You must select one or more users to remove"));
+                    return false;
+                }
+                $(checkedItems).parents('tr').addClass("warn");
+                if( confirm(_("Are you sure you want to remove the selected users?")) ) {
+                    return true;
+                } else {
+                    $(checkedItems).parents('tr').removeClass("warn");
+                    return false;
+                }
+            });
+
+            $("#add_patrons_by_id a").on("click", function(){
+                $("#add_patrons_by_id, #patron_search_line").hide();
+                $("#add_patrons_by_search, #patron_ids_line, #patron_ids_submit").show();
+            });
+
+            $("#add_patrons_by_search a").on("click", function(){
+                $("#add_patrons_by_id, #patron_search_line").show();
+                $("#add_patrons_by_search, #patron_ids_line, #patron_ids_submit").hide();
+            });
+
+            $('.merge-patrons').on('click', function() {
+                var checkedItems = $("input:checked");
+                if ($(checkedItems).length < 2) {
+                    alert(_("You must select two or more users to remove"));
+                    return false;
+                }
+                $(checkedItems).parents('tr').addClass("warn");
+                if (confirm(_("Are you sure you want to merge the selected users?"))) {
+                    var merge_patrons_url = '/cgi-bin/koha/members/merge-patrons.pl?' +
+                        $('.selection:checked')
+                        .map(function() {
+                            return "id=" + $( '#borrowernumber_' + $(this).val() ).val()
+                        }).get().join('&');
+
+                    window.location.href = merge_patrons_url;
+                    return false;
+                } else {
+                    $(checkedItems).parents('tr').removeClass("warn");
+                    return false;
+                }
+            });
+        });
+    </script>
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' %]

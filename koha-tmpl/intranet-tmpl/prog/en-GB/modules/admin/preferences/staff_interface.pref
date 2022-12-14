@@ -1,0 +1,197 @@
+---
+Staff interface:
+  Appearance:
+  - - 'Display language selector on '
+    - choices:
+        both: both top and footer
+        footer: only footer
+        top: top
+      pref: StaffLangSelectorMode
+  - - Use the
+    - choices: staff-templates
+      pref: template
+    - theme on the staff interface.
+  - - The staff interface is located at
+    - class: url
+      pref: staffClientBaseURL
+    - This should be a complete URL, starting with http:// or https://. Do not include
+      a trailing slash in the URL. (This must be filled in correctly for CAS, svc,
+      and load_testing to work.)
+  - - Use the CSS stylesheet
+    - class: url
+      pref: intranetstylesheet
+    - on all pages in the staff interface, instead of the default css (used when leaving
+      this field blank). Enter just a filename, a full local path or a complete URL
+      starting with <code>http://</code> (if the file lives on a remote server). Please
+      note that if you just enter a filename, the file should be in the css subdirectory
+      for each active theme and language within the Koha templates directory. A full
+      local path is expected to start from your HTTP document root.
+  - - 'Use the following JavaScript for printing slips. See detailed description on
+      the <a href=''https://wiki.koha-community.org/wiki/Setting_up_slip_printer_to_print_silently''>Koha
+      Wiki</a> and eventually Firefox add-on <a href=''https://github.com/edabg/jsprintsetup/wiki''>jsPrintSetup
+      documentation</a>:'
+    - class: code
+      pref: IntranetSlipPrinterJS
+      syntax: javascript
+      type: textarea
+  - - 'Include the following CSS on all pages in the staff interface:'
+    - class: code
+      pref: IntranetUserCSS
+      syntax: css
+      type: textarea
+  - - Include the additional CSS stylesheet
+    - class: file
+      pref: intranetcolorstylesheet
+    - to override specified settings from the default stylesheet (leave blank to disable.)
+      Enter just a filename, a full local path or a complete URL starting with <code>http://</code>
+      (if the file lives on a remote server). Please note that if you just enter a
+      filename, the file should be in the css subdirectory for each active theme and
+      language within the Koha templates directory. A full local path is expected
+      to start from your HTTP document root.
+  - - Use include files from the
+    - class: file
+      pref: intranet_includes
+    - directory in the template directory, instead of <code>includes/</code>. (Leave
+      blank to disable)
+  - - 'Show the following HTML in its own column on the main page of the staff interface:'
+    - class: code
+      pref: IntranetmainUserblock
+      syntax: text/html
+      type: textarea
+  - - 'Show the following HTML to the left of the More menu at the top of each page
+      on the staff interface (should be a list of links or blank):'
+    - class: code
+      pref: IntranetNav
+      syntax: html
+      type: textarea
+  - - 'Include the following JavaScript on all pages in the staff interface:'
+    - class: code
+      pref: IntranetUserJS
+      syntax: javascript
+      type: textarea
+  - - Use the image at
+    - class: url
+      pref: IntranetFavicon
+    - for the staff interface's favicon. (This should be a complete URL, starting
+      with <code>http://</code>.)
+  - - 'Display lists in the staff interface using XSLT stylesheet at: '
+    - class: file
+      pref: XSLTListsDisplay
+    - <br />Options:<ul><li>Enter "<a href="#" class="set_syspref" data-syspref="XSLTListsDisplay"
+      data-value="default">default</a>" for the default stylesheet</li><li>Put a path
+      to define an xslt file</li><li>Put a URL for an external specific stylesheet.</li></ul>If
+      you have multiple stylesheets for different languages the placeholder {langcode}
+      will be replaced with current interface language.
+  - - 'Display results in the staff interface using XSLT stylesheet at: '
+    - class: file
+      pref: XSLTResultsDisplay
+    - '<br />Options:<ul><li>Enter "<a href="#" class="set_syspref" data-syspref="XSLTResultsDisplay"
+      data-value="default">default</a>" for the default stylesheet</li><li>Put a path
+      to define an xslt file</li><li>Put a URL for an external specific stylesheet.</li><li>NOTE:
+      The system preference <a href="/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=PassItemMarcToXSLT">PassItemMarcToXSLT</a>
+      must be enabled if your custom stylesheet utilizes data in the item fields</li></ul>If
+      you have multiple stylesheets for different languages the placeholder {langcode}
+      will be replaced with current interface language.'
+  - - 'Display details in the staff interface using XSLT stylesheet at: '
+    - class: file
+      pref: XSLTDetailsDisplay
+    - <br />Options:<ul><li>Enter "<a href="#" class="set_syspref" data-syspref="XSLTDetailsDisplay"
+      data-value="default">default</a>" for the default stylesheet</li><li>Put a path
+      to define an xslt file</li><li>Put a URL for an external specific stylesheet.</li></ul>If
+      you have multiple stylesheets for different languages the placeholder {langcode}
+      will be replaced with current interface language.
+  - - choices:
+        '0': Don't show
+        '1': Show
+      pref: DisplayIconsXSLT
+    - the format, audience, and material type icons and descriptions in XSLT MARC21
+      results and detail pages in the staff interface.
+  - - 'Display the URI in the 856u field as an image on: '
+    - choices:
+        Both: Both result and detail pages
+        Details: Detail page only
+        OFF: Neither detail or result pages
+        Results: Result page
+      pref: Display856uAsImage
+    - '. Note: The corresponding XSLT option must be turned on.'
+  - - Include the stylesheet at
+    - class: url
+      pref: SlipCSS
+    - ' on Issue and Reservation Slips. (This should be a complete URL, starting with
+      <code>http://</code>.)'
+  - - 'Show the following HTML in its own div on the bottom of the home page of the
+      circulation module:'
+    - class: code
+      pref: IntranetCirculationHomeHTML
+      syntax: text/html
+      type: textarea
+  - - 'Show the following HTML in its own div on the bottom of the home page of the
+      reports module:'
+    - class: code
+      pref: IntranetReportsHomeHTML
+      syntax: text/html
+      type: textarea
+  - - Show the following HTML on the staff interface login page
+    - class: code
+      pref: StaffLoginInstructions
+      syntax: text/html
+      type: textarea
+  Authentication:
+  - - choices:
+        '0': Allow
+        '1': Don't allow
+      pref: staffShibOnly
+    - staff to login by means other than shibboleth.
+  Options:
+  - - choices:
+        '0': Don't allow
+        '1': Allow
+      pref: viewMARC
+    - staff to view records in plain MARC form on the staff interface.
+  - - choices:
+        '0': Don't allow
+        '1': Allow
+      pref: viewLabeledMARC
+    - staff to view records in labeled MARC form on the staff interface.
+  - - choices:
+        '0': Don't allow
+        '1': Allow
+      pref: viewISBD
+    - staff to view records in ISBD form on the staff interface.
+  - - choices:
+        '0': Show
+        '1': Don't show
+      pref: HidePatronName
+    - ' the names of users that have items issued or reserved on detail pages or the
+      "Place Reservation" screen.'
+  - - choices:
+        '0': Don't show
+        '1': Show
+      pref: showLastPatron
+    - ' a link to the last searched user in the staff interface.'
+  - - choices:
+        '0': Don't show
+        '1': Show
+      pref: intranetbookbag
+    - the cart option in the staff interface.
+  - - choices:
+        '0': Disable
+        '1': Enable
+      pref: StaffDetailItemSelection
+    - item selection in record detail page.
+  - - choices:
+        '0': Don't show
+        '1': Show
+      pref: UseWYSIWYGinSystemPreferences
+    - WYSIWYG editor when editing certain HTML system preferences.
+  - - choices:
+        '0': Don't enable
+        '1': Enable
+      pref: AudioAlerts
+    - audio alerts for events defined in the <a href="/cgi-bin/koha/admin/audio_alerts.pl">audio
+      alerts</a> section of administration.
+  - - choices:
+        '0': Don't show
+        '1': Show
+      pref: IntranetCatalogSearchPulldown
+    - ' a search field pulldown for ''Search the catalogue'' boxes.'

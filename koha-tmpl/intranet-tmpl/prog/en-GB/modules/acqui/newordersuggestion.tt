@@ -1,0 +1,149 @@
+[% USE raw %]
+[% USE Branches %]
+[% USE Price %]
+[% USE Asset %]
+[% PROCESS 'i18n.inc' %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Add order from a suggestion &rsaquo; Acquisitions &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+
+<body id="acq_newordersuggestion" class="acq">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'suggestions-add-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/acqui/acqui-home.pl">Acquisitions</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/acqui/supplier.pl?booksellerid=[% booksellerid | uri %]">[% name | html %]</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/acqui/basket.pl?basketno=[% basketno | uri %]">Basket [% basketno | html %]</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ Add order from a suggestion
+ </a>
+ </li>
+ </ol>
+</nav>
+
+<div class="main container-fluid">
+ <div class="row">
+ <div class="col-sm-10 col-sm-push-2">
+ <main>
+
+<h1>Suggestions</h1>
+ [% IF ( suggestions_loop ) %]
+ <a href="#" id="show_only_mine">Show only mine</a> | <a href="#" id="show_all">Show all suggestions</a>
+ <table id="suggestionst">
+ <thead>
+ <tr>
+ <th>Mine</th>
+ <th>Suggestion</th>
+ <th>Suggested by</th>
+ <th>Accepted by</th>
+ <th>Library</th>
+ <th>Fund</th>
+ <th>Price</th>
+ <th>Quantity</th>
+ <th>Total</th>
+ <th>&nbsp;</th>
+ </tr>
+ </thead>
+ <tbody>
+ [% FOREACH suggestions_loo IN suggestions_loop %]
+ <tr>
+ <td>[% suggestions_loo.managedby | html %]</td>
+ <td>
+ <p>[% suggestions_loo.title | html %] - [% suggestions_loo.author | html %]</p>
+ <p>
+ [% IF ( suggestions_loo.copyrightdate ) %]&copy; [% suggestions_loo.copyrightdate | html %] [% END %]
+ [% IF ( suggestions_loo.volumedesc ) %]volume: <em>[% suggestions_loo.volumedesc | html %]</em> [% END %]
+ [% IF ( suggestions_loo.isbn ) %]ISBN: <em>[% suggestions_loo.isbn | html %]</em> [% END %]
+ [% IF ( suggestions_loo.publishercode ) %]<br />published by: [% suggestions_loo.publishercode | html %] [% END %]
+ [% IF ( suggestions_loo.publicationyear ) %] in <em>[% suggestions_loo.publicationyear | html %]</em> [% END %]
+ [% IF ( suggestions_loo.place ) %] in <em>[% suggestions_loo.place | html %]</em> [% END %]
+ [% IF ( suggestions_loo.note ) %]<p><em>([% suggestions_loo.note | html %])</em></p> [% END %]
+ </p>
+ </td>
+ <td>
+ [% suggestions_loo.surnamesuggestedby | html %][% IF ( suggestions_loo.firstnamesuggestedby ) %],[% END %] [% suggestions_loo.firstnamesuggestedby | html %]
+ </td>
+ <td>
+ [% suggestions_loo.surnamemanagedby | html %][% IF ( suggestions_loo.firstnamemanagedby ) %],[% END %] [% suggestions_loo.firstnamemanagedby | html %]
+ </td>
+ <td>
+ [% Branches.GetName(suggestions_loo.branchcode) | html %]
+ </td>
+ <td>
+ [% suggestions_loo.budget_name | html %]
+ </td>
+ <td>
+ [% suggestions_loo.price | $Price %]
+ </td>
+ <td>
+ [% IF (suggestions_loo.quantity > 0) %]
+ [% suggestions_loo.quantity | html %]
+ [% END %]
+ </td>
+ <td>
+ [% suggestions_loo.total | $Price %]
+ </td>
+ <td class="actions">
+ [% IF ( suggestions_loo.biblionumber ) %]
+ <a href="neworderempty.pl?booksellerid=[% booksellerid | uri %]&amp;basketno=[% basketno | uri %]&amp;suggestionid=[% suggestions_loo.suggestionid | uri %]&amp;biblio=[% suggestions_loo.biblionumber | uri %]" class="btn btn-default btn-xs"><i class="fa fa-plus"></i> [% tp('verb', 'Order') | html %]</a>
+ [% ELSE %]
+ <a href="neworderempty.pl?booksellerid=[% booksellerid | uri %]&amp;basketno=[% basketno | uri %]&amp;suggestionid=[% suggestions_loo.suggestionid | uri %]" class="btn btn-default btn-xs"><i class="fa fa-plus"></i> [% tp('verb', 'Order') | html %]</a>
+ [% END %]
+ </td>
+ </tr>
+ [% END %]
+ </tbody>
+ </table>
+ [% ELSE %]
+ There are no outstanding (accepted) suggestions.
+ [% END %]
+</main>
+</div> <!-- /.col-sm-10.col-sm-push-2 -->
+
+<div class="col-sm-2 col-sm-pull-10">
+ <aside>
+ [% INCLUDE 'acquisitions-menu.inc' %]
+ </aside>
+</div> <!-- /.col-sm-2.col-sm-pull-10 -->
+</div> <!-- /.row -->
+
+[% MACRO jsinclude BLOCK %]
+ [% Asset.js("js/acquisitions-menu.js") | $raw %]
+ [% INCLUDE 'datatables.inc' %]
+ [% INCLUDE 'calendar.inc' %]
+ <script>
+    $(document).ready(function() {
+        var suggestionst = $("#suggestionst").dataTable($.extend(true, {}, dataTablesDefaults, {
+            "aoColumnDefs": [
+                { "aTargets": [ 0 ],  "bVisible": false, "bSearchable": true }, // must be searchable for fnFilter
+                { "aTargets": [ -1 ], "bSortable": false, "bSearchable": false },
+            ],
+            "sPaginationType": "full"
+        }));
+        $("#show_only_mine").on('click', function(e){
+            e.preventDefault();
+            suggestionst.fnFilter('^[% loggedinuser | html %]$', 0, true);
+        });
+        $("#show_all").on('click', function(e){
+            e.preventDefault();
+            suggestionst.fnFilter('', 0 );
+        });
+     });
+    </script>
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' %]

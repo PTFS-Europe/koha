@@ -1,0 +1,82 @@
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Search results &rsaquo; Serials &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+
+<body id="ser_result" class="ser">
+
+<div class="main container-fluid">
+
+[% IF ( total ) %]
+<h1>Search results from [% from | html %] to [% to | html %] of [% total | html %]</h1>
+<table>
+ <tr>
+ <th>Title</th>
+ <th>Author</th>
+ <th>Publisher</th>
+ <th>Publication year</th>
+ <th>ISSN</th>
+ <th>&nbsp;</th>
+ </tr>
+ [% FOREACH resultsloo IN resultsloop %]
+ <tr>
+ <td class="title">
+ [% INCLUDE 'biblio-title.inc' biblio=resultsloo %]
+ </td>
+ <td>
+ [% resultsloo.author | html %]
+ </td>
+ <td>
+ [% resultsloo.publishercode | html %]
+ </td>
+ <td>
+ [% resultsloo.publicationyear | html %]
+ </td>
+ <td>
+ [% resultsloo.issn | html %]
+ </td>
+ <td><a class="btn btn-default btn-xs select_title" data-biblionumber="[% resultsloo.biblionumber | html %]" href="#" title="Choose this record">Choose</a></td>
+ </tr>
+ [% END %]
+ </table>
+[% ELSE %]
+
+ <div class="dialog message">
+ <p>No results found for <strong>[% query | html %]</strong></p>
+ </div>
+
+[% END %]
+
+<div class="pages">
+ [% IF ( displayprev ) %]
+ <a class="nav" href="/cgi-bin/koha/serials/subscription-bib-search.pl?op=do_search&amp;type=intranet&amp;startfrom=[% startfromprev |url %]&amp;q=[% query |url %]">&lt;&lt; Previous</a>
+ [% END %]
+ [% IF ( displaynext ) %]
+ <a class="nav" href="/cgi-bin/koha/serials/subscription-bib-search.pl?op=do_search&amp;type=intranet&amp;startfrom=[% startfromnext |url %]&amp;q=[% query |url %]">Next &gt;&gt;</a>
+ [% END %]
+</div>
+
+<p><a href="subscription-bib-search.pl">Search for another record</a></p>
+
+<div id="closewindow"><a class="btn btn-default btn-default close" href="#">Close</a></div>
+
+[% MACRO jsinclude BLOCK %]
+ <script>
+        $(document).ready(function(){
+            $(".select_title").on("click",function(e){
+                e.preventDefault();
+                var biblionumber = $(this).data("biblionumber");
+                GetIt( biblionumber, $(this) );
+            });
+        });
+        function GetIt(bibno,title) {
+            title = title.parents('tr').find('.title').text();
+            opener.document.f.biblionumber.value = bibno;
+            opener.document.f.title.value = title;
+            window.close();
+        }
+    </script>
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' popup_window=1 %]

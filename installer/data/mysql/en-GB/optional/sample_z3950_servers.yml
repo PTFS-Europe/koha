@@ -1,0 +1,59 @@
+---
+description:
+- 'Allow access to the following servers to search and download record information:'
+- LIBRARY OF CONGRESS
+- LIBRARY OF CONGRESS NAMES (authority records)
+- LIBRARY OF CONGRESS SUBJECTS (authority records)
+- COLUMBIA UNIVERSITY
+tables:
+- z3950servers:
+    multiline: []
+    rows:
+    - checked: 1
+      db: LCDB
+      encoding: utf8
+      host: lx2.loc.gov
+      password: ''
+      port: 210
+      rank: 1
+      recordtype: biblio
+      servername: LIBRARY OF CONGRESS
+      syntax: USMARC
+      userid: ''
+    - checked: 1
+      db: NAF
+      encoding: utf8
+      host: lx2.loc.gov
+      password: ''
+      port: 210
+      rank: 1
+      recordtype: authority
+      servername: LIBRARY OF CONGRESS NAMES
+      syntax: USMARC
+      userid: ''
+    - checked: 1
+      db: SAF
+      encoding: utf8
+      host: lx2.loc.gov
+      password: ''
+      port: 210
+      rank: 2
+      recordtype: authority
+      servername: LIBRARY OF CONGRESS SUBJECTS
+      syntax: USMARC
+      userid: ''
+    translatable:
+    - servername
+- z3950servers:
+    multiline: []
+    rows:
+    - db: LCDB
+      encoding: utf8
+      host: lx2.loc.gov
+      port: 210
+      servername: LIBRARY OF CONGRESS SRU
+      servertype: sru
+      sru_fields: title=dc.title,isbn=bath.isbn,srchany=cql.anywhere,author=dc.author,issn=bath.issn,subject=dc.subject,stdid=bath.standardIdentifier
+      syntax: USMARC
+    translatable:
+    - servername

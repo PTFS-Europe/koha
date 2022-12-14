@@ -1,0 +1,127 @@
+[% USE raw %]
+[% USE Asset %]
+[% USE Koha %]
+[% USE AuthorisedValues %]
+[% USE Branches %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>
+ [% UNLESS blocking_error %] Statistics for [% INCLUDE 'patron-title.inc' no_html = 1 %] [% END %] &rsaquo; Users &rsaquo; Koha </title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+
+<body id="pat_statistics" class="pat">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'patron-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+
+ [% IF blocking_error %]
+ <li>
+ <a href="#" aria-current="page">
+ Users </a>
+ </li>
+
+ [% ELSE %]
+ <li>
+ <a href="/cgi-bin/koha/members/members-home.pl">Users</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ Statistics for [% INCLUDE 'patron-title.inc' invert_name = 1 %]
+
+ </a>
+ </li>
+ [% END %]
+ </ol>
+</nav>
+
+<div class="main container-fluid">
+ <div class="row">
+ <div class="col-sm-10 col-sm-push-2">
+ <main>
+
+ [% INCLUDE 'members-toolbar.inc' %]
+
+ <h1>Statistics for [% INCLUDE 'patron-title.inc' %]</h1>
+ [% IF ( datas.size ) %]
+ <table id="statistics">
+ <thead>
+ <tr>
+ [% FOREACH cn IN column_names %]
+ <th>
+ [% SWITCH cn %]
+ [% CASE 'itype' %]
+ Item type
+ [% CASE 'ccode' %]
+ Collection
+ [% CASE 'location' %]
+ Shelving location
+ [% CASE 'homebranch' %]
+ Home library
+ [% CASE 'holdingbranch' %]
+ Holding library
+ [% CASE %]
+ [% cn | html %]
+ [% END %]
+ </th>
+ [% END %]
+ <th>Total loans as of yesterday</th>
+ <th>Today's loans</th>
+ <th>Today's returns</th>
+ <th>Total loans</th>
+ </tr>
+ </thead>
+
+ <tbody>
+ [% FOREACH r IN datas %]
+ <tr>
+ [% FOREACH c IN r %]
+ <td>[% c | html %]</td>
+ [% END %]
+ </tr>
+ [% END %]
+ </tbody>
+ <tfoot>
+ <tr>
+ <td colspan="[% column_names.size | html %]">TOTAL</td>
+ <td>[% count_total_precedent_state | html %]</td>
+ <td>[% count_total_issues | html %]</td>
+ <td>[% count_total_issues_returned | html %]</td>
+ <td>[% count_total_actual_state | html %]</td>
+ </tr>
+ </tfoot>
+ </table>
+ [% ELSE %]
+ <div class="dialog message">There are no statistics for this user.</div>
+ [% END %]
+
+ </main>
+ </div> <!-- /.col-sm-10.col-sm-push-2 -->
+
+ <div class="col-sm-2 col-sm-pull-10">
+ <aside>
+ [% INCLUDE 'circ-menu.inc' %]
+ </aside>
+ </div> <!-- /.col-sm-2.col-sm-pull-10 -->
+ </div> <!-- /.row -->
+
+[% MACRO jsinclude BLOCK %]
+ [% INCLUDE 'str/members-menu.inc' %]
+ [% Asset.js("js/members-menu.js") | $raw %]
+ [% INCLUDE 'datatables.inc' %]
+ <script>
+        $(document).ready(function() {
+            $("#statistics").dataTable($.extend(true, {}, dataTablesDefaults, {
+                "sDom": 't',
+                "bPaginate": false
+            }));
+        });
+    </script>
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' %]

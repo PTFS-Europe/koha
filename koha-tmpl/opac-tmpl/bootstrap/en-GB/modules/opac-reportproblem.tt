@@ -1,0 +1,106 @@
+[% USE Koha %]
+[% USE AdditionalContents %]
+[% SET OpacNav = AdditionalContents.get( location => "OpacNav", lang => lang, library => logged_in_user.branchcode || default_branch, blocktitle => 0 ) %]
+[% SET OpacNavBottom = AdditionalContents.get( location => "OpacNavBottom", lang => lang, library => logged_in_user.branchcode || default_branch, blocktitle => 0 ) %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Report a problem &rsaquo; [% IF ( LibraryNameTitle ) %][% LibraryNameTitle | html %][% ELSE %]Koha online[% END %] catalogue</title>
+[% INCLUDE 'doc-head-close.inc' %]
+[% BLOCK cssinclude %][% END %]
+</head>
+[% INCLUDE 'bodytag.inc' bodyid='opac-reportproblem' bodyclass='scrollto' %]
+[% INCLUDE 'masthead.inc' %]
+
+ <div class="main">
+ <nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumbs">
+ <ol class="breadcrumb">
+ <li class="breadcrumb-item">
+ <a href="/cgi-bin/koha/opac-main.pl">Home</a>
+ </li>
+ <li class="breadcrumb-item active">
+ <a href="#" aria-current="page">Report a problem</a>
+ </li>
+ </ol>
+ </nav> <!-- /#breadcrumbs -->
+
+ <div class="container-fluid">
+ <div class="row">
+ [% IF ( OpacNav || OpacNavBottom ) %]
+ <div class="col-lg-2">
+ <div id="navigation">
+ [% INCLUDE 'navigation.inc' %]
+ </div>
+ </div>
+ <div class="col-10 order-first order-md-first order-lg-2">
+ [% ELSE %]
+ <div class="col order-first order-md-first order-lg-2">
+ [% END %]
+ <h1>Report a problem</h1>
+
+ [% IF messages %]
+ [% FOR m IN messages %]
+ <div class="alert alert-[% m.type | html %]">
+ [% SWITCH m.code %]
+ [% CASE 'success_on_send' %]
+ [% IF recipient == 'admin' %]
+ Your problem report has been sent to the Koha administrator.
+ [% ELSE %]
+ Your problem report has been sent to the library.
+ [% END %]
+ [% CASE 'error_on_send' #We really should avoid reaching this! %]
+ Something wrong happened when sending the report. Please contact your library.
+ [% END %]
+ </div>
+ [% END %]
+ [% ELSE %]
+
+ <div id="reportproblem" class="maincontent toptabs">
+ <form name="reportlibform" action="/cgi-bin/koha/opac-reportproblem.pl" method="post">
+ <legend class="sr-only">Report a problem</legend>
+ <input type="hidden" name="op" value="addreport" />
+ <fieldset class="rows">
+ <ol>
+ <li>
+ <label for="recipient">Send problem report to: </label>
+ [% IF library.inbound_email_address && library.inbound_email_address != Koha.Preference('KohaAdminEmailAddress') %]
+ <select name="recipient" id="recipient">
+ <option value="library">A librarian</option>
+ <option value="admin">Koha administrator</option>
+ </select>
+ [% ELSE %]
+ <span>Koha administrator</span>
+ [% END %]
+ </li>
+ <li>
+ <label for="problempage">Problem found on page: </label>
+ <input type="hidden" name="problempage" id="problempage" value="[% problempage | url %]" />
+ [% problempage | html %]<br/>
+ </li>
+ <li>
+ <label for="user">Username: </label>
+ <input type="hidden" name="user" id="user" value="[% username | html %]" />
+ [% username | html %]
+ <li>
+ <label for="subject">Subject: </label>
+ <input type="text" name="subject" id="subject" value="[% subject | html %]" />
+ </li>
+ <li>
+ <label for="message">Message: </label>
+ <textarea name="message" id="message" rows="7" cols="60"></textarea>
+ </li>
+ </ol>
+ </fieldset>
+ <fieldset class="action">
+ <input type="submit" value="Submit" class="btn btn-primary">
+ </fieldset>
+ </form>
+ </div> <!-- / #reportproblem -->
+
+ [% END # /IF messages %]
+
+ </div> <!-- / .col-10/12 -->
+ </div> <!-- / .row -->
+ </div> <!-- / .container-fluid -->
+ </div> <!-- / .main -->
+
+[% INCLUDE 'opac-bottom.inc' %]
+[% BLOCK jsinclude %][% END %]

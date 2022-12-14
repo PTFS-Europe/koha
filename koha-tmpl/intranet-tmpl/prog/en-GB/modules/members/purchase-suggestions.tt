@@ -1,0 +1,150 @@
+[% USE raw %]
+[% USE Asset %]
+[% USE Koha %]
+[% USE KohaDates %]
+[% USE AuthorisedValues  %]
+[% USE Branches %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Purchase suggestions for [% INCLUDE 'patron-title.inc' no_html = 1 %] &rsaquo; Users &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+
+<body id="pat_purchase_suggestions" class="pat">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'patron-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/members/members-home.pl">Users</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ Purchase suggestions for [% INCLUDE 'patron-title.inc' %]
+ </a>
+ </li>
+ </ol>
+</nav>
+
+<div class="main container-fluid">
+ <div class="row">
+ <div class="col-sm-10 col-sm-push-2">
+ <main>
+
+ [% INCLUDE 'members-toolbar.inc' %]
+ <h1>Purchase suggestions</h1>
+
+ <div id="toolbar" class="btn-toolbar">
+ <a class="btn btn-default" id="newsuggestion" href="/cgi-bin/koha/suggestion/suggestion.pl?op=add&amp;suggestedby=[% patron.borrowernumber | html %]&amp;redirect=purchase_suggestions&amp;borrowernumber=[% patron.borrowernumber | html %]"><i class="fa fa-plus"></i> New purchase suggestion</a>
+ </div>
+
+ [% IF suggestions %]
+ <table id="suggestions">
+ <thead>
+ <tr>
+ <th>Summary</th>
+ <th>Note</th>
+ <th>Managed by</th>
+ <th>Managed on</th>
+ <th>Suggested on</th>
+ <th>Status</th>
+ </tr>
+ </thead>
+
+ <tbody>
+ [% FOREACH s IN suggestions %]
+ <tr>
+ <td>
+ <p>
+ <strong>
+ [% IF ( CAN_user_catalogue ) %]
+ <a href="/cgi-bin/koha/suggestion/suggestion.pl?suggestionid=[% s.suggestionid | uri %]&amp;op=show">[% s.title | html %]</a>
+ [% ELSE %]
+ [% s.title | html %]
+ [% END %]
+ </strong>
+ </p>
+ <p>
+ [% IF ( s.author ) %][% s.author | html %],[% END %]
+ [% IF ( s.copyrightdate ) %] - [% s.copyrightdate | html %],[% END %]
+ [% IF ( s.publishercode ) %] - [% s.publishercode | html %][% END %]
+ [% IF ( s.place ) %]([% s.place | html %])[% END %]
+ [% IF ( s.collectiontitle ) %] , [% s.collectiontitle | html %][% END %]
+ [% IF ( s.itemtype ) %] - [% s.itemtype | html %][% END %]
+ </p>
+ </td>
+ <td>[% s.note | html %]
+ <td>
+ [% IF ( s.surnamemanagedby ) %]
+ [% s.surnamemanagedby | html %]
+ [% IF ( s.firstnamemanagedby ) %],[% END %]
+ [% s.firstnamemanagedby | html %]
+ [% ELSE %]
+ &nbsp;
+ [% END %]
+ </td>
+ <td data-order="[% s.manageddate | html %]">
+ [% s.manageddate | $KohaDates %]
+ </td>
+ <td data-order="[% s.suggesteddate | html %]">
+ [% s.suggesteddate | $KohaDates %]
+ </td>
+ <td>
+ [% SWITCH s.STATUS %]
+ [% CASE "ASKED" %]<span>Requested</span>
+ [% CASE "CHECKED" %]<span>Checked by the library</span>
+ [% CASE "ACCEPTED" %]<span>Accepted by the library</span>
+ [% CASE "ORDERED" %]<span>Ordered by the library</span>
+ [% CASE "REJECTED" %]<span>Suggestion declined<span>
+ [% CASE "AVAILABLE" %]<span>Available in the library</span>
+ [% CASE %]
+ [% SET status_description = AuthorisedValues.GetByCode('SUGGEST_STATUS', s.STATUS) %]
+ [% IF status_description %]
+ [% status_description | html %]
+ [% ELSE %]
+ <span>Unknown</span>
+ [% END %]
+ [% END %]
+ [% IF s.reason %]([% s.reason | html %])[% END %]
+ </td>
+ </tr>
+ [% END %]
+ </tbody>
+ </table>
+ [% ELSE %]
+ <div class="dialog message">
+ <p>This user has not submitted any purchase suggestions</p>
+ </div>
+ [% END %]
+
+ </main>
+ </div> <!-- /.col-sm-10.col-sm-push-2 -->
+
+ <div class="col-sm-2 col-sm-pull-10">
+ <aside>
+ [% INCLUDE 'circ-menu.inc' %]
+ </aside>
+ </div> <!-- /.col-sm-2.col-sm-pull-10 -->
+ </div> <!-- /.row -->
+
+[% MACRO jsinclude BLOCK %]
+ [% INCLUDE 'str/members-menu.inc' %]
+ [% Asset.js("js/members-menu.js") | $raw %]
+ [% INCLUDE 'datatables.inc' %]
+ <script>
+        $(document).ready(function() {
+            $("#suggestions").dataTable($.extend(true, {}, dataTablesDefaults, {
+                'bPaginate': false,
+                'bFilter': false,
+                'bInfo': false,
+                'sDom': 't'
+            } ));
+        });
+    </script>
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' %]

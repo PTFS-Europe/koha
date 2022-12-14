@@ -1,0 +1,68 @@
+[% USE raw %]
+[% USE Asset %]
+[% USE Branches %]
+[% USE Koha %]
+[% USE KohaDates %]
+[% SET footerjs = 1 %]
+[% USE AuthorisedValues %]
+[% USE TablesSettings %]
+
+[% INCLUDE 'doc-head-open.inc' %]
+<title>ILL requests history for [% INCLUDE 'patron-title.inc' no_html = 1 %] &rsaquo; Users &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+
+<body id="pat_illrequestshistory" class="pat">
+ [% INCLUDE 'header.inc' %]
+ [% INCLUDE 'patron-search.inc' %]
+
+ <nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/members/members-home.pl">Users</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ ILL requests history for [% INCLUDE 'patron-title.inc' %]
+ </a>
+ </li>
+ </ol>
+ </nav>
+
+<div class="main container-fluid">
+
+ <div class="row">
+ <div class="col-sm-10 col-sm-push-2">
+ <main>
+ [% INCLUDE 'members-toolbar.inc' %]
+ <h1>ILL requests history</h1>
+ [% INCLUDE 'ill-list-table.inc' %]
+ </main>
+ </div> <!-- .col-sm-10.col-sm-push-2 -->
+
+ <div class="col-sm-2 col-sm-pull-10">
+ <aside>
+ [% INCLUDE 'circ-menu.inc' %]
+ </aside>
+ </div> <!-- /.col-sm-2.col-sm-pull-10 -->
+ </div> <!-- .row -->
+
+ [% MACRO jsinclude BLOCK %]
+ [% INCLUDE 'str/members-menu.inc' %]
+ [% Asset.js("js/members-menu.js") | $raw %]
+ [% INCLUDE 'datatables.inc' %]
+ [% INCLUDE 'columns_settings.inc' %]
+ [% INCLUDE 'calendar.inc' %]
+ <script>
+            var prefilters = '[% prefilters | html %]';
+            // Set column settings
+            var columns_settings = [% TablesSettings.GetColumns( 'illrequests', 'ill-requests', 'ill-requests', 'json' ) %];
+        </script>
+ [% INCLUDE 'ill-list-table-strings.inc' %]
+ [% Asset.js("js/ill-list-table.js") | $raw %]
+ [% END %]
+
+[% INCLUDE 'intranet-bottom.inc' %]

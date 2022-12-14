@@ -1,0 +1,400 @@
+---
+Enhanced content:
+  All:
+  - - <strong>NOTE:</strong> you can only choose one source of cover images from below,
+      otherwise Koha will show the images from all sources selected.
+  - - choices:
+        '0': Don't show
+        '1': Show
+      default: 0
+      pref: FRBRizeEditions
+    - other editions of an item on the staff interface (if found by one of the services
+      below).
+  - - choices:
+        '0': Don't show
+        '1': Show
+      default: 0
+      pref: OPACFRBRizeEditions
+    - other editions of an item on the OPAC.
+  Amazon:
+  - - Use Amazon data from its
+    - choices:
+        CA: Canadian
+        DE: German
+        FR: French
+        IN: Indian
+        JP: Japanese
+        UK: British
+        US: American
+      pref: AmazonLocale
+    - website.
+  - - Put the associate tag
+    - pref: AmazonAssocTag
+    - ' on links to Amazon. This can net your library referral fees if a user decides
+      to buy an item.'
+  - - choices:
+        '0': Don't show
+        '1': Show
+      default: 1
+      pref: AmazonCoverImages
+    - cover images from Amazon on search results and item detail pages on the staff
+      interface.
+  - - choices:
+        '0': Don't show
+        '1': Show
+      default: 1
+      pref: OPACAmazonCoverImages
+    - cover images from Amazon on search results and item detail pages on the OPAC.
+  Babelthèque:
+  - - choices:
+        '0': Don't
+        '1': Do
+      pref: Babeltheque
+    - include information (such as reviews and citations) from Babelthèque in item
+      detail pages on the OPAC.
+  - - 'Use this URL for the Babelthèque javascript file: '
+    - class: url
+      pref: Babeltheque_url_js
+    - (e.g. http://www.babeltheque.com/bw_XX.js).
+  - - 'Use this URL for the Babelthèque periodic update: '
+    - class: url
+      pref: Babeltheque_url_update
+    - (e.g. http://www.babeltheque.com/.../file.csv.bz2).
+  Baker and Taylor:
+  - - choices:
+        '0': Don't add
+        '1': Add
+      pref: BakerTaylorEnabled
+    - Baker and Taylor links and cover images to the OPAC and staff interface. This
+      requires that you have entered in a username and password (which can be seen
+      in image links).
+  - - Baker and Taylor "My Library Bookstore" links should be accessed at <code>https://
+    - class: url
+      pref: BakerTaylorBookstoreURL
+    - <em>isbn</em></code> (this should be filled in with something like <code>ocls.mylibrarybookstore.com/MLB/actions/searchHandler.do?nextPage=bookDetails&amp;parentNum=10923&amp;key=</code>).
+      Leave it blank to disable these links.
+  - - Access Baker and Taylor using username
+    - class: password
+      pref: BakerTaylorUsername
+    - and password
+    - class: password
+      pref: BakerTaylorPassword
+    - .
+  Coce cover images cache:
+  - - choices:
+        '0': Don't enable
+        '1': Enable
+      pref: OpacCoce
+    - a Coce image cache service in the OPAC.
+  - - choices:
+        '0': Don't enable
+        '1': Enable
+      pref: IntranetCoce
+    - a Coce image cache service in the staff interface.
+  - - Coce server URL
+    - class: url
+      pref: CoceHost
+  - - Use the following providers to fetch the covers
+    - multiple:
+        aws: Amazon Web Services
+        gb: Google Books
+        ol: Open Library
+      pref: CoceProviders
+  Google:
+  - - choices:
+        '0': Don't add
+        '1': Add
+      pref: GoogleJackets
+    - cover images from Google Books to search results and item detail pages on the
+      OPAC.
+  HTML5 media:
+  - - Show a tab with a HTML5 media player for files catalogued in field 856
+    - choices:
+        both: in OPAC and staff interface.
+        not: not at all.
+        opac: in the OPAC.
+        staff: in the staff interface.
+      pref: HTML5MediaEnabled
+  - - Media file extensions
+    - class: multi
+      pref: HTML5MediaExtensions
+    - (separated with |).
+  - - choices:
+        '0': Don't embed
+        '1': Embed
+      pref: HTML5MediaYouTube
+    - YouTube links as videos.
+  Library Thing:
+  - - choices:
+        '0': Don't use
+        '1': Use
+      pref: ThingISBN
+    - the ThingISBN service to show other editions of a title (when either <a href="/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=FRBRizeEditions">FRBRizeEditions</a>
+      or <a href="/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=OPACFRBRizeEditions">OPACFRBRizeEditions</a>
+      is on). This is separate from Library Thing for Libraries.
+  - - choices:
+        '0': Don't show
+        '1': Show
+      pref: LibraryThingForLibrariesEnabled
+    - 'reviews, similar items, and tags from Library Thing for Libraries on item detail
+      pages on the OPAC. If you''ve enabled this, you need to '
+    - <a href="https://www.librarything.com/forlibraries/">sign up</a>, then enter
+      in your ID below.
+  - - Access Library Thing for Libraries using the customer ID
+    - pref: LibraryThingForLibrariesID
+    - .
+  - - Show Library Thing for Libraries content
+    - choices:
+        '0': in line with the bibliographic information.
+        '1': in tabs.
+      pref: LibraryThingForLibrariesTabbedView
+  Local or remote cover images:
+  - - choices:
+        '0': Don't display
+        '1': Display
+      pref: LocalCoverImages
+    - local cover images on staff interface search and details pages.
+  - - choices:
+        '0': Don't display
+        '1': Display
+      pref: OPACLocalCoverImages
+    - local cover images on OPAC search and details pages.
+  - - choices:
+        '0': Don't allow
+        '1': Allow
+      pref: AllowMultipleCovers
+    - multiple images to be attached to each bibliographic record and item.
+  - - choices:
+        '0': Don't display
+        '1': Display
+      pref: CustomCoverImages
+    - custom remote URL images in the staff interface.<br/>
+    - choices:
+        '0': Don't display
+        '1': Display
+      pref: OPACCustomCoverImages
+    - custom remote URL images at the OPAC.<br/>
+    - 'Using the following URL:'
+    - class: url
+      pref: CustomCoverImagesURL
+    - 'You can define it using the following patterns: {isbn}, {issn}, {normalized_isbn}.<br/>'
+    - 'Or you can use the following syntax to specify a field$subfield value: {field$subfield}.
+      For instance {024$a}.'
+    - For control fields you can use just {field}, like {001}.
+  Manual:
+  - - Location of the Koha manual
+    - pref: KohaManualBaseURL
+    - You can specify the location of the Koha manual to use. By default it is https://koha-community.org/manual/
+    - If starts with '/',  the value of <a href="/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=staffClientBaseURL">staffClientBaseURL</a>
+      will be used as a prefix.
+    - Note that it will be suffixed by the version / the language / the format (/17.11/en/html)
+  - - Language of the online manual
+    - choices:
+        ar: Arabic
+        cs: Czech
+        de: German
+        en: English
+        es: Spanish
+        fr: French
+        it: Italian
+        pt_BR: Portuguese – Brazil
+        tr: Turkish
+        zh_TW: Chinese – Taiwan
+      pref: KohaManualLanguage
+    - It will be used as a fallback value if the language used by the interface does
+      not have an online manual version.
+  Novelist Select:
+  - - choices:
+        '0': Don't add
+        '1': Add
+      pref: NovelistSelectEnabled
+    - Novelist Select content to the OPAC (requires that you have entered in a user
+      profile and password, which can be seen in image links).
+  - - Display Novelist Select content
+    - choices:
+        above: above the holdings table
+        below: below the holdings table
+        right: under the Save Record dropdown, on the right
+        tab: in an OPAC tab
+      pref: NovelistSelectView
+    - .
+  - - Access Novelist Select using user profile
+    - pref: NovelistSelectProfile
+    - on the opac
+  - - Access Novelist Select using user profile
+    - pref: NovelistSelectStaffProfile
+    - on the staff interface.
+  - - Access Novelist Select using password
+    - class: password
+      pref: NovelistSelectPassword
+    - .
+  - - choices:
+        '0': Don't add
+        '1': Add
+      pref: NovelistSelectStaffEnabled
+    - Novelist Select content to the staff interface (requires that you have entered
+      in a user profile and password, which can be seen in image links).
+  - - Display Novelist Select staff interface content
+    - choices:
+        above: above the holdings table
+        below: below the holdings table
+        tab: in a tab
+      pref: NovelistSelectStaffView
+    - .
+  Open Library:
+  - - choices:
+        '0': Don't add
+        '1': Add
+      pref: OpenLibraryCovers
+    - cover images from Open Library to search results and item detail pages on the
+      OPAC.
+  - - choices:
+        '0': Don't show
+        '1': Show
+      pref: OpenLibrarySearch
+    - search results from Open Library on the OPAC.
+  OverDrive:
+  - - Include OverDrive availability information with the client key
+    - pref: OverDriveClientKey
+    - and client secret
+    - pref: OverDriveClientSecret
+    - .
+  - - 'Authenticate using OverDrive website id #'
+    - pref: OverDriveWebsiteID
+    - .
+  - - Authenticate using OverDrive Authname
+    - pref: OverDriveAuthName
+    - (will be used as fallback if individual branch authname not set in the <a href="/cgi-bin/koha/admin/overdrive.pl">OverDrive
+      library authnames table</a>).
+  - - ' Show items from the OverDrive catalogue of library #'
+    - pref: OverDriveLibraryID
+    - .
+  - - choices:
+        '0': Don't enable
+        '1': Enable
+      pref: OverDriveCirculation
+    - users to access their OverDrive circulation history, and circulate items.<br
+      />
+    - ' Overdrive uses the users'
+    - choices:
+        cardnumber: cardnumber
+        userid: user name
+      pref: OverDriveUsername
+    - for user access to OverDrive. <br />
+    - A password is
+    - choices:
+        '0': Not required
+        '1': Required
+      pref: OverDrivePasswordRequired
+    - for user access to OverDrive. <br />
+    - If you enable access you must have a SIP connection registered with
+    - ' OverDrive for user authentication against Koha'
+  RecordedBooks:
+  - - Include RecordedBooks availability information with the client secret
+    - pref: RecordedBooksClientSecret
+    - .
+  - - ' Show items from the RecordedBooks catalogue of library ID'
+    - pref: RecordedBooksLibraryID
+    - .
+  - - RecordedBooks domain
+    - pref: RecordedBooksDomain
+  Syndetics:
+  - - choices:
+        '0': Don't use
+        '1': Use
+      pref: SyndeticsEnabled
+    - content from Syndetics. Note that this requires that you have signed up for
+      the service and entered in your client code below.
+  - - Use the client code
+    - pref: SyndeticsClientCode
+    - to access Syndetics.
+  - - choices:
+        '0': Don't show
+        '1': Show
+      pref: SyndeticsCoverImages
+    - cover images from Syndetics on search results and item detail pages on the OPAC
+      in a
+    - choices:
+        LC: large
+        MC: medium
+      pref: SyndeticsCoverImageSize
+    - size.
+  - - choices:
+        '0': Don't show
+        '1': Show
+      pref: SyndeticsAuthorNotes
+    - notes about the author of a title from Syndetics on item detail pages on the
+      OPAC.
+  - - choices:
+        '0': Don't show
+        '1': Show
+      pref: SyndeticsAwards
+    - information from Syndetics about the awards a title has won on item detail pages
+      on the OPAC.
+  - - choices:
+        '0': Don't show
+        '1': Show
+      pref: SyndeticsEditions
+    - information about other editions of a title from Syndetics on item detail pages
+      on the OPAC (when <a href="/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=OPACFRBRizeEditions">OPACFRBRizeEditions</a>
+      is on).
+  - - choices:
+        '0': Don't show
+        '1': Show
+      pref: SyndeticsExcerpt
+    - excerpts from of a title from Syndetics on item detail pages on the OPAC.
+  - - choices:
+        '0': Don't show
+        '1': Show
+      pref: SyndeticsReviews
+    - reviews of a title from Syndetics on item detail pages on the OPAC.
+  - - choices:
+        '0': Don't show
+        '1': Show
+      pref: SyndeticsSeries
+    - information on other books in a title's series from Syndetics on item detail
+      pages on the OPAC.
+  - - choices:
+        '0': Don't show
+        '1': Show
+      pref: SyndeticsSummary
+    - a summary of a title from Syndetics on item detail pages on the OPAC.
+  - - choices:
+        '0': Don't show
+        '1': Show
+      pref: SyndeticsTOC
+    - the table of contents of a title from Syndetics on item detail pages on the
+      OPAC.
+  Tagging:
+  - - choices:
+        '0': Don't allow
+        '1': Allow
+      pref: TagsEnabled
+    - ' users and staff to put tags on items.'
+  - - choices:
+        '0': Don't require
+        '1': Require
+      pref: TagsModeration
+    - ' that tags submitted by users be reviewed by a staff member before being shown.'
+  - - Show
+    - class: integer
+      pref: TagsShowOnList
+    - tags on search results on the OPAC.
+  - - choices:
+        '0': Don't allow
+        '1': Allow
+      pref: TagsInputOnList
+    - ' users to input tags on search results on the OPAC.'
+  - - Show
+    - class: integer
+      pref: TagsShowOnDetail
+    - tags on item detail pages on the OPAC.
+  - - choices:
+        '0': Don't allow
+        '1': Allow
+      pref: TagsInputOnDetail
+    - ' users to input tags on item detail pages on the OPAC.'
+  - - Allow tags in the dictionary of the ispell executable
+    - class: file
+      pref: TagsExternalDictionary
+    - on the server to be approved without moderation.

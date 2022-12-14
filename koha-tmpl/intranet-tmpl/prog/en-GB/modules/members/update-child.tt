@@ -1,0 +1,77 @@
+[% USE raw %]
+[% USE Asset %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Choose adult category &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+
+<body id="pat_update-child" class="pat">
+ <div class="container-fluid">
+
+[% IF ( MULTI ) %]
+
+ <h3> Choose adult category </h3>
+
+ [% IF patron_categories %]
+ <form method="post" action="update-child.pl">
+ <fieldset>
+ <table id="catst">
+ <thead>
+ <tr>
+ <th>&nbsp;</th>
+ <th>Code</th>
+ <th>Description</th>
+ </tr>
+ </thead>
+ <tbody>
+ [% FOREACH patron_category IN patron_categories %]
+ <tr>
+ <td>
+ <input type="radio" id="catcode[% patron_category.categorycode | html %]" name="catcode" value="[% patron_category.categorycode | html %]" />
+ </td>
+ <td>[% patron_category.categorycode | html %]</td>
+ <td><label for="catcode[% patron_category.categorycode | html %]"><strong>[% patron_category.description | html %]</strong></label></td>
+ </tr>
+ [% END %]
+ </tbody>
+ </table>
+ <input type="hidden" name="op" value="update" />
+ <input type="hidden" name="borrowernumber" value="[% borrowernumber | html %]" />
+ <input type="hidden" name="cattype" value="[% cattype | html %]" />
+ <fieldset class="action">
+ <input class="submit" type="submit" value="Submit" />
+ <a href="#" class="cancel close">Cancel</a>
+ </fieldset>
+ </fieldset>
+ </form>
+ [% END %]
+[% END %]
+
+
+[% MACRO jsinclude BLOCK %]
+ [% INCLUDE 'datatables.inc' %]
+ <script>
+
+        $(document).ready(function() {
+            $("#catst").dataTable($.extend(true, {}, dataTablesDefaults, {
+                "sDom": 't',
+                "aaSorting": [[ 2, "asc" ]],
+                "aoColumnDefs": [
+                    { "aTargets": [ 0 ], "bSortable": false, "bSearchable": false }
+                ],
+                "bPaginate": false
+            }));
+        });
+    </script>
+ [% IF ( SUCCESS ) %]
+ <script>
+            self.opener.location.href='/cgi-bin/koha/members/moremember.pl?borrowernumber=[% borrowernumber | html %]';
+            window.close();
+        </script>
+ [% END %]
+ [% INCLUDE 'str/members-menu.inc' %]
+ [% Asset.js("js/members-menu.js") | $raw %]
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' popup_window=1 %]

@@ -1,0 +1,333 @@
+[% USE raw %]
+[% USE Asset %]
+[% USE Koha %]
+[% USE KohaDates %]
+[% USE AdditionalContents %]
+[% SET OpacNav = AdditionalContents.get( location => "OpacNav", lang => lang, library => logged_in_user.branchcode || default_branch, blocktitle => 0 ) %]
+[% SET OpacNavBottom = AdditionalContents.get( location => "OpacNavBottom", lang => lang, library => logged_in_user.branchcode || default_branch, blocktitle => 0 ) %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Your search history &rsaquo; [% IF ( LibraryNameTitle ) %][% LibraryNameTitle | html %][% ELSE %]Koha online[% END %] catalogue</title>
+[% INCLUDE 'doc-head-close.inc' %]
+[% BLOCK cssinclude %][% END %]
+</head>
+[% INCLUDE 'bodytag.inc' bodyid='opac-search-history' bodyclass='scrollto' %]
+[% INCLUDE 'masthead.inc' %]
+
+<div class="main">
+ <nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumbs">
+ <ol class="breadcrumb">
+ <li class="breadcrumb-item">
+ <a href="/cgi-bin/koha/opac-main.pl">Home</a>
+ </li>
+ [% IF ( loggedinusername ) %]
+ <li class="breadcrumb-item">
+ <a href="/cgi-bin/koha/opac-user.pl">[% INCLUDE 'patron-title.inc' patron = logged_in_user %]</a>
+ </li>
+ <li class="breadcrumb-item active">
+ <a href="#" aria-current="page">Your search history</a>
+ </li>
+ [% ELSE %]
+ <li class="breadcrumb-item active">
+ <a href="#" aria-current="page">Search history</a>
+ </li>
+ [% END %]
+ </ol>
+ </nav> <!-- /#breadcrumbs -->
+
+ <div class="container-fluid">
+ <div class="row">
+ [% IF ( OpacNav||loggedinusername ) %]
+ <div class="col col-lg-2 order-2 order-lg-1">
+ <div id="navigation">
+ [% INCLUDE 'navigation.inc' IsPatronPage=1 %]
+ </div>
+ </div>
+ <div class="col-md-12 col-lg-10 order-1">
+ [% ELSE %]
+ <div class="col order-first order-md-first order-lg-2">
+ [% END %]
+
+ <div id="searchhistory" class="maincontent">
+ <h1>Search history</h1>
+ [% IF Koha.Preference( 'OpacAuthorities' ) == 1 %]
+ <div id="tabs" class="toptabs">
+ <ul>
+ <li><a href="#biblio_tab">Catalogue</a></li>
+ <li><a href="#authority_tab">Authority</a></li>
+ </ul>
+ [% END %]
+ <div id="biblio_tab">
+ <div id="current_biblio">
+ [% IF ( current_biblio_searches ) %]
+ <h2>Current session</h2>
+ <form action="/cgi-bin/koha/opac-search-history.pl" method="post">
+ <legend class="sr-only">Toolbar control</legend>
+
+ [% INCLUDE 'toolbar_controls' %]
+ <input type="hidden" name="action" value="delete" />
+ <table class="historyt table table-bordered table-striped">
+ <caption class="sr-only">Current session</caption>
+ <thead>
+ <tr>
+ <th></th>
+ <th>Date</th>
+ <th>Search</th>
+ <th>Results</th>
+ </tr>
+ </thead>
+ <tbody>
+ [% FOREACH s IN current_biblio_searches %]
+ <tr>
+ <td class="selectcol">
+ <input type="checkbox" name="id" value="[% s.id | html %]" id="result[% s.id | html %]" />
+ </td>
+ <td data-order="[% s.time | html %]">
+ <label for="result[% s.id | html %]">
+ [% s.time |$KohaDates  with_hours => 1 %]
+ </label>
+ </td>
+ <td>
+ <a href="[% OPACBaseURL | url %]/cgi-bin/koha/opac-search.pl?[% query_cgi | $raw %][% limit_cgi | $raw %]&amp;[% s.query_cgi | $raw %]&amp;count=[% countrss | uri %]&amp;sort_by=acqdate_dsc&amp;format=rss" aria-label="Subscribe to this search" class="rsssearchlink">
+ <i class="fa fa-rss rsssearchicon" aria-hidden="true" title="Subscribe to this search"></i>
+ </a>
+ <a href="/cgi-bin/koha/opac-search.pl?[% s.query_cgi | $raw %]">[% s.query_desc | html %]</a>
+ </td>
+ <td>[% s.total | html %]</td>
+ </tr>
+ [% END %]
+ </tbody>
+ </table>
+ <input type="submit" class="btn btn-danger remove-selected" value="Remove selected searches">
+ </form>
+ [% END # IF ( current_biblio_searches ) %]
+ </div> <!-- / #current_biblio -->
+ <hr />
+ <div id="previous_biblio">
+ [% IF ( previous_biblio_searches ) %]
+ <h2>Previous sessions</h2>
+ <form action="/cgi-bin/koha/opac-search-history.pl" method="post">
+ <legend class="sr-only">Toolbar control</legend>
+ [% INCLUDE 'toolbar_controls' %]
+
+ <input type="hidden" name="action" value="delete" />
+ <table class="historyt table table-bordered table-striped">
+ <caption class="sr-only">Previous sessions</caption>
+ <thead>
+ <tr>
+ <th></th>
+ <th>Date</th>
+ <th>Search</th>
+ <th>Results</th>
+ </tr>
+ </thead>
+ <tbody>
+ [% FOREACH s IN previous_biblio_searches %]
+ <tr>
+ <td class="selectcol">
+ <input type="checkbox" name="id" value="[% s.id | html %]" id="result[% s.id | html %]" />
+ </td>
+ <td data-order="[% s.time | html %]">
+ <label for="result[% s.id | html %]">
+ [% s.time |$KohaDates  with_hours => 1 %]
+ </label>
+ </td>
+ <td>
+ <a href="[% OPACBaseURL | url %]/cgi-bin/koha/opac-search.pl?[% query_cgi | $raw %][% limit_cgi | $raw %]&amp;[% s.query_cgi | $raw %]&amp;count=[% countrss | uri %]&amp;sort_by=acqdate_dsc&amp;format=rss" aria-label="Subscribe to this search" class="rsssearchlink">
+ <i class="fa fa-rss rsssearchicon" aria-hidden="true" title="Subscribe to this search"></i>
+ </a>
+ <a href="/cgi-bin/koha/opac-search.pl?[% s.query_cgi | $raw %]">
+ [% s.query_desc | html %]
+ </a>
+ </td>
+ <td>[% s.total | html %]</td>
+ </tr>
+ [% END %]
+ </tbody>
+ </table>
+ <input type="submit" class="btn btn-danger remove-selected" value="Remove selected searches">
+ </form>
+ [% END # IF ( previous_biblio_searches ) %]
+ </div> <!-- / #previous_biblio -->
+
+ [% IF !current_biblio_searches && !previous_biblio_searches %]
+ <p>Your catalogue search history is empty.</p>
+ [% END %]
+ </div> <!-- / #biblio_tab -->
+
+ [% IF Koha.Preference( 'OpacAuthorities' ) == 1 %]
+ <div id="authority_tab">
+ [% IF ( current_authority_searches ) %]
+ <h2>Current session</h2>
+ <form action="/cgi-bin/koha/opac-search-history.pl" method="post">
+ <legend class="sr-only">Toolbar control</legend>
+ [% INCLUDE 'toolbar_controls' %]
+ <input type="hidden" name="action" value="delete" />
+ <table class="historyt table table-bordered table-striped">
+ <caption class="sr-only">Current session</caption>
+ <thead>
+ <tr>
+ <th></th>
+ <th>Date</th>
+ <th>Search</th>
+ <th>Results</th>
+ </tr>
+ </thead>
+ <tbody>
+ [% FOREACH s IN current_authority_searches %]
+ <tr>
+ <td class="selectcol">
+ <input type="checkbox" name="id" value="[% s.id | html %]" id="result[% s.id | html %]" />
+ </td>
+ <td data-order="[% s.time | html %]">
+ <label for="result[% s.id | html %]">
+ [% s.time |$KohaDates  with_hours => 1 %]
+ </label>
+ </td>
+ <td><a href="/cgi-bin/koha/opac-authorities-home.pl?[% s.query_cgi | $raw %]">[% s.query_desc | html %]</a></td>
+ <td>[% s.total | html %]</td>
+ </tr>
+ [% END %]
+ </tbody>
+ </table>
+ <input type="submit" class="btn btn-danger remove-selected" value="Remove selected searches">
+ </form>
+ [% END # / IF ( current_authority_searches ) %]
+
+ [% IF ( previous_authority_searches ) %]
+ <h2>Previous sessions</h2>
+ <form action="/cgi-bin/koha/opac-search-history.pl" method="post">
+ <legend class="sr-only">Toolbar control</legend>
+ [% INCLUDE 'toolbar_controls' %]
+ <input type="hidden" name="action" value="delete" />
+ <table class="historyt table table-bordered table-striped">
+ <caption class="sr-only">Previous sessions</caption>
+ <thead>
+ <tr>
+ <th></th>
+ <th>Date</th>
+ <th>Search</th>
+ <th>Results</th>
+ </tr>
+ </thead>
+ <tbody>
+ [% FOREACH s IN previous_authority_searches %]
+ <tr>
+ <td class="selectcol">
+ <input type="checkbox" name="id" value="[% s.id | html %]" id="result[% s.id | html %]" />
+ </td>
+ <td data-order="[% s.time | html %]">
+ <label for="result[% s.id | html %]">
+ [% s.time |$KohaDates  with_hours => 1 %]
+ </label>
+ </td>
+ <td><a href="/cgi-bin/koha/opac-authorities-home.pl?[% s.query_cgi | $raw %]">[% s.query_desc | html %]</a></td>
+ <td>[% s.total | html %]</td>
+ </tr>
+ [% END %]
+ </tbody>
+ </table>
+ <input type="submit" class="btn btn-danger remove-selected" value="Remove selected searches">
+ </form>
+ [% END # / IF ( previous_authority_searches )%]
+
+ [% IF !current_authority_searches && !previous_authority_searches %]
+ <p>Your authority search history is empty.</p>
+ [% END %]
+ </div> <!-- / #authority_tab -->
+ [% END # / IF Koha.Preference( 'OpacAuthorities' ) %]
+ </div> <!-- / #tabs -->
+ </div> <!-- / #searchhistory -->
+ </div> <!-- / .col-lg-10/12 -->
+ </div> <!-- / .row -->
+ </div> <!-- / .container-fluid -->
+</div> <!-- / #main -->
+
+[% INCLUDE 'opac-bottom.inc' %]
+
+[% BLOCK toolbar_controls %]
+ [% # Identical controls shown at the top of each table of search history %]
+ <div class="selections-toolbar toolbar">
+ <div class="check_control">
+ <a class="CheckAll btn btn-link btn-sm" href="#">Select all</a>
+ <a class="CheckNone btn btn-link btn-sm" href="#">Clear all</a>
+ </div>
+ <div class="links">
+ <span class="selections">Select searches to: </span>
+ <a href="#" class="removeitems disabled btn btn-sm btn-link"><i class="fa fa-trash" aria-hidden="true"></i> Delete</a>
+ </div>
+ </div>
+[% END %]
+
+[% BLOCK jsinclude %]
+[% INCLUDE 'datatables.inc' %]
+<script>
+
+    var MSG_CONFIRM_DELETE_HISTORY = _("Are you sure you want to delete selected search history entries?");
+    $(document).ready(function() {
+        // We show table ordered by descending dates by default
+        // (so that the more recent query is shown first)
+        $(".historyt").dataTable($.extend(true, {}, dataTablesDefaults, {
+            "order": [[ 1, "desc" ]],
+            "dom": '<"top"<"table_entries"><"table_controls"fB>>t',
+            "columnDefs": [
+                { "targets": [ 0 ], "sortable": false, "searchable": false }
+            ],
+            "language": {
+                "search": "_INPUT_",
+                "searchPlaceholder": _("Search")
+            }
+        }));
+
+        [% IF Koha.Preference( 'OpacAuthorities' ) == 1 %]$('#tabs').tabs();[% END %]
+
+        $(".CheckNone").click(function(e){
+            e.preventDefault();
+            var form = $(this).parents("form").get(0);
+            $(form).find("input:checkbox").prop("checked", false);
+            enableCheckboxActions(form);
+        });
+        $(".CheckAll").click(function(e){
+            e.preventDefault();
+            var form = $(this).parents("form").get(0);
+            $(form).find("input:checkbox").prop("checked", true);
+            enableCheckboxActions(form);
+        });
+
+        $("input:checkbox").click(function(){
+            var form = $(this).parents("form").get(0);
+            enableCheckboxActions(form);
+        });
+
+        $(".removeitems,.remove-selected").click(function(e){
+            e.preventDefault();
+            var form = $(this).parents("form").get(0);
+            var ids = $(form).find("input:checkbox:checked");
+            if ( $(ids).length < 1 ) {
+                return false;
+            }
+            if ( confirm(MSG_CONFIRM_DELETE_HISTORY) ) {
+                $(form).submit();
+            }
+            return false;
+        });
+        $(".remove-selected").addClass("disabled");
+    });
+
+    function enableCheckboxActions(form){
+        // Enable/disable controls if checkboxes are checked
+        var checkedBoxes = $(form).find("input:checkbox:checked");
+        if ($(checkedBoxes).size()) {
+            $(form).find(".selections").html(_("With selected searches: "));
+            $(form).find(".selections-toolbar .links a").removeClass("disabled");
+            $(form).find(".remove-selected").removeClass("disabled");
+        } else {
+            $(form).find(".selections").html(_("Select searches to: "));
+            $(form).find(".selections-toolbar .links a").addClass("disabled");
+            $(form).find(".remove-selected").addClass("disabled");
+        }
+    }
+
+
+
+</script>
+[% END %]

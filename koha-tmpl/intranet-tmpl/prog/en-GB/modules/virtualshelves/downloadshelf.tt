@@ -1,0 +1,49 @@
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Download list &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+<body id="lists_downloadshelf" class="lists" style="padding:1em;">
+
+[% FOR m IN messages %]
+ <div class="dialog [% m.type | html %]">
+ [% SWITCH m.code %]
+ [% CASE 'unauthorized' %]
+ You do not have permission to view this list.
+ [% CASE 'does_not_exist' %]
+ This list does not exist.
+ [% CASE %]
+ [% m.code | html %]
+ [% END %]
+ </div>
+[% END %]
+
+
+
+[% IF ( format ) %]
+ <p>Your download should begin automatically.</p>
+[% ELSE %]
+<div id="export" class="detailtagcell"> <form method="post" action="/cgi-bin/koha/virtualshelves/downloadshelf.pl">
+<form method="post" action="/cgi-bin/koha/virtualshelves/downloadshelf.pl">
+ <fieldset class="rows">
+ <legend>Download list</legend>
+ <ol><li>
+ <label for="format">Format: </label>
+ <select name="format" id="format">
+ <option value="">-- Choose format --</option>
+ <option value="iso2709">MARC</option>
+ <option value="ris">RIS</option>
+ <option value="bibtex">BibTex</option>
+ [% FOREACH csv_profile IN csv_profiles %]
+ <option value="[% csv_profile.export_format_id | html %]">CSV - [% csv_profile.profile | html %]</option>
+ [% END %]
+ </select>
+ </li></ol>
+ </fieldset>
+ <fieldset class="action"><input type="hidden" name="shelfid" value="[% shelfid | html %]" />
+ <input type="submit" name="save" value="Save" /> <a class="cancel close" href="#">Cancel</a>
+ </fieldset>
+ </form>
+
+[% END %]
+</body>
+</html>

@@ -1,0 +1,163 @@
+[% USE raw %]
+[% USE Asset %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Offline circulation file upload &rsaquo; Circulation &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+
+<body id="ocirc_process_koc" class="circ ocirc">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'circ-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/circ/circulation-home.pl">Circulation</a>
+ </li>
+
+ [% IF ( transactions_loaded ) %]
+ <li>
+ <a href="/cgi-bin/koha/offline_circ/process_koc.pl">Offline circulation file upload</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ Results
+ </a>
+ </li>
+ [% ELSE %]
+ <li>
+ <a href="#" aria-current="page">
+ Offline circulation file upload
+ </a>
+ </li>
+ [% END %]
+ </ol>
+</nav>
+
+<div class="main container-fluid">
+ <div class="row">
+ <div class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
+
+[% IF ( transactions_loaded ) %]
+ <h2>Koha offline circulation</h2>
+ <p>Your data was processed. Here are the results:</p>
+ [% FOREACH message IN messages %]
+ [% IF ( message.message ) %]
+ <div class="dialog alert">
+ [% IF ( message.ERROR_file_version ) %]<p>Warning: This file is version [% message.upload_version | html %], but I only know how to import version [% message.current_version | html %]. I'll try my best.</p>[% END %]
+ </div>
+ [% END %]
+ [% IF ( message.ERROR_no_borrower_from_item ) %]<p>Warning: Unable to determine user from item barcode ([% message.badbarcode | html %]). Cannot return.</p>[% END %]
+ [% IF ( message.issue ) %]<p>Issued <a href="/cgi-bin/koha/catalogue/detail.pl?biblionumber=[% message.biblionumber | uri %]">[% message.title | html %]</a> ([% message.barcode | html %]) to <a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% message.borrowernumber | html %]">[% message.firstname | html %] [% message.surname | html %]</a> ([% message.cardnumber | html %]): [% message.datetime | html %]</p>[% END %]
+ [% IF ( message.renew ) %]<p>Renewed <a href="/cgi-bin/koha/catalogue/detail.pl?biblionumber=[% message.biblionumber | uri %]">[% message.title | html %]</a> ([% message.barcode | html %]) for <a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% message.borrowernumber | html %]">[% message.firstname | html %] [% message.surname | html %]</a> ([% message.cardnumber | html %]): [% message.datetime | html %]</p>[% END %]
+ [% IF ( message.return ) %]<p>Returned <a href="/cgi-bin/koha/catalogue/detail.pl?biblionumber=[% message.biblionumber | uri %]">[% message.title | html %]</a> ([% message.barcode | html %]) from <a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% message.borrowernumber | html %]">[% message.firstname | html %] [% message.surname | html %]</a> ([% message.cardnumber | html %]): [% message.datetime | html %]</p>[% END %]
+ [% IF ( message.payment ) %]<p>Accepted payment ([% message.amount | html %]) from <a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% message.borrowernumber | uri %]">[% message.firstname | html %] [% message.surname | html %]</a> ([% message.cardnumber | html %]): [% message.datetime | html %]</p>[% END %]
+ [% END %]
+[% ELSE %]
+ <h2>Upload offline circulation data</h2>
+
+ <div id="fileuploadform">
+ <form method="post" action="/cgi-bin/koha/offline_circ/process_koc.pl" enctype="multipart/form-data" class="validated">
+ <fieldset class="brief">
+ <ol><li><label for="fileToUpload">Choose .koc file: </label>
+ <input class="required" required="required" type="file" id="fileToUpload" size="50" name="fileToUpload" />
+ <span class="required">Required</span>
+ </li></ol>
+ <fieldset class="action"><input type="button" class="submit" value="Upload file" id="upload_file" /></fieldset>
+ </fieldset>
+ </form>
+ <div id="fileuploadstatus" class="progress_panel" style="display:none">Upload progress: <progress id="fileuploadprogress" max="100" value="0"></progress> <span class="fileuploadpercent"></span>%</div>
+ <div id="fileuploadfailed" style="display:none"></div>
+ </div>
+
+ <form action="enqueue_koc.pl" id="processfile" method="post" enctype="multipart/form-data">
+ <input type="hidden" name="uploadedfileid" id="uploadedfileid" value="" />
+ <input type="submit" value="Add to offline circulation queue" id="queueformsubmit" />
+ </form>
+
+ <form action="process_koc.pl" id="enqueuefile" method="post" enctype="multipart/form-data">
+ <input type="hidden" name="uploadedfileid" id="uploadedfileid" value="" />
+ <input type="hidden" name="runinbackground" id="runinbackground" value="" />
+ <input type="hidden" name="completedJobID" id="completedJobID" value="" />
+ <!-- <input type="submit" value="Apply directly" id="mainformsubmit" /> -->
+ <!-- FIXME: Job freezes when submitted, disabling button as a temporary mitigation -->
+ <div id="jobstatus" style="display:none">Job progress: <div id="jobprogress"></div> <span id="jobprogresspercent"></span>%</div>
+ <div id="jobfailed" style="display:none"></div>
+ </form>
+[% END %]
+
+
+ </div>
+</div>
+
+[% MACRO jsinclude BLOCK %]
+ [% Asset.js("js/background-job-progressbar.js") | $raw %]
+ [% Asset.js("js/file-upload.js") | $raw %]
+ <script>
+        var xhr;
+        $(document).ready(function(){
+            $("#enqueuefile").hide();
+            $("#processfile").hide();
+            $("#upload_file").on("click",function(){
+                StartUpload();
+            });
+            $("#queueformsubmit").on("click",function(){
+                var processfile = document.getElementById("processfile");
+                return CheckForm( processfile );
+            });
+            $("#mainformsubmit").on("click",function(){
+                var enqueuefile = document.getElementById("enqueuefile");
+                return CheckForm( enqueuefile );
+            });
+        });
+
+        function StartUpload() {
+            if( $('#fileToUpload').prop('files').length == 0 ) return;
+            $('#fileuploadform input.submit').prop('disabled',true);
+            $("#fileuploadfailed").hide();
+            $("#processfile").hide();
+            $("#fileuploadstatus").show();
+            $("form#processfile #uploadedfileid").val('');
+            $("form#enqueuefile #uploadedfileid").val('');
+            xhr= AjaxUpload( $('#fileToUpload'), $('#fileuploadprogress'), 'temp=1', cbUpload );
+        }
+
+        function cbUpload( status, fileid, errors ) {
+            if( status=='done' ) {
+                $("form#processfile #uploadedfileid").val( fileid );
+                $("form#enqueuefile #uploadedfileid").val( fileid );
+                $('#fileToUpload').prop('disabled',true);
+                $("#processfile").show();
+                $("#enqueuefile").show();
+            } else {
+                var errMsgs = [ _("Error code 0 not used"), _("File already exists"), _("Directory is not writeable"), _("Root directory for uploads not defined"), _("Temporary directory for uploads not defined") ];
+                var errCode = errors[$('#fileToUpload').prop('files')[0].name].code;
+                $("#fileuploadstatus").hide();
+                $("#fileuploadfailed").show();
+                $("#fileuploadfailed").text( _("Upload status: ") +
+                    ( status=='failed'? _("Failed") + " - (" + errCode + ") " + errMsgs[errCode]:
+                    ( status=='denied'? _("Denied"): status ))
+                );
+            }
+        }
+
+        function CheckForm(f) {
+            if (f.uploadedfileid.value == '') {
+                alert(_("Please upload a file first."));
+            } else {
+                $("#fileuploadstatus").hide();
+                $("#fileuploadform").slideUp();
+                $("#mainformsubmit").prop('disabled',true);
+                $("#queueformsubmit").prop('disabled',true);
+                return submitBackgroundJob(f);
+            }
+            return false;
+        }
+    </script>
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' %]

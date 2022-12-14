@@ -1,0 +1,584 @@
+[% USE raw %]
+[% USE Asset %]
+[% USE Koha %]
+[% USE KohaDates %]
+[% USE Branches %]
+[% USE AuthorisedValues %]
+[% USE ItemTypes %]
+[% USE Price %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Receipt summary for : [% name | html %] [% IF ( invoice ) %]invoice, [% invoice | html %][% END %] &rsaquo; Acquisitions &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+
+<body id="acq_orderreceive" class="acq">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'acquisitions-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/acqui/acqui-home.pl">Acquisitions</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/acqui/supplier.pl?booksellerid=[% order.basket.booksellerid | uri %]">[% name | html %]</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ Receive items from : [% name | html %] [% IF ( invoice ) %]
+ [[% invoice | html %]]
+ [% END %] (order #[% order.ordernumber | html %])
+ </a>
+ </li>
+ </ol>
+</nav>
+
+<div class="main container-fluid">
+ <div class="row">
+ [% AcqCreateItem = order.basket.effective_create_items %]
+ <div class="col-sm-10 col-sm-push-2">
+ <main>
+
+<h1>Receive items from : [% name | html %] [% IF ( invoice ) %][[% invoice | html %]] [% END %] (order #[% order.ordernumber | html %])</h1>
+
+[% IF ( order ) %]
+ <form id="f" action="/cgi-bin/koha/acqui/finishreceive.pl" class="noEnterSubmit" method="post" onsubmit="return Check(this);">
+<div class="row">
+<div class="col-sm-6">
+ <div class="dialog alert order_error" style="display:none"></div>
+
+ <fieldset class="rows">
+ <legend>Catalogue details</legend>
+ <ol><li><span class="label">Title: </span><span class="title">[% order.biblio.title | html %]</span></li>
+ <li> <span class="label">Author: </span>
+ [% order.biblio.author | html %]</li>
+ <li><span class="label">Copyright: </span>
+ [% order.biblio.copyrightdate | html %]</li>
+ <li> <span class="label">ISBN: </span>
+ [% order.biblio.biblioitem.isbn | html %]</li>
+ <li> <span class="label">Series: </span>
+ [% order.biblio.seriestitle | html %]</li>
+ </ol>
+ </fieldset>
+
+ [% IF suggestion %]
+ <fieldset class="rows">
+ <legend>Suggestion</legend>
+ <ol>
+ <li>
+ <span class="label">Suggested by: </span>
+ [% suggestion.surnamesuggestedby | html %][% IF suggestion.firstnamesuggestedby %], [% suggestion.firstnamesuggestedby | html %][% END %] (<a href="/cgi-bin/koha/suggestion/suggestion.pl?suggestionid=[% suggestion.suggestionid | uri %]&amp;op=show">suggestion #[% suggestion.suggestionid | html %]</a>)
+ [% IF suggestion.reason %]
+ <li>
+ <span class="label">Reason:</span>
+ [% SET suggestion_reasons = AuthorisedValues.GetAuthValueDropbox( 'SUGGEST' ) %]
+ [% SET other_reason = 1 %]
+ <select class="select-reason" id="reason" name="reason">
+ <option value=""> -- Choose a reason -- </option>
+ [% FOREACH reason IN suggestion_reasons %]
+ [% IF reason.lib == suggestion.reason %]
+ <option value="[% reason.lib | html %]" selected="selected">[% reason.lib | html %]</option>
+ [% SET other_reason = 0 %]
+ [% ELSE %]
+ <option value="[% reason.lib | html %]">[% reason.lib | html %]</option>
+ [% END %]
+ [% END %]
+ <option value="other">Others...</option>
+ </select>
+
+ <span id="other_reason" name="other_reason">
+ [% IF other_reason %]
+ <input type="text" size="31" id="select-other_reason" name="other_reason" placeholder="please note your reason here..." value="[% suggestion.reason | html %]"/>
+ [% ELSE %]
+ <input type="text" size="31" id="select-other_reason" name="other_reason" placeholder="please note your reason here..." />
+ [% END %]
+ <a href="#back">Cancel</a>
+ </span>
+
+ <input type="hidden" name="suggestionid" value="[% suggestion.suggestionid | html %]" />
+ </li>
+ [% END %]
+ </li>
+ </ol>
+ </fieldset>
+ [% END %]
+
+ [% IF order.subscriptionid and orders.count %]
+ <fieldset class="rows">
+ <legend>Receipt history for this subscription</legend>
+ <table id="orders">
+ <thead>
+ <tr>
+ <th>Invoice</th>
+ <th>Order number</th>
+ <th>Creation date</th>
+ <th>Receive date</th>
+ <th>Quantity received</th>
+ <th>Status</th>
+ <th title="Actual cost tax exc. / Actual cost tax inc.">Spent</th>
+ <th>Internal note</th>
+ </tr>
+ </thead>
+ <tbody>
+ [% FOR suborder IN orders %]
+ <tr>
+ <td>
+ [% IF suborder.invoice %]
+ [% IF CAN_user_acquisition %]
+ <a href="/cgi-bin/koha/acqui/invoice.pl?invoiceid=[% suborder.invoiceid | uri %]" title="Invoice detail page">
+ [% suborder.invoice.invoicenumber | html %]</a>
+ [% ELSE %]
+ [% suborder.invoice.invoicenumber | html %]
+ [% END %]
+ [% END %]
+ </td>
+ <td>[% suborder.ordernumber | html %]</td>
+ <td data-order="[% suborder.basket.creationdate | uri %]">[% suborder.basket.creationdate | $KohaDates%]</td>
+ <td data-order="[% suborder.datereceived | uri %]">
+ [% IF suborder.datereceived %]
+ [% suborder.datereceived | $KohaDates %]
+ [% END %]
+ </td>
+ <td>[% suborder.quantityreceived | html %]</td>
+ [% SWITCH suborder.orderstatus %]
+ [%# FIXME We should only see/display Complete here, right? %]
+ [% CASE 'new' %]
+ <td data-order="status_1">
+ New
+ [% CASE 'ordered' %]
+ <td data-order="status_2">
+ Ordered
+ [% CASE 'partial' %]
+ <td data-order="status_3">
+ Partial
+ [% CASE 'complete' %]
+ <td data-order="status_4">
+ Complete
+ [% CASE 'cancelled' %]
+ <td data-order="status_5">
+ Cancelled
+ [% END %]
+ </td>
+ <td>
+ [% IF suborder.datereceived %][%# FIXME Should only be true, right? %]
+ [%# FIXME What if unitprice has not been filled? %]
+ [% suborder.unitprice_tax_excluded * suborder.quantity | $Price %] / [% suborder.unitprice_tax_included * suborder.quantity | $Price %]
+ [% END %]
+ </td>
+ <td>[% suborder.order_internalnote | html %]</td>
+ </tr>
+ [% END %]
+ </tbody>
+ </table>
+ </fieldset>
+ [% ELSIF (AcqCreateItem == 'receiving') %]
+ <div id="items_list" style="display:none">
+ <p><strong>Items list</strong></p>
+ <div style="width:100%;overflow:auto;">
+ <table>
+ <thead>
+ <tr>
+ <th class="noExport">Actions</th>
+ <th>Barcode</th>
+ <th>Home library</th>
+ <th>Holding library</th>
+ <th>Not for loan</th>
+ <th>Restricted</th>
+ <th>Location</th>
+ <th>Class number</th>
+ <th>Copy number</th>
+ <th>Inventory number</th>
+ <th>Collection</th>
+ <th>Item type</th>
+ <th>Materials</th>
+ <th>Notes</th>
+ </tr>
+ </thead>
+ <tbody>
+ </tbody>
+ </table>
+ </div>
+ </div>
+
+ [% UNLESS order.subscriptionid %]
+ <fieldset class="rows" id="itemfieldset">
+ <legend>Item</legend>
+ [% IF ( NoACQframework ) %]
+ <p class="required">
+ No ACQ framework, using default. You should create a
+ framework with code ACQ, the items framework would be
+ used
+ </p>
+ [% END %]
+ <div id="outeritemblock"></div>
+ </fieldset>
+ [% END %]
+ [% ELSIF (AcqCreateItem == 'ordering') %]
+ [% IF (order.items) %]
+ <h5>Items</h5>
+ <div style="width:100%;overflow:auto">
+ <table>
+ <thead>
+ <tr>
+ <th>Receive?</th>
+ <th>&nbsp;</th>
+ <th>Barcode</th>
+ <th>Home library</th>
+ <th>Current library</th>
+ <th>Not for loan</th>
+ <th>Restricted</th>
+ <th>Location</th>
+ <th>Class number</th>
+ <th>Copy number</th>
+ <th>Inventory number</th>
+ <th>Collection</th>
+ <th>Item type</th>
+ <th>Materials</th>
+ <th>Notes</th>
+ </tr>
+ </thead>
+ <tbody>
+ [% FOREACH item IN order.items %]
+ <tr id="item_[% item.itemnumber | html %]">
+ <td style="text-align:center"><input type="checkbox" name="items_to_receive" value="[% item.itemnumber | html %]" /></td>
+ <td><a style="cursor:pointer" onclick="PopupEditPage([% item.biblionumber | html %],[% item.itemnumber | html %]);">Edit</a></td>
+ <td>[% item.barcode | html %]</td>
+ <td>[% Branches.GetName( item.homebranch ) | html %]</td>
+ <td>[% Branches.GetName( item.holdingbranch ) | html %]</td>
+ <td>[% AuthorisedValues.GetDescriptionByKohaField( kohafield => 'items.notforloan', authorised_value => item.notforloan ) | html %]</td>
+ <td>[% AuthorisedValues.GetDescriptionByKohaField( kohafield => 'items.restricted', authorised_value => item.restricted ) | html %]</td>
+ <td><span class="shelvingloc">[% AuthorisedValues.GetDescriptionByKohaField( kohafield => 'items.location', authorised_value => item.location ) | html %]</span></td>
+ <td>[% item.itemcallnumber | html %]</td>
+ <td>[% item.copynumber | html %]</td>
+ <td>[% item.stocknumber | html %]</td>
+ <td>[% AuthorisedValues.GetDescriptionByKohaField( kohafield => 'items.ccode', authorised_value => item.ccode ) | html %]</td>
+ <td>[% ItemTypes.GetDescription( item.itype ) | html %]</td>
+ <td>[% AuthorisedValues.GetDescriptionByKohaField( kohafield => 'items.materials', authorised_value => item.materials ) | html %]</td>
+ <td>[% item.itemnotes | html %]</td>
+ </tr>
+ [% END %]
+ </tbody>
+ </table>
+ </div>
+ [% END %]
+ [% END %]
+ <input type="hidden" name="biblionumber" value="[% order.biblionumber | html %]" />
+ <input type="hidden" name="invoiceid" value="[% invoiceid | html %]" />
+ <input type="hidden" name="ordernumber" value="[% order.ordernumber | html %]" />
+ <input type="hidden" name="booksellerid" value="[% order.basket.booksellerid | html %]" />
+ </div>
+ <div class="col-sm-6">
+ <fieldset class="rows">
+ <legend>Accounting details</legend>
+ <ol>
+ <li>
+ <label for="datereceived">Date received: </label>
+ <input type="text" size="10" id="datereceived" name="datereceived" value="[% datereceived | $KohaDates %]" class="flatpickr" />
+ <div class="hint">[% INCLUDE 'date-format.inc' %]</div>
+ </li>
+ <li><label for="bookfund">Fund: </label><select id="bookfund" name="bookfund">
+ <option value="">Keep current ([% budget_period_description | html %] - [% order.fund.budget_name | html %])</option>
+ [% FOREACH period IN budget_loop %]
+ <optgroup label="[% period.description | html %]">
+ [% FOREACH fund IN period.funds %]
+ [% IF ( fund.b_sel ) %]
+ <option value="[% fund.b_id | html %]" selected="selected">[% fund.b_txt | html %]</option>
+ [% ELSE %]
+ <option value="[% fund.b_id | html %]">[% fund.b_txt | html %]</option>
+ [% END %]
+ [% END %]
+ </optgroup>
+ [% END %]
+ </select></li>
+ <li><label>&nbsp;</label><span>(Current: [% budget_period_description | html %] - [% bookfund | html %])</span></li>
+ <li>
+ <label for="creator">Ordered by: </label>
+ <span>
+ [% INCLUDE 'patron-title.inc' patron = creator %]
+ </span>
+ </li>
+ <li><label for="quantity_to_receive">Quantity ordered: </label><span class="label">
+ [% IF edit or order.subscriptionid %]
+ <input type="text" id="quantity_to_receive" name="quantity" value="[% order.quantity | html %]" />
+ [% ELSE%]
+ <input type="text" readonly="readonly" id="quantity_to_receive" name="quantity" value="[% order.quantity | html %]" />
+ [% END %]
+ </span></li>
+ <li><label for="quantity">Quantity received: </label>
+ [% IF order.subscriptionid %]
+ <input type="text" inputmode="numeric" pattern="[0-9]*" size="20" name="quantityrec" id="quantity" value="[% order.quantity | html %]" />
+ <input id="origquantityrec" readonly="readonly" type="hidden" name="origquantityrec" value="[% order.quantityreceived | html %]" />
+ [% ELSIF AcqCreateItem == 'receiving' %]
+ <input readonly="readonly" type="text" size="20" name="quantityrec" id="quantity" value="0" />
+ [% ELSE %]
+ [% IF ( order.quantityreceived ) %]
+ [% IF ( edit ) %]
+ <input type="text" inputmode="numeric" pattern="[0-9]*" size="20" name="quantityrec" id="quantity" value="[% order.quantityreceived | html %]" />
+ <input id="origquantityrec" readonly="readonly" type="hidden" name="origquantityrec" value="[% order.quantityreceived | html %]" />
+ [% ELSE %]
+ [% IF ( order.items.count ) %]
+ <input readonly="readonly" type="text" size="20" name="quantityrec" id="quantity" value="[% order.quantityreceived + 1 | html %]" />
+ [% ELSE %]
+ <input type="text" inputmode="numeric" pattern="[0-9]*" size="20" name="quantityrec" id="quantity" value="[% quantityreceived + 1 | html %]" />
+ [% END %]
+ <input id="origquantityrec" readonly="readonly" type="hidden" name="origquantityrec" value="[% order.quantityreceived | html %]" />
+ [% END %]
+ [% ELSE %]
+ <input type="text" inputmode="numeric" pattern="[0-9]*" id="quantity" size="20" name="quantityrec" value="1" />
+ <input id="origquantityrec" readonly="readonly" type="hidden" name="origquantityrec" value="0" />
+ [% END %]
+ <div id="qtyrecerror" style="display:none">
+ <p class="error">Warning, you have entered more items than expected.
+ Items will not be created.</p>
+ </div>
+ [% END %][%# IF (order.subscriptionid) ELSIF (AcqCreateItem == 'receiving' ) %]
+ </li>
+
+ [% IF ( gst_values ) %]
+ <li>
+ <label for="tax_rate">Tax rate: </label>
+ <select name="tax_rate" id="tax_rate">
+ [% tax_rate = order.tax_rate_on_receiving || order.tax_rate_on_ordering %]
+ [% tax_rate = tax_rate + 0 %]
+ [% FOREACH gst IN gst_values %]
+ [% IF gst.option == tax_rate %]
+ <option value="[% gst.option | html %]" selected="selected">[% gst.option * 100 | html %]%</option>
+ [% ELSE %]
+ <option value="[% gst.option | html %]">[% gst.option * 100 | html %]%</option>
+ [% END %]
+ [% END %]
+ </select>
+ </li>
+ [% ELSE %]
+ <input type="hidden" name="tax_rate" value="0" />
+ [% END %]
+
+ <li><label for="rrp">Retail price: </label>
+ [% IF (invoiceincgst == 1) %]
+ [% order.rrp_tax_included | $Price %]<span class="hint">(adjusted for [% active_currency.currency | html %],tax inclusive)</span></li>
+ [% ELSE %]
+ [% order.rrp_tax_excluded | $Price %]<span class="hint">(adjusted for [% active_currency.currency | html %],tax exclusive)</span></li>
+ [% END %]
+ <li>
+ <label for="replacementprice">Replacement price:</label>
+ <input type="text" size="20" name="replacementprice" id="replacementprice" value="[% order.replacementprice | $Price on_editing => 1 %]" />
+ </li>
+ <li>
+ [% IF (invoiceincgst) %]
+ <label for="ecost">Budgeted cost: </label>[% order.ecost_tax_included | $Price %] <span class="hint">(tax inclusive)</span>
+ [% ELSE %]
+ <label for="ecost">Budgeted cost: </label>[% order.ecost_tax_excluded | $Price %] <span class="hint">(tax exclusive)</span>
+ [% END %]
+ </li>
+ <li>
+ <label for="unitprice">Actual cost:</label>
+ [% IF (invoiceincgst) %]
+ [% SET unitprice = order.unitprice_tax_included > 0 ? order.unitprice_tax_included : order.ecost_tax_included %]
+ <input type="text" size="20" name="unitprice" id="unitprice" value="[% unitprice | $Price on_editing => 1 %]" /> <span class="hint">(tax inclusive)</span>
+ [% ELSE %]
+ [% SET unitprice = order.unitprice_tax_included > 0 ? order.unitprice_tax_excluded : order.ecost_tax_excluded %]
+ <input type="text" size="20" name="unitprice" id="unitprice" value="[% unitprice | $Price on_editing => 1 %]" /> <span class="hint">(tax exclusive)</span>
+ [% END %]
+ <label style="font-weight: inherit; float:none;"><input type="checkbox" name="change_currency">Change currency</label>
+ </li>
+ <li id="select_currency">
+ <label for="unitprice_currency"></label>
+ <input type="text" size="20" name="unitprice" id="unitprice_currency" value="" />
+ [% IF currencies.count %]
+ <select name="currency">
+ <option value="[% active_currency.rate | html %]" selected="selected">[% active_currency.currency | html %] ([% active_currency.symbol | html %])</option>
+ [% FOR currency IN currencies %]
+ <option value="[% currency.rate | html %]">[% currency.currency | html %] ([% currency.symbol | html %])</option>
+ [% END %]
+ </select>
+ [% END %]
+ </li>
+ <li><label for="order_internalnote">Internal note: </label><textarea name="order_internalnote" width="40" rows="8" >[% order_internalnote | html %]</textarea></li>
+ [% IF order_vendornote %]
+ <li><label for="order_vendornote">Vendor note: </label><span>[% order_vendornote | html %]</span></li>
+ [% END %]
+ </ol>
+ </fieldset>
+
+</div>
+</div><div class="row"><fieldset class="action">
+ <input type="submit"  value="Save" class="button" accesskey="w" />
+ <a class="cancel" href="/cgi-bin/koha/acqui/parcel.pl?invoiceid=[% invoiceid | html %]">Cancel</a>
+</fieldset></div> </form>
+[% ELSE %]
+ This ordernumber does not exist.
+[% END %]
+
+</main>
+</div> <!-- /.col-sm-10.col-sm-push-2 -->
+
+<div class="col-sm-2 col-sm-pull-10">
+ <aside>
+ [% INCLUDE 'acquisitions-menu.inc' %]
+ </aside>
+</div> <!-- /.col-sm-2.col-sm-pull-10 -->
+</div> <!-- /.row -->
+[% MACRO jsinclude BLOCK %]
+ [% Asset.js("js/acquisitions-menu.js") | $raw %]
+[% INCLUDE 'calendar.inc' %]
+ [% Asset.js("js/additem.js") | $raw %]
+ [% Asset.js("js/cataloging.js") | $raw %]
+ <script>
+        function Check(form) {
+            [% IF (AcqCreateItem == 'receiving') %]
+                var total_errors = CheckMandatorySubfields(form);
+                if (total_errors != 0) {
+                    var alertString = _("Form not submitted because of the following problem(s)");
+                    alertString += "\n------------------------------------------------------------------------------------\n";
+                    alertString += "\n- " + _("%s mandatory fields empty (highlighted)").format(total_errors);
+                    alert(alertString);
+                    return false;
+                }
+
+                if(check_additem('[% Koha.Preference("UniqueItemFields") | html %]') == false){
+                    alert(_("Duplicate values detected. Please correct the errors and resubmit.") );
+                    return false;
+                };
+
+                // Remove last itemblock if it is not in items_list
+                var lastitemblock = $("#outeritemblock > div:last");
+                var tobedeleted = true;
+                var listitems = $("#items_list tr");
+                $(listitems).each(function(){
+                    if($(this).attr('idblock') == $(lastitemblock).attr('id')){
+                        tobedeleted = false;
+                    }
+                });
+                if(tobedeleted){
+                    $(lastitemblock).remove();
+                }
+
+                if(check_additem('[% Koha.Preference("UniqueItemFields") | html %]') == false){
+                    alert(_("Duplicate values detected. Please correct the errors and resubmit.") );
+                    if(tobedeleted) {
+                        $(lastitemblock).appendTo("#outeritemblock");
+                    }
+                    return false;
+                };
+            [% END %]
+
+            if( $("#quantity").val() < 1 ) {
+                alert(_("You must receive at least one item"));
+                return false;
+            }
+
+            return true;
+        }
+
+        [% IF (AcqCreateItem == 'ordering') %]
+            var items_columns = [null, null, 'barcode', 'homebranchname',
+                'holdingbranchname', 'notforloan', 'restricted', 'location',
+                'itemcallnumber', 'copynumber', 'stocknumber', 'collection',
+                'itemtype', 'materials', 'itemnotes'];
+
+            function PopupEditPage(biblionumber, itemnumber) {
+                var url = "/cgi-bin/koha/cataloguing/additem.pl?op=edititem&biblionumber="
+                    + biblionumber + "&itemnumber=" + itemnumber + "&popup=1#edititem";
+                var w = window.open(url);
+                var watchClose = setInterval(function() {
+                    if (w.closed) {
+                        clearTimeout(watchClose);
+                        $.getJSON('/cgi-bin/koha/catalogue/getitem-ajax.pl',
+                            {
+                                'itemnumber': itemnumber
+                            },
+                            function(item) {
+                                var tds = $("#item_"+itemnumber+" td");
+                                for(var i=2; i<tds.length; i++) {
+                                    var column = items_columns[i];
+                                    var text = item[column];
+                                    if ( text == null ) text = '';
+                                    $(tds[i]).text(text);
+                                }
+                            }
+                        );
+                    }
+                }, 500);
+            }
+
+            function CalcQtyToReceive() {
+                var qty = $("input[name='items_to_receive']:checked").length;
+                $("#quantity").val(qty);
+            }
+
+            function CheckNItems(n) {
+                $("input[name='items_to_receive']").each(function() {
+                    $(this).prop('checked', false);
+                });
+                $("input[name='items_to_receive']:lt("+n+")").each(function () {
+                    $(this).prop('checked', true);
+                });
+            }
+        [% END %]
+
+        $(document).ready(function() {
+            [% IF (AcqCreateItem == 'receiving') %]
+                cloneItemBlock(0, '[% Koha.Preference('UniqueItemFields') | html %]');
+            [% ELSIF (AcqCreateItem == 'ordering') && not order.subscriptionid %]
+                $("input[name='items_to_receive']").change(function() {
+                    CalcQtyToReceive();
+                });
+                CalcQtyToReceive();
+                $("#quantity").keyup(function() {
+                    var qty = parseInt($("#quantity").val());
+                    var qtyto = parseInt($("#quantity_to_receive").val());
+                    if(qty > qtyto) {
+                        $("#qtyrecerror").show();
+                    } else {
+                        $("#qtyrecerror").hide();
+                    }
+                    CheckNItems($(this).val());
+                });
+            [% END %]
+
+            $("input[name='change_currency']").on("change", function(){
+                if ( $(this).is(":checked") ) {
+                    $("#select_currency").show();
+                    $("#unitprice").prop("readonly", "true");
+                } else {
+                    $("#select_currency").hide();
+                    $("#unitprice").prop("readonly", "");
+                }
+            }).change();
+
+            function update_unitprice() {
+                var rate = Number($("select[name='currency'] option:selected").val());
+                var unitprice = $("#unitprice_currency").val();
+                var new_unitprice = Number( unitprice * rate ).toFixed(2);
+                $("#unitprice").val(new_unitprice);
+            }
+            $("select[name='currency']").on("change", function(){update_unitprice()} );
+            $("#unitprice_currency").on("change", function(){update_unitprice()} );
+
+            [% IF other_reason %]
+                $(".select-reason").hide();
+                $(".select-reason").find("option[value='other']").attr("selected","selected");
+                $("#other_reason").show();
+            [% ELSE %]
+                $("#other_reason").hide();
+            [% END %]
+            $(".select-reason").change(function(){
+                if($(this).val() == "other"){
+                    $(this).hide();
+                    $("#other_reason").show();
+                }
+            });
+            $("a[href*=back]").click(function(){
+                $(".select-reason").show().find("option[value='']").attr("selected","selected");
+                $("#other_reason").hide();
+            });
+
+        });
+    </script>
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' %]

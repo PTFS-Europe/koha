@@ -1,0 +1,223 @@
+[% USE raw %]
+[% USE Koha %]
+[% USE Asset %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>
+ [% IF ( unknownbiblionumber ) %] Unknown record [% ELSE %] MARC details for [% INCLUDE 'biblio-title-head.inc' %] [% END %] &rsaquo; Catalogue &rsaquo; Koha </title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+
+<body id="catalog_MARCdetail" class="catalog">
+
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'cat-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/catalogue/search.pl">Catalogue</a>
+ </li>
+
+ [% IF ( unknownbiblionumber ) %]
+ <li>
+ <a href="#" aria-current="page">
+ Unknown record
+ </a>
+ </li>
+ [% ELSE %]
+ <li>
+ [% INCLUDE 'biblio-title.inc' link = 1 %]
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ MARC details
+ </a>
+ </li>
+ [% END %]
+ </ol>
+</nav>
+
+<div class="main container-fluid">
+ <div class="row">
+ <div class="col-sm-10 col-sm-push-2">
+ <main>
+
+[% IF ( unknownbiblionumber ) %]
+ <div class="dialog message">The record you requested does not exist ([% biblionumber | html %]).</div>
+[% ELSE %]
+
+[% INCLUDE 'cat-toolbar.inc' %]
+
+[% UNLESS ( popup ) %]
+ <h1>MARC record: [% biblionumber | html %] ( [% bibliotitle | html %] )</h1>
+[% END %]
+
+ <p><strong>With framework : <select name="Frameworks" id="Frameworks">
+ <option value="">Default</option>
+ [% FOREACH framework IN frameworks %]
+ [% IF framework.frameworkcode == frameworkcode %]
+ <option value="[% framework.frameworkcode | html %]" selected="selected">[% framework.frameworktext | html %]</option>
+ [% ELSE %]
+ <option value="[% framework.frameworkcode | html %]">[% framework.frameworktext | html %]</option>
+ [% END %]
+ [% END %]
+ </select> </strong></p>
+[% IF ( ocoins ) %]
+<!-- COinS / OpenURL -->
+<span class="Z3988" title="[% ocoins | html %]"></span>
+[% END %]
+
+
+[% BLOCK show_tab_html %]
+ <div id="[% tab_id | html %]">
+ [% FOREACH tab0X IN tab_data %]
+ [% IF ( tab0X.tag ) %]
+ <div class="tag">
+ <div class="tag_title">
+ <span class="tag_num">[% tab0X.tag | html %]</span>
+ [% IF ( tab0X.tag_ind ) %]
+ <span class="tag_ind1">[% tab0X.tag_ind.substr(0, 1) | html %]</span><span class="tag_ind2">[% tab0X.tag_ind.substr(1, 1) | html %]</span>
+ [% END %]
+ [% IF (tab0X.tag_desc) %]<span class="dashwrapper"> -</span> <span class="tag_desc">[% tab0X.tag_desc | html %]</span>[% END %]
+ </div>
+ [% ELSE %]
+ <div class="tag">
+ [% END %]
+ [% FOREACH subfiel IN tab0X.subfield %]
+ <p class="subfield_line">
+ <span class="subfield-label">&nbsp;
+ [% UNLESS ( subfiel.hide_marc ) %]<span class="subfield-code">[% subfiel.marc_subfield | html %]</span>[% END %]
+ <span class="desc" title="[% subfiel.long_desc | html %]">[% subfiel.short_desc | html %]</span></span>
+ [% IF ( subfiel.is_url ) %]<a href="[% subfiel.marc_value | url %]">[% subfiel.marc_value | html %]</a>[% ELSE %][% subfiel.marc_value | html %][% END %]
+ [% IF ( subfiel.link ) %]
+ <a href="/cgi-bin/koha/catalogue/search.pl?op=do_search&amp;idx=[% subfiel.link | uri %],phr&amp;type=intranet&amp;q=[% subfiel.link | uri %],phr:[% subfiel.marc_value |uri %]">
+ <img src="[% interface | html %]/[% theme | html %]/img/filefind.png" height="15" title="Search on [% subfiel.marc_value | html %]" alt="Search on [% subfiel.marc_value | html %]" />
+ </a>
+ [% END %]
+ [% IF ( subfiel.authority ) %]
+ <a href="/cgi-bin/koha/authorities/detail.pl?authid=[% subfiel.authority | uri %]" class="button">Auth</a>
+ [% END %]
+ </p>
+ [% END %]
+ </div> <!-- class='tag' -->
+ [% END %]
+ </div>
+[% END %]
+
+
+<div id="bibliotabs" class="toptabs numbered">
+ <ul>
+ [% IF ( tab0XX ) %]
+ <li><a href="#tab0XX">&#48;</a></li>
+ [% END %]
+ [% IF ( tab1XX ) %]
+ <li><a href="#tab1XX">1</a></li>
+ [% END %]
+ [% IF ( tab2XX ) %]
+ <li><a href="#tab2XX">2</a></li>
+ [% END %]
+ [% IF ( tab3XX ) %]
+ <li><a href="#tab3XX">3</a></li>
+ [% END %]
+ [% IF ( tab4XX ) %]
+ <li><a href="#tab4XX">4</a></li>
+ [% END %]
+ [% IF ( tab5XX ) %]
+ <li><a href="#tab5XX">5</a></li>
+ [% END %]
+ [% IF ( tab6XX ) %]
+ <li><a href="#tab6XX">6</a></li>
+ [% END %]
+ [% IF ( tab7XX ) %]
+ <li><a href="#tab7XX">7</a></li>
+ [% END %]
+ [% IF ( tab8XX ) %]
+ <li><a href="#tab8XX">8</a></li>
+ [% END %]
+ [% IF ( tab9XX ) %]
+ <li><a href="#tab9XX">9</a></li>
+ [% END %]
+ [% IF ( tab10XX ) %]
+ <li><a href="#tab10XX">Item(s)</a></li>
+ [% END %]
+ </ul>
+ [% PROCESS show_tab_html tab_id="tab0XX" tab_data=tab0XX %]
+
+ [% PROCESS show_tab_html tab_id="tab1XX" tab_data=tab1XX %]
+
+ [% PROCESS show_tab_html tab_id="tab2XX" tab_data=tab2XX %]
+
+ [% PROCESS show_tab_html tab_id="tab3XX" tab_data=tab3XX %]
+
+ [% PROCESS show_tab_html tab_id="tab4XX" tab_data=tab4XX %]
+
+ [% PROCESS show_tab_html tab_id="tab5XX" tab_data=tab5XX %]
+
+ [% PROCESS show_tab_html tab_id="tab6XX" tab_data=tab6XX %]
+
+ [% PROCESS show_tab_html tab_id="tab7XX" tab_data=tab7XX %]
+
+ [% PROCESS show_tab_html tab_id="tab8XX" tab_data=tab8XX %]
+
+ [% PROCESS show_tab_html tab_id="tab9XX" tab_data=tab9XX %]
+
+ [% IF ( tab10XX ) %]
+ <div id="tab10XX">
+ <table>
+ <tr>
+ [% FOREACH header IN item_header_loop %]
+ <th>[% header | html %]</th>
+ [% END %]
+ </tr>
+ [% FOREACH item IN item_loop %]
+ <tr>
+ [% FOREACH sf_code IN item_subfield_codes %]
+ <td>[% item.$sf_code | $raw %]</td>
+ [% END %]
+ </tr>
+ [% END %]
+ </table>
+ </div>
+ [% END %]
+
+</div>
+
+ </main>
+ </div> <!-- /.col-sm-10.col-sm-push-2 -->
+
+ <div class="col-sm-2 col-sm-pull-10">
+ <aside>
+ [% INCLUDE 'biblio-view-menu.inc' %]
+ </aside>
+ </div> <!-- /.col-sm-2.col-sm-pull-10 -->
+ </div> <!-- /.row -->
+
+[% END %]
+
+
+[% MACRO jsinclude BLOCK %]
+ [% INCLUDE 'catalog-strings.inc' %]
+ [% Asset.js("js/catalog.js") | $raw %]
+ [% Asset.js("js/browser.js") | $raw %]
+ <script>
+        var browser = KOHA.browser('[% searchid | html %]', parseInt('[% biblionumber | html %]', 10));
+        browser.show();
+
+         $(document).ready(function() {
+            $('#bibliotabs').tabs();
+            $("#Frameworks").on("change",function(){
+                Changefwk(this);
+            });
+         });
+
+        function Changefwk(FwkList) {
+            var fwk = FwkList.options[FwkList.selectedIndex].value;
+            window.location = "MARCdetail.pl?biblionumber=[% biblionumber | html %]&frameworkcode="+fwk;
+        }
+    </script>
+[% END %]
+[% INCLUDE 'intranet-bottom.inc' %]

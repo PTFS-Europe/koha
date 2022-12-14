@@ -1,0 +1,23 @@
+[%- USE Koha -%]
+[%- SET delimiter = Koha.CSVDelimiter() -%]
+
+[%- INCLUDE csv_headers/acqui/basket.tt -%]
+[%- INCLUDE empty_line.inc -%]
+
+[%- FOREACH r IN rows -%]
+"[% r.contractname | html %]"[%- delimiter | html -%]
+[% r.ordernumber | html %][%- delimiter | html -%]
+[% r.entrydate | html %][%- delimiter | html -%]
+[% r.isbn | html %][%- delimiter | html -%]
+"[% r.author | html %]"[%- delimiter | html -%]
+"[% r.title | html %]"[%- delimiter | html -%]
+[% r.publicationyear | html %][%- delimiter | html -%]
+"[% r.publishercode | html %]"[%- delimiter | html -%]
+"[% r.collectiontitle | html %]"[%- delimiter | html -%]
+"[% r.notes | html %]"[%- delimiter | html -%]
+[% r.quantity | html %][%- delimiter | html -%]
+[% r.rrp | html %][%- delimiter | html -%]
+"[% r.deliveryplace | html %]"[%- delimiter | html -%]
+"[% r.billingplace | html %]"
+[%- INCLUDE empty_line.inc -%]
+[%- END -%]

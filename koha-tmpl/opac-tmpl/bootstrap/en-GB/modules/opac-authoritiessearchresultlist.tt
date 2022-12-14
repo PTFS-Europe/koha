@@ -1,0 +1,137 @@
+[% USE raw %]
+[% USE Koha %]
+[% USE AdditionalContents %]
+[% SET OpacNav = AdditionalContents.get( location => "OpacNav", lang => lang, library => logged_in_user.branchcode || default_branch, blocktitle => 0 ) %]
+[% SET OpacNavBottom = AdditionalContents.get( location => "OpacNavBottom", lang => lang, library => logged_in_user.branchcode || default_branch, blocktitle => 0 ) %]
+[% PROCESS 'opac-authorities.inc' %]
+[% PROCESS 'authorities-search-results.inc' %]
+[% PROCESS 'i18n.inc' %]
+[% BLOCK pagination %]
+ <nav class="pagination pagination-sm noprint" aria-label="Search results pagination">
+ <ul class="pagination">
+ [% IF ( displayprev ) %]
+ <li class="page-item">
+ <a class="page-link" href="opac-authorities-home.pl?startfrom=[% startfromprev | uri %]&amp;[% FOREACH searchdat IN searchdata %][% searchdat.term | uri %]=[% searchdat.val |url %]&amp;[% END %]resultsperpage=[% resultsperpage | uri %]&amp;type=opac&amp;op=do_search&amp;authtypecode=[% authtypecode | uri %]&amp;orderby=[% orderby | uri %]" aria-label="Go to the previous page">
+ <i class="fa fa-fw fa-angle-left" aria-hidden="true"></i> Previous
+ </a>
+ </li>
+ [% END %]
+ [% FOREACH number IN numbers %]
+ [% IF ( number.highlight ) %]
+ <li class="page-item disabled">
+ <a class="page-link" href="#" aria-disabled="true" aria-label="Current page: Page [% number.number | html %]">[% number.number | html %]</a>
+ </li>
+ [% ELSE %]
+ <li class="page-item">
+ <a class="page-link" href="opac-authorities-home.pl?startfrom=[% number.startfrom | uri %]&amp;[% FOREACH searchdat IN number.searchdata %][% searchdat.term | uri %]=[% searchdat.val |url %]&amp;[% END %]resultsperpage=[% resultsperpage | uri %]&amp;type=opac&amp;op=do_search&amp;authtypecode=[% authtypecode | uri %]&amp;orderby=[% orderby | uri %]" aria-label="Go to page [% number.number | html %]">[% number.number | html %]</a>
+ </li>
+ [% END %]
+ [% END %]
+ [% IF ( displaynext ) %]
+ <li class="page-item">
+ <a class="page-link" href="opac-authorities-home.pl?startfrom=[% startfromnext | uri %]&amp;[% FOREACH searchdat IN searchdata %][% searchdat.term | uri %]=[% searchdat.val |url %]&amp;[% END %]&amp;resultsperpage=[% resultsperpage | uri %]&amp;type=opac&amp;op=do_search&amp;authtypecode=[% authtypecode | uri %]&amp;orderby=[% orderby | uri %]" aria-label="Go to the next page">
+ Next <i class="fa fa-fw fa-angle-double-right" aria-hidden="true"></i>
+ </a>
+ </li>
+ [% END %]
+ </ul>
+ </nav> <!-- / #pages -->
+[% END %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>[% IF ( total ) %]Authority search result[% ELSE %]No results found[% END %] &rsaquo; [% IF ( LibraryNameTitle ) %][% LibraryNameTitle | html %][% ELSE %]Koha online[% END %] catalogue</title>
+[% INCLUDE 'doc-head-close.inc' %]
+[% BLOCK cssinclude %][% END %]
+</head>
+[% INCLUDE 'bodytag.inc' bodyid='opac-authoritiesresultlist' bodyclass='scrollto' %]
+[% INCLUDE 'masthead.inc' %]
+
+ <div class="main">
+ <nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumbs">
+ <ol class="breadcrumb">
+ <li class="breadcrumb-item">
+ <a href="/cgi-bin/koha/opac-main.pl">Home</a>
+ </li>
+ <li class="breadcrumb-item">
+ <a href="/cgi-bin/koha/opac-authorities-home.pl">Authority search</a>
+ </li>
+ <li class="breadcrumb-item active">
+ <a href="#" aria-current="page">Results</a>
+ </li>
+ </ol>
+ </nav> <!-- /#breadcrumbs -->
+
+ <div class="container-fluid">
+ <div class="row">
+ [% IF ( OpacNav || OpacNavBottom ) %]
+ <div class="col-lg-2">
+ <div id="navigation">
+ [% INCLUDE 'navigation.inc' %]
+ </div>
+ </div>
+ <div class="col-lg-10 order-first order-md-first order-lg-2">
+ [% ELSE %]
+ <div class="col order-first order-md-first order-lg-2">
+ [% END %]
+ <div id="userauthsearchresults" class="maincontent">
+ <h1>Authority search results</h1>
+
+ [% IF total %]
+ <div class="pages">[% pagination_bar | $raw %]</div>
+ [% END %]
+ <div id="results">
+ [% IF ( total ) %]
+ [% IF ( countfuzzy ) %]
+ <p><strong>Showing [% resultcount | html %] of about [% total | html %] results</strong></p>
+ [% ELSE %]
+ <p><strong>Results [% from | html %] to [% to | html %] of [% total | html %]</strong></p>
+ [% END %]
+ [% ELSE %]
+ No results found.
+ [% END %]
+ </div>
+
+ [% IF ( total ) %]
+ <div class="searchresults">
+ <table class="table table-bordered table-striped">
+ <caption class="sr-only">Authority search results</caption>
+ <thead>
+ <tr>
+ <th colspan="2">Authorised headings</th>
+ <th>Type of heading</th>
+ [% UNLESS ( isEDITORS ) %]
+ <th>Records</th>
+ [% END %]
+ </tr>
+ </thead>
+ <tbody>
+ [% FOREACH resul IN result %]
+ <tr>
+ <td>[% PROCESS authresult summary=resul.summary %]</td>
+ <td><a href="/cgi-bin/koha/opac-authoritiesdetail.pl?authid=[% resul.authid | uri %]">Details</a>
+ <td>[% resul.authtype | html %]</td>
+ [% UNLESS ( resul.isEDITORS ) %]
+ <td>
+ [% IF resul.used > 0 %]
+ <a href="/cgi-bin/koha/opac-search.pl?type=opac&amp;op=do_search&amp;q=an=[% resul.authid | uri %]">[% resul.used | html %] [% tn('record', 'records', resul.used ) | html %]</a>
+ [% ELSE %]
+ 0 records
+ [% END %]
+ </td>
+ [% END %]
+ </tr>
+ [% END %]
+ </tbody>
+ </table>
+ </div> <!-- / .searchresults -->
+
+ <div class="pages">[% pagination_bar | $raw %]</div>
+
+ [% END # / IF total %]
+ </div> <!-- / #userauthsearchresults -->
+ </div> <!-- / .col-lg-10/12 -->
+ </div> <!-- / .row -->
+ </div> <!-- / .container-fluid -->
+ </div> <!-- / .main -->
+
+[% INCLUDE 'opac-bottom.inc' %]
+[% BLOCK jsinclude %][% END %]

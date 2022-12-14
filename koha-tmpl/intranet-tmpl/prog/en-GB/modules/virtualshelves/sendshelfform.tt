@@ -1,0 +1,40 @@
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Sending your list &rsaquo; Lists &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+<body id="lists_sendshelfform" class="lists" style="padding: 1em;">
+[% INCLUDE 'blocking_errors.inc' %]
+<div class="container">[% IF ( email ) %]
+
+ [% IF ( SENT ) %]
+ <h3>Message sent</h3>
+ <p>The list was sent to: [% email | html %]</p>
+ <p><a class="close focus" href="#">Close window</a></p>
+ [% END %]
+ [% IF ( error ) %]
+ <p>Problem sending the list...</p>
+ [% END %]
+ 
+[% ELSE %]
+
+<form action="/cgi-bin/koha/virtualshelves/sendshelf.pl" method="post">
+
+<fieldset class="rows"> 
+<legend>Sending your list</legend>
+<ol> <li>
+ <label for="email">Email address:</label>
+ <input type="text" id="email" name="email" size="43" class="focus" />
+ </li>
+ <li>
+ <label for="comment">Comment:</label>
+ <textarea id="comment" name="comment" rows="4" cols="40"></textarea>
+ </li>
+ <li>
+ <input type="hidden" name="shelfid" value="[% shelfid | html %]" />
+ </li></ol></fieldset>
+ <fieldset class="action"> <input type="submit" value="Send" /> <a class="cancel close" href="#">Cancel</a> </fieldset>
+</form>
+
+[% END %]</div>
+</body>
+</html>

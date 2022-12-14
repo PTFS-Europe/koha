@@ -1,0 +1,354 @@
+---
+description:
+- Coded values conforming to the Z39.71-2006 holdings statements for bibliographic
+  items.
+- Refer to https://www.niso.org/publications/standards for details.
+tables:
+- authorised_values:
+    multiline: []
+    rows:
+    - authorised_value: '0'
+      category: HINGS_UT
+      lib: Information not available; Not applicable
+    - authorised_value: a
+      category: HINGS_UT
+      lib: Basic bibliographic unit
+    - authorised_value: c
+      category: HINGS_UT
+      lib: 'Secondary bibliographic unit: supplements, special issues, accompanying
+        material, other secondary bibliographic units'
+    - authorised_value: d
+      category: HINGS_UT
+      lib: Indexes
+    - authorised_value: au
+      category: HINGS_PF
+      lib: Cartographic material
+    - authorised_value: ad
+      category: HINGS_PF
+      lib: Cartographic material, atlas
+    - authorised_value: ag
+      category: HINGS_PF
+      lib: Cartographic material, diagram
+    - authorised_value: aj
+      category: HINGS_PF
+      lib: Cartographic material, map
+    - authorised_value: ak
+      category: HINGS_PF
+      lib: Cartographic material, profile
+    - authorised_value: aq
+      category: HINGS_PF
+      lib: Cartographic material, model
+    - authorised_value: ar
+      category: HINGS_PF
+      lib: Cartographic material, remote sensing image
+    - authorised_value: as
+      category: HINGS_PF
+      lib: Cartographic material, section
+    - authorised_value: ay
+      category: HINGS_PF
+      lib: Cartographic material, view
+    - authorised_value: az
+      category: HINGS_PF
+      lib: Cartographic material, other
+    - authorised_value: cu
+      category: HINGS_PF
+      lib: Computer file
+    - authorised_value: ca
+      category: HINGS_PF
+      lib: Computer file, tape cartridge
+    - authorised_value: cb
+      category: HINGS_PF
+      lib: Computer file, chip cartridge
+    - authorised_value: cc
+      category: HINGS_PF
+      lib: Computer file, computer optical disk cartridge
+    - authorised_value: cf
+      category: HINGS_PF
+      lib: Computer file, tape cassette
+    - authorised_value: ch
+      category: HINGS_PF
+      lib: Computer file, tape reel
+    - authorised_value: cj
+      category: HINGS_PF
+      lib: Computer file, magnetic disk
+    - authorised_value: cm
+      category: HINGS_PF
+      lib: Computer file, magneto-optical disk
+    - authorised_value: co
+      category: HINGS_PF
+      lib: Computer file, optical disk
+    - authorised_value: cr
+      category: HINGS_PF
+      lib: Computer file, remote
+    - authorised_value: cz
+      category: HINGS_PF
+      lib: Computer file, other
+    - authorised_value: du
+      category: HINGS_PF
+      lib: Globe
+    - authorised_value: da
+      category: HINGS_PF
+      lib: Globe, celestial
+    - authorised_value: db
+      category: HINGS_PF
+      lib: Globe, planetary or lunar
+    - authorised_value: dc
+      category: HINGS_PF
+      lib: Globe, terrestrial
+    - authorised_value: de
+      category: HINGS_PF
+      lib: Globe, earth moon
+    - authorised_value: dz
+      category: HINGS_PF
+      lib: Globe, other
+    - authorised_value: ou
+      category: HINGS_PF
+      lib: Kit
+    - authorised_value: hu
+      category: HINGS_PF
+      lib: Microform
+    - authorised_value: ha
+      category: HINGS_PF
+      lib: Microform, aperture card
+    - authorised_value: hb
+      category: HINGS_PF
+      lib: ' Microform, microfilm cartridge'
+    - authorised_value: hc
+      category: HINGS_PF
+      lib: ' Microform, microfilm cassette'
+    - authorised_value: hd
+      category: HINGS_PF
+      lib: ' Microform, microfilm reel'
+    - authorised_value: he
+      category: HINGS_PF
+      lib: Microform, microfiche
+    - authorised_value: hf
+      category: HINGS_PF
+      lib: Microform, microfiche cassette
+    - authorised_value: hg
+      category: HINGS_PF
+      lib: Microform, micro-opaque
+    - authorised_value: hz
+      category: HINGS_PF
+      lib: Microform, other
+    - authorised_value: mu
+      category: HINGS_PF
+      lib: Motion picture
+    - authorised_value: mc
+      category: HINGS_PF
+      lib: Motion picture, film cartridge
+    - authorised_value: mf
+      category: HINGS_PF
+      lib: Motion picture, film cassette
+    - authorised_value: mr
+      category: HINGS_PF
+      lib: Motion picture, film reel
+    - authorised_value: mz
+      category: HINGS_PF
+      lib: Motion picture, other
+    - authorised_value: ku
+      category: HINGS_PF
+      lib: Nonprojected graphic
+    - authorised_value: kc
+      category: HINGS_PF
+      lib: Nonprojected graphic, collage
+    - authorised_value: kd
+      category: HINGS_PF
+      lib: Nonprojected graphic, drawing
+    - authorised_value: ke
+      category: HINGS_PF
+      lib: Nonprojected graphic, painting
+    - authorised_value: kf
+      category: HINGS_PF
+      lib: Nonprojected graphic, photomechanical print
+    - authorised_value: kg
+      category: HINGS_PF
+      lib: Nonprojected graphic, photonegative
+    - authorised_value: kh
+      category: HINGS_PF
+      lib: Nonprojected graphic, photoprint
+    - authorised_value: ki
+      category: HINGS_PF
+      lib: Nonprojected graphic, picture
+    - authorised_value: kj
+      category: HINGS_PF
+      lib: Nonprojected graphic, print
+    - authorised_value: kl
+      category: HINGS_PF
+      lib: Nonprojected graphic, technical drawing
+    - authorised_value: kn
+      category: HINGS_PF
+      lib: Nonprojected graphic, chart
+    - authorised_value: ko
+      category: HINGS_PF
+      lib: Nonprojected graphic, flash card
+    - authorised_value: kz
+      category: HINGS_PF
+      lib: Nonprojected graphic, other
+    - authorised_value: qu
+      category: HINGS_PF
+      lib: Notated music
+    - authorised_value: gu
+      category: HINGS_PF
+      lib: Projected graphic
+    - authorised_value: gc
+      category: HINGS_PF
+      lib: Projected graphic, filmstrip cartridge
+    - authorised_value: gd
+      category: HINGS_PF
+      lib: Projected graphic, filmstrip
+    - authorised_value: gf
+      category: HINGS_PF
+      lib: Projected graphic, other type of filmstrip
+    - authorised_value: go
+      category: HINGS_PF
+      lib: Projected graphic, filmstrip roll
+    - authorised_value: gs
+      category: HINGS_PF
+      lib: Projected graphic, slide
+    - authorised_value: gt
+      category: HINGS_PF
+      lib: Projected graphic, transparency
+    - authorised_value: gz
+      category: HINGS_PF
+      lib: Projected graphic, other
+    - authorised_value: ru
+      category: HINGS_PF
+      lib: Remote-sensing image
+    - authorised_value: su
+      category: HINGS_PF
+      lib: Sound recording
+    - authorised_value: sd
+      category: HINGS_PF
+      lib: Sound recording, sound disk
+    - authorised_value: se
+      category: HINGS_PF
+      lib: Sound recording, cylinder
+    - authorised_value: sg
+      category: HINGS_PF
+      lib: Sound recording, sound cartridge
+    - authorised_value: si
+      category: HINGS_PF
+      lib: Sound recording, sound-track film
+    - authorised_value: sq
+      category: HINGS_PF
+      lib: Sound recording, roll
+    - authorised_value: ss
+      category: HINGS_PF
+      lib: Sound recording, sound cassette
+    - authorised_value: st
+      category: HINGS_PF
+      lib: Sound recording, sound-tape reel
+    - authorised_value: sw
+      category: HINGS_PF
+      lib: Sound recording, wire recording
+    - authorised_value: sz
+      category: HINGS_PF
+      lib: Sound recording, other
+    - authorised_value: tu
+      category: HINGS_PF
+      lib: Text
+    - authorised_value: ta
+      category: HINGS_PF
+      lib: Text, regular print
+    - authorised_value: tb
+      category: HINGS_PF
+      lib: Text, large print
+    - authorised_value: tc
+      category: HINGS_PF
+      lib: Text, Braille
+    - authorised_value: td
+      category: HINGS_PF
+      lib: Text, loose-leaf
+    - authorised_value: tz
+      category: HINGS_PF
+      lib: Text, other
+    - authorised_value: vu
+      category: HINGS_PF
+      lib: Videorecording
+    - authorised_value: vc
+      category: HINGS_PF
+      lib: Videorecording, videocartridge
+    - authorised_value: vd
+      category: HINGS_PF
+      lib: Videorecording, videodisc
+    - authorised_value: vf
+      category: HINGS_PF
+      lib: Videorecording, videocassette
+    - authorised_value: vr
+      category: HINGS_PF
+      lib: Videorecording, videoreel
+    - authorised_value: vz
+      category: HINGS_PF
+      lib: Videorecording, other
+    - authorised_value: zu
+      category: HINGS_PF
+      lib: Physical form is unspecified
+    - authorised_value: zm
+      category: HINGS_PF
+      lib: Multiple physical forms
+    - authorised_value: zz
+      category: HINGS_PF
+      lib: Other physical media
+    - authorised_value: '0'
+      category: HINGS_C
+      lib: Information not available, or Retention is limited
+    - authorised_value: '1'
+      category: HINGS_C
+      lib: Complete (95%-100% held)
+    - authorised_value: '2'
+      category: HINGS_C
+      lib: Incomplete (50%-94% held)
+    - authorised_value: '3'
+      category: HINGS_C
+      lib: Very incomplete or scattered (less than 50% held)
+    - authorised_value: '4'
+      category: HINGS_C
+      lib: Not applicable
+    - authorised_value: '0'
+      category: HINGS_AS
+      lib: Information not available, or Retention is limited
+    - authorised_value: '1'
+      category: HINGS_AS
+      lib: Other
+    - authorised_value: '2'
+      category: HINGS_AS
+      lib: Received and complete or Ceased
+    - authorised_value: '3'
+      category: HINGS_AS
+      lib: On order
+    - authorised_value: '4'
+      category: HINGS_AS
+      lib: Currently received
+    - authorised_value: '5'
+      category: HINGS_AS
+      lib: Not currently received
+    - authorised_value: '0'
+      category: HINGS_RD
+      lib: Information not available
+    - authorised_value: '1'
+      category: HINGS_RD
+      lib: Other
+    - authorised_value: '2'
+      category: HINGS_RD
+      lib: Retained except as replaced by updates
+    - authorised_value: '3'
+      category: HINGS_RD
+      lib: Sample issue retained
+    - authorised_value: '4'
+      category: HINGS_RD
+      lib: Retained until replaced by microform, or other preservation format
+    - authorised_value: '5'
+      category: HINGS_RD
+      lib: Retained until replaced by cumulation, replacement volume, or revision
+    - authorised_value: '6'
+      category: HINGS_RD
+      lib: Limited retention (only some parts kept)
+    - authorised_value: '7'
+      category: HINGS_RD
+      lib: No retention (no parts kept)
+    - authorised_value: '8'
+      category: HINGS_RD
+      lib: Permanent retention (all parts kept permanently)
+    translatable:
+    - lib

@@ -1,0 +1,332 @@
+[% USE raw %]
+[% USE Asset %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>
+[% IF op == 'add_form' %]
+ [% IF framework %]
+ Modify framework text
+ [% ELSE %]
+ Add framework
+ [% END %] &rsaquo; [% ELSIF op == 'delete_confirm' %]
+ Delete framework for [% framework.frameworktext | html %] ([% framework.frameworkcode | html %])? &rsaquo; [% END %]
+MARC frameworks &rsaquo; Administration &rsaquo; Koha
+</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+
+ <body id="admin_biblio_framework" class="admin">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'prefs-admin-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/admin/admin-home.pl">Administration</a>
+ </li>
+
+ [% IF op == 'add_form' %]
+ <li>
+ <a href="/cgi-bin/koha/admin/biblio_framework.pl">MARC frameworks</a>
+ </li>
+ [% IF framework %]
+ <li>
+ <a href="#" aria-current="page">
+ Modify framework text
+ </a>
+ </li>
+ [% ELSE %]
+ <li>
+ <a href="#" aria-current="page">
+ Add framework
+ </a>
+ </li>
+ [% END %]
+
+ [% ELSIF op == 'delete_confirm' %]
+ <li>
+ <a href="/cgi-bin/koha/admin/biblio_framework.pl">MARC frameworks</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ Delete framework for [% framework.frameworktext | html %] ([% framework.frameworkcode | html %])?
+ </a>
+ </li>
+
+ [% ELSE %]
+ <li>
+ <a href="#" aria-current="page">
+ MARC frameworks
+ </a>
+ </li>
+ [% END %]
+ </ol>
+</nav>
+
+<div class="main container-fluid">
+ <div class="row">
+ <div class="col-sm-10 col-sm-push-2">
+ <main>
+
+[% FOR m IN messages %]
+ <div class="dialog [% m.type | html %]">
+ [% SWITCH m.code %]
+ [% CASE 'error_on_update' %]
+ An error occurred when updating this framework. Perhaps it already exists.
+ [% CASE 'error_on_insert' %]
+ An error occurred when adding this framework. The framework might already exist.
+ [% CASE 'error_on_delete' %]
+ An error occurred when deleting this framework. Check the logs.
+ [% CASE 'success_on_update' %]
+ Framework updated successfully.
+ [% CASE 'success_on_insert' %]
+ Framework added successfully.
+ [% CASE 'success_on_delete' %]
+ Framework deleted successfully.
+ [% CASE 'already_exists' %]
+ This framework code already exists.
+ [% CASE %]
+ [% m.code | html %]
+ [% END %]
+ </div>
+[% END %]
+
+
+
+[% IF op == 'list'%]
+ <div id="toolbar" class="btn-toolbar">
+ <a class="btn btn-default" id="newframework" href="/cgi-bin/koha/admin/biblio_framework.pl?op=add_form"><i class="fa fa-plus"></i> New framework</a>
+ </div>
+[% END %]
+
+[% IF op == 'add_form' %]
+ <h1>[% IF framework %]Modify framework text[% ELSE %]Add framework[% END %]</h1>
+ <form action="/cgi-bin/koha/admin/biblio_framework.pl" name="Aform" method="post" class="validated">
+ <input type="hidden" name="op" value="add_validate" />
+ <fieldset class="rows">
+ <ol>
+ [% IF framework %]
+ <li>
+ <span class="label">Framework code: </span>
+ <input type="hidden" id="frameworkcode" name="frameworkcode" value="[% framework.frameworkcode | html %]" />[% framework.frameworkcode | html %]
+ <input type="hidden" name="is_a_modif" value="1" />
+ </li>
+ [% ELSE %]
+ <li>
+ <label for="frameworkcode" class="required">Framework code: </label>
+ <input type="text" id="frameworkcode" name="frameworkcode" size="4" maxlength="4" required="required" class="required" />
+ <span class="required">Required</span>
+ </li>
+ [% END %]
+ <li>
+ <label for="description" class="required">Description: </label>
+ <input type="text" name="frameworktext" id="description" size="40" maxlength="80" value="[% framework.frameworktext | html %]" required="required" class="required" />
+ <span class="required">Required</span>
+ </li>
+ </ol>
+ </fieldset>
+ <fieldset class="action">
+ <input type="submit" value="Submit" class="submit" />
+ </fieldset>
+ </form>
+[% END %]
+
+[% IF op == 'delete_confirm' %]
+ <div class="dialog alert">
+ [% IF biblios_use_this_framework %]
+ <h3>This framework cannot be deleted</h3>
+ <p><strong><span class="ex">[% framework.frameworktext | html %] ([% framework.frameworkcode | html %])</span></strong></p>
+ <p>The framework is used [% biblios_use_this_framework | html %] times.</p>
+ <form action="/cgi-bin/koha/admin/biblio_framework.pl" method="get">
+ <button type="submit"><i class="fa fa-fw fa-arrow-left"></i> Return to frameworks</button>
+ </form>
+ [% ELSE %]
+ <h3>Delete framework for [% framework.frameworktext | html %] ([% framework.frameworkcode | html %])?</h3>
+ <form class="inline" action="/cgi-bin/koha/admin/biblio_framework.pl" method="post">
+ <input type="hidden" name="op" value="delete_confirmed" />
+ <input type="hidden" name="frameworkcode" value="[% framework.frameworkcode | html %]" />
+ <button type="submit" class="approve"><i class="fa fa-fw fa-check"></i> Yes, delete this framework</button>
+ </form>
+ <form class="inline" action="/cgi-bin/koha/admin/biblio_framework.pl" method="get">
+ <button type="submit" class="deny"><i class="fa fa-fw fa-remove"></i> No, do not delete</button>
+ </form>
+ [% END %]
+ </div>
+[% END %]
+
+[% IF op == 'list' %]
+<h1>MARC frameworks</h1>
+
+<table id="table_biblio_frameworks">
+ <thead>
+ <tr>
+ <th>Code</th>
+ <th>Description</th>
+ <th>&nbsp;</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td>&nbsp;</td>
+ <td>Default framework</td>
+ <td>
+ <div class="btn-group dropup">
+ <a class="btn btn-default btn-xs dropdown-toggle" id="frameworkactions[% loo.frameworkcode | html %]" role="button" data-toggle="dropdown" href="#">
+ Actions <b class="caret"></b>
+ </a>
+ <ul class="dropdown-menu pull-right" role="menu" aria-labelledby="frameworkactions[% loo.frameworkcode | html %]">
+ <li><a href="marctagstructure.pl?frameworkcode="><i class="fa fa-eye"></i> MARC structure</a></li>
+ <!-- Trigger modal -->
+ <li><a href="#" data-toggle="modal" data-target="#exportModal_default" title="Export framework structure (fields, subfields) to a spreadsheet file (.csv or .ods)"><i class="fa fa-upload"></i> Export</a></li>
+ <!-- Trigger modal -->
+ <li><a href="#" data-toggle="modal" data-target="#importModal_[% framework.frameworkcode | html %][% frameworks.count | html %]" title="Import framework structure (fields, subfields) from a spreadsheet file (.csv or .ods)"><i class="fa fa-download"></i> Import</a></li>
+ </ul>
+ </div>
+ <!-- Modal to export default framework -->
+ <div class="modal" id="exportModal_default" tabindex="-1" role="dialog" aria-labelledby="exportLabelexportModal_default" aria-hidden="true">
+ <div class="modal-dialog">
+ <div class="modal-content">
+ <div class="modal-header">
+ <button type="button" class="closebtn" data-dismiss="modal" aria-hidden="true">×</button>
+ <h3 id="exportLabelexportModal_default">Export default framework</h3>
+ </div> <!-- /.modal-header -->
+ <form action="import_export_framework.pl" name="form_defaul" method="get" target="_blank"  class="form_export">
+ <div class="modal-body">
+ <fieldset>
+ <input type="hidden" name="frameworkcode" value="" />
+ <p><label for="csv_type_export_default"><input type="radio" name="type_export_default" value="csv" id="csv_type_export_default" checked="checked" /> Export to CSV spreadsheet</label></p>
+ <p><label for="ods_type_export_default"><input type="radio" name="type_export_default" value="ods" id="ods_type_export_default" /> Export to OpenDocument spreadsheet format</label></p>
+ </fieldset>
+ </div> <!-- /.modal-body -->
+ <div class="modal-footer">
+ <button type="submit" class="btn btn-default">Export</button>
+ <button class="btn btn-link" data-dismiss="modal" aria-hidden="true">Cancel</button>
+ </div> <!-- /.modal-footer -->
+ </form> <!-- /.form_export -->
+ </div> <!-- /.modal-content -->
+ </div> <!-- /.modal-dialog -->
+ </div> <!-- /#exportModal_default.modal -->
+
+ <!-- Modal to import default framework -->
+ <div class="modal" id="importModal_[% framework.frameworkcode | html %][% frameworks.count | html %]" tabindex="-1" role="dialog" aria-labelledby="importLabelexportModal_default[% frameworks.count | html %]" aria-hidden="true">
+ <div class="modal-dialog">
+ <div class="modal-content">
+ <div class="modal-header">
+ <button type="button" class="closebtn" data-dismiss="modal" aria-hidden="true">×</button>
+ <h3 id="importLabelexportModal_[% framework.frameworkcode | html %][% frameworks.count | html %]">Import default framework structure (fields and subfields) from a spreadsheet file (.csv or .ods)</h>
+ </div> <!-- /.modal-header -->
+ <form action="/cgi-bin/koha/admin/import_export_framework.pl" name="form_i_default" id="form_i_default" method="post" enctype="multipart/form-data" class="form_import">
+ <div class="modal-body">
+ <input type="hidden" name="frameworkcode" value="default" />
+ <input type="hidden" name="action" value="import" />
+ <p><label for="file_import_default">Upload file:</label> <input type="file" name="file_import_default" id="file_import_default" class="input_import" /></p>
+ <div id="importing_default" style="display:none" class="importing"><img src="[% interface | html %]/[% theme | html %]/img/spinner-small.gif" alt="" /><span class="importing_msg"></span></div>
+ </div> <!-- /.modal-body -->
+ <div class="modal-footer">
+ <button type="submit" class="btn btn-default">Import</button>
+ <button class="btn btn-link" data-dismiss="modal" aria-hidden="true">Close</button>
+ </div> <!-- /.modal-footer -->
+ </form> <!-- /.form_export -->
+ </div> <!-- /.modal-content -->
+ </div> <!-- /.modal-dialog -->
+ </div> <!-- /#import_modal_... -->
+ </td>
+ </tr>
+
+ [% FOREACH loo IN frameworks %]
+ <tr>
+ <td>[% loo.frameworkcode | html %]</td>
+ <td>[% loo.frameworktext | html %]</td>
+ <td>
+ <div class="btn-group dropup">
+ <a class="btn btn-default btn-xs dropdown-toggle" id="frameworkactions[% loo.frameworkcode | html %]" role="button" data-toggle="dropdown" href="#">
+ Actions <b class="caret"></b>
+ </a>
+ <ul class="dropdown-menu pull-right" role="menu" aria-labelledby="frameworkactions[% loo.frameworkcode | html %]">
+ <li><a href="marctagstructure.pl?frameworkcode=[% loo.frameworkcode | uri %]"><i class="fa fa-eye"></i> MARC structure</a></li>
+ <li><a href="/cgi-bin/koha/admin/biblio_framework.pl?op=add_form&amp;frameworkcode=[% loo.frameworkcode | uri %]"><i class="fa fa-pencil"></i> Edit</a></li>
+ <li><a href="/cgi-bin/koha/admin/biblio_framework.pl?op=delete_confirm&amp;frameworkcode=[% loo.frameworkcode | uri %]"><i class="fa fa-trash"></i> Delete</a></li>
+ <!-- Trigger modal -->
+ <li><a href="#" data-toggle="modal" data-target="#exportModal_[% loo.frameworkcode | html %][% loop.count | html %]" title="Export framework structure (fields, subfields) to a spreadsheet file (.csv or .ods)"><i class="fa fa-upload"></i> Export</a></li>
+ <!-- Trigger modal -->
+ <li><a href="#" data-toggle="modal" data-target="#importModal_[% loo.frameworkcode | html %][% loop.count | html %]" title="Import framework structure (fields, subfields) from a spreadsheet file (.csv or .ods)"><i class="fa fa-download"></i> Import</a></li>
+ </ul>
+ </div>
+ <!-- Modal to export other framework -->
+ <div class="modal" id="exportModal_[% loo.frameworkcode | html %][% loop.count | html %]" tabindex="-1" role="dialog" aria-labelledby="exportLabelexportModal_[% loo.frameworkcode | html %][% loop.count | html %]" aria-hidden="true">
+ <div class="modal-dialog">
+ <div class="modal-content">
+ <div class="modal-header">
+ <button type="button" class="closebtn" data-dismiss="modal" aria-hidden="true">×</button>
+ <h3 id="exportLabelexportModal_[% loo.frameworkcode | html %][% loop.count | html %]">Export [% loo.frameworktext | html %] framework</h3>
+ </div> <!-- /.modal-header -->
+ <form action="import_export_framework.pl" name="form_[% loo.frameworkcode | html %]" method="get" target="_blank"  class="form_export">
+ <div class="modal-body">
+ <fieldset>
+ <input type="hidden" name="frameworkcode" value="[% loo.frameworkcode | html %]" />
+ <p><label for="csv_type_export_[% loo.frameworkcode | html %][% loop.count | html %]"><input type="radio" name="type_export_[% loo.frameworkcode | html %]" value="csv" id="csv_type_export_[% loo.frameworkcode | html %][% loop.count | html %]" checked="checked" /> Export to CSV spreadsheet</label></p>
+ <p><label for="ods_type_export_[% loo.frameworkcode | html %][% loop.count | html %]"><input type="radio" name="type_export_[% loo.frameworkcode | html %]" value="ods" id="ods_type_export_[% loo.frameworkcode | html %][% loop.count | html %]" /> Export to OpenDocument spreadsheet format</label></p>
+ </fieldset>
+ </div> <!-- /.modal-body -->
+ <div class="modal-footer">
+ <button type="submit" class="btn btn-default">Export</button>
+ <button class="btn btn-link" data-dismiss="modal" aria-hidden="true">Cancel</button>
+ </div> <!-- /.modal-footer -->
+ </form> <!-- /.form_export -->
+ </div> <!-- /.modal-content -->
+ </div> <!-- /.modal-dialog -->
+ </div> <!-- /#exportModal_... -->
+
+ <!-- Modal to import other framework -->
+ <div class="modal" id="importModal_[% loo.frameworkcode | html %][% loop.count | html %]" tabindex="-1" role="dialog" aria-labelledby="importLabelexportModal_[% loo.frameworkcode | html %][% loop.count | html %]" aria-hidden="true">
+ <div class="modal-dialog">
+ <div class="modal-content">
+ <div class="modal-header">
+ <button type="button" class="closebtn" data-dismiss="modal" aria-hidden="true">×</button>
+ <h3 id="importLabelexportModal_[% loo.frameworkcode | html %][% loop.count | html %]">Import [% loo.frameworkcode | html %] framework structure (fields and subfields) from a spreadsheet file (.csv or .ods)</h3>
+ </div> <!-- /.modal-header -->
+ <form action="/cgi-bin/koha/admin/import_export_framework.pl" name="form_i_[% loo.frameworkcode | html %]" id="form_i_[% loo.frameworkcode | html %]" method="post" enctype="multipart/form-data" class="form_import">
+ <div class="modal-body">
+ <input type="hidden" name="frameworkcode" value="[% loo.frameworkcode | html %]" />
+ <input type="hidden" name="action" value="import" />
+ <p><label for="file_import_[% loo.frameworkcode | html %]">Upload file:</label> <input type="file" name="file_import_[% loo.frameworkcode | html %]" id="file_import_[% loo.frameworkcode | html %]" class="input_import" /></p>
+ <div id="importing_[% loo.frameworkcode | html %]" style="display:none" class="importing"><img src="[% interface | html %]/[% theme | html %]/img/spinner-small.gif" alt="" /><span class="importing_msg"></span></div>
+ </div> <!-- /.modal-body -->
+ <div class="modal-footer">
+ <button type="submit" class="btn btn-default" title="[% loo.frameworkcode | html %]">Import</button>
+ <button class="btn btn-link" data-dismiss="modal" aria-hidden="true">Close</button>
+ </div> <!-- /.modal-footer -->
+ </form> <!-- /.form_export -->
+ </div> <!-- /.modal-content -->
+ </div> <!-- /.modal-dialog -->
+ </div> <!-- /#importModal... -->
+ </td>
+ </tr>
+
+ [% END %]
+</table>
+
+[% END %]
+
+ </main>
+ </div> <!-- /.col-sm-10.col-sm-push-2 -->
+
+ <div class="col-sm-2 col-sm-pull-10">
+ <aside>
+ [% INCLUDE 'admin-menu.inc' %]
+ </aside>
+ </div> <!-- /.col-sm-2.col-sm-pull-10 -->
+ </div> <!-- /.row -->
+
+[% MACRO jsinclude BLOCK %]
+ [% INCLUDE 'datatables.inc' %]
+ [% Asset.js("js/admin-menu.js") | $raw %]
+ <script>
+        var template_path = "[% interface | html %]/[% theme | html %]";
+    </script>
+ [% Asset.js("js/biblio_framework.js") | $raw %]
+[% END %]
+[% INCLUDE 'intranet-bottom.inc' %]

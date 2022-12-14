@@ -1,0 +1,237 @@
+[% USE raw %]
+[% USE Asset %]
+[% USE Branches %]
+[% USE Price %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>
+[% IF op == 'add_form' %]
+ [% IF cash_register %]
+ Modify cash register
+ [% ELSE %]
+ New cash register [% cash_register.id | html %]
+ [% END %] &rsaquo; [% ELSIF op == 'delete_confirm' %]
+ Confirm deletion of cash register '[% cash_register.id | html %]' &rsaquo; [% END %]
+Cash registers &rsaquo; Administration &rsaquo; Koha
+</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+
+<body id="admin_cash_registers" class="admin">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'prefs-admin-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/admin/admin-home.pl">Administration</a>
+ </li>
+
+ [% IF op == 'add_form'  %]
+ <li>
+ <a href="/cgi-bin/koha/admin/cash_registers.pl">Cash registers</a>
+ </li>
+ [% IF cash_register %]
+ <li>
+ <a href="#" aria-current="page">
+ Modify cash register [% cash_register.id | html %]
+ </a>
+ </li>
+ [% ELSE %]
+ <li>
+ <a href="#" aria-current="page">
+ New cash register
+ </a>
+ </li>
+ [% END %]
+
+ [% ELSIF op == 'delete_confirm' %]
+ <li>
+ <a href="/cgi-bin/koha/admin/cash_registers.pl">Cash registers</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ Confirm deletion of cash register '[% cash_register.id | html %]'
+ </a>
+ </li>
+
+ [% ELSE %]
+ <li>
+ <a href="#" aria-current="page">
+ Cash registers</a>
+ </li>
+ [% END %]
+ </ol>
+</nav>
+
+<div class="main container-fluid">
+ <div class="row">
+ <div class="col-sm-10 col-sm-push-2">
+ <main>
+
+ [% FOREACH m IN messages %]
+ <div class="dialog [% m.type | html %]">
+ [% SWITCH m.code %] [% CASE 'success_on_insert' %] Cash register added successfully. [% CASE 'error_on_insert' %] An error occurred when adding this cash register. [% CASE 'success_on_update' %] Cash register updated successfully. [% CASE 'error_on_update' %] An error occurred when updating this cash register. [% CASE 'success_on_default' %] Library default updated successfully. [% CASE 'error_on_update' %] An error on setting library default. [% CASE 'success_on_archive' %] Cash register archived successfully. [% CASE 'success_on_restore' %] Cash register restored successfully. [% CASE %] [% m.code | html %] [% END %] </div>
+ [% END %]
+
+ [% IF op == 'add_form' %]
+ <h3>[% IF cash_register %]Modify cash register[% ELSE %]Add new cash register[% END %]</h3>
+ <form action="/cgi-bin/koha/admin/cash_registers.pl" id="Aform" name="Aform" class="validated" method="post">
+
+ <fieldset class="rows">
+ <input type="hidden" name="op" value="add_validate" />
+ <ol>
+ [% IF cash_register %]
+ <li>
+ <span class="label">Cash register ID: </span>[% cash_register.id | html %]
+ <input type="hidden" name="id" value="[% cash_register.id | html %]" />
+ </li>
+ [% END %]
+
+ <li>
+ <label for="name" class="required">Name: </label>
+ <input type="text" name="name" id="name" size="24" maxlength="24" value="[% cash_register.name | html %]" class="required" />
+ <span class="required">Required</span>
+ </li>
+
+ <li>
+ <label for="description">Description: </label>
+ <input type="text" name="description" id="description" size="24" value="[% cash_register.description | html %]"/>
+ </li>
+ <li>
+ <label for="branch">Library: </label>
+ <select id="branch" name="branch">
+ [% IF cash_register %]
+ [% PROCESS options_for_libraries libraries => Branches.all( selected => cash_register.branch ) %]
+ [% ELSE %]
+ [% PROCESS options_for_libraries libraries => Branches.all() %]
+ [% END %]
+ </select>
+ </li>
+
+ <li>
+ <label for="starting_float">Initial float: </label>
+ <input type="text" pattern='^\d+(?:\.\d{0,2})$' name="starting_float" id="starting_float" size="24" value="[% cash_register.starting_float | $Price on_editing => 1  %]" />
+ </li>
+ </ol>
+ </fieldset>
+
+ <fieldset class="action">
+ [% IF cash_register %]
+ <input type="submit" value="Save" />
+ [% ELSE %]
+ <input type="submit" value="Add" />
+ [% END %]
+ <a class="cancel" href="/cgi-bin/koha/admin/cash_registers.pl?op=list">Cancel</a>
+ </fieldset>
+ </form>
+ [% END %]
+
+ [% IF op == 'list' %]
+ <div id="toolbar" class="btn-toolbar">
+ <a class="btn btn-default" id="newcashregister" href="/cgi-bin/koha/admin/cash_registers.pl?op=add_form"><i class="fa fa-plus"></i> New cash register</a>
+ </div>
+
+ <h3>Cash registers for <select id="branch_filter" name="branch_filter">
+ <option value=""></option>
+ [% PROCESS options_for_libraries libraries => Branches.all( selected => branchcode, unfiltered => 1, ) %]
+ </select>
+ </h3>
+
+ [% IF cash_registers.count %]
+ <table id="table_cash_registers">
+ <thead>
+ <th>Name</th>
+ <th>Description</th>
+ <th>Library</th>
+ <th>Library default</th>
+ <th>Initial float</th>
+ <th class="noExport">Actions</th>
+ </thead>
+ <tbody>
+ [% FOREACH cash_register IN cash_registers %]
+ [% IF cash_register.branch_default %]
+ <tr class="default">
+ [% ELSE %]
+ <tr>
+ [% END %]
+ <td>[% cash_register.name | html %]</td>
+ <td>[% cash_register.description | html %]</td>
+ <td>[% cash_register.library.branchname | html %]</td>
+ <td>[% IF cash_register.branch_default %]Yes[% ELSE %]No[% END %]</td>
+ <td>[% cash_register.starting_float | $Price %]</td>
+ [% IF cash_register.archived == '0' %]
+ <td class="actions">
+ <a class="btn btn-default btn-xs" href="cash_registers.pl?op=add_form&amp;id=[% cash_register.id | uri %]"><i class="fa fa-pencil"></i> Edit</a>
+ [% IF cash_register.branch_default %]
+ <a class="btn btn-default btn-xs" href="cash_registers.pl?op=drop_default&amp;id=[% cash_register.id | uri %]"><i class="fa fa-archive"></i> Drop default</a>
+ [% ELSE %]
+ <a class="btn btn-default btn-xs" href="cash_registers.pl?op=make_default&amp;id=[% cash_register.id | uri %]"><i class="fa fa-archive"></i> Make default</a>
+ [% END %]
+ <a class="btn btn-default btn-xs" href="cash_registers.pl?op=archive&amp;id=[% cash_register.id | uri %]"><i class="fa fa-archive"></i> Archive</a>
+ </td>
+ [% ELSE %]
+ <td class="actions"><a class="btn btn-default btn-xs" href="cash_registers.pl?op=unarchive&amp;id=[% cash_register.id | uri %]"><i class="fa fa-trash-restore"></i> Restore</a></td>
+ [% END %]
+ </tr>
+ [% END %]
+ </tbody>
+ </table>
+ [% ELSE %]
+ <div class="dialog message">There are no cash registers defined. <a href="/cgi-bin/koha/admin/cash_registers.pl?op=add_form">Start adding cash registers</a>.</div>
+ [% END # /cash_register.count %]
+ [% END # /op == 'list' %]
+ </main>
+ </div> <!-- /.col-sm-10.col-sm-push-2 -->
+
+ <div class="col-sm-2 col-sm-pull-10">
+ <aside>
+ [% INCLUDE 'admin-menu.inc' %]
+ </aside>
+ </div> <!-- /.col-sm-2.col-sm-pull-10 -->
+ </div> <!-- /.row -->
+
+[% MACRO jsinclude BLOCK %]
+ [% Asset.js("js/admin-menu.js") | $raw %]
+ [% INCLUDE 'datatables.inc' %]
+ <script>
+    function filterDataTable( table, column, term ){
+        if( column ){
+            table.column( column ).search( term ).draw();
+        } else {
+            table.search( term ).draw();
+        }
+        clearFilter( term );
+    }
+
+    function clearFilter( term ){
+        if( term == "" ){
+            $(".dt_button_clear_filter").addClass("disabled");
+        } else {
+            $(".dt_button_clear_filter").removeClass("disabled");
+        }
+    }
+
+    $(document).ready(function() {
+        var crtable = $("#table_cash_registers").DataTable($.extend(true, {}, dataTablesDefaults, {
+              "aoColumnDefs": [
+                  { "aTargets": [ -1, -2 ], "bSortable": false, "bSearchable":false },
+               ],
+               "aaSorting": [[ 1, "asc" ]],
+               "paginationType": "full",
+        }));
+
+        $("#branch_filter").on("change", function(){
+            // Table must be filtered by the <option>'s text, not its value
+            var opt = $(this).find("option:selected").text();
+            filterDataTable( crtable, 2, opt );
+        });
+
+    });
+    </script>
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' %]

@@ -1,0 +1,211 @@
+[% USE raw %]
+[% USE Asset %]
+[% USE Koha %]
+[% USE Branches %]
+[% USE KohaDates %]
+[% USE TablesSettings %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Items &rsaquo; [% biblio.title | html %] [% IF ( biblio.author ) %] by [% biblio.author | html %][% END %] (Record #[% biblio.biblionumber | html %]) &rsaquo; Cataloguing &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+[% Asset.css("css/addbiblio.css") | $raw %]
+[% INCLUDE 'datatables.inc' %]
+<script>
+    [% IF Koha.Preference('CreateAVFromCataloguing') && CAN_user_parameters_manage_auth_values %]
+        var auth_values_creation = 1;
+    [% ELSE %]
+        var auth_values_creation = 0;
+    [% END %]
+</script>
+[% INCLUDE 'select2.inc' %]
+[% Asset.js("js/cataloging.js") | $raw %]
+[% INCLUDE 'columns_settings.inc' %]
+[% Asset.js("js/browser.js") | $raw %]
+[% INCLUDE 'calendar.inc' %]
+[% INCLUDE 'str/cataloging_additem.inc' %]
+[% Asset.js("js/cataloging_additem.js") | $raw %]
+</head>
+
+<body id="cat_additem" class="cat">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'cataloging-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/cataloguing/addbooks.pl">Cataloguing</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/cataloguing/addbiblio.pl?biblionumber=[% biblio.biblionumber | uri %]">Edit <em>[% biblio.title | html %] [% IF ( biblio.author ) %] by [% biblio.author | html %][% END %] (Record #[% biblio.biblionumber | html %])</em></a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ Items
+ </a>
+ </li>
+ </ol>
+</nav>
+
+<div class="main container-fluid">
+ <div class="row">
+ <div class="col-sm-12">
+ <main>
+ [% INCLUDE 'blocking_errors.inc' %]
+<h1>Items for [% biblio.title | html %] [% IF ( biblio.author ) %] by [% biblio.author | html %][% END %] (Record #[% biblio.biblionumber | html %])</h1>
+
+[% IF ( barcode_not_unique ) %]<div class="dialog alert"><strong>Error saving item</strong>: Barcode must be unique.</div>[% END %]
+[% IF ( no_next_barcode ) %]<div class="dialog alert"><strong>Error saving items</strong>: Unable to automatically determine values for barcodes. No item has been inserted.</div>[% END %]
+[% IF ( book_on_loan ) %]<div class="dialog alert"><strong>Cannot delete</strong>: item is issued.</div>[% END %]
+[% IF ( book_reserved ) %]<div class="dialogalert"><strong>Cannot delete</strong>: item has a waiting reservation.</div>[% END %]
+[% IF ( not_same_branch ) %]<div class="dialog alert"><strong>Cannot delete</strong>: The items do not belong to your library.</div>[% END %]
+[% IF ( linked_analytics ) %]<div class="dialog alert"><strong>Cannot delete</strong>: item has linked <a href="/cgi-bin/koha/catalogue/detail.pl?biblionumber=[% biblio.biblionumber | uri %]&amp;analyze=1">analytics.</a>.</div>[% END %]
+[% IF last_item_for_hold %]<div class="dialog alert"><strong>Cannot delete</strong>: Last item for bibliographic record with biblio-level reservation on it.</div>[% END %]
+
+<div id="cataloguing_additem_itemlist">
+ [% IF items %]
+ [% SET date_fields = [ 'dateaccessioned', 'onloan', 'datelastseen', 'datelastborrowed', 'replacementpricedate' ] %]
+ <div>
+ <table id="itemst">
+ <thead>
+ <tr>
+ <th class="NoSort">&nbsp;</th>
+ [% FOREACH item_header IN item_header_loop %]
+ <th data-colname="[% item_header.attribute | html %]">
+ [% item_header.header_value | html %]
+ </th>
+ [% END %]
+ </tr>
+ </thead>
+ <tbody>
+ [% FOREACH item IN items %]
+ [% SET can_be_edited = ! ( Koha.Preference('IndependentBranches') && ! logged_in_user.is_superlibrarian && item.homebranch != Branches.GetLoggedInBranchname() ) %]
+ [% IF item.itemnumber == itemnumber%]
+ [% UNLESS can_be_edited %]
+ <tr id="row[% item.itemnumber | html %]" class="active">
+ [% ELSE %]
+ <tr id="row[% item.itemnumber | html %]" class="active editable">
+ [% END %]
+ [% ELSE %]
+ [% UNLESS can_be_edited %]
+ <tr id="row[% item.itemnumber | html %]">
+ [% ELSE %]
+ <tr id="row[% item.itemnumber | html %]" class="editable">
+ [% END %]
+ [% END %]
+ [% UNLESS can_be_edited %]
+ <td>&nbsp;</td>
+ [% ELSE %]
+ <td>
+ <div class="btn-group dropup">
+ <a class="btn btn-default btn-xs dropdown-toggle" id="itemactions[% item.itemnumber | html %]" role="button" data-toggle="dropdown" href="#">
+ Actions <b class="caret"></b>
+ </a>
+ <ul class="dropdown-menu" role="menu" aria-labelledby="itemactions[% item.itemnumber | html %]">
+
+ [% IF item.biblionumber != biblio.biblionumber %] [%# Host item %]
+ <li><a href="additem.pl?op=edititem&amp;biblionumber=[% item.biblionumber | uri %]&amp;itemnumber=[% item.itemnumber | uri %]#edititem">Edit in host</a> &nbsp; <a class="delete" href="/cgi-bin/koha/cataloguing/additem.pl?op=delinkitem&amp;biblionumber=[% biblio.biblionumber | html %]&amp;hostitemnumber=[% item.itemnumber | html %]&amp;searchid=[% searchid | html %]">Delink</a></li>
+ [% ELSE %]
+ <li><a href="additem.pl?op=edititem&amp;biblionumber=[% biblio.biblionumber | uri %]&amp;itemnumber=[% item.itemnumber | uri %]&amp;searchid=[% searchid | uri %]#edititem">Edit</a></li>
+ <li><a href="additem.pl?op=dupeitem&amp;biblionumber=[% biblio.biblionumber | uri %]&amp;itemnumber=[% item.itemnumber | uri %]&amp;searchid=[% searchid | uri %]#additema">Duplicate</a></li>
+ <li class="print_label"><a href="/cgi-bin/koha/labels/label-edit-batch.pl?op=add&amp;number_type=itemnumber&amp;number_list=[% item.itemnumber | uri %]" target="_blank" >Print label</a></li>
+ <li><a class="delete" href="/cgi-bin/koha/cataloguing/additem.pl?op=delitem&amp;biblionumber=[% item.biblionumber | html %]&amp;itemnumber=[% item.itemnumber | html %]&amp;searchid=[% searchid | html %]" onclick="return confirm_deletion();">Delete</a></li>
+ [% END %]
+ [% IF ( OPACBaseURL ) %]
+ <li class="view-in-opac"><a target="_blank" href="[% Koha.Preference('OPACBaseURL') | url %]/cgi-bin/koha/opac-detail.pl?biblionumber=[% item.biblionumber | uri %]">OPAC view</a></li>
+ [% END %]
+ </ul>
+ </div>
+ </td>
+ [% END %]
+ [% FOREACH header IN item_header_loop %]
+ [% SET attribute = header.attribute %]
+ [% IF header.attribute AND date_fields.grep('^' _ attribute _ '$').size %]
+ <td data-order="[% item.$attribute | html %]">[% item.$attribute | $KohaDates %]</td>
+ [% ELSE %]
+ <td>[% item.$attribute | html %]</td>
+ [% END %]
+ [% END %]
+ </tr>
+ [% END %]
+ </tbody>
+ </table>
+ </div>
+ [% END %]
+
+<div class="row">
+ <div class="col-sm-2">
+ [% INCLUDE 'biblio-view-menu.inc' %]
+ </div>
+ <div class="col-sm-10">
+
+<div id="cataloguing_additem_newitem">
+ <form id="f" method="post" action="/cgi-bin/koha/cataloguing/additem.pl?biblionumber=[% biblio.biblionumber | html %]" name="f">
+ <input type="hidden" name="op" value="[% op | html %]" />
+ [% IF (popup) %]
+ <input type="hidden" name="popup" value="1" />
+ [% END %]
+ <input type="hidden" name="biblionumber" value="[% biblio.biblionumber | html %]" />
+ [% IF op != 'saveitem' %]
+ <h2 id="additema">Add item [% IF (circborrowernumber) %]<em>(fast cataloguing)</em>[% END %]</h2>
+ [% ELSE %]
+ <h2 id="edititem">Edit item #[% itemnumber | html %][% IF ( barcode ) %] / Barcode [% barcode | html %][% END %]</h2>
+ [% END %]
+ <fieldset class="rows">
+ [% PROCESS subfields_for_item subfields => subfields %]
+ </fieldset>
+ [% IF op != 'add_item' %]
+ <input type="hidden" name="itemnumber" value="[% itemnumber | html %]" />
+ [% END %]
+
+<fieldset class="action"> [% IF op != 'saveitem' %]
+ <input type="submit" name="phony_submit" value="phony_submit" id="phony_submit" style="display:none;" onclick="return false;" />
+ <!-- Note : We use here a false submit button because we have several submit buttons and we don't want the user to believe they validated the adding of multiple items
+ when pressing the enter key, while in fact it is the first submit button that is validated, in our case the "add (single) item" button.
+ It is a bit tricky, but necessary in the sake of UI correctness.
+ -->
+ <span id="addsingle">
+ <input type="submit" name="add_submit" value="Add item" onclick="return Check(this.form)" />
+ <input type="submit" name="add_duplicate_submit" value="Add &amp; duplicate" onclick="return Check(this.form)" />
+ </span>
+ <span id="addmultiple">
+ <input type="button" name="add_multiple_copies" id="add_multiple_copies" value="Add multiple copies of this item" />
+ </span>
+ <fieldset id="add_multiple_copies_span">
+ <label for="number_of_copies">Number of copies of this item to add: </label>
+ <input type="text" id="number_of_copies" name="number_of_copies" value="" size="2" />
+ <input type="submit" id="add_multiple_copies_submit" name="add_multiple_copies_submit" value="Add" onclick="javascript:return Check(this.form) && CheckMultipleAdd(this.form.number_of_copies.value);" /> <a href="#" id="cancel_add_multiple" class="cancel">Cancel</a>
+ <div class="hint"><p>The barcode you enter will be incremented for each additional item.</p></div>
+ </fieldset>
+
+ [% ELSE %]
+ [% IF op != 'add_item' %]
+ <input type="hidden" name="itemnumber" value="[% itemnumber | html %]" />
+ [% END %]
+ <input type="submit" value="Save changes" onclick="return Check(this.form)">
+ <input type="button" id="addnewitem" value="Add a new item">
+ <a href="/cgi-bin/koha/catalogue/detail.pl?biblionumber=[% biblio.biblionumber | uri %]">Cancel</a>
+ [% END %]</fieldset>
+
+ [%# Fields for fast cataloging %]
+ <input type="hidden" name="circborrowernumber" value="[% circborrowernumber | html %]" />
+ <input type="hidden" name="stickyduedate" value="[% stickyduedate | html %]" />
+ <input type="hidden" name="barcode" value="[% barcode | html %]" />
+ <input type="hidden" name="duedatespec" value="[% duedatespec | html %]" />
+ [%# End fields for fast cataloging %]
+
+
+ </form>
+
+ [% INCLUDE 'modals/cataloguing_create_av.inc' %]
+
+ </div> <!-- /#cataloguing_additem_newitem -->
+ </div> <!-- /.col-sm-10 -->
+ </div> <!-- /.row -->
+ </div> <!-- /#cataloguing_additem_itemlist -->
+ </main>
+ </div> <!-- /.col-sm-12 -->
+ </div> <!-- /.row -->
+
+[% INCLUDE 'intranet-bottom.inc' %]

@@ -1,0 +1,67 @@
+---
+I18N/L10N:
+- - Format dates like
+  - choices:
+      dmydot: dd.mm.yyyy
+      iso: yyyy-mm-dd
+      metric: dd/mm/yyyy
+      us: mm/dd/yyyy
+    default: us
+    pref: dateformat
+  - .
+- - Format times in
+  - choices:
+      12hr: 12 hour format ( e.g. "02:18 PM" )
+      24hr: 24 hour format ( e.g. "14:18" )
+    default: 24hr
+    pref: TimeFormat
+  - .
+- - Use
+  - choices:
+      '0': Sunday
+      '1': Monday
+      '2': Tuesday
+      '3': Wednesday
+      '4': Thursday
+      '5': Friday
+      '6': Saturday
+    default: 0
+    pref: CalendarFirstDayOfWeek
+  - as the first day of week in the calendar.
+- - 'Enable the following languages on the staff interface:'
+  - pref: language
+    type: staff-languages
+  - This list can be sorted to modify the order of the languages on the interface.
+- - choices:
+      '0': Don't allow
+      '1': Allow
+    default: 0
+    pref: opaclanguagesdisplay
+  - ' users to change the language they see on the OPAC.'
+- - ' users to change the language they see on the OPAC.'
+  - pref: OPACLanguages
+    type: opac-languages
+  - This list can be sorted to modify the order of the languages on the interface.
+- - Use the alphabet
+  - class: long
+    pref: alphabet
+  - for lists of browsable letters. This should be a space separated list of uppercase
+    letters.
+  - '<br/> Hint: Changing collation in the database for the ''surname'' column of
+    the ''borrowers'' table is helpful to make browsing by last name work in members-home.pl
+    when using an alphabet outside of A-Z.'
+- - Format postal addresses using
+  - choices:
+      de: German style ([Address] [Street number] - [ZIP/Postal Code] [City] - [Country])
+      fr: French style ([Street number] [Address] - [ZIP/Postal Code] [City] - [Country])
+      us: US style ([Street number], [Address] - [City], [ZIP/Postal Code], [Country])
+    default: us
+    pref: AddressFormat
+  - .
+- - choices:
+      '0': Don't allow
+      '1': Allow
+    pref: TranslateNotices
+  - notices to be translated.
+  - ' If set, notices will be translatable from the "Notices and slips" interface.
+    The language used to send a notice to a user will be the one defined for the user.'

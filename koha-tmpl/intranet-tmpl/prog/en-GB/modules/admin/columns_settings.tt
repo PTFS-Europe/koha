@@ -1,0 +1,318 @@
+[% USE raw %]
+[% USE Asset %]
+[% USE TablesSettings %]
+[% SET footerjs = 1 %]
+[% SET panel_id = 0 %]
+[% BLOCK pagelist %]
+ [% IF module.keys and module.keys.size > 0 %]
+ Jump to:
+ [% FOR pagename IN module.keys.sort %]
+ <a href="#[% pagename | url %]">[% pagename | html %]</a>
+ [% UNLESS loop.last %]<span class="separator"> | </span>[% END %]
+ [% END %]
+ [% END %]
+ <div class="pagelist">
+ <form method="post" action="/cgi-bin/koha/admin/columns_settings.pl">
+ <input type="hidden" name="action" value="save" />
+ <input type="hidden" name="module" value="[% modulename | html %]" />
+ <input type="hidden" name="panel" value="[% panel_id | html %]" />
+ [% SET panel_id = panel_id + 1 %]
+ [% IF module.keys and module.keys.size > 0 %]
+ [% FOR pagename IN module.keys.sort %]
+ <h4 class="page_name" id="[% pagename | html %]">Page: [% pagename | html %]</h4>
+ [% SET tables = module %]
+ [% IF tables.$pagename.keys and tables.$pagename.keys.size > 0 %]
+ [% FOR tablename IN tables.$pagename.keys.sort %]
+ [% SET table_id = pagename _ '#' _ tablename %]
+ <div class="datatable_config" id="[% table_id | html %]">
+ <input type="hidden" name="table_id" value="[% table_id| html %]" />
+ [% IF pagename == 'additem' AND tablename == 'itemst' %]
+ <div class="alert">Changes made below will only apply to item subfields that are mapped to the 'items' table. <a href="/cgi-bin/koha/admin/koha2marclinks.pl?tablename=items">Go to Koha to MARC mapping</a></div>
+ [% END %]
+ <table>
+ <caption>
+ [% IF tablename == 'currencies-table' %]
+ Currency
+ [% ELSIF pagename == 'additem' AND tablename == 'itemst' %]
+ Items editor
+ [% ELSE %]
+ Table id: [% tablename | html %]
+ [% END %]
+ </caption>
+ <thead>
+ <tr>
+ <th>Column name</th>
+ <th>Is hidden by default</th>
+ <th>Cannot be toggled</th>
+ </tr>
+ </thead>
+ <tbody>
+ [% FOR column IN tables.$pagename.$tablename.columns %]
+ [% SET value = pagename _ '#' _ tablename _ '#' _ column.columnname %]
+ <tr>
+ <td>
+ [% column.columnname | html %]
+ <input type="hidden" name="columnid" value="[% value | html %]" />
+ </td>
+ <td>
+ [% IF column.is_hidden %]
+ [% IF column.cannot_be_modified %]
+ <input type="checkbox" name="[% value | html %]_hidden" value="1" checked="checked" disabled="disabled" />
+ <input type="hidden" name="[% value | html %]_hidden" value="1" />
+ [% ELSE %]
+ <input type="checkbox" name="[% value | html %]_hidden" value="1" checked="checked" />
+ [% END %]
+ [% ELSE %]
+ [% IF column.cannot_be_modified %]
+ <input type="checkbox" name="[% value | html %]_hidden" value="1" disabled="disabled" />
+ <input type="hidden" name="[% value | html %]_hidden" value="0" />
+ [% ELSE %]
+ <input type="checkbox" name="[% value | html %]_hidden" value="1" />
+ [% END %]
+ [% END %]
+ </td>
+ <td>
+ [% IF column.cannot_be_toggled %]
+ [% IF column.cannot_be_modified %]
+ <input type="checkbox" name="[% value | html %]_cannot_be_toggled" value="1" checked="checked" disabled="disabled" />
+ <input type="hidden" name="[% value | html %]_cannot_be_toggled" value="1" />
+ [% ELSE %]
+ <input type="checkbox" name="[% value | html %]_cannot_be_toggled" value="1" checked="checked" />
+ [% END %]
+ [% ELSE %]
+ [% IF column.cannot_be_modified %]
+ <input type="checkbox" name="[% value | html %]_cannot_be_toggled" value="1" disabled="disabled" />
+ <input type="hidden" name="[% value | html %]_cannot_be_toggled" value="0" />
+ [% ELSE %]
+ <input type="checkbox" name="[% value | html %]_cannot_be_toggled" value="1" />
+ [% END %]
+ [% END %]
+ </td>
+ </tr>
+ [% END %]
+ </tbody>
+ </table>
+ [% SET table_settings = TablesSettings.GetTableSettings( modulename, pagename, tablename ) %]
+ [% IF table_settings.default_display_length %]
+ <p>
+ Default display length:
+ <select name="[% table_id | html %]_default_display_length">
+ [% IF table_settings.default_display_length == 10 %]
+ <option value="10" selected="selected">10</option>
+ [% ELSE %]
+ <option value="10">10</option>
+ [% END %]
+ [% IF table_settings.default_display_length == 20 %]
+ <option value="20" selected="selected">20</option>
+ [% ELSE %]
+ <option value="20">20</option>
+ [% END %]
+ [% IF table_settings.default_display_length == 50 %]
+ <option value="50" selected="selected">50</option>
+ [% ELSE %]
+ <option value="50">50</option>
+ [% END %]
+ [% IF table_settings.default_display_length == 100 %]
+ <option value="100" selected="selected">100</option>
+ [% ELSE %]
+ <option value="100">100</option>
+ [% END %]
+ [% IF table_settings.default_display_length == -1 %]
+ <option value="-1" selected="selected">All</option>
+ [% ELSE %]
+ <option value="-1">All</option>
+ [% END %]
+ </select>
+ </p>
+ [% END %]
+ [% IF table_settings.default_sort_order.defined %]
+ <p>
+ Default sort order:
+ <select name="[% pagename | html %]#[% tablename | html %]_default_sort_order">
+ [% FOR column IN tables.$pagename.$tablename.columns %]
+ [% IF table_settings.default_sort_order == loop.count - 1 %]
+ <option value="[% loop.count - 1 %]" selected="selected">[% column.columnname | html %]</option>
+ [% ELSE %]
+ <option value="[% loop.count - 1 %]">[% column.columnname | html %]</option>
+ [% END %]
+ [% END %]
+ </select>
+ </p>
+ [% END %]
+
+ </div>
+ [% END %]
+ <fieldset class="action">
+ <input type="submit" value="Save" />
+ </fieldset>
+ [% ELSE %]
+ There is no table to configure for this module.
+ [% END %]
+ [% END %]
+ [% ELSE %]
+ There is no page using the table configuration in this module.
+ [% END %]
+ </form>
+ </div>
+[% END %]
+
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Table settings &rsaquo; Administration &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+<style>
+    caption {
+        font-size: 115%;
+    }
+
+    .datatable_config {
+        margin-left: 1em;
+    }
+    .page_name {
+        border-top: 1px solid #b9d8d9;
+        margin-top: 1em;
+        padding-top: 1em;
+    }
+</style>
+</head>
+
+<body id="admin_tables" class="admin">
+
+ [% INCLUDE 'header.inc' %]
+ [% INCLUDE 'prefs-admin-search.inc' %]
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/admin/admin-home.pl">Administration</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ Table settings
+ </a>
+ </li>
+ </ol>
+</nav>
+
+ <div class="main container-fluid">
+ <div class="row">
+ <div class="col-sm-10 col-sm-push-2">
+ <main>
+
+ <h2>Table settings</h2>
+ <div id="modules">
+ <div class="panel_header"><a href="#acqui">Acquisition</a></div>
+ <div id="acqui">
+ <h3>Acquisition tables</h3>
+ [% PROCESS pagelist module=modules.acqui modulename="acqui" %]
+ </div>
+
+ <div class="panel_header"><a href="#admin">Administration</a></div>
+ <div id="admin">
+ <h3>Administration tables</h3>
+ [% PROCESS pagelist module=modules.admin modulename="admin" %]
+ </div>
+
+ <div class="panel_header"><a href="#authorities">Authorities</a></div>
+ <div id="authorities">
+ <h3>Authorities tables</h3>
+ [% PROCESS pagelist module=modules.authorities modulename="authorities" %]
+ </div>
+
+ <div class="panel_header"><a href="#catalog">Catalogue</a></div>
+ <div id="catalogue">
+ <h3>Catalogue tables</h3>
+ [% PROCESS pagelist module=modules.catalogue modulename="catalogue" %]
+ </div>
+
+ <div class="panel_header"><a href="#cataloguing">Cataloguing</a></div>
+ <div id="cataloguing">
+ <h3>Cataloguing tables</h3>
+ [% PROCESS pagelist module=modules.cataloguing modulename="cataloguing" %]
+ </div>
+
+ <div class="panel_header"><a href="#circulation">Circulation</a></div>
+ <div id="circulation">
+ <h3>Circulation tables</h3>
+ [% PROCESS pagelist module=modules.circ modulename="circ" %]
+ </div>
+
+ <div class="panel_header"><a href="#coursereserves">Course reserves</a></div>
+ <div id="coursereserves">
+ <h3>Course reserves tables</h3>
+ [% PROCESS pagelist module=modules.coursereserves modulename="coursereserves" %]
+ </div>
+
+ <div class="panel_header"><a href="#ill">Interlibrary loans</a></div>
+ <div id="ill">
+ <h3>Interlibrary loans tables</h3>
+ [% PROCESS pagelist module=modules.illrequests modulename="illrequests" %]
+ </div>
+
+ <div class="panel_header"><a href="#members">Users</a></div>
+ <div id="members">
+ <h3>User tables</h3>
+ [% PROCESS pagelist module=modules.members modulename="members" %]
+ </div>
+
+ <div class="panel_header"><a href="#pos">Point of sale</a></div>
+ <div id="pos">
+ <h3>Point of sale tables</h3>
+ [% PROCESS pagelist module=modules.pos modulename="pos" %]
+ </div>
+
+ <div class="panel_header"><a href="#tools">Tools</a></div>
+ <div id="tools">
+ <h3>Tools tables</h3>
+ [% PROCESS pagelist module=modules.tools modulename="tools" %]
+ </div>
+
+ <div class="panel_header"><a href="#opac">OPAC</a></div>
+ <div id="opac">
+ <h3>OPAC tables</h3>
+ [% PROCESS pagelist module=modules.opac modulename="opac" %]
+ </div>
+
+ <div class="panel_header"><a href="#reports">Reports</a></div>
+ <div id="reports">
+ <h3>Reports tables</h3>
+ [% PROCESS pagelist module=modules.reports modulename="reports" %]
+ </div>
+
+ <div class="panel_header"><a href="#serials">Serials</a></div>
+ <div id="serials">
+ <h3>Serials tables</h3>
+ [% PROCESS pagelist module=modules.serials modulename="serials" %]
+ </div>
+
+ </div>
+ </main>
+ </div> <!-- /.col-sm-10.col-sm-push-2 -->
+
+ <div class="col-sm-2 col-sm-pull-10">
+ <aside>
+ [% INCLUDE 'admin-menu.inc' %]
+ </aside>
+ </div> <!-- /.col-sm-2.col-sm-pull-10 -->
+ </div> <!-- /.row -->
+
+[% MACRO jsinclude BLOCK %]
+ [% Asset.js("js/admin-menu.js") | $raw %]
+ <script>
+        $(document).ready( function() {
+            var accordion = $( "#modules" ).accordion({
+                    collapsible: true,
+                    heightStyle: "content",
+                    header: ".panel_header",
+                [%- IF panel -%]
+                    [%# we were asked to show a specific panel, usually on update %]
+                    active: [%- panel | html -%]
+                [%- ELSE -%]
+                    active: false
+                [%- END -%]
+            });
+        });
+    </script>
+[% END %]
+[% INCLUDE 'intranet-bottom.inc' %]

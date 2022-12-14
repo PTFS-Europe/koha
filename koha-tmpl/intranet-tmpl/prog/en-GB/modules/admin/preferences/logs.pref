@@ -1,0 +1,112 @@
+---
+Logging:
+  Debugging:
+  - - choices:
+        '0': Don't
+        '1': Do
+      pref: DumpTemplateVarsIntranet
+    - dump all Template Toolkit variables to a comment in the HTML source for the
+      staff interface.
+  - - choices:
+        '0': Don't
+        '1': Do
+      pref: DumpTemplateVarsOpac
+    - dump all Template Toolkit variables to a comment in the HTML source for the
+      OPAC.
+  - - choices:
+        '0': Don't
+        '1': Do
+      pref: DumpSearchQueryTemplate
+    - dump search query as a template parameter, requires <a href="/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=DumpTemplateVars">DumpTemplateVars</a>[interface]
+      to be visible.
+  Logging:
+  - - choices:
+        '0': ' Don''t show any reservation details'
+        '1': Log
+      pref: ClaimsLog
+    - when an acquisitions claim or a serials claim notice is sent.
+  - - choices:
+        '0': Don't log
+        '1': Log
+      pref: BorrowersLog
+    - ' changes to user records.'
+  - - choices:
+        '0': Don't log
+        '1': Log
+      pref: CataloguingLog
+    - any changes to bibliographic or item records.
+  - - choices:
+        '0': Don't log
+        '1': Log
+      pref: AuthoritiesLog
+    - changes to authority records.
+  - - choices:
+        '0': Don't log
+        '1': Log
+      pref: FinesLog
+    - when fines are charged, paid, or forgiven.
+  - - choices:
+        '0': Don't log
+        '1': Log
+      pref: HoldsLog
+    - ' any actions on reservations (create, cancel, suspend, resume, etc).'
+  - - choices:
+        '0': Don't log
+        '1': Log
+      pref: IllLog
+    - when changes to ILL requests take place.
+  - - choices:
+        '0': Don't log
+        '1': Log
+      pref: AcquisitionLog
+    - when acquisition actions take place.
+  - - choices:
+        '0': Don't log
+        '1': Log
+      pref: IssueLog
+    - ' when items are issued.'
+  - - choices:
+        '0': Don't log
+        '1': Log
+      pref: ReturnLog
+    - ' when items are returned.'
+  - - choices:
+        '0': Don't log
+        '1': Log
+      pref: RenewalLog
+    - when items are renewed.
+  - - choices:
+        '0': Don't log
+        '1': Log
+      pref: SubscriptionLog
+    - when serials are added, deleted or changed.
+  - - choices:
+        '0': Don't log
+        '1': Log
+      pref: CronjobLog
+    - information from cron jobs.
+  - - choices:
+        '0': Don't log
+        '1': Log
+      pref: ReportsLog
+    - when reports are added, deleted or changed.
+  - - choices:
+        '0': Don't log
+        '1': Log
+      pref: AuthFailureLog
+    - ' authentication failures.'
+  - - choices:
+        '0': Don't log
+        '1': Log
+      pref: AuthSuccessLog
+    - ' successful authentications.'
+  - - choices:
+        '0': ' Don''t show any reservation details'
+        '1': Log
+      pref: NoticesLog
+    - ' changes to user records.'
+  - - choices:
+        '0': ' Don''t show any reservation details'
+        '1': ' Don''t show any reservation details'
+      pref: NewsLog
+    - ' changes to user records.'

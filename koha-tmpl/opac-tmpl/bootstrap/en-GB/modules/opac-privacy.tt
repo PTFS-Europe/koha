@@ -1,0 +1,163 @@
+[% USE Koha %]
+[% USE AdditionalContents %]
+[% SET OpacNav = AdditionalContents.get( location => "OpacNav", lang => lang, library => logged_in_user.branchcode || default_branch, blocktitle => 0 ) %]
+[% SET OpacNavBottom = AdditionalContents.get( location => "OpacNavBottom", lang => lang, library => logged_in_user.branchcode || default_branch, blocktitle => 0 ) %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Your privacy management &rsaquo; [% IF ( LibraryNameTitle ) %][% LibraryNameTitle | html %][% ELSE %]Koha online[% END %] catalogue</title>
+[% INCLUDE 'doc-head-close.inc' %]
+[% BLOCK cssinclude %][% END %]
+</head>
+[% INCLUDE 'bodytag.inc' bodyid='opac-privacy' %]
+[% INCLUDE 'masthead.inc' %]
+
+<div class="main">
+ <nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumbs">
+ <ol class="breadcrumb">
+ <li class="breadcrumb-item">
+ <a href="/cgi-bin/koha/opac-main.pl">Home</a>
+ </li>
+ <li class="breadcrumb-item">
+ <a href="/cgi-bin/koha/opac-user.pl">[% INCLUDE 'patron-title.inc' patron = logged_in_user %]</a>
+ </li>
+ <li class="breadcrumb-item active">
+ <a href="#" aria-current="page">Your privacy management</a>
+ </li>
+ </ol>
+ </nav> <!-- /#breadcrumbs -->
+
+ <div class="container-fluid">
+ <div class="row">
+ <div class="col col-lg-2 order-2 order-lg-1">
+ <div id="navigation">
+ [% INCLUDE 'navigation.inc' IsPatronPage=1 %]
+ </div>
+ </div>
+ <div class="col-md-12 col-lg-10 order-1">
+
+ <div id="userprivacy" class="maincontent">
+ <h1>Your privacy management</h1>
+
+ [% IF deleted %]
+ <div class="alert alert-success">Your borrowing history has been deleted.</div>
+ [% ELSIF history_not_deleted %]
+ <div class="alert alert-warning">The deletion of your borrowing history failed, because there is a problem with the configuration of this feature. Please help to fix the system by informing your library of this error</div>
+ [% ELSIF nothing_to_delete %]
+ <div class="alert alert-warning">No borrowing history to delete</div>
+ [% END %]
+
+ [% IF ( privacy_updated ) %]
+ <div class="alert alert-success">Your privacy rules have been updated.</div>
+ [% END %]
+
+ [% IF ( Ask_data ) %]
+ <p>We take great care in protecting your privacy. On this screen, you can define how long we keep your checkout history.</p>
+ <p>Your options are: <p>
+ <ul id="opac-privacy-options-list">
+ <li class="privacy0">Forever: keep my checkout history without limit. This is the option for users who want to keep track of what they are reading.</li>
+ <li class="privacy1">Default: keep my checkout history according to local laws. This is the default option : the library will keep your checkout history for the duration permitted by local laws.</li>
+ <li class="privacy2">Never: Delete my checkout history immediately. This will delete all record of the item that was checked-out upon check-in.</li>
+ </ul>
+ <p id="note1">Please note that information on any book still issued must be kept by the library no matter which privacy option you choose.</p>
+ <p id="note2">Please also note that the library staff can't update these values for you: it's your privacy!</p>
+ <form action="/cgi-bin/koha/opac-privacy.pl" method="post" id="opac-privacy-update-form">
+ <legend class="sr-only">Privacy rule</legend>
+ <input type="hidden" name="op" value="update_privacy" />
+ <fieldset>
+ <label for="privacy">Please choose your privacy rule:</label>
+ <div class="form-group row">
+ <div class="col-6">
+ <select class="form-control" name="privacy" id="privacy">
+ [% IF ( privacy0 ) %]
+ <option value="0" selected="selected" class="privacy0">Forever</option>
+ [% ELSE %]
+ <option value="0" class="privacy0">Forever</option>
+ [% END %]
+ [% IF ( privacy1 ) %]
+ <option value="1" selected="selected" class="privacy1">Default</option>
+ [% ELSE %]
+ <option value="1" class="privacy1">Default</option>
+ [% END %]
+ [% IF ( privacy2 ) %]
+ <option value="2" selected="selected" class="privacy2">Never</option>
+ [% ELSE %]
+ <option value="2" class="privacy2">Never</option>
+ [% END %]
+ </select>
+ </div> <!-- /.col-6 -->
+ </div> <!-- /.form-group.row -->
+
+ [% IF has_guarantor_flag && (Koha.Preference('AllowPatronToSetCheckoutsVisibilityForGuarantor') || Koha.Preference('AllowPatronToSetFinesVisibilityForGuarantor') ) %]
+ [% IF Koha.Preference('AllowPatronToSetCheckoutsVisibilityForGuarantor') %]
+ <div class="form-group row">
+ <div class="col-6">
+ <label for="privacy_guarantor_checkouts">Allow your guarantor to view your current loans?</label>
+ <select class="form-control" name="privacy_guarantor_checkouts">
+ [% IF borrower.privacy_guarantor_checkouts %]
+ <option value="0">No</option>
+ <option value="1" selected>Yes</option>
+ [% ELSE %]
+ <option value="0" selected>No</option>
+ <option value="1">Yes</option>
+ [% END %]
+ </select>
+ </div> <!-- /.col-6 -->
+ </div> <!-- /.form-group.row -->
+ [% END # /IF Koha.Preference('AllowPatronToSetCheckoutsVisibilityForGuarantor') %]
+
+ [% IF Koha.Preference('AllowPatronToSetFinesVisibilityForGuarantor') %]
+ <div class="form-group row">
+ <div class="col-6">
+ <label for="privacy_guarantor_fines">Allow your guarantor to view your current fines?</label>
+ <select class="form-control" name="privacy_guarantor_fines">
+ [% IF borrower.privacy_guarantor_fines %]
+ <option value="0">No</option>
+ <option value="1" selected>Yes</option>
+ [% ELSE %]
+ <option value="0" selected>No</option>
+ <option value="1">Yes</option>
+ [% END %]
+ </select>
+ </div> <!-- /.col-6 -->
+ </div> <!-- /.form-group.row -->
+ [% END %]
+
+ <span class="hint">
+ Guaranteed by
+ [% FOREACH gr IN borrower.guarantor_relationships %]
+ [% SET g = gr.guarantor %]
+ [% g.firstname | html %] [% g.surname | html %]
+ [%- IF ! loop.last %], [% END %]
+ [% END %]
+ </span>
+ [% END # /IF has_guarantor_flag.. %]
+ <fieldset class="action">
+ <button type="Submit" class="btn btn-primary">Save</button>
+ </fieldset>
+ </fieldset>
+ </form> <!-- /#opac-privacy-update-form -->
+
+ <hr />
+
+ <h2>Immediate deletion</h2>
+
+ <form action="/cgi-bin/koha/opac-privacy.pl" method="post" id="opac-privacy-delete-form">
+ <legend class="sr-only">Immediate deletion</legend>
+ <input type="hidden" name="op" value="delete_record" />
+ <p>Whatever your privacy rule you choose, you can delete all your checkout history immediately by clicking here. <strong>BE CAREFUL</strong>. Once you've confirmed the deletion, no one can retrieve the list!</p>
+ <fieldset class="action">
+ <input type="submit" value="Immediate deletion" class="btn btn-danger" onclick="return confirmDelete(MSG_CONFIRM_AGAIN);" />
+ </fieldset>
+ </form>
+
+ [% IF Koha.Preference('StoreLastBorrower') %]
+ <p id="store-last-borrower-msg">Please note, the last person to return an item is tracked for the management of items returned damaged.</p>
+ [% END %]
+ [% END # / IF Ask_data %]
+ </div> <!-- / .userprivacy -->
+ </div> <!-- / .col-lg-10 -->
+ </div> <!-- / .row -->
+ </div> <!-- / .container-fluid -->
+</div> <!-- / .main -->
+
+[% INCLUDE 'opac-bottom.inc' %]
+[% BLOCK jsinclude %][% END %]

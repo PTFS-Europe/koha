@@ -1,0 +1,194 @@
+[% USE raw %]
+[% USE Koha %]
+[% USE Asset %]
+[% USE Branches %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Stock rotation details for [% INCLUDE 'biblio-title-head.inc' %] &rsaquo; Catalogue &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+<body id="catalog_stockrotation" class="catalog">
+[% USE KohaDates %]
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'cat-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/catalogue/search.pl">Catalogue</a>
+ </li>
+ <li>
+ [% INCLUDE 'biblio-title.inc' link = 1 %]
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ Stock rotation details
+ </a>
+ </li>
+ </ol>
+</nav>
+
+<div class="main container-fluid">
+ <div class="row">
+ <div class="col-sm-10 col-sm-push-2">
+ <main>
+
+<div id="catalogue_detail_biblio">
+
+ [% IF no_op_set %]
+ <h1 class="title">Stock rotation details for [% INCLUDE 'biblio-title.inc' %]</h1>
+ [% IF rotas.count > 0 && items.size > 0 %]
+
+ <table class="items_table dataTable no-footer" role="grid">
+ <thead>
+ <tr>
+ <th>Barcode</th>
+ <th>Class number</th>
+ <th>Rota</th>
+ <th>Rota status</th>
+ <th>In transit</th>
+ <th>Stages &amp; duration in days<br>(current stage highlighted)</th>
+ <th>&nbsp;</th>
+ </tr>
+ </thead>
+ <tbody>
+ [% FOREACH item IN items %]
+ <tr>
+ <td>[% item.bib_item.barcode | html %]</td>
+ <td>[% item.bib_item.itemcallnumber | html %]</td>
+ <td>
+ [% item.rota.title | html %]
+ </td>
+ <td>
+ [% IF item.rota %]
+ [% IF !item.rota.active %]
+ <span class="highlighted-row">
+ [% END %]
+ [% IF item.rota.active %]
+ Active
+ [% ELSE %]
+ Inactive
+ [% END %]
+ [% IF !item.rota.active %]
+ </span>
+ [% END %]
+ [% END %]
+ </td>
+ <td>
+ [% IF item.bib_item.get_transfer %]
+ Yes
+ [% ELSE %]
+ No
+ [% END %]
+ </td>
+ <td>
+ [% FOREACH this_stage IN item.stages %]
+ [% IF this_stage.stage_id == item.stockrotationitem.stage.stage_id %]
+ <span class="stage highlight_stage">
+ [% ELSE %]
+ <span class="stage">
+ [% END %]
+ [% Branches.GetName(this_stage.branchcode_id) | html %] ([% this_stage.duration | html %])
+ </span>
+ &raquo;
+ [% END %]
+ [% IF item.stages.size > 0 %]
+ <span class="stage">
+ [% IF item.rota.cyclical %]
+ START
+ [% ELSE %]
+ END
+ [% END %]
+ </span>
+ [% END %]
+ </td>
+ <td class="actions">
+ [% IF item.stockrotationitem %]
+ [% in_transit = item.bib_item.get_transfer %]
+ [% IF !in_transit && item.stages.size > 1 %]
+ <a class="btn btn-default btn-xs" href="?op=move_to_next_stage&amp;stage_id=[% item.stockrotationitem.stage.stage_id | uri %]&amp;item_id=[% item.bib_item.id | uri %]&amp;biblionumber=[% biblionumber | uri %]">
+ [% ELSE %]
+ <a class="btn btn-default btn-xs" disabled>
+ [% END %]
+ <i class="fa fa-arrow-right"></i>
+ Move to next stage
+ </a>
+ [% IF !in_transit %]
+ <a class="btn btn-default btn-xs" href="?op=toggle_in_demand&amp;stage_id=[% item.stockrotationitem.stage.stage_id | uri %]&amp;item_id=[% item.bib_item.id | uri %]&amp;biblionumber=[% biblionumber | uri %]">
+ [% ELSE %]
+ <a class="btn btn-default btn-xs" disabled>
+ [% END %]
+ <i class="fa fa-fire"></i>
+ [% IF item.stockrotationitem.indemand %]
+ Remove "In demand"
+ [% ELSE %]
+ Add "In demand"
+ [% END %]
+ </a>
+ [% IF !in_transit %]
+ <a class="btn btn-default btn-xs" href="?op=confirm_remove_from_rota&amp;stage_id=[% item.stockrotationitem.stage.stage_id | uri %]&amp;item_id=[% item.bib_item.id | uri %]&amp;biblionumber=[% biblionumber | uri %]">
+ [% ELSE %]
+ <a class="btn btn-default btn-xs" disabled>
+ [% END %]
+ <i class="fa fa-trash"></i>
+ Remove from rota
+ </a>
+ [% ELSE %]
+ <form class="rota_select_form" method="post" enctype="multipart/form-data">
+ <select class="item_select_rota" name="rota_id">
+ [% FOREACH rota IN rotas %]
+ <option value="[% rota.rota_id | uri %]">[% rota.title | html %]</option>
+ [% END %]
+ </select>
+ <button class="btn btn-default btn-xs" type="submit"><i class="fa fa-plus"></i> Add to rota</button>
+ <input type="hidden" name="op" value="add_item_to_rota" />
+ <input type="hidden" name="item_id" value="[% item.bib_item.id | uri %]" />
+ <input type="hidden" name="biblionumber" value="[% biblionumber | uri %]" />
+ </form>
+ [% END %]
+ </td>
+ </tr>
+ [% END %]
+ </tbody>
+ </table>
+ [% END %]
+ [% IF !items || items.size == 0 %]
+ <h1>No physical items for this record</h1>
+ [% END %]
+ [% IF !rotas || rotas.count == 0 %]
+ <h1>There are no rotas with stages assigned</h1>
+ [% END %]
+ [% ELSIF op == 'confirm_remove_from_rota' %]
+ <div class="dialog alert">
+ <h3>Are you sure you want to remove this item from it's rota?</h3>
+ <p>
+ <a class="btn btn-default btn-xs approve" href="?op=remove_item_from_stage&amp;stage_id=[% stage_id | uri %]&amp;item_id=[% item_id | uri %]&amp;biblionumber=[% biblionumber | uri %]"><i class="fa fa-fw fa-check"></i>Yes</a>
+ <a class="btn btn-default btn-xs deny" href="?biblionumber=[% biblionumber | uri %]"><i class="fa fa-fw fa-remove"></i>No</a>
+ </p>
+ </div>
+ [% END %]
+
+</div>
+
+ </main>
+ </div> <!-- /.col-sm-10.col-sm-push-2 -->
+
+ <div class="col-sm-2 col-sm-pull-10">
+ <aside>
+ [% INCLUDE 'biblio-view-menu.inc' %]
+ </aside>
+ </div> <!-- /.col-sm-2.col-sm-pull-10 -->
+ </div> <!-- /.row -->
+
+[% MACRO jsinclude BLOCK %]
+ [% Asset.js("js/browser.js") | $raw %]
+ <script>
+        var browser = KOHA.browser('[% searchid | html %]', parseInt('[% biblionumber | html %]', 10));
+        browser.show();
+    </script>
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' %]

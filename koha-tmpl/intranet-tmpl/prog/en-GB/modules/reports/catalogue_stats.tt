@@ -1,0 +1,396 @@
+[% USE Branches %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>[% IF ( do_it ) %]Catalogue statistics &rsaquo; Results[% ELSE %]Catalogue statistics[% END %] &rsaquo; Reports &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+
+<body id="rep_catalogue_stats" class="rep">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'cat-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/reports/reports-home.pl">Reports</a>
+ </li>
+ [% IF ( do_it ) %]
+ <li>
+ <a href="/cgi-bin/koha/reports/catalogue_stats.pl">Catalogue statistics</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ Results
+ </a>
+ </li>
+ [% ELSE %]
+ <li>
+ <a href="#" aria-current="page">
+ Catalogue statistics </a>
+ </li>
+ [% END %]
+ </ol>
+</nav>
+
+<div class="main container-fluid">
+ <div class="row">
+ <div class="col-sm-10 col-sm-push-2">
+ <main>
+
+[% IF ( do_it ) %]
+ [% FOREACH mainloo IN mainloop %]
+ <h1>Catalogue statistics</h1>
+ [% IF ( mainloo.loopfilter ) %]
+ <p>Filtered on:</p>
+ [% FOREACH loopfilte IN mainloo.loopfilter %]
+ <p>[% loopfilte.crit | html %] =[% loopfilte.filter | html %]</p>
+ [% END %]
+ [% END %]
+ 
+ <table id="catalogue_stats">
+ <thead>
+ <tr>
+ <th>[% mainloo.line | html %] / [% mainloo.column | html %]</th>
+ [% FOREACH loopco IN mainloo.loopcol %]
+ <th>[% loopco.coltitle | html %]</th>
+ [% END %]
+ <th>TOTAL</th>
+ </tr>
+ </thead>
+ <tbody>
+ [% FOREACH loopro IN mainloo.looprow %]
+ <tr>
+ [% IF ( loopro.hilighted ) %]<td class="hilighted">[% ELSE %]<td>[% END %]
+ [% loopro.rowtitle | html %]</td>
+ [% FOREACH loopcel IN loopro.loopcell %]
+ [% IF ( loopcel.hilighted ) %]<td>[% ELSE %]<td>[% END %]
+ [% IF ( loopcel.value ) %][% loopcel.value | html %]
+ [% ELSE %]&nbsp;
+ [% END %]
+ </td>
+ [% END %]
+ [% IF ( loopro.hilighted ) %]<td>[% ELSE %]<td>[% END %]
+ [% loopro.totalrow | html %]
+ </td>
+ </tr>
+ [% END %]
+ </tbody>
+ <tfoot>
+ <tr>
+ <th>TOTAL (all results)</th>
+ [% FOREACH loopfoote IN mainloo.loopfooter %]
+ <th>
+ [% loopfoote.totalcol | html %]
+ </th>
+ [% END %]
+ <th>[% mainloo.total | html %]</th>
+ </tr>
+ </tfoot>
+ </table>
+ [% END %]
+[% ELSE %]
+
+ <form method="post" action="/cgi-bin/koha/reports/catalogue_stats.pl">
+ <fieldset class="rows">
+ <legend>Catalogue statistics</legend>
+ <table>
+ <thead>
+ <tr>
+ <th>Title</th>
+ <th>Row</th>
+ <th>Column</th>
+ <th>Filter</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td>Koha full class number</td>
+ <td><input type="radio" name="Line" value="items.itemcallnumber" /></td>
+ <td><input type="radio" name="Column" value="items.itemcallnumber" /></td>
+ <td><label for="callnoFrom">From</label> <input type="text" name="Filter" id="callnoFrom" /> <label for="callnoTo">To</label> <input type="text" name="Filter" id="callnoTo" /></td>
+ </tr>
+ <tr>
+ <td>&nbsp;</td>
+ <td colspan="2"><select name="cotedigits" id="cotedigits">
+ <option value=""> </option>
+ <option value ="1">1</option>
+ <option value ="2">2</option>
+ <option value ="3">3</option>
+ <option value ="4">4</option>
+ <option value ="5">5</option>
+ </select>
+ <label for="cotedigits">characters</label>
+ </td>
+ <td>&nbsp;</td>
+ </tr>
+ <tr>
+ <td>Item type</td>
+ <td><input type="radio" name="Line" value="[% item_itype | html %]" /></td>
+ <td><input type="radio" checked="checked" name="Column" value="[% item_itype | html %]" /></td>
+ <td><select name="Filter" id="[% item_itype | html %]">
+ <option value=""> </option>
+ [% FOREACH itemtype IN itemtypes %]
+ <option value="[% itemtype.itemtype | html %]">[% itemtype.translated_description | html %]</option>
+ [% END %]
+ </select>
+ </td>
+ </tr>
+ <tr>
+ <td>Publisher</td>
+ <td><input type="radio" name="Line" value="publishercode" /></td>
+ <td><input type="radio" name="Column" value="publishercode" /></td>
+ <td><input type="text" name="Filter" /></td>
+ </tr>
+ <tr>
+ <td>Publication year</td>
+ <td><input type="radio" name="Line" value="publicationyear" /></td>
+ <td><input type="radio" name="Column" value="publicationyear" /></td>
+ <td><label for="pubyearFrom">From</label> <input type="text" name="Filter" id="pubYearFrom" /> <label for="pubyearTo">To</label> <input type="text" name="Filter" id="pubyearTo" /></td>
+ </tr>
+ <tr>
+ <td>Home library</td>
+ <td><input type="radio" checked="checked" name="Line" value="items.homebranch" /></td>
+ <td><input type="radio" name="Column" value="items.homebranch" /></td>
+ <td><select name="Filter" id="branch">
+ <option value=""> </option>
+ [% PROCESS options_for_libraries libraries => Branches.all() %]
+ </select>
+ </td>
+ </tr>
+ <tr>
+ <td>Shelving location</td>
+ <td><input type="radio" name="Line" value="items.location" /></td>
+ <td><input type="radio" name="Column" value="items.location" /></td>
+ <td><select name="Filter" id="location">
+ <option value=""> </option>
+ [% FOREACH locationloo IN locationloop %]
+ [% IF ( locationloo.selected ) %]<option value="[% locationloo.code | html %]" selected="selected">[% locationloo.description | html %]</option>[% ELSE %]<option value="[% locationloo.code | html %]">[% locationloo.description | html %]</option>[% END %]
+ [% END %]
+ </select>
+ </td>
+ </tr>
+ <tr>
+ <td>Collection</td>
+ <td><input type="radio" name="Line"   value="items.ccode" /></td>
+ <td><input type="radio" name="Column" value="items.ccode" /></td>
+ <td><select name="Filter" id="ccode">
+ <option value=""> </option>
+ [% FOREACH authval IN authvals %]
+ [% IF ( authval.selected ) %]<option value="[% authval.code | html %]" selected="selected">[% authval.description | html %]</option>[% ELSE %]<option value="[% authval.code | html %]">[% authval.description | html %]</option>[% END %]
+ [% END %]
+ </select>
+ </td>
+ </tr>
+ [% IF (notforloan) %]
+ <tr>
+ <td>[% notforloan_label | html %]</td>
+ <td><input type="radio" name="Line"   value="items.notforloan" /></td>
+ <td><input type="radio" name="Column" value="items.notforloan" /></td>
+ <td>
+ [% IF (notforloan_avlist) %]
+ <select name="Filter" id="notforloan">
+ <option value="">&nbsp;</option>
+ [% FOREACH av IN notforloan_avlist %]
+ <option value="[% av.authorised_value | html %]">
+ [% av.lib | html %]
+ </option>
+ [% END %]
+ </select>
+ [% ELSE %]
+ <input type="text" name="Filter" id="notforloan" />
+ [% END %]
+ </td>
+ </tr>
+ [% ELSE %]
+ <tr style="display:none">
+ <td colspan="4"><input type="hidden" name="Filter" /></td>
+ </tr>
+ [% END %]
+ [% IF (materials) %]
+ <tr>
+ <td>[% materials_label | html %]</td>
+ <td><input type="radio" name="Line"   value="items.materials" /></td>
+ <td><input type="radio" name="Column" value="items.materials" /></td>
+ <td>
+ [% IF (materials_avlist) %]
+ <select name="Filter" id="materials">
+ <option value="">&nbsp;</option>
+ [% FOREACH av IN materials_avlist %]
+ <option value="[% av.authorised_value | html %]">
+ [% av.lib | html %]
+ </option>
+ [% END %]
+ </select>
+ [% ELSE %]
+ <input type="text" name="Filter" id="materials" />
+ [% END %]
+ </td>
+ </tr>
+ [% ELSE %]
+ <tr style="display:none">
+ <td colspan="4"><input type="hidden" name="Filter" /></td>
+ </tr>
+ [% END %]
+ <tr>
+ <td colspan="3">Filter barcode</td>
+ <td>
+ <select name="Filter" id="like">
+ <option value="1">like</option>
+ <option value="0">not like</option>
+ </select>
+ <input type="text" name="Filter" id="barcode" />
+ (use * to do a fuzzy search)
+ </td>
+ </tr>
+ <tr>
+ <td>Date acquired (item)</td>
+ <td><input type="radio" name="Line" value="items.dateaccessioned" /></td>
+ <td><input type="radio" name="Column" value="items.dateaccessioned" /></td>
+ <td>
+ <label for="acqdateFrom">From</label>
+ <input type="text" name="Filter" id="acqdateFrom" data-date_to="acqdateTo" class="flatpickr" />
+
+ <label for="acqdateTo">To</label>
+ <input type="text" name="Filter" id="acqdateTo" class="flatpickr" />
+ </td>
+ </tr>
+ <tr id="removeddatetr">
+ <td>Date deleted (item)</td>
+ <td><input type="radio" name="Line" value="deleteditems.timestamp" /></td>
+ <td><input type="radio" name="Column" value="deleteditems.timestamp" /></td>
+ <td>
+ <label for="deldateFrom">From</label>
+ <input type="text" name="Filter" id="deldateFrom" data-date_to="deldateTo" class="flatpickr" />
+
+ <label for="deldateTo">To</label>
+ <input type="text" name="Filter" id="deldateTo" class="flatpickr" />
+ </td>
+ </tr>
+ </tbody>
+ </table><br /></fieldset>
+
+ <fieldset class="rows">
+ <legend>Cell value</legend>
+ <ol>
+ <li>
+ <label for="cellvalue_items">Count total items</label>
+ <input type="radio" name="Cellvalue" value="items" id="cellvalue_items" checked="checked" />
+ </li>
+ <li>
+ <label for="cellvalue_biblios">Count unique bibliographic records</label>
+ <input type="radio" name="Cellvalue" value="biblios" id="cellvalue_biblios" />
+ </li>
+ <li>
+ <label for="cellvalue_deleteditems">Count deleted items</label>
+ <input type="radio" name="Cellvalue" value="deleteditems" id="cellvalue_deleteditems" />
+ </li>
+ </ol>
+ </fieldset>
+ 
+ <fieldset class="rows">
+ <legend>Output</legend>
+ <ol><li><label for="outputscreen">To screen into the browser: </label><input type="radio" checked="checked" name="output" id="outputscreen" value="screen" /></li>
+ <li><label for="outputfile">To a file: </label><input type="radio" name="output" value="file" id="outputfile" />
+ <label class="inline" for="basename">Named: </label><input type="text" name="basename" id="basename" value="Export" />
+ <label class="inline" for="MIME">Into an application: </label>
+ <select name="MIME" id="MIME">
+ [% FOREACH CGIextChoic IN CGIextChoice %]
+ <option value="[% CGIextChoic.type | html %]">[% CGIextChoic.type | html %]</option>
+ [% END %]
+ </select>
+ <!-- <label class="inline" for="sep">Delimiter: </label> -->
+ <select name="sep" id="sep">
+ [% FOREACH value IN CGIsepChoice.values.sort() %]
+ [% IF ( value == CGIsepChoice.default ) %]
+ <option value="[% value | html %]" selected="selected">[% value | html %]</option>
+ [% ELSE %]
+ <option value="[% value | html %]">[% value | html %]</option>
+ [% END %]
+ [% END %]
+ </select>
+ </li>
+ </ol>
+ </fieldset>
+
+ <fieldset class="action">
+ <input type="submit" value="Submit" />
+ <input type="hidden" name="report_name" value="[% report_name | html %]" />
+ <input type="hidden" name="do_it" value="1" />
+ </fieldset>
+ </form>
+[% END %]
+
+ </main>
+ </div> <!-- /.col-sm-10.col-sm-push-2 -->
+
+ <div class="col-sm-2 col-sm-pull-10">
+ <aside>
+ [% INCLUDE 'reports-menu.inc' %]
+ </aside>
+ </div> <!-- /.col-sm-2.col-sm-pull-10 -->
+ </div> <!-- /.row -->
+
+[% MACRO jsinclude BLOCK %]
+ [% INCLUDE 'calendar.inc' %]
+ [% INCLUDE 'datatables.inc' %]
+ [% INCLUDE 'columns_settings.inc' %]
+ <script>
+        function changeRemovedDateTrStatus() {
+            var Cellvalue = $("input[name='Cellvalue']:checked").val();
+            if(Cellvalue == "deleteditems") {
+                $("#removeddatetr").show();
+                $("input[value='deleteditems.timestamp']").prop('disabled', false);
+                $("#deldateFrom").prop('disabled', false);
+                $("#deldateTo").prop('disabled', false);
+            } else {
+                $("#removeddatetr").hide();
+                $("input[value='deleteditems.timestamp']").prop('disabled', true).prop('checked', false);
+                $("#deldateFrom").prop('disabled', true).val('');
+                $("#deldateTo").prop('disabled', true).val('');
+            }
+        }
+
+        $(document).ready(function() {
+
+            $("input[name='Cellvalue']").change(function() {
+                changeRemovedDateTrStatus();
+            });
+            changeRemovedDateTrStatus();
+
+            columns_settings = [% FILTER collapse %]
+                [
+                    {
+                        "is_hidden": 0,
+                        "columnname": "[% mainloo.line | html %]_[% mainloo.column | html %]",
+                        "cannot_be_toggled": 1,
+                        "cannot_be_modified": 1
+                    },
+                    [% FOREACH loopco IN mainloo.loopcol %]
+                        {
+                            "is_hidden": 0,
+                            "columnname": "[% loopco.coltitle | html %]",
+                            "cannot_be_toggled": 0,
+                            "cannot_be_modified": 0
+                        },
+                    [% END %]
+                    {
+                        "is_hidden": 0,
+                        "columnname": "total",
+                        "cannot_be_toggled": 0,
+                        "cannot_be_modified": 0
+                    },
+                ];
+            [% END %]
+
+            var catalogue_stats = KohaTable("catalogue_stats", {
+                'autoWidth': false,
+                'paging': false,
+            }, columns_settings );
+        });
+    </script>
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' %]

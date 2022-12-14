@@ -1,0 +1,104 @@
+[% USE raw %]
+[% USE Asset %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>[% IF ( status ) %]Approved comments[% ELSE %]Comments awaiting moderation[% END %] &rsaquo; Comments &rsaquo; Tools &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+<body id="tools_reviewswaiting" class="tools">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'cat-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/tools/tools-home.pl">Tools</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/reviews/reviewswaiting.pl">Comments</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ [% IF ( status ) %]
+ Approved comments
+ [% ELSE %]
+ Comments awaiting moderation
+ [% END %]
+ </a>
+ </li>
+ </ol>
+</nav>
+
+<div class="main container-fluid">
+ <div class="row">
+ <div class="col-sm-10 col-sm-push-2">
+ <main>
+
+<h1>Comments</h1>
+
+<!-- The manual invoice and credit buttons -->
+<div class="statictabs">
+<ul>
+ [% IF ( status ) %]<li class="active">[% ELSE %]<li>[% END %]<a href="/cgi-bin/koha/reviews/reviewswaiting.pl?status=1">Approved comments</a></li>
+ [% IF ( status ) %]<li>[% ELSE %]<li class="active">[% END %]<a href="/cgi-bin/koha/reviews/reviewswaiting.pl" >Comments awaiting moderation</a></li>
+</ul>
+<div class="tabs-container">
+
+[% IF ( reviews ) %]
+<table id="commentst">
+ <thead><tr>
+ <th>
+ Commenter
+ </th>
+ <th>
+ On title
+ </th>
+ <th>
+ Comment
+ </th>
+ <th>
+ &nbsp;
+ </th>
+ </tr></thead>
+ <tbody>[% FOREACH review IN reviews %]
+ <tr>
+ <td>
+ [% IF ( review.borrowernumber ) %]<a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% review.borrowernumber | uri %]">[% review.patron.surname | html %], [% review.patron.firstname | html %]</a>[% ELSE %](deleted user)[% END %] </td>
+ <td>
+ <a href="/cgi-bin/koha/catalogue/detail.pl?biblionumber=[% review.biblionumber | uri %]">[% review.bibliotitle | html %]</a>
+ </td>
+ <td>
+ [% review.review | html %]
+ </td>
+ <td class="actions">
+ [% IF ( status ) %]<a href="/cgi-bin/koha/reviews/reviewswaiting.pl?op=unapprove&amp;reviewid=[% review.reviewid | uri %]" class="btn btn-default btn-xs"><i class="fa fa-remove"></i> Unapprove</a>[% ELSE %]<a href="/cgi-bin/koha/reviews/reviewswaiting.pl?op=approve&amp;reviewid=[% review.reviewid | uri %]" class="btn btn-default btn-xs"><i class="fa fa-check"></i> Approve</a>[% END %]
+ <a href="/cgi-bin/koha/reviews/reviewswaiting.pl?op=delete&amp;reviewid=[% review.reviewid | uri %]" class="btn btn-default btn-xs"><i class="fa fa-trash" aria-hidden="true"></i> Delete</a>
+ </td>
+ </tr>
+ [% END %]</tbody>
+</table>
+ <div class="pages">[% pagination_bar | $raw %]</div>
+[% ELSE %]
+[% IF ( status ) %]<p><strong>No comments have been approved.</strong></p>[% ELSE %]<p><strong>No comments to moderate.</strong></p>[% END %]
+[% END %]
+</div>
+</div>
+
+ </main>
+ </div> <!-- /.col-sm-10.col-sm-push-2 -->
+
+ <div class="col-sm-2 col-sm-pull-10">
+ <aside>
+ [% INCLUDE 'tools-menu.inc' %]
+ </aside>
+ </div> <!-- /.col-sm-2.col-sm-pull-10 -->
+ </div> <!-- /.row -->
+
+[% MACRO jsinclude BLOCK %]
+ [% Asset.js("js/tools-menu.js") | $raw %]
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' %]

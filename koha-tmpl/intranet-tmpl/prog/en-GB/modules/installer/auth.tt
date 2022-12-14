@@ -1,0 +1,65 @@
+[% USE Koha %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>
+ [% IF ( nopermission ) %]Access denied[% END %]
+ [% IF ( timed_out ) %]Session timed out[% END %]
+ [% IF ( different_ip ) %]IP address change[% END %]
+ [% IF ( invalid_username_or_password ) %]Invalid username or password[% END %]
+ [% IF ( loginprompt ) %]Log in to the Koha web installer[% END %] &rsaquo; Koha
+</title>
+[% INCLUDE 'installer-doc-head-close.inc' %]
+</head>
+
+<body id="installer" class="installer">
+ <div class="container-fluid">
+ <div class="row">
+ <div id="installer-login" class="installer-main col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3">
+
+ <h1 id="logo"><a href="#">Koha</a></h1>
+
+ [% IF ( nopermission ) %]
+ <div id="login_error" class="alert alert-danger"><strong>Error: </strong>Unauthorised user <a href="/cgi-bin/koha/mainpage.pl?logout.x=1">click to log out</a></div>
+ [% END %]
+
+ [% IF ( timed_out ) %]
+ <div id="login_error" class="alert alert-danger"><strong>Error: </strong>Session timed out, please log in again</div>
+ [% END %]
+
+ [% IF ( different_ip ) %]
+ <div id="login_error" class="alert alert-danger"><strong>Error: </strong>IP address has changed, please log in again </div>
+ [% END %]
+
+ [% IF ( invalid_username_or_password ) %]
+ <div id="login_error" class="alert alert-danger"><strong>Error: </strong>Invalid username or password</div>
+ [% END %]
+
+ [% IF ( loginprompt ) %]
+ <h2>Welcome to the Koha [%- Koha.Version.release | html -%] web installer</h2>
+
+ <p>Before we begin, please verify you have the correct credentials to continue. Please log in with the username and password given to you by your systems administrator and located in your <code>koha-conf.xml</code> configuration file.</p>
+
+ <form action="[% url | html %]" method="post" id="mainform">
+ [% FOREACH INPUT IN INPUTS %]
+ <input type="hidden" name="[% INPUT.name | html %]" value="[% INPUT.value | html %]" />
+ [% END %]
+
+ <fieldset>
+ <legend>Please enter your username and password</legend>
+
+ <div class="form-group">
+ <label>Username:</label>
+ <input type="text" class="form-control" name="userid" id="userid" value="[% userid | html %]" size="20" tabindex="1" />
+ </div>
+ <div class="form-group">
+ <label>Password:</label>
+ <input type="password" class="form-control" name="password" id="password" value="" size="20" tabindex="2" />
+ </div>
+ <input id="submit" type="submit" class="btn btn-primary" value="Log in" tabindex="3" />
+ </fieldset>
+ </form>
+ [% END %]
+ </div> <!-- / #installer-login -->
+ </div> <!-- / .row -->
+ </div><!-- / .container-fluid -->
+
+[% INCLUDE 'installer-intranet-bottom.inc' %]

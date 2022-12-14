@@ -1,0 +1,126 @@
+[% USE raw %]
+[% USE Asset %]
+[% SET footerjs = 1 %]
+[% BLOCK pluginlist %]
+<div class="pluginlist">
+[% FOREACH plugin IN plugins %]
+ <div class="plugin">
+ <div class="pluginname">
+ [% IF plugin.enabled %]<input type="checkbox" checked="checked" id="checkbox_[% type | html %][% plugin.name | html %]">[% ELSE %]<input type="checkbox" id="checkbox_[% type | html %][% plugin.name | html %]">[% END %]
+ <label class='pluginlabel' for="checkbox_[% type | html %][% plugin.name | html %]">[% plugin.name | html %]</label></div>
+ <div class="plugindesc">
+ [% SWITCH plugin.name %] [% CASE 'AuthorityFile' %] Suggest authorities which are relevant to the term the user searched for. [% CASE 'ExplodedTerms' %] Suggest that users expand their searches to include broader/narrower/related terms. [% CASE 'LibrisSpellcheck' %] Use the LIBRIS spellcheck API. [% END %] </div>
+ </div>
+[% END %]
+</div>
+[% END %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Did you mean? &rsaquo; Administration &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+
+<body id="admin_didyoumean" class="admin">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'prefs-admin-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/admin/admin-home.pl">Administration</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ Did you mean?
+ </a>
+ </li>
+ </ol>
+</nav>
+
+<div class="main container-fluid">
+ <div class="row">
+ <div class="col-sm-10 col-sm-push-2">
+ <main>
+
+ <h3>Did you mean?</h3>
+ <noscript><div class="dialog alert"><strong>Please enable Javascript:</strong>
+ Configuring 'Did you mean?' plugins requires Javascript. If
+ you are unable to use Javascript, you may be able to enter the
+ configuration (which is stored in JSON in the OPACdidyoumean system preferences)
+ in the Local preferences tab in
+ the system preference editor, but this is unsupported, not
+ recommended, and likely will not work.</div></noscript>
+ <div id="didyoumeanlegend">
+ Please put the 'Did you mean?' plugins in order by significance, from
+ most significant to least significant, and check the box to enable those
+ plugins that you want to use.
+ </div>
+ <form action="/cgi-bin/koha/admin/didyoumean.pl" method="post">
+ <fieldset id="didyoumeanopac">
+ <legend>OPAC</legend>
+ [% PROCESS pluginlist plugins=OPACpluginlist type='opac' %]
+ </fieldset>
+ <fieldset class="action"><button class="save-all submit" type="submit">Save configuration</button> <a href="/cgi-bin/koha/admin/didyoumean.pl" class="force_reload cancel">Cancel</a></fieldset>
+ </form>
+
+ </main>
+ </div> <!-- /.col-sm-10.col-sm-push-2 -->
+
+ <div class="col-sm-2 col-sm-pull-10">
+ <aside>
+ [% INCLUDE 'admin-menu.inc' %]
+ </aside>
+ </div> <!-- /.col-sm-2.col-sm-pull-10 -->
+ </div> <!-- /.row -->
+
+[% MACRO jsinclude BLOCK %]
+ [% Asset.js("js/admin-menu.js") | $raw %]
+ <script>
+        $(document).ready(function() {
+            $( ".pluginlist" ).sortable();
+            $( ".plugin" ).addClass( "ui-widget ui-widget-content ui-helper-clearfix ui-corner-all" )
+                .find( ".pluginname" )
+                        .addClass( "ui-widget-header ui-corner-all" )
+                        .end()
+                .find( ".plugindesc" );
+            $(".save-all").on("click",function(e){
+                e.preventDefault();
+                yesimeant();
+            });
+            $(".force_reload").on("click",function(e){
+                e.preventDefault();
+                window.location.reload(true);
+            });
+        });
+
+        function yesimeant() {
+            var OPACdidyoumean = serialize_plugins('opac');
+
+            var data = "pref_OPACdidyoumean=" + encodeURIComponent(OPACdidyoumean);
+
+            $.ajax({
+                data: data,
+                type: 'POST',
+                url: '/cgi-bin/koha/svc/config/systempreferences/',
+                success: function () { alert(_("Successfully saved configuration")); },
+            });
+            return false;
+        }
+
+        function serialize_plugins(interface) {
+            var serializedconfig = '[';
+            $('#didyoumean' + interface + ' .pluginlist .plugin').each(function(index) {
+                var name = $(this).find('.pluginlabel').text();
+                var enabled = $(this).find('input:checkbox:checked').length ?
+                              ', "enabled": 1' : '';
+                serializedconfig += '{ "name": "' + name + '"' + enabled + '}, ';
+                });
+                serializedconfig = serializedconfig.substring(0, serializedconfig.length - 2);
+                serializedconfig += ']';
+                return serializedconfig;
+        }
+    </script>
+[% END %]
+[% INCLUDE 'intranet-bottom.inc' %]

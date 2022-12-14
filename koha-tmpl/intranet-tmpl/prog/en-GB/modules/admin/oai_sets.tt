@@ -1,0 +1,200 @@
+[% USE raw %]
+[% USE Asset %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>
+ [% IF ( op_new ) %]
+ Add a new OAI set &rsaquo; [% END %]
+ OAI sets configuration &rsaquo; Administration &rsaquo; Koha
+</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+
+<body id="admin_oai_sets" class="admin">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'prefs-admin-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/admin/admin-home.pl">Administration</a>
+ </li>
+
+ [% IF ( op_new ) %]
+ <li>
+ <a href="/cgi-bin/koha/admin/oai_sets.pl">OAI sets configuration</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ Add a new OAI set
+ </a>
+ </li>
+
+ [% ELSIF ( op_mod ) %]
+ <li>
+ <a href="/cgi-bin/koha/admin/oai_sets.pl">OAI sets configuration</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ Edit OAI set '[% spec | html %]'
+ </a>
+ </li>
+
+ [% ELSE %]
+ <li>
+ <a href="#" aria-current="page">
+ OAI sets configuration
+ </a>
+ </li>
+ [% END %]
+ </ol>
+</nav>
+
+<div class="main container-fluid">
+ <div class="row">
+ <div class="col-sm-10 col-sm-push-2">
+ <main>
+
+ [% IF ( op_new || op_mod ) %]
+ <form method="post" action="/cgi-bin/koha/admin/oai_sets.pl" class="validated">
+ [% IF ( op_new ) %]
+ <h2>Add a new OAI set</h2>
+ <input type="hidden" name="op" value="savenew" />
+ [% ELSIF ( op_mod ) %]
+ <h2>Edit OAI set '[% spec | html %]'</h2>
+ <input type="hidden" name="op" value="savemod" />
+ <input type="hidden" name="id" value="[% id | html %]" />
+ [% END %]
+ <fieldset id="oaidetails" class="rows">
+ <ol>
+ <li>
+ <label for="spec" class="required">setSpec: </label>
+ <input type="text" id="spec" name="spec" value="[% spec | html %]" required="required" class="required" />
+ <span class="required">Required</span>
+ </li>
+ <li>
+ <label for="name" class="required">setName: </label>
+ <input type="text" id="name" name="name" value="[% name | html %]" required="required" class="required" />
+ <span class="required">Required</span>
+ </li>
+ [% FOREACH desc IN descriptions %]
+ <li>
+ <label>setDescription: </label>
+ <textarea style="vertical-align:middle" rows="2" cols="30" name="description">[% desc.description | html %]</textarea>
+ <a class="remove_description" href="#"><i class="fa fa-fw fa-trash"></i> Remove</a>
+ </li>
+ [% END %]
+ <li id="adddescription"><span class="label">&nbsp;</span><a href="#" class="add_description"><i class="fa fa-fw fa-plus"></i> Add description</a></li>
+
+ </ol>
+ </fieldset>
+ <fieldset class="action">
+ <input type="submit" value="Save" /> <a class="cancel" href="/cgi-bin/koha/admin/oai_sets.pl">Cancel</a>
+ </fieldset>
+ </form>
+ [% ELSE %]
+
+ <div id="toolbar" class="btn-toolbar">
+ <a class="btn btn-default" id="newoaiset" href="/cgi-bin/koha/admin/oai_sets.pl?op=new"><i class="fa fa-plus"></i> New set</a>
+ </div>
+
+ <h2>OAI sets</h2>
+ [% IF sets_loop %]
+ <table>
+ <thead>
+ <tr>
+ <th>setSpec</th>
+ <th>setName</th>
+ <th>setDescriptions</th>
+ <th>&nbsp;</th>
+ </tr>
+ </thead>
+ <tbody>
+ [% FOREACH set IN sets_loop %]
+ <tr>
+ <td>[% set.spec | html %]</td>
+ <td>[% set.name | html %]</td>
+ <td>
+ [% IF set.descriptions %]
+ <ul>
+ [% FOREACH desc IN set.descriptions %]
+ <li>[% desc.description | html %]</li>
+ [% END %]
+ </ul>
+ [% ELSE %]
+ <em>No descriptions</em>
+ [% END %]
+ </td>
+ <td>
+ <div class="btn-group dropup">
+ <a class="btn btn-default btn-xs dropdown-toggle" id="oaisetsactions[% set.id | html %]" role="button" data-toggle="dropdown" href="#">
+ Actions <b class="caret"></b></a>
+ <ul class="dropdown-menu pull-right" role="menu" aria-labelledby="oaisetsactions[% set.id | html %]">
+ <li><a href="/cgi-bin/koha/admin/oai_sets.pl?op=mod&amp;id=[% set.id | uri %]"><i class="fa fa-fw fa-pencil"></i> Edit</a></li>
+ <li><a class="delete_oai_set" href="/cgi-bin/koha/admin/oai_sets.pl?op=del&amp;id=[% set.id | html %]"><i class="fa fa-fw fa-trash"></i> Delete</a></li>
+ <li><a href="/cgi-bin/koha/admin/oai_set_mappings.pl?id=[% set.id | uri %]"><i class="fa fa-fw fa-info"></i> Define mappings</a></li>
+ </ul>
+ </div>
+ </td>
+ </tr>
+ [% END %]
+ </tbody>
+ </table>
+ [% ELSE %]
+ <div class="dialog message"><p>There are no sets defined.</p></div>
+ [% END %]
+ [% END %]
+
+ </main>
+ </div> <!-- /.col-sm-10.col-sm-push-2 -->
+
+ <div class="col-sm-2 col-sm-pull-10">
+ <aside>
+ [% INCLUDE 'admin-menu.inc' %]
+ </aside>
+ </div> <!-- /.col-sm-2.col-sm-pull-10 -->
+ </div> <!-- /.row -->
+
+[% MACRO jsinclude BLOCK %]
+ [% Asset.js("js/admin-menu.js") | $raw %]
+ <script>
+        function newDescField() {
+            $("#adddescription").before(
+                '<li><label>' + _("setDescription: ") + '</label>' +
+                '<textarea style="vertical-align:middle" rows="2" cols="30" name="description"></textarea>' +
+                '<a class="remove_description" href="#"><i class="fa fa-fw fa-trash"></i>' + _(" Remove") + '</a>' +
+                '</li>'
+            );
+        }
+
+        function delDescField(minusButton) {
+            var li = minusButton.parent('li');
+            $(li).remove();
+        }
+
+        function confirmDelete() {
+          return confirm(_("Are you sure you want to delete this OAI set?"));
+        }
+
+        $(document).ready(function() {
+            $(".delete_oai_set").on("click",function(){
+                return confirmDelete();
+            });
+
+            $("body").on("click", ".remove_description", function(e){
+                e.preventDefault();
+                delDescField($(this));
+            });
+
+            $(".add_description").on("click", function(e){
+                e.preventDefault();
+                newDescField();
+            });
+
+        });
+    </script>
+[% END %]
+[% INCLUDE 'intranet-bottom.inc' %]

@@ -1,0 +1,455 @@
+[% USE raw %]
+[% USE Asset %]
+[% USE KohaSpan %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Library groups &rsaquo; Administration &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+[% Asset.css("lib/jquery/plugins/treetable/stylesheets/jquery.treetable.css") | $raw %]
+</head>
+
+<body id="admin_library_groups" class="admin">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'cat-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/admin/admin-home.pl">Administration</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">Library groups</a>
+ </li>
+ </ol>
+</nav>
+
+[% FOR m IN messages %]
+ <div class="dialog [% m.type | html %]">
+ [% SWITCH m.code %]
+ [% CASE 'error_on_insert' %]
+ An error occurred when adding this library. The library id might already exist in this group.
+ [% CASE %]
+ [% m.code | html %]
+ [% END %]
+ </div>
+[% END %]
+
+[% IF added %]
+ <div class="dialog message group-added">
+ [% IF added.branchcode %]
+ [% added.library.branchname | html | $KohaSpan class = 'name' %] added to group.
+ [% ELSE %]
+ Group [% added.title | html | $KohaSpan class = 'name' %] created.
+ [% END %]
+ </div>
+[% ELSIF deleted %]
+ <div class="dialog message group-deleted">
+ [% IF deleted.title %]
+ Group [% deleted.title | html | $KohaSpan class = 'name' %] has been deleted.
+ [% ELSE %]
+ [% deleted.library | html | $KohaSpan class = 'name' %] has been removed from group.
+ [% END %]
+ </div>
+[% ELSIF error_duplicate_title %]
+ <div class="dialog alert error-duplicate-group-title">
+ A group with the title [% error_duplicate_title | html | $KohaSpan class = 'name' %] already exists.
+ </div>
+[% END %]
+
+<div class="main container-fluid">
+ <div class="row">
+ <div class="col-sm-10 col-sm-push-2">
+ <main>
+
+ <div id="toolbar" class="btn-toolbar">
+ <div class="btn-group">
+ <a id="add-group-root" class="btn btn-default add-group" href="#">
+ <i class="fa fa-plus"></i> Add group
+ </a>
+ </div>
+ </div>
+
+ <h2>Library groups</h2>
+
+ [% FOREACH root_group IN root_groups %]
+ <table class="library-groups">
+ <tr>
+ <th>&nbsp;</th>
+ <th>Description</th>
+ <th>Features enabled</th>
+ <th>&nbsp;</th>
+ </tr>
+ [% PROCESS tree group=root_group %]
+ </table>
+ [% END %]
+
+ </main>
+ </div> <!-- /.col-sm-10.col-sm-push-2 -->
+
+ <div class="col-sm-2 col-sm-pull-10">
+ <aside>
+ [% INCLUDE 'admin-menu.inc' %]
+ </aside>
+ </div> <!-- /.col-sm-2.col-sm-pull-10 -->
+ </div> <!-- /.row -->
+
+ <div id="add-group-modal" class="modal" tabindex="-1" role="dialog" aria-labelledby="add-group-modal-label" aria-hidden="true">
+ <form id="add-group-form" action="/cgi-bin/koha/admin/library_groups.pl" class="form-horizontal">
+ <div class="modal-dialog">
+ <div class="modal-content">
+ <div class="modal-header">
+ <h3 id="add-group-modal-label">Add group</h3>
+ </div>
+ <div class="modal-body">
+ <fieldset class="rows">
+ <input type="hidden" id="add-group-modal-parent-id" name="parent_id" value="" />
+ <input type="hidden" id="add-group-modal-action" name="action" value="add">
+ <ol>
+ <li>
+ <label for="add-group-modal-title">Title: </label>
+ <input type="text" size="40" maxlength="100" name="title" id="add-group-modal-title" required="required" />
+ <span class="required">Required</span>
+ <div class="hint">Displayed in the library group search dropdowns.</div>
+ </li>
+ <li>
+ <label for="add-group-modal-description">Description: </label>
+ <input type="text" size="40" name="description" id="add-group-modal-description" />
+ </li>
+ </ol>
+ </fieldset>
+ <div id="root-group-features-add">
+ <h3>Features</h3>
+ <div class="checkbox">
+ <p>
+ <label>
+ <input type="checkbox" name="ft_hide_patron_info" id="add-group-modal-ft_hide_patron_info" value="1" />
+ Limit user data access by group </label>
+ </p>
+ <p>
+ <label>
+ <input type="checkbox" name="ft_search_groups_opac" id="add-group-modal-ft_search_groups_opac" value="1" />
+ Use for OPAC search groups
+ </label>
+ </p>
+ <p>
+ <label>
+ <input type="checkbox" name="ft_search_groups_staff" id="add-group-modal-ft_search_groups_staff" value="1" />
+ Use for staff search groups
+ </label>
+ </p>
+ <p>
+ <label>
+ <input type="checkbox" name="ft_local_hold_group" id="add-group-modal-ft_local_hold_group" value="1" />
+ Is local reservation group </label>
+ </p>
+ </div>
+ </div>
+ </div>
+ <div class="modal-footer">
+ <button type="submit" class="btn btn-default">Save</button>
+ <a href="#" class="cancel" data-dismiss="modal" aria-hidden="true">Cancel</a>
+ </div>
+ </div>
+ </div>
+ </form>
+ </div>
+
+ <div id="edit-group-modal" class="modal" tabindex="-1" role="dialog" aria-labelledby="edit-group-modal-label" aria-hidden="true">
+ <form id="edit-group-form" action="/cgi-bin/koha/admin/library_groups.pl" class="form-horizontal">
+ <div class="modal-dialog">
+ <div class="modal-content">
+ <div class="modal-header">
+ <h3 id="edit-group-modal-label">Edit group</h3>
+ </div>
+ <div class="modal-body">
+ <input type="hidden" id="edit-group-modal-id" name="id" value="" />
+ <input type="hidden" id="edit-group-modal-action" name="action" value="edit" />
+ <fieldset class="rows">
+ <ol>
+ <li>
+ <label for="edit-group-modal-title">Title: </label>
+ <input type="text" size="40" maxlength="100" id="edit-group-modal-title" name="title" value="" required="required" />
+ <span class="required">Required</span>
+ <div class="hint">Displayed in the library group search dropdowns.</div>
+ </li>
+
+ <li>
+ <label for="edit-group-modal-description">Description: </label>
+ <input type="text" size="40" id="edit-group-modal-description" name="description" value="" />
+ </li>
+ </ol>
+ </fieldset>
+ <div id="root-group-features-edit">
+ <h3>Features</h3>
+ <div class="checkbox">
+ <p>
+ <label>
+ <input type="checkbox" id="edit-group-modal-ft_hide_patron_info" name="ft_hide_patron_info" value="1" />
+ Limit user data access by group </label>
+ </p>
+ <p>
+ <label>
+ <input type="checkbox" id="edit-group-modal-ft_search_groups_opac" name="ft_search_groups_opac" value="1" />
+ Use for OPAC search groups
+ </label>
+ </p>
+ <p>
+ <label>
+ <input type="checkbox" id="edit-group-modal-ft_search_groups_staff" name="ft_search_groups_staff" value="1" />
+ Use for staff search groups
+ </label>
+ </p>
+ <p>
+ <label>
+ <input type="checkbox" id="edit-group-modal-ft_local_hold_group" name="ft_local_hold_group" value="1" />
+ Is local reservation group </label>
+ </p>
+ </div>
+ </div>
+ </div>
+ <div class="modal-footer">
+ <button type="submit" class="btn btn-default">Update</button>
+ <a href="#" class="cancel" data-dismiss="modal" aria-hidden="true">Cancel</a>
+ </div>
+ </div>
+ </div>
+ </form>
+ </div>
+
+ <div id="delete-group-modal" class="modal" tabindex="-1" role="dialog" aria-labelledby="delete-group-modal-label" aria-hidden="true">
+ <form action="/cgi-bin/koha/admin/library_groups.pl">
+ <div class="modal-dialog">
+ <div class="modal-content">
+ <input id="delete-group-modal-action" type="hidden" name="action" value="delete" />
+ <input id="delete-group-modal-id" type="hidden" name="id" value="" />
+ <div class="modal-header">
+ <h3 id="delete-group-modal-label">Delete group</h3>
+ </div>
+ <div class="modal-body">
+ Are you sure you want to delete <span id="delete-group-modal-title" class="name"></span>?
+ </div>
+ <div class="modal-footer">
+ <button type="submit" class="btn btn-danger"><i class="fa fa-trash"></i> Delete</button>
+ <button class="btn btn-default" data-dismiss="modal" aria-hidden="true">Cancel</button>
+ </div>
+ </div>
+ </div>
+ </form>
+ </div>
+
+ <div id="remove-library-modal" class="modal" tabindex="-1" role="dialog" aria-labelledby="remove-library-modal-label" aria-hidden="true">
+ <form action="/cgi-bin/koha/admin/library_groups.pl">
+ <div class="modal-dialog">
+ <div class="modal-content">
+ <input id="remove-library-modal-action" type="hidden" name="action" value="delete" />
+ <input id="remove-library-modal-id" type="hidden" name="id" value="" />
+ <div class="modal-header">
+ <h3 id="remove-library-modal-label">Remove library from group</h3>
+ </div>
+ <div class="modal-body">
+ Are you sure you want to remove <span id="remove-library-modal-library" class="name"></span> from <span id="remove-library-modal-group" class="name"></span>?
+ </div>
+ <div class="modal-footer">
+ <button type="submit" class="btn btn-danger"><i class="fa fa-trash"></i> Remove</button>
+ <button class="btn btn-default" data-dismiss="modal" aria-hidden="true">Cancel</button>
+ </div>
+ </div>
+ </div>
+ </form>
+ </div>
+
+[% MACRO jsinclude BLOCK %]
+ [% Asset.js("lib/jquery/plugins/treetable/jquery.treetable.js") | $raw %]
+ <script>
+        $(document).ready(function() {
+            $('.library-groups').treetable({
+                expandable: true,
+                initialState: 'expanded',
+                clickableNodeNames: true,
+            });
+
+            $('.add-group').on('click', function(e) {
+                e.preventDefault();
+                var id = $(this).data('groupId');
+                add_group( id );
+            });
+
+            $('.edit-group').on('click', function(e) {
+                e.preventDefault();
+                var id = $(this).data('groupId');
+                var parent_id = $(this).data('groupParentId');
+                var title = $(this).data('groupTitle');
+                var description = $(this).data('groupDescription');
+                var ft_hide_patron_info = $(this).data('groupFt_hide_patron_info');
+                var ft_search_groups_opac = $(this).data('groupFt_search_groups_opac');
+                var ft_search_groups_staff = $(this).data('groupFt_search_groups_staff');
+                var ft_local_hold_group = $(this).data('groupFt_local_hold_group');
+                edit_group( id, parent_id, title, description, ft_hide_patron_info, ft_search_groups_opac, ft_search_groups_staff, ft_local_hold_group );
+            });
+
+            $('.delete-group').on('click', function(e) {
+                e.preventDefault();
+                var id = $(this).data('groupId');
+                var title = $(this).data('groupTitle');
+                delete_group( id, title );
+            });
+
+            $('.remove-library').on('click', function(e) {
+                e.preventDefault();
+                var id = $(this).data('groupId');
+                var library = $(this).data('groupLibrary');
+                var parent_title = $(this).data('groupParentTitle');
+                remove_library( id, library, parent_title );
+            });
+            $('#add-group-modal').on('shown.bs.modal', function() {
+                $('#add-group-modal-title').focus();
+            });
+            $('#edit-group-modal').on('shown.bs.modal', function() {
+                $('#edit-group-modal-title').focus();
+            });
+        });
+
+        function add_group( parent_id ) {
+            $('#add-group-modal-parent-id').val( parent_id );
+
+            $('#add-group-modal-description').val("");
+            $('#add-group-modal-title').val("");
+
+
+            $('#add-group-modal-ft_hide_patron_info').prop('checked', false);
+            $('#add-group-modal-ft_search_groups_opac').prop('checked', false);
+            $('#add-group-modal-ft_search_groups_staff').prop('checked', false);
+            $('#add-group-modal-ft_local_hold_group').prop('checked', false);
+            if ( parent_id ) {
+                $('#root-group-features-add').hide();
+            } else {
+                $('#root-group-features-add').show();
+            }
+            $('#add-group-modal').modal('show');
+
+        }
+
+        function edit_group( id, parent_id, title, description, ft_hide_patron_info, ft_search_groups_opac, ft_search_groups_staff, ft_local_hold_group ) {
+            $('#edit-group-modal-id').val( id );
+            $('#edit-group-modal-title').val( title );
+            $('#edit-group-modal-description').val( description );
+
+            if ( parent_id ) {
+                $('#edit-group-modal-ft_hide_patron_info').prop('checked', false);
+                $('#edit-group-modal-ft_search_groups_opac').prop('checked', false);
+                $('#edit-group-modal-ft_search_groups_staff').prop('checked', false);
+                $('#edit-group-modal-ft_local_hold_group').prop('checked', false);
+                $('#root-group-features-edit').hide();
+            } else {
+                $('#edit-group-modal-ft_hide_patron_info').prop('checked', ft_hide_patron_info ? true : false );
+                $('#edit-group-modal-ft_search_groups_opac').prop('checked', ft_search_groups_opac ? true : false );
+                $('#edit-group-modal-ft_search_groups_staff').prop('checked', ft_search_groups_staff ? true : false );
+                $('#edit-group-modal-ft_local_hold_group').prop('checked', ft_local_hold_group ? true : false );
+                $('#root-group-features-edit').show();
+            }
+
+            $('#edit-group-modal').modal('show');
+        }
+
+        function delete_group( id, title ) {
+            $('#delete-group-modal-title').text( title );
+            $('#delete-group-modal-id').val( id );
+            $('#delete-group-modal').modal('show');
+        }
+
+        function remove_library( id, library, parent_title ) {
+            $('#remove-library-modal-library').text( library );
+            $('#remove-library-modal-group').text( parent_title );
+            $('#remove-library-modal-id').val( id );
+            $('#remove-library-modal').modal('show');
+        }
+
+    </script>
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' %]
+
+[% BLOCK tree %]
+ <tr data-tt-id="[% group.id | html %]" data-tt-parent-id="[% group.parent_id | html %]">
+ <td>
+ [% IF group.branchcode %]
+ [% group.branchcode | html %]
+ [% ELSE %]
+ [% group.title | html %]
+ [% END %]
+ </td>
+ <td>
+ [% IF group.branchcode %]
+ [% group.library.branchname | html %]
+ [% ELSE %]
+ [% group.description | html %]
+ [% END %]
+ </td>
+ <td>
+ [% UNLESS group.branchcode %]
+ <ul>
+ [% IF group.ft_hide_patron_info %]
+ <li>Hide user's info for librarians outside of this group.</li>
+ [% END %]
+ [% IF group.ft_search_groups_opac %]
+ <li>Use for OPAC search groups</li>
+ [% END %]
+ [% IF group.ft_search_groups_staff %]
+ <li>Use for staff search groups</li>
+ [% END %]
+ [% IF group.ft_local_hold_group %]
+ <li>Is local reservation group</li>
+ [% END %]
+ </ul>
+ [% END %]
+ </td>
+ <td>
+ [% IF group.branchcode %]
+ <button class="btn btn-default btn-xs remove-library" data-group-id="[% group.id | html %]" data-group-library="[% group.library.branchname | html %]" data-group-parent-title="[% group.parent.title | html %]" ><i class="fa fa-trash"></i> Remove from group</button>
+ [% ELSE %]
+ <div class="btn-group">
+ <button class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown"><i class="fa fa-wrench"></i> Actions <span class="caret"></span></button>
+ <ul class="dropdown-menu">
+ <li>
+ <a id="add-group-[% group.id | html %]" href="#" class="add-group" data-group-id="[% group.id | html %]">
+ <i class="fa fa-plus"></i> Add sub-group
+ </a>
+ </li>
+
+ <li>
+ <a class="edit-group" id="edit-group-[% group.id | html %]" href="#" data-group-id="[% group.id | html %]" data-group-parent-id="[% group.parent_id | html %]" data-group-title="[% group.title | html %]" data-group-description="[% group.description | html %]" data-group-ft_hide_patron_info="[% group.ft_hide_patron_info | html %]" data-group-ft_search_groups_opac="[% group.ft_search_groups_opac | html %]" data-group-ft_search_groups_staff="[% group.ft_search_groups_staff | html %]" data-group-ft_local_hold_group="[% group.ft_local_hold_group | html %]" >
+ <i class="fa fa-pencil"></i> Edit
+ </a>
+ </li>
+
+ <li>
+ <a class="delete-group" id="delete-group-[% group.id | html %]" href="#" data-group-id="[% group.id | html %]" data-group-title="[% group.title | html %]">
+ <i class="fa fa-trash"></i> Delete
+ </a>
+ </li>
+ </ul>
+ </div>
+
+ <div class="btn-group">
+ <button class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown"><i class="fa fa-plus"></i> Add library <span class="caret"></span></button>
+ <ul class="dropdown-menu">
+ [% FOREACH library IN group.libraries_not_direct_children %]
+ <li>
+ <a class="add-library" id="add-library[% library.id | html %]-[% group.id | html %]" href="/cgi-bin/koha/admin/library_groups.pl?action=add&parent_id=[% group.id | html %]&branchcode=[% library.id | html %]">
+ [% library.branchname | html %]
+ </a>
+ </li>
+ [% END %]
+ </ul>
+ </div>
+ [% END %]
+ </td>
+ </tr>
+
+ [% FOREACH g IN group.children %]
+ [% PROCESS tree group=g %]
+ [% END %]
+[% END %]

@@ -1,0 +1,394 @@
+[% USE raw %]
+[% USE Asset %]
+[% USE Koha %]
+[% USE Branches %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>
+ [% IF ( uploadborrowers ) %] Results &rsaquo; [% END %] Import users &rsaquo; Tools &rsaquo; Koha </title>
+[% INCLUDE 'doc-head-close.inc' %]
+<style>
+    .yui-u fieldset.rows .widelabel { width: 12em; }
+    label.description { width: 20em; }
+    .line_error { width: 100%; }
+    code { background-color: yellow; }
+</style>
+</head>
+
+<body id="tools_import_borrowers" class="tools">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'patron-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/tools/tools-home.pl">Tools</a>
+ </li>
+ [% IF ( uploadborrowers ) %]
+ <li>
+ <a href="/cgi-bin/koha/tools/import_borrowers.pl">Import users</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ Results
+ </a>
+ </li>
+ [% ELSE %]
+ <li>
+ <a href="#" aria-current="page">
+ Import users </a>
+ </li>
+ [% END %]
+ </ol>
+</nav>
+
+[% INCLUDE 'blocking_errors.inc' %]
+<div class="main container-fluid">
+ <div class="row">
+ <div class="col-sm-10 col-sm-push-2">
+ <main>
+
+ <div class="row">
+ <div class="col-sm-6">
+<h1>Import users</h1>
+[% IF ( uploadborrowers ) %]
+ <h5>Import results :</h5>
+ <ul>
+ <li>[% imported | html %] imported records [% IF ( lastimported ) %](last was [% lastimported | html %])[% END %]</li>
+ [% IF imported and patronlistname %]
+ <li>Userlist with imported users: [% patronlistname | html %]</li>
+ [% END %]
+ <li>[% overwritten | html %] overwritten [% IF ( lastoverwritten ) %](last was [% lastoverwritten | html %])[% END %]</li>
+ <li>[% alreadyindb | html %] not imported because already in borrowers table and overwrite disabled [% IF ( lastalreadyindb ) %](last was [% lastalreadyindb | html %])[% END %]</li>
+ <li>[% invalid | html %] not imported because they are not in the expected format [% IF ( lastinvalid ) %](last was [% lastinvalid | html %])[% END %]</li>
+ <li>[% total | html %] records parsed</li>
+ <li><a href="/cgi-bin/koha/tools/tools-home.pl">Back to Tools</a></li>
+ </ul>
+
+ [% IF ( feedback ) %]
+ <br /><br />
+
+ <div>
+ <h5>Feedback:</h5>
+ <ul class="feedback">
+ [% FOREACH f IN feedback %]
+ <li>
+ [% IF ( f.filename ) %]
+ Parsing upload file <span class="filename">[% f.filename | html %]</span>
+ [% ELSIF ( f.backend ) %] Upload parsed using [% f.backend | html %] [% ELSIF ( f.headerrow ) %] These fields found: [% f.value | html %] [% ELSIF ( f.already_in_db ) %] User already in database: [% f.value | html %] [% ELSE %] [% f.name | html %] : [% f.value | html %] [% END %] </li>
+ [% END %]
+ </ul>
+ </div>
+ [% END %]
+
+ [% IF ( errors ) %]
+ <br /><br />
+
+ <div>
+ <h5>Error analysis:</h5>
+ <ul>
+ [% FOREACH e IN errors %]
+ [% IF ( e.badheader ) %]<li>Header row could not be parsed</li>[% END %]
+
+ [% FOREACH missing_critical IN e.missing_criticals %]
+ <li class="line_error">
+ Line <span class="linenumber">[% missing_critical.line | html %]</span>
+
+ [% IF ( missing_critical.badparse ) %] could not be parsed! [% ELSIF ( missing_critical.bad_date ) %] has &quot;[% missing_critical.key | html %]&quot; in unrecognised format: &quot;[% missing_critical.value | html %]&quot; [% ELSE %] Critical field &quot;[% missing_critical.key | html %]&quot; [% IF ( missing_critical.branch_map ) %] has unrecognised value &quot;[% missing_critical.value | html %]&quot; [% ELSIF ( missing_critical.category_map ) %] has unrecognised value &quot;[% missing_critical.value | html %]&quot; [% ELSE %] missing [% END %] (borrowernumber: [% missing_critical.borrowernumber | html %]; surname: [% missing_critical.surname | html %]). [% END %] <br/>
+ <code>[% missing_critical.lineraw | html %]</code>
+ </li>
+ [% END %]
+
+ [% IF e.invalid_cardnumber %]
+ <li class="line_error">
+ Card number [% e.cardnumber | html %] is not a valid card number
+ [% IF e.borrowernumber %] (for patron with borrowernumber [% e.borrowernumber | html %])[% END %]
+ </li>
+ [% END %]
+ [% IF e.duplicate_userid %]
+ <li class="line_error">
+ Userid [% e.userid | html %] is already used by another user. </li>
+ [% END %]
+ [% IF e.passwd_too_short %]
+ <li class="line_error">
+ Password is too short for user with borrowernumber [% e.borrowernumber | html %]. Minimum length is [% e.min_length | html %], length is [% e.length | html %] </li>
+ [% END %]
+ [% IF e.passwd_whitespace %]
+ <li class="line_error">
+ Password contains whitespace for user with borrowernumber [% e.borrowernumber | html %]. </li>
+ [% END %]
+ [% IF e.passwd_too_weak %]
+ <li class="line_error">
+ Password is too weak for user with borrowernumber [% e.borrowernumber | html %]. </li>
+ [% END %]
+ [% IF e.passwd_plugin_err %]
+ <li class="line_error">
+ Password plugin error for user with borrowernumber [% e.borrowernumber | html %]. </li>
+ [% END %]
+ [% IF e.passwd_unknown_err %]
+ <li class="line_error">
+ Password error for user with borrowernumber [% e.borrowernumber | html %]. </li>
+ [% END %]
+ [% IF e.patron_attribute_unique_id_constraint %]
+ <li class="line_error">
+ [% IF e.borrowernumber %] User attribute [% e.attribute.code | html %] must be unique for user with borrowernumber [% e.borrowernumber | html %]. [% ELSE %] User attribute [% e.attribute.code | html %] must be unique for user [% e.patron_id | html %]. [% END %] </li>
+ [% END %]
+ [% IF e.patron_attribute_invalid_type %]
+ <li class="line_error">
+ [% IF e.borrowernumber %] User attribute [% e.attribute_type_code | html %] is invalid for user with borrowernumber [% e.borrowernumber | html %]. [% ELSE %] User attribute [% e.attribute_type_code | html %] is invalid for user [% e.patron_id | html %]. [% END %] </li>
+ [% END %]
+ [% IF e.patron_attribute_non_repeatable %]
+ <li class="line_error">
+ [% IF e.borrowernumber %] User attribute [% e.attribute.code | html %] is non-repeatable for user with borrowernumber [% e.borrowernumber | html %]. [% ELSE %] User attribute [% e.attribute.code | html %] is non-repeatable for user [% e.patron_id | html %]. [% END %] </li>
+ [% END %]
+ [% END %]
+ </ul>
+ </div>
+ [% END %]
+[% ELSE %]
+ <ul>
+ <li>Select a file to import into the borrowers table</li>
+ <li>If a card number exists in the table, you can choose whether to ignore the new one or overwrite the old one.</li>
+ </ul>
+
+ <form method="post" action="[% SCRIPT_NAME | html %]" enctype="multipart/form-data">
+ <fieldset class="rows">
+ <legend>Import into the borrowers table</legend>
+
+ <ol>
+ <li>
+ <label for="uploadborrowers">Select the file to import: </label>
+ <input type="file" id="uploadborrowers" name="uploadborrowers" />
+ </li>
+
+ <li>
+ <label for "createpatronlist">Create user list: </label>
+ <input name="createpatronlist" id="createpatronlist" value="1" type="checkbox">
+ <span class="hint">List name will be file name with timestamp</span>
+ </li>
+ </ol>
+ </fieldset>
+
+ <fieldset class="rows">
+ <legend>Field to use for record matching</legend>
+ <ol>
+ <li class="radio">
+ <select name="matchpoint" id="matchpoint">
+ <option value="cardnumber">Card number</option>
+ <option value="userid">Username</option>
+ [% FOREACH matchpoint IN matchpoints %]
+ <option value="[% matchpoint.code | html %]">[% matchpoint.description | html %]</option>
+ [% END %]
+ </select>
+ </li>
+ </ol>
+ </fieldset>
+
+ <fieldset class="rows">
+ <legend>
+ <a href="#" class="expand_defaults"><i class="fa fa-plus-square"></i> Enter default values</a>
+ <a href="#" class="expand_defaults" style="display:none;"><i class="fa fa-minus-square"></i> Hide default value fields</a>
+ </legend>
+
+ <ol class="default_values" style="display:none;">
+ [% FOREACH borrower_field IN borrower_fields %]
+
+ [% SWITCH borrower_field.field %]
+ [% CASE 'branchcode' %]
+ <li>
+ <label class="description" for="branchcode">[% borrower_field.description | html %]: </label>
+ <select id="branchcode" name="branchcode">
+ <option value="" selected="selected"></option>
+ [% FOREACH library IN Branches.all() %]
+ <option value="[% library.branchcode | html %]">[% library.branchname | html %]</option>
+ [% END %]
+ </select>
+ <span class="field_hint">[% borrower_field.field | html %]</span>
+ </li>
+ [% CASE 'categorycode' %]
+ <li>
+ <label class="description" for="categorycode">[% borrower_field.description | html %]: </label>
+ <select id="categorycode" name="categorycode">
+ <option value="" selected="selected"></option>
+ [% FOREACH category IN categories %]
+ <option value="[% category.categorycode | html %]">[% category.description | html %]</option>
+ [% END %]
+ </select>
+ <span class="field_hint">[% borrower_field.field | html %]</span>
+ </li>
+ [% CASE %]
+ <li>
+ <label class="description" for="[% borrower_field.field | html %]">[% borrower_field.description | html %]: </label>
+ <input id="[% borrower_field.field | html %]" name="[% borrower_field.field | html %]" type="text" />
+ <span class="field_hint">[% borrower_field.field | html %]</span>
+ </li>
+ [% END %]
+ [% END %]
+
+ [% IF ( Koha.Preference('ExtendedPatronAttributes') == 1 ) %]
+ <li>
+ <label class="description" for="patron_attributes">User attributes: </label>
+ <input id="patron_attributes" name="patron_attributes" type="text" />
+ <span class="field_hint">user_attributes</span>
+ </li>
+ [% END %]
+
+ </ol>
+ </fieldset>
+ <fieldset class="rows">
+ <legend>
+ <a href="#" class="expand_preserves"><i class="fa fa-plus-square"></i> Preserve existing values</a>
+ <a href="#" class="expand_preserves" style="display:none;"><i class="fa fa-minus-square"></i> Hide preserve value fields</a>
+ </legend>
+
+ <ol class="preserve_values" style="display:none;">
+ <div class="hint">Selected fields will be preserved from original patron record when overwriting existing patron.</div>
+ [% FOREACH borrower_field IN borrower_fields %]
+ <li>
+ <label class="description" for="preserve_existing_[% borrower_field.field | html %]">[% borrower_field.description | html %]: </label>
+ <input name="preserve_existing" id="preserve_existing_[%  borrower_field.field | html %]" value="[%  borrower_field.field | html %]" type="checkbox">
+ <span class="field_hint">[% borrower_field.field | html %]</span>
+ </li>
+ [% END %]
+ </ol>
+ </fieldset>
+
+ <fieldset class="rows">
+ <legend>If matching record is already in the borrowers table:</legend>
+
+ <ol>
+ <li class="radio">
+ <input type="radio" id="overwrite_cardnumberno" name="overwrite_cardnumber" value="0" checked="checked" /><label for="overwrite_cardnumberno">Ignore this one, keep the existing one</label>
+ </li>
+
+ <li class="radio">
+ <input type="radio" id="overwrite_cardnumberyes" name="overwrite_cardnumber" value="1" /><label for="overwrite_cardnumberyes">Overwrite the existing one with this</label>
+ <ul>
+ <li>
+ <input class="overwrite_passwords" type="checkbox" id="overwrite_passwords" name="overwrite_passwords" disabled/>
+ <label class="overwrite_passwords" for="overwrite_passwords">Replace user passwords with those in the file (blank passwords will be ignored)</label>
+ </li
+                    </ul>
+ </li>
+ </ol>
+ </fieldset>
+
+ [% IF ( Koha.Preference('ExtendedPatronAttributes') == 1 ) %]
+ <fieldset class="rows">
+ <legend>User attributes</legend>
+
+ <ol>
+ <li class="radio">
+ <input type="radio" id="ext_preserve_0" name="ext_preserve" value="0" /><label for="ext_preserve_0">Replace all user attributes</label>
+ </li>
+
+ <li class="radio">
+ <input type="radio" id="ext_preserve_1" name="ext_preserve" value="1" checked="checked" /><label for="ext_preserve_1">Replace only included user attributes</label>
+ </li>
+ </ol>
+ </fieldset>
+ [% END %]
+
+ <fieldset class="rows">
+ <legend>Welcome email</legend>
+ <ul>
+ <li>
+ <input class="welcome_new" type="checkbox" id="welcome_new" name="welcome_new"/>
+ <label class="welcome_new" for="welcome_new">Send email to new patrons</label>
+ <span class="hint"> ACCTDETAILS notice is used</span>
+ </li>
+ </ul>
+ </fieldset>
+
+ <fieldset class="action">
+ <input type="hidden" name="csrf_token" value="[% csrf_token | html %]" />
+ <input type="submit" value="Import" />
+ </fieldset>
+ </form>
+[% END %]
+
+</div>
+
+<div class="col-sm-6">
+ <h2>Notes:</h2>
+ <ul>
+ <li>The first line in the file must be a header row defining which columns you are supplying in the import file.</li>
+
+ <li><strong>Download a <a href="?sample=1">Starter CSV file</a> with all the columns.</strong> Values are comma-separated.</li>
+
+ <li>
+ OR choose which fields you want to supply from the following list:
+ <ul>
+ <li>
+ [% FOREACH columnkey IN borrower_fields %]'[% columnkey.field | html %]', [% END %]
+ </li>
+ </ul>
+ </li>
+
+ [% IF ( Koha.Preference('ExtendedPatronAttributes') ) %]
+ <li>
+ If loading user attributes, the 'patron_attributes' field should contain a comma-separated list of attribute types and values. The attribute type code and a colon should precede each value. <strong>INSTID:12345,LANG:fr</strong> or <strong>STARTDATE:January 1 2010,TRACK:Day</strong>. If an input record has more than one attribute, the fields should either be entered as an unquoted string (previous examples), or with each field wrapped in separate double quotes and delimited by a comma: <strong>&quot;STARTDATE:January 1, 2010&quot;,&quot;TRACK:Day&quot;</strong>. The second syntax would be required if the data might have a comma in it, like a date string.
+ </li>
+ [% END %]
+
+ <li>
+ <strong>Required fields:</strong> The fields 'surname', 'branchcode', and 'categorycode' are <em>required</em> and 'branchcode' and 'categorycode' <strong>must match</strong> valid entries in your database.
+ </li>
+
+ <li>
+ 'password' should be stored in plaintext, and will be converted to a Bcrypt hash (if your passwords are already encrypted, talk to your system administrator about options). Passwords will not be updated on overwrite unless replace passwords option is checked.
+ </li>
+
+ <li>
+ Date formats should match your system preference, and <strong>must</strong> be zero-padded, e.g. '01/02/2008'. Alternatively,
+you can supply dates in ISO format (e.g., '2010-10-28').
+ </li>
+ </ul>
+</div>
+</div>
+
+ </main>
+ </div> <!-- /.col-sm-10.col-sm-push-2 -->
+
+ <div class="col-sm-2 col-sm-pull-10">
+ <aside>
+ [% INCLUDE 'tools-menu.inc' %]
+ </aside>
+ </div> <!-- .col-sm-2.col-sm-pull-10 -->
+ </div> <!-- /.row -->
+
+[% MACRO jsinclude BLOCK %]
+ [% INCLUDE 'calendar.inc' %]
+ [% Asset.js("js/tools-menu.js") | $raw %]
+ [% INCLUDE 'str/members-menu.inc' %]
+ [% Asset.js("js/members-menu.js") | $raw %]
+ <script>
+        $(document).ready(function() {
+            [%# Make date fields have the datepicker %]
+            $("#dateenrolled, #dateexpiry, #dateofbirth").flatpickr();
+
+            $(".expand_defaults").click(function(e){
+                e.preventDefault();
+                $(".default_values").toggle();
+                $(".expand_defaults").toggle();
+            });
+
+            $(".expand_preserves").click(function(e){
+                e.preventDefault();
+                $(".preserve_values").toggle();
+                $(".expand_preserves").toggle();
+            });
+        });
+
+        $("#overwrite_cardnumberno").click(function(){
+            $("#overwrite_passwords").prop('checked',false).prop('disabled',true);
+        });
+        $("#overwrite_cardnumberyes").click(function(){
+            $("#overwrite_passwords").prop('disabled',false);
+        });
+    </script>
+[% END %]
+[% INCLUDE 'intranet-bottom.inc' %]

@@ -1,0 +1,105 @@
+---
+Authorities:
+  General:
+  - - choices:
+        '0': Don't display
+        '1': Display
+      default: no
+      pref: AuthDisplayHierarchy
+    - broader term/narrower term hierarchies when viewing authorities.
+  - - Use the following text to edit how authority records control indicators of attached
+      bibliographic fields (and possibly subfield $2).<br>
+    - 'Lines starting with a comment symbol (#) are skipped. Each line should be of
+      the form: (marc21|unimarc), tag, ind1:(auth1|auth2|some_value), ind2:(auth1|auth2|thesaurus|some_value).<br>'
+    - Here auth1 and auth2 refer to the indicators of the authority record, tag is
+      a bibliographic field number or an asterisk (*), and some_value is a fixed value
+      (one character).<br>
+    - The MARC21 option thesaurus refers to indicators controlled by authority field
+      008/11 and 040$f.
+    - pref: AuthorityControlledIndicators
+      type: textarea
+  - - When editing records,
+    - choices:
+        '0': don't allow
+        '1': allow
+      default: no
+      pref: BiblioAddsAuthorities
+    - them to automatically create new authority records if needed, rather than having
+      to reference existing authorities.
+  - - When editing records,
+    - choices:
+        '0': don't generate
+        '1': generate
+      default: yes
+      pref: AutoCreateAuthorities
+    - authority records that are missing (<a href="/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=BiblioAddsAuthorities">BiblioAddsAuthorities</a>
+      must be set to "allow" for this to have any effect).
+  - - When modifying an authority record, do not update attached bibliographic records
+      if the number exceeds
+    - default: 50
+      pref: AuthorityMergeLimit
+    - records. (Above this limit, the merge_authority cron job will merge them.)
+    - <br><strong>NOTE:</strong> This system preference requires the <code>misc/cronjobs/merge_authorities.pl</code>
+      cronjob. Ask your system administrator to schedule it.
+  - - 'Use the following text for the contents of MARC21 authority control field 008
+      position 06-39 (fixed length data elements). Do NOT include the date (position
+      00-05):'
+    - class: code
+      default: '|| aca||aabn           | a|a     d'
+      pref: MARCAuthorityControlField008
+      type: textarea
+  - - choices:
+        '0': Don't use
+        '1': Use
+      default: yes
+      pref: UseAuthoritiesForTracings
+    - authority record numbers instead of text strings for searches from subject tracings.
+  - - 'Use the following text for the contents of UNIMARC authority field 100 position
+      08-35 (fixed length data elements). Do NOT include the date (position 00-07):'
+    - class: code
+      default: afrey50      ba0
+      pref: UNIMARCAuthorityField100
+      type: textarea
+  - - When updating bibliographic records from an attached authority record ("merging"),
+      handle subfields of relevant bibliographic record fields in
+    - choices:
+        loose: loose
+        strict: strict
+      default: loose
+      pref: AuthorityMergeMode
+    - mode. In strict mode subfields that are not found in the authority record, are
+      deleted. Loose mode will keep them. Loose mode is the historical behavior and
+      still the default.
+  Linker:
+  - - Use the
+    - choices:
+        Default: default
+        FirstMatch: first match
+        LastMatch: last match
+      default: Default
+      pref: LinkerModule
+    - linker module for matching headings to authority records.
+  - - 'Set the following options for the authority linker:'
+    - class: multi
+      pref: LinkerOptions
+    - (separate options with |).
+  - - choices:
+        '0': Don't
+        '1': Do
+      default: yes
+      pref: LinkerRelink
+    - relink headings that have previously been linked to authority records.
+  - - choices:
+        '0': Don't
+        '1': Do
+      default: no
+      pref: LinkerKeepStale
+    - keep existing links to authority records for headings where the linker is unable
+      to find a match.
+  - - choices:
+        '0': Don't
+        '1': Do
+      default: no
+      pref: CatalogModuleRelink
+    - ' automatically relink headings that have previously been linked when saving
+      records in the cataloguing module.'

@@ -1,0 +1,1470 @@
+[% PROCESS 'i18n.inc' %]
+[% USE raw %]
+[% USE Asset %]
+[% USE Branches %]
+[% USE AuthorisedValues %]
+[% USE KohaDates %]
+[% USE Price %]
+[% USE TablesSettings %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>
+ [% IF op == 'save' %]
+ [% IF ( suggestionid ) %]
+ Edit suggestion #[% suggestionid | html %] &rsaquo; Suggestions
+ [% ELSE %]
+ Add suggestion &rsaquo; Suggestions
+ [% END %]
+
+ [% ELSIF ( op == 'show' ) %]
+ Show suggestion #[% suggestionid | html %] &rsaquo; Suggestions
+
+ [% ELSE %]
+ Suggestions management
+ [% END %] &rsaquo; Acquisitions &rsaquo; Koha
+</title>
+[% INCLUDE 'doc-head-close.inc' %]
+[% IF op == 'else' %]
+ [% FILTER collapse %]
+ <style>
+            h4.local_collapse a {
+                font-size: 80%;
+                text-decoration: none;
+            }
+            fieldset.brief ol {
+                display: none;
+            }
+            .overlay {
+                background: #eeffd4;
+                color: #000;
+                display: none;
+                left: 50%;
+                margin-left: -100px;
+                margin-top: -10px;
+                padding: .5em;
+                position: absolute;
+                text-align: center;
+                top: 180px;
+                width: 200px;
+            }
+        </style>
+ [% END %]
+[% END %]
+</head>
+
+<body id="acq_suggestion" class="acq">
+ [% INCLUDE 'header.inc' %]
+ [% INCLUDE 'cat-search.inc' %]
+
+ <nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/acqui/acqui-home.pl">Acquisitions</a>
+ </li>
+
+ [% IF op == 'save' %]
+ [% IF ( suggestionid ) %]
+ <li>
+ <a href="/cgi-bin/koha/suggestion/suggestion.pl">Suggestions</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ Edit suggestion #[% suggestionid | html %]
+ </a>
+ </li>
+ [% ELSE %]
+ <li>
+ <a href="/cgi-bin/koha/suggestion/suggestion.pl">Suggestions</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ Add suggestion
+ </a>
+ </li>
+ [% END %]
+ [% ELSIF ( op == 'show' ) %]
+ <li>
+ <a href="/cgi-bin/koha/suggestion/suggestion.pl">Suggestions</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ Show suggestion #[% suggestionid | html %]
+ </a>
+ </li>
+ [% ELSE %]
+ <li>
+ <a href="#" aria-current="page">
+ Suggestions management
+ </a>
+ </li>
+ [% END %]
+ </ol>
+ </nav> <!-- /.breadcrumbs -->
+ [% INCLUDE 'blocking_errors.inc' %]
+
+ [% IF ( op == 'show' ) %]
+ <div class="main container-fluid">
+ <div class="row">
+ <div class="col-md-8 col-md-offset-2">
+
+ <div id="toolbar" class="btn-toolbar">
+ <a class="btn btn-default" id="editsuggestion" href="suggestion.pl?op=edit&amp;suggestionid=[% suggestionid | html %]&amp;csrf_token=[% csrf_token | html %]"><i class="fa fa-pencil"></i> Edit</a>
+ <a class="btn btn-default deletesuggestion" href="suggestion.pl?op=delete&amp;suggestionid=[% suggestionid | html %]&amp;csrf_token=[% csrf_token | html %]"><i class="fa fa-trash"></i> Delete</a>
+ </div>
+
+ <fieldset class="rows">
+ <legend>Bibliographic information</legend>
+ <ol>
+ [% IF ( title ) %]
+ <li>
+ <span class="label">Title:</span>
+ [% IF suggestion.biblionumber %]
+ <a href="/cgi-bin/koha/catalogue/detail.pl?biblionumber=[% suggestion.biblionumber | uri %]">[% suggestion.title | html %]</a>
+ [% ELSE %]
+ [% title | html %]
+ [% END %]
+ </li>
+ [% END %]
+ [% IF ( author ) %]
+ <li>
+ <span class="label">Author:</span>
+ [% author | html %]
+ </li>
+ [% END %]
+ [% IF ( copyrightdate ) %]
+ <li>
+ <span class="label">Copyright date:</span>
+ [% copyrightdate | html %]
+ </li>
+ [% END %]
+ [% IF ( isbn ) %]
+ <li>
+ <span class="label">ISBN or ISSN or other standard number:</span>
+ [% isbn | html %]
+ </li>
+ [% END %]
+ [% IF ( publishercode ) %]
+ <li>
+ <span class="label">Publisher:</span>
+ [% publishercode | html %]
+ </li>
+ [% END %]
+ [% IF ( place ) %]
+ <li>
+ <span class="label">Publication place:</span>
+ [% place | html %]
+ </li>
+ [% END %]
+ [% IF ( collectiontitle ) %]
+ <li>
+ <span class="label">Collection title:</span>
+ [% collectiontitle | html %]
+ </li>
+ [% END %]
+ [% IF ( itemtype ) %]
+ <li>
+ <span class="label">Document type:</span>
+ [% AuthorisedValues.GetByCode( 'SUGGEST_FORMAT', itemtype, 0 ) | html %]
+ </li>
+ [% END %]
+ [% IF ( patron_reason_loop ) %]
+ <li>
+ <span class="label">Reason for suggestion: </span>
+ [% FOREACH patron_reason_loo IN patron_reason_loop %]
+ [% IF patron_reason_loo.authorised_value == patronreason %]
+ [% patron_reason_loo.lib | html %]
+ [% END %]
+ [% END %]
+ </li>
+ [% END %]
+ [% IF ( note ) %]
+ <li>
+ <span class="label">Notes:</span>
+ [% note | html %]
+ </li>
+ [% END %]
+ </ol>
+ </fieldset>
+
+ <fieldset class="rows">
+ <legend>Suggestion management</legend>
+ <ol>
+ <li>
+ <span class="label">Status:</span>
+ [% SET status_found = 0 %]
+ [% IF ( STATUS == 'ASKED' ) %]
+ Pending
+ [% SET status_found = 1 %]
+ [% ELSIF ( STATUS == 'ACCEPTED' ) %]
+ Accepted
+ [% SET status_found = 1 %]
+ [% ELSIF ( STATUS == 'CHECKED' ) %]
+ Checked
+ [% SET status_found = 1 %]
+ [% ELSIF ( STATUS == 'REJECTED' ) %]
+ Rejected
+ [% SET status_found = 1 %]
+ [% ELSIF ( STATUS == 'ORDERED' ) %]
+ Ordered
+ [% SET status_found = 1 %]
+ [% ELSIF ( STATUS == 'AVAILABLE' ) %]
+ Available
+ [% SET status_found = 1 %]
+ [% ELSE %]
+ [% FOREACH s IN SuggestionStatuses %]
+ [% IF STATUS == s.authorised_value %]
+ [% s.lib | html %]
+ [% SET status_found = 1 %]
+ [% END %]
+ [% END %]
+ [% END %]
+ </li>
+ <li>
+ <span class="label">Reason:</span>
+ [% IF ( reason ) %]
+ [% AuthorisedValues.GetByCode( 'SUGGEST', reason, 0 ) | html %]
+ [% END %]
+ </li>
+ </ol>
+
+ <table>
+ <thead>
+ <tr>
+ <th>&nbsp;</th>
+ <th>Date</th>
+ <th>By</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <th>[% tp('purchase suggestion created by', 'Created by:') | html %]</th>
+ <td>[% suggesteddate | $KohaDates %]</td>
+ <td>
+ [% IF ( suggestedby_patron.borrowernumber ) %]
+ <a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% suggestedby_patron.borrowernumber | uri %]">[% suggestedby_patron.surname | html %], [% suggestedby_patron.firstname | html %] ([% suggestedby_patron.cardnumber | html %])</a>
+ [% Branches.GetName( suggestedby_patron.branchcode ) | html %] ([% suggestedby_patron.category.description | html %])
+ [% END %]
+ </td>
+ </tr>
+ <tr>
+ <th>Managed by:</th>
+ <td>[% manageddate | $KohaDates %]</td>
+ <td>
+ [% IF ( managedby_patron.borrowernumber ) %]
+ <a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% managedby_patron.borrowernumber | uri %]">[% managedby_patron.surname | html %], [% managedby_patron.firstname | html %] ([% managedby_patron.cardnumber | html %])</a>
+ [% Branches.GetName( managedby_patron.branchcode ) | html %] ([% managedby_patron.category.description | html %])
+ [% END %]
+ </td>
+ </tr>
+ <tr>
+ <th>Accepted on:</th>
+ <td>[% accepteddate | $KohaDates %]</td>
+ <td>
+ [% IF ( acceptedby_patron.borrowernumber ) %]
+ <a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% acceptedby_patron.borrowernumber | uri %]">[% acceptedby_patron.surname | html %], [% acceptedby_patron.firstname | html %] ([% acceptedby_patron.cardnumber | html %])</a>
+ [% Branches.GetName( acceptedby_patron.branchcode ) | html %] ([% acceptedby_patron.category.description | html %])
+ [% END %]
+ </td>
+ </tr>
+ <tr>
+ <th>Last modification on:</th>
+ <td>[% lastmodificationdate | $KohaDates %]</td>
+ <td>
+ [% IF ( lastmodificationby_patron.borrowernumber ) %]
+ <a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% lastmodificationby_patron.borrowernumber | uri %]">[% lastmodificationby_patron.surname | html %], [% lastmodificationby_patron.firstname | html %] ([% lastmodificationby_patron.cardnumber | html %])</a>
+ [% Branches.GetName( lastmodificationby_patron.branchcode ) | html %] ([% lastmodificationby_patron.category.description | html %])
+ [% END %]
+ </td>
+ </tr>
+ </tbody>
+ </table>
+ </fieldset>
+
+ <fieldset class="rows">
+ <legend>Acquisition information</legend>
+ <ol>
+ <li>
+ <span class="label">Library:</span>
+ [% Branches.GetName( branchcode ) | html %]
+ </li>
+ <li>
+ <span class="label">Fund:</span>
+ [% budgetname | html %]
+ </li>
+ <li>
+ <span class="label">Copies:</span>
+ [% quantity | html %]
+ </li>
+ <li>
+ <span class="label">Currency:</span>
+ [% currency | html %]
+ </li>
+ <li>
+ <span class="label">Price:</span>
+ [% price | $Price %]
+ </li>
+ <li>
+ <span class="label">Total</span>
+ [% total | $Price %]
+ </li>
+ </ol>
+ </fieldset>
+
+ <fieldset class="action">
+ <a href="suggestion.pl">&lt;&lt; Back to suggestions</a>
+ </fieldset>
+
+ </div> <!-- /.col-md-8 col-md-offset-2 -->
+ </div> <!-- /.row -->
+ [% ELSE # IF op == "show" %]
+
+ [% IF op == 'save' %]
+ <div class="main container-fluid">
+ <div class="row">
+ <div class="col-md-8 col-md-offset-2">
+ [% ELSE %]
+ <div class="main container-fluid">
+ <div class="row">
+ <div class="col-sm-10 col-sm-push-2">
+ [% END %]
+
+ [% IF op == 'save' %]
+ [% FOR m IN messages %]
+ <div class="dialog [% m.type | html %]">
+ [% SWITCH m.code %]
+ [% CASE 'biblio_exists' %]
+ A similar document already exists: <a href="/cgi-bin/koha/catalogue/detail.pl?biblionumber=[% m.id | uri %]">[% m.title | html %]</a>. Click on "Confirm your suggestion" to ignore this message.
+ [%  CASE 'manager_not_enough_permissions' %]
+ The manager you selected does not have sufficient permissions.
+ [% CASE %]
+ [% m.code | html %]
+ [% END %]
+ </div> <!-- /.dialog -->
+ [% END %]
+
+ <form id="add_edit" action="suggestion.pl" method="post" class="validated">
+ [% INCLUDE 'csrf-token.inc' %]
+ <input type="hidden" name="redirect" id="redirect" value="[% redirect | html %]" />
+ <input type="hidden" name="borrowernumber" id="borrowernumber" value="[% borrowernumber | html %]" />
+ [% IF ( suggestionid ) %]
+ <h1>Edit purchase suggestion #[% suggestionid | html %]</h1>
+ <input type="hidden" name="suggestionid" value="[% suggestionid | html %]"/>
+ [% ELSE %]
+ <h1>Enter a new purchase suggestion</h1>
+ [% END %]
+
+ <fieldset class="rows">
+ <legend>Bibliographic information</legend>
+ <ol>
+ <li>
+ <label for="title" class="required">Title:</label>
+ <input type="text" id="title" name="title" size="80" maxlength="255" value="[% title | html %]" required="required" class="required" />
+ <span class="required">Required</span>
+ </li>
+ <li>
+ <label for="author">Author:</label>
+ <input type="text" id="author" name="author" size="50" maxlength="80" value="[% author | html %]"/>
+ </li>
+ <li>
+ <label for="copyrightdate">Copyright date:</label>
+ <input type="text" id="copyrightdate" name="copyrightdate" size="4" maxlength="4" value="[% copyrightdate | html %]" />
+ </li>
+ <li>
+ <label for="isbn">ISBN or ISSN or other standard number:</label>
+ <input type="text" id="isbn" name="isbn" size="50" maxlength="80" value="[% isbn | html %]"/>
+ </li>
+ <li>
+ <label for="publishercode">Publisher:</label>
+ <input type="text" id="publishercode" name="publishercode" size="50" maxlength="80" value="[% publishercode | html %]"/>
+ </li>
+ <li>
+ <label for="place">Publication place:</label>
+ <input type="text" id="place" name="place" size="50" maxlength="80" value="[% place | html %]"/>
+ </li>
+ <li>
+ <label for="collectiontitle">Collection title:</label>
+ <input type="text" id="collectiontitle" name="collectiontitle" size="50" maxlength="80" value="[% collectiontitle | html %]"/>
+ </li>
+ <li>
+ <label for="itemtype">Document type:</label>
+ [% PROCESS 'av-build-dropbox.inc' name="itemtype", category="SUGGEST_FORMAT", size = 20, default=itemtype %]
+ </li>
+ [% IF patron_reason_loop %]
+ <li>
+ <label for="patronreason">Reason for suggestion: </label>
+ <select name="patronreason" id="patronreason">
+ <option value=""> -- Choose -- </option>
+ [% FOREACH patron_reason_loo IN patron_reason_loop %]
+ [% IF patron_reason_loo.authorised_value == patronreason %]
+ <option value="[% patron_reason_loo.authorised_value | html %]" selected="selected">[% patron_reason_loo.lib | html %]</option>
+ [% ELSE %]
+ <option value="[% patron_reason_loo.authorised_value | html %]">[% patron_reason_loo.lib | html %]</option>
+ [% END %]
+ [% END %]
+ </select>
+ </li>
+ [% END # /IF patron_reason_loop %]
+ <li>
+ <label for="note">Notes:</label>
+ <textarea name="note" id="note" rows="5" cols="40">[% note | html %]</textarea>
+ </li>
+ </ol>
+ </fieldset>
+
+ <fieldset class="rows">
+ <legend>Suggestion management</legend>
+ <ol>
+ [% IF ( suggestionid ) %]
+ <li>
+ <label for="STATUS">Status:</label>
+ <select id="STATUS" name="STATUS">
+ <option value="">No status</option>
+
+ [% IF (statusselected_ASKED ) %]
+ <option value="ASKED" selected="selected">Pending</option>
+ [% ELSE %]
+ <option value="ASKED">Pending</option>
+ [% END %]
+
+ [% IF (statusselected_ACCEPTED ) %]
+ <option value="ACCEPTED" selected="selected">Accepted</option>
+ [% ELSE %]
+ <option value="ACCEPTED">Accepted</option>
+ [% END %]
+
+ [% IF (statusselected_CHECKED ) %]
+ <option value="CHECKED" selected="selected">Checked</option>
+ [% ELSE %]
+ <option value="CHECKED">Checked</option>
+ [% END %]
+
+ [% IF ( statusselected_REJECTED ) %]
+ <option value="REJECTED" selected="selected">Rejected</option>
+ [% ELSE %]
+ <option value="REJECTED">Rejected</option>
+ [% END %]
+
+ [% IF ( statusselected_ORDERED ) %]
+ <option value="ORDERED" selected="selected">Ordered</option>
+ [% ELSE %]
+ <option value="ORDERED">Ordered</option>
+ [% END %]
+
+ [% FOREACH s IN SuggestionStatuses %]
+ [% IF s.authorised_value == suggestion.STATUS %]
+ <option value="[% s.authorised_value | html %]" selected="selected">[% s.lib | html %]</option>
+ [% ELSE %]
+ <option value="[% s.authorised_value | html %]">[% s.lib | html %]</option>
+ [% END %]
+ [% END %]
+ </select>
+ </li>
+ <li>
+ <label for="reason">Reason:</label>
+ <select class="select-reason" id="reason" name="reason">
+ <option value=""> -- Choose a reason -- </option>
+ [% FOREACH reasonsloo IN suggestion.reasonsloop %]
+ [% IF (reasonsloo.lib == suggestion.reason) %]
+ <option value="[% reasonsloo.lib | html %]" selected="selected">[% reasonsloo.lib | html %]</option>
+ [% ELSE %]
+ <option value="[% reasonsloo.lib | html %]">[% reasonsloo.lib | html %]</option>
+ [% END %]
+ [% END %]
+ <option value="other">Others...</option>
+ </select>
+
+ <span id="other_reason" name="other_reason">
+ [% IF other_reason %]
+ <input type="text" size="31" id="select-other_reason" name="other_reason" placeholder="please note your reason here..." value="[% suggestion.reason | html %]"/>
+ [% ELSE %]
+ <input type="text" size="31" id="select-other_reason" name="other_reason" placeholder="please note your reason here..." />
+ [% END %]
+ <a href="#back">Cancel</a>
+ </span>
+ </li>
+ [% END %]
+ <li>
+ <table>
+ <thead>
+ <tr>
+ <th>&nbsp;</th>
+ <th>Date</th>
+ <th>By</th>
+ <th>Action</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <th>
+ <label for="suggesteddate">[% tp('purchase suggestion created by', 'Created by:') | html %]</label>
+ </th>
+ <td>
+ <input type="text" id="suggesteddate" name="suggesteddate" class="flatpickr" size="10" maxlength="10" value="[% suggesteddate | $KohaDates %]"/> [% INCLUDE 'date-format.inc' %]
+ </td>
+ <td id="tdsuggestedby">
+ <input type="hidden" id="suggestedby" name="suggestedby" value="[% suggestedby | html %]"/>
+ [% IF ( suggestedby_patron.borrowernumber ) %]
+ <a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% suggestedby_patron.borrowernumber | uri %]">[% suggestedby_patron.surname | html %], [% suggestedby_patron.firstname | html %] ([% suggestedby_patron.cardnumber | html %])</a> [% Branches.GetName( suggestedby_patron.branchcode ) | html %] ([% suggestedby_patron.category.description | html %])
+ [% END %]
+ </td>
+ <td>
+ <a href="#" id="edit_suggester" class="btn btn-default">Set to user</a>
+ </td>
+ </tr>
+ <tr>
+ <th>
+ <label for="accepteddate">Accepted on:</label>
+ </th>
+ <td>
+ <input type="text" id="accepteddate" name="accepteddate" class="flatpickr" size="10" maxlength="10" value="[% accepteddate | $KohaDates %]" />[% INCLUDE 'date-format.inc' %]
+ </td>
+ <td>
+ <input type="hidden" id="acceptedby" name="acceptedby" value="[% acceptedby | html %]"/>
+ [% IF ( acceptedby_patron.borrowernumber ) %]
+ <a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% acceptedby_patron.borrowernumber | uri %]">[% acceptedby_patron.surname | html %], [% acceptedby_patron.firstname | html %] ([% acceptedby_patron.cardnumber | html %])</a>
+ [% Branches.GetName( acceptedby_patron.branchcode ) | html %] ([% acceptedby_patron.category.description | html %])
+ [% END %]
+ </td>
+ <td></td>
+ </tr>
+ <tr>
+ <th>
+ <label for="lastmodificationdate">Last modification on:</label>
+ </th>
+ <td>
+ [% lastmodificationdate | $KohaDates %]
+ </td>
+ <td>
+ [% IF lastmodificationby_patron %]
+ [% INCLUDE 'patron-title.inc' patron=lastmodificationby_patron hide_patron_infos_if_needed=1 %] [% Branches.GetName( lastmodificationby_patron.branchcode ) | html %] ([% lastmodificationby_patron.category.description | html %])
+ [% END %]
+ </td>
+ <td></td>
+ </tr>
+ </tbody>
+ </table>
+ </li>
+ <li>
+ <label for="managedon">Managed on:</label>
+ <input type="text" id="managedon" name="manageddate" class="flatpickr" size="10" maxlength="10" value="[% manageddate | $KohaDates %]" />[% INCLUDE 'date-format.inc' %]
+ </li>
+ <li>
+ <label for="managedby_name">by:</label>
+ <div>
+ <span id="managedby_name" name="managedby_name">
+ <a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% logged_in_user.borrowernumber | uri %]">You</a>
+ </span>
+ [% IF managedby_patron.borrowernumber && logged_in_user.borrowernumber != managedby_patron.borrowernumber %]
+ | Previously was [% INCLUDE 'patron-title.inc' patron=managedby_patron hide_patron_infos_if_needed=1 %] [% Branches.GetName( managedby_patron.branchcode ) | html %] ([% managedby_patron.category.description | html %])
+ [% END %]
+ <br />
+ <a id="edit_manager" class="new_window" href="#"><i class="fa fa-search"></i> Select manager</a>
+ [% IF managedby_patron.borrowernumber && logged_in_user.borrowernumber != managedby_patron.borrowernumber %]
+ <a id="restore_previous_manager" href="#"><i class="fa fa-trash"></i> Keep existing manager</a>
+ [% END %]
+ <input type="hidden" name="managedby" id="managedby" value="[% logged_in_user.borrowernumber | html %]" />
+
+ <br/>
+ <label for="notify">Notify manager:</label>
+ <input type="checkbox" id="notify" name="notify" value="notify" disabled="disabled" title="A NOTIFY_MANAGER notice will be generated and send to the manager if a valid email address is defined. This can be checked if a new manager has been selected." />
+ </div> <!-- /div -->
+ </li>
+ </ol>
+ </fieldset>
+
+ <fieldset class="rows">
+ <legend>Acquisition information</legend>
+ <ol>
+ <li>
+ <label for="branchcode">Library:</label>
+ <select name="branchcode" id="branchcode">
+ <option value="">Any</option>
+ [% PROCESS options_for_libraries libraries => Branches.all( selected => branchcode ) %]
+ </select>
+ </li>
+ <li>
+ <label for="budgetid">Fund:</label>
+ <select name="budgetid" id="budgetid">
+ <option value="">Any</option>
+ [% FOREACH budget IN sugg_budgets %]
+ [% IF ( budget.selected ) %]
+ <option value="[% budget.b_id | html %]" selected="selected">[% budget.b_txt | html %] [% IF ( !budget.b_active ) %](inactive)[% END %]</option>
+ [% ELSIF ( budget.b_active ) %]
+ <option value="[% budget.b_id | html %]">[% budget.b_txt | html %]</option>
+ [% ELSE %]
+ <option value="[% budget.b_id | html %]" class="b_inactive">[% budget.b_txt | html %] (inactive)</option>
+ [% END %]
+ [% END %]
+ </select>
+ <label for="showallfunds" style="float:none;width:auto;">&nbsp;Show inactive:</label>
+ <input type="checkbox" id="showallfunds" />
+ </li>
+ <li>
+ <label for="quantity">Copies:</label>
+ <input type="text" size="10" id="quantity" name="quantity" value="[% quantity | html %]" />
+ </li>
+ <li>
+ <label for="currency">Currency:</label>
+ [% FOREACH c IN currencies %]
+ <input type="hidden" value="[% c.rate | html %]" id="currency_rate_[% c.currency | html %]" name="currency_rate_[% c.currency | html %]" />
+ <input type="hidden" id="[% c.currency | html %]" name="[% c.currency | html %]" value="[% c.rate | html %]" />
+ [% END %]
+ <select name="currency" id="currency">
+ [% FOREACH c IN currencies %]
+ [% IF suggestionid and suggestion.currency == c.currency or not suggestionid and c.active %]
+ <option value="[% c.currency | html %]" selected="selected">[% c.currency | html %]</option>
+ [% ELSIF not c.archived %]
+ <option value="[% c.currency | html %]">[% c.currency | html %]</option>
+ [% END %]
+ [% END %]
+ </select>
+ </li>
+ <li>
+ <label for="price">Price:</label>
+ <input type="text" size="20" name="price" id="price" value="[% price | html %]" />
+ </li>
+ <li>
+ <label for="total">Total: </label>
+ <input type="text" readonly="readonly" id="total" name="total" size="10" value="[% total | html %]"/>
+ </li>
+ </ol>
+ </fieldset> <!-- /.rows -->
+
+ <input type="hidden" id="returnsuggested" name="returnsuggested" value="[% IF ( returnsuggestedby ) %][% returnsuggestedby | html %][% ELSE %]noone[% END %]"/>
+
+ <fieldset class="action">
+ <input type="hidden" name="op" value="[% op | html %]" />
+ [% IF ( suggestionid ) %]
+ [% IF ( need_confirm ) %]
+ <input type="hidden" name="save_confirmed" value="1" />
+ <input onclick="this.form.op.value = 'save'; this.form.submit();" type="submit" value="Confirm your suggestion" />
+ [% ELSE %]
+ <input type="submit" value="Save" />
+ [% END %]
+ <a class="cancel" href="[% IF ( returnsuggestedby ) %]/cgi-bin/koha/members/moremember.pl?borrowernumber=[% returnsuggestedby | uri %]#suggestions[% ELSE %]suggestion.pl[% END %]">Cancel</a>
+ [% ELSE %]
+ [% IF ( need_confirm ) %]
+ <input type="hidden" name="save_confirmed" value="1" />
+ <input onclick="this.form.op.value = 'save'; this.form.submit();" type="submit" value="Confirm your suggestion" />
+ [% ELSE %]
+ <input type="submit" value="Submit your suggestion" />
+ [% END %]
+ <a class="cancel" href="suggestion.pl">Cancel</a>
+ [% END %]
+ </fieldset> <!-- /.action -->
+ </form> <!-- /#add_edit -->
+ [% END # /IF op == 'save' %]
+
+ [% IF op == 'else' %]
+ <div id="toolbar" class="btn-toolbar">
+ <a class="btn btn-default" id="newsuggestion" href="suggestion.pl?op=add&branchcode=[% branchcode | uri %]"><i class="fa fa-plus"></i> New purchase suggestion</a>
+ </div>
+
+ <h1>Suggestions management</h1>
+
+ [% IF ( displayby != "branchcode" ) %]
+ <label for="branchcode">Viewing suggestions for library:</label>
+ <select name="branchcode" id="branchcode">
+ <option value="__ANY__">Any</option>
+ [% PROCESS options_for_libraries libraries => Branches.all( selected => branchfilter || branchcode ) %]
+ </select>
+ [% END %]
+
+ [% FOR m IN messages %]
+ <div class="dialog [% m.type | html %]">
+ [% SWITCH m.code %]
+ [% CASE 'already_exists' %]
+ The suggestion has not been added. A suggestion with this title already exists (<a href='/cgi-bin/koha/suggestion/suggestion.pl?suggestionid=[% m.id | html %]&op=show'>suggestion #[% m.id | html %]</a>)
+ [% CASE 'biblio_exists' %]
+ A similar document already exists: <a href="/cgi-bin/koha/catalogue/detail.pl?biblionumber=[% m.id | uri %]">[% m.title | html %]</a>. Click on "Confirm your suggestion" to ignore this message.
+ [% CASE %]
+ [% m.code | html %]
+ [% END %]
+ </div> <!-- /.dialog -->
+ [% END # /FOR m %]
+
+ [% UNLESS ( notabs ) %]
+ <div id="suggestiontabs" class="toptabs">
+ <ul class="ui-tabs-nav">
+ [% FOREACH suggestion IN suggestions %]
+ <li>
+ <a href="#[% suggestion.suggestiontype | uri %]">
+ [% IF ( suggestion.suggestiontypelabel ) %]
+ [% IF (suggestion.suggestiontypelabel == "Pending") %]Pending
+ [% ELSIF (suggestion.suggestiontypelabel == "Accepted") %]Accepted
+ [% ELSIF (suggestion.suggestiontypelabel == "Checked") %]Checked
+ [% ELSIF (suggestion.suggestiontypelabel == "Rejected") %]Rejected
+ [% ELSIF (suggestion.suggestiontypelabel == "Available") %]Available
+ [% ELSIF (suggestion.suggestiontypelabel == "Ordered") %]Ordered
+ [% ELSIF (suggestion.suggestiontypelabel == "Unknown") %]Status unknown
+ [% ELSIF (suggestion.suggestiontypelabel == "__ANY__") %]Any
+ [% ELSE %][% suggestion.suggestiontypelabel | html %][% END %]
+ [% ELSE %]
+ [% IF ( suggestion.suggestiontype ) %]
+ [% AuthorisedValues.GetByCode( 'SUGGEST_STATUS', suggestion.suggestiontype ) | html %]
+ [% ELSE %]
+ No name
+ [% END %]
+ [% END %]
+ ([% suggestion.suggestions_loop.size | html %])</a></li>
+
+ [% END # /FOREACH suggestion %]
+ </ul> <!-- /.ui-tabs-nav -->
+ [% END # /UNLESS notabs %]
+
+ [% FOREACH suggestion IN suggestions %]
+ <div id="[% suggestion.suggestiontype | html %]">
+ <form class="update_suggestions" name="f" method="post" action="/cgi-bin/koha/suggestion/suggestion.pl#[% suggestion.suggestiontype| uri %]">
+ [% INCLUDE 'csrf-token.inc' %]
+
+ [% IF ( suggestion.suggestions_loop ) %]
+ <p>
+ <a class="checkall" href="#">Check all</a> | <a class="uncheckall" href="#">Uncheck all</a>
+ </p>
+
+ <table id="table_[% loop.count | html %]" class="sorted">
+ <thead>
+ <tr>
+ <th class="NoSort noExport">&nbsp;</th>
+ <th class="anti-the">Suggestion</th>
+ <th>Suggested by</th>
+ <th>Suggested on</th>
+ <th>Managed by</th>
+ <th>Managed on</th>
+ <th>Last modification by</th>
+ <th>Last modification on</th>
+ <th>Last updated</th>
+ <th>Library</th>
+ <th>Fund</th>
+ <th>Status</th>
+ <th class="NoSort noExport">&nbsp;</th>
+ </tr>
+ </thead>
+ <tbody>
+ [% FOREACH suggestions_loo IN suggestion.suggestions_loop %]
+ <tr>
+ <td>
+ <input type="checkbox" name="suggestionid" value="[% suggestions_loo.suggestionid | html %]" />
+ </td>
+ <td>
+ <a href="suggestion.pl?suggestionid=[% suggestions_loo.suggestionid | uri %]&amp;op=show" title="suggestion" >
+ [% suggestions_loo.title | html %][% IF ( suggestions_loo.author ) %], by [% suggestions_loo.author | html %][% END %] </a>
+ <br />
+ [% IF ( suggestions_loo.copyrightdate ) %]
+ &copy; <span class="suggestion_copyrightdate">[% suggestions_loo.copyrightdate | html %]</span>
+ [% END %]
+ [% IF ( suggestions_loo.volumedesc ) %]
+ ; <span class="suggestion_volume">Volume:<em>[% suggestions_loo.volumedesc | html %]</em></span>
+ [% END %]
+ [% IF ( suggestions_loo.isbn ) %]
+ ; <span class="suggestion_isbn">ISBN: <em>[% suggestions_loo.isbn | html %]</em></span>
+ [% END %]
+ [% IF ( suggestions_loo.publishercode ) %]
+ ; <span class="suggestion_publishercode">Published by [% suggestions_loo.publishercode | html %]</span>
+ [% END %]
+ [% IF ( suggestions_loo.publicationyear ) %]
+ in <span class="suggestion_publicationyear"><em>[% suggestions_loo.publicationyear | html %]</em></span>
+ [% END %]
+ [% IF ( suggestions_loo.place ) %]
+ in <span class="suggestion_place"><em>[% suggestions_loo.place | html %]</em></span>
+ [% END %]
+ [% IF ( suggestions_loo.collectiontitle ) %]
+ ; <span class="suggestion_collectiontitle">[% suggestions_loo.collectiontitle | html %]</span>
+ [% END %]
+ [% IF ( suggestions_loo.itemtype ) %]
+ ; <span class="suggestion_itype">[% AuthorisedValues.GetByCode( 'SUGGEST_FORMAT', suggestions_loo.itemtype, 0 ) | html %]</span>
+ [% END %]
+ <br />
+ [% IF ( suggestions_loo.note ) %]
+ <div class="suggestion_note"><i class="fa fa-comment"></i> [% suggestions_loo.note | html %]</div>
+ [% END %]
+ [% IF suggestions_loo.archived %]
+ <br /><i class="fa fa-archive"></i> Archived
+ [% END %]
+ </td>
+ <td>
+ <a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% suggestions_loo.suggestedby | uri %]">[% suggestions_loo.surnamesuggestedby | html %][% IF ( suggestions_loo.firstnamesuggestedby ) %], [% suggestions_loo.firstnamesuggestedby | html %][% END %] [% IF (suggestions_loo.cardnumbersuggestedby ) %]([% suggestions_loo.cardnumbersuggestedby | html %])[% END %]</a>
+ </td>
+ <td data-order="[% suggestions_loo.suggesteddate | html %]">
+ [% IF ( suggestions_loo.suggesteddate ) %][% suggestions_loo.suggesteddate | $KohaDates %][% END %]
+ </td>
+ <td>
+ <a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% suggestions_loo.managedby | uri %]">[% suggestions_loo.surnamemanagedby | html %][% IF ( suggestions_loo.firstnamemanagedby ) %], [% suggestions_loo.firstnamemanagedby | html %][% END %]</a>
+ </td>
+ <td data-order="[% suggestions_loo.manageddate | html %]">
+ [% IF ( suggestions_loo.manageddate ) %][% suggestions_loo.manageddate | $KohaDates %][% END %]
+ </td>
+ <td>
+ <a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% suggestions_loo.lastmodificationby | uri %]">[% suggestions_loo.surnamelastmodificationby | html %][% IF ( suggestions_loo.firstnamelastmodificationby ) %], [% suggestions_loo.firstnamelastmodificationby | html %][% END %]</a>
+ </td>
+ <td data-order="[% suggestions_loo.lastmodificationdate | html %]">
+ [% IF ( suggestions_loo.lastmodificationdate ) %][% suggestions_loo.lastmodificationdate | $KohaDates %][% END %]
+ </td>
+ <td>
+ [% suggestions_loo.date | $KohaDates %]
+ </td>
+ <td>
+ [% Branches.GetName( suggestions_loo.branchcode ) | html %]
+ </td>
+ <td>
+ [% suggestions_loo.budget_name | html %]
+ </td>
+ <td>
+ [% IF ( suggestions_loo.ASKED ) %]
+ Pending
+ [% ELSIF ( suggestions_loo.ACCEPTED ) %]
+ Accepted
+ [% ELSIF ( suggestions_loo.ORDERED ) %]
+ Ordered
+ [% ELSIF ( suggestions_loo.REJECTED ) %]
+ Rejected
+ [% ELSIF ( suggestions_loo.CHECKED ) %]
+ Checked
+ [% ELSIF ( suggestions_loo.AVAILABLE ) %]
+ Available
+ [% ELSIF AuthorisedValues.GetByCode( 'SUGGEST_STATUS', suggestions_loo.STATUS ) %]
+ [% AuthorisedValues.GetByCode( 'SUGGEST_STATUS', suggestions_loo.STATUS ) | html %]
+ [% ELSE %]
+ Status unknown
+ [% END %]
+
+ [% IF ( suggestions_loo.reason ) %]
+ <br />([% suggestions_loo.reason | html %])
+ [% END %]
+ </td>
+ <td class="actions">
+ <div class="btn-group dropup">
+ <a class="btn btn-default btn-xs" role="button" href="suggestion.pl?suggestionid=[% suggestions_loo.suggestionid | html %]&amp;op=edit&amp;csrf_token=[% csrf_token | html %]"><i class="fa fa-pencil"></i> Edit</a><a class="btn btn-default btn-xs dropdown-toggle" id="more_actions_[% suggestions_loo.suggestionid | html %]" role="button" data-toggle="dropdown" href="#"><b class="caret"></b></a>
+ <ul class="dropdown-menu pull-right" role="menu" aria-labelledby="more_actions_[% suggestions_loo.suggestionid | html %]">
+ <li><a class="deletesuggestion" href="suggestion.pl?op=delete&amp;suggestionid=[% suggestions_loo.suggestionid | html %]&amp;csrf_token=[% csrf_token | html %]"><i class="fa fa-trash"></i> Delete</a></li>
+ [% UNLESS suggestions_loo.archived %]
+ <li><a class="archivesuggestion" href="suggestion.pl?op=archive&amp;suggestionid=[% suggestions_loo.suggestionid | html %]&amp;csrf_token=[% csrf_token | html %]"><i class="fa fa-archive"></i> Archive</a></li>
+ [% ELSE %]
+ <li><a class="unarchivesuggestion" href="suggestion.pl?op=unarchive&amp;suggestionid=[% suggestions_loo.suggestionid | html %]&amp;csrf_token=[% csrf_token | html %]"><i class="fa fa-archive"></i> Unarchive</a></li>
+ [% END %]
+ </ul>
+ </div>
+ </td>
+ </tr>
+ [% END # /FOREACH suggestions_loo %]
+ </tbody>
+ </table> <!-- /#table_[% loop.count | html %] -->
+
+ <div class="row">
+ <h2 style="padding-left:1em;">Change selected suggestions</h2>
+ <div class="col-sm-4">
+ <fieldset>
+ <div id="select-reason[% loop.index | html %]">
+ <label for="STATUSreason[% loop.index | html %]">Mark selected as: </label>
+ <select name="STATUS" id="STATUSreason[% loop.index | html %]">
+ <option value=""> -- Choose a status --</option>
+
+ [% IF (statusselected_ASKED ) %]
+ <option value="ASKED" selected="selected">Pending</option>
+ [% ELSE %]
+ <option value="ASKED">Pending</option>
+ [% END %]
+
+ [% IF (statusselected_ACCEPTED ) %]
+ <option value="ACCEPTED" selected="selected">Accepted</option>
+ [% ELSE %]
+ <option value="ACCEPTED">Accepted</option>
+ [% END %]
+
+ [% IF (statusselected_CHECKED ) %]
+ <option value="CHECKED" selected="selected">Checked</option>
+ [% ELSE %]
+ <option value="CHECKED">Checked</option>
+ [% END %]
+
+ [% IF ( statusselected_REJECTED ) %]
+ <option value="REJECTED" selected="selected">Rejected</option>
+ [% ELSE %]
+ <option value="REJECTED">Rejected</option>
+ [% END %]
+
+ [% IF ( statusselected_ORDERED ) %]
+ <option value="ORDERED" selected="selected">Ordered</option>
+ [% ELSE %]
+ <option value="ORDERED">Ordered</option>
+ [% END %]
+
+ [% FOREACH s IN SuggestionStatuses %]
+ <option value="[% s.authorised_value | html %]">[% s.lib | html %]</option>
+ [% END %]
+ </select>
+
+ <label for="choosereason[% loop.index | html %]">with this reason:</label>
+ <select name="reason" id="choosereason[% loop.index | html %]">
+ <option value=""> -- Choose a reason -- </option>
+ [% FOREACH reasonsloo IN suggestion.reasonsloop %]
+ <option value="[% reasonsloo.lib | html %]">[% reasonsloo.lib | html %]</option>
+ [% END %]
+ <option value="other">Others...</option>
+ </select>
+
+ <span class="other_reason">
+ <input type="text" size="31" name="other_reason" placeholder="please note your reason here..." />
+ <a href="#" class="cancel_note">Cancel</a>
+ </span>
+ </div>
+
+ <input type="hidden" name="branchcode" value="[% branchfilter | html %]" />
+ <input type="hidden" name="filter_archived" value="[% filter_archived | html %]" />
+ <fieldset class="action">
+ <button type="submit" class="btn btn-default btn-xs" value="update_status">Submit</button>
+ </fieldset>
+ </fieldset>
+ </div> <!-- /.col-sm-4 -->
+
+ <div class="col-sm-4">
+ <fieldset>
+ <label>
+ Update item types with:
+ [% PROCESS 'av-build-dropbox.inc' name="suggestion_itemtype", category="SUGGEST_FORMAT", size = 20  %]
+ </label>
+ <input type="hidden" name="branchcode" value="[% branchfilter | html %]" />
+ <input type="hidden" name="filter_archived" value="[% filter_archived | html %]" />
+ <fieldset class="action">
+ <button type="submit" class="btn btn-default btn-xs" value="update_itemtype">Submit</button>
+ </fieldset>
+ </fieldset>
+ </div> <!-- /.col-sm-4 -->
+
+ <div class="col-sm-2">
+ <fieldset>
+ <span class="label">Update manager</span><br/>
+ <a id="set_manager_[% loop.count | html %]" data-tab="[% loop.count | html %]" class="set_manager" href="#"><i class="fa fa-search"></i> Select manager</a>
+ <span id="managedby_name[% loop.count | html %]"></span>
+ <input type="hidden" name="suggestion_managedby" id="managedby[% loop.count | html %]" value="[% logged_in_user.borrowernumber | html %]" />
+ <input type="hidden" name="branchcode" value="[% branchfilter | html %]" />
+ <input type="hidden" name="filter_archived" value="[% filter_archived | html %]" />
+ <fieldset class="action">
+ <button type="submit" class="btn btn-default btn-xs" value="update_manager">Submit</button>
+ </fieldset>
+ </fieldset>
+ </div> <!-- /.col-sm-2 -->
+
+ <div class="col-sm-2">
+ <fieldset>
+ <span class="label">Delete selected</span>
+ <input type="hidden" name="branchcode" value="[% branchfilter | html %]" />
+ <input type="hidden" name="filter_archived" value="[% filter_archived | html %]" />
+ <fieldset class="action">
+ <button type="submit" class="btn btn-default btn-xs" value="delete">Delete</button>
+ </fieldset>
+ </fieldset>
+ </div> <!-- /.col-sm-2 -->
+ <div class="col-sm-2">
+ <fieldset>
+ <span class="label">Archive selected</span>
+ <input type="hidden" name="branchcode" value="[% branchfilter | html %]" />
+ <input type="hidden" name="filter_archived" value="[% filter_archived | html %]" />
+ <fieldset class="action">
+ <button type="submit" class="btn btn-default btn-xs" value="archive">Archive</button>
+ </fieldset>
+ </fieldset>
+ </div> <!-- /.col-sm-2 -->
+ </div> <!-- /.row -->
+
+ [% ELSE %]
+ <strong>No results.</strong>
+ [% END # /IF ( suggestion.suggestions_loop ) %]
+ </form> <!-- /.update_suggestions -->
+ </div> <!-- /#[% suggestion.suggestiontype | html %] -->
+ [% END # /FOREACH suggestion %]
+ [% UNLESS ( notabs ) %]
+ </div> <!-- /.notabs -->
+ [% END # /UNLESS notabs %]
+ [% END # /IF op == 'else' %]
+
+ [% UNLESS op == 'save' %]
+ [% UNLESS ( op == 'show' ) %]
+ </div> <!-- /.col-sm-10.col-sm-push-2 -->
+
+ <div class="col-sm-2 col-sm-pull-10">
+ <aside>
+ <form name="suggestionfilter" action="suggestion.pl" method="get">
+ [% INCLUDE 'csrf-token.inc' %]
+ <input type="hidden" name="branchcode" value="[% branchfilter | html %]" />
+ <fieldset class="brief">
+ <ol style="display:block;">
+ <li>
+ <label for="displayby">Organize by: </label>
+ <select name="displayby" id="displayby" style="width:auto;">
+ [% IF ( displayby == "STATUS" ) %]
+ <option value="STATUS" selected="selected">Status</option>
+ [% ELSE %]
+ <option value="STATUS">Status</option>
+ [% END %]
+ [% IF ( displayby == "branchcode" ) %]
+ <option value="branchcode" selected="selected">Library</option>
+ [% ELSE %]
+ <option value="branchcode">Library</option>
+ [% END %]
+ [% IF ( displayby == "itemtype" ) %]
+ <option value="itemtype" selected="selected">Item type</option>
+ [% ELSE %]
+ <option value="itemtype">Item type</option>
+ [% END %]
+ [% IF ( displayby == "managedby" ) %]
+ <option value="managedby" selected="selected">Managed by</option>
+ [% ELSE %]
+ <option value="managedby">Managed by</option>
+ [% END %]
+ [% IF ( displayby == "acceptedby" ) %]
+ <option value="acceptedby" selected="selected">Accepted by</option>
+ [% ELSE %]
+ <option value="acceptedby">Accepted by</option>
+ [% END %]
+ </select>
+ <input type="submit" value="Go" />
+ </li>
+ </ol>
+ </fieldset> <!-- /.brief -->
+
+ <h4>Filter by: <a style="font-size:80%;font-weight:normal;" href="/cgi-bin/koha/suggestion/suggestion.pl">[clear]</a></h4>
+
+ <div id="limits">
+ <fieldset class="brief">
+ <h4 class="local_collapse"><a href="#">Bibliographic information</a></h4>
+ <ol>
+ <li>
+ <label for="title"> Title:</label>
+ <input type="text" id="title" name="title" value="[% title | html %]" />
+ </li>
+ <li>
+ <label for="author"> Author:</label>
+ <input type="text" id="author" name="author" value="[% author | html %]" />
+ </li>
+ <li>
+ <label for="isbn"> ISBN:</label>
+ <input type="text" id="isbn"  name="isbn" value="[% isbn | html %]" />
+ </li>
+ <li>
+ <label for="publishercode"> Publisher:</label>
+ <input type="text" id="publishercode" name="publishercode" value="[% publishercode | html %]" />
+ </li>
+ <li>
+ <label for="copyrightdate_filter"> Copyright date:</label>
+ <input type="text" id="copyrightdate_filter" name="copyrightdate" value="[% copyrightdate | html %]" />
+ </li>
+ <li>
+ <label for="collectiontitle"> Collection title:</label>
+ <input type="text" id="collectiontitle" name="collectiontitle" value="[% collectiontitle | html %]" /></li><li><input type="submit" value="Go" />
+ </li>
+ </ol>
+ </fieldset> <!-- /.brief -->
+
+ <fieldset class="brief">
+ <h4 class="local_collapse"><a href="#">Suggestion information</a></h4>
+ <ol>
+ <li>
+ <label for="archived" style="display: inline;">Include archived:</label>
+ [% IF filter_archived %]
+ <input type="checkbox" id="archived" name="filter_archived" checked="checked" title="Include archived suggestions in the search" />
+ [% ELSE %]
+ <input type="checkbox" id="archived" name="filter_archived" title="Include archived suggestions in the search" />
+ [% END %]
+ </li>
+ <li>
+ <label for="STATUS[% loop.index | html %]"> Status:</label>
+ <select name="STATUS" id="STATUS[% loop.index | html %]">
+ <option value="">Any</option>
+ [% IF (statusselected_ASKED ) %]
+ <option value="ASKED" selected="selected">Pending</option>
+ [% ELSE %]
+ <option value="ASKED">Pending</option>
+ [% END %]
+
+ [% IF (statusselected_ACCEPTED ) %]
+ <option value="ACCEPTED" selected="selected">Accepted</option>
+ [% ELSE %]
+ <option value="ACCEPTED">Accepted</option>
+ [% END %]
+
+ [% IF (statusselected_CHECKED ) %]
+ <option value="CHECKED" selected="selected">Checked</option>
+ [% ELSE %]
+ <option value="CHECKED">Checked</option>
+ [% END %]
+
+ [% IF ( statusselected_REJECTED ) %]
+ <option value="REJECTED" selected="selected">Rejected</option>
+ [% ELSE %]
+ <option value="REJECTED">Rejected</option>
+ [% END %]
+
+ [% IF ( statusselected_ORDERED ) %]
+ <option value="ORDERED" selected="selected">Ordered</option>
+ [% ELSE %]
+ <option value="ORDERED">Ordered</option>
+ [% END %]
+
+ [% FOREACH s IN SuggestionStatuses %]
+ [% IF s.authorised_value == selected_status %]
+ <option value="[% s.authorised_value | html %]" selected="selected">[% s.lib | html %]</option>
+ [% ELSE %]
+ <option value="[% s.authorised_value | html %]">[% s.lib | html %]</option>
+ [% END %]
+ [% END %]
+ </select>
+ </li>
+
+ <li>
+ <label for="suggestedby"> Suggested by:</label>
+ <select id="suggestedby" name="suggestedby">
+ <option value="">Any</option>
+ [% FOREACH suggestedby_loo IN suggestedby_loop %]
+ [% IF ( suggestedby_loo.selected ) %]
+ <option value="[% suggestedby_loo.code | html %]" selected="selected">[% suggestedby_loo.desc | html %]</option>
+ [% ELSE %]
+ <option value="[% suggestedby_loo.code | html %]">[% suggestedby_loo.desc | html %]</option>
+ [% END %]
+ [% END %]
+ </select>
+ </li>
+ <li>
+ <label for="suggesteddate_from">Suggested date from:</label>
+ <input type="text" id="suggesteddate_from" size="10" name="suggesteddate_from" value="[% suggesteddate_from | html %]" data-date_to="suggesteddate_to" class="flatpickr" />
+ </li>
+ <li>
+ <label for="suggesteddate_to">To:</label>
+ <input type="text" id="suggesteddate_to" size="10" name="suggesteddate_to" value="[% suggesteddate_to | html %]" class="flatpickr" />
+ </li>
+ <li>
+ <label for="managedby"> Managed by:</label>
+ <select id="managedby" name="managedby">
+ <option value="">Any</option>
+ [% FOREACH managedby_loo IN managedby_loop %]
+ [% IF ( managedby_loo.selected ) %]
+ <option value="[% managedby_loo.code | html %]" selected="selected">[% managedby_loo.desc | html %]</option>
+ [% ELSE %]
+ <option value="[% managedby_loo.code | html %]">[% managedby_loo.desc | html %]</option>
+ [% END %]
+ [% END %]
+ </select>
+ </li>
+ <li>
+ <label for="manageddate_from">Management date from:</label>
+ <input type="text" id="manageddate_from" size="10" name="manageddate_from" value="[% manageddate_from | html %]" data-date_to="manageddate_to" class="flatpickr" />
+ </li>
+ <li>
+ <label for="manageddate_to">To:</label>
+ <input type="text" id="manageddate_to" size="10" name="manageddate_to" value="[% manageddate_to | html %]" class="flatpickr" />
+ </li>
+ <li>
+ <label for="acceptedby"> Accepted by:</label>
+ <select id="acceptedby" name="acceptedby">
+ <option value="">Any</option>
+ [% FOREACH acceptedby_loo IN acceptedby_loop %]
+ [% IF ( acceptedby_loo.selected ) %]
+ <option value="[% acceptedby_loo.code | html %]" selected="selected">[% acceptedby_loo.desc | html %]</option>
+ [% ELSE %]
+ <option value="[% acceptedby_loo.code | html %]">[% acceptedby_loo.desc | html %]</option>
+ [% END %]
+ [% END %]
+ </select>
+ </li>
+ <li>
+ <label for="accepteddate_from">Accepted date from:</label>
+ <input type="text" id="accepteddate_from" size="10" name="accepteddate_from" value="[% accepteddate_from | html %]" data-date_to="accepteddate_to" class="flatpickr" />
+ </li>
+ <li>
+ <label for="accepteddate_to">To:</label>
+ <input type="text" id="accepteddate_to" size="10" name="accepteddate_to" value="[% accepteddate_to | html %]" class="flatpickr" />
+ </li>
+ <li>
+ <input type="submit" value="Go" />
+ </li>
+ </ol>
+ </fieldset>
+
+ <fieldset class="brief">
+ <h4 class="local_collapse">
+ <a href="#">Acquisition information</a>
+ </h4>
+ <ol>
+ <li>
+ <label for="budgetid"> Book fund:</label>
+ <select name="budgetid" id="budgetid">
+ <option value="__ANY__">Any</option>
+ [% IF budgetid == '__NONE__' %]
+ <option value="__NONE__" selected="selected">None</option>
+ [% ELSE %]
+ <option value="__NONE__">None</option>
+ [% END %]
+ [% FOREACH budgetsloo IN budgetsloop %]
+ [% IF ( budgetsloo.selected ) %]
+ <option value="[% budgetsloo.budget_id | html %]" selected="selected">[% budgetsloo.budget_name | html %]</option>
+ [% ELSE %]
+ <option value="[% budgetsloo.budget_id | html %]">[% budgetsloo.budget_name | html %]</option>
+ [% END %]
+ [% END %]
+ </select>
+ </li>
+ <li>
+ <input type="submit" value="Go" />
+ </li>
+ </ol>
+ </fieldset>
+ </div> <!-- /#limits -->
+ </form> <!-- /suggestionsfilter -->
+
+ [% INCLUDE 'acquisitions-menu.inc' %]
+
+ </aside>
+ </div> <!-- /.col-sm-2.col-sm-pull-10 -->
+ [% END # /UNLESS ( op == 'show' ) %]
+ [% END # /UNLESS op == 'save' %]
+ </div> <!-- /.row -->
+
+ [% END # /IF op == "show" %]
+
+[% MACRO jsinclude BLOCK %]
+ [% INCLUDE 'calendar.inc' %]
+
+ <script>
+        var tab = '';
+        function editManagerPopup(selected_tab) {
+            tab = selected_tab;
+            window.open("/cgi-bin/koha/suggestion/add_user_search.pl?selection_type=select&callback=select_manager&permissions=suggestions.suggestions_manage",
+                'PatronPopup',
+                'width=740,height=450,location=yes,toolbar=no,'
+                + 'scrollbars=yes,resize=yes'
+            );
+        }
+        function select_manager(borrowernumber, borrower) {
+            var managedby_name = $("#managedby_name"+tab);
+            var managedby = $("#managedby"+tab);
+            managedby_name.empty();
+            managedby.val('');
+            var borrowername = borrower.firstname + ' ' + borrower.surname;
+            if (borrowernumber) {
+                var managerlink = '<a href="/cgi-bin/koha/members/moremember.pl'
+                    + '?borrowernumber=' + borrowernumber + '">'
+                    + borrowername + '</a>';
+                managedby_name.html(managerlink);
+                managedby.val(borrowernumber);
+            }
+
+            [% IF op == "save" %]
+                var notify = $('#notify');
+                if ( notify.length ) {
+                    [% IF managedby_patron %]
+                        if ( borrowernumber == [% logged_in_user.borrowernumber | html %] || borrowernumber == [% managedby_patron.borrowernumber | html %] ) {
+                    [% ELSE %]
+                        if ( borrowernumber == [% logged_in_user.borrowernumber | html %] ) {
+                    [% END %]
+                        $(notify).prop('checked', false).prop('disabled', true);
+                    } else {
+                        $(notify).prop('disabled', false);
+                    }
+                }
+            [% END %]
+        }
+
+        function editSuggesterPopup() {
+            window.open("/cgi-bin/koha/suggestion/add_user_search.pl?selection_type=select&callback=select_suggester",
+                'PatronPopup',
+                'width=740,height=450,location=yes,toolbar=no,'
+                + 'scrollbars=yes,resize=yes'
+            );
+        }
+
+        function select_suggester(borrowernumber, borrower) {
+            var suggested = '<input type="hidden" id="suggestedby" name="suggestedby" value="' + borrowernumber + '" />';
+            suggested += '<a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=' + borrowernumber + '">';
+            suggested += borrower.surname + ', ' + borrower.firstname + ' (' + borrower.cardnumber + ')';
+            suggested += '</a> ';
+            suggested += borrower.branchname + ' (' + borrower.category_description + ')';
+            $("#tdsuggestedby").html(suggested);
+            return 0;
+        }
+        $(document).ready(function(){
+            $("#edit_manager").on("click",function(e){
+                e.preventDefault();
+                editManagerPopup('');
+            });
+            $(".set_manager").on("click",function(e){
+                e.preventDefault();
+                var selected_tab = $(this).data('tab');
+                editManagerPopup(selected_tab);
+            });
+
+            $("#edit_suggester").on("click", function(e){
+                e.preventDefault();
+                editSuggesterPopup();
+            });
+        });
+    </script>
+
+ [% IF ( op == 'show' || op == 'else' ) %]
+ <script>
+            $(document).ready(function(){
+                $(".deletesuggestion").on("click",function(){
+                    return confirm(_("Are you sure you want to delete this suggestion?"));
+                });
+            });
+        </script>
+ [% END %]
+ [% IF op == 'else' %]
+ [% INCLUDE 'datatables.inc' %]
+ [% INCLUDE 'columns_settings.inc' %]
+ <script>
+            $(document).ready(function() {
+                $('#suggestiontabs').tabs();
+
+                columns_settings = [% TablesSettings.GetColumns( 'acqui', 'suggestions', 'suggestions', 'json' ) | $raw %]
+                [% FOREACH suggestion IN suggestions %]
+                    [% IF ( suggestion.suggestions_loop ) %]
+                        KohaTable("table_[% loop.count| html %]", {
+                            "sorting": [[ 3, "asc" ]],
+                            "autoWidth": false,
+                        }, columns_settings );
+                    [% END %]
+                [% END %]
+
+                $("#branchcode").on('change',function(){
+                [%# Modify the hidden input in the filters block from the library %]
+                [%# dropdown list at the top of suggestion list %]
+                    let branchcode = $(this).val();
+                    $('input[name="branchcode"]').val( branchcode );
+                    $('form[name="suggestionfilter"]').submit();
+                });
+
+                $(".checkall").click(function(e){
+                    e.preventDefault();
+                    $(this).parents('form').find("input:checkbox").each(function(){
+                        $(this).prop("checked", true);
+                    });
+                });
+                $(".uncheckall").click(function(e){
+                    e.preventDefault();
+                    $(this).parents('form').find("input:checkbox").each(function(){
+                        $(this).prop("checked", false);
+                    });
+                });
+                $(".other_reason").hide();
+                $("select[name='reason']").change(function(){
+                    if($(this).val() == "other"){
+                        $(this).hide();
+                        $(this).siblings(".other_reason").show();
+                    }
+                });
+
+                $("a.cancel_note").click(function(e) {
+                    $(this).parent().siblings("select").show().find("option[value='']").attr("selected","selected");
+                    $(this).siblings("input[name='other_reason']").hide();
+                    e.preventDefault();
+                });
+                $("h4.local_collapse a").click(function(){
+                    $(this).parent().parent().find("ol").toggle();
+                    return false;
+                });
+
+                $("button[type='submit']").on("click", function(e) {
+                    var submit_button = this;
+                    var form = $(submit_button).parents("form");
+                    var action = $(submit_button).val();
+                    var selected_suggestions = $(form).find("input[name='suggestionid']:checked");
+                    if ( selected_suggestions.length == 0 ) {
+                        alert(_("Please select at least one suggestion"));
+                        e.preventDefault();
+                        return false;
+                    }
+                    if ( action == "delete" ) {
+                        if ( selected_suggestions.length == 1 ) {
+                            if ( ! confirm(_("Are you sure you want to delete this suggestion?")) ) {
+                                e.preventDefault();
+                                return false;
+                            }
+                        } else if ( selected_suggestions.length > 1 ) {
+                            if ( ! confirm(_("Are you sure you want to delete these suggestions?")) ) {
+                                e.preventDefault();
+                                return false;
+                            }
+                        }
+                    } else if ( action == "update_manager" ) {
+                        var managedby = $(submit_button).siblings("suggestion_managedby");
+                        if ( managedby.val() == "" ) {
+                            alert(_("Please select a manager to assign to the selected suggestions"));
+                            e.preventDefault();
+                            return false;
+                        }
+                    }
+
+                    $('<input />').attr('type', 'hidden')
+                                  .attr('name', "op")
+                                  .attr('value', action)
+                                  .appendTo(form);
+                    return true;
+                });
+            });
+        </script>
+ [% END %]
+ [% IF op == 'save'  %]
+ <script>
+
+            $(document).ready(function(){
+                calcNewsuggTotal();
+                $("#quantity,#price,#currency").on("change",function(){
+                    calcNewsuggTotal();
+                });
+
+                [% IF other_reason %]
+                    $(".select-reason").hide();
+                    $(".select-reason").find("option[value='other']").attr("selected","selected");
+                    $("#other_reason").show();
+                [% ELSE %]
+                    $("#other_reason").hide();
+                [% END %]
+                $(".select-reason").change(function(){
+                    if($(this).val() == "other"){
+                        $(this).hide();
+                        $("#other_reason").show();
+                    }
+                });
+                $("a[href*=back]").click(function(){
+                    $(".select-reason").show().find("option[value='']").attr("selected","selected");
+                    $("#other_reason").hide();
+                });
+
+                $("#restore_previous_manager").on("click",function(e){
+                    e.preventDefault();
+
+                    $("#managedby_name").empty();
+                    $("#managedby").val('');
+                    var borrowername = "[% managedby_patron.firstname | html %] [% managedby_patron.surname | html %]";
+                    var managerlink = '<a href="/cgi-bin/koha/members/moremember.pl'
+                        + '?borrowernumber=[% managedby_patron.borrowernumber | html %]">'
+                        + borrowername + '</a>';
+                    $('#managedby_name').html(managerlink);
+                    $('#managedby').val([% managedby_patron.borrowernumber | html %]);
+                    $('#notify').prop('checked', false).prop('disabled', true);
+                });
+
+                //keep a copy of all budgets before removing the inactives
+                var budgetId = $("form#add_edit #budgetid");
+                var disabledBudgetsCopy = budgetId.html();
+                $('.b_inactive').remove();
+
+                $('#showallfunds').click(function() {
+                    if ($(this).is(":checked")) {
+                        budgetId.html(disabledBudgetsCopy); //Puts back all the funds
+                    }
+                    else {
+                        $('.b_inactive').remove();
+                    }
+                });
+
+            });
+        </script>
+ [% END %]
+ [% Asset.js("js/acq.js") | $raw %]
+ [% Asset.js("js/acquisitions-menu.js") | $raw %]
+[% END %]
+[% INCLUDE 'intranet-bottom.inc' %]

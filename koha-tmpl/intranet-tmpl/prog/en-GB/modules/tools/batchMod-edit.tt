@@ -1,0 +1,297 @@
+[% USE raw %]
+[% USE Asset %]
+[% USE Koha %]
+[% USE KohaDates %]
+[% USE Branches %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Batch item modification &rsaquo; Tools &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+<style>input[type=checkbox]{ margin : 0 .5em; }</style>
+[% Asset.css("css/addbiblio.css") | $raw %]
+[% Asset.css("css/humanmsg.css") | $raw %]
+</head>
+
+<body id="tools_batchMod-edit" class="tools">
+ [% INCLUDE 'header.inc' %]
+ [% INCLUDE 'cat-search.inc' %]
+
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/tools/tools-home.pl">Tools</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">Batch item modification</a>
+ </li>
+ </ol>
+</nav>
+
+ <div class="main container-fluid">
+
+ <h1>Batch item modification</h1>
+ [% IF op == 'enqueued' %]
+ <div class="dialog message">
+ <p>The job has been enqueued! It will be processed as soon as possible.</p>
+ <p><a href="/cgi-bin/koha/admin/background_jobs.pl?op=view&id=[% job_id | uri %]" title="View detail of the enqueued job">View detail of the enqueued job</a>
+ | <a href="/cgi-bin/koha/tools/batchMod.pl" title="New batch item modification">New batch item modification</a></p>
+ </div>
+
+ <fieldset class="action">
+ [% IF src == 'CATALOGUING' # from catalogue/detail.pl > Edit items in a batch%]
+ [% IF searchid %]
+ <a href="/cgi-bin/koha/catalogue/detail.pl?biblionumber=[% biblionumber | uri %]&searchid=[% searchid | uri %]">Return to the record</a>
+ [% ELSE %]
+ <a href="/cgi-bin/koha/catalogue/detail.pl?biblionumber=[% biblionumber | uri %]">Return to the record</a>
+ [% END %]
+ [% ELSIF src %]
+ <a href="[% src | url %]">Return to where you were</a>
+ [% ELSE %]
+ <a href="/cgi-bin/koha/tools/batchMod.pl">Return to batch item modification</a>
+ [% END %]
+ </fieldset>
+ [% END %]
+
+ [% FOREACH message IN messages %]
+ [% IF message.type == 'success' %]
+ <div class="dialog message">
+ [% ELSIF message.type == 'warning' %]
+ <div class="dialog alert">
+ [% ELSIF message.type == 'error' %]
+ <div class="dialog alert" style="margin:auto;">
+ [% END %]
+ [% IF message.code == 'cannot_enqueue_job' %]
+ Cannot enqueue this job.
+ [% END %]
+ [% IF message.error %]
+ (The error was: [% message.error | html %], see the Koha log file for more information).
+ [% END %]
+ </div>
+ [% END %]
+
+
+ [% IF ( barcode_not_unique ) %]
+ <div class="dialog alert">
+ <strong>Error saving item</strong>: Barcode must be unique.
+ </div>
+ [% END %]
+ [% IF ( no_next_barcode ) %]
+ <div class="dialog alert">
+ <strong>Error saving items</strong>: Unable to automatically determine values for barcodes. No item has been inserted.
+ </div>
+ [% END %]
+
+ [% IF ( notfoundbarcodes.size ) %]
+ <div class="dialog alert">
+ <p>Warning, the following barcodes were not found:</p>
+ </div>
+
+ <table style="margin:auto;">
+ <thead>
+ <tr><th>Barcodes not found</th></tr>
+ </thead>
+ <tbody>
+ [% FOREACH notfoundbarcode IN notfoundbarcodes %]
+ <tr><td>[% notfoundbarcode |html %]</td></td>
+ [% END %]
+ </tbody>
+ </table>
+
+ [% IF ( item_loop ) %]
+ [% UNLESS ( too_many_items_display ) %]
+ <h4>The following barcodes were found: </h4>
+ [% END %]
+ [% END %]
+ [% END # /IF notfoundbarcodes.size %]
+
+ [% IF ( notfounditemnumbers.size ) %]
+ <div class="dialog alert">
+ <p>Warning, the following itemnumbers were not found:</p>
+ </div>
+
+ <table style="margin:auto;">
+ <thead>
+ <tr><th>Itemnumbers not found</th></tr>
+ </thead>
+ <tbody>
+ [% FOREACH notfounditemnumber IN notfounditemnumbers %]
+ <tr><td>[% notfounditemnumber |html %]</td></td>
+ [% END %]
+ </tbody>
+ </table>
+ [% IF ( item_loop ) %]
+ [% UNLESS ( too_many_items_display ) %]
+ <h4>The following itemnumbers were found: </h4>
+ [% END %]
+ [% END %]
+ [% END # /IF notfounditemnumbers.size %]
+
+
+ <form name="f" action="batchMod.pl" method="post">
+ <input type="hidden" name="op" value="[% op | html %]" />
+ <input type="hidden" name="searchid" value="[% searchid | html %]" />
+ <input type="hidden" name="uploadedfileid" id="uploadedfileid" value="" />
+ <input type="hidden" name="src" id="src" value="[% src | html %]" />
+ [% IF biblionumber %]
+ <input type="hidden" name="biblionumber" id="biblionumber" value="[% biblionumber | html %]" />
+ [% END %]
+
+ [% IF items.size %]
+ [% PROCESS items_table_batchmod headers => item_header_loop, items => items, checkboxes_edit => 1, display_columns_selection => 1 %]
+ [% END %]
+
+ [% IF ( simple_items_display || job_completed ) %]
+ [% IF ( too_many_items_display ) %]
+ <p>Too many items ([% too_many_items_display | html %]): You have edited more than [% Koha.Preference('MaxItemsToDisplayForBatchMod') | html %] items in a batch, items will not be shown.</p>
+ [% ELSE %]
+ <p>The following items were modified:</p>
+ <ul>
+ [% FOREACH simple_items_displa IN simple_items_display %]
+ <li>
+ [% IF ( CAN_user_editcatalogue_edit_items ) %]<a href="/cgi-bin/koha/cataloguing/additem.pl?op=edititem&amp;biblionumber=[% simple_items_displa.biblionumber | uri %]&amp;itemnumber=[% simple_items_displa.itemnumber | uri %]">[% simple_items_displa.barcode | html %]</a>[% ELSE %][% simple_items_displa.barcode | html %][% END %]
+ </li>
+ [% END %]
+ </ul>
+ [% END # /IF too_many_items_display %]
+ [% END # /IF simple_items_display %]
+
+ [% IF ( show ) %]
+
+ [% IF ( too_many_items_process ) %]
+ <p>Too many items ([% too_many_items_process | html %]): You are not allowed to edit more than [% Koha.Preference('MaxItemsToProcessForBatchMod') | html %] items in a batch.</p>
+ [% ELSIF ( too_many_items_display ) %]
+ <p>Too many items ([% too_many_items_display | html %]): You are editing more than [% Koha.Preference('MaxItemsToDisplayForBatchMod') | html %] items in a batch, items will not be shown.</p>
+ [% FOREACH itemnumber IN itemnumbers_array %]
+ <input type="hidden" name="itemnumber" value="[% itemnumber | html %]" />
+ [% END %]
+ [% END # /IF too_many_items_process %]
+
+ [% UNLESS (too_many_items_process) %]
+ <div id="cataloguing_additem_newitem">
+ <h2>Edit items</h2>
+ <div class="hint">Checking the box right next to the subfield label will disable the entry and delete the subfield on all selected items. Leave fields blank to make no change.</div>
+ <fieldset class="rows">
+ [%# no_plugin from batchMod-edit, jQuery is included at the end of the template and cataloguing plugins are not working in this situation %]
+ [% PROCESS subfields_for_item subfields => subfields, add_regex => 1, add_delete_checkbox => 1, no_plugin => 1 %]
+ </fieldset>
+
+ <fieldset class="rows">
+ <legend>Other attributes</legend>
+ <ol>
+ <li>
+ <div class="subfield_line">
+ <label for="exclude_from_local_holds_priority">Exclude from local reservations priority:</label>
+ <select id="exclude_from_local_holds_priority" name="exclude_from_local_holds_priority" class="input_marceditor select2" style="width: 50px">
+ <option selected></option>
+ <option value="1">Yes</option>
+ <option value="0">No</option>
+ </select>
+ </div>
+ </li>
+ </ol>
+ </fieldset>
+
+ <fieldset class="action">
+ <input type="submit" id="mainformsubmit" value="Save" />
+ <a href="/cgi-bin/koha/tools/batchMod.pl" class="cancel">Cancel</a>
+ </fieldset>
+ </div> <!-- /#cataloguing_additem_newitem -->
+ [% ELSE %]
+ <p><a href="/cgi-bin/koha/tools/batchMod.pl">Return to batch item modification</a></p>
+ [% END # /UNLESS too_many_items_process %]
+ [% ELSE # IF show %]
+ <fieldset class="action">
+ [% IF src == 'CATALOGUING' # from catalogue/detail.pl > Edit items in a batch%]
+ [% IF searchid %]
+ <a class="btn btn-default" href="/cgi-bin/koha/catalogue/detail.pl?biblionumber=[% biblionumber | uri %]&searchid=[% searchid | uri %]"><i class="fa fa-check-square-o"></i> Return to the record</a>
+ [% ELSE %]
+ <a class="btn btn-default" href="/cgi-bin/koha/catalogue/detail.pl?biblionumber=[% biblionumber | uri %]"><i class="fa fa-check-square-o"></i> Return to the record</a>
+ [% END %]
+ [% ELSIF src %]
+ <a class="btn btn-default" href="[% src | url %]"><i class="fa fa-check-square-o"></i> Return to where you were</a>
+ [% ELSE %]
+ <a class="btn btn-default" href="/cgi-bin/koha/tools/batchMod.pl"><i class="fa fa-check-square-o"></i> Return to batch item modification</a>
+ [% END %]
+ </fieldset> <!-- /.action -->
+ [% END %]
+ </form>
+
+ [% MACRO jsinclude BLOCK %]
+ [% Asset.js("lib/jquery/plugins/humanmsg.js") | $raw %]
+ [% Asset.js("js/cataloging.js") | $raw %]
+ [% INCLUDE 'datatables.inc' %]
+ [% Asset.js("js/pages/batchMod.js") | $raw %]
+ [% INCLUDE 'select2.inc' %]
+ [% INCLUDE 'calendar.inc' %]
+ <script>
+            // Prepare array of all column headers, incrementing each index by
+            // two to accommodate control and title columns
+            var allColumns = new Array([% FOREACH item_header_loo IN item_header_loop %]'[% loop.count | html %]'[% UNLESS ( loop.last ) %],[% END %][% END %]);
+            for( x=0; x<allColumns.length; x++ ){
+                allColumns[x] = Number(allColumns[x]) + 2;
+            }
+
+            $(document).ready(function(){
+                $("input[name='disable_input']").click(function() {
+                    var row = $(this).attr("id");
+                    row = row.replace("row","hint");
+                    var todisable = $(this).parent().find(".input_marceditor,.tag,.subfield,.mandatory");
+                    var regex_link = $(this).parent().find(".field_regex");
+                    if ($(this).is(":checked")) {
+                        $(todisable).prop('disabled', true);
+                        $("#"+row).html(_("This subfield will be deleted"));
+                        $(regex_link).hide();
+                    } else {
+                        $(todisable).prop('disabled', false);
+                        $("#"+row).html("");
+                        $(regex_link).show();
+                    }
+                });
+                $('a.field_regex').click(function() {
+                    var editor = $(this).parent().find(".input_marceditor");
+                    var tag_editor = $(this).parent().find(".buttonDot");
+                    var regex = $(this).parent().find("[name='regex_fields']");
+                    var disable_input = $(this).parent().find(".disable_input");
+                    if ($(this).html() == 'RegEx') {
+                        $(editor).hide();
+                        $(regex).show();
+                        $(tag_editor).hide();
+                        $(this).html('Text');
+                        $(disable_input).prop('disabled', true);
+                        let input_name = $(editor).attr('name');
+                        let cloned = $("input[name='"+input_name+"']");
+                        if ( cloned.length > 1 ) {
+                            for( i = 1 ; i < cloned.length ; i++){
+                                $(cloned[i]).parent().remove();
+                            }
+                        }
+                    } else {
+                        $(editor).show();
+                        $(tag_editor).show();
+                        $(regex).hide();
+                        $(this).html('RegEx');
+                        $(disable_input).prop('disabled', false);
+                    }
+                    return false;
+                });
+            });
+        </script>
+ [% IF ( show ) %]
+ [%- # Loop over fields which may have plugin JavaScript -%]
+ [%- UNLESS (too_many_items_process) -%]
+ [%- FOREACH subfield IN subfields -%]
+ [% SET mv = subfield.marc_value %]
+ [%- IF ( mv.type == 'text_plugin' ) -%]
+ <!-- subfield[% subfield.tag | html %][% subfield.subfield | html %][% subfield.random | html %] -->
+ [% mv.javascript | $raw %]
+ [%- END -%]
+ [%- END -%]
+ [%- END -%]
+ [%- END -%]
+ [% END %]
+
+[% INCLUDE 'intranet-bottom.inc' %]

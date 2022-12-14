@@ -1,0 +1,23 @@
+[% USE raw %]
+[% USE Asset %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Cataloguing authority plugin &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+
+<body id="auth_auth_finder" class="auth">
+ <div class="container-fluid">
+
+<h1>Authority search</h1>
+[% INCLUDE 'auth-finder-search.inc' %]
+
+[% MACRO jsinclude BLOCK %]
+ <script>
+        var index = "[% index | html %]";
+        var authtypecode = "[% authtypecode | html %]";
+    </script>
+ [% Asset.js("js/auth-finder-search.js") | $raw %]
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' popup_window = 1 %]

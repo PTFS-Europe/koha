@@ -1,0 +1,105 @@
+[% USE raw %]
+[% USE Asset %]
+[% USE Koha %]
+[% USE Branches %]
+[% USE KohaDates %]
+[% USE AuthorisedValues %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Pending on-site loans &rsaquo; Circulation &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+
+<body id="circ_stats" class="circ">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'circ-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/circ/circulation-home.pl">Circulation</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ Pending on-site loans </a>
+ </li>
+ </ol>
+</nav>
+
+<div class="main container-fluid">
+ <div class="row">
+ <div class="col-sm-12">
+ <main>
+ <div class="row">
+
+ [% IF Koha.Preference('CircSidebar') %]
+ <div class="col-sm-10 col-sm-push-2">
+ [% ELSE %]
+ <div class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
+ [% END %]
+
+ <h1>Pending on-site loans</h1>
+ [% IF pending_onsite_checkouts %]
+ <table id="pending_onsite_checkout">
+ <thead>
+ <tr>
+ <th>Date</th><th>User</th><th>Title</th><th>Class number</th><th>Barcode</th><th>Library</th><th>Location</th>
+ </tr>
+ </thead>
+ <tbody>
+ [% FOREACH item IN pending_onsite_checkouts %]
+ <tr>
+ <td data-order="[% item.date_due | html %]">
+ [% IF item.is_overdue %]<span class="overdue">[% END %]
+ [% item.date_due | $KohaDates %]
+ [% IF item.is_overdue %]</span>[% END %]
+ </td>
+ <td>
+ <a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% item.borrowernumber | uri %]">[% item.firstname | html %] [% item.surname | html %]</a>
+ </td>
+ <td>
+ <a href="/cgi-bin/koha/catalogue/detail.pl?biblionumber=[% item.biblionumber | uri %]"><strong>[% item.title | html %]</strong></a>[% IF ( item.author ) %], by [% item.author | html %][% END %][% IF ( item.itemnotes ) %]- <span class="circ-hlt">[% item.itemnotes | $raw %]</span>[% END %]
+ </td>
+ <td>[% item.itemcallnumber | html %]</td>
+ <td>
+ <a href="/cgi-bin/koha/catalogue/moredetail.pl?biblionumber=[% item.biblionumber | uri %]&amp;itemnumber=[% item.itemnumber | uri %]#item[% item.itemnumber | uri %]">[% item.barcode | html %]</a>
+ </td>
+ <td>[% Branches.GetName(item.branchcode) | html %]</td>
+ <td>[% AuthorisedValues.GetDescriptionByKohaField( kohafield => 'items.location', authorised_value => item.location ) | html %]</td>
+ </tr>
+ [% END %]
+ </tbody>
+ </table>
+ [% ELSE %]
+ <h3>No pending on-site issue.</h3>
+ [% END %]
+
+ [% IF Koha.Preference('CircSidebar') %]
+ </div> <!-- /.col-sm-10.col-sm-push-2 -->
+ <div class="col-sm-2 col-sm-pull-10">
+ <aside>
+ [% INCLUDE 'circ-nav.inc' %]
+ </aside>
+ </div> <!-- /.col-sm-2.col-sm-pull-10 -->
+ </div> <!-- /.row -->
+ [% END %]
+
+ </main>
+ </div> <!-- /.col-sm-12 -->
+ </div> <!-- /.row -->
+
+[% MACRO jsinclude BLOCK %]
+ [% INCLUDE 'datatables.inc' %]
+ <script>
+        $(document).ready(function(){
+            if ( $("#pending_onsite_checkout").length ) {
+                $("#pending_onsite_checkout").dataTable($.extend(true, {}, dataTablesDefaults));
+            }
+        });
+    </script>
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' %]

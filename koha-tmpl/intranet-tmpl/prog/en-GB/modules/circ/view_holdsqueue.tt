@@ -1,0 +1,305 @@
+[% USE raw %]
+[% USE Asset %]
+[% USE Koha %]
+[% USE KohaDates %]
+[% USE ItemTypes %]
+[% USE Branches %]
+[% USE AuthorisedValues %]
+[% USE TablesSettings %]
+[% USE Koha %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Reservations queue &rsaquo; Circulation &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+<style> p { margin-top: 0; }</style>
+</head>
+
+<body id="circ_view_holdsqueue" class="circ">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'cat-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/circ/circulation-home.pl">Circulation</a>
+ </li>
+
+ [% IF ( run_report ) %]
+ <li>
+ <a href="/cgi-bin/koha/circ/view_holdsqueue.pl">Reserves queue</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ Results
+ </a>
+ </li>
+
+ [% ELSE %]
+ <li>
+ <a href="#" aria-current="page">
+ Reservations queue </a>
+ </li>
+ [% END %]
+ </ol>
+</nav>
+
+<div class="main container-fluid">
+ <div class="row">
+ <div class="col-sm-12">
+ <main>
+ <div class="row">
+
+ [% IF ( total || Koha.Preference('CircSidebar') ) %]
+ <div class="col-sm-10 col-sm-push-2">
+ [% ELSE %]
+ <div class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
+ [% END %]
+
+<h1>Reserves queue</h1>
+
+[% IF ( run_report ) %]
+ [% IF ( total ) %]
+ <div class="results">[% total | html %] items found for
+ [% IF ( branchlimit ) %][% Branches.GetName( branchlimit ) | html %][% ELSE %]All libraries[% END %]
+ [% IF ( itemtypeslimit ) %] and item type: [% ItemTypes.GetDescription( itemtypeslimit ) | html %][% END %]
+ [% IF ( ccodeslimit ) %] and collection: [% AuthorisedValues.GetDescriptionByKohaField( kohafield => 'items.ccode' authorised_value = ccodeslimit ) | html %][% END %]
+ [% IF ( locationslimit ) %] and shelving location: [% AuthorisedValues.GetDescriptionByKohaField( kohafield => 'items.location' authorised_value = locationslimit ) | html %][% END %]
+ </div>
+ [% ELSE %]
+ <div class="dialog message">No items found.</div>
+ [% END %]
+ [% IF ( itemsloop ) %]
+<table id="holdst">
+ <thead>
+ <tr>
+ <th class="hq-title anti-the">Title</th>
+ <th class="hq-collection">Collection</th>
+ <th class="hq-itemtype">Item type</th>
+ <th class="hq-callnumber">Class number</th>
+ <th class="hq-copynumber">Copy number</th>
+ <th class="hq-enumchron">Enumeration</th>
+ <th class="hq-barcode">Barcode</th>
+ <th class="hq-patron">User</th>
+ <th class="hq-sendto">Send to</th>
+ <th class="hq-date">Date</th>
+ <th class="hq-notes">Notes</th>
+ </tr>
+ <tr>
+ <td class="hq-title">
+ <span class="filter_column filter_text">
+ <input class="text_filter" type="text" placeholder="Title">
+ </span>
+ </td>
+ <td class="hq-collection">
+ <span class="filter_column filter_text">
+ <input type="text" placeholder="Collection">
+ </span>
+ </td>
+ <td class="hq-itemtype">
+ <span class="filter_column filter_text">
+ <input type="text" placeholder="Item type">
+ </span>
+ </td>
+ <td class="hq-callnumber">
+ <span class="filter_column filter_text">
+ <input placeholder="Class number" type="text">
+ </span>
+ </td>
+ <td class="hq-copynumber">
+ <span class="filter_column filter_text">
+ <input type="text" placeholder="Copy number">
+ </span>
+ </td>
+ <td class="hq-enumchron">
+ <span class="filter_column filter_text">
+ <input type="text" placeholder="Enumeration">
+ </span>
+ </td>
+ <td class="hq-barcode">
+ <span class="filter_column filter_text">
+ <input type="text" placeholder="Barcode">
+ </span>
+ </td>
+ <td class="hq-patron">
+ <span class="filter_column filter_text">
+ <input placeholder="User" type="text">
+ </span>
+ </td>
+ <td class="hq-sendto">
+ <span class="filter_column filter_text">
+ <input type="text" placeholder="Send to">
+ </span>
+ </td>
+ <td class="hq-date">
+ <span class="filter_column filter_text">
+ <input type="text" placeholder="Date">
+ </span>
+ </td>
+ <td class="hq-notes">
+ <span class="filter_column filter_text">
+ <input type="text" placeholder="Notes">
+ </span>
+ </td>
+ </tr>
+ </thead>
+ <tbody>[% FOREACH itemsloo IN itemsloop %]
+ <tr>
+ <td class="hq-title">
+ <p>
+ [% INCLUDE 'biblio-title.inc' biblio=itemsloo link = 1 %]
+ </p>
+ <p>
+ <div class="hq-biblionumber content_hidden">[% itemsloo.biblionumber | html %]</div>
+ <div class="hq-author">[% itemsloo.author | html %]</div>
+ [% IF ( itemsloo.editionstatement ) %]<div class="hq-editionstatement">[% itemsloo.editionstatement | html %]</div>[% END %]
+ <div class="hq-pubdata">
+ [% IF ( itemsloo.publishercode ) %][% itemsloo.publishercode | html %][% END %]
+
+ [% IF ( itemsloo.publicationyear ) %]
+ , [% itemsloo.publicationyear | html %]
+ [% ELSIF ( itemsloo.copyrightdate ) %]
+ , [% itemsloo.copyrightdate | html %]
+ [% END %]
+
+ [% IF ( itemsloo.pages ) %]: [% itemsloo.pages | html %] [% END %]
+
+ [% IF ( itemsloo.item('size') ) %][% itemsloo.item('size') | html %][% END %]
+
+ [% IF ( itemsloo.isbn ) %]ISBN: [% itemsloo.isbn | html %][% END %]
+ </div>
+ </p>
+ </td>
+ <td class="hq-collection">[% AuthorisedValues.GetDescriptionByKohaField( kohafield => 'items.ccode', authorised_value => itemsloo.ccode ) | html %]</td>
+ <td class="hq-itemtype">[% ItemTypes.GetDescription( itemsloo.itype ) | html %]</td>
+ <td class="hq-callnumber">[% IF ( itemsloo.location ) %]<em>[% AuthorisedValues.GetDescriptionByKohaField( kohafield => 'items.location', authorised_value => itemsloo.location ) | html %]</em> [% END %][% itemsloo.itemcallnumber | html %]</td>
+ <td class="hq-copynumber">[% itemsloo.copynumber | html %]</td>
+ <td class="hq-enumchron">[% itemsloo.enumchron | html %]</td>
+ <td class="hq-barcode">
+ [% IF ( itemsloo.item_level_request ) %]
+ <em>Only item:</em> <strong>[% itemsloo.barcode | html %]</strong>
+ [% ELSE %]
+ <strong>[% itemsloo.barcode | html %]</strong> <em>or any available</em>
+ [% END %]
+ </td>
+ <td class="hq-patron">
+ <p>
+ [% INCLUDE 'patron-title.inc' invert_name=1 patron=itemsloo.patron hide_patron_infos_if_needed=1 link_to="circulation_reserves" %]
+ </p>
+ [% UNLESS Koha.Preference('HidePatronName') %]
+ <p>[% itemsloo.patron.phone | html %]</p>
+ [% END %]
+ </td>
+ <td class="hq-sendto">[% Branches.GetName( itemsloo.pickbranch ) | html %]</td>
+ <td class="hq-date" data-order="[% itemsloo.reservedate | html %]">[% itemsloo.reservedate | $KohaDates %]</td>
+ <td class="hq-notes">[% itemsloo.notes | html %]</td>
+ </tr>
+ [% END %]</tbody>
+ </table>
+ [% END %] 
+ [% END %]
+
+ [% UNLESS ( total ) %]
+ [% branchlimit = Branches.GetLoggedInBranchcode %]
+ [% PROCESS filter_form %]
+ [% END %]
+
+ </div> <!-- /.col-sm-10.col-sm-push-2 -->
+ [% IF ( total || Koha.Preference('CircSidebar') ) %]
+ <div class="col-sm-2 col-sm-pull-10">
+ <aside>
+ [% IF ( total ) %]
+ [% PROCESS filter_form %]
+ [% END %]
+ [% IF Koha.Preference('CircSidebar') %]
+ [% INCLUDE 'circ-nav.inc' %]
+ [% END %]
+ </aside>
+ </div> <!-- /.col-sm-2.col-sm-pull-10 -->
+ [% END %]
+ </div> <!-- /.row -->
+
+ </main>
+ </div> <!-- /.col-sm-12 -->
+ </div> <!-- /.row -->
+
+[% BLOCK filter_form %]
+ <form name="f" action="/cgi-bin/koha/circ/view_holdsqueue.pl">
+ [% IF ( total ) %]
+ <fieldset class="brief">
+ [% ELSE -%]
+ <fieldset class="rows">
+ [% END %]
+ <ol>
+ <li>
+ <label for="branchlimit">Library: </label>
+ <select name="branchlimit" id="branchlimit">
+ <option value="">All</option>
+ [% PROCESS options_for_libraries libraries => Branches.all( selected => branchlimit, only_from_group => 1 ) %]
+ </select>
+ </li>
+ <li>
+ <label for="itemtypeslimit">Item type: </label>
+ <select name="itemtypeslimit" id="itemtypeslimit">
+ <option value="">All</option>
+ [% PROCESS options_for_item_types itemtypes => ItemTypes.Get(), selected_itemtype => itemtypeslimit %]
+ </select>
+ </li>
+ <li>
+ <label for="ccodeslimit">Collection: </label>
+ <select name="ccodeslimit" id="ccodeslimit">
+ <option value="">All</option>
+ [% PROCESS options_for_authorised_values authorised_values => AuthorisedValues.GetAuthValueDropbox( 'CCODE' ), selected_av => ccodeslimit %]
+ </select>
+ </li>
+ <li>
+ <label for="locationsslimit">Shelving location: </label>
+ <select name="locationslimit" id="locationslimit">
+ <option value="">All</option>
+ [% PROCESS options_for_authorised_values authorised_values => AuthorisedValues.GetAuthValueDropbox( 'LOC' ), selected_av => locationslimit %]
+ </select>
+ </li>
+ </ol>
+ </fieldset>
+ <fieldset class="action">
+ <input type="submit" value="Submit" />
+ <input type="hidden" name="run_report" value="1" />
+ </fieldset>
+ </form>
+[% END %]
+
+[% MACRO jsinclude BLOCK %]
+ [% INCLUDE 'datatables.inc' %]
+ [% INCLUDE 'columns_settings.inc' %]
+ <script>
+        $(document).ready(function() {
+            var holdst;
+
+            // Setup filters before DataTables initialisation, in case some columns are
+            // hidden by default
+            var filterColumnTimeoutId;
+            var filterColumn = function(e) {
+                clearTimeout(filterColumnTimeoutId);
+                filterColumnTimeoutId = setTimeout(function() {
+                    var input = $(e.target);
+                    var idx = input.parents('td').index();
+                    holdst.api().column(idx + ':visible').search(input.val()).draw();
+                }, 200);
+            };
+            $('#holdst thead input').on('change keyup keydown', filterColumn);
+
+            var columns_settings = [% TablesSettings.GetColumns('circ', 'view_holdsqueue', 'holds-table', 'json') | $raw %];
+            var holdst = KohaTable("holdst", {
+                "aaSorting": [[ 3, "asc" ]],
+                "sDom": 'B<"clearfix">t',
+                "bSortCellsTop": true,
+                "bPaginate": false
+            }, columns_settings);
+
+        });
+    </script>
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' %]

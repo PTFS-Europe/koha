@@ -1,0 +1,149 @@
+[% USE raw %]
+[% USE Asset %]
+[% SET footerjs = 1 %]
+ [% INCLUDE "doc-head-open.inc" %]
+ <title>Offline circulation &rsaquo; Circulation &rsaquo; Koha</title>
+ [% INCLUDE "doc-head-close.inc" %]
+</head>
+
+<body id="ocirc_list" class="circ ocirc">
+ [% INCLUDE 'header.inc' %]
+ [% INCLUDE 'circ-search.inc' %]
+
+ <nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/circ/circulation-home.pl">Circulation</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ Offline circulation
+ </a>
+ </li>
+ </ol>
+ </nav>
+
+<div class="main container-fluid">
+ <div class="row">
+ <div class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
+
+ <h2>Offline circulation</h2>
+
+ [% IF ( pending_operations ) %]
+
+ <form>
+ <p>
+ <a id="CheckAll" href="#"><i class="fa fa-check"></i> Check all</a>
+ <a id="CheckNone" href="#"><i class="fa fa-remove"></i> Uncheck all</a>
+ </p>
+
+ <table id="operations">
+ <thead>
+ <tr>
+ <th>&nbsp;</th>
+ <th>Date</th>
+ <th>Action</th>
+ <th>Barcode</th>
+ <th>Card number</th>
+ <th>Amount</th>
+ </tr>
+ </thead>
+ <tbody>
+ [% FOREACH operation IN pending_operations %]
+ <tr class="oc-[% operation.action | html %]">
+ <td><input type="checkbox" name="operationid" id="operationid[% operation.operationid | html %]" value="[% operation.operationid | html %]" /></td>
+ <td>
+ <label for="operationid[% operation.operationid | html %]">[% operation.timestamp | html %]</label>
+ </td>
+ <td>
+ [% SWITCH ( operation.action ) -%] [%   CASE "issue" -%] Issue [%   CASE "return" -%] Return [%   CASE "payment" -%] Payment [%   CASE # default case -%] [% operation.action | html %] [% END -%] </td>
+ <td>
+ [% IF ( operation.biblionumber ) %]
+ <a href="/cgi-bin/koha/catalogue/detail.pl?biblionumber=[% operation.biblionumber | uri %]" title="[% operation.bibliotitle | html %]">[% operation.barcode | html %]</a>
+ [% ELSE %]
+ <span class="error">[% operation.barcode | html %]</span>
+ [% END %]
+ </td>
+ <td>
+ [% IF ( operation.actionissue || operation.actionpayment) %]
+ [% IF ( operation.borrowernumber ) %]
+ <a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% operation.borrowernumber | uri %]" title="[% operation.borrower | html %]">[% operation.cardnumber | html %]</a>
+ [% ELSE %]
+ <span class="error">[% operation.cardnumber | html %]</span>
+ [% END %]
+ [% END %]
+ </td>
+ <td>[% operation.amount | html %]</td>
+ </tr>
+ [% END %]
+ </tbody>
+ </table>
+
+ <p id="actions">For the selected operations:
+ <input type="button" id="process" value="Process" />
+ <input type="button" id="delete" value="Delete" /></p>
+
+ </form>
+
+ [% ELSE %]
+
+ <p>There are no pending offline operations.</p>
+
+ [% END %]
+
+ </div>
+</div>
+
+[% MACRO jsinclude BLOCK %]
+ <script>
+        $(document).ready(function() {
+
+            $('#CheckNone').click(function(e) {
+                e.preventDefault();
+                $("#operations input:checkbox").prop("checked", false );
+            });
+            $('#CheckAll').click(function(e) {
+                e.preventDefault();
+                $("#operations input:checkbox").prop("checked", true );
+            });
+            $('#process,#delete').click(function() {
+                var action = $(this).attr("id");
+                $(":checkbox[name=operationid]:checked").each(function() {
+                    var cb = $(this);
+                    $.ajax({
+                        url: "process.pl",
+                        data: { 'action': action, 'operationid': this.value },
+                        async: false,
+                        dataType: "text",
+                        success: function(data) {
+                            if( data == "Added." ){
+                                cb.replaceWith(_("Added."));
+                            } else if ( data == "Deleted."){
+                                cb.replaceWith(_("Deleted."));
+                            } else if ( data == "Success."){
+                                cb.replaceWith(_("Success."));
+                            } else if ( data == "Item not issued."){
+                                cb.replaceWith(_("Item not issued."));
+                            } else if ( data == "Item not found."){
+                                cb.replaceWith(_("Item not found."));
+                            } else if ( data == "Barcode not found."){
+                                cb.replaceWith(_("Item not found."));
+                            } else if ( data == "Borrower not found."){
+                                cb.replaceWith(_("User not found."));
+                            } else {
+                                cb.replaceWith(data);
+                            }
+                        }});
+                });
+                if( $('#operations tbody :checkbox').size() == 0 ) {
+                    $('#actions').hide();
+                }
+            });
+        });
+    </script>
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' %]

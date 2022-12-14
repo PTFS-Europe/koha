@@ -1,0 +1,52 @@
+[% USE raw %]
+[% USE Asset %]
+[% USE KohaDates %]
+[% USE Koha %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Serials [% biblionumber | html %] &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+<body id="ser_serials-home" class="ser">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'serials-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ Serials
+ </a>
+ </li>
+ </ol>
+</nav>
+
+<div class="main container-fluid">
+ <div class="row">
+ <div class="col-sm-10 col-sm-push-2">
+ <main>
+
+ [% INCLUDE 'serials-toolbar.inc' %]
+
+ </main>
+ </div> <!-- /.col-sm-10.col-sm-push-2 -->
+
+ <div class="col-sm-2 col-sm-pull-10">
+ <aside>
+ [% INCLUDE 'serials-menu.inc' %]
+ </aside>
+ </div> <!-- /.col-sm-2.col-sm-pull-10 -->
+ </div> <!-- /.row -->
+</div>
+
+[% MACRO jsinclude BLOCK %]
+ [% Asset.js("js/serials-toolbar.js") | $raw %]
+ <script>
+        var subscriptionid = "[% subscriptionid | html %]";
+    </script>
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' %]

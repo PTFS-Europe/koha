@@ -1,0 +1,1374 @@
+[% USE raw %]
+[% USE Asset %]
+[% USE Koha %]
+[% USE KohaDates %]
+[% USE KohaPlugins %]
+[% USE AuthorisedValues %]
+[% USE Branches %]
+[% USE Biblio %]
+[% USE Price %]
+[% USE TablesSettings %]
+[% PROCESS 'i18n.inc' %]
+
+[% IF Koha.Preference('AmazonAssocTag') %]
+ [% AmazonAssocTag = '?tag=' _ Koha.Preference('AmazonAssocTag') %]
+[% ELSE %]
+ [% AmazonAssocTag = '' %]
+[% END %]
+
+[% ShowCourseReserves = 0 | html %]
+[% IF UseCourseReserves %]
+ [% FOREACH item IN itemloop %]
+ [% IF item.course_reserves %]
+ [% FOREACH r IN item.course_reserves %]
+ [% IF r.course.enabled == 'yes' %]
+ [% ShowCourseReserves = 1 | html %]
+ [% END %]
+ [% END %]
+ [% END %]
+ [% END %]
+[% END %]
+
+[% SET plugins_intranet_catalog_biblio_tabs = KohaPlugins.get_plugins_intranet_catalog_biblio_tab({ biblio => biblio, biblio_id => biblionumber }) %]
+
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>
+ [% IF ( unknownbiblionumber ) %] Unknown record [% ELSE %] Details for [% INCLUDE 'biblio-title-head.inc' %] [% END %] &rsaquo; Catalogue &rsaquo; Koha </title>
+[% INCLUDE 'doc-head-close.inc' %]
+[% Asset.css("lib/Chocolat/css/chocolat.css") | $raw %]
+</head>
+
+<body id="catalog_detail" class="catalog">
+
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'cat-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/catalogue/search.pl">Catalogue</a>
+ </li>
+
+ [% IF ( unknownbiblionumber ) %]
+ <li>
+ <a href="#" aria-current="page">
+ Unknown record
+ </a>
+ </li>
+ [% ELSE %]
+ <li>
+ [% INCLUDE 'biblio-title.inc' link = 1 %]
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ Details
+ </a>
+ </li>
+ [% END %]
+ </ol>
+</nav>
+
+<div class="main container-fluid">
+ <div class="row">
+ <div class="col-sm-10 col-sm-push-2">
+ <main>
+ <div class="row">
+
+[% IF ( unknownbiblionumber ) %]
+ <div class="dialog message">The record you requested does not exist ([% biblionumber | html %]).</div>
+[% ELSE %]
+
+[% IntranetCoce    = Koha.Preference('IntranetCoce') %]
+[% CoceProviders   = Koha.Preference('CoceProviders') %]
+[% CoceHost        = Koha.Preference('CoceHost') %]
+
+[% INCLUDE 'cat-toolbar.inc' %]
+ [% IF decoding_error %]
+ <div>
+ <span class="biberror">
+ There is an error with this bibliographic record, the view may be degraded.</span>
+ <span class="error"><br/> Error: [% decoding_error | html %]</span>
+ </div>
+ [% END %]
+ [% IF analytics_error %]
+ <div>
+ <span class="analytics_error">
+ There was an error searching for analytic records, please see the logs for details.</span>
+ </div>
+ [% END %]
+ [% IF ( ocoins ) %]
+ <!-- COinS / OpenURL -->
+ <span class="Z3988" title="[% ocoins | html %]"></span>
+ [% END %]
+
+ [% IF ( AmazonCoverImages  || LocalCoverImages || IntranetCoce || (Koha.Preference('CustomCoverImages') && Koha.Preference('CustomCoverImagesURL')) ) %]
+ <div id="catalogue_detail_biblio" class="col-xs-9">
+ [% ELSE %]
+ <div id="catalogue_detail_biblio" class="col-xs-12">
+ [% END %]
+
+ [% XSLTBloc | $raw %]
+
+ [% IF shelves.count %]
+ <span class="results_summary"><span class="label">Lists that include this title: </span>
+ [% FOREACH s IN shelves %]
+ <a href="/cgi-bin/koha/virtualshelves/shelves.pl?op=view&amp;shelfnumber=[% s.shelfnumber | uri %]">[% s.shelfname | html %]</a>
+ [% IF ( loop.last ) %][% ELSE %]|[% END %]
+ [% END %]
+ </span>
+ [% END %]
+ [% IF ( TagsEnabled &&  TagsShowOnDetail &&  TagLoop ) %]
+ <span class="results_summary"><span class="label">Tags:</span>
+ [% FOREACH TagLoo IN TagLoop %]
+ [% IF ( CAN_user_tools_moderate_tags ) %]
+ <a href="/cgi-bin/koha/tags/list.pl?tag=[% TagLoo.term |uri %]">[% TagLoo.term | html %]</a>
+ [% ELSE %]
+ [% TagLoo.term | html %]
+ [% END %]
+ <span class="weight">([% TagLoo.weight_total | html %])</span>[% IF ( loop.last ) %][% ELSE %], [% END %]
+ [% END %]
+ </span>
+ [% END %]
+ <span id="catalogue_detail_marc_preview" class="results_summary"><span class="label">MARC preview:</span> <a href="/cgi-bin/koha/catalogue/showmarc.pl?id=[% biblionumber | uri %]&amp;viewas=html" title="MARC" class="previewMARC">Show</a></span>
+ [% IF !item_level_itypes ||  Koha.Preference("BiblioItemtypeInfo") %]
+ <span class="results_summary itemtype"><span class="label">Itemtype:</span>
+ [% IF ( !noItemTypeImages && imageurl ) %]
+ <img src="[% imageurl | html %]" alt="" />
+ [% END %]
+ [% IF ( description ) %]
+ [% description | html %]
+ [% ELSE %]
+ [% itemtype | html %]
+ [% END %]
+ </span>
+ [% END %]
+
+ [% IF ( holdcount ) %]
+ <span class="results_summary">
+ <span class="label">Reservations:</span>
+ <span class="number_box">
+ [% IF CAN_user_reserveforothers_place_holds %]
+ <a href="/cgi-bin/koha/reserve/request.pl?biblionumber=[% biblionumber | uri %]">[% holdcount | html %]</a>
+ [% ELSE %]
+ <span>[% holdcount | html %]</span>
+ [% END %]
+ </span>
+ </span>
+ [% END %]
+
+ [% IF illrequests.count %]
+ <span class="results_summary">
+ <span class="label">ILL requests:</span>
+ [% IF CAN_user_ill %]
+ [% FOREACH ill IN illrequests %]
+ <a href="/cgi-bin/koha/ill/ill-requests.pl?method=illview&illrequest_id=[% ill.illrequest_id | uri %]">Request [% ill.illrequest_id | html %]</a>[% IF ! loop.last %], [% END %]
+ [% END %]
+ [% ELSE %]
+ [% FOREACH ill IN illrequests %]
+ <span>Request [% ill.illrequest_id | html %]</span>[% IF ! loop.last %], [% END %]
+ [% END %]
+ [% END %]
+ </span>
+ [% END %]
+
+ [% IF ( article_requests_count = Biblio.ArticleRequestsActiveCount( biblionumber ) ) %]
+ <span class="results_summary">
+ <span class="label">Article requests:</span>
+ <span class="number_box">
+ <a href="/cgi-bin/koha/circ/request-article.pl?biblionumber=[% biblionumber | uri %]">[% article_requests_count | html %]</a>
+ </span>
+ </span>
+ [% END %]
+
+ [% IF course_reserves %]
+ <span class="results_summary"><span class="label">Courses that have reserved this title: </span>
+ [% FOREACH c IN course_reserves %]
+ <a href="/cgi-bin/koha/course_reserves/course-details.pl?course_id=[% c.course_id | uri %]">[% c.course.course_name | html %]</a>
+ [% IF ( loop.last ) %][% ELSE %]|[% END %]
+ [% END %]
+ </span>
+ [% END %]
+
+ [% IF ( AmazonCoverImages  || LocalCoverImages || IntranetCoce || (Koha.Preference('CustomCoverImages') && Koha.Preference('CustomCoverImagesURL')) ) %]
+ </div>
+ <div class="col-xs-3 bookcoverimg">
+ <div id="biblio-cover-slider" class="cover-slider">
+ [% IF ( LocalCoverImages ) %]
+ [% IF localimages.count %]
+ [% FOREACH image IN localimages %]
+ <div class="cover-image local-coverimg">
+ <a href="/cgi-bin/koha/catalogue/image.pl?imagenumber=[% image.imagenumber | uri %]" title="Local cover image">
+ <img src="/cgi-bin/koha/catalogue/image.pl?thumbnail=1&amp;imagenumber=[% image.imagenumber | uri %]" alt="Local cover image" data-link="/cgi-bin/koha/catalogue/imageviewer.pl?biblionumber=[% biblionumber | uri %]&amp;imagenumber=[% image.imagenumber | uri %]" />
+ </a>
+ <div class="hint">Local cover image</div>
+ </div>
+ [% END %]
+ [% END %]
+ [% END %]
+
+ [% IF ( AmazonCoverImages && normalized_isbn) %]
+ <div class="cover-image" id="amazon-bookcoverimg">
+ <a href="https://images-na.ssl-images-amazon.com/images/P/[% normalized_isbn | uri %].01.LZZZZZZZ.jpg" title="Amazon cover image">
+ <img src="https://images-na.ssl-images-amazon.com/images/P/[% normalized_isbn | uri %].01.MZZZZZZZ.jpg" alt="Amazon cover image" data-link="http://www.amazon[% AmazonTld | uri %]/gp/reader/[% normalized_isbn | uri %][% AmazonAssocTag | uri %]#reader-link"/>
+ </a>
+ <div class="hint">Image from Amazon.com</div>
+ </div>
+ [% END %]
+
+ [% IF ( IntranetCoce && CoceProviders && normalized_isbn ) %]
+ [% coce_id = normalized_ean || normalized_isbn %]
+ <div class="cover-image coce-coverimg">
+ [% IF ( coce_id ) %]
+ <a title="Image from Coce" class="[% coce_id | html %]" id="coce-thumbnail-preview"></a>
+ [% ELSE %]
+ <span class="no-image">No cover image available</span>
+ [% END %]
+ <div class="hint">Image from Coce</div>
+ </div>
+ [% END %]
+
+ [% IF Koha.Preference('CustomCoverImages') && Koha.Preference('CustomCoverImagesURL') %]
+ [% SET custom_cover_image_url = biblio.custom_cover_image_url %]
+ [% IF custom_cover_image_url %]
+ <div class="cover-image" id="custom-coverimg">
+ <a class="custom_cover_image" href="[% custom_cover_image_url | url %]" title="Custom cover image">
+ <img id="custom-img" alt="Custom cover image" src="[% custom_cover_image_url | url %]" />
+ </a>
+ <div class="hint">Custom cover image</div>
+ </div>
+ [% END %]
+ [% END %]
+ </div> <!-- /.cover-slider -->
+ </div> <!-- /.bookcoverimg.col-xs-3 -->
+ [% ELSE %]
+ </div> <!-- /.col-xs-* -->
+ [% END # /IF ( AmazonCoverImages, etc ) %]
+</div>
+<div id="bibliodetails" class="toptabs">
+
+<ul>
+ [% IF (SeparateHoldings) %]
+ <li>
+ <a href="#holdings">[% Branches.GetLoggedInBranchname | html %] holdings ([% itemloop.size() || 0 | html %])</a>
+ </li>
+ <li>
+ <a href="#otherholdings">Other holdings ([% otheritemloop.size() || 0 | html %])</a>
+ </li>
+ [% ELSE %]
+ <li>
+ <a href="#holdings">Holdings ([% itemloop.size() || 0 | html %])</a>
+ </li>
+ [% END %]
+[% IF ( MARCNOTES ) %]<li><a href="#description">Descriptions ([% ( MARCNOTES.size || 1 ) | html %])</a></li>[% END %]
+[% IF ComponentParts && ComponentParts.size %]<li id="components_tab"><a href="#components">Components ([% ComponentParts.size | html %])</a></li>[% END %]
+[% IF ( subscriptionsnumber ) %]<li><a href="#subscriptions">Subscriptions</a></li>[% END %]
+[% IF Koha.Preference('AcquisitionDetails') %]<li><a href="#acq_details">Acquisition details</a></li>[% END %]
+[% IF suggestions.count %]<li><a href="#suggestion_details">Suggestion details</a></li>[% END %]
+[% IF ( FRBRizeEditions ) %][% IF ( XISBNS ) %]<li><a href="#editions">Editions</a></li>[% END %][% END %]
+[% IF ( LocalCoverImages ) %]
+ <li>
+ <a href="#images">Images ([% localimages.count || 0 | html %])</a>
+ </li>
+[% END %]
+[% IF HTML5MediaEnabled && HTML5MediaSets.size %]<li id="media_tab"><a href="#html5media">Play media</a></li>[% END %]
+[% IF ( Koha.Preference('NovelistSelectStaffEnabled') && Koha.Preference('NovelistSelectStaffProfile') && Koha.Preference('NovelistSelectStaffView') == 'tab' ) %]
+ <li class="NovelistSelect" style="display:none;"><a href="#NovelistSelect">NoveList Select</a></li>
+[% END %]
+[% FOREACH plugins_intranet_catalog_biblio_tab IN plugins_intranet_catalog_biblio_tabs %]
+ <li><a href="#[% plugins_intranet_catalog_biblio_tab.id | uri %]">[% plugins_intranet_catalog_biblio_tab.title | html %]</a></li>
+[% END %]
+</ul>
+
+[% items_table_block_iter = 0 %]
+[% BLOCK items_table %]
+ [% items_table_block_iter = items_table_block_iter + 1 %]
+ <div class="[% tab | html %]_table_table_controls">
+ [% IF (StaffDetailItemSelection) %]
+ | <a href="#" class="SelectAll" data-tab="[% tab | html %]"><i class="fa fa-check"></i> Select all</a> |
+ <a href="#" class="ClearAll" data-tab="[% tab | html %]"><i class="fa fa-remove"></i> Clear all</a>
+ <span class="itemselection_actions">
+ | Actions:
+ [% IF CAN_user_tools_items_batchdel %]
+ <a class="itemselection_action_delete"><i class="fa fa-trash"></i> Delete selected items</a>
+ [% END %]
+ [% IF CAN_user_tools_items_batchmod %]
+ <a class="itemselection_action_modify"><i class="fa fa-pencil"></i> Modify selected items</a>
+ [% END %]
+ </span>
+ [% END %]
+ </div>
+ <table class="items_table" id="[% tab | html %]_table">
+ <thead>
+ <tr>
+ [% IF (StaffDetailItemSelection) %]<th id="[% tab | html %]_checkbox" data-colname="[% tab | html %]_checkbox" class="NoSort"></th>[% END %]
+ [% IF Koha.Preference('LocalCoverImages') && ( tab == 'holdings' && itemloop_has_images || tab == 'otherholdings' && otheritemloop_has_images ) %]
+ <th id="[% tab | html %]_cover_image" data-colname="[% tab | html %]_cover_image">Cover image</th>
+ [% END %]
+ [% IF ( item_level_itypes ) %]<th id="[% tab | html %]_itype" data-colname="[% tab | html %]_itype">Item type</th>[% END %]
+ <th id="[% tab | html %]_holdingbranch" data-colname="[% tab | html %]_holdingbranch">Current library</th>
+ <th id="[% tab | html %]_homebranch" data-colname="[% tab | html %]_homebranch">Home library</th>
+ [% IF ( itemdata_ccode ) %]<th id="[% tab | html %]_ccode" data-colname="[% tab | html %]_ccode">Collection</th>[% END %]
+ <th id="[% tab | html %]_itemcallnumber" data-colname="[% tab | html %]_itemcallnumber">Class number</th>
+ [% IF volinfo %]
+ <th id="[% tab | html %]_enumchron" data-colname="[% tab | html %]_enumchron">Serial enumeration / chronology</th>
+ [% END %]
+ <th id="[% tab | html %]_status" data-colname="[% tab | html %]_status">Status</th>
+ <th id="[% tab | html %]_lastseen" data-colname="[% tab | html %]_lastseen">Last seen</th>
+ <th id="[% tab | html %]_dateaccessioned" data-colname="[% tab | html %]_dateaccessioned">Date accessioned</th>
+ <th id="[% tab | html %]_datelastborrowed" data-colname="[% tab | html %]_datelastborrowed">Date last borrowed</th>
+ <th id="[% tab | html %]_barcode" data-colname="[% tab | html %]_barcode">Barcode</th>
+ [% IF ( itemdata_uri ) %]<th id="[% tab | html %]_uri" data-colname="[% tab | html %]_uri">URL</th>[% END %]
+ [% IF ( itemdata_copynumber ) %]<th id="[% tab | html %]_copynumber" data-colname="[% tab | html %]_copynumber">Copy number</th>[% END %]
+ [% IF ( itemdata_stocknumber ) %]<th id="[% tab | html %]_stocknumber" data-colname="[% tab | html %]_stocknumber">Inventory number</th>[% END %]
+ [% IF materials %]<th id="[% tab | html %]_materials" data-colname="[% tab | html %]_materials">Materials specified</th>[% END %]
+ [% IF ( itemdata_itemnotes ) %]<th id="[% tab | html %]_itemnotes" data-colname="[% tab | html %]_itemnotes">Public notes</th>[% END %]
+ [% IF ( itemdata_nonpublicnotes ) %]<th id="[% tab | html %]_itemnotes_nonpublic" data-colname="[% tab | html %]_itemnotes_nonpublic">Non-public notes</th>[% END %]
+ [% IF ( hostrecords ) %]<th id="[% tab | html %]_hostrecord" data-colname="[% tab | html %]_hostrecord">Host records</th>[% END %]
+ [% IF ( analyze ) %]<th id="[% tab | html %]_usedin" data-colname="[% tab | html %]_usedin">Used in</th><th></th>[% END %]
+ [% IF ( ShowCourseReserves ) %]<th id="[% tab | html %]_course_reserves" data-colname="[% tab | html %]_course_reserves">Course reserves</th>[% END %]
+ [% IF ( SpineLabelShowPrintOnBibDetails ) %]<th id="[% tab | html %]_spinelabel" data-colname="[% tab | html %]_spinelabel" class="NoSort">Spine label</th>[% END %]
+ [% IF ( CAN_user_editcatalogue_edit_items ) %]<th id="[% tab | html %]_actions" data-colname="[% tab | html %]_actions"class="NoSort">&nbsp;</th>[% END %]
+ </tr>
+ </thead>
+ <tbody>
+ [% FOREACH item IN items %]
+ <tr>
+ [% IF (StaffDetailItemSelection) %]
+ <td style="text-align:center;vertical-align:middle">
+ <input type="checkbox" value="[% item.itemnumber | html %]" name="itemnumber" />
+ </td>
+ [% END %]
+ [% IF Koha.Preference('LocalCoverImages') && ( tab == 'holdings' && itemloop_has_images || tab == 'otherholdings' && otheritemloop_has_images ) %]
+ <td class="cover">
+ <div class="bookcoverimg">
+ <div class="cover-slider">
+ [% FOREACH image IN item.cover_images %]
+ <div class="cover-image local-coverimg">
+ <a href="/cgi-bin/koha/catalogue/image.pl?itemnumber=[% image.itemnumber | uri %]&amp;imagenumber=[% image.imagenumber | uri %]" title="Local cover image">
+ <img src="/cgi-bin/koha/catalogue/image.pl?thumbnail=1&amp;imagenumber=[% image.imagenumber | uri %]" alt="Local cover image" data-link="/cgi-bin/koha/catalogue/imageviewer.pl?itemnumber=[% item.itemnumber | uri %]&amp;imagenumber=[% image.imagenumber | uri %]" />
+ </a>
+ </div>
+ [% END %]
+ </div>
+ </div>
+ </td>
+ [% END %]
+
+ [% IF ( item_level_itypes ) %]
+ <td class="itype">
+ [% IF !noItemTypeImages && item.imageurl %]
+ <img src="[% item.imageurl | html %]" alt="[% item.translated_description | html %]" title="[% item.translated_description | html %]" />
+ [% END %]
+ <span class="itypedesc">[% item.translated_description | html %]</span>
+ </td>
+ [% END %]
+ <td class="location">[% UNLESS ( singlebranchmode ) %][% Branches.GetName( item.branchcode ) | html %] [% END %]</td>
+ <td class="homebranch">
+ <span class="homebranchdesc">[% Branches.GetName(item.homebranch) | html %]</span>
+ <span class="shelvingloc">
+<!--
+If permanent location is defined, show description or code and display current location in parentheses. If not, display current location.
+Note that permanent location is a code, and location may be an authval.
+-->
+ [% IF item.permanent_location %]
+ [% SET permloc_authval = AuthorisedValues.GetDescriptionByKohaField( kohafield => 'items.location', authorised_value => item.permanent_location ) %]
+ [% permloc_authval | html %]
+ [% IF item.location AND item.location != permloc_authval AND item.location != item.permanent_location %]
+ ([% item.location | html %])
+ [% END %]
+ [% ELSE %]
+ [% item.location | html %]
+ [% END %]
+ </span>
+ </td>
+ [% IF ( itemdata_ccode ) %]<td>[% item.ccode | html %]</td>[% END %]
+ <td class="itemcallnumber">[% IF ( item.itemcallnumber ) %] [% item.itemcallnumber | html %][% END %]</td>
+ [% IF ( volinfo ) %]
+ [% IF itemdata_publisheddate #If there is at least one published date, use it for sorting %]
+ <td class="enumchron" data-order="[% item.publisheddate | html %]">
+ [% ELSE %]
+ <td class="enumchron">
+ [% END %]
+ [% IF ( itemdata_enumchron ) %]
+ [% IF item.enumchron && item.serialseq %]
+ <span class="enum">[% item.enumchron | html %]</span>
+ [% IF ( item.serialseq && item.enumchron!=item.serialseq ) %]
+ <span class="sep"> -- </span>
+ <span class="serialseq">[% item.serialseq | html %]</span>
+ [% END %]
+ [% ELSIF item.enumchron %]
+ <span class="enum">[% item.enumchron | html %]</span>
+ [% ELSIF item.serialseq %]
+ <span class="serialseq">[% item.serialseq | html %]</span>
+ [% END %]
+ [% IF ( item.publisheddate ) %]
+ <span class="pubdate">([% item.publisheddate | $KohaDates %])</span>
+ [% END %]
+ [% END %]
+ </span>
+ </td>
+ [% END %]
+ <td class="status">
+
+ [% IF item.CheckedOutFor %]
+ [% IF item.onsite_checkout %]
+ <span>Currently in local use
+ [% ELSE %]
+ <span class="datedue">Issued [% END %] [% UNLESS ( item.NOTSAMEBRANCH ) %] [% IF item.onsite_checkout %] by [% ELSE %] to [% END %] [% INCLUDE 'patron-title.inc' patron=item.CheckedOutFor hide_patron_infos_if_needed=1 %] [% END %] : due [% item.datedue | html %] </span>
+ [% ELSIF ( item.transfertwhen ) %]
+ <span class="intransit">In transit from [% Branches.GetName( item.transfertfrom ) | html %] to [% Branches.GetName( item.transfertto ) | html %] since [% item.transfertwhen | $KohaDates %]</span>
+ [% END %]
+
+ [% IF ( item.itemlost ) %]
+ [% IF itemlostloop %]
+ [% FOREACH itemlostloo IN itemlostloop %]
+ [% IF itemlostloo.authorised_value == item.itemlost %]
+ <span class="lost">[% itemlostloo.lib | html %]</span>
+ [% END %]
+ [% END %]
+ [% ELSE %]
+ <span class="lost">Unavailable (lost or missing)</span>
+ [% END %]
+ [% END %]
+
+ [% IF ( item.withdrawn ) %]
+ [% IF itemwithdrawnloop %]
+ [% FOREACH itemwithdrawnloo IN itemwithdrawnloop %]
+ [% IF itemwithdrawnloo.authorised_value == item.withdrawn %]
+ <span class="wdn">[% itemwithdrawnloo.lib | html %]</span>
+ [% END %]
+ [% END %]
+ [% ELSE %]
+ <span class="wdn">Withdrawn</span>
+ [% END %]
+ [% END %]
+
+ [% IF ( item.damaged ) %]
+ [% IF itemdamagedloop %]
+ [% FOREACH itemdamagedloo IN itemdamagedloop %]
+ [% IF itemdamagedloo.authorised_value == item.damaged %]
+ <span class="dmg">[% itemdamagedloo.lib | html %]</span>
+ [% END %]
+ [% END %]
+ [% ELSE %]
+ <span class="dmg">Damaged</span>
+ [% END %]
+ [% END %]
+
+ [% IF ( item.itemnotforloan || item.notforloan_per_itemtype ) %]
+ <span class="notforloan">Not for loan
+ [% IF ( item.notforloanvalue ) %]
+ <span class="reason">([% item.notforloanvalue | html %])</span>
+ [% END %]
+ </span>
+ [% END %]
+
+ [% SET hold = item.first_hold %]
+ [% IF hold %]
+ [% IF hold.waitingdate %]
+ <span class="waitingat">Waiting at [% Branches.GetName( hold.branchcode ) | html %][% IF ( hold.desk_id ) %], [% hold.desk.desk_name | html %][% END %] since [% hold.waitingdate | $KohaDates %].</span>
+ [% IF canreservefromotherbranches AND ( hold.waitingdate OR hold.priority == 1 ) %]
+ <span class="heldfor">Reserve for:</span>
+ [% INCLUDE 'patron-title.inc' patron=hold.borrower hide_patron_infos_if_needed=1 %]
+ [% END %]
+ [% ELSE %]
+ <span class="holdonitem">There is an item level reservation on this item (priority = [% hold.priority | html %]).</span>
+ [% END %]
+ [% END %]
+ [% UNLESS ( item.itemnotforloan || item.notforloan_per_itemtype || item.onloan || item.itemlost || item.withdrawn || item.damaged || item.transfertwhen || hold ) %]
+ <span class="available">Available</span>
+ [% END %]
+
+ [% IF ( item.restricted ) %]
+ <span class="restricted">([% item.restrictedvalue | html %])</span>
+ [% END %]
+
+ </td>
+ <td class="datelastseen" data-order="[% item.datelastseen | html %]">[% item.datelastseen | $KohaDates %]</td>
+ <td class="dateaccessioned" data-order="[% item.dateaccessioned | html %]">[% item.dateaccessioned | $KohaDates %]</td>
+ <td class="datelastborrowed" data-order="[% item.datelastborrowed | html %]">[% item.datelastborrowed | $KohaDates %]</td>
+ <td><a href="/cgi-bin/koha/catalogue/moredetail.pl?type=[% item.type | uri %]&amp;itemnumber=[% item.itemnumber | uri %]&amp;biblionumber=[% item.biblionumber | uri %]&amp;bi=[% item.biblioitemnumber | uri %]#item[% item.itemnumber | uri %]">[% item.barcode | html %]</a></td>
+ [% IF ( itemdata_uri ) %]
+ [% IF item.uri.split(' \| ').size > 1 %]
+ <td class="uri">
+ [% FOREACH uri IN item.uri.split(' \| ') %]<a href="[% uri | url %]">[% uri | html %]</a><br>[% END %]
+ </td>
+ [% ELSE %]
+ <td class="uri">
+ [% IF item.uri %]
+ <a href="[% item.uri | url %]">[% IF Koha.Preference('URLLinkText') %][% Koha.Preference('URLLinkText') | html %][% ELSE %]Link to resource[% END %]</a>
+ [% END %]
+ </td>
+ [% END %]
+ [% END %]
+ [% IF ( itemdata_copynumber ) %]
+ <td class="copynumber">[% item.copynumber | html %]</td>
+ [% END %]
+ [% IF ( itemdata_stocknumber ) %]
+ <td class="stocknumber">[% item.stocknumber | html %]</td>
+ [% END %]
+ [% IF materials %]
+ <td class="materials"> [% item.materials | html %] </td>
+ [% END %]
+ [% IF ( itemdata_itemnotes ) %]
+ <td><div class="itemnotes">[% item.itemnotes | $raw %]</div></td>
+ [% END %]
+ [% IF itemdata_nonpublicnotes %]
+ <td class="nonpublicnote">[% item.itemnotes_nonpublic | html %]</td>
+ [% END %]
+ [% IF ( hostrecords ) %]
+ <td>[% IF ( item.hostbiblionumber) %]<a href="/cgi-bin/koha/catalogue/detail.pl?biblionumber=[% item.hostbiblionumber | uri %]" >[% item.hosttitle | html %]</a>[% END %]</td>
+ [% END %]
+ [% IF ( analyze ) %]
+ <td>
+ [% IF ( item.countanalytics ) %]
+ <a href="/cgi-bin/koha/catalogue/search.pl?idx=hi&amp;q=[% item.itemnumber | uri %]">[% item.countanalytics | html %] analytics</a>
+ [% END %]
+ </td>
+ [% END %]
+ [% IF ( analyze ) %]
+ <td><a href="/cgi-bin/koha/cataloguing/addbiblio.pl?hostbiblionumber=[% item.biblionumber | uri %]&amp;hostitemnumber=[% item.itemnumber | uri %]">Create analytics</a></td>
+ [% END %]
+
+ [% IF ShowCourseReserves %]
+ <td>
+ [% IF item.course_reserves %]
+ [% FOREACH r IN item.course_reserves %]
+ [% IF r.course.enabled == 'yes' %]
+ <p>
+ <a href="/cgi-bin/koha/course_reserves/course-details.pl?course_id=[% r.course.course_id | uri %]">
+ [% r.course.course_name | html %]
+ <!--[% IF r.course.course_number %] [% r.course.course_number | html %] [% END %]-->
+ [% IF r.course.section %] [% r.course.section | html %] [% END %]
+ [% IF r.course.term %] [% AuthorisedValues.GetByCode( 'TERM', r.course.term ) | html %] [% END %]
+ </a>
+ </p>
+ [% END %]
+ [% END %]
+ [% END %]
+ </td>
+ [% END %]
+
+ [% IF ( SpineLabelShowPrintOnBibDetails ) %]
+ <td><a class="btn btn-default btn-xs print-label" href="/cgi-bin/koha/labels/spinelabel-print.pl?barcode=[% item.barcode | uri %]"><i class="fa fa-print"></i> Print label</a></td>
+ [% END %]
+
+ [% IF CAN_user_editcatalogue_edit_items %]
+ <td class="actions">
+ [% UNLESS item.cannot_be_edited %]
+ [% IF Koha.Preference('LocalCoverImages') OR Koha.Preference('OPACLocalCoverImages') %]
+ <div class="btn-group">
+ <a  class="btn btn-default btn-xs" href="/cgi-bin/koha/cataloguing/additem.pl?op=edititem&biblionumber=[% item.biblionumber | html %]&itemnumber=[% item.itemnumber | html %]#edititem"><i class="fa fa-pencil"></i> Edit</a><a class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></a>
+ <ul class="dropdown-menu pull-right">
+ <li><a href="/cgi-bin/koha/tools/upload-cover-image.pl?itemnumber=[% item.itemnumber | uri %]&amp;filetype=image"><i class="fa fa-upload"></i> Upload image</a></li>
+ </ul>
+ </div>
+ [% ELSE %]
+ <a class="btn btn-default btn-xs" href="/cgi-bin/koha/cataloguing/additem.pl?op=edititem&biblionumber=[% item.biblionumber | html %]&itemnumber=[% item.itemnumber | html %]#edititem"><i class="fa fa-pencil"></i> Edit</a>
+ [% END %]
+ [% END %]
+ </td>
+ [% END %]
+ </tr>
+ [% END %]
+ </tbody>
+ </table>
+
+[% END %][%# end of block items_table %]
+
+<div id="holdings">
+
+[% IF ( Koha.Preference('NovelistSelectStaffEnabled') && Koha.Preference('NovelistSelectStaffProfile') && Koha.Preference('NovelistSelectStaffView') == 'above' ) %]
+ <span class="results_summary NovelistSelect" style="display:none;">
+ <span class="label">Novelist Select: </span>
+ <div data-novelist-novelistselect=[% normalized_isbn | html %]></div>
+ </span>
+[% END %]
+
+[% IF ( count ) %]
+ [% IF ( showncount ) %]
+ [% PROCESS items_table tab="holdings" items=itemloop %]
+ [% END %]
+ [% IF ( hiddencount ) %]
+ <p><a href="/cgi-bin/koha/catalogue/detail.pl?biblionumber=[% biblionumber | uri %]&amp;showallitems=1">Show all items ([% hiddencount | html %] hidden)</a>
+ [% END %] 
+ [% IF ( debug_display ) %]
+ <br /><br />
+ <table>
+ <tr><td>itemdata_enumchron</td><td>[% itemdata_enumchron | html %]</td></tr>
+ <tr><td>itemdata_copynumber</td><td>[% itemdata_copynumber | html %]</td></tr>
+ <tr><td>serial</td><td>[% serial | html %]</td></tr>
+ </table>
+ [% END %]
+[% ELSE %]
+ [% IF ( ALTERNATEHOLDINGS ) %]
+ [% FOREACH ALTERNATEHOLDING IN ALTERNATEHOLDINGS %]
+ <div id="alternateholdings"><span class="holdings_label">Holdings:</span> [% ALTERNATEHOLDING.holding | html %]</div>
+ [% END %]
+ [% ELSE %]
+ <div id="noitems">No physical items for this record</div>
+ [% END %]
+[% END %]
+
+[% IF ( Koha.Preference('NovelistSelectStaffEnabled') && Koha.Preference('NovelistSelectStaffProfile') && Koha.Preference('NovelistSelectStaffView') == 'below' ) %]
+ <span class="results_summary NovelistSelect" style="display:none;">
+ <span class="label">Novelist Select: </span>
+ <div data-novelist-novelistselect=[% normalized_isbn | html %]></div>
+ </span>
+[% END %]
+ </div>
+
+[% IF (SeparateHoldings) %]
+ <div id="otherholdings">
+ [% IF (otheritemloop.size) %]
+ [% PROCESS items_table tab="otherholdings" items=otheritemloop %]
+ [% ELSE %]
+ <span class="nootheritems">No other items.</span>
+ [% END %]
+ </div>
+[% END %]
+
+[% IF ( MARCNOTES ) %]
+
+<div id="description">
+<div class="content_set">
+
+ [% FOREACH MARCNOTE IN MARCNOTES %]
+ <p>
+ [% IF MARCNOTE.marcnote.match('^https?://\S+$') %]
+ <a href="[% MARCNOTE.marcnote | url %]">[% MARCNOTE.marcnote | html %]</a>
+ [% ELSE %]
+ [% MARCNOTE.marcnote | html | html_line_break %]
+ [% END %]
+ </p>
+[% END %]
+</div>
+</div>
+
+[% END %]
+
+[% IF ComponentParts && ComponentParts.size %]
+<div id="components">
+ <div class="content_set">
+ <table>
+ [% FOR PART IN ComponentParts %]
+ <tr>
+ <td>
+ [% PART | $raw %]
+ </td>
+ </tr>
+ [% END %]
+ </table>
+ [% IF ComponentParts.size == Koha.Preference('MaxComponentRecords')%]
+ <p>Only [% ComponentParts.size | html %] results are shown: <a href="/cgi-bin/koha/catalogue/search.pl?q=[% ComponentPartsQuery | uri %]"/>show all component parts</a></p>
+ [% END %]
+ </div> <!-- /.content_set -->
+</div> <!-- /#components -->
+
+[% END %]
+
+[% IF ( subscriptionsnumber ) %]
+<div id="subscriptions">
+<div id="catalogue_detail_subscriptions">
+ <h2>This is a serial subscription</h2>
+ <p> (There are [% subscriptionsnumber | html %] subscriptions associated with this title).</p> 
+ [% FOREACH subscription IN subscriptions %]
+ [% IF subscription.branchcode %]
+ <h3>At library: [% Branches.GetName(subscription.branchcode) || subscription.branchcode | html %]</h3>
+ [% END %]
+ [% IF ( subscription.closed ) %]<p>This subscription is closed.</p>[% END %]
+ [% IF ( subscription.location ) %]<p class="subscription_location">Location: [% AuthorisedValues.GetDescriptionByKohaField( kohafield => 'items.location', authorised_value => subscription.location ) | html %]</p>[% END %]
+ [% IF ( subscription.callnumber ) %]<p>Classnumber: [% subscription.callnumber | html %] </p>[% END %]
+ [% IF ( subscription.subscriptionnotes ) %]<p>[% subscription.subscriptionnotes | html | html_line_break %] </p>[% END %]
+ [% IF ( subscription.missinglist ) %]<p>Missing issues: [% subscription.missinglist | html %] </p>[% END %]
+ [% IF ( subscription.librariannote ) %]<p>([% subscription.librariannote | html %])</p>[% END %]
+ [% IF ( subscription.latestserials ) %]
+ <p> The [% subscription.staffdisplaycount | html %] latest issues related to this subscription:</p>
+ <table>
+ <tr>
+ <th>Issue #</th>
+ <th>Date arrived</th>
+ <th>Date published</th>
+ <th>Status</th>
+ <th>Note</th>
+ </tr>
+ [% FOREACH latestserial IN subscription.latestserials %]
+ <tr>
+ <td>[% latestserial.serialseq | html %]</td>
+ <td data-order="[% latestserial.planneddate | html %]">[% latestserial.planneddate | $KohaDates %]</td>
+ <td data-order="[% latestserial.publisheddate | html %]">[% latestserial.publisheddate | $KohaDates %]</td>
+ <td>
+ [% IF ( latestserial.status1 ) %]Expected[% END %]
+ [% IF ( latestserial.status2 ) %]Arrived[% END %]
+ [% IF ( latestserial.status3 ) %]Late[% END %]
+ [% IF ( latestserial.status4 ) %]Missing[% END %]
+ [% IF ( latestserial.status41 ) %]Missing (never received)[% END %]
+ [% IF ( latestserial.status42 ) %]Missing (sold out)[% END %]
+ [% IF ( latestserial.status43 ) %]Missing (damaged)[% END %]
+ [% IF ( latestserial.status44 ) %]Missing (lost)[% END %]
+ [% IF ( latestserial.status5 ) %]Not issued[% END %]
+ [% IF ( latestserial.status6 ) %]Delete[% END %]
+ [% IF ( latestserial.status7 ) %]Claimed[% END %]
+ [% IF ( latestserial.status8 ) %]Stopped[% END %]
+ </td>
+ <td>[% latestserial.notes | html %]</td>
+ </tr>
+ [% END %]
+ </table>
+ [% END %]
+ <a href="/cgi-bin/koha/serials/subscription-detail.pl?subscriptionid=[% subscription.subscriptionid | uri %]">Subscription details</a>
+ [% END %]
+</div>
+</div>
+[% END %]
+
+[% IF Koha.Preference('AcquisitionDetails') %]
+<div id="acq_details">
+ [% IF orders.count %]
+ <table id="orders">
+ <thead>
+ <tr>
+ <th>Vendor</th>
+ <th>Invoice</th>
+ <th>Basket group</th>
+ <th>Basket</th>
+ <th>Order number</th>
+ <th>Creation date</th>
+ <th>Receive date</th>
+ <th>Status</th>
+ <th>Quantity</th>
+ <th title="Estimated cost tax incl. while pending, actual cost tax incl. once received">Price</th>
+ <th>Internal note</th>
+ <th>Subscription</th>
+ <th>Subscription call number</th>
+ </tr>
+ </thead>
+ <tbody>
+ [% FOR order IN orders %]
+ [% SET basket = order.basket %]
+ [% SET vendor = basket.bookseller %]
+ <tr>
+ <td>
+ <a href="/cgi-bin/koha/acqui/supplier.pl?booksellerid=[% vendor.id | uri %]" title="Vendor detail page">[% vendor.name | html %]</a>
+ </td>
+ <td>
+ [% IF order.invoiceid %]
+ [% IF CAN_user_acquisition %]
+ <a href="/cgi-bin/koha/acqui/invoice.pl?invoiceid=[% order.invoiceid | uri %]"
+                       title="Invoice detail page">
+ [% order.invoice.invoicenumber | html %]</a>
+ [% ELSE %]
+ [% order.invoice.invoicenumber | html %]
+ [% END %]
+ [% END %]
+ </td>
+ <td>
+ [% IF basket.basketgroupid %]
+ [% SET basket_group = basket.basket_group %]
+ [% IF CAN_user_acquisition_group_manage %]
+ <a href="/cgi-bin/koha/acqui/basketgroup.pl?op=add&booksellerid=[% vendor.id | uri %]&basketgroupid=[% basket_group.id | uri %]">[% basket_group.name | html%] ([% basket_group.id | html %])</a>
+ [% ELSE %]
+ [% basket_group.name | html %] ([% basket_group.id | html %])
+ [% END %]
+ [% END %]
+ </td>
+ <td>[% IF CAN_user_acquisition_order_manage %]
+ <a href="/cgi-bin/koha/acqui/basket.pl?basketno=[% basket.basketno | uri %]">[% basket.basketname | html %] ([% basket.basketno | html %])</a>
+ [% ELSE %]
+ [% basket.basketname | html %] ([% basket.basketno | html %])
+ [% END %]</td>
+ <td>[% order.ordernumber | html %]</td>
+ <td data-order="[% basket.creationdate | uri %]">[% basket.creationdate | $KohaDates%]</td>
+ <td data-order="[% order.datereceived | uri %]">[% order.datereceived | $KohaDates%]</td>
+ <td>
+ [% SWITCH order.orderstatus %]
+ [% CASE 'new' %]New
+ [% CASE 'ordered' %]Ordered
+ [% CASE 'partial' %]Partial
+ [% CASE 'complete' %]Complete
+ [% CASE 'cancelled' %]Cancelled
+ [% END %]
+ </td>
+ <td>[% order.quantity | html %]</td>
+ <td>[% IF ( order.unitprice_tax_included > 0 ) %][% order.unitprice_tax_included | $Price %][% ELSE %][% order.ecost_tax_included | $Price %][% END %]
+ <td>[% order.order_internalnote | html %]</td>
+ <td>
+ [% IF order.subscriptionid %]
+ <a href="/cgi-bin/koha/serials/subscription-detail.pl?subscriptionid=[% order.subscriptionid | uri %]">[% order.subscriptionid | html %]</a>
+ [% END %]
+ </td>
+ <td>
+ [% IF order.subscriptionid %]
+ [% order.subscription.callnumber | html %]
+ [% END %]
+ </td>
+ </tr>
+ [% END %]
+ </tbody>
+ </table>
+ [% ELSE %]
+ <span class="noorder">There is no order for this bibliographic record.</span>
+ [% END %]
+</div>
+[% END %]
+
+[% IF suggestions.count %]
+ <div id="suggestion_details">
+ [% IF nb_archived_suggestions > 0 %]
+ <p>[% tnpx('pluralization', 'There is one archived suggestion.', 'There are {count} archived suggestions.', nb_archived_suggestions, { count = nb_archived_suggestions }) | $raw  %]
+ [% END %]
+ <table id="suggestions" class="sorted">
+ <thead>
+ <tr>
+ <th class="NoSort">&nbsp;</th>
+ <th class="anti-the">Suggestion</th>
+ <th>Suggested by - on</th>
+ <th>Managed by - on</th>
+ <th>Last modification by - on</th>
+ <th>Library</th>
+ <th>Fund</th>
+ <th>Status</th>
+ </tr>
+ </thead>
+ <tbody>
+ [% FOREACH suggestion IN suggestions %]
+ <tr>
+ <td>[% suggestion.suggestionid | html %]</td>
+ <td>
+ <a href="/cgi-bin/koha/suggestion/suggestion.pl?suggestionid=[% suggestion.suggestionid | uri %]&amp;op=show" title="suggestion" >
+ [% suggestion.title | html %][% IF ( suggestion.author ) %], by [% suggestion.author | html %][% END %]</a>
+ <br />
+ [% IF ( suggestion.copyrightdate ) %]&copy; [% suggestion.copyrightdate | html %] [% END %]
+ [% IF ( suggestion.volumedesc ) %]; Volume:<em>[% suggestion.volumedesc | html %]</em> [% END %]
+ [% IF ( suggestion.isbn ) %]; ISBN:<em>[% suggestion.isbn | html %]</em> [% END %][% IF ( suggestion.publishercode ) %]; Published by [% suggestion.publishercode | html %] [% END %][% IF ( suggestion.publicationyear ) %] in <em>[% suggestion.publicationyear | html %]</em> [% END %][% IF ( suggestion.place ) %] in <em>[% suggestion.place | html %]</em> [% END %][% IF ( suggestion.collectiontitle ) %]; [% suggestion.collectiontitle | html %] [% END %][% IF ( suggestion.itemtype ) %]; [% AuthorisedValues.GetByCode( 'SUGGEST_FORMAT', suggestion.itemtype, 0 ) | html %] [% END %]<br />[% IF ( suggestion.note ) %]<div class="suggestion_note"><i class="fa fa-comment"></i> [% suggestion.note | html %]</div>[% END %]
+ </td>
+ <td>
+ <a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% suggestion.suggestedby | uri %]">[% INCLUDE 'patron-title.inc' patron => suggestion.suggester %]</a>
+ [% IF suggestion.suggesteddate %] - [% suggestion.suggesteddate | $KohaDates %][% END %]
+ </td>
+ <td>
+ <a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% suggestion.managedby | uri %]">[% INCLUDE 'patron-title.inc' patron => suggestion.manager %]</a>
+ [% IF suggestion.manageddate %] - [% suggestion.manageddate | $KohaDates %][% END %]
+ </td>
+ <td>
+ <a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% suggestion.lastmodificationby | uri %]">[% INCLUDE 'patron-title.inc' patron => suggestion.last_modifier %]</a>
+ [% IF suggestion.lastmodificationdate %] - [% suggestion.lastmodificationdate | $KohaDates %][% END %]
+ </td>
+ <td>
+ [% Branches.GetName( suggestion.branchcode ) | html %]
+ </td>
+ <td>
+ [% suggestion.fund.budget_name | html %]
+ </td>
+ <td>
+ [% IF    suggestion.STATUS == 'ASKED'     %]Pending
+ [% ELSIF suggestion.STATUS == 'ACCEPTED'  %]Accepted
+ [% ELSIF suggestion.STATUS == 'ORDERED'   %]Ordered
+ [% ELSIF suggestion.STATUS == 'REJECTED'  %]Rejected
+ [% ELSIF suggestion.STATUS == 'CHECKED'   %]Checked
+ [% ELSIF suggestion.STATUS == 'AVAILABLE' %]Available
+ [% ELSIF AuthorisedValues.GetByCode( 'SUGGEST_STATUS', suggestion.STATUS ) %]
+ [% AuthorisedValues.GetByCode( 'SUGGEST_STATUS', suggestion.STATUS ) | html %]
+ [% ELSE %]Status unknown
+ [% END %]
+ [% IF suggestion.reason %]
+ <br />([% suggestion.reason | html %])
+ [% END %]
+ </td>
+ </tr>
+ [% END %]
+ </tbody>
+ </table>
+ </div>
+[% END %]
+
+[% IF ( FRBRizeEditions ) %][% IF ( XISBNS ) %]
+<div id="editions"><h4>Editions</h4>
+<table>
+[% FOREACH XISBN IN XISBNS %]<tr>[% IF ( AmazonCoverImages ) %]<td><a href="http://www.amazon.com/gp/reader/[% XISBN.normalized_isbn | uri %][% AmazonAssocTag | uri %]#reader-link"><img src="https://images-na.ssl-images-amazon.com/images/P/[% XISBN.normalized_isbn | html %].01._AA75_PU_PU-5_.jpg" /></a></td>[% END %]
+[% IF ( !item_level_itypes || Koha.Preference('BiblioItemtypeInfo') ) %]<td>[% IF ( noItemTypeImages ) %][% XISBN.description | html %][% ELSE %]<img src="[% XISBN.imageurl | html %]" alt="[% XISBN.description | html %]" title="[% XISBN.description | html %]">[% END %]</td>[% END %]
+<td><a href="/cgi-bin/koha/catalogue/detail.pl?biblionumber=[% XISBN.biblionumber | uri %]">[% XISBN.title | html %]</a> by [% XISBN.author | html %] &copy;[% XISBN.copyrightdate | html %]
+ [% IF ( XISBN.publishercode ) %]
+[% XISBN.publishercode | html %] [% IF ( XISBN.place ) %]([% XISBN.place | html %])[% END %] [% IF ( XISBN.publicationyear ) %], [% XISBN.publicationyear | html %][% END %] [% IF ( XISBN.editionstatement ) %][% XISBN.editionstatement | html %][% END %] [% IF ( XISBN.editionresponsibility ) %][% XISBN.editionresponsibility | html %][% END %]
+ [% END %]
+ [% IF ( XISBN.pages ) %] [% END %][% XISBN.pages | html %] [% IF ( XISBN.illus ) %][% XISBN.illus | html %][% END %]
+ [% IF ( XISBN.size ) %], [% END %][% XISBN.size | html %]
+</td>
+
+[% END %]
+</table></div>[% END %]
+[% END %]
+
+[% IF ( LocalCoverImages ) %]
+ <div id="images">
+ [% IF localimages.count %]
+ <p>Click on an image to view it in the image viewer</p>
+ <ul class="thumbnails">
+ [% FOREACH image IN localimages %]
+ [% IF image %]
+ <li id="imagenumber-[% image.imagenumber | html %]" class="thumbnail">
+ <a href="/cgi-bin/koha/catalogue/imageviewer.pl?biblionumber=[% biblionumber | uri %]&amp;imagenumber=[% image.imagenumber | uri %]">
+ <img src="/cgi-bin/koha/catalogue/image.pl?thumbnail=1&amp;imagenumber=[% image.imagenumber | uri %]" />
+ </a>
+ [% IF CAN_user_tools_upload_local_cover_images %]
+ <a href="#" class="remove"><i class="fa fa-trash"></i> Delete image</a>
+ [% END %]
+ </li>
+ [% END %]
+ [% END %]
+ </ul>
+ [% ELSE # - No image passed JavaScript takes care %]
+ <span class="noimagesuploaded">No images have been uploaded for this bibliographic record yet.</span>
+ [% END %]
+ [% IF ( CAN_user_tools_upload_local_cover_images ) %]
+ <p>Upload an image file: <a class="btn btn-default btn-xs" href="/cgi-bin/koha/tools/upload-cover-image.pl?biblionumber=[% biblionumber | uri %]&amp;filetype=image"><i class="fa fa-upload" aria-hidden="true"></i> Upload</a>
+ </p>
+ [% END %]
+ </div>
+[% END %]
+
+[% IF ( HTML5MediaEnabled ) %]
+<div id="html5media">
+ [% FOREACH HTML5MediaSet IN HTML5MediaSets %]
+ <p>
+ [% IF HTML5MediaSet.is_youtube %]
+ <iframe id="player" type="text/html" width="640" height="360"
+                        src="[% HTML5MediaSet.srcblock | url %]" frameborder="0"></iframe>
+ [% ELSE %]
+ <[% HTML5MediaParent | html %] controls preload=none>
+ <[% HTML5MediaSet.child | html %] src="[% HTML5MediaSet.srcblock | url %]"[% HTML5MediaSet.typeblock | html %] />
+ [[% HTML5MediaParent | html %] tag not supported by your browser.]
+ </[% HTML5MediaParent | html %]>
+ [% END %]
+ </p>
+ [% END %]
+</div>
+[% END %]
+
+
+[% IF ( Koha.Preference('NovelistSelectStaffEnabled') && Koha.Preference('NovelistSelectStaffProfile') && Koha.Preference('NovelistSelectStaffView') == 'tab' ) %]
+ <div id="NovelistSelect" class="novelistSelect">
+ <div data-novelist-novelistselect=[% normalized_isbn | html %]></div>
+ </div>
+[% END %]
+
+[% FOREACH plugins_intranet_catalog_biblio_tab IN plugins_intranet_catalog_biblio_tabs %]
+ <div id="[% plugins_intranet_catalog_biblio_tab.id | html %]">
+ [% plugins_intranet_catalog_biblio_tab.content | $raw %]
+ </div>
+[% END %]
+
+</div><!-- /bibliodetails -->
+
+<div id="export" style="margin-top: 1em;">
+<form method="get" action="/cgi-bin/koha/catalogue/export.pl">
+<table> <tr>
+ <th>Save record</th> </tr>
+ <tr><td> Select download format: <select name="format">
+ <option value="mods">MODS (XML)</option>
+ <option data-toggle="modal" data-target="#exportModal_">Dublin Core</option>
+ <option value="marcxml">MARCXML</option>
+ <option value="marc8">MARC (non-Unicode/MARC-8)</option>
+ <option value="utf8">MARC (Unicode/UTF-8)</option> </select>
+ <input type="submit" name="save" value="Download record" /></td>
+ </tr>
+ <tr><td>
+ <input type="hidden" name="op" value="export" /><input type="hidden" name="bib" value="[% biblionumber | html %]" />
+ </td></tr>
+</table>
+</form>
+</div>
+
+<div id="marcPreview" class="modal" tabindex="-1" role="dialog" aria-labelledby="marcPreviewLabel" aria-hidden="true">
+ <div class="modal-dialog modal-lg">
+ <div class="modal-content">
+ <div class="modal-header">
+ <button type="button" class="closebtn" data-dismiss="modal" aria-hidden="true">×</button>
+ <h3 id="marcPreviewLabel">MARC preview</h3>
+ </div>
+ <div class="modal-body">
+ <div id="loading"> <img src="[% interface | html %]/[% theme | html %]/img/spinner-small.gif" alt="" /> Loading </div>
+ </div>
+ <div class="modal-footer">
+ <button class="btn btn-default" data-dismiss="modal" aria-hidden="true">Close</button>
+ </div>
+ </div>
+ </div>
+</div>
+
+ </main>
+ </div> <!-- /.col-sm-10.col-sm-push-2 -->
+
+ <div class="col-sm-2 col-sm-pull-10">
+ <aside>
+ [% INCLUDE 'biblio-view-menu.inc' %]
+ </aside>
+ </div> <!-- /.col-sm-2.col-sm-pull-10 -->
+ </div> <!-- /.row -->
+
+[% END %]
+
+[% MACRO jsinclude BLOCK %]
+ [% INCLUDE 'catalog-strings.inc' %]
+ [% Asset.js("js/catalog.js") | $raw %]
+ [% Asset.js("js/coce.js") | $raw %]
+ [% Asset.js("lib/Chocolat/js/chocolat.js") | $raw %]
+ <script>
+        var interface = "[% interface | html %]";
+        var theme = "[% theme | html %]";
+        // http://www.oreillynet.com/pub/a/javascript/2003/10/21/amazonhacks.html
+        function verify_cover_images() {
+            // Loop over each container in the template which contains covers
+            $(".cover-slider").each(function(){
+                var lightbox_descriptions = [];
+                $(this).find(".cover-image").each( function( index ){
+                    var div = $(this);
+                    // Find the image in the container
+                    var img = div.find("img")[0];
+                    if( $(img).length > 0 ){
+                        var description = "";
+                        if( (img.complete != null) && (!img.complete) || img.naturalHeight == 0 ){
+                            // No image loaded in the container. Remove the slide
+                            div.remove();
+                        } else {
+                            // All slides start hidden. If this is the first one, show it.
+                            if( index == 0 ){
+                                div.show();
+                            }
+                            // Check if Amazon image is present
+                            if ( div.attr("id") == "amazon-bookcoverimg"  ) {
+                                w = img.width;
+                                h = img.height;
+                                if ((w == 1) || (h == 1)) {
+                                    // Amazon returned single-pixel placeholder
+                                    // Remove the container
+                                    div.remove();
+                                } else {
+                                    lightbox_descriptions.push(_("Amazon cover image (<a href='%s'>see the original image</a>)").format($(img).data('link')));
+                                }
+                            } else if( div.attr("id") == "custom-coverimg" ){
+                                if ( (img.complete != null) && (!img.complete) || img.naturalHeight == 0 ) {
+                                    // No image was loaded via the CustomCoverImages system preference
+                                    // Remove the container
+                                    div.remove();
+                                } else {
+                                    lightbox_descriptions.push("Custom cover image");
+                                }
+                            } else if ( div.attr("id") == "syndetics-bookcoverimg" ){
+                                    lightbox_descriptions.push(_("Syndetics cover image (<a href='%s'>see the original image</a>)").format($(img).data('link')));
+                            }
+                            else if( div.hasClass("coce-coverimg" ) ){
+                                // Identify which service's image is being loaded by Coce
+                                var coce_description;
+                                if( $(img).attr("src").indexOf('amazon.com') >= 0 ){
+                                    coce_description = ("Coce image from Amazon.com");
+                                } else if( $(img).attr("src").indexOf('google.com') >= 0 ){
+                                    coce_description = _("Coce image from Google Books");
+                                } else if( $(img).attr("src").indexOf('openlibrary.org') >= 0 ){
+                                    coce_description = _("Coce image from Open Library");
+                                }
+                                div.find(".hint").html(coce_description);
+                                lightbox_descriptions.push(coce_description);
+                            } else if ( div.attr("class") == "cover-image local-coverimg" ) {
+                                lightbox_descriptions.push(_("Local cover image (<a href='%s'>edit</a>)").format($(img).data('link')));
+                            } else {
+                                lightbox_descriptions.push(_("Cover image source unknown"));
+                            }
+                        }
+                    }
+                });
+
+                // Lightbox for cover images
+                Chocolat(this.querySelectorAll('.cover-image a'), {
+                    description: function(){
+                        return lightbox_descriptions[this.settings.currentImageIndex];
+                    }
+                });
+
+            });
+
+            $(".cover-slider").each(function(){
+                var coverSlide = this;
+                var coverImages = $(this).find(".cover-image");
+                if( coverImages.length > 1 ){
+                    coverImages.each(function( index ){
+                        // If more that one image is present, add a navigation link
+                        // for activating the slide
+                        var covernav = $("<a href=\"#\" data-num=\"" + index + "\" class=\"cover-nav\"></a>");
+                        if( index == 0 ){
+                            // Set the first navigation link as active
+                            $(covernav).addClass("nav-active");
+                        }
+                        $(covernav).html("<i class=\"fa fa-circle\"></i>");
+                        $(coverSlide).append( covernav );
+                    });
+                }
+
+                if( $(coverSlide).attr('id') == 'biblio-cover-slider' // Hide if not visible, but only for the biblio images. Images for items are only local cover images
+                    && $(coverSlide).find(".cover-image:visible").length < 1 ){
+                    $(coverSlide).remove();
+                } else {
+                    $(coverSlide).addClass("cover-slides");
+                }
+            });
+
+            $("#editions img").each(function(i){
+                if ( this.src.indexOf('amazon.com') >= 0 ) {
+                    w = this.width;
+                    h = this.height;
+                    if ((w == 1) || (h == 1)) {
+                        this.src = 'https://images-na.ssl-images-amazon.com/images/G/01/x-site/icons/no-img-sm.gif';
+                    } else if ( (this.complete != null) && (!this.complete) || this.naturalHeight == 0 ) {
+                        this.src = 'https://images-na.ssl-images-amazon.com/images/G/01/x-site/icons/no-img-sm.gif';
+                    }
+                }
+            });
+        }
+
+        function removeLocalImage(imagenumber) {
+            var thumbnail = $("#imagenumber-" + imagenumber );
+            var copy = thumbnail.html();
+            thumbnail.find("img").css("opacity", ".2");
+            thumbnail.find("a.remove").html("<img style='display:inline-block' src='" + interface + "/" + theme + "/img/spinner-small.gif' alt='' />");
+            $.ajax({
+                url: "/cgi-bin/koha/svc/cover_images?action=delete&imagenumber=" + imagenumber,
+                success: function(data) {
+                    $(data).each( function(i) {
+                        if ( this.deleted == 1 ) {
+                            thumbnail.remove();
+                        } else {
+                            thumbnail.html( copy );
+                            alert(_("An error occurred on deleting this image"));
+                        }
+                        if ( $('ul.thumbnails > li').length == 0 ) {
+                            showNoImageMessage();
+                        }
+                    });
+                },
+                error: function(data) {
+                    thumbnail.html( copy );
+                    alert(_("An error occurred on deleting this image"));
+                }
+            });
+        }
+
+        function showNoImageMessage() {
+            var no_images_msg = _("No images have been uploaded for this bibliographic record yet.");
+            no_images_msg = '<p>' + no_images_msg + '</p>';
+            [% IF ( CAN_user_tools_upload_local_cover_images ) %]
+                var please_upload = _("Upload an image file: %sUpload%s").format("<a class='btn btn-default btn-xs' href='/cgi-bin/koha/tools/upload-cover-image.pl?biblionumber=" + biblionumber + "&amp;filetype=image'><i class='fa fa-upload' aria-hidden='true'></i> ","</a>");
+                no_images_msg += "<p id='upload_image'>" + please_upload + '</p>';
+            [% END %]
+            $('#images').html(no_images_msg);
+        }
+
+        [% IF StaffDetailItemSelection %]
+            function itemSelectionBuildDeleteLink(div) {
+                var itemnumbers = new Array();
+                $("input[name='itemnumber'][type='checkbox']:checked", div).each(function() {
+                    itemnumbers.push($(this).val());
+                });
+                if (itemnumbers.length > 0) {
+                    var url = '/cgi-bin/koha/tools/batchMod.pl?op=show&del=1';
+                    url += '&itemnumber=' + itemnumbers.join('&itemnumber=');
+                    url += '&biblionumber=[% biblionumber | uri %]';
+                    url += '&src=CATALOGUING';
+                    $('a.itemselection_action_delete').attr('href', url);
+                } else {
+                    return false;
+                }
+                return true
+            }
+
+            function itemSelectionBuildModifyLink(div) {
+                var itemnumbers = new Array();
+                $("input[name='itemnumber'][type='checkbox']:checked", div).each(function() {
+                    itemnumbers.push($(this).val());
+                });
+                if (itemnumbers.length > 0) {
+                    var url = '/cgi-bin/koha/tools/batchMod.pl?op=show';
+                    url += '&itemnumber=' + itemnumbers.join('&itemnumber=');
+                    url += '&biblionumber=[% biblionumber | uri %]';
+                    url += '&src=CATALOGUING';
+                    $('a.itemselection_action_modify').attr('href', url);
+                } else {
+                    return false;
+                }
+                return true;
+            }
+
+            function itemSelectionBuildActionLinks(tab) {
+                var div = $("#" + tab);
+                var delete_link_ok = itemSelectionBuildDeleteLink(div);
+                var modify_link_ok = itemSelectionBuildModifyLink(div);
+                if (modify_link_ok || delete_link_ok) {
+                    $('.itemselection_actions', div).show();
+                } else {
+                    $('.itemselection_actions', div).hide();
+                }
+            }
+
+            $(document).ready(function() {
+                $('table.items_table').each(function() {
+                    var div = $(this).parent().attr("id");
+                    itemSelectionBuildActionLinks(div);
+                });
+
+                $("input[name='itemnumber'][type='checkbox']").change(function() {
+                    var div = $(this).parents('table').parent().parent().attr("id");
+                    itemSelectionBuildActionLinks(div);
+                });
+
+                $(".SelectAll").on("click",function(e){
+                    e.preventDefault();
+                    var tab = $(this).data("tab");
+                    $("input[name='itemnumber'][type='checkbox']", $("#"+tab)).prop('checked', true);
+                    itemSelectionBuildActionLinks(tab);
+                });
+
+                $(".ClearAll").on("click",function(e){
+                    e.preventDefault();
+                    var tab = $(this).data("tab");
+                    $("input[name='itemnumber'][type='checkbox']", $("#"+tab)).prop('checked', false);
+                    itemSelectionBuildActionLinks(tab);
+                });
+            });
+        [% END %]
+
+        $(document).ready(function() {
+            $('#bibliodetails').tabs();
+            // Pick details tab to display by default
+            [% IF count == 0 %]
+                [% IF ( Koha.Preference('HTML5MediaEnabled') == 'staff' or Koha.Preference('HTML5MediaEnabled') == 'both' ) && HTML5MediaSets.size %]
+                    $('#bibliodetails').tabs("option", "active", $('#media_tab').index() );
+                [% ELSIF ComponentParts && ComponentParts.size %]
+                    $('#bibliodetails').tabs("option", "active", $('#components_tab').index() );
+                [% END %]
+            [% END %]
+            $('#search-form').focus();
+            $('.thumbnails > li > .remove').click(function() {
+                var result = confirm(_("Are you sure you want to delete this cover image?"));
+
+                if ( result == true ) {
+                    var imagenumber = $(this).parent().attr('id').split('-')[1];
+                    removeLocalImage(imagenumber);
+                }
+
+                return false;
+            });
+            [% IF ( IntranetCoce && CoceProviders ) %]
+                KOHA.coce.getURL('[% CoceHost | html %]', '[% CoceProviders | html %]');
+            [% END %]
+
+            $("body").on("click",".previewMARC", function(e){
+                e.preventDefault();
+                var page = $(this).attr("href");
+                $("#marcPreview .modal-body").load(page + " table");
+                $('#marcPreview').modal({show:true});
+            });
+            $("#marcPreview").on("hidden.bs.modal", function(){
+                $("#marcPreview .modal-body").html("<div id=\"loading\"><img src=\"[% interface | html %]/[% theme | html %]/img/spinner-small.gif\" alt=\"\" /> "+_("Loading")+"</div>");
+            });
+            [% IF ( Koha.Preference('NovelistSelectStaffEnabled') && Koha.Preference('NovelistSelectStaffProfile') && ( normalized_isbn || normalized_upc ) ) %]
+                novSelect.loadContentForQuery({
+                    ClientIdentifier : '[% IF normalized_isbn %][% normalized_isbn | html %][% ELSE %][% normalized_upc | html %][% END %]',
+                    ISBN : '[% IF normalized_isbn %][% normalized_isbn | html %][% ELSE %][% normalized_upc | html %][% END %]',
+                    version : '2.1'
+                },
+                '[% Koha.Preference('NovelistSelectStaffProfile') | html %]',
+                '[% Koha.Preference('NovelistSelectPassword') | html %]',
+                function(d){
+                    if ( d.length > 0 ){ //If no content
+                        $(".NovelistSelect").show();
+                    }
+                 });
+             [% END %]
+             $(".print-label").on("click", function(e){
+                e.preventDefault();
+                link = $(this).attr("href");
+                openWindow(link,"Print spine label",400,400);
+             });
+             $(".cover-slider").on("click",".cover-nav", function(e){
+                 e.preventDefault();
+                var cover_slider = $(this).parent();
+                // Adding click handler for cover image navigation links
+                var num = $(this).data("num");
+                $(cover_slider).find(".cover-nav").removeClass("nav-active");
+                $(this).addClass("nav-active");
+                $(cover_slider).find(".cover-image").hide();
+                $(cover_slider).find(".cover-image").eq( num ).show();
+             });
+        });
+
+        $(window).load(function() {
+            verify_cover_images();
+        });
+    </script>
+ [% IF ( Koha.Preference('NovelistSelectStaffEnabled') && Koha.Preference('NovelistSelectStaffProfile') && ( normalized_isbn || normalized_upc ) ) %]
+ <script src="https://imageserver.ebscohost.com/novelistselect/ns2init.js"></script>
+ [% END %]
+ [% INCLUDE 'datatables.inc' %]
+ [% Asset.js("lib/jquery/plugins/jquery.dataTables.columnFilter.js") | $raw %]
+ [% INCLUDE 'columns_settings.inc' %]
+ [% Asset.js("js/browser.js") | $raw %]
+ [% Asset.js("js/table_filters.js") | $raw %]
+ <script>
+        var browser;
+        browser = KOHA.browser('[% searchid | html %]', parseInt(biblionumber, 10));
+        browser.show();
+
+        $(document).ready(function() {
+            var ids = ['holdings_table', 'otherholdings_table'];
+            var columns_settings = [ [% TablesSettings.GetColumns('catalogue', 'detail','holdings_table','json') | $raw %], [% TablesSettings.GetColumns('catalogue', 'detail','otherholdings_table','json')  | $raw %] ];
+            var has_images = ["[% itemloop_has_images | html %]", "[% otheritemloop_has_images | html %]"];
+            for (var i in ids) {
+                var id = ids[i];
+                if ( !has_images[i] ) { // remove the cover_image column
+                    columns_settings.splice(1,1);
+                }
+                var dt_parameters = {
+                    'sDom': 't',
+                    'bPaginate': false,
+                    'bAutoWidth': false,
+                    "bKohaColumnsUseNames": true,
+                    "sDom": 'C<"top pager"ilpfB><"#filter_c">tr<"bottom pager"ip>',
+                };
+                var table = KohaTable(id, dt_parameters, columns_settings[i], 'with_filters');
+            }
+
+            [% IF Koha.Preference('AcquisitionDetails') %]
+                var columns_settings = [% TablesSettings.GetColumns('catalogue', 'detail', 'acquisitiondetails-table', 'json') %];
+                var acquisitiondetails_table = KohaTable("orders", {
+                    "sDom": 'C<"top pager"ilpfB><"#filter_c">tr<"bottom pager"ip>',
+                    'bPaginate': false,
+                    'bAutoWidth': false,
+                    "aaSorting": [[ 4, "desc" ]],
+                }, columns_settings);
+            [% END %]
+
+            [% IF suggestions.count %]
+                $(".sorted").dataTable($.extend(true, {}, dataTablesDefaults, {
+                    "aoColumnDefs": [
+                        { "bSortable": false, "bSearchable": false, 'aTargets': [ 'NoSort' ] },
+                        { "sType": "anti-the", "aTargets" : [ "anti-the" ] }
+                    ],
+                    "sPaginationType": "full"
+                }));
+            [% END %]
+        });
+
+        [% IF (found1) %]
+            $(document).ready(function() {
+                var search_index = localStorage.getItem("cat_search_pulldown_selection");
+                var search_value = localStorage.getItem("searchbox_value");
+                if ( search_index ){ $('#cat-search-block select.advsearch').val(search_index)};
+                if ( search_value ){ $('#cat-search-block #search-form').val(search_value)};
+            });
+        [% END %]
+    </script>
+[% END %]
+[% INCLUDE 'intranet-bottom.inc' %]

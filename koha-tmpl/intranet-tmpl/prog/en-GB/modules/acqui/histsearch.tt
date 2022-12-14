@@ -1,0 +1,191 @@
+[% USE raw %]
+[% USE Asset %]
+[% USE KohaDates %]
+[% USE TablesSettings %]
+[% USE Branches %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>[% IF ( order_loop ) %]Orders search &rsaquo; Search results[% ELSE %]Order search[% END %] &rsaquo; Acquisitions &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+
+<body id="acq_histsearch" class="acq">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'acquisitions-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/acqui/acqui-home.pl">Acquisitions</a>
+ </li>
+
+ [% IF ( order_loop ) %]
+ <li>
+ <a href="/cgi-bin/koha/acqui/histsearch.pl">Orders search</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ Search results
+ </a>
+ </li>
+ [% ELSE %]
+ <li>
+ <a href="#" aria-current="page">
+ Order search
+ </a>
+ </li>
+ [% END %]
+ </ol>
+</nav>
+
+<div class="main container-fluid">
+ <div class="row">
+ <div class="col-sm-10 col-sm-push-2">
+ <main>
+ [% IF !order_loop && search_done %]
+ <div class="dialog message">
+ Your search returned no results.
+ </div>
+ [% END %]
+
+ [% UNLESS ( order_loop ) %]
+ [% PROCESS filter_form context => "main" %]
+ [% END %]
+
+
+ [% IF ( order_loop ) %]<h1>Search results</h1>
+ <div id="acqui_histsearch">
+ <table id="histsearcht">
+ <thead>
+ <tr>
+ <th>Order line (parent)</th>
+ <th>Status</th>
+ <th>Basket</th>
+ <th>Basket creator</th>
+ <th>Basket group</th>
+ <th>Managing library</th>
+ <th>Invoice number</th>
+ <th class="anti-the">Summary</th>
+ <th>Vendor</th>
+ <th>Placed on</th>
+ <th>Received on</th>
+ <th>Quantity received</th>
+ <th>Quantity ordered</th>
+ <th>Unit cost</th>
+ <th>Fund</th>
+ <th>Internal note</th>
+ <th>Vendor note</th>
+ </tr>
+ </thead>
+ <tbody>
+ [% FOREACH order IN order_loop %]
+ <tr>
+ <td>
+ [% order.ordernumber | html %]
+ [% IF order.ordernumber != order.parent_ordernumber %]([% order.parent_ordernumber | html %])[% END %]
+ </td>
+ <td>
+ [% SWITCH order.orderstatus %]
+ [% CASE 'new' %]New
+ [% CASE 'ordered' %]Ordered
+ [% CASE 'partial' %]Partially received
+ [% CASE 'complete' %]Received
+ [% CASE 'cancelled' %]Cancelled
+ [% END %]
+ [% IF order.is_standing %](standing order)[% END %]
+ </td>
+ <td><a href="basket.pl?basketno=[% order.basketno | uri %]">[% order.basketname | html %] ([% order.basketno | html %])</a></td>
+ <td>[% order.authorisedbyname | html %]</td>
+ <td>
+ [% IF ( order.basketgroupid ) %]
+ <a href="basketgroup.pl?op=add&booksellerid=[% order.id | uri %]&basketgroupid=[% order.basketgroupid | uri %]">[% order.groupname | html %] ([% order.basketgroupid | html %])</a>
+ [% ELSE %]
+ &nbsp;
+ [% END %]
+ </td>
+ <td>[% Branches.GetName(order.managing_library) | html %]</td>
+ <td>[% IF ( order.invoicenumber ) %]
+ <a href="/cgi-bin/koha/acqui/parcel.pl?invoiceid=[% order.invoiceid | uri %]">[% order.invoicenumber | html %]</a>
+ [% ELSE %]
+ &nbsp;
+ [% END %]
+ </td>
+ <td>
+ <a href="/cgi-bin/koha/catalogue/detail.pl?biblionumber=[% order.biblionumber | uri %]">[% order.title | html %]</a>
+ <br />[% order.author | html %] <br /> [% order.isbn | html %]
+ </td>
+ <td><a href="/cgi-bin/koha/acqui/supplier.pl?booksellerid=[% order.id | uri %]">[% order.name | html %]</a></td>
+ <td data-order="[% order.creationdate | html %]">[% order.creationdate | $KohaDates %]</td>
+ <td data-order="[% order.datereceived | html %]">
+ [% order.datereceived | $KohaDates %]
+ </td>
+ <td>[% order.quantityreceived | html %]</td>
+ <td>[% order.quantity | html %]</td>
+ <td>[% order.ecost | html %]</td>
+ <td>[% order.budget_name | html %]</td>
+ <td>[% order.order_internalnote | html %]</td>
+ <td>[% order.order_vendornote | html %]</td>
+ </tr>
+ [% END %]
+ </tbody>
+ </table>
+ </div>
+ [% END %]
+
+</main>
+</div> <!-- /.col-sm-10.col-sm-push-2 -->
+
+<div class="col-sm-2 col-sm-pull-10">
+ <aside>
+ [% IF ( order_loop ) %]
+ [% PROCESS filter_form context => "sidebar" %]
+ [% END %]
+ [% INCLUDE 'acquisitions-menu.inc' %]
+ </aside>
+</div> <!-- /.col-sm-2.col-sm-pull-10 -->
+</div>
+
+[% MACRO jsinclude BLOCK %]
+ [% Asset.js("js/acquisitions-menu.js") | $raw %]
+[% INCLUDE 'calendar.inc' %]
+ [% INCLUDE 'datatables.inc' %]
+ [% INCLUDE 'columns_settings.inc' %]
+ [% Asset.js("js/autocomplete/patrons.js") | $raw %]
+ <script>
+        var MSG_REMOVE_PATRON = _("Remove");
+        $(document).ready(function() {
+            var columns_settings = [% TablesSettings.GetColumns( 'acqui', 'histsearch', 'histsearcht', 'json' ) | $raw %];
+            KohaTable("histsearcht", {
+                "sPaginationType": "full"
+            }, columns_settings );
+
+            patron_autocomplete({
+                patron_container: $("#basket_creators"),
+                input_autocomplete: $("#find_patron"),
+                patron_input_name: 'created_by',
+                field_to_retrieve: 'borrowernumber'
+            });
+        });
+    </script>
+[% END %]
+
+[% BLOCK filter_form %]
+ <form action="/cgi-bin/koha/acqui/histsearch.pl" method="post">
+ [% IF ( context == "sidebar" ) %]
+ <fieldset class="brief">
+ <h4>Search orders</h4>
+ [% ELSE %]
+ <fieldset class="rows">
+ <legend>Search orders</legend>
+ [% END %]
+ [% INCLUDE 'filter-orders.inc' %]
+ <input type="hidden" name="do_search" value="1" />
+ <fieldset class="action"><input type="submit" value="Search" /></fieldset>
+ </fieldset>
+ </form>
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' %]

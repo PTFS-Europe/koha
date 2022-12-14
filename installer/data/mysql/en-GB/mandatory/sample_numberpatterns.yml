@@ -1,0 +1,102 @@
+---
+description:
+- Sample numbering patterns for subscriptions
+tables:
+- subscription_numberpatterns:
+    multiline: []
+    rows:
+    - add1: 1
+      add2: ~
+      add3: ~
+      description: Simple Numbering method
+      displayorder: 1
+      every1: 1
+      every2: ~
+      every3: ~
+      label: Number
+      label1: Number
+      label2: ~
+      label3: ~
+      numbering1: ~
+      numbering2: ~
+      numbering3: ~
+      numberingmethod: No. {X}
+      setto1: 1
+      setto2: ~
+      setto3: ~
+      whenmorethan1: 99999
+      whenmorethan2: ~
+      whenmorethan3: ~
+    - add1: 1
+      add2: 1
+      add3: 1
+      description: Volume Number Issue 1
+      displayorder: 2
+      every1: 48
+      every2: 4
+      every3: 1
+      label: Volume, Number, Issue
+      label1: Volume
+      label2: Number
+      label3: Issue
+      numbering1: ~
+      numbering2: ~
+      numbering3: ~
+      numberingmethod: Vol. {X}, Number {Y}, Issue {Z}
+      setto1: 1
+      setto2: 1
+      setto3: 1
+      whenmorethan1: 99999
+      whenmorethan2: 12
+      whenmorethan3: 4
+    - add1: 1
+      add2: 1
+      add3: ~
+      description: Volume Number 1
+      displayorder: 3
+      every1: 12
+      every2: 1
+      every3: ~
+      label: Volume, Number
+      label1: Volume
+      label2: Number
+      label3: ~
+      numbering1: ~
+      numbering2: ~
+      numbering3: ~
+      numberingmethod: Vol. {X}, No. {Y}
+      setto1: 1
+      setto2: 1
+      setto3: ~
+      whenmorethan1: 99999
+      whenmorethan2: 12
+      whenmorethan3: ~
+    - add1: 1
+      add2: 1
+      add3: ~
+      description: Season Year
+      displayorder: 4
+      every1: 1
+      every2: 4
+      every3: ~
+      label: Seasonal
+      label1: Season
+      label2: Year
+      label3: ~
+      numbering1: season
+      numbering2: ~
+      numbering3: ~
+      numberingmethod: '{X} {Y}'
+      setto1: 0
+      setto2: 1
+      setto3: ~
+      whenmorethan1: 3
+      whenmorethan2: 99999
+      whenmorethan3: ~
+    translatable:
+    - label
+    - description
+    - numberingmethod
+    - label1
+    - label2
+    - label3

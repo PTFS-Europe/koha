@@ -1,0 +1,44 @@
+---
+description:
+- Sample libraries.
+tables:
+- branches:
+    multiline: []
+    rows:
+    - branchaddress1: 372 Forest Street
+      branchcode: MPL
+      branchname: Midway
+    - branchaddress1: Highland Boulevard
+      branchcode: SPL
+      branchname: Springfield
+    - branchaddress1: Johnson Terrace
+      branchcode: RPL
+      branchname: Riverside
+    - branchaddress1: Jefferson Summit
+      branchcode: CPL
+      branchname: Centerville
+    - branchaddress1: Hickory Squere
+      branchcode: FPL
+      branchname: Fairview
+    - branchaddress1: River Station
+      branchcode: FFL
+      branchname: Fairfield
+    - branchaddress1: ''
+      branchcode: IPT
+      branchname: Institut Protestant de Théologie
+    - branchaddress1: Meadow Grove
+      branchcode: PVL
+      branchname: Pleasant Valley
+    - branchaddress1: Valley Way
+      branchcode: TPL
+      branchname: Troy
+    - branchaddress1: Smith Heights
+      branchcode: FRL
+      branchname: Franklin
+    - branchaddress1: East Hills
+      branchcode: LPL
+      branchname: Liberty
+    - branchaddress1: Chestnut Hollow
+      branchcode: UPL
+      branchname: Union
+    translatable: []

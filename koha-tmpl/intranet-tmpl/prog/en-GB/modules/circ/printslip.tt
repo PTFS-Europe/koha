@@ -1,0 +1,35 @@
+[% USE raw %]
+[% USE Asset %]
+[% USE Koha %]
+[% INCLUDE 'doc-head-open.inc' %]
+[% IF ( caller == 'hold-transfer' ) %]
+<title>Reservation transfer print receipt &rsaquo; Circulation &rsaquo; Koha</title>
+[% ELSIF ( caller == 'transfer' ) %]
+<title>Transfers print receipt &rsaquo; Circulation &rsaquo; Koha</title>
+[% ELSIF ( caller == 'members' ) %]
+<title>Print receipt for [% borrowernumber | html %] &rsaquo; Users &rsaquo; Koha</title>
+[% ELSIF ( title ) %][%# FIXME title is never defined %]
+<title>[% title | html %] &rsaquo; Users &rsaquo; Koha</title>
+[% END %]
+[% INCLUDE 'doc-head-close.inc' %]
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="[% IF ( IntranetFavicon ) %][% IntranetFavicon | url %][% ELSE %][% interface | html %]/[% theme | html %]/img/favicon.ico[% END %]" type="image/x-icon" />
+[% Asset.css("css/print.css") | $raw %]
+[% IF ( Koha.Preference('SlipCSS') ) %]
+<link rel="stylesheet" type="text/css" href="[% Koha.Preference('SlipCSS') | $raw %]" />
+[% END %]
+
+[% INCLUDE 'slip-print.inc' #printThenClose %]
+</head>
+<body id="circ_printslip" class="circ">
+<div id="receipt">
+
+[% IF plain %]
+<pre>
+[% IF ( slip ) %][% slip | html %][% ELSE %]No slip template found[% END %]
+</pre>
+[% ELSE %]
+[% IF ( slip ) %][% slip | $raw %][% ELSE %]No slip template found[% END %]
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' %]

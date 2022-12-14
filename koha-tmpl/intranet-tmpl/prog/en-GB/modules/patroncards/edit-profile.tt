@@ -1,0 +1,162 @@
+[% SET footerjs = 1 %]
+ [% INCLUDE 'doc-head-open.inc' %]
+ <title>[% IF ( profile_id ) %]Edit ([% profile_id | html %])[% ELSE %]New[% END%] &rsaquo; Profiles &rsaquo; User card creator &rsaquo; Tools &rsaquo; Koha</title>
+ [% INCLUDE 'doc-head-close.inc' %]
+</head>
+
+<body id="pcard_edit-profile" class="tools pcard">
+ [% INCLUDE 'header.inc' %]
+ [% INCLUDE 'cat-search.inc' %]
+
+ <nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/tools/tools-home.pl">Tools</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/patroncards/home.pl">User card creator</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/patroncards/manage.pl?card_element=profile">Profiles</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ [% IF ( profile_id ) %]
+ Edit ([% profile_id | html %])
+ [% ELSE %]
+ New
+ [% END%]
+ </a>
+ </li>
+ </ol>
+ </nav>
+
+ <div class="main container-fluid">
+ <div class="row">
+ <div class="col-sm-10 col-sm-push-2">
+ <main>
+
+ [% INCLUDE 'patroncards-toolbar.inc' %]
+
+ <h3>[% IF (profile_id) %]Edit[% ELSE %]Create[% END%] printer profile[% IF (profile_id) %] ([% profile_id | html %])[% END %]</h3>
+ <form name="input" action="/cgi-bin/koha/patroncards/edit-profile.pl" method="get">
+ <fieldset class="rows"><legend>Profile settings</legend>
+ <ol>
+ <li>
+ [% IF ( profile_id ) %]
+ <span class="label">Printer name:</span>[% printer_name | html %]
+ <input type="hidden" name="printer_name" value="[% printer_name | html %]" />
+ [% ELSE %]
+ <label for="printer_name">Printer name:</label><input type="text"  size="20" name="printer_name" id="printer_name" />
+ [% END %]
+ </li>
+ <li>
+ [% IF ( profile_id ) %]
+ <span class="label">Paper bin:</span> [% paper_bin | html %]
+ <input type="hidden" name="paper_bin" value="[% paper_bin | html %]" />
+ [% ELSE %]
+ <label for="paper_bin">Paper bin:</label><input type="text"  size="20" name="paper_bin" id="paper_bin" />
+ [% END %]
+ </li>
+ <li>
+ [% IF ( label_template ) %]
+ <label for="template_name">Template name:</label> [% label_template | html %]
+ [% ELSE %]
+ <span class="label">Template name:</span> Profile unassigned
+ [% END %]
+ </li>
+ <li>
+ <label for="units">Units: </label>
+ <select id="units" name="units">
+ [% FOREACH unit IN units %]
+ [% IF ( unit.selected ) %]
+ <option value="[% unit.type | html %]" selected="selected">
+ [% ELSE %]
+ <option value="[% unit.type | html %]">
+ [% END %]
+ [% unit.desc | html %]
+ </option>
+ [% END %]
+ </select>
+ </li>
+ </ol>
+ </fieldset>
+
+ <fieldset class="rows"><legend>Offset:</legend>
+ <ol>
+ <li>
+ <label for="offset_horz">Horizontal: </label><input type="text"  size="4" name="offset_horz" id="offset_horz" value="[% offset_horz | html %]" />
+ </li>
+ <li>
+ <label for="offset_vert">Vertical: </label><input type="text" size="4" name="offset_vert" id="offset_vert" value="[% offset_vert | html %]" />
+ </li>
+ </ol>
+ </fieldset>
+
+ <fieldset class="rows"><legend>Creep:</legend>
+ <ol>
+ <li>
+ <label for="creep_horz">Horizontal: </label><input type="text"  size="4" name="creep_horz" id="creep_horz" value="[% creep_horz | html %]" />
+ </li>
+ <li>
+ <label for="creep_vert">Vertical: </label><input type="text" size="4" name="creep_vert" id="creep_vert" value="[% creep_vert | html %]" />
+ </li>
+ </ol>
+ </fieldset>
+ <fieldset class="action">
+ <input type="submit" value="Save" />
+ <a href="/cgi-bin/koha/patroncards/manage.pl?card_element=profile" class="cancel">Cancel</a>
+ <input type="hidden" name="op" value="save" />
+ <input type="hidden" name="profile_id" value="[% profile_id | html %]" />
+ </fieldset>
+ </form>
+
+ </main>
+ </div> <!-- /.col-sm-10.col-sm-push-2 -->
+
+ <div class="col-sm-2 col-sm-pull-10">
+ <aside>
+ [% INCLUDE 'tools-menu.inc' %]
+ </aside>
+ </div> <!-- /.col-sm-2.col-sm-pull-10 -->
+ </div> <!-- /.row -->
+
+[% MACRO jsinclude BLOCK %]
+ <script>
+        $(document).ready(function(){
+            var selectedUnit = $("#units option:selected").attr("value");
+            var unitfields = $("#offset_horz,#offset_vert,#creep_horz,#creep_vert");
+            $(unitfields).after("<span class=\"unit\">"+getUnit(selectedUnit)+"</span>");
+            $("#units").change(function(){
+                $(".unit").html(getUnit($(this).val()));
+            });
+            function getUnit(unit){
+                switch(unit){
+                    case "POINT":
+                        var unit = " pt";
+                        break;
+                    case "AGATE":
+                        var unit = " ag";
+                        break;
+                    case "INCH":
+                        var unit = " in";
+                        break;
+                    case "MM":
+                        var unit = " mm";
+                        break;
+                    case "CM":
+                        var unit = " cm";
+                        break;
+                    default:
+                        var unit = "";
+                }
+                return unit;
+            }
+        });
+    </script>
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' %]

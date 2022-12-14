@@ -1,0 +1,85 @@
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Preview routing list &rsaquo; Serials &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+
+<body id="ser_routing-preview" class="ser">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'serials-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/serials/serials-home.pl">Serials</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/serials/subscription-detail.pl?subscriptionid=[% subscriptionid | uri %]"><em>[% title | html %]</em></a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ Preview routing list
+ </a>
+ </li>
+ </ol>
+</nav>
+
+<div class="main container-fluid">
+ <div class="row">
+ <div class="col-sm-10 col-sm-push-2">
+ <main>
+
+<h2>Preview routing list for <em>[% title | html %]</em></h2>
+
+<form method="post" action="routing-preview.pl">
+<input type="hidden" id="subscriptionid" name="subscriptionid" value="[% subscriptionid | html %]" />
+ <input type="hidden" id="issue_escaped" name="issue_escaped" value="[% issue_escaped | html %]" />
+<fieldset class="rows">
+ <ol>
+ <li><span class="label">Issue:</span>[% issue | html %]</li>
+ <li><span class="label">List member:</span><table style="clear:none;margin:0;">
+ <tr><th>Name</th></tr>
+[% FOREACH memberloo IN memberloop %]
+ <tr><td>[% memberloo.surname | html %], [% memberloo.firstname | html %]</td></tr>
+[% END %]
+ </table></li>
+ <li><span class="label">Notes:</span>[% routingnotes | html %]</li>
+ </ol>
+</fieldset>
+
+<fieldset class="action">
+ <input type="submit" name="ok" id="save_and_preview" class="button" value="Save and preview routing slip" />
+<input type="submit" name="edit" class="button" value="Edit" />
+<input type="submit" name="delete" class="button" value="Delete" /></fieldset>
+</form>
+
+ </main>
+ </div> <!-- /.col-sm-10.col-sm-push-2 -->
+
+ <div class="col-sm-2 col-sm-pull-10">
+ <aside>
+ [% INCLUDE 'serials-menu.inc' %]
+ </aside>
+ </div> <!-- /.col-sm-2.col-sm-pull-10 -->
+ </div> <!-- /.row -->
+
+[% MACRO jsinclude BLOCK %]
+ <script>
+        $(document).ready(function(){
+            $("#save_and_preview").on("click",function(e){
+                e.preventDefault();
+                print_slip( $("#subscriptionid").val(), $("#issue_escaped").val() );
+            });
+        });
+        function print_slip(subscriptionid,issue){
+            var myurl = 'routing-preview.pl?ok=1&subscriptionid='+subscriptionid+'&issue='+issue;
+            window.open(myurl,'PrintSlip','width=500,height=500,toolbar=no,scrollbars=yes');
+            window.location.href='subscription-detail.pl?subscriptionid=' + subscriptionid;
+        }
+    </script>
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' %]

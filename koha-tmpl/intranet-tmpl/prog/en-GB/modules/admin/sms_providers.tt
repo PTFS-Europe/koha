@@ -1,0 +1,120 @@
+[% USE raw %]
+[% USE Asset %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>SMS cellular providers &rsaquo; Administration &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+
+<body id="admin_sms_providers" class="admin">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'prefs-admin-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/admin/admin-home.pl">Administration</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ SMS cellular providers
+ </a>
+ </li>
+ </ol>
+</nav>
+
+<div class="main container-fluid">
+ <div class="row">
+ <div class="col-sm-10 col-sm-push-2">
+ <main>
+
+ <div id="toolbar" class="btn-toolbar">
+ <a class="btn btn-default" id="new_provider" href="#"><i class="fa fa-plus"></i> New SMS provider</a>
+ </div>
+
+ <h2>SMS cellular providers</h2>
+
+ [% IF providers.size %]
+
+ <table id="providerst">
+ <thead>
+ <tr>
+ <th>Name</th>
+ <th>Domain</th>
+ <th title="Users using this provider">Users</th>
+ <th>&nbsp;</th>
+ </tr>
+ </thead>
+
+ <tbody>
+ [% FOREACH p IN providers %]
+ <tr>
+ <td id="name_[% p.id | html %]">[% p.name | html %]</td>
+ <td id="domain_[% p.id | html %]">[% p.domain | html %]</td>
+ <td id="patrons_using_[% p.id | html %]">[% p.patrons_using | html %]</td>
+ <td class="actions">
+ <a class="btn btn-default btn-xs edit" href="#" id="edit_[% p.id | html %]" data-providerid="[% p.id | html %]">
+ <i class="fa fa-pencil"></i> Edit
+ </a>
+ <a class="btn btn-default btn-xs delete" href="#" data-providerid="[% p.id | html %]" data-patrons_using="[% p.patrons_using | html %]" id="delete_[% p.id | html %]">
+ <i class="fa fa-trash"></i> Delete
+ </a>
+ </td>
+ </tr>
+ [% END %]
+ </tbody>
+ </table>
+
+ [% ELSE %]
+
+ <div class="dialog message">
+ There are no SMS cellular providers defined.
+ </div>
+
+ [% END %]
+
+ <div id="sms_add_form">
+ <form id="sms_form" action="sms_providers.pl" method="post" class="validated">
+ <fieldset class="rows">
+ <legend>Add an SMS cellular provider</legend>
+ <input type="hidden" id="id" name="id" value="" />
+ <input type="hidden" id="op" name="op" value="add_update" />
+ <ol>
+ <li>
+ <label for="name" class="required">Name: </label>
+ <input type="text" id="name" name="name" required="required" />
+ <span class="required">Required</span>
+ </li>
+ <li>
+ <label for="domain" class="required">Domain: </label>
+ <input type="text" id="domain" name="domain" required="required" size="40"/>
+ <span class="required">Required</span>
+ </li>
+ </ol>
+ </fieldset>
+ <fieldset class="action">
+ <input type="submit" id="submit_save" value="Submit" />
+ <input type="submit" value="Submit" id="submit_update" />
+ <a class="cancel cancel_edit" id="cancel" href="sms_providers.pl">Cancel</a>
+ </fieldset>
+ </form>
+ </div>
+
+ </main>
+ </div> <!-- /.col-sm-10.col-sm-push-2 -->
+
+ <div class="col-sm-2 col-sm-pull-10">
+ <aside>
+ [% INCLUDE 'admin-menu.inc' %]
+ </aside>
+ </div> <!-- /.col-sm-2.col-sm-pull-10 -->
+ </div> <!-- /.row -->
+
+[% MACRO jsinclude BLOCK %]
+ [% Asset.js("js/admin-menu.js") | $raw %]
+ [% Asset.js("js/sms_providers.js") | $raw %]
+[% END %]
+[% INCLUDE 'intranet-bottom.inc' %]

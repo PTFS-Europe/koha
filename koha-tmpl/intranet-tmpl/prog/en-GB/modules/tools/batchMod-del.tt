@@ -1,0 +1,203 @@
+[% USE raw %]
+[% USE Koha %]
+[% USE KohaDates %]
+[% USE Asset %]
+[% USE Branches %]
+[% SET footerjs = 1 %]
+[% PROCESS 'i18n.inc' %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Batch item deletion &rsaquo; Tools &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+<!--[if IE]>
+<style>#selections { display: none; }</style>
+<![endif]-->
+</head>
+<body id="tools_batchMod-del" class="tools">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'cat-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/tools/tools-home.pl">Tools</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">Batch item deletion</a>
+ </li>
+ </ol>
+</nav>
+
+<div class="main container-fluid">
+
+ <h1>Batch item deletion</h1>
+
+ [% FOREACH message IN messages %]
+ [% IF message.type == 'success' %]
+ <div class="dialog message">
+ [% ELSIF message.type == 'warning' %]
+ <div class="dialog alert">
+ [% ELSIF message.type == 'error' %]
+ <div class="dialog alert" style="margin:auto;">
+ [% END %]
+ [% IF message.code == 'cannot_enqueue_job' %]
+ Cannot enqueue this job.
+ [% END %]
+ [% IF message.error %]
+ (The error was: [% message.error | html %], see the Koha log file for more information).
+ [% END %]
+ </div>
+ [% END %]
+
+
+ [% UNLESS ( action ) %]
+
+ [% IF ( notfoundbarcodes.size ) %]
+ <div class="dialog alert">
+ [% IF ( itemresults ) %]<p>Warning, the following barcodes were not found:</p>[% ELSE %]<p>Warning: no barcodes were found</p>[% END %]
+ </div>
+ <table style="margin:auto;">
+ <thead>
+ <tr><th>Barcodes not found</th></tr>
+ </thead>
+ <tbody>
+ [% FOREACH notfoundbarcode IN notfoundbarcodes %]
+ <tr><td>[% notfoundbarcode |html %]</td></td>
+ [% END %]
+ </tbody>
+ </table>
+ [% END %] <!-- /notfoundbarcodes -->
+ [% IF ( notfounditemnumbers.size ) %]
+ <div class="dialog alert">
+ [% IF ( itemresults ) %]<p>Warning, the following itemnumbers were not found:</p>[% ELSE %]<p>Warning: no itemnumbers were found</p>[% END %]
+ </div>
+ <table style="margin:auto;">
+ <thead>
+ <tr><th>Itemnumbers not found</th></tr>
+ </thead>
+ <tbody>
+ [% FOREACH notfounditemnumber IN notfounditemnumbers %]
+ <tr><td>[% notfounditemnumber |html %]</td></td>
+ [% END %]
+ </tbody>
+ </table>
+ [% END %] <!-- /notfounditemnumbers -->
+
+ [% IF cannot_be_deleted.size %]
+ <div class="dialog alert">
+ <p>Warning, the following items cannot be deleted: </p>
+ </div>
+ <table style="margin:auto;">
+ <thead>
+ <tr><th>Cannot be deleted</th></tr>
+ </thead>
+ <tbody>
+ [% FOREACH barcode IN cannot_be_deleted %]
+ <tr><td>[% barcode | html %]</td></td>
+ [% END %]
+ </tbody>
+ </table>
+ [% END %]
+
+ [% IF ( notfoundbarcodes.size || notfounditemnumbers.size || cannot_be_deleted.size ) && !too_many_items_display && item_loop %]
+ <h4>The following barcodes were found: </h4>
+ [% END %]
+
+
+<form name="f" action="batchMod.pl" method="post">
+ <input type="hidden" name="biblionumber" id="biblionumber" value="[% biblionumber | html %]" />
+ <input type="hidden" name="op" value="[% op | html %]" />
+ <input type="hidden" name="searchid" value="[% searchid | html %]" />
+ <input type="hidden" name="src" id="src" value="[% src | html %]" />
+ [% IF biblionumber %]
+ <input type="hidden" name="biblionumber" id="biblionumber" value="[% biblionumber | html %]" />
+ [% END %]
+
+[% IF items.size %]
+ [% PROCESS items_table_batchmod headers => item_header_loop, items => items, checkboxes_delete => 1, display_columns_selection => 1 %]
+[% END %]
+
+[% IF ( simple_items_display ) %]
+ <ul>
+ [% FOREACH simple_items_displa IN simple_items_display %]
+ <li>
+ <a href="[% simple_items_displa.itemnumber | url %]">[% simple_items_displa.barcode | html %]</a>
+ </li>
+ [% END %]
+ </ul>
+[% END %]
+
+
+[% IF ( show ) %]
+
+[% IF ( too_many_items_display ) %]
+ <p>Too many items ([% too_many_items_display | html %]) to display individually.</p>
+ [% FOREACH itemnumber IN itemnumbers_array %]
+ <input type="hidden" name="itemnumber" value="[% itemnumber | html %]" />
+ [% END %]
+[% END %]
+
+ [% IF ( itemresults ) %]
+ <div id="cataloguing_additem_newitem">
+ <input type="hidden" name="op" value="[% op | html %]" />
+ <p>This will delete [% IF ( too_many_items_display ) %]all the[% ELSE %]the selected[% END %] items.</p>
+ <input type="hidden" name="del" value="1" />
+ <fieldset class="action">
+ <input type="checkbox" name="del_records" id="del_records" /> <label for="del_records">Delete records if no items remain.</label>
+ [% IF too_many_items_display %]
+ <input type="submit" name="mainformsubmit" value="Delete ALL submitted items" />
+ [% ELSE %]
+ <input type="submit" name="mainformsubmit" value="Delete selected items" />
+ [% END %]
+
+ <a href="/cgi-bin/koha/tools/batchMod.pl?del=1" class="cancel">Cancel</a>
+ </fieldset>
+ </div>
+ [% ELSE %]
+ <p><a href="/cgi-bin/koha/tools/batchMod.pl?del=1">Return to batch item deletion</a></p>
+ [% END %]
+ [% END %]
+ </form>
+ [% END %]
+
+
+ [% IF op == 'enqueued' %]
+ <div class="dialog message">
+ <p>The job has been enqueued! It will be processed as soon as possible.</p>
+ <p><a href="/cgi-bin/koha/admin/background_jobs.pl?op=view&id=[% job_id | uri %]" title="View detail of the enqueued job">View detail of the enqueued job</a>
+ | <a href="/cgi-bin/koha/tools/batchMod.pl?del=1" title="New batch item deletion">New batch item deletion</a></p>
+ </div>
+
+ <fieldset class="action">
+ [% IF src == 'CATALOGUING' # from catalogue/detail.pl > Delete items in a batch%]
+ [% IF searchid %]
+ <a href="/cgi-bin/koha/catalogue/detail.pl?biblionumber=[% biblionumber | uri %]&searchid=[% searchid | uri %]">Return to the record</a>
+ [% ELSE %]
+ <a href="/cgi-bin/koha/catalogue/detail.pl?biblionumber=[% biblionumber | uri %]">Return to the record</a>
+ [% END %]
+ [% ELSIF src %]
+ <a href="[% src | url %]">Return to where you were</a>
+ [% ELSE %]
+ <a href="/cgi-bin/koha/tools/batchMod.pl?del=1">Return to batch item deletion</a>
+ [% END %]
+ </fieldset>
+ [% END %]
+
+ </div>
+
+[% MACRO jsinclude BLOCK %]
+ [% Asset.js("js/tools-menu.js") | $raw %]
+ [% INCLUDE 'datatables.inc' %]
+ [% Asset.js("js/pages/batchMod.js") | $raw %]
+ [% Asset.js("js/browser.js") | $raw %]
+ <script>
+        [% IF searchid %]
+            browser = KOHA.browser('[% searchid | html %]');
+            browser.show_back_link();
+        [% END %]
+    </script>
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' %]

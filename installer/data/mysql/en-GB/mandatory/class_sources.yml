@@ -1,0 +1,67 @@
+---
+description:
+- Default classification sources and filing rules for Koha.
+tables:
+- class_sort_rules:
+    multiline: []
+    rows:
+    - class_sort_rule: dewey
+      description: Default filing rules for DDC
+      sort_routine: Dewey
+    - class_sort_rule: lcc
+      description: Default filing rules for LCC
+      sort_routine: LCC
+    - class_sort_rule: generic
+      description: Generic class number filing rules
+      sort_routine: Generic
+    translatable:
+    - description
+- class_split_rules:
+    multiline: []
+    rows:
+    - class_split_rule: dewey
+      description: Default splitting rules for DDC
+      split_routine: Dewey
+    - class_split_rule: lcc
+      description: Default splitting rules for LCC
+      split_routine: LCC
+    - class_split_rule: generic
+      description: Generic class number splitting rules
+      split_routine: Generic
+    translatable:
+    - description
+- class_sources:
+    multiline: []
+    rows:
+    - class_sort_rule: dewey
+      class_split_rule: dewey
+      cn_source: ddc
+      description: Dewey Decimal Classification
+      used: 1
+    - class_sort_rule: lcc
+      class_split_rule: lcc
+      cn_source: lcc
+      description: Library of Congress Classification
+      used: 1
+    - class_sort_rule: generic
+      class_split_rule: generic
+      cn_source: udc
+      description: Universal Decimal Classification
+      used: 0
+    - class_sort_rule: generic
+      class_split_rule: generic
+      cn_source: sudocs
+      description: SuDoc Classification (U.S. GPO)
+      used: 0
+    - class_sort_rule: generic
+      class_split_rule: generic
+      cn_source: anscr
+      description: ANSCR (Sound Recordings)
+      used: 0
+    - class_sort_rule: generic
+      class_split_rule: generic
+      cn_source: z
+      description: Other/Generic Classification Scheme
+      used: 0
+    translatable:
+    - description

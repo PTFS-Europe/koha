@@ -1,0 +1,138 @@
+[% USE raw %]
+[% USE Asset %]
+[% USE Koha %]
+[% USE AdditionalContents %]
+[% SET OpacNav = AdditionalContents.get( location => "OpacNav", lang => lang, library => logged_in_user.branchcode || default_branch, blocktitle => 0 ) %]
+[% SET OpacNavBottom = AdditionalContents.get( location => "OpacNavBottom", lang => lang, library => logged_in_user.branchcode || default_branch, blocktitle => 0 ) %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Change your password &rsaquo; [% IF ( LibraryNameTitle ) %][% LibraryNameTitle | html %][% ELSE %]Koha online[% END %] catalogue</title>
+[% INCLUDE 'doc-head-close.inc' %]
+[% BLOCK cssinclude %][% END %]
+</head>
+[% INCLUDE 'bodytag.inc' bodyid='opac-passwd' %]
+[% INCLUDE 'masthead.inc' %]
+
+<div class="main">
+ <nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumbs">
+ <ol class="breadcrumb">
+ <li class="breadcrumb-item">
+ <a href="/cgi-bin/koha/opac-main.pl">Home</a>
+ </li>
+ <li class="breadcrumb-item">
+ <a href="/cgi-bin/koha/opac-user.pl">[% INCLUDE 'patron-title.inc' patron = logged_in_user %]</a>
+ </li>
+ <li class="breadcrumb-item active">
+ <a href="#" aria-current="page">Change your password</a>
+ </li>
+ </ol>
+ </nav> <!-- /#breadcrumbs -->
+
+ <div class="container-fluid">
+ <div class="row">
+ <div class="col-lg-2">
+ <div id="navigation">
+ [% INCLUDE 'navigation.inc' IsPatronPage=1 %]
+ </div>
+ </div>
+ <div class="col-10 order-first order-lg-2">
+ <div id="userpasswd" class="maincontent">
+ <h1>Change your password </h1>
+
+ [% IF ( Error_messages ) %]
+ <div class="alert alert-warning">
+ <h2>There was a problem with your submission</h2>
+ <p>
+ [% IF ( passwords_mismatch ) %]
+ Passwords do not match. Please re-type your new password.
+ [% END %]
+ [% IF password_too_short %]
+ Password must be at least [% minPasswordLength | html %] characters long.
+ [% END %]
+ [% IF password_too_weak %]
+ Password must contain at least one digit, one lowercase and one uppercase.
+ [% END %]
+ [% IF password_has_whitespaces %]
+ Password must not contain leading or trailing whitespaces.
+ [% END %]
+
+ [% IF ( WrongPass ) %]
+ Your current password was entered incorrectly. If this problem persists, please ask a librarian to reset your password for you.
+ [% END %]
+ </p>
+ </div>
+ [% END # /IF Error_messages %]
+
+ [% IF logged_in_user.category.effective_change_password %]
+ [% IF ( Ask_data ) %]
+ <form action="/cgi-bin/koha/opac-passwd.pl" name="mainform" id="mainform" method="post" autocomplete="off">
+ <legend class="sr-only">Change your password</legend>
+ <fieldset>
+ [% IF ( logged_in_user.category.effective_require_strong_password ) %]
+ <div class="alert alert-info">Your password must contain at least [% logged_in_user.category.effective_min_password_length | html %] characters, including UPPERCASE, lowercase and numbers.</div>
+ [% ELSE %]
+ <div class="alert alert-info">Your password must be at least [% logged_in_user.category.effective_min_password_length | html %] characters long.</div>
+ [% END %]
+ <div class="form-group">
+ <label for="Oldkey">Current password:</label>
+ <input class="form-control focus" type="password" id="Oldkey" size="25"  name="Oldkey" />
+ </div>
+ <div class="form-group">
+ <label for="Newkey">New password:</label>
+ <input class="form-control" type="password" id="Newkey"  size="25"  name="Newkey" />
+ </div>
+ <div class="form-group">
+ <label for="Confirm">Re-type new password:</label>
+ <input class="form-control" type="password"  id="Confirm" size="25" name="Confirm" />
+ </div>
+ </fieldset>
+ <fieldset class="action">
+ <input type="submit" value="Change password" class="btn btn-primary" />
+ <a href="/cgi-bin/koha/opac-user.pl" class="cancel">Cancel</a>
+ </fieldset>
+ </form>
+ [% END # /IF Ask_data %]
+ [% ELSE %]
+ <div class="alert alert-warning">You can't change your password.</div>
+ [% END # /IF logged_in_user.category.effective_change_password %]
+
+ [% IF ( password_updated ) %]
+ <div class="alert alert-info">
+ <strong>Password updated</strong>
+ <br />
+ Your password has been changed
+ </div>
+ <form action="/cgi-bin/koha/opac-user.pl" method="post" autocomplete="off">
+ <input type="hidden" name="borrowernumber" value="[% borrowernumber | html %]" />
+ <p><input type="submit" class="btn btn-primary" value="Return to my account" /></p>
+ </form>
+ [% END # /IF password_updated %]
+ </div> <!-- / #userpasswd -->
+ </div> <!-- / .col-10 -->
+ </div> <!-- / .row -->
+ </div> <!-- / .container-fluid -->
+</div> <!-- / .main -->
+
+
+
+[% INCLUDE 'opac-bottom.inc' %]
+[% BLOCK jsinclude %]
+ [% Asset.js("lib/jquery/plugins/jquery.validate.min.js") | $raw %]
+ [% PROCESS 'password_check.inc' new_password => 'Newkey', minPasswordLength => logged_in_user.category.effective_min_password_length, RequireStrongPassword => logged_in_user.category.effective_require_strong_password %]
+ <script>
+        $(document).ready(function() {
+            $("#mainform").validate({
+                rules: {
+                    Newkey: {
+                        required: true,
+                        password_strong: true,
+                        password_no_spaces: true
+                    },
+                    Confirm: {
+                        required: true,
+                        password_match: true
+                    }
+                }
+            });
+        });
+    </script>
+[% END %]

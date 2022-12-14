@@ -1,0 +1,468 @@
+[% USE raw %]
+[% USE Asset %]
+[% USE Koha %]
+[% USE KohaDates %]
+[% USE AuthorisedValues %]
+[% USE Price %]
+[% SET footerjs = 1 %]
+[% PROCESS 'accounts.inc' %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Cashup &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+[% Asset.css("lib/jquery/plugins/rowGroup/stylesheets/rowGroup.dataTables.min.css") | $raw %]
+</head>
+
+<body id="register" class="pos">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'circ-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/pos/pay.pl">Cash management</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ Transaction history for [% register.name | html %]
+ </a>
+ </li>
+ </ol>
+</nav>
+
+<div class="main container-fluid">
+ <div class="row">
+ <div class="col-sm-10 col-sm-push-2">
+
+ [% IF ( error_registers ) %]
+ <div id="error_message" class="dialog message">
+ <p>
+ You must have at least one cash register associated with the library before you can record payments.
+ </p>
+ [% IF ( CAN_user_parameters_manage_cash_registers ) %]
+ <form action="/cgi-bin/koha/admin/cash_registers.pl" method="get">
+ <input type="hidden" name="op" value="add_form" />
+ <button class="new" type="submit"><i class="fa fa-plus"></i> Create a new cash register</button>
+ </form>
+ [% END %]
+ </div>
+ [% ELSE %]
+
+ [% IF ( error_cashup_permission ) %]
+ <div id="error_message" class="dialog alert">
+ You do not have permission to perform cashup actions.
+ </div>
+ [% END %]
+
+ [% IF ( error_refund_permission ) %]
+ <div id="error_message" class="dialog alert">
+ You do not have permission to perform refund actions.
+ </div>
+ [% END %]
+
+ [% IF ( CAN_user_cash_management_cashup ) %]
+ <div id="toolbar" class="btn-toolbar">
+ <button id="pos_cashup" type="button" class="btn btn-default" data-toggle="modal" data-target="#confirmCashupModal" ><i class="fa fa-money"></i> Record cashup</button>
+ </div>
+ [% END %]
+
+ <h1>Transaction history for [% register.name | html %]</h1>
+
+ <h2>Summary</h2>
+ <ul>
+ [% IF register.last_cashup %]
+ <li>Last cashup: [% register.last_cashup.timestamp | $KohaDates with_hours => 1 %] (<a data-toggle="modal" data-cashup="[% register.last_cashup.id | html %]" data-register="[% register.description | html %]" href="#cashupSummaryModal" class="button">Summary</a>)</li>
+ [% END %]
+ <li>Float: [% register.starting_float | $Price %]</li>
+ <li>Total income (cash): [% accountlines.credits_total * -1 | $Price %] ([% accountlines.credits_total(payment_type => [ 'CASH', 'SIP00' ]) * -1 | $Price %])</li>
+ <li>Total outgoing (cash): [% accountlines.debits_total * -1 | $Price %] ([% accountlines.debits_total( payment_type => [ 'CASH', 'SIP00' ]) * -1 | $Price %])</li>
+ <li>Total bankable: [% accountlines.total( payment_type => [ 'CASH', 'SIP00' ]) * -1 | $Price %]</li>
+ </ul>
+
+ [% IF register.last_cashup %]
+ <h2>Transactions since [% register.last_cashup.timestamp | $KohaDates with_hours => 1 %]</h2>
+ [% ELSE %]
+ <h2>Transactions to date</h2>
+ [% END %]
+ <table id="sales" class="table_sales">
+ <thead>
+ <th>ID</th>
+ <th>DATA</th>
+ <th>Transaction</th>
+ <th>Description</th>
+ <th>Price</th>
+ <th>Total</th>
+ <th class="noExport">Actions</th>
+ </thead>
+ <tbody>
+ [% FOREACH accountline IN accountlines %]
+ [% IF accountline.is_credit %]
+ [% FOREACH credit IN accountline.credit_offsets %]
+ [% IF credit.debit %]
+ <tr>
+ <td>[% accountline.accountlines_id | html %]</td>
+ <td>{ "type": "credit", "identifier": "[%- accountline.credit_number | html -%]", "description": "[%- PROCESS account_type_description account=accountline -%] ([% AuthorisedValues.GetByCode( 'PAYMENT_TYPE', accountline.payment_type ) | html %])", "amount": "[% accountline.amount * -1 | $Price %]", "timestamp": "[% accountline.timestamp | $KohaDates with_hours => 1 %]" }</td>
+ <td></td>
+ <td>
+ [%- PROCESS account_type_description account=credit.debit -%]
+ [%- IF credit.debit.description -%] ([% credit.debit.description | html %])[%- END -%]
+ [%- IF ( credit.debit.itemnumber ) -%] (<a href="/cgi-bin/koha/catalogue/moredetail.pl?biblionumber=[% credit.debit.item.biblionumber | uri %]&amp;itemnumber=[% credit.debit.itemnumber | uri %]">[% credit.debit.item.biblio.title | html %]</a>)[%- END -%]
+ </td>
+ <td>[% credit.debit.amount | $Price %]</td>
+ <td></td>
+ <td>
+ [% IF CAN_user_cash_management_anonymous_refund && !(credit.debit.status == 'REFUNDED') && !(credit.debit.debit_type_code == 'PAYOUT') %]
+ <button type="button" class="btn btn-default btn-xs pos_refund" data-toggle="modal" data-target="#issueRefundModal" data-item="[%- PROCESS account_type_description account=credit.debit -%]" data-accountline="[% credit.debit.accountlines_id | html %]" data-amount="[% credit.debit.amount | $Price %]" data-amountoutstanding="[% credit.debit.amountoutstanding | $Price %]" data-member="[% credit.debit.borrowernumber | html %]"><i class="fa fa-money"></i> Issue refund</button>
+ [% ELSIF CAN_user_updatecharges_refund && !(credit.debit.status == 'REFUNDED') && credit.debit.borrowernumber && !(credit.debit.debit_type_code == 'PAYOUT') %]
+ <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#issueRefundModal" data-item="[%- PROCESS account_type_description account=credit.debit -%]" data-accountline="[% credit.debit.accountlines_id | html %]" data-amount="[% credit.debit.amount | $Price %]" data-amountoutstanding="[% credit.debit.amountoutstanding | $Price %]" data-member="[% credit.debit.borrowernumber | html %]"><i class="fa fa-money"></i> Issue refund</button>
+ [% END %]
+ </td>
+ </tr>
+ [% END %]
+ [% END %]
+ [% ELSE %]
+ [% FOREACH debit IN accountline.debit_offsets %]
+ [% IF debit.credit %]
+ <tr>
+ <td>[% accountline.accountlines_id | html %]</td>
+ <td>{ "type": "debit", "identifier": "[%- accountline.credit_number | html -%]", "description": "[%- PROCESS account_type_description account=accountline -%] ([% AuthorisedValues.GetByCode( 'PAYMENT_TYPE', accountline.payment_type ) | html %])", "amount": "[% accountline.amount * -1 | $Price %]", "timestamp": "[% accountline.timestamp | $KohaDates with_hours => 1 %]" }</td>
+ <td></td>
+ <td>
+ [%- PROCESS account_type_description account=debit.credit -%]
+ [%- IF debit.credit.description %][% debit.credit.description | html %][%- END -%]
+ [%- IF ( debit.credit.itemnumber ) -%] (<a href="/cgi-bin/koha/catalogue/moredetail.pl?biblionumber=[% debit.credit.item.biblionumber | uri %]&amp;itemnumber=[% debit.credit.itemnumber | uri %]">[% debit.credit.item.biblio.title | html %]</a>)[%- END -%]
+ </td>
+ <td>[% debit.credit.amount | $Price %]</td>
+ <td></td>
+ <td>
+ [%- IF debit.credit.credit_type_code == 'REFUND' -%]<a href="/cgi-bin/koha/members/accountline-details.pl?accountlines_id=[% debit.credit.accountlines_id | uri %]" class="btn btn-default btn-xs"><i class="fa fa-list"></i> Details</a>[%- END -%]
+ </td>
+ </tr>
+ [% END %]
+ [% END %]
+ [% END %]
+ [% END %]
+ </tbody>
+ <tfoot>
+ <tr>
+ <td colspan="5">Total income: </td>
+ <td>[% accountlines.total * -1 | $Price %]</td>
+ <td></td>
+ </tr>
+ </tfoot>
+ </table>
+ [% END %]
+
+ [% IF register.cashups %]
+ <h2>Older transactions</h2>
+ <form method="GET" action="/cgi-bin/koha/pos/register.pl">
+ <fieldset class="rows">
+ Please select a date range to display transactions for:
+ <ol>
+ <li>
+ <label for="trange_f">From: </label>
+ <input type="text" size="10" id="from" class="flatpickr" data-date_to="to" name="trange_f" value="[% trange_f | html %]"/>
+ <label class="inline" for="trange_t">To: </label>
+ <input type="text" size="10" id="to" class="flatpickr" name="trange_t" value="[% trange_t | html %]" />
+ <span class="hint">[% INCLUDE 'date-format.inc' %]</span>
+ </li>
+ </ol>
+ </fieldset>
+
+ <div class="action">
+ <input type="hidden" name="registerid" value="[% register.id | html %]">
+ <input type="submit" value="Display" />
+ </div>
+ </form>
+
+ [% IF trange_f %]
+ <table id="past_sales" class="past_sales_table">
+ <thead>
+ <th>ID</th>
+ <th>DATA</th>
+ <th>Transaction</th>
+ <th>Description</th>
+ <th>Price</th>
+ <th>Total</th>
+ <th class="noExport">Actions</th>
+ </thead>
+ <tbody>
+ [% FOREACH accountline IN past_accountlines %]
+ [% IF accountline.is_credit %]
+ [% FOREACH credit IN accountline.credit_offsets %]
+ [% IF credit.debit %]
+ <tr>
+ <td>[% accountline.accountlines_id | html %]</td>
+ <td>{ "type": "credit", "identifier": "[%- accountline.credit_number | html -%]", "description": "[%- PROCESS account_type_description account=accountline -%] ([% AuthorisedValues.GetByCode( 'PAYMENT_TYPE', accountline.payment_type ) | html %])", "amount": "[% accountline.amount * -1 | $Price %]", "timestamp": "[% accountline.timestamp | $KohaDates with_hours => 1 %]" }</td>
+ <td></td>
+ <td>
+ [%- PROCESS account_type_description account=credit.debit -%]
+ [%- IF credit.debit.description -%] ([% credit.debit.description | html %])[%- END -%]
+ [%- IF ( credit.debit.itemnumber ) -%] (<a href="/cgi-bin/koha/catalogue/moredetail.pl?biblionumber=[% credit.debit.item.biblionumber | uri %]&amp;itemnumber=[% credit.debit.itemnumber | uri %]">[% credit.debit.item.biblio.title | html %]</a>)[%- END -%]
+ </td>
+ <td>[% credit.debit.amount | $Price %]</td>
+ <td></td>
+ <td>
+ [% IF CAN_user_cash_management_anonymous_refund && !(credit.debit.status == 'REFUNDED') && !(credit.debit.debit_type_code == 'PAYOUT') %]
+ <button type="button" class="btn btn-default btn-xs pos_refund" data-toggle="modal" data-target="#issueRefundModal" data-item="[%- PROCESS account_type_description account=credit.debit -%]" data-accountline="[% credit.debit.accountlines_id | html %]" data-amount="[% credit.debit.amount | $Price %]" data-amountoutstanding="[% credit.debit.amountoutstanding | $Price %]" data-member="[% credit.debit.borrowernumber | html %]"><i class="fa fa-money"></i> Issue refund</button>
+ [% ELSIF CAN_user_updatecharges_refund && !(credit.debit.status == 'REFUNDED') && credit.debit.borrowernumber && !(credit.debit.debit_type_code == 'PAYOUT') %]
+ <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#issueRefundModal" data-item="[%- PROCESS account_type_description account=credit.debit -%]" data-accountline="[% credit.debit.accountlines_id | html %]" data-amount="[% credit.debit.amount | $Price %]" data-amountoutstanding="[% credit.debit.amountoutstanding | $Price %]" data-member="[% credit.debit.borrowernumber | html %]"><i class="fa fa-money"></i> Issue refund</button>
+ [% END %]
+ </td>
+ </tr>
+ [% END %]
+ [% END %]
+ [% ELSE %]
+ [% FOREACH debit IN accountline.debit_offsets %]
+ [% IF debit.credit %]
+ <tr>
+ <td>[% accountline.accountlines_id | html %]</td>
+ <td>{ "type": "debit", "identifier": "[%- accountline.credit_number | html -%]", "description": "[%- PROCESS account_type_description account=accountline -%] ([% AuthorisedValues.GetByCode( 'PAYMENT_TYPE', accountline.payment_type ) | html %])", "amount": "[% accountline.amount * -1 | $Price %]", "timestamp": "[% accountline.timestamp | $KohaDates with_hours => 1 %]" }</td>
+ <td></td>
+ <td>
+ [%- PROCESS account_type_description account=debit.credit -%]
+ [%- IF debit.credit.description %][% debit.credit.description | html %][%- END -%]
+ [%- IF ( debit.credit.itemnumber ) -%] (<a href="/cgi-bin/koha/catalogue/moredetail.pl?biblionumber=[% debit.credit.item.biblionumber | uri %]&amp;itemnumber=[% debit.credit.itemnumber | uri %]">[% debit.credit.item.biblio.title | html %]</a>)[%- END -%]
+ </td>
+ <td>[% debit.credit.amount | $Price %]</td>
+ <td></td>
+ <td>
+ [%- IF debit.credit.credit_type_code == 'REFUND' -%]<a href="/cgi-bin/koha/members/accountline-details.pl?accountlines_id=[% debit.credit.accountlines_id | uri %]" class="btn btn-default btn-xs"><i class="fa fa-list"></i> Details</a>[%- END -%]
+ </td>
+ </tr>
+ [% END %]
+ [% END %]
+ [% END %]
+ [% END %]
+ </tbody>
+ <tfoot>
+ <tr>
+ <td colspan="5">Total income: </td>
+ <td>[% past_accountlines.total * -1 | $Price %]</td>
+ <td></td>
+ </tr>
+ </tfoot>
+ </table>
+ [% END %]
+
+ <hr/>
+ <h2>Cashup history</h2>
+ <table id="table_cashups">
+ <thead>
+ <tr>
+ <th>Date</th>
+ <th>Cashier</th>
+ <th>Amount</th>
+ <th data-class-name="actions">Actions</th>
+ </tr>
+ </thead>
+ </table>
+ [% END %]
+ </div>
+
+ <div class="col-sm-2 col-sm-pull-10">
+ <aside>
+ [% INCLUDE 'pos-menu.inc' %]
+ </aside>
+ </div>
+ </div><!-- /.row -->
+
+ <!-- Confirm cashup modal -->
+ <div class="modal" id="confirmCashupModal" tabindex="-1" role="dialog" aria-labelledby="confirmCashupLabel">
+ <div class="modal-dialog" role="document">
+ <div class="modal-content">
+ <div class="modal-header">
+ <button type="button" class="closebtn" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+ <h4 class="modal-title" id="confirmCashupLabel">Confirm cashup of <em>[% register.description | html %]</em></h4>
+ </div>
+ <div class="modal-body">
+ Please confirm that you have removed [% accountlines.total( payment_type => [ 'CASH', 'SIP00' ]) * -1 | $Price %] from the cash register and left a float of [% register.starting_float | $Price %].
+ </div> <!-- /.modal-body -->
+ <div class="modal-footer">
+ <a href="/cgi-bin/koha/pos/register.pl?op=cashup" class="btn btn-default" id="pos_cashup_confirm">Confirm</a>
+ <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+ </div> <!-- /.modal-footer -->
+ </div> <!-- /.modal-content -->
+ </div> <!-- /.modal-dialog -->
+ </div> <!-- /#confirmCashupModal -->
+
+ <!-- Issue refund modal -->
+ <div class="modal" id="issueRefundModal" tabindex="-1" role="dialog" aria-labelledby="issueRefundLabel">
+ <form id="refund_form" method="post" enctype="multipart/form-data" class="validated">
+ <input type="hidden" name="accountline" value="" id="refundline">
+ <div class="modal-dialog" role="document">
+ <div class="modal-content">
+ <div class="modal-header">
+ <button type="button" class="closebtn" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+ <h4 class="modal-title" id="issueRefundLabel">Issue refund from <em>[% register.description | html %]</em></h4>
+ </div>
+ <div class="modal-body">
+ <fieldset class="rows">
+ <ol>
+ <li>
+ <span id="item" class="label">Item: </span><span></span>
+ </li>
+ <li>
+ <span id="paid" class="label">Amount paid: </span><span></span>
+ </li>
+ <li>
+ <label class="required" for="amount">Returned to user: </label>
+ <input type="text" inputmode="decimal" pattern="^\d+(\.\d{2})?$" id="returned" name="amount" required="required">
+ <span class="required">Required</span>
+ </li>
+ [% INCLUDE 'transaction_types.inc' type="refund" %]
+ </ol>
+ </fieldset> <!-- /.rows -->
+ </div> <!-- /.modal-body -->
+ <div class="modal-footer">
+ <input type="hidden" name="registerid" value="[% register.id | html %]">
+ <input type="hidden" name="op" value="refund">
+ <button type="submit" class="btn btn-default" id="pos_refund_confirm">Confirm</button>
+ <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+ </div> <!-- /.modal-footer -->
+ </div> <!-- /.modal-content -->
+ </div> <!-- /.modal-dialog -->
+ </form> <!-- /#refund_form -->
+ </div> <!-- /#issueRefundModal -->
+
+ [% INCLUDE 'modals/cashup_summary.inc' %]
+
+ [% MACRO jsinclude BLOCK %]
+ [% INCLUDE 'datatables.inc' %]
+ [% Asset.js("lib/jquery/plugins/rowGroup/dataTables.rowGroup.min.js") | $raw %]
+ [% INCLUDE 'format_price.inc' %]
+ [% INCLUDE 'js-date-format.inc' %]
+ [% Asset.js("js/cashup_modal.js") | $raw %]
+ [% INCLUDE 'calendar.inc' %]
+ [% INCLUDE 'js-date-format.inc' %]
+ <script>
+        var sales_table = $("#sales").dataTable($.extend(true, {}, dataTablesDefaults, {
+            orderFixed: [ 0, 'asc'],
+            columnDefs: [ {
+                targets: [ 0, 1 ],
+                visible: false
+            }],
+            rowGroup: {
+                dataSrc: 0,
+                startRender: function ( rows, group ) {
+                    var details = JSON.parse(rows.data().pluck(1).pop());
+                    var identifier = details.identifier || group;
+                    return $('<tr class="'+details.type+'"/>')
+                        .append( '<td>'+details.timestamp+' ('+identifier+')</td>' )
+                        .append( '<td colspan="2">'+details.description+'</td>' )
+                        .append( '<td>'+details.amount+'</td>' )
+                        .append( '<td><button class="printReceipt btn btn-default btn-xs" data-accountline="'+group+'"><i class="fa fa-print"></i> ' + _("Print receipt") + '</button></td>');
+                },
+                endRender: null,
+            },
+            initComplete: function() {
+                $("#sales").show();
+            }
+        }));
+
+        var past_sales_table = $("#past_sales").dataTable($.extend(true, {}, dataTablesDefaults, {
+            orderFixed: [ 0, 'asc'],
+            columnDefs: [ {
+                targets: [ 0, 1 ],
+                visible: false
+            }],
+            rowGroup: {
+                dataSrc: 0,
+                startRender: function ( rows, group ) {
+                    var details = JSON.parse(rows.data().pluck(1).pop());
+                    var identifier = details.identifier || group;
+                    return $('<tr class="'+details.type+'"/>')
+                        .append( '<td>'+details.timestamp+' ('+identifier+')</td>' )
+                        .append( '<td colspan="2">'+details.description+'</td>' )
+                        .append( '<td>'+details.amount+'</td>' )
+                        .append( '<td><button class="printReceipt btn btn-default btn-xs" data-accountline="'+group+'"><i class="fa fa-print"></i> Print receipt</button></td>');
+                },
+                endRender: null,
+            }
+        }));
+
+        $("#issueRefundModal").on("shown.bs.modal", function(e){
+           var button = $(e.relatedTarget);
+           var item = button.data('item');
+           $("#item + span").replaceWith(item);
+           var accountline = button.data('accountline');
+           $('#refundline').val(accountline);
+           var amount = button.data('amount');
+           var amountoutstanding = button.data('amountoutstanding') || 0;
+           var paid = amount - amountoutstanding;
+           $("#paid + span").replaceWith(paid);
+           $("#returned").attr({ "value": paid, "max": paid });
+           var member = button.data('member');
+           if ( member === '' ) {
+               $("#refund_type option[value='AC']").remove();
+           } else if ( $("#refund_type option[value='AC']").length == 0 ) {
+               $("#refund_type").prepend('<option value="AC" selected="selected">Account credit</option>');
+           }
+           $("#returned, #refund_type").focus();
+        });
+
+        $("body").on('click', ".printReceipt", function() {
+            var accountlines_id = $(this).data('accountline');
+            var win = window.open('/cgi-bin/koha/pos/printreceipt.pl?action=print&accountlines_id=' + accountlines_id, '_blank');
+            win.focus();
+        });
+
+        var cashups_table_url = "/api/v1/cash_registers/[% register.id | html %]/cashups?";
+        var cashups_table = $("#table_cashups").kohaTable({
+            "ajax": {
+                "url": cashups_table_url
+            },
+            "header_filter": true,
+            "embed": [
+               "manager"
+            ],
+            "order": [[ 0, "desc" ]],
+            "columns": [
+                {
+                    "data": "timestamp",
+                    "searchable": true,
+                    "orderable": true,
+                    "render": function(data, type, row, meta) {
+                        return $datetime(row.timestamp);
+                    }
+                },
+                {
+                    "data": "manager.firstname:manager.surname",
+                    "searchable": true,
+                    "orderable": true,
+                    "render": function(data, type, row, meta) {
+                        var fullname;
+                        if ( row.manager.firstname == null ) {
+                            fullname = row.manager.surname;
+                        }
+                        else {
+                            fullname = row.manager.firstname + " " + row.manager.surname;
+                        }
+                        return escape_str(fullname);
+                    }
+                },
+                {
+                    "data": "amount",
+                    "searchable": true,
+                    "orderable": true,
+                    "render": function(data, type, row, meta) {
+                        var amt = row.amount * -1;
+                        return escape_price(amt);
+                    }
+                },
+                {
+                    "data": function( row, type, val, meta ) {
+                        var result = '<a class="btn btn-default btn-xs" role="button" data-toggle="modal" data-cashup="'+encodeURIComponent(row.cashup_id)+'" data-register="[% register.description | html %]" href="#cashupSummaryModal"><i class="fa fa-pencil" aria-hidden="true"></i> '+_("Summary")+'</a>\n';
+                        return result;
+                    },
+                    "searchable": false,
+                    "orderable": false
+                }
+            ]
+        }, [], 1);
+    </script>
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' %]

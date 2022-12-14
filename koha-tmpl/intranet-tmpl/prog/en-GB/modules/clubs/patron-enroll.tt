@@ -1,0 +1,66 @@
+[% USE AuthorisedValues %]
+[% SET AuthorisedValuesCategories = AuthorisedValues.GetCategories %]
+
+<h3>
+ Enroll in <em>[% club.name | html %]</em>
+</h3>
+
+<div class="container">
+ <form id="patron-enrollment-form">
+ <input type="hidden" name="id" value="[% club.id | html %]" />
+ <input type="hidden" name="borrowernumber" value="[% borrowernumber | html %]" />
+ <fieldset class="rows">
+ <ol>
+ [% FOREACH f IN club.club_template.club_template_enrollment_fields %]
+ <li>
+ <label>[% f.name | html %]</label>
+ [% IF f.authorised_value_category %]
+ <select name="[% f.id | html %]">
+ [% FOREACH a IN AuthorisedValues.Get( f.authorised_value_category ) %]
+ <option value="[% a.authorised_value | html %]">[% a.lib | html %]</option>
+ [% END %]
+ </select>
+ [% ELSE %]
+ <input type="text" name="[% f.id | html %]" />
+ [% END %]
+ <span class="hint">[% f.description | html %]</span>
+ </li>
+ [% END %]
+
+ <li>
+ <a href="#" class="btn btn-sm btn-default" onclick="addEnrollment(); return false;">Finish enrollment</a>
+ <a class="cancel" href="#" onclick="showClubs(); return false;">Cancel</a>
+ </li>
+ </ol>
+ </fieldset>
+ </form>
+</div>
+
+<script>
+function addEnrollment() {
+    $("body").css("cursor", "progress");
+    $.ajax({
+        type: "POST",
+        url: '/cgi-bin/koha/svc/club/enroll',
+        data: $( "#patron-enrollment-form" ).serialize(),
+        success: function( data ) {
+            if ( data.success ) {
+                $('#clubs-tab').load('/cgi-bin/koha/clubs/patron-clubs-tab.pl?borrowernumber=[% borrowernumber | html %]&id=[% club.id | html %]', function() {
+                    $("body").css("cursor", "default");
+                });
+            } else {
+                alert(_("Unable to create enrollment!"));
+            }
+        },
+        dataType: 'json'
+    });
+    return false;
+}
+
+function showClubs() {
+    $("body").css("cursor", "progress");
+    $('#clubs-tab').load('/cgi-bin/koha/clubs/patron-clubs-tab.pl?borrowernumber=[% borrowernumber | html %]&id=[% club.id | html %]', function() {
+        $("body").css("cursor", "default");
+    });
+}
+</script>

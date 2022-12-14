@@ -1,0 +1,524 @@
+[% USE raw %]
+[% USE Asset %]
+[% USE Koha %]
+[% USE KohaDates %]
+[% USE Branches %]
+[% USE Categories %]
+[% USE TablesSettings %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Batch user modification &rsaquo; Tools &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+
+<body id="tools_modborrowers" class="tools">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'cat-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/tools/tools-home.pl">Tools</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">Batch user modification</a>
+ </li>
+ </ol>
+</nav>
+
+<div class="main container-fluid">
+ <div class="row">
+ <div class="col-sm-10 col-sm-push-2">
+ <main>
+
+ [% IF ( op == 'show_form' ) %]
+ <h1>Batch user modification</h1>
+ <form id="patron_batchmod_form" method="post" enctype="multipart/form-data" action="/cgi-bin/koha/tools/modborrowers.pl">
+ <input type="hidden" name="op" value="show" />
+ <div id="batch_patron_options" class="toptabs">
+ <ul>
+ <li>
+ <a href="#usecardnumber">By card number</a>
+ </li>
+ <li>
+ <a href="#useborrowernumber">By borrowernumber</a>
+ </li>
+ [% IF patron_lists %]
+ <li>
+ <a href="#uselist">By patron list</a>
+ </li>
+ [% END %]
+ </ul>
+ <div id="usecardnumber">
+ <fieldset class="rows">
+ <legend>Use a file of card numbers</legend>
+ <ol>
+ <li>
+ <label for="cardnumberuploadfile">File: </label> <input type="file" id="cardnumberuploadfile" name="cardnumberuploadfile" />
+ <div class="hint">File must contain one card number per line.</div>
+ </li>
+ </ol>
+ </fieldset>
+ <fieldset class="rows">
+ <legend>Or list card numbers one by one</legend>
+ <ol>
+ <li>
+ <label for="cardnumberlist">Card number list (one card number per line): </label>
+ <textarea rows="10" cols="30" id="cardnumberlist" name="cardnumberlist">[% cardnumberlist | html %]</textarea>
+ </li>
+ </ol>
+ </fieldset>
+ <fieldset class="action">
+ <input type="submit" value="Continue" class="button" />
+ <a class="cancel" href="/cgi-bin/koha/tools/tools-home.pl">Cancel</a>
+ </fieldset>
+ </div>
+ <div id="useborrowernumber">
+ <fieldset class="rows">
+ <legend>Use a file of borrowernumbers</legend>
+ <ol>
+ <li>
+ <label for="borrowernumberuploadfile">File: </label> <input type="file" id="borrowernumberuploadfile" name="borrowernumberuploadfile" />
+ <div class="hint">File must contain one borrowernumber per line.</div>
+ </li>
+ </ol>
+ </fieldset>
+ <fieldset class="rows">
+ <legend>List borrowernumbers one by one</legend>
+ <ol>
+ <li>
+ <label for="borrowernumberlist">Borrowernumber list (one number per line): </label>
+ <textarea rows="10" cols="30" id="borrowernumberlist" name="borrowernumberlist">[% borrowernumberlist | html %]</textarea>
+ </li>
+ </ol>
+ </fieldset>
+ <fieldset class="action">
+ <input type="submit" value="Continue" class="button" />
+ <a class="cancel" href="/cgi-bin/koha/tools/tools-home.pl">Cancel</a>
+ </fieldset>
+ </div>
+ [% IF patron_lists %]
+ <div id="uselist">
+ <fieldset class="rows">
+ <legend>Use a patron list</legend>
+ <ol>
+ <li>
+ <label for="patron_list_id">User list: </label>
+ <select id="patron_list_id" name="patron_list_id">
+ <option value=""> -- Choose a patron list -- </option>
+ [% FOREACH pl IN patron_lists %]
+ <option value="[% pl.patron_list_id | html %]">[% pl.name | html %]</option>
+ [% END %]
+ </select>
+ </li>
+ </ol>
+ </fieldset>
+ <fieldset class="action">
+ <input type="submit" value="Continue" class="button" />
+ <a class="cancel" href="/cgi-bin/koha/tools/tools-home.pl">Cancel</a>
+ </fieldset>
+ </div>
+ [% END %]
+ </div><!-- /#batch_patron_options -->
+ </form>
+ [% END %]
+
+ [% IF ( op == 'show') && (!borrowers) && (!notfoundcardnumbers) # Alert if no patrons given%]
+ [% op = 'noshow' # Change op to prevent display in code below %]
+ <h1>Batch users modification</h1>
+ <div class="dialog alert">
+ <p>No patron card numbers or borrowernumbers given.</p>
+ <form action="/cgi-bin/koha/tools/modborrowers.pl" method="get">
+ <button type="submit" class="approve"><i class="fa fa-fw fa-check"></i> OK</button>
+ </form>
+ </div>
+ [% END #Alert if no patrons %]
+
+ [% IF ( op == 'show' or op == 'show_results' ) %]
+ [% IF ( op == 'show' ) %]
+ <h1>Batch users modification</h1>
+ [% ELSE %]
+ <h1>Batch users results</h1>
+ [% END %]
+ [% IF ( notfoundcardnumbers ) %]
+ [% IF ( useborrowernumbers ) -%]
+ <div class="dialog alert"><p>Warning, the following borrowernumbers were not found:</p></div>
+ [% ELSE -%]
+ <div class="dialog alert"><p>Warning, the following card numbers were not found:</p></div>
+ [% END %]
+
+ <table style="margin:auto;">
+ <thead>
+ [% IF ( useborrowernumbers ) -%]
+ <tr><th>Borrowernumbers not found</th></tr>
+ [% ELSE -%]
+ <tr><th>Card numbers not found</th></tr>
+ [% END %]
+ </thead>
+ <tbody>
+ [% FOREACH notfoundcardnumber IN notfoundcardnumbers %]
+ <tr><td>[% notfoundcardnumber.cardnumber | html %]</td></tr>
+ [% END %]
+ </tbody>
+ </table>
+ [% END %]
+
+ [% IF ( op == 'show_results' ) %]
+ [% IF ( errors ) %]
+ <div class="dialog alert">
+ <h4>Errors occurred:</h4>
+ <ul class="warnings">
+ [% FOREACH error IN errors %]
+ [% IF ( error.error == 'can_not_update' ) %]
+ <li>Can not update patron.
+ [% IF ( error.cardnumber ) %] Card number: [% error.cardnumber | html %] [% END %]
+ (Borrowernumber: [% error.borrowernumber | html %])
+ </li>
+ [% ELSE %]
+ <li>[% error.error | html %]</li>
+ [% END %]
+ [% END %]
+ </ul>
+ </div>
+ [% END %]
+ [% END %]
+
+ [% IF ( op == 'show' ) %]
+ <form name="f" action="modborrowers.pl" method="post">
+ <input type="hidden" name="op" value="do" />
+ [% IF ( borrowers ) %]
+ <div id="toolbar"><a id="selectallbutton" href="#"><i class="fa fa-check"></i> Select all</a> | <a id="clearallbutton" href="#"><i class="fa fa-remove"></i> Clear all</a></div>
+ [% END %]
+ [% END %]
+ [% IF borrowers %]
+ <div id="cataloguing_additem_itemlist">
+ <div style="overflow:auto">
+ <table id="borrowerst">
+ <thead>
+ <tr>
+ [% IF ( op == 'show' ) %]
+ <th class="NoSort">&nbsp;</th>
+ [% ELSE %]
+ <th class="NoVisible">&nbsp;</th>
+ [% END %]
+ <th>Card number</th>
+ <th>Surname</th>
+ <th>First name</th>
+ <th>Library</th>
+ <th>User category</th>
+ <th>Street number</th>
+ <th>Address</th>
+ <th>Address 2</th>
+ <th>City</th>
+ <th>State</th>
+ <th>Postcode</th>
+ <th>Country</th>
+ <th>Primary email</th>
+ <th>Phone</th>
+ <th>Mobile</th>
+ <th>Registration date</th>
+ <th>Expiry date</th>
+ <th>Circulation note</th>
+ <th>OPAC note</th>
+ <th>Restriction expiration</th>
+ <th>Restriction comment</th>
+ [% FOREACH attrh IN attributes_header %]
+ <th>[% attrh.attribute | html %]</th>
+ [% END %]
+ </tr>
+ </thead>
+ <tbody>
+ [% FOREACH borrower IN borrowers %]
+ <tr>
+ [% IF ( op == 'show' ) %]
+ <td>
+ [% ELSE %]
+ <td class="NoVisible">
+ [% END %]
+ <input type="checkbox" name="borrowernumber" value="[% borrower.borrowernumber | html %]" checked="checked" />
+ </td>
+ <td><a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% borrower.borrowernumber | uri %]">[% borrower.cardnumber | html %]</a></td>
+ <td>[% borrower.surname | html %]</td>
+ <td>[% borrower.firstname | html %]</td>
+ <td>[% Branches.GetName( borrower.branchcode ) | html %]</td>
+ <td>[% Categories.GetName(borrower.categorycode) | html %]</td>
+ <td>[% borrower.streetnumber | html %]</td>
+ <td>[% borrower.address | html %]</td>
+ <td>[% borrower.address2 | html %]</td>
+ <td>[% borrower.city | html %]</td>
+ <td>[% borrower.state | html %]</td>
+ <td>[% borrower.zipcode | html %]</td>
+ <td>[% borrower.country | html %]</td>
+ <td>[% borrower.email | html %]</td>
+ <td>[% borrower.phone | html %]</td>
+ <td>[% borrower.mobile | html %]</td>
+ <td data-order="[% borrower.dateenrolled | html %]">[% borrower.dateenrolled | $KohaDates %]</td>
+ <td data-order="[% borrower.dateexpiry | html %]">[% borrower.dateexpiry | $KohaDates %]</td>
+ <td>[% borrower.borrowernotes | html %]</td>
+ <td>[% borrower.opacnote | html %]</td>
+ <td data-order="[% borrower.debarred | html %]">[% borrower.debarred | $KohaDates %]</td>
+ <td>[% borrower.debarredcomment | html %]</td>
+ [% FOREACH pa IN borrower.patron_attributes %]
+ [% IF ( pa.code ) %]
+ [%# Replace pa.attribute with pa.description if we prefer to display the description %]
+ <td>[% pa.code | html %]=[% pa.attribute | html %]</td>
+ [% ELSE %]
+ <td></td>
+ [% END %]
+ [% END %]
+ </tr>
+ [% END %]
+ </tbody>
+ </table>
+ </div>
+ </div>
+
+ [% IF ( op == 'show' ) %]
+ <div id="cataloguing_additem_newitem">
+ <h2>Edit users</h2>
+ <div class="hint">Checking the box right next to the label will disable the entry and delete the values of that field on all selected users</div>
+ <fieldset class="rows" id="fields_list">
+ <ol>
+ [% FOREACH field IN fields %]
+ <li>
+ [% IF ( field.mandatory ) %]
+ <label for="[% field.name | html %]" class="required">
+ [% ELSE %]
+ <label for="[% field.name | html %]">
+ [% END %] [% SWITCH ( field.name ) %] [% CASE 'surname' %] Surname: [% CASE 'firstname' %] First name: [% CASE 'branchcode' %] Library: [% CASE 'categorycode' %] User category: [% CASE 'streetnumber' %] Street number: [% CASE 'address' %] Address: [% CASE 'address2' %] Address 2: [% CASE 'city' %] City: [% CASE 'state' %] County: [% CASE 'zipcode' %] Postcode: [% CASE 'country' %] Country: [% CASE 'email' %] Primary email: [% CASE 'phone' %] Phone: [% CASE 'mobile' %] Mobile: [% CASE 'sort1' %] Sort 1: [% CASE 'sort2' %] Sort 2: [% CASE 'dateenrolled' %] Registration date: [% CASE 'dateexpiry' %] Expiry date: [% CASE 'borrowernotes' %] Circulation note: [% CASE 'opacnote' %] OPAC note: [% CASE 'debarred' %] Restriction expiration: [% CASE 'debarredcomment' %] Restriction comment: [% END %] </label>
+ [% IF ( field.type == 'text' ) %]
+ <input type="text" name="[% field.name | html %]" value="" />
+ [% END %]
+ [% IF ( field.type == 'select' ) %]
+ [% IF field.option.size %]
+ <select name="[% field.name | html %]" >
+ [% FOREACH opt IN field.option %]
+ <option value="[% opt.value | html %]">[% opt.lib | html %]</option>
+ [% END %]
+ </select>
+ [% ELSE %]
+ There is no value defined for [% field.name | html %]
+ [% END %]
+ [% END %]
+ [% IF ( field.type == 'date' ) %]
+ <input type="text" name="[% field.name | html %]" id="[% field.name | html %]" value="" size="10" maxlength="10" class="flatpickr" />
+ <a href="#"  class="clear-date" id="clear-date-[% field.name | html %]" ><i class="fa fa-fw fa-trash"></i> Clear</a>
+ [% END %]
+ [% IF field.mandatory %]
+ <input type="checkbox" title="This field is mandatory" name="disable_input" value="[% field.name | html %]" disabled="disabled" readonly="readonly" />
+ <span class="required">Required fields cannot be cleared</span>
+ [% ELSE %]
+ <input type="checkbox" title="Check to delete this field" name="disable_input" value="[% field.name | html %]" />
+ [% END %]
+ </li>
+ [% END %]
+ [% IF ( patron_attributes_codes ) %]
+ <li class="attributes">
+ <label style="width:auto;">User attribute: <select name="patron_attributes">
+ <option value=""></option>
+ [% FOREACH pac IN patron_attributes_codes %]
+ <option value="[% pac.attribute_code | html %]" data-type="[% pac.type | html %]" data-category="[% pac.category_lib | html %]">[% pac.attribute_lib | html %]</option>
+ [% END %]
+ </select>
+ </label>
+ <input type="checkbox" title="check to delete this field" name="disable_input" value="attr0_value" />
+ <span class="patron_attributes_value"><input type"hidden" name="patron_attributes_value" /></span>
+ <a href="#" class="add_attributes" title="Add an attribute"><i class="fa fa-fw fa-plus"></i> New</a>
+ <span class="information_category hint" style="width:25%;float:right;"></span>
+ </li>
+ [% END %]
+ </ol>
+ </fieldset>
+ <fieldset class="action">
+ <input type="submit" name="mainformsubmit" value="Save" />
+ <a href="/cgi-bin/koha/tools/modborrowers.pl" class="cancel">Cancel</a>
+ </fieldset>
+ </div>
+ </form>
+ [% END %]
+ [% END %]
+ [% END %]
+ [% IF ( op == 'show_results' ) %]
+ <p>
+ <a href="/cgi-bin/koha/tools/modborrowers.pl" title="New batch users modification">New batch user modification</a>
+ </p>
+ [% END %]
+
+ </main>
+ </div> <!-- /.col-sm-10.col-sm-push-2 -->
+
+ <div class="col-sm-2 col-sm-pull-10">
+ <aside>
+ [% INCLUDE 'tools-menu.inc' %]
+ </aside>
+ </div> <!-- /.col-sm-2.col-sm-pull-10 -->
+ </div> <!-- /.row -->
+
+[% MACRO jsinclude BLOCK %]
+ [% INCLUDE 'calendar.inc' %]
+ [% INCLUDE 'datatables.inc' %]
+ [% INCLUDE 'columns_settings.inc' %]
+ [% Asset.js("js/tools-menu.js") | $raw %]
+ <script>
+        var patron_attributes_lib = new Array();
+        var patron_attributes_values = new Array();
+        var table_settings = [% TablesSettings.GetColumns( 'tools', 'batch_patron_modification', 'borrowerst', 'json' ) | $raw %];
+        [% FOREACH attrh IN attributes_header %]
+            table_settings.push({
+                columname: "[% attrh.attribute | html %]",
+                cannot_be_modified: 0,
+                cannot_be_toggled: 0,
+                is_hidden: 0
+            });
+        [% END %]
+        $(document).ready(function() {
+            [% IF borrowers %]
+                let patron_table = KohaTable("borrowerst", {
+                    "order": [[ 1, "asc" ]],
+                    "autoWidth": false,
+                }, table_settings);
+
+                $("#selectallbutton").click(function() {
+                    $("#borrowerst").find("input:checkbox").each(function() {
+                        $(this).prop("checked", true);
+                    });
+                    return false;
+                });
+                $("#clearallbutton").click(function() {
+                    $("#borrowerst").find("input:checkbox").each(function() {
+                        $(this).prop("checked", false);
+                    });
+                    return false;
+                });
+            [% ELSE %]
+                $("#batch_patron_options").tabs();
+            [% END %]
+
+            var values = new Array();
+            var lib = new Array();
+            [% FOREACH pav IN patron_attributes_values %]
+                values = new Array();
+                lib = new Array();
+                [% FOREACH option IN pav.options %]
+                    values.push("[% option.lib | html %]");
+                    lib.push("[% option.authorised_value | html %]");
+                [% END %]
+                patron_attributes_lib["[% pav.attribute_code | html %]"] = values;
+                patron_attributes_values["[% pav.attribute_code | html %]"] = lib;
+            [% END %]
+
+            $('select[name="patron_attributes"]').change(function() {
+                updateAttrValues(this);
+            } );
+
+            $('select[name="patron_attributes"]').change();
+
+            $(".clear-date").on("click",function(e){
+                e.preventDefault();
+                var fieldID = this.id.replace("clear-date-","");
+                $("#" + fieldID).val("");
+            });
+            $("#cataloguing_additem_newitem").on("click",".add_attributes",function(e){
+                e.preventDefault();
+                add_attributes();
+            });
+            $("#cataloguing_additem_newitem").on("click",".del_attributes",function(e){
+                e.preventDefault();
+                del_attributes(this);
+            });
+            $("#patron_batchmod_form").on("submit", function(){
+                /* Reset form fields on inactive tabs */
+                var tab = $(this).find('.ui-tabs-active:first a').attr('href');
+                if ( tab == '#usecardnumber' ) {
+                    $("#borrowernumberuploadfile, #patron_list_id, #borrowernumberlist").val("");
+                } else if ( tab == '#useborrowernumber' ) {
+                    $("#cardnumberuploadfile, #cardnumberlist, #patron_list_id").val("");
+                } else { // uselist
+                    $("#borrowernumberuploadfile, #cardnumberuploadfile, #borrowernumberlist, #cardnumberlist").val("");
+                }
+            });
+
+            $('form[name="f"]').on("submit", function(){
+                // Add the checkboxes to the DOM before we submit the form
+                var form = this;
+                var checkboxes = patron_table.$('input:checkbox:checked').serializeArray();
+                $.each(checkboxes, function(){
+                    let borrowernumber = this.value;
+                    if(!$(form).find('input[name="borrowernumber"][value="'+borrowernumber+'"]').length){
+                        $(form).append(
+                            $('<input>')
+                                .attr('type', 'hidden')
+                                .attr('name', 'borrowernumber')
+                                .val(borrowernumber)
+                        );
+                    }
+                });
+            });
+        });
+
+        function updateAttrValues (select_attr) {
+            var attr_code = $(select_attr).val();
+            var selected_option = $(select_attr).find("option:selected");
+            var type = $(selected_option).attr('data-type');
+            var category = $(selected_option).attr('data-category');
+            var li_node = $(select_attr).parent().parent();
+            var span = $(li_node).find('span.patron_attributes_value');
+            var information_category_node = $(li_node).find('span.information_category');
+            information_category_node.html("");
+
+            if ( category && category.length > 0 ) {
+                information_category_node.html(_("This attribute will be only applied to the users category %s").format(category));
+            }
+            var disable_input_node = $(li_node).find("input:checkbox[name='disable_input']");
+            if ( type == 'select' ) {
+                var options = '<option value = ""></option>';
+                for ( var i = 0 ; i < patron_attributes_values[attr_code].length ; i++ ) {
+                    options += '<option value="'+patron_attributes_values[attr_code][i]+'">'+patron_attributes_lib[attr_code][i]+'</option>';
+                }
+                span.html('<select name="patron_attributes_value">' + options + '</select>');
+                $(disable_input_node).show();
+            } else if ( $(selected_option).val() != "" ) {
+                span.html('<input type="text" name="patron_attributes_value"/>');
+                $(disable_input_node).show();
+            } else {
+                span.html('<input type="hidden" name="patron_attributes_value" />');
+                $(disable_input_node).hide();
+            }
+        }
+
+        function add_attributes() {
+            var li_node = $("li.attributes:last");
+            var li_clone = $(li_node).clone();
+            if ( $(li_clone).find("a.del_attributes").length == 0 ) {
+                $(li_clone).append('<a href="#" title="' + _("Delete") + '" class="del_attributes"><i class="fa fa-fw fa-trash"></i> ' + _("Delete") + '</a>');
+            }
+            $(li_clone).find('select[name="patron_attributes"]').change(function() {
+                updateAttrValues(this);
+            } );
+
+            $(li_clone).find('select[name="patron_attributes"]').change();
+
+            $("#fields_list>ol").append(li_clone);
+            update_attr_values();
+        }
+
+        function del_attributes(a_node) {
+            $(a_node).parent('li').remove();
+            update_attr_values();
+        }
+
+        function update_attr_values() {
+            $("li.attributes").each(function(i) {
+                $(this).find("input:checkbox").val("attr"+i+"_value");
+            });
+        }
+        function clearDate(nodeid) {
+            $("#"+nodeid).val("");
+        }
+    </script>
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' %]

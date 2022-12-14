@@ -1,0 +1,99 @@
+[% USE Koha %]
+[% USE KohaDates %]
+[% USE Branches %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Circulation statistics for [% title | html %] &rsaquo; Circulation &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+
+<body id="circ_bookcount" class="circ">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'circ-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+
+ [% IF blocking_error %]
+ <li>
+ <a href="#" aria-current="page">
+ Circulation
+ </a>
+ </li>
+
+ [% ELSE %]
+ <li>
+ <a href="/cgi-bin/koha/circ/circulation-home.pl">Circulation</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ Circulation statistics for [% title |html %]
+ </a>
+ </li>
+ [% END %]
+ </ol>
+</nav>
+
+<div class="main container-fluid">
+ <div class="row">
+ <div class="col-sm-10 col-sm-push-2">
+ <main>
+
+[% INCLUDE 'blocking_errors.inc' %]
+<h2>[% title |html %] [% IF ( author ) %] by [% author |html %][% END %]</h2>
+<h3>Barcode [% barcode | html %]</h3>
+<table>
+ <tr><th>Home library</th><th>Current library</th><th>Date arrived<br />at current library </th><th>Number of loans<br />since last transfer</th></tr>
+
+ <tr><td>[% Branches.GetName( homebranch ) | html %]</td>
+ <td>[% Branches.GetName( holdingbranch ) | html %]</td>
+ <td>[% IF ( lastdate ) %][% lastdate | $KohaDates %][% ELSE %]Item has no transfer record[% END %]</td>
+ <td>[% count | html %]</td>
+ </tr>
+</table>
+<table>
+ <tr>
+ <th>Library</th>
+ <th>No. of times issued</th>
+ <th>Last seen</th>
+ </tr>
+ [% FOREACH library IN libraries %]
+ [% IF library.selected %]
+ <tr class="mybranch">
+ [% ELSE %]
+ <tr>
+ [% END %]
+ <td>[% library.branchname | html %]</td>
+ <td>[% library.issues | html %]</td>
+ <td>[% IF library.seen %]
+ [% library.seen | $KohaDates  with_hours => 1 %]
+ [% ELSE %]
+ <span>Never</span>
+ [% END %]
+ </td>
+ </tr>
+ [% END %]
+</table>
+
+ </main>
+ </div> <!-- /.col-sm-10.col-sm-push-2 -->
+
+ <div class="col-sm-2 col-sm-pull-10">
+ <aside>
+ [% INCLUDE 'biblio-view-menu.inc' %]
+ </aside>
+ </div> <!-- /.col-sm-2.col-sm-pull-10 -->
+ </div> <!-- /.row -->
+
+[% MACRO jsinclude BLOCK %]
+ <script>
+        $(document).ready(function(){
+        $("tr.mybranch td").css("background-color", "#CFE7FF");
+    });
+    </script>
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' %]

@@ -1,0 +1,168 @@
+[% USE raw %]
+[% USE Asset %]
+[% USE KohaDates %]
+[% USE Branches %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Serials subscriptions stats &rsaquo; Reports &rsaquo; Koha</title>
+[% INCLUDE 'doc-head-close.inc' %]
+<style>
+	.sql {display: none;}
+</style>
+</head>
+
+<body id="rep_serials_stats" class="rep">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'cat-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/reports/reports-home.pl">Reports</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ Serials subscriptions stats
+ </a>
+ </li>
+ </ol>
+</nav>
+
+<div class="main container-fluid">
+ <div class="row">
+ <div class="col-sm-10 col-sm-push-2">
+ <main>
+
+ <h1>Serials subscriptions</h1>
+[% IF ( do_it ) %]
+ <table id="resulttable">
+ <thead>
+ <tr>
+ <th>Vendor</th>
+ <th class="anti-the">Title</th>
+ <th>Subscription ID</th>
+ <th>Library</th>
+ <th>Class number</th>
+ <th>Subscription begin</th>
+ <th>Subscription end</th>
+ <th>Expired? / Closed?</th>
+ </tr>
+ </thead>
+ <tbody>
+ [% FOREACH data IN datas %]
+ <tr>
+ <td><a href="/cgi-bin/koha/acqui/supplier.pl?booksellerid=[% data.aqbooksellerid | uri %]">[% data.name | html %]</a></td>
+ <td><a href="/cgi-bin/koha/serials/subscription-detail.pl?subscriptionid=[% data.subscriptionid | uri %]">[% data.title | html %]</a></td>
+ <td>[% data.subscriptionid | html %]</td>
+ <td>[% Branches.GetName( data.branchcode ) | html %]</td>
+ <td>[% data.callnumber | html %]</td>
+ <td data-order="[% data.startdate | html %]">[% data.startdate | $KohaDates %]</td>
+ <td data-order="[% data.enddate | html %]">[% data.enddate | $KohaDates %]</td>
+ <td>
+ [% IF data.closed %]
+ Closed
+ [% ELSIF data.expired %]
+ Expired
+ [% END %]
+ </td>
+ </tr>
+ [% END %]
+ </tr>
+ </tbody>
+ </table>
+
+[% ELSE %]
+ <form method="post" action="/cgi-bin/koha/reports/serials_stats.pl">
+
+ <fieldset class="rows">
+ <ol>
+ <li>
+
+ <label for="bookseller">
+ Vendor:
+ </label>
+ <select name="bookseller" id="bookseller">
+ <option value="">Any vendor</option>
+ [% FOREACH bookseller IN booksellers %]
+ <option value="[% bookseller.aqbooksellerid | html %]">[% bookseller.name | html %]</option>
+ [% END %]
+ </select>
+ </li><li>
+ <label for="branchcode">
+ Library:
+ </label>
+ <select name="branchcode"  id="branchcode">
+ <option value="">Any library</option>
+ [% PROCESS options_for_libraries libraries => Branches.all() %]
+ </select>
+
+ </li>
+ <li>
+ <label for="expired">Include expired subscriptions: </label>
+ <input type="checkbox" name="expired" id="expired" />
+ </li>
+ </ol>
+ </fieldset>
+
+
+ <fieldset class="rows">
+ <legend>Output</legend>
+ <ol>
+ <li>
+ <label for="outputscreen">To screen into the browser: </label><input type="radio" checked="checked" name="output" id="outputscreen" value="screen" />
+ </li>
+ <li>
+ <label for="outputfile">To a file:</label> <input type="radio" name="output" value="file" id="outputfile" />
+ <label class="inline" for="basename">Named: </label><input type="text" name="basename" id="basename" value="Export" />
+ <label class="inline" for="MIME">Into an application:</label>
+ <select name="MIME" id="MIME">
+ [% FOREACH value IN CGIextChoice %]
+ <option value="[% value | html %]">[% value | html %]</option>
+ [% END %]
+ </select>
+ <select name="sep" id="sep">
+ [% FOREACH value IN CGIsepChoice.values.sort() %]
+ [% IF ( value == CGIsepChoice.default ) %]
+ <option value="[% value | html %]" selected="selected">[% value | html %]</option>
+ [% ELSE %]
+ <option value="[% value | html %]">[% value | html %]</option>
+ [% END %]
+ [% END %]
+ </select>
+ </li>
+ </ol>
+ </fieldset>
+
+ <fieldset class="action">
+ <input type="submit" value="Submit" />
+ <input type="hidden" name="report_name" value="[% report_name | html %]" />
+ <input type="hidden" name="do_it" value="1" />
+ </fieldset>
+ </form>
+[% END %]
+
+ </main>
+ </div> <!-- /.col-sm-10.col-sm-push-2 -->
+
+ <div class="col-sm-2 col-sm-pull-10">
+ <aside>
+ [% INCLUDE 'reports-menu.inc' %]
+ </aside>
+ </div> <!-- /.col-sm-2.col-sm-pull-10 -->
+ </div> <!-- /.row -->
+
+[% MACRO jsinclude BLOCK %]
+[% INCLUDE 'datatables.inc' %]
+ <script>
+        $(document).ready(function() {
+            $("#resulttable").dataTable($.extend(true, {}, dataTablesDefaults, {
+                "bPaginate": false,
+            }));
+        });
+    </script>
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' %]

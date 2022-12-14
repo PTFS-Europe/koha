@@ -1,0 +1,257 @@
+[% USE raw %]
+[% USE Asset %]
+[% USE KohaDates %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>
+[% IF ( add_form ) %]
+ [% IF ( contractnumber ) %]Modify contract '[% contractname | html %]'
+[% ELSE %]New contract[% END %]
+[% END %]
+[% IF ( else ) %]Contracts of [% booksellername | html %][% END %]
+[% IF ( add_validate ) %]Data recorded[% END %]
+[% IF ( delete_confirm ) %]Confirm deletion of contract '[% contractnumber | html %]'[% END %]
+[% IF ( delete_confirmed ) %]Contract deleted[% END %]
+ &rsaquo; Contracts &rsaquo; Acquisitions &rsaquo; Koha
+</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+
+<body id="acq_aqcontract" class="acq">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'contracts-admin-search.inc' %]
+
+<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
+ <ol>
+ <li>
+ <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/acqui/acqui-home.pl">Acquisitions</a>
+ </li>
+ <li>
+ <a href="/cgi-bin/koha/acqui/supplier.pl?booksellerid=[% booksellerid | uri %]">[% booksellername | html %]</a>
+ </li>
+
+ [% IF ( add_form ) %]
+ <li>
+ <a href="/cgi-bin/koha/admin/aqcontract.pl?booksellerid=[% booksellerid | uri %]">Contracts</a>
+ </li>
+ [% IF ( contractnumber ) %]
+ <li>
+ <a href="#" aria-current="page">
+ Modify contract '[% contractname | html %]'
+ </a>
+ </li>
+ [% ELSE %]
+ <li>
+ <a href="#" aria-current="page">
+ New contract
+ </a>
+ </li>
+ [% END %]
+ [% END %]
+
+ [% IF ( add_validate ) %]
+ <li>
+ <a href="/cgi-bin/koha/admin/aqcontract.pl?booksellerid=[% booksellerid | uri %]">Contracts</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ Data recorded
+ </a>
+ </li>
+ [% END %]
+
+ [% IF ( delete_confirm ) %]
+ <li>
+ <a href="/cgi-bin/koha/admin/aqcontract.pl?booksellerid=[% booksellerid | uri %]">Contracts</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ Confirm deletion of contract [% contractnumber | html %]
+ </a>
+ </li>
+ [% END %]
+
+ [% IF ( delete_confirmed ) %]
+ <li>
+ <a href="/cgi-bin/koha/admin/aqcontract.pl?booksellerid=[% booksellerid | uri %]">Contracts</a>
+ </li>
+ <li>
+ <a href="#" aria-current="page">
+ Contract deleted
+ </a>
+ </li>
+ [% END %]
+
+ [% IF ( else ) %]
+ <li>
+ <a href="#" aria-current="page">
+ Contracts
+ </a>
+ </li>
+ [% END %]
+ </ol>
+</nav>
+
+<div class="main container-fluid">
+ <div class="row">
+ <div class="col-sm-10 col-sm-push-2">
+ <main>
+
+[% INCLUDE 'acquisitions-toolbar.inc' %]
+
+[% IF error == 'not_deleted' %]
+ <div class="dialog alert">Contract has not been deleted. Maybe a basket linked to this contract exists.</div>
+[% END %]
+
+ [% IF ( add_form ) %]
+ <form name="Aform" action="/cgi-bin/koha/admin/aqcontract.pl" id="add_modify_contract" method="post">
+ <input type="hidden" name="op" value="add_validate" />
+ <input type="hidden" name="booksellerid" value="[% booksellerid | html %]" />
+ <input type="hidden" name="checked" value="0" />
+ [% IF ( contractnumber ) %]
+ <h1>Modify contract [% contractname | html %] for [% booksellername | html %]</h1>
+ [% ELSE %]
+ <h1>New contract for [% booksellername | html %]</h1>
+ [% END %]
+ <fieldset class="rows">
+ <ol>
+ [% IF ( contractnumber ) %]
+ <li><span class="label">Contract id </span>[% contractnumber | html %]
+ <input type="hidden" name="contractnumber" value="[% contractnumber | html %]" />
+ <input type="hidden" name="is_a_modif" value="1" />
+ </li>
+ [% END %]
+ <li><label for="contractname" class="required">Name:</label> &nbsp;
+ <input type="text" name="contractname" id="contractname" size="40" maxlength="80" value="[% contractname | html %]" />
+ <span class="required">Required</span>
+ </li>
+ <li><label for="contractdescription">Description: </label> &nbsp;
+ <input type="text" name="contractdescription" id="contractdescription" size="40" maxlength="80" value="[% contractdescription | html %]" />
+ </li>
+ <li><label for="from" class="required">Start date:</label> &nbsp;
+ <input type="text" name="contractstartdate" id="from" value="[% contractstartdate | $KohaDates %]" maxlength="10" size="10" class="flatpickr" data-date_to="to" />
+ <span class="required">Required</span>
+ <div class="hint">[% INCLUDE 'date-format.inc' %]</div>
+ </li>
+ <li><label for="to" class="required">End date:</label> &nbsp;
+ <input type="text" name="contractenddate" id="to" value="[% contractenddate | $KohaDates %]" maxlength="10"  size="10" class="flatpickr" />
+ <span class="required">Required</span>
+ <div class="hint">[% INCLUDE 'date-format.inc' %]</div>
+ </li>
+ </ol>
+ </fieldset>
+ <fieldset class="action">
+ <input type="submit" value="Save" /> <a class="cancel" href="/cgi-bin/koha/admin/aqcontract.pl?booksellerid=[% booksellerid | html %]&amp;contractnumber=[% contractnumber | html %]">Cancel</a>
+ </fieldset>
+ </form>
+ [% END %]
+ [% IF ( add_validate ) %]
+ <h3>Data recorded</h3>
+ <form action="[% script_name | html %]" method="post">
+ <input type="submit" value="OK" />
+ </form>
+ [% END %]
+ [% IF ( delete_confirm ) %]
+ <div class="dialog alert">
+ <h3>Confirm deletion of contract <em>[% contractname | html %]</em></h3>
+ <table>
+ <tr><th scope="row">Contract number:</th><td>[% contractnumber | html %]</td></tr>
+ <tr><th scope="row">Contract name:</th><td>[% contractname | html %]</td></tr>
+ <tr><th scope="row">Contract description:</th><td>[% contractdescription | html %]</td></tr>
+ <tr><th scope="row">Contract start date:</th><td>[% contractstartdate | $KohaDates %]</td></tr>
+ <tr><th scope="row">Contract end date:</th><td>[% contractenddate | $KohaDates %]</td></tr>
+ <tr><th scope="row">Vendor:</th><td>[% booksellername | html %]</td></tr>
+ </table>
+ <form action="[% script_name | html %]" method="post">
+ <input type="hidden" name="op" value="delete_confirmed" />
+ <input type="hidden" name="booksellerid" value="[% booksellerid | html %]" />
+ <input type="hidden" name="contractnumber" value="[% contractnumber | html %]" />
+ <button type="submit" class="approve"><i class="fa fa-fw fa-check"></i> Yes, delete contract</button>
+ </form>
+ <form action="/cgi-bin/koha/admin/aqcontract.pl" method="get">
+ <input type="hidden" name="booksellerid" value="[% booksellerid | html %]" />
+ <input type="hidden" name="contractnumber" value="[% contractnumber | html %]" />
+ <button type="submit" class="deny"><i class="fa fa-fw fa-remove"></i> No, do not delete</button>
+ </form>
+ </div>
+ [% END %]
+ [% IF ( delete_confirmed ) %]
+ <h3>Contract deleted</h3>
+ <form action="[% script_name | html %]" method="post">
+ <input type="hidden" name="booksellerid" value="[% booksellerid | html %]" />
+ <input type="submit" value="OK" />
+ </form>
+ [% END %]
+ [% IF ( else ) %]
+ <h2>Contract(s) of [% booksellername | html %]</h2>
+ [% IF ( loop ) %]
+ <table>
+ <tr>
+ <th scope="col">Name</th>
+ <th scope="col">Description</th>
+ <th scope="col">Start date</th>
+ <th scope="col">End date</th>
+ <th scope="col">Actions</th>
+ </tr>
+ [% FOREACH loo IN loop %]
+ <tr>
+ <td>
+ <a href="[% loo.script_name | url %]?op=add_form&amp;booksellerid=[% loo.booksellerid | uri %]&amp;contractnumber=[% loo.contractnumber | uri %]">[% loo.contractname | html %]</a>
+ </td>
+ <td>[% loo.contractdescription | html %]</td>
+ <td>[% loo.contractstartdate | html %]</td>
+ <td>[% loo.contractenddate | html %]</td>
+ <td class="actions">
+ <a href="[% loo.script_name | url %]?op=add_form&amp;contractnumber=[% loo.contractnumber | uri %]&amp;booksellerid=[% loo.booksellerid | uri %]" class="btn btn-default btn-xs"><i class="fa fa-pencil"></i> Edit</a>
+ <a href="[% loo.script_name | url %]?op=delete_confirm&amp;contractnumber=[% loo.contractnumber | uri %]&amp;booksellerid=[% loo.booksellerid | uri %]" class="btn btn-default btn-xs"><i class="fa fa-trash"></i> Delete</a>
+ </td>
+ </tr>
+ [% END %]
+ </table>
+ [% ELSE %]
+ <div class="dialog message">
+ There are no contracts with this vendor.
+ [% IF active %]
+ <a href="/cgi-bin/koha/admin/aqcontract.pl?op=add_form&amp;booksellerid=[% booksellerid | uri %]">Add a contract</a>.
+ [% END %]
+ </div>
+ [% END %]
+ [% END %]
+
+ </main>
+ </div> <!-- /.col-sm-10.col-sm-push-2 -->
+
+ <div class="col-sm-2 col-sm-pull-10">
+ <aside>
+ [% INCLUDE 'acquisitions-menu.inc' %]
+ </aside>
+ </div> <!-- /.col-sm-2.col-sm-pull-10 -->
+ </div> <!-- /.row -->
+
+[% MACRO jsinclude BLOCK %]
+ [% INCLUDE 'calendar.inc' %]
+ [% Asset.js("js/acq.js") | $raw %]
+ <script>
+        $(document).ready(function(){
+            $("#add_modify_contract").validate({
+                rules: {
+                    contractstartdate: "required",
+                    contractname: "required",
+                    contractenddate: {
+                        required: true,
+                        date_on_or_after: "#from"
+                    }
+                },
+                messages: {
+                    contractenddate: {
+                        date_on_or_after: _("Contract end date must be on or after contract start date")
+                    }
+                }
+            });
+        });
+    </script>
+[% END %]
+[% INCLUDE 'intranet-bottom.inc' %]

@@ -1,0 +1,34 @@
+[% USE Koha %]
+<div class="gradient">
+<h1 id="logo"><a href="/cgi-bin/koha/mainpage.pl">[% LibraryName | html %]</a></h1><!-- Begin Patrons Admin Resident Search Box -->
+<div id="header_search">
+ <div id="patron_category_search" class="residentsearch">
+ <form action="[% script_name | html %]" method="post">
+ <label class="tip" for="description">Search by user category name:</label>
+ <input class="head-searchbox" type="text" name="description" size="40" value="[% searchfield | html %]" />
+ <input type="submit" class="submit" name="search" value="Search" />
+ </form> 
+ </div>
+ [% INCLUDE 'patron-search-box.inc' %]
+ [% IF ( CAN_user_catalogue ) %]
+ <div id="catalog_search" class="residentsearch">
+ <form action="/cgi-bin/koha/catalogue/search.pl"  method="get" id="cat-search-block">
+ [% IF ( Koha.Preference('IntranetCatalogSearchPulldown') ) %]
+ <label class="tip" for="search-form">Enter search keywords:</label>
+ [% INCLUDE 'search_indexes.inc' %]
+ [% ELSE %]
+ <label class="tip" for="search-form">Enter search keywords:</label>
+ [% END %]
+ <input type="text" name="q" id="search-form" size="40" value="" title="Enter the terms you wish to search for." class="head-searchbox form-text" />
+ <input type="submit" value="Submit"  class="submit" />
+ </form>
+ </div>[% END %]
+
+ <ul>
+ <li><a class="keep_text" href="#patron_category_search">Search user categories</a></li>
+ [% IF ( CAN_user_circulate_circulate_remaining_permissions ) %]<li><a class="keep_text" href="#circ_search">Issue</a></li>[% END %]
+ [% IF ( CAN_user_catalogue ) %]<li><a class="keep_text" href="#catalog_search">Search the catalogue</a></li>[% END %]
+ </ul> 
+</div>
+</div>
+<!-- End Patrons Admin Resident Search Box -->
