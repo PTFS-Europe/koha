@@ -1151,7 +1151,7 @@ subtest 'patron_attributes' => sub {
 
 subtest 'welcome_email' => sub {
 
-    plan tests => 3;
+    plan tests => 4;
 
     #Setup our info
     my $branchcode = $builder->build({ source => "Branch"})->{branchcode};
@@ -1173,6 +1173,9 @@ subtest 'welcome_email' => sub {
     my $eldridge = Koha::Patrons->find({ userid => 'EldridgeS'});
     my $notices = Koha::Notice::Messages->search({ borrowernumber => $eldridge->borrowernumber });
     is($notices->count, 1, 'Notice was queued');
+    my $THE_notice = $notices->next;
+    my $content = $THE_notice->content;
+    unlike($content, qr/borrower/, "<<borrower>> fields correctly replaced in notice")
 };
 
 # got is { code => $code, attribute => $attribute }
