@@ -382,7 +382,7 @@ sub import_patrons {
                     if ( $patron->is_debarred ) {
                         AddDebarment(
                             {
-                                borrowernumber => $patron->borrowernumber,
+                                borrowernumber => $borrowernumber,
                                 expiration     => $patron->debarred,
                                 comment        => $patron->debarredcomment,
                             }
@@ -398,20 +398,20 @@ sub import_patrons {
                     if ($set_messaging_prefs) {
                         C4::Members::Messaging::SetMessagingPreferencesFromDefaults(
                             {
-                                borrowernumber => $patron->borrowernumber,
+                                borrowernumber => $borrowernumber,
                                 categorycode   => $patron->categorycode,
                             }
                         );
                     }
 
                     $imported++;
-                    push @imported_borrowers, $patron->borrowernumber; #for patronlist
+                    push @imported_borrowers, $borrowernumber; #for patronlist
                     push(
                         @feedback,
                         {
                             feedback => 1,
                             name     => 'lastimported',
-                            value    => $patron->surname . ' / ' . $patron->borrowernumber,
+                            value    => $patron->surname . ' / ' . $borrowernumber,
                         }
                     );
                 });
@@ -456,7 +456,7 @@ sub import_patrons {
                         lang        => $patron->lang || 'default',
                         tables      => {
                             'branches'  => $patron->branchcode,
-                            'borrowers' => $patron->borrowernumber,
+                            'borrowers' => $borrowernumber,
                         },
                         want_librarian => 1,
                     ) or return;
