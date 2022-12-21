@@ -57,7 +57,7 @@ else {
     my @renewed;
     my $issues = Koha::Checkouts->search(
         {
-            issue_id => { -in => @issues }
+            issue_id => { -in => \@issues }
         }, {
             prefetch => 'item'
         }
