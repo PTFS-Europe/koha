@@ -100,7 +100,7 @@ sub clear_unless {
             $name = $c;
         }
 
-        if( !$self->{_remove_unless}->{$name} ) {
+        if( $self->_should_be_cleared($name) ) {
             next if $seen->{$name};
             push @rv, CGI::Cookie->new(
                 # -expires explicitly omitted to create shortlived 'session' cookie
@@ -115,6 +115,21 @@ sub clear_unless {
         }
     }
     return \@rv;
+}
+
+sub _should_be_cleared { # when it is not on the deny list in koha-conf
+    my ( $self, $name ) = @_;
+
+    return if $self->{_remove_unless}->{$name}; # exact match
+
+    # Now try the entries as regex
+    foreach my $k ( keys %{$self->{_remove_unless}} ) {
+        my $reg = $self->{_remove_unless}->{$k};
+        # The entry in koha-conf should match the complete string
+        # So adding a ^ and $
+        return if $name =~ qr/^${k}$/;
+    }
+    return 1;
 }
 
 =head2 replace_in_list

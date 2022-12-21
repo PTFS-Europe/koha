@@ -68,7 +68,7 @@ if ( $borrowernumber and not $patron ) {
 }
 
 if ( C4::Context->preference('SMSSendDriver') eq 'Email' ) {
-    my @providers = Koha::SMS::Providers->search();
+    my @providers = Koha::SMS::Providers->search( {}, { order_by => 'name' } )->as_list;
     $template->param( sms_providers => \@providers );
 }
 
@@ -673,13 +673,14 @@ foreach my $category_type (qw(C A S P I X)) {
 
     my @categoryloop;
     while ( my $patron_category = $patron_categories->next ) {
+        $categorycode = $patron_category->categorycode unless defined($categorycode); #If none passed in, select the first
         push @categoryloop,
           { 'categorycode' => $patron_category->categorycode,
             'categoryname' => $patron_category->description,
             'effective_min_password_length' => $patron_category->effective_min_password_length,
             'effective_require_strong_password' => $patron_category->effective_require_strong_password,
             'categorycodeselected' =>
-              ( defined($categorycode) && $patron_category->categorycode eq $categorycode ),
+              ( $patron_category->categorycode eq $categorycode ),
           };
     }
     my %typehash;
@@ -716,29 +717,6 @@ while (@relationships) {
     $row{'selected'}='';
   }
   push(@relshipdata, \%row);
-}
-
-my %flags = (
-    'gonenoaddress' => ['gonenoaddress'],
-    'lost'          => ['lost']
-);
-
-my @flagdata;
-foreach ( keys(%flags) ) {
-    my $key = $_;
-    my %row = (
-        'key'  => $key,
-        'name' => $flags{$key}[0]
-    );
-    if ( $data{$key} ) {
-        $row{'yes'} = ' checked';
-        $row{'no'}  = '';
-    }
-    else {
-        $row{'yes'} = '';
-        $row{'no'}  = ' checked';
-    }
-    push @flagdata, \%row;
 }
 
 # get Branch Loop
@@ -833,7 +811,6 @@ $template->param(
   borrowernumber  => $borrowernumber, #register number
   relshiploop => \@relshipdata,
   btitle=> $default_borrowertitle,
-  flagloop  => \@flagdata,
   category_type =>$category_type,
   modify          => $modify,
   nok     => $nok,#flag to know if an error

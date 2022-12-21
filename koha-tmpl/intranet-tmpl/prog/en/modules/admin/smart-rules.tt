@@ -141,7 +141,9 @@
                 <th>Holds per record (count)</th>
                 <th>On shelf holds allowed</th>
                 <th>OPAC item level holds</th>
+                [% IF Koha.Preference('ArticleRequests') %]
                 <th>Article requests</th>
+                [% END %]
                 <th>Rental discount (%)</th>
                 <th class="noExport">Actions</th>
             </tr>
@@ -333,6 +335,7 @@
                                             <span>Don't allow</span>
                                         [% END %]
                                     </td>
+                                    [% IF Koha.Preference('ArticleRequests') %]
                                     <td>
                                         [% IF article_requests == 'no' %]
                                             <span>No</span>
@@ -344,6 +347,7 @@
                                             <span>Item only</span>
                                         [% END %]
                                     </td>
+                                    [% END %]
                                     <td>[% rentaldiscount | html %]</td>
                                     <td class="actions">
                                       <a href="#" class="editrule btn btn-default btn-xs"><i class="fa fa-pencil"></i> Edit</a>
@@ -465,6 +469,7 @@
                             <option value="F">Force</option>
                         </select>
                     </td>
+                    [% IF Koha.Preference('ArticleRequests') %]
                     <td>
                         <select id="article_requests" name="article_requests">
                             <option value="no">No</option>
@@ -473,6 +478,7 @@
                             <option value="item_only">Item only</option>
                         </select>
                     </td>
+                    [% END %]
                     <td><input type="text" name="rentaldiscount" id="rentaldiscount" size="2" /></td>
                     <td class="actions">
                         <input type="hidden" name="branch" value="[% current_branch | html %]"/>
@@ -518,7 +524,9 @@
                       <th>Holds per record (count)</th>
                       <th>On shelf holds allowed</th>
                       <th>OPAC item level holds</th>
+                      [% IF Koha.Preference('ArticleRequests') %]
                       <th>Article requests</th>
+                      [% END %]
                       <th>Rental discount (%)</th>
                       <th>&nbsp;</th>
                     </tr>
@@ -901,9 +909,9 @@
                               [% IF defaultRefundRule == 'refund' %]
                                 Use default (Refund lost item charge)
                               [% ELSIF defaultRefundRule == 'charge' %]
-                                Use default (Refund lost item charge and restore overdue fine)
+                                <span>Use default (Refund lost item charge and charge new overdue fine)</span>
                               [% ELSIF defaultRefundRule == 'restore' %]
-                                Use default (Refund lost item charge and charge new overdue fine)
+                                <span>Use default (Refund lost item charge and restore overdue fine)</span>
                               [% ELSE %]
                                 Use default (Leave lost item charge)
                               [% END %]

@@ -583,7 +583,7 @@ sub build_authorities_query_compat {
 
         $m = exists $koha_to_index_name->{$m} ? $koha_to_index_name->{$m} : $m;
         push @indexes, $m;
-        warn "Unknown search field $m in marclist" unless (defined $mappings->{data}->{properties}->{$m} || $m eq '' || $m eq 'match-heading');
+        warn "Unknown search field $m in marclist" unless (defined $mappings->{properties}->{$m} || $m eq '' || $m eq 'match-heading');
     }
     for ( my $i = 0 ; $i < @$value ; $i++ ) {
         next unless $value->[$i]; #clean empty form values, ES doesn't like undefined searches
@@ -790,7 +790,7 @@ will have to wait for a real query parser.
 
 sub _convert_index_strings_freeform {
     my ( $self, $search ) = @_;
-    # @TODO: Currenty will alter also fields contained within quotes:
+    # @TODO: Currently will alter also fields contained within quotes:
     # `searching for "stuff cn:123"` for example will become
     # `searching for "stuff local-number:123"
     #
@@ -1027,9 +1027,9 @@ sub _query_regex_escape_process {
             # Will escape unescaped slashes (/) while preserving
             # unescaped slashes within quotes
             # @TODO: assumes quotes are always balanced and will
-            # not handle escaped qoutes properly, should perhaps be
+            # not handle escaped quotes properly, should perhaps be
             # replaced with a more general parser solution
-            # so that this function is ever only provided with unqouted
+            # so that this function is ever only provided with unquoted
             # query parts
             $query =~ s@(?:(?<!\\)((?:[\\]{2})*)(?=/))(?![^"]*"(?:[^"]*"[^"]*")*[^"]*$)@\\$1@g;
         }
@@ -1061,14 +1061,14 @@ sub _fix_limit_special_cases {
     foreach my $l (@$limits) {
 
         # This is set up by opac-search.pl
-        if ( $l =~ /^yr,st-numeric,ge=/ ) {
+        if ( $l =~ /^yr,st-numeric,ge[=:]/ ) {
             my ( $start, $end ) =
-              ( $l =~ /^yr,st-numeric,ge=(.*) and yr,st-numeric,le=(.*)$/ );
+              ( $l =~ /^yr,st-numeric,ge[=:](.*) and yr,st-numeric,le[=:](.*)$/ );
             next unless defined($start) && defined($end);
             push @new_lim, "date-of-publication:[$start TO $end]";
         }
-        elsif ( $l =~ /^yr,st-numeric=/ ) {
-            my ($date) = ( $l =~ /^yr,st-numeric=(.*)$/ );
+        elsif ( $l =~ /^yr,st-numeric[=:]/ ) {
+            my ($date) = ( $l =~ /^yr,st-numeric[=:](.*)$/ );
             next unless defined($date);
             $date = $self->_modify_string_by_type(type => 'st-year', operand => $date);
             push @new_lim, "date-of-publication:$date";
@@ -1101,7 +1101,7 @@ sub _fix_limit_special_cases {
             }
         }
         elsif ( $l =~ /^available$/ ) {
-            push @new_lim, 'onloan:false';
+            push @new_lim, 'available:true';
         }
         else {
             my ( $field, $term ) = $l =~ /^\s*([\w,-]*?):(.*)/;
@@ -1132,7 +1132,7 @@ sub _sort_field {
     my ($self, $f) = @_;
 
     my $mappings = $self->get_elasticsearch_mappings();
-    my $textField = defined $mappings->{data}{properties}{$f}{type} && $mappings->{data}{properties}{$f}{type} eq 'text';
+    my $textField = defined $mappings->{properties}{$f}{type} && $mappings->{properties}{$f}{type} eq 'text';
     if (!defined $self->sort_fields()->{$f} || $self->sort_fields()->{$f}) {
         $f .= '__sort';
     } else {

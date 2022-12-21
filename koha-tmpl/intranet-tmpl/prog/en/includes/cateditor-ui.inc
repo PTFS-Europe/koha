@@ -1014,8 +1014,11 @@ require( [ 'koha-backend', 'search', 'macros', 'marc-editor', 'marc-record', 'pr
                 resizeTimer = null;
 
                 var pos = $('#editor .CodeMirror').offset();
-                $('#editor .CodeMirror').height( $(window).height() - pos.top - 24 - $('#changelanguage').height() ); // 24 is hardcoded value but works well
-
+                if ( $('#changelanguage').length ) {
+                    $('#editor .CodeMirror').height( $(window).height() - pos.top - 24 - $('#changelanguage').height() ); // 24 is hardcoded value but works well
+                } else {
+                    $('#editor .CodeMirror').height( $(window).height() - pos.top - 24 );
+                }
                 $('.modal-body').each( function() {
                     $(this).height( $(window).height() * .8 - $(this).prevAll('.modal-header').height() );
                 } );
@@ -1296,6 +1299,15 @@ require( [ 'koha-backend', 'search', 'macros', 'marc-editor', 'marc-record', 'pr
                 return '<div id="alerts-container"><ul>' + prevAlerts.join('') + '</ul></div>';
             },
         });
+
+        // Whitelist table elements to ensure popover displays all the info
+        $.fn.popover.Constructor.DEFAULTS.whiteList.table = [];
+        $.fn.popover.Constructor.DEFAULTS.whiteList.tr = [];
+        $.fn.popover.Constructor.DEFAULTS.whiteList.td = [];
+        $.fn.popover.Constructor.DEFAULTS.whiteList.div = [];
+        $.fn.popover.Constructor.DEFAULTS.whiteList.tbody = [];
+        $.fn.popover.Constructor.DEFAULTS.whiteList.thead = [];
+        // https://getbootstrap.com/docs/3.4/javascript/#popovers
 
         $('#show-shortcuts').popover({
             html: true,

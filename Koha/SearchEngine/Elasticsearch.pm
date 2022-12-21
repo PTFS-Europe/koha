@@ -30,6 +30,7 @@ use Koha::SearchMarcMaps;
 use Koha::Caches;
 use C4::Heading;
 use C4::AuthoritiesMarc qw( GuessAuthTypeCode );
+use C4::Biblio;
 
 use Carp qw( carp croak );
 use Clone qw( clone );
@@ -189,9 +190,7 @@ sub get_elasticsearch_mappings {
     if (!defined $all_mappings{$self->index}) {
         $sort_fields{$self->index} = {};
         # Clone the general mapping to break ties with the original hash
-        my $mappings = {
-            data => clone(_get_elasticsearch_field_config('general', ''))
-        };
+        my $mappings = clone(_get_elasticsearch_field_config('general', ''));
         my $marcflavour = lc C4::Context->preference('marcflavour');
         $self->_foreach_mapping(
             sub {
@@ -214,25 +213,25 @@ sub get_elasticsearch_mappings {
                 }
 
                 if ($search) {
-                    $mappings->{data}{properties}{$name} = _get_elasticsearch_field_config('search', $es_type);
+                    $mappings->{properties}{$name} = _get_elasticsearch_field_config('search', $es_type);
                 }
 
                 if ($facet) {
-                    $mappings->{data}{properties}{ $name . '__facet' } = _get_elasticsearch_field_config('facet', $es_type);
+                    $mappings->{properties}{ $name . '__facet' } = _get_elasticsearch_field_config('facet', $es_type);
                 }
                 if ($suggestible) {
-                    $mappings->{data}{properties}{ $name . '__suggestion' } = _get_elasticsearch_field_config('suggestible', $es_type);
+                    $mappings->{properties}{ $name . '__suggestion' } = _get_elasticsearch_field_config('suggestible', $es_type);
                 }
                 # Sort is a bit special as it can be true, false, undef.
                 # We care about "true" or "undef",
                 # "undef" means to do the default thing, which is make it sortable.
                 if (!defined $sort || $sort) {
-                    $mappings->{data}{properties}{ $name . '__sort' } = _get_elasticsearch_field_config('sort', $es_type);
+                    $mappings->{properties}{ $name . '__sort' } = _get_elasticsearch_field_config('sort', $es_type);
                     $sort_fields{$self->index}{$name} = 1;
                 }
             }
         );
-        $mappings->{data}{properties}{ 'match-heading' } = _get_elasticsearch_field_config('search', 'text') if $self->index eq 'authorities';
+        $mappings->{properties}{ 'match-heading' } = _get_elasticsearch_field_config('search', 'text') if $self->index eq 'authorities';
         $all_mappings{$self->index} = $mappings;
     }
     $self->sort_fields(\%{$sort_fields{$self->index}});
@@ -770,6 +769,23 @@ sub marc_records_to_documents {
                 $record_document->{'marc_format'} = 'base64ISO2709';
             }
         }
+
+        # Check if there is at least one available item
+        if ($self->index eq $BIBLIOS_INDEX) {
+            my ($tag, $code) = C4::Biblio::GetMarcFromKohaField('biblio.biblionumber');
+            my $field = $record->field($tag);
+            if ($field) {
+                my $biblionumber = $field->is_control_field ? $field->data : $field->subfield($code);
+                my $avail_items = Koha::Items->search({
+                    biblionumber => $biblionumber,
+                    onloan       => undef,
+                    itemlost     => 0,
+                })->count;
+
+                $record_document->{available} = $avail_items ? \1 : \0;
+            }
+        }
+
         push @record_documents, $record_document;
     }
     return \@record_documents;

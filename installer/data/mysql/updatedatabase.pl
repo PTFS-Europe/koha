@@ -23186,12 +23186,18 @@ $DBversion = '20.06.00.058';
 if( CheckVersion( $DBversion ) ) {
 
     # Adding the ON DELETE CASCASE ON UPDATE CASCADE, in case it's missing (from 9016 - 3.15.00.039)
-    $dbh->do( q{
-        ALTER TABLE letter DROP FOREIGN KEY message_transport_type_fk
-    } );
-
+    if ( foreign_key_exists( 'letter', 'message_transport_type_fk' ) ) {
+        $dbh->do( q{
+            ALTER TABLE letter DROP FOREIGN KEY message_transport_type_fk
+        } );
+    }
     $dbh->do( q{
         ALTER TABLE letter ADD CONSTRAINT message_transport_type_fk FOREIGN KEY (message_transport_type) REFERENCES message_transport_types(message_transport_type) ON DELETE CASCADE ON UPDATE CASCADE
+    } );
+
+    # Foreign keys should prevent this, however, it has been found in many production databases
+    $dbh->do( q{
+        DELETE borrower_message_transport_preferences FROM borrower_message_transport_preferences LEFT JOIN borrower_message_preferences USING (borrower_message_preference_id) WHERE borrower_message_preferences.borrower_message_preference_id IS NULL
     } );
 
     $dbh->do(q{

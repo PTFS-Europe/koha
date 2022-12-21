@@ -507,7 +507,7 @@ foreach my $biblioNum (@biblionumbers) {
         # change the background color.
         my $issue = Koha::Checkouts->find( { itemnumber => $itemNum } );
         if ( $issue ) {
-            $itemLoopIter->{dateDue} = output_pref({ dt => dt_from_string($issue->date_due, 'sql'), as_due_date => 1 });
+            $itemLoopIter->{dateDue} = $issue->date_due;
             $itemLoopIter->{onloan} = 'onloan';
         }
 
@@ -634,7 +634,7 @@ foreach my $biblioNum (@biblionumbers) {
 
     my $status = CanBookBeReserved( $borrowernumber, $biblioNum )->{status};
     $biblioLoopIter{holdable} &&= $status eq 'OK';
-    $biblioLoopIter{already_patron_possession} = $status eq 'alreadypossession';
+    $biblioLoopIter{$status} = 1;
 
     if ( $biblioLoopIter{holdable} and C4::Context->preference('AllowHoldItemTypeSelection') ) {
         # build the allowed item types loop

@@ -76,9 +76,9 @@
                 <li>Last cashup: [% register.last_cashup.timestamp | $KohaDates with_hours => 1 %] (<a data-toggle="modal" data-cashup="[% register.last_cashup.id | html %]" data-register="[% register.description | html %]" href="#cashupSummaryModal" class="button">Summary</a>)</li>
                 [% END %]
                 <li>Float: [% register.starting_float | $Price %]</li>
-                <li>Total income (cash): [% accountlines.credits_total * -1 | $Price %] ([% accountlines.credits_total(payment_type => 'CASH') * -1 | $Price %])</li>
-                <li>Total outgoing (cash): [% accountlines.debits_total * -1 | $Price %] ([% accountlines.debits_total( payment_type => 'CASH') * -1 | $Price %])</li>
-                <li>Total bankable: [% accountlines.total( payment_type => 'CASH') * -1 | $Price %]</li>
+                <li>Total income (cash): [% accountlines.credits_total * -1 | $Price %] ([% accountlines.credits_total(payment_type => [ 'CASH', 'SIP00' ]) * -1 | $Price %])</li>
+                <li>Total outgoing (cash): [% accountlines.debits_total * -1 | $Price %] ([% accountlines.debits_total( payment_type => [ 'CASH', 'SIP00' ]) * -1 | $Price %])</li>
+                <li>Total bankable: [% accountlines.total( payment_type => [ 'CASH', 'SIP00' ]) * -1 | $Price %]</li>
             </ul>
 
             [% IF register.last_cashup %]
@@ -278,7 +278,7 @@
                     <h4 class="modal-title" id="confirmCashupLabel">Confirm cashup of <em>[% register.description | html %]</em></h4>
                 </div>
                 <div class="modal-body">
-                    Please confirm that you have removed [% accountlines.total( payment_type => 'CASH') * -1 | $Price %] from the cash register and left a float of [% register.starting_float | $Price %].
+                    Please confirm that you have removed [% accountlines.total( payment_type => [ 'CASH', 'SIP00' ]) * -1 | $Price %] from the cash register and left a float of [% register.starting_float | $Price %].
                 </div> <!-- /.modal-body -->
                 <div class="modal-footer">
                     <a href="/cgi-bin/koha/pos/register.pl?op=cashup" class="btn btn-default" id="pos_cashup_confirm">Confirm</a>
@@ -333,6 +333,7 @@
     [% INCLUDE 'datatables.inc' %]
     [% Asset.js("lib/jquery/plugins/rowGroup/dataTables.rowGroup.min.js") | $raw %]
     [% INCLUDE 'format_price.inc' %]
+    [% INCLUDE 'js-date-format.inc' %]
     [% Asset.js("js/cashup_modal.js") | $raw %]
     [% INCLUDE 'calendar.inc' %]
     [% INCLUDE 'js-date-format.inc' %]
@@ -408,23 +409,6 @@
             win.focus();
         });
 
-        $('.modal.printable').on('shown.bs.modal', function() {
-            $('.modal-dialog', this).addClass('focused');
-            $('body').addClass('modalprinter');
-
-            if ($(this).hasClass('autoprint')) {
-                window.print();
-            }
-        }).on('hidden.bs.modal', function () {
-            $('.modal-dialog', this).removeClass('focused');
-            $('body').removeClass('modalprinter');
-        });
-
-        $('.printModal').click(function() {
-            window.print();
-        });
-
-
         var cashups_table_url = "/api/v1/cash_registers/[% register.id | html %]/cashups?";
         var cashups_table = $("#table_cashups").kohaTable({
             "ajax": {
@@ -434,7 +418,7 @@
             "embed": [
                "manager"
             ],
-            "order": [[ 0, "asc" ]],
+            "order": [[ 0, "desc" ]],
             "columns": [
                 {
                     "data": "timestamp",

@@ -151,7 +151,8 @@ sub generate_subfield_form {
         && !$value
         && $subfield->{kohafield}
         && $subfield->{kohafield} eq 'items.itemcallnumber'
-        && $pref_itemcallnumber )
+        && $pref_itemcallnumber
+        && $marc_record )
     {
         foreach
           my $pref_itemcallnumber_part ( split( /,/, $pref_itemcallnumber ) )
@@ -161,7 +162,7 @@ sub generate_subfield_form {
             my $CNsubfields =
               substr( $pref_itemcallnumber_part, 3 );    # Any and all subfields
             $CNsubfields = undef if $CNsubfields eq '';
-            my $temp2 = $marc_record->field($CNtag);
+            my $temp2 = $marc_record ? $marc_record->field($CNtag) : undef;
 
             next unless $temp2;
             $value = $temp2->as_string( $CNsubfields, ' ' );
@@ -313,7 +314,7 @@ sub generate_subfield_form {
         );
         my $pars = {
             dbh     => $dbh,
-            record  => $marc_record,
+            record  => $marc_record, #Note: could be undefined
             tagslib => $tagslib,
             id      => $subfield_data{id},
         };
@@ -562,7 +563,7 @@ sub edit_form {
                         value              => $value,
                         tagslib            => $tagslib,
                         libraries          => $libraries,
-                        marc_record        => $marc_record,
+                        marc_record        => $marc_record, #Note: could be undefined
                         restricted_edition => $restricted_edition,
                         prefill_with_default_values => $prefill_with_default_values,
                         branch_limit       => $branch_limit,

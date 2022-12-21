@@ -75,8 +75,7 @@ my ($template, $borrowernumber, $cookie) = get_template_and_user({
 	type => "intranet",
 	flagsrequired => {reports => '*'},
 });
-our $sep     = $input->param("sep") // ';';
-$sep = "\t" if ($sep eq 'tabulation');
+our $sep = C4::Context->csv_delimiter(scalar $input->param("sep"));
 $template->param(do_it => $do_it,
 );
 
@@ -506,7 +505,7 @@ sub calculate {
             $strcalc .= " LEFT JOIN borrower_attributes AS attribute_$_ ON (statistics.borrowernumber = attribute_$_.borrowernumber AND attribute_$_.code = '$_') ";
         }
     }
-    $strcalc .= "LEFT JOIN items ON statistics.itemnumber=items.itemnumber "
+    $strcalc .= "LEFT JOIN (SELECT * FROM items UNION SELECT * FROM deleteditems) items ON statistics.itemnumber=items.itemnumber "
       if ( $linefield =~ /^items\./
         or $colfield =~ /^items\./
         or $process == 5

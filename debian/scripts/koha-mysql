@@ -18,7 +18,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 set -e
-
 umask 0077
 
 # include helper functions
@@ -55,6 +54,12 @@ mysqldb="$( xmlstarlet sel -t -v 'yazgfs/config/database' $kohaconfig )"
 mysqluser="$( xmlstarlet sel -t -v 'yazgfs/config/user' $kohaconfig )"
 mysqlpass="$( xmlstarlet sel -t -v 'yazgfs/config/pass' $kohaconfig )"
 
-mysql --host="$mysqlhost" --user="$mysqluser" --password="$mysqlpass" \
-    "$mysqldb"  "${@}"
-
+mysqltz="$( xmlstarlet sel -t -v 'yazgfs/config/timezone' $kohaconfig || true )"
+if [ "$mysqltz" != "" ]
+then
+    mysql --host="$mysqlhost" --user="$mysqluser" --password="$mysqlpass" --init-command="SET time_zone='$mysqltz'" \
+        "$mysqldb"  "${@}"
+else
+    mysql --host="$mysqlhost" --user="$mysqluser" --password="$mysqlpass" \
+        "$mysqldb"  "${@}"
+fi

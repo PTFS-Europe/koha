@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Koha 21.05\n"
-"PO-Revision-Date: 2022-05-03 09:49+0000\n"
+"PO-Revision-Date: 2022-10-14 17:48+0000\n"
 "Last-Translator: Илиян Дамянов <aioiliyan@gmail.com>\n"
 "Language-Team: Koha Translation Team\n"
 "Language: bg\n"
@@ -12,7 +12,7 @@ msgstr ""
 "X-Generator: Pootle 2.8\n"
 "X-Pootle-Path: /bg/21.05/bg-Cyrl-installer.po\n"
 "X-Pootle-Revision: 1\n"
-"X-POOTLE-MTIME: 1651571388.856353\n"
+"X-POOTLE-MTIME: 1665769705.131032\n"
 
 #: installer/data/mysql/en/optional/patron_categories.yml:description:21
 msgid "                B   - Board"
@@ -62,6 +62,10 @@ msgstr "                T   - Учител"
 msgid "                YA  - Young Adult"
 msgstr "                YA  - Непълнолетен 14-18 години"
 
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:2:mul:13
+msgid "        %s%sFee receipt%s%s"
+msgstr "        %s%sРазписка за такса%s%s"
+
 #: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:2:mul:24
 msgid "        Card number: %s%s"
 msgstr "        Номер на читателска карта: %s%s"
@@ -70,6 +74,14 @@ msgstr "        Номер на читателска карта: %s%s"
 msgid "        Received with thanks from  %s %s %s"
 msgstr "        Получено с благодарности от  %s %s %s"
 
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:3:mul:14
+msgid "      %s%sINVOICE%s%s"
+msgstr "      %s%sФАКТУРА%s%s"
+
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:3:mul:51
+msgid "      %sTotal outstanding dues as on date: %s"
+msgstr "      %sОбщо дължими задължения към датата: %s"
+
 #: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:3:mul:24
 msgid "      Bill to: %s %s %s"
 msgstr "      Bill to: %s %s %s"
@@ -77,6 +89,134 @@ msgstr "      Bill to: %s %s %s"
 #: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:3:mul:25
 msgid "      Card number: %s%s"
 msgstr "      Номер на читателска карта: %s%s"
+
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:55:mul:14
+msgid "    %s%sAuthor:%s %s%s"
+msgstr "    %s%sАвтор:%s %s%s"
+
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:55:mul:18
+msgid "    %s%sCollection title:%s %s%s"
+msgstr "    %s%sЗаглавие на колекцията:%s %s%s"
+
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:55:mul:15
+msgid "    %s%sCopyright date:%s %s%s"
+msgstr "    %s%sДата на авторското право:%s %s%s"
+
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:55:mul:21
+msgid "    %s%sItem type:%s  %s%s"
+msgstr "    %s%sВид библиотечен документ:%s  %s%s"
+
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:55:mul:12
+msgid "    %s%sLibrary:%s %s%s"
+msgstr "    %s%sБиблиотека:%s %s%s"
+
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:55:mul:23
+msgid "    %s%sNotes:%s %s%s"
+msgstr "    %s%sБележки:%s %s%s"
+
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:55:mul:19
+msgid "    %s%sPublication place:%s %s%s"
+msgstr "    %s%sМясто на издаване%s %s%s"
+
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:55:mul:17
+msgid "    %s%sPublisher:%s %s%s"
+msgstr "    %s%sИздателство:%s %s%s"
+
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:55:mul:20
+msgid "    %s%sQuantity:%s %s%s"
+msgstr "    %s%sКоличество:%s %s%s"
+
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:55:mul:22
+msgid "    %s%sReason for suggestion:%s %s%s"
+msgstr "    %s%sПричина за предложението:%s %s%s"
+
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:55:mul:16
+msgid "    %s%sStandard number (ISBN, ISSN or other):%s %s%s"
+msgstr "    %s%sСтандартен номер (ISBN, ISSN или друг):%s %s%s"
+
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:55:mul:2
+msgid "    %s%sSuggested by%s"
+msgstr "    %s%sПредложено от%s"
+
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:55:mul:10
+msgid "    %s%sTitle suggested%s"
+msgstr "    %s%sПредложено заглавие%s"
+
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:55:mul:13
+msgid "    %s%sTitle:%s %s%s"
+msgstr "    %s%sЗаглавие:%s %s%s"
+
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:3:mul:34
+msgid "    %sAmount outstanding%s"
+msgstr "    %sНеизплатена сума%s"
+
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:2:mul:48
+msgid "    %sAmount tendered: %s"
+msgstr "    %sПолучена сума: %s"
+
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:2:mul:32
+msgid "    %sAmount%s"
+msgstr "    %sAmount%s"
+
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:2:mul:52
+msgid "    %sChange given: %s"
+msgstr "    %sДадена промяна: %s"
+
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:46:mul:63
+msgid "    %sChange: %s"
+msgstr "    %sПромяна: %s"
+
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:2:mul:28
+msgid "    %sCreated%s"
+msgstr "    %sСъздаден%s"
+
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:2:mul:30
+msgid "    %sDescription of charges%s"
+msgstr "    %sОписание на задълженията%s"
+
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:2:mul:31
+msgid "    %sNote%s"
+msgstr "    %sБележки%s"
+
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:46:mul:59
+msgid "    %sTendered: %s"
+msgstr "    %sTendered: %s"
+
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:2:mul:59
+msgid "    %sTotal outstanding dues as on date: %s"
+msgstr "    %sОбщо дължими задължения към датата: %s"
+
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:46:mul:55
+msgid "    %sTotal: %s"
+msgstr "    %sВсичко: %s"
+
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:2:mul:29
+msgid "    %sUpdated%s"
+msgstr "   %sАктуализиран%s"
+
+#: installer/data/mysql/en/optional/sample_creator_data.yml:creator_layouts:1:row:4:mul:5
+msgid "  %s&lt;firstname&gt; &lt;surname&gt;%s"
+msgstr "  %s&lt;име&gt; &lt;фамилия&gt;%s"
+
+#: installer/data/mysql/en/optional/sample_creator_data.yml:creator_layouts:1:row:4:mul:7
+msgid "  %sBranch: &lt;branchcode&gt;%s"
+msgstr " %sОтдел: &lt;код&gt;%s"
+
+#: installer/data/mysql/en/optional/sample_creator_data.yml:creator_layouts:1:row:4:mul:9
+msgid "  %sExpires: August 31, 2010%s"
+msgstr "  %sИзтича: август 31, 2010%s"
+
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:46:mul:27
+msgid "  %sOperator ID: %s"
+msgstr "  %sОператор ID: %s"
+
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:46:mul:31
+msgid "  %sPayment type: %s"
+msgstr "  %sВид плащане: %s"
+
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:46:mul:23
+msgid "  %sTransaction ID: %s"
+msgstr "  %sТранзакция ID: %s"
 
 #: installer/data/mysql/en/optional/marc21_holdings_coded_values.yml:authorised_values:1:row:35
 msgid " Microform, microfilm cartridge"
@@ -94,6 +234,10 @@ msgstr " Микроформа, микрофилм на ролка"
 msgid " The order %s (%s) has been received."
 msgstr " Поръчката %s (%s) е получена."
 
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:39:mul:5
+msgid "%s %s (cardnumber: %s)%s"
+msgstr "%s %s (номер на читателска карта: %s)%s"
+
 #: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:14:mul:1
 msgid "%s %s has added a note to the item %s - %s (%s)."
 msgstr "%s %s е добавил бележка към елемента %s - %s (%s)."
@@ -102,9 +246,87 @@ msgstr "%s %s е добавил бележка към елемента %s - %s (
 msgid "%s Staff"
 msgstr "%s Персонал"
 
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:17:mul:3
+msgid "%s Transfer to/Hold in %s%s"
+msgstr "%s Прехвърляне към/Резервация за %s%s"
+
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:20:mul:16
+msgid "%s\"%s\" by %s, %s, Barcode: %s Fine: %s%s"
+msgstr "%s\"%s\" от %s, %s, Баркод: %s Глоба: %s%s"
+
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:39:mul:4
+msgid "%s%s certifies that the following borrower:%s"
+msgstr "%s%s удостоверява, че следният читател:%s"
+
 #: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:25:mul:3
 msgid "%s%s items to be processed for this branch."
 msgstr "%s%s елементи, които ще бъдат обработени за тази библиотека."
+
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:25:mul:5
+msgid "%s%s%sTitle: %s"
+msgstr "%s%s%sЗаглавие: %s"
+
+#: installer/data/mysql/en/optional/sample_news.yml:additional_contents:1:row:2:mul:8
+msgid "%s%sChat with Koha users and developers%s%s"
+msgstr "%s%sРазговаряйте с потребители и разработчици на Koha%s%s"
+
+#: installer/data/mysql/en/optional/sample_news.yml:additional_contents:1:row:2:mul:3
+msgid "%s%sRead Koha Documentation%s%s"
+msgstr "%s%sПрочетете документацията на Koha%s%s"
+
+#: installer/data/mysql/en/optional/sample_news.yml:additional_contents:1:row:2:mul:5
+msgid "%s%sRead and Contribute to Discussions%s%s"
+msgstr "%s%sПрочетете и участвайте в дискусии%s%s"
+
+#: installer/data/mysql/en/optional/sample_news.yml:additional_contents:1:row:2:mul:4
+msgid "%s%sRead/Write to the Koha Wiki%s%s"
+msgstr "%s%sЧетете/пишете в Koha Wiki%s%s"
+
+#: installer/data/mysql/en/optional/sample_news.yml:additional_contents:1:row:2:mul:6
+msgid "%s%sReport Koha Bugs%s%s"
+msgstr "%s%sДокладвайте Коха бъгове%s%s"
+
+#: installer/data/mysql/en/optional/sample_news.yml:additional_contents:1:row:2:mul:7
+msgid "%s%sSubmit Patches to Koha using Git (Version Control System)%s%s"
+msgstr ""
+"%s%sИзпратете корекции на Koha с помощта на Git (система за контрол на "
+"версиите)%s%s"
+
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:41:mul:5
+msgid "%s/cgi-bin/koha/opac-registration-verify.pl?token=%s"
+msgstr "%s/cgi-bin/koha/opac-registration-verify.pl?token=%s"
+
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:62:mul:7
+msgid "%sChecked in today%s"
+msgstr "%sВърнати днес%s"
+
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:18:mul:7
+msgid "%sChecked out today%s"
+msgstr "%sЗаети днес%s"
+
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:19:mul:7
+msgid "%sChecked out%s"
+msgstr "%sЗаемания%s"
+
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:17:mul:1
+msgid "%sDate: %s%s"
+msgstr "%sДата: %s%s"
+
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:39:mul:3
+msgid "%sDischarge confirmation%s"
+msgstr "%sПотвърждение за освобождаване от отговорност%s"
+
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:17:mul:17
+msgid "%sITEM ON HOLD%s"
+msgstr "%sРЕЗЕРВИРАНИ ЕКЗЕМПЛЯРИ%s"
+
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:26:mul:5
+msgid "%sITEM%s"
+msgstr "%sЕКЗЕМПЛЯР%s"
+
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:19:mul:27
+msgid "%sNews%s"
+msgstr "%sНовини%s"
 
 #: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:25:mul:4
 msgid "%sNo items to be processed for this branch"
@@ -114,6 +336,30 @@ msgstr "%sНяма елементи за обработка за тази биб
 msgid "%sNotes:"
 msgstr "%sБележки:"
 
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:27:mul:8
+msgid "%sOrdernumber %s (%s) (%s ordered) ($%s each) has not been received.%s"
+msgstr "%sНомер %s (%s) (%s поръчан) ($%s всички) не е получено.%s"
+
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:45:mul:10
+msgid "%sOrdernumber %s (%s) (quantity: %s) ($%s each).%s"
+msgstr "%sНомер %s (%s) (количество: %s) ($%s всички).%s"
+
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:19:mul:16
+msgid "%sOverdues%s"
+msgstr "%sПросрочени задължения%s"
+
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:19:mul:32
+msgid "%sPosted on %s%s"
+msgstr "%sПубликувано на %s%s"
+
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:55:mul:1
+msgid "%sSuggestion pending approval%s"
+msgstr "%sПредложение очакващо одобрение%s"
+
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:42:mul:9
+msgid "%sThank you.%s"
+msgstr "%sБлагодарим Ви.%s"
+
 #: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:42:mul:2
 msgid ""
 "%sThis email has been sent in response to your password recovery request for "
@@ -121,6 +367,26 @@ msgid ""
 msgstr ""
 "%sТози имейл е изпратен в отговор на вашата заявка за възстановяване на "
 "парола за акаунт %s%s%s."
+
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:42:mul:8
+msgid ""
+"%sThis link will be valid for 2 days from this email's reception, then you "
+"must reapply if you do not change your password.%s"
+msgstr ""
+"%sТази връзка ще бъде валидна 2 дни от получаването на този имейл за да "
+"промените паролата си.%s"
+
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:26:mul:3
+msgid "%sTransfer to %s%s"
+msgstr "%sТрансфер до %s%s"
+
+#: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:7:mul:16
+msgid ""
+"%sYou may pick up your article at %s.%sYou can download the scanned "
+"materials via the following URL(s): %s.%s"
+msgstr ""
+"%sМожете да вземете поръчката си от %s.%sМожете да изтеглите сканираните "
+"материали чрез следния URL адрес(и): %s.%s"
 
 #: installer/data/mysql/en/optional/patron_atributes.yml:description:2
 msgid "* SHOW_BCODE - Show barcode on the patron summary screen items listings"
@@ -424,7 +690,7 @@ msgstr "Свързано име"
 
 #: installer/data/mysql/en/optional/sample_quotes.yml:quotes:1:row:35
 msgid "At the end of the day, we can endure much more than we think we can."
-msgstr ""
+msgstr "At the end of the day, we can endure much more than we think we can."
 
 #: installer/data/mysql/en/optional/marc21_relatorterms.yml:authorised_values:1:row:17
 msgid "Attributed name"
@@ -1152,6 +1418,10 @@ msgid ""
 "oppressor and how we might be able to become liberators for ourselves and "
 "for each other."
 msgstr ""
+"Each and every one of us has the capacity to be an oppressor. I want to "
+"encourage each and every one of us to interrogate how we might be an "
+"oppressor and how we might be able to become liberators for ourselves and "
+"for each other."
 
 #: installer/data/mysql/en/optional/sample_quotes.yml:quotes:1:row:28
 msgid ""
@@ -1297,6 +1567,8 @@ msgid ""
 "Girls are capable of doing everything men are capable of doing. Sometimes "
 "they have more imagination than men."
 msgstr ""
+"Girls are capable of doing everything men are capable of doing. Sometimes "
+"they have more imagination than men."
 
 #: installer/data/mysql/en/optional/marc21_holdings_coded_values.yml:authorised_values:1:row:26
 msgid "Globe"
@@ -1328,11 +1600,11 @@ msgstr "Графичен техник"
 
 #: installer/data/mysql/en/optional/sample_quotes.yml:quotes:1:row:36
 msgid "Have no fear of perfection; you'll never reach it."
-msgstr ""
+msgstr "Have no fear of perfection; you'll never reach it."
 
 #: installer/data/mysql/en/optional/sample_quotes.yml:quotes:1:row:6
 msgid "He serves his party best who serves his country best."
-msgstr ""
+msgstr "He serves his party best who serves his country best."
 
 #: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:38:mul:1
 msgid "Hello %s %s %s."
@@ -1346,6 +1618,7 @@ msgstr "Здравейте!"
 msgid ""
 "History does not long entrust the care of freedom to the weak or the timid."
 msgstr ""
+"History does not long entrust the care of freedom to the weak or the timid."
 
 #: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:48
 msgid "Hold available for pickup"
@@ -1373,7 +1646,7 @@ msgstr "Резервация фиш"
 
 #: installer/data/mysql/en/optional/patron_categories.yml:categories:1:row:3
 msgid "Home Bound"
-msgstr ""
+msgstr "Обслужване по домовете"
 
 #: installer/data/mysql/en/optional/marc21_relatorterms.yml:authorised_values:1:row:107
 msgid "Honoree"
@@ -1388,6 +1661,8 @@ msgid ""
 "I am thankful for my struggle because, without it, I wouldn't have stumbled "
 "across my strength."
 msgstr ""
+"I am thankful for my struggle because, without it, I wouldn't have stumbled "
+"across my strength."
 
 #: installer/data/mysql/en/optional/sample_quotes.yml:quotes:1:row:20
 msgid ""
@@ -1402,16 +1677,20 @@ msgstr ""
 msgid ""
 "I don't mind living in a man's world, as long as I get to be a woman in it."
 msgstr ""
+"I don't mind living in a man's world, as long as I get to be a woman in it."
 
 #: installer/data/mysql/en/optional/sample_quotes.yml:quotes:1:row:5
 msgid ""
 "I feel incompetent to perform duties...which have been so unexpectedly "
 "thrown upon me."
 msgstr ""
+"I feel incompetent to perform duties...which have been so unexpectedly "
+"thrown upon me."
 
 #: installer/data/mysql/en/optional/sample_quotes.yml:quotes:1:row:4
 msgid "I have always found that mercy bears richer fruits than strict justice."
 msgstr ""
+"I have always found that mercy bears richer fruits than strict justice."
 
 #: installer/data/mysql/en/optional/sample_quotes.yml:quotes:1:row:9
 msgid ""
@@ -1419,12 +1698,17 @@ msgid ""
 "increase the gate receipts of expositions and fairs and bring tourists to "
 "town."
 msgstr ""
+"I have come to the conclusion that the major part of the president is to "
+"increase the gate receipts of expositions and fairs and bring tourists to "
+"town."
 
 #: installer/data/mysql/en/optional/sample_quotes.yml:quotes:1:row:33
 msgid ""
 "I really think a champion is defined not by their wins but by how they can "
 "recover when they fall."
 msgstr ""
+"I really think a champion is defined not by their wins but by how they can "
+"recover when they fall."
 
 #: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:30
 msgid "ILL request cancelled"
@@ -1451,6 +1735,8 @@ msgid ""
 "If America shows weakness and uncertainty, the world will drift toward "
 "tragedy. That will not happen on my watch."
 msgstr ""
+"If America shows weakness and uncertainty, the world will drift toward "
+"tragedy. That will not happen on my watch."
 
 #: installer/data/mysql/en/optional/sample_quotes.yml:quotes:1:row:15
 msgid "If you can't stand the heat, get out of the kitchen."
@@ -1477,10 +1763,12 @@ msgid ""
 "If you don't like something, change it. If you can't change it, change your "
 "attitude."
 msgstr ""
+"If you don't like something, change it. If you can't change it, change your "
+"attitude."
 
 #: installer/data/mysql/en/optional/sample_quotes.yml:quotes:1:row:11
 msgid "If you don't say anything, you won't be called on to repeat it."
-msgstr ""
+msgstr "If you don't say anything, you won't be called on to repeat it."
 
 #: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:38:mul:7
 msgid ""
@@ -1550,7 +1838,7 @@ msgstr "Информацията не е налична; Не е приложи�
 
 #: installer/data/mysql/en/optional/marc21_relatorterms.yml:authorised_values:1:row:111
 msgid "Inscriber"
-msgstr ""
+msgstr "Абонати"
 
 #: installer/data/mysql/en/optional/marc21_relatorterms.yml:authorised_values:1:row:113
 msgid "Instrumentalist"
@@ -1624,12 +1912,19 @@ msgid ""
 "productivity, not stifle it. This Administration's objective will be a "
 "healthy, vigorous, growing economy."
 msgstr ""
+"It is not my intention to do away with government. It is rather to make it "
+"work -work with us, not over us; stand by our side, not ride on our back. "
+"Government can and must provide opportunity, not smother it; foster "
+"productivity, not stifle it. This Administration's objective will be a "
+"healthy, vigorous, growing economy."
 
 #: installer/data/mysql/en/optional/sample_quotes.yml:quotes:1:row:42
 msgid ""
 "It took me quite a long time to develop a voice, and now that I have it, I "
 "am not going to be silent."
 msgstr ""
+"It took me quite a long time to develop a voice, and now that I have it, I "
+"am not going to be silent."
 
 #: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:61:mul:13
 msgid "It's too late to renew this item."
@@ -1765,27 +2060,27 @@ msgstr ""
 
 #: installer/data/mysql/en/optional/marc21_relatorterms.yml:authorised_values:1:row:126
 msgid "Libelant"
-msgstr ""
+msgstr "Libelant"
 
 #: installer/data/mysql/en/optional/marc21_relatorterms.yml:authorised_values:1:row:127
 msgid "Libelant-appellant"
-msgstr ""
+msgstr "Libelant-appellant"
 
 #: installer/data/mysql/en/optional/marc21_relatorterms.yml:authorised_values:1:row:125
 msgid "Libelant-appellee"
-msgstr ""
+msgstr "Libelant-appellee"
 
 #: installer/data/mysql/en/optional/marc21_relatorterms.yml:authorised_values:1:row:121
 msgid "Libelee"
-msgstr ""
+msgstr "Libelee"
 
 #: installer/data/mysql/en/optional/marc21_relatorterms.yml:authorised_values:1:row:123
 msgid "Libelee-appellant"
-msgstr ""
+msgstr "Libelee-appellant"
 
 #: installer/data/mysql/en/optional/marc21_relatorterms.yml:authorised_values:1:row:120
 msgid "Libelee-appellee"
-msgstr ""
+msgstr "Libelee-appellee"
 
 #: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:40:mul:9
 msgid "Librarian"
@@ -1980,12 +2275,16 @@ msgid ""
 "My fellow Americans, ask not what your country can do for you; ask what you "
 "can do for your country."
 msgstr ""
+"My fellow Americans, ask not what your country can do for you; ask what you "
+"can do for your country."
 
 #: installer/data/mysql/en/optional/sample_quotes.yml:quotes:1:row:40
 msgid ""
 "My mission in life is not merely to survive but to thrive and to do so with "
 "some passion, some compassion, some humor, and some style."
 msgstr ""
+"My mission in life is not merely to survive but to thrive and to do so with "
+"some passion, some compassion, some humor, and some style."
 
 #: installer/data/mysql/en/optional/marc21_relatorterms.yml:authorised_values:1:row:144
 msgid "Narrator"
@@ -2017,7 +2316,7 @@ msgstr "Не"
 
 #: installer/data/mysql/en/optional/sample_quotes.yml:quotes:1:row:7
 msgid "No President has ever enjoyed himself as much as I?"
-msgstr ""
+msgstr "No President has ever enjoyed himself as much as I?"
 
 #: installer/data/mysql/en/optional/auth_val.yml:authorised_values:5:row:18
 msgid "No reason provided"
@@ -2214,13 +2513,15 @@ msgstr "Друга/Обща класификационна схема"
 
 #: installer/data/mysql/en/optional/sample_quotes.yml:quotes:1:row:24
 msgid "Our Long national nightmare is over."
-msgstr ""
+msgstr "Our Long national nightmare is over."
 
 #: installer/data/mysql/en/optional/sample_quotes.yml:quotes:1:row:25
 msgid ""
 "Our constitution works. Our great republic is a government of laws, not of "
 "men."
 msgstr ""
+"Our constitution works. Our great republic is a government of laws, not of "
+"men."
 
 #: installer/data/mysql/en/optional/auth_val.yml:authorised_values:5:row:19
 msgid "Out of stock"
@@ -2271,6 +2572,8 @@ msgid ""
 "People have got to know whether or not their president is a crook. Well, I'm "
 "not a crook."
 msgstr ""
+"People have got to know whether or not their president is a crook. Well, I'm "
+"not a crook."
 
 #: installer/data/mysql/en/optional/marc21_relatorterms.yml:authorised_values:1:row:164
 msgid "Performer"
@@ -2498,15 +2801,15 @@ msgstr "Изследовател"
 
 #: installer/data/mysql/en/optional/marc21_relatorterms.yml:authorised_values:1:row:188
 msgid "Respondent"
-msgstr ""
+msgstr "Respondent"
 
 #: installer/data/mysql/en/optional/marc21_relatorterms.yml:authorised_values:1:row:189
 msgid "Respondent-appellant"
-msgstr ""
+msgstr "Respondent-appellant"
 
 #: installer/data/mysql/en/optional/marc21_relatorterms.yml:authorised_values:1:row:186
 msgid "Respondent-appellee"
-msgstr ""
+msgstr "Respondent-appellee"
 
 #: installer/data/mysql/en/optional/marc21_relatorterms.yml:authorised_values:1:row:185
 msgid "Responsible party"
@@ -2514,7 +2817,7 @@ msgstr "Отговорна страна"
 
 #: installer/data/mysql/en/optional/marc21_relatorterms.yml:authorised_values:1:row:187
 msgid "Restager"
-msgstr ""
+msgstr "Етапи"
 
 #: installer/data/mysql/en/optional/auth_val.yml:authorised_values:5:row:20
 msgid "Restocking"
@@ -2546,7 +2849,7 @@ msgstr "Рецензент"
 
 #: installer/data/mysql/en/optional/marc21_relatorterms.yml:authorised_values:1:row:176
 msgid "Rubricator"
-msgstr ""
+msgstr "Rubricator"
 
 #: installer/data/mysql/en/mandatory/sample_frequencies.yml:description:1
 msgid "Sample frequencies for subscriptions"
@@ -2739,7 +3042,7 @@ msgstr "Звукозапис, запис на тел"
 
 #: installer/data/mysql/en/optional/sample_quotes.yml:quotes:1:row:8
 msgid "Speak softly and carry a big stick."
-msgstr ""
+msgstr "Speak softly and carry a big stick."
 
 #: installer/data/mysql/en/optional/marc21_relatorterms.yml:authorised_values:1:row:201
 msgid "Speaker"
@@ -2906,6 +3209,12 @@ msgid ""
 "more concerned with the quality of their goals than the quantity of their "
 "goods."
 msgstr ""
+"The Great Society is a place where every child can find knowledge to enrich "
+"his mind and to enlarge his talents. It is a place where the city of man "
+"serves not only the needs of the body and the demands of commerce but the "
+"desire for beauty and the hunger for community. It is a place where men are "
+"more concerned with the quality of their goals than the quantity of their "
+"goods."
 
 #: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:29:mul:3
 msgid "The Interlibrary loans request number %s you placed for"
@@ -2920,10 +3229,12 @@ msgid ""
 "The atom bomb was no great decision. It was merely another powerful weapon "
 "in the arsenal of righteousness."
 msgstr ""
+"The atom bomb was no great decision. It was merely another powerful weapon "
+"in the arsenal of righteousness."
 
 #: installer/data/mysql/en/optional/sample_quotes.yml:quotes:1:row:17
 msgid "The buck stops here."
-msgstr ""
+msgstr "The buck stops here."
 
 #: installer/data/mysql/en/optional/auth_val.yml:authorised_values:4:row:1
 msgid "The copy on the shelf is damaged"
@@ -2978,10 +3289,12 @@ msgid ""
 "The future depends entirely on what each of us does every day; a movement is "
 "only people moving."
 msgstr ""
+"The future depends entirely on what each of us does every day; a movement is "
+"only people moving."
 
 #: installer/data/mysql/en/optional/sample_quotes.yml:quotes:1:row:47
 msgid "The land knows you, even when you are lost."
-msgstr ""
+msgstr "The land knows you, even when you are lost."
 
 #: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:57:mul:5
 msgid ""
@@ -3023,11 +3336,14 @@ msgid ""
 "The slogan of progress is changing from the full dinner pail to the full "
 "garage."
 msgstr ""
+"The slogan of progress is changing from the full dinner pail to the full "
+"garage."
 
 #: installer/data/mysql/en/optional/sample_quotes.yml:quotes:1:row:44
 msgid ""
 "The way I see it, if you want the rainbow, you gotta put up with the rain!"
 msgstr ""
+"The way I see it, if you want the rainbow, you gotta put up with the rain!"
 
 #: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:63:mul:3
 msgid "There were %s items that were not renewed."
@@ -3074,10 +3390,12 @@ msgid ""
 "To be prepared for war is one of the most effectual means of preserving "
 "peace."
 msgstr ""
+"To be prepared for war is one of the most effectual means of preserving "
+"peace."
 
 #: installer/data/mysql/en/optional/marc21_relatorterms.yml:authorised_values:1:row:213
 msgid "Transcriber"
-msgstr ""
+msgstr "Движения"
 
 #: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:26
 msgid "Transfer slip"
@@ -3092,6 +3410,8 @@ msgid ""
 "Tremendous amounts of talent are being lost to our society just because that "
 "talent wears a skirt."
 msgstr ""
+"Tremendous amounts of talent are being lost to our society just because that "
+"talent wears a skirt."
 
 #: installer/data/mysql/en/optional/marc21_relatorterms.yml:authorised_values:1:row:215
 msgid "Type designer"
@@ -3241,7 +3561,7 @@ msgstr ""
 
 #: installer/data/mysql/en/optional/sample_quotes.yml:quotes:1:row:29
 msgid "We have ...drawn a line in the sand."
-msgstr ""
+msgstr "We have ...drawn a line in the sand."
 
 #: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:7:mul:3
 msgid "We have completed your request for an article from %s (%s)."
@@ -3298,6 +3618,8 @@ msgid ""
 "What you do makes a difference, and you have to decide what kind of "
 "difference you want to make."
 msgstr ""
+"What you do makes a difference, and you have to decide what kind of "
+"difference you want to make."
 
 #: installer/data/mysql/en/optional/sample_news.yml:additional_contents:1:row:2
 msgid "What's Next?"
@@ -3305,11 +3627,11 @@ msgstr "Какво следва?"
 
 #: installer/data/mysql/en/optional/sample_quotes.yml:quotes:1:row:2
 msgid "When angry, count ten, before you speak; if very angry, an hundred."
-msgstr ""
+msgstr "When angry, count ten, before you speak; if very angry, an hundred."
 
 #: installer/data/mysql/en/optional/sample_quotes.yml:quotes:1:row:23
 msgid "When the President does it, that means that it is not illegal."
-msgstr ""
+msgstr "When the President does it, that means that it is not illegal."
 
 #: installer/data/mysql/en/optional/auth_val.yml:authorised_values:3:row:19
 msgid "Withdrawn"
@@ -3358,10 +3680,13 @@ msgid ""
 "America does not consist of groups. A man who thinks of himself as belonging "
 "to a particular national group in America has not yet become an American."
 msgstr ""
+"You cannot become thorough Americans if you think of yourselves in groups. "
+"America does not consist of groups. A man who thinks of himself as belonging "
+"to a particular national group in America has not yet become an American."
 
 #: installer/data/mysql/en/optional/sample_quotes.yml:quotes:1:row:37
 msgid "You cannot shake hands with a clenched fist."
-msgstr ""
+msgstr "You cannot shake hands with a clenched fist."
 
 #: installer/data/mysql/en/mandatory/sample_notices.yml:letter:1:row:48:mul:3
 msgid "You have a hold available for pickup as of %s:"

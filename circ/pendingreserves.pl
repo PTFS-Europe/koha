@@ -161,7 +161,7 @@ my %where = (
     'itembib.itemlost' => 0,
     'itembib.withdrawn' => 0,
     'itembib.notforloan' => 0,
-    'itembib.itemnumber' => { -not_in => \'SELECT itemnumber FROM branchtransfers WHERE datearrived IS NULL' }
+    'itembib.itemnumber' => { -not_in => \'SELECT itemnumber FROM branchtransfers WHERE datearrived IS NULL AND datecancelled IS NULL' }
 );
 
 # date boundaries
@@ -190,6 +190,7 @@ my $holds = Koha::Holds->search(
     { %where },
     { join => 'itembib', distinct => 1, columns => qw[me.biblionumber] }
 );
+
 my @biblionumbers = $holds->get_column('biblionumber');
 
 my $all_items;
@@ -218,6 +219,7 @@ my $holds_biblios_map = {
             {
                 join    => ['itembib', 'biblio'],
                 select  => ['me.biblionumber', 'me.reserve_id'],
+                order_by => { -desc => 'priority' }
             }
         )->unblessed
     }

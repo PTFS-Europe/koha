@@ -175,6 +175,7 @@ CREATE TABLE `action_logs` (
   `object` int(11) DEFAULT NULL COMMENT 'the object that the action was taken against (could be a borrowernumber, itemnumber, etc)',
   `info` mediumtext COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'information about the action (usually includes SQL statement)',
   `interface` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'the context this action was taken in',
+  `script` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'the name of the cron script that caused this change',
   PRIMARY KEY (`action_id`),
   KEY `timestamp_idx` (`timestamp`),
   KEY `user_idx` (`user`),
@@ -2984,9 +2985,9 @@ DROP TABLE IF EXISTS `issues`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `issues` (
   `issue_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'primary key for issues table',
-  `borrowernumber` int(11) DEFAULT NULL COMMENT 'foreign key, linking this to the borrowers table for the patron this item was checked out to',
+  `borrowernumber` int(11) NOT NULL COMMENT 'foreign key, linking this to the borrowers table for the patron this item was checked out to',
   `issuer_id` int(11) DEFAULT NULL COMMENT 'foreign key, linking this to the borrowers table for the user who checked out this item',
-  `itemnumber` int(11) DEFAULT NULL COMMENT 'foreign key, linking this to the items table for the item that was checked out',
+  `itemnumber` int(11) NOT NULL COMMENT 'foreign key, linking this to the items table for the item that was checked out',
   `date_due` datetime DEFAULT NULL COMMENT 'datetime the item is due (yyyy-mm-dd hh:mm::ss)',
   `branchcode` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'foreign key, linking to the branches table for the location the item was checked out',
   `returndate` datetime DEFAULT NULL COMMENT 'date the item was returned, will be NULL until moved to old_issues',
@@ -4334,7 +4335,7 @@ CREATE TABLE `reserves` (
   `borrowernumber` int(11) NOT NULL DEFAULT 0 COMMENT 'foreign key from the borrowers table defining which patron this hold is for',
   `reservedate` date DEFAULT NULL COMMENT 'the date the hold was placed',
   `biblionumber` int(11) NOT NULL DEFAULT 0 COMMENT 'foreign key from the biblio table defining which bib record this hold is on',
-  `branchcode` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'foreign key from the branches table defining which branch the patron wishes to pick this hold up at',
+  `branchcode` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'foreign key from the branches table defining which branch the patron wishes to pick this hold up at',
   `desk_id` int(11) DEFAULT NULL COMMENT 'foreign key from the desks table defining which desk the patron should pick this hold up at',
   `notificationdate` date DEFAULT NULL COMMENT 'currently unused',
   `reminderdate` date DEFAULT NULL COMMENT 'currently unused',

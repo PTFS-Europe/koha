@@ -74,6 +74,7 @@
                     <h3>
                         [% total | html %] result(s) found [% IF ( query_desc ) %]for <span class="results_query_desc">'[% query_desc | html %]'</span>[% END %][% IF limit_desc  %]&nbsp;with limit(s): <span class="results_limit_desc">'[% limit_desc | html %]'</span>[% END %][% IF ( LibraryName ) %] in [% LibraryName | html %] Catalog[% END %].
                     </h3>
+                    <a href="/cgi-bin/koha/catalogue/search.pl?advsearch=1&edit_search=1&[% query_cgi | $raw %]&[% limit_cgi | $raw %]&sort_by=[% sort_by | $raw %]">Edit this search</a>
 
                     <div class="searchheader" id="searchheader">
                         <div id="selection_ops">
@@ -179,8 +180,12 @@
                                         <i class="fa fa-pencil"></i> Edit <span class="caret"></span>
                                     </button>
                                     <ul class="dropdown-menu">
-                                        <li><a class="results_batch_op" data-op="edit" href="#">Batch edit</a></li>
-                                        <li><a class="results_batch_op" data-op="delete" href="#">Batch delete</a></li>
+                                        [% IF ( CAN_user_tools_records_batchmod ) %]
+                                        <li><a class="results_batch_op" data-op="edit" href="#">Batch edit records</a></li>
+                                        [% END %]
+                                        [% IF ( CAN_user_tools_records_batchdel ) %]
+                                        <li><a class="results_batch_op" data-op="delete" href="#">Batch delete records</a></li>
+                                        [% END %]
                                         <li><a class="results_batch_op" data-op="merge" href="#">Merge records</a></li>
                                     </ul>
                                 </div>
@@ -298,7 +303,7 @@
                                             <li><a href="/cgi-bin/koha/catalogue/search.pl?count=[% Koha.Preference('numSearchResults') | uri %][% PROCESS sort_search_query %]" id="resultsperpage-default">
                                                 [% IF results_per_page == Koha.Preference('numSearchResults') %]
                                                     <i class="fa fa-check"></i>
-                                                [% END %] Library default: [% Koha.Preference('numSearchResults') | html %]
+                                                [% END %] [% Koha.Preference('numSearchResults') | html %] (default)
                                             </a></li>
                                         [% END %]
                                         <li><a href="/cgi-bin/koha/catalogue/search.pl?count=20[% PROCESS sort_search_query %]">[% IF results_per_page == '20' %]<i class="fa fa-check"></i>[% END %] 20</a></li>
@@ -327,6 +332,7 @@
                             [% IF CAN_user_acquisition_order_manage && searchtoorder_basketno && searchtoorder_vendorid %][%# Coming from the basket or vendor view %]
                                 <p><a href="/cgi-bin/koha/acqui/basket.pl?basketno=[% searchtoorder_basketno | uri %]">View basket<a></p>
                             [% END %]
+                            <a href="/cgi-bin/koha/catalogue/search.pl?advsearch=1&edit_search=1&[% query_cgi | $raw %]&[% limit_cgi | $raw %]&sort_by=[% sort_by | $raw %]">Edit this search</a>
                         [% ELSE %]
                             <p>You did not specify any search criteria.</p>
                         [% END %]
@@ -735,7 +741,6 @@
             query_desc: "[% To.json( query_desc ) | html %]",
             query_cgi: "[% query_cgi | html %]",
             limit_cgi: "[% limit_cgi | html %]",
-            sort_cgi: "[% sort_cgi | html %]",
             sort_by: "[% sort_by | html %]",
             gotoPage: "[% gotoPage | html %]",
             gotoNumber: "[% gotoNumber | html %]",

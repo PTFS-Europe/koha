@@ -77,14 +77,27 @@ subtest "Koha::Template::Plugin::Koha::Version tests" => sub {
 
 };
 
-subtest "Koha::Template::Plugin::Koha::ArePluginsEnabled tests" => sub {
+subtest "Koha::Template::Plugin::Koha::CSVDelimiter tests" => sub {
 
-    plan tests => 2;
+    plan tests => 8;
 
-    t::lib::Mocks::mock_config( 'enable_plugins', 1 );
-    is(Koha::Template::Plugin::Koha::ArePluginsEnabled(), 1, "Correct ArePluginsEnabled is yes");
+    my $plugin = Koha::Template::Plugin::Koha->new();
 
-    t::lib::Mocks::mock_config( 'enable_plugins', 0 );
-    is(Koha::Template::Plugin::Koha::ArePluginsEnabled(), 0, "Correct ArePluginsEnabled is no");
+    t::lib::Mocks::mock_preference('CSVDelimiter', '');
+    is($plugin->CSVDelimiter(), ',', "CSVDelimiter() returns comma when preference is empty string");
 
+    t::lib::Mocks::mock_preference('CSVDelimiter', undef);
+    is($plugin->CSVDelimiter(), ',', "CSVDelimiter() returns comma when preference is undefined");
+
+    t::lib::Mocks::mock_preference('CSVDelimiter', ';');
+    is($plugin->CSVDelimiter(), ';', "CSVDelimiter() returns preference value when preference is not tabulation");
+
+    t::lib::Mocks::mock_preference('CSVDelimiter', 'tabulation');
+    is($plugin->CSVDelimiter(), "\t", "CSVDelimiter() returns \\t when preference is tabulation");
+
+    t::lib::Mocks::mock_preference('CSVDelimiter', '#');
+    is($plugin->CSVDelimiter(undef), '#', "CSVDelimiter(arg) returns preference value when arg is undefined");
+    is($plugin->CSVDelimiter(''), '#', "CSVDelimiter(arg) returns preference value when arg is empty string");
+    is($plugin->CSVDelimiter(','), ',', "CSVDelimiter(arg) returns arg value when arg is not tabulation");
+    is($plugin->CSVDelimiter('tabulation'), "\t", "CSVDelimiter(arg) returns \\t value when arg is tabulation");
 };

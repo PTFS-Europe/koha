@@ -46,8 +46,6 @@ BEGIN {
       GetZ3950BatchId
       GetWebserviceBatchId
       GetImportRecordMarc
-      GetImportRecordMarcXML
-      GetRecordFromImportBiblio
       AddImportBatch
       GetImportBatch
       AddAuthToBatch
@@ -192,17 +190,6 @@ sub GetImportRecordMarc {
     return $marc, $encoding;
 }
 
-sub GetRecordFromImportBiblio {
-    my ( $import_record_id, $embed_items ) = @_;
-
-    my ($marc) = GetImportRecordMarc($import_record_id);
-    my $record = MARC::Record->new_from_usmarc($marc);
-
-    EmbedItemsInImportBiblio( $record, $import_record_id ) if $embed_items;
-
-    return $record;
-}
-
 sub EmbedItemsInImportBiblio {
     my ( $record, $import_record_id ) = @_;
     my ( $itemtag, $itemsubfield ) = GetMarcFromKohaField( "items.itemnumber" );
@@ -219,24 +206,6 @@ sub EmbedItemsInImportBiblio {
     }
     $record->append_fields(@item_fields);
     return $record;
-}
-
-=head2 GetImportRecordMarcXML
-
-  my $marcxml = GetImportRecordMarcXML($import_record_id);
-
-=cut
-
-sub GetImportRecordMarcXML {
-    my ($import_record_id) = @_;
-
-    my $dbh = C4::Context->dbh;
-    my $sth = $dbh->prepare("SELECT marcxml FROM import_records WHERE import_record_id = ?");
-    $sth->execute($import_record_id);
-    my ($marcxml) = $sth->fetchrow();
-    $sth->finish();
-    return $marcxml;
-
 }
 
 =head2 AddImportBatch
@@ -433,13 +402,13 @@ sub BatchStageMarcRecords {
 
             $num_valid++;
             if ($record_type eq 'biblio') {
-                $import_record_id = AddBiblioToBatch($batch_id, $rec_num, $marc_record, $encoding, int(rand(99999)), 0);
+                $import_record_id = AddBiblioToBatch($batch_id, $rec_num, $marc_record, $encoding, 0);
                 if ($parse_items) {
                     my @import_items_ids = AddItemsToImportBiblio($batch_id, $import_record_id, $marc_record, 0);
                     $num_items += scalar(@import_items_ids);
                 }
             } elsif ($record_type eq 'auth') {
-                $import_record_id = AddAuthToBatch($batch_id, $rec_num, $marc_record, $encoding, int(rand(99999)), 0, $marc_type);
+                $import_record_id = AddAuthToBatch($batch_id, $rec_num, $marc_record, $encoding, 0, $marc_type);
             }
         }
     }
@@ -485,7 +454,6 @@ sub AddItemsToImportBiblio {
 
     if ($#import_items_ids > -1) {
         _update_batch_record_counts($batch_id) if $update_counts;
-        _update_import_record_marc($import_record_id, $marc_record, C4::Context->preference('marcflavour'));
     }
     return @import_items_ids;
 }
@@ -569,6 +537,8 @@ sub BatchCommitRecords {
     my $batch_id = shift;
     my $framework = shift;
 
+    my $schema = Koha::Database->schema;
+
     # optional callback to monitor status 
     # of job
     my $progress_interval = 0;
@@ -607,11 +577,17 @@ sub BatchCommitRecords {
     my $logged_in_patron = Koha::Patrons->find( $userenv->{number} );
 
     my $rec_num = 0;
+    $schema->txn_begin; # We commit in a transaction
     while (my $rowref = $sth->fetchrow_hashref) {
         $record_type = $rowref->{'record_type'};
+
         $rec_num++;
+
         if ($progress_interval and (0 == ($rec_num % $progress_interval))) {
-            &$progress_callback($rec_num);
+            # report progress and commit
+            $schema->txn_commit;
+            &$progress_callback( $rec_num );
+            $schema->txn_begin;
         }
         if ($rowref->{'status'} eq 'error' or $rowref->{'status'} eq 'imported') {
             $num_ignored++;
@@ -726,6 +702,7 @@ sub BatchCommitRecords {
             SetImportRecordStatus($rowref->{'import_record_id'}, 'ignored');
         }
     }
+    $schema->txn_commit; # Commit final records that may not have hit callback threshold
     $sth->finish();
     SetImportBatchStatus($batch_id, 'imported');
     return ($num_added, $num_updated, $num_items_added, $num_items_replaced, $num_items_errored, $num_ignored);
@@ -1651,16 +1628,6 @@ sub _create_import_record {
     my $import_record_id = $dbh->{'mysql_insertid'};
     $sth->finish();
     return $import_record_id;
-}
-
-sub _update_import_record_marc {
-    my ($import_record_id, $marc_record, $marc_type) = @_;
-
-    my $dbh = C4::Context->dbh;
-    my $sth = $dbh->prepare("UPDATE import_records SET marc = ?, marcxml = ?
-                             WHERE  import_record_id = ?");
-    $sth->execute($marc_record->as_usmarc(), $marc_record->as_xml($marc_type), $import_record_id);
-    $sth->finish();
 }
 
 sub _add_auth_fields {

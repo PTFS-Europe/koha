@@ -39,50 +39,48 @@ $se->mock( 'get_elasticsearch_mappings', sub {
     my %all_mappings;
 
     my $mappings = {
-        data => {
-            properties => {
-                title => {
-                    type => 'text'
-                },
-                title__sort => {
-                    type => 'text'
-                },
-                subject => {
-                    type => 'text',
-                    facet => 1
-                },
-                'subject-heading-thesaurus' => {
-                    type => 'text',
-                    facet => 1
-                },
-                itemnumber => {
-                    type => 'integer'
-                },
-                sortablenumber => {
-                    type => 'integer'
-                },
-                sortablenumber__sort => {
-                    type => 'integer'
-                },
-                heading => {
-                    type => 'text'
-                },
-                'heading-main' => {
-                    type => 'text'
-                },
-                heading__sort => {
-                    type => 'text'
-                },
-                match => {
-                    type => 'text'
-                },
-                'match-heading' => {
-                    type => 'text'
-                },
-                'match-heading-see-from' => {
-                    type => 'text'
-                },
-            }
+        properties => {
+            title => {
+                type => 'text'
+            },
+            title__sort => {
+                type => 'text'
+            },
+            subject => {
+                type => 'text',
+                facet => 1
+            },
+            'subject-heading-thesaurus' => {
+                type => 'text',
+                facet => 1
+            },
+            itemnumber => {
+                type => 'integer'
+            },
+            sortablenumber => {
+                type => 'integer'
+            },
+            sortablenumber__sort => {
+                type => 'integer'
+            },
+            heading => {
+                type => 'text'
+            },
+            'heading-main' => {
+                type => 'text'
+            },
+            heading__sort => {
+                type => 'text'
+            },
+            match => {
+                type => 'text'
+            },
+            'match-heading' => {
+                type => 'text'
+            },
+            'match-heading-see-from' => {
+                type => 'text'
+            },
         }
     };
     $all_mappings{$self->index} = $mappings;
@@ -217,7 +215,7 @@ subtest 'build_authorities_query_compat() tests' => sub {
 };
 
 subtest 'build_query tests' => sub {
-    plan tests => 59;
+    plan tests => 60;
 
     my $qb;
 
@@ -341,6 +339,14 @@ subtest 'build_query tests' => sub {
         'Open end year in year range of an st-year search is handled properly'
     );
 
+    ( undef, $query ) = $qb->build_query_compat( undef, ['2019-'], ['yr,st-year'],
+        ['yr,st-numeric:-2019','yr,st-numeric:2005','yr,st-numeric:1984-2022'] );
+    is(
+        $query->{query}{query_string}{query},
+        '(date-of-publication:[2019 TO *]) AND (date-of-publication:[* TO 2019]) AND (date-of-publication:2005) AND (date-of-publication:[1984 TO 2022])',
+        'Limit on year search is handled properly when colon used'
+    );
+
     # Enable auto-truncation
     t::lib::Mocks::mock_preference( 'QueryAutoTruncate', '1' );
 
@@ -384,7 +390,7 @@ subtest 'build_query tests' => sub {
     ( undef, $query ) = $qb->build_query_compat( undef, ['"donald duck"'], undef, ['available'] );
     is(
         $query->{query}{query_string}{query},
-        '("donald duck") AND onloan:false',
+        '("donald duck") AND available:true',
         "query with quotes is unaltered when QueryAutoTruncate is enabled"
     );
 

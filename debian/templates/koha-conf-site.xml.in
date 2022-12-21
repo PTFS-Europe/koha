@@ -304,6 +304,10 @@ __END_SRU_PUBLICSERVER__
  <!-- Secret passphrase used by Mojolicious for signed cookies -->
  <api_secret_passphrase>__API_SECRET__</api_secret_passphrase>
 
+ <!-- default report results limit is 999,999. uncomment this and set a different number to override that limit.
+ <report_results_limit>999999</report_results_limit>
+ -->
+
  <!-- Accessible directory from the staff interface, uncomment the following line and define a valid path to let the intranet user access it-->
  <!--
  <access_dirs>
@@ -450,8 +454,10 @@ __END_SRU_PUBLICSERVER__
  </message_broker>
 
  <do_not_remove_cookie>__KEEP_COOKIE__</do_not_remove_cookie>
+ <do_not_remove_cookie>catalogue_editor_\d+</do_not_remove_cookie>
  <!-- Uncomment lines like hereunder to not clear cookies at logout:
       The cookie name is case sensitive.
+      NOTE: You may use regex constructions like the example above.
      <do_not_remove_cookie>KohaOpacLanguage</do_not_remove_cookie>
  -->
 

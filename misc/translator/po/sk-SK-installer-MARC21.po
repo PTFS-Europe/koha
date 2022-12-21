@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Koha 21.05\n"
-"PO-Revision-Date: 2022-08-21 20:10+0000\n"
+"PO-Revision-Date: 2022-11-01 19:25+0000\n"
 "Last-Translator: SK-KOHA <dada.kapustova@gmail.com>\n"
 "Language-Team: Koha Translation Team\n"
 "Language: sk\n"
@@ -10,7 +10,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
 "X-Generator: Pootle 2.8\n"
-"X-POOTLE-MTIME: 1661112635.927612\n"
+"X-POOTLE-MTIME: 1667330737.588413\n"
 "X-Pootle-Path: /sk/21.05/sk-SK-installer-MARC21.po\n"
 "X-Pootle-Revision: 1\n"
 
@@ -186,7 +186,7 @@ msgstr ""
 
 #: installer/data/mysql/en/marcflavour/marc21/optional/marc21_simple_bib_frameworks.yml:description:7
 msgid "AR  Models"
-msgstr ""
+msgstr "AR  Modely"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/authorities_normal_marc21.yml:auth_tag_structure:2:row:77
 msgid "ASSOCIATED GROUP"
@@ -194,19 +194,19 @@ msgstr "SÚVISIACA SKUPINA"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/authorities_normal_marc21.yml:auth_tag_structure:2:row:81
 msgid "ASSOCIATED LANGUAGE"
-msgstr ""
+msgstr "SÚVISIACI NÁZOV"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/authorities_normal_marc21.yml:auth_tag_structure:2:row:74
 msgid "ASSOCIATED PLACE"
-msgstr ""
+msgstr "SÚVISIACE MIESTO"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/authorities_normal_marc21.yml:auth_tag_structure:2:row:88
 msgid "AUDIENCE CHARACTERISTICS"
-msgstr ""
+msgstr "CHARAKTERISTIKA CIEĽOVEJ SKUPINY"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/marc21_framework_DEFAULT.yml:marc_tag_structure:7:row:77
 msgid "AUGMENTED TITLE [OBSOLETE]"
-msgstr ""
+msgstr "ROZŠÍRENÝ NÁZOV"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/authorities_normal_marc21.yml:auth_tag_structure:2:row:16
 msgid "AUTHENTICATION CODE"
@@ -214,7 +214,7 @@ msgstr "KÓD SCHVÁLENIA"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/authorities_normal_marc21.yml:auth_tag_structure:2:row:146
 msgid "AUXILIARY INSTRUCTION NOTE [CLASSIFICATION FORMAT]"
-msgstr ""
+msgstr "POMÔCKA"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/marc21_framework_DEFAULT.yml:marc_tag_structure:7:row:208
 msgid "AWARDS NOTE"
@@ -238,7 +238,7 @@ msgstr "Prístupové číslo"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/authorities_normal_marc21.yml:auth_subfield_structure:3:row:1748
 msgid "Access status"
-msgstr ""
+msgstr "Stav prístupu"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/marc21_framework_DEFAULT.yml:marc_subfield_structure:8:row:2197
 msgid "Access term"
@@ -400,9 +400,8 @@ msgid "Assigning agency"
 msgstr "Prideľujúca agentúra"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/marc21_framework_DEFAULT.yml:marc_subfield_structure:8:row:3255
-#, fuzzy
 msgid "Assigning or generating agency"
-msgstr "Prideľujúca agentúra"
+msgstr "Prideľujúca alebo generujúca"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/marc21_framework_DEFAULT.yml:marc_subfield_structure:8:row:1274
 msgid "Assigning source"
@@ -601,7 +600,7 @@ msgstr "Začiatočný a konečný dátum pre hodnoty atribútov"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/authorities_normal_marc21.yml:auth_subfield_structure:3:row:77
 msgid "Beginning date"
-msgstr ""
+msgstr "Dátum začiatku"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/marc21_framework_DEFAULT.yml:marc_subfield_structure:8:row:239
 msgid "Beginning of date valid"
@@ -613,7 +612,7 @@ msgstr "Začiatočný alebo jediný dátum vytvorenia"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/marc21_framework_DEFAULT.yml:marc_subfield_structure:8:row:1181
 msgid "Bibliographic history note"
-msgstr ""
+msgstr "História vyhľadávania"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/authorities_normal_marc21.yml:auth_subfield_structure:3:row:1309
 msgid "Bibliographic record control number"
@@ -975,7 +974,7 @@ msgstr "Záhlavie"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/authorities_normal_marc21.yml:auth_subfield_structure:3:row:491
 msgid "Caption hierarchy"
-msgstr ""
+msgstr "Zoradenie titulkov"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/authorities_normal_marc21.yml:auth_subfield_structure:3:row:45
 msgid "Caption or heading"
@@ -983,7 +982,7 @@ msgstr "Nadpis alebo záhlavie"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/marc21_framework_DEFAULT.yml:marc_subfield_structure:8:row:780
 msgid "Carrier type code"
-msgstr ""
+msgstr "Kód nosiča"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/marc21_framework_DEFAULT.yml:marc_subfield_structure:8:row:779
 msgid "Carrier type term"
@@ -1086,7 +1085,7 @@ msgstr ""
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/marc21_framework_DEFAULT.yml:marc_subfield_structure:8:row:3948
 msgid "Classification number, CCAL (RLIN)"
-msgstr ""
+msgstr "Klasifikačné číslo, CCAL (RLIN)"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/marc21_framework_DEFAULT.yml:marc_subfield_structure:8:row:3922
 msgid "Classification number, LCAL (RLIN)"
@@ -1130,7 +1129,7 @@ msgstr "Oblačnosť"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/authorities_normal_marc21.yml:auth_subfield_structure:3:row:131
 msgid "Code source"
-msgstr ""
+msgstr "Kód zdroja"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/marc21_framework_DEFAULT.yml:marc_subfield_structure:6:row:16
 msgid "Coded location qualifier"
@@ -1198,7 +1197,7 @@ msgstr ""
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/authorities_normal_marc21.yml:auth_subfield_structure:3:row:1814
 msgid "Confidence value"
-msgstr ""
+msgstr "Kódovaná hodnota"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/marc21_framework_DEFAULT.yml:marc_subfield_structure:8:row:859
 msgid "Configuration of playback channels"
@@ -1214,7 +1213,7 @@ msgstr "Lineárna vertikálna mierka s konštantným pomerom"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/authorities_normal_marc21.yml:auth_subfield_structure:3:row:1760
 msgid "Contact for access assistance"
-msgstr ""
+msgstr "Kontaktná osoba pre pomoc s prístupom"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/marc21_framework_DEFAULT.yml:marc_subfield_structure:8:row:690
 msgid "Contact person"
@@ -1567,11 +1566,11 @@ msgstr ""
 
 #: installer/data/mysql/en/marcflavour/marc21/optional/marc21_simple_bib_frameworks.yml:biblio_framework:1:row:8
 msgid "DVDs, VHS"
-msgstr ""
+msgstr "DVD, VHS"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/marc21_framework_DEFAULT.yml:marc_subfield_structure:6:row:5
 msgid "Damaged status"
-msgstr ""
+msgstr "Stav poškodenia"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/authorities_normal_marc21.yml:auth_subfield_structure:3:row:1318
 msgid "Date"
@@ -1623,7 +1622,7 @@ msgstr "Dátum akvizície"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/marc21_framework_DEFAULT.yml:marc_subfield_structure:8:row:4083
 msgid "Date of conversion or review"
-msgstr ""
+msgstr "Dátum konverzie alebo kontroly"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/marc21_framework_DEFAULT.yml:marc_subfield_structure:8:row:746
 msgid "Date of current publication frequency"
@@ -1635,7 +1634,7 @@ msgstr "Dátum podujatia"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/marc21_framework_DEFAULT.yml:marc_subfield_structure:8:row:4111
 msgid "Date of loan or deposit"
-msgstr ""
+msgstr "Dátum výpožičky alebo založenia do depozitu"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/marc21_framework_DEFAULT.yml:marc_subfield_structure:8:row:644
 msgid "Date of manufacture"
@@ -1703,7 +1702,7 @@ msgstr "Poznámka o dátume/čase a mieste konania udalosti"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/marc21_framework_DEFAULT.yml:marc_subfield_structure:8:row:4077
 msgid "Dates"
-msgstr ""
+msgstr "Dátumy"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/marc21_framework_DEFAULT.yml:marc_subfield_structure:8:row:1332
 msgid "Dates and/or sequential designation of issues reproduced"
@@ -1731,7 +1730,7 @@ msgstr ""
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/authorities_normal_marc21.yml:auth_subfield_structure:3:row:110
 msgid "Death date"
-msgstr ""
+msgstr "Dátum úmrtia"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/marc21_framework_DEFAULT.yml:marc_subfield_structure:8:row:926
 msgid "Declassification date"
@@ -1739,11 +1738,11 @@ msgstr "Dátum odtajnenia"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/authorities_normal_marc21.yml:auth_subfield_structure:3:row:69
 msgid "Declination - northern limit"
-msgstr ""
+msgstr "Deklinácia - severný limit"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/authorities_normal_marc21.yml:auth_subfield_structure:3:row:70
 msgid "Declination - southern limit"
-msgstr ""
+msgstr "Deklinácia - južný limit"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/marc21_framework_DEFAULT.yml:marc_subfield_structure:8:row:144
 msgid "Declination--northern limit"
@@ -1759,11 +1758,11 @@ msgstr "Predvolený"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/authorities_normal_marc21.yml:description:1
 msgid "Default MARC21 Standard Authority types:"
-msgstr ""
+msgstr "Predvolené MARC21 štandardy pre typy autorít:"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/authorities_normal_marc21.yml:auth_subfield_structure:3:row:1334
 msgid "Definition"
-msgstr ""
+msgstr "Definícia"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/marc21_framework_DEFAULT.yml:marc_subfield_structure:8:row:252
 msgid "Definition of bibliographic subdivisions"
@@ -5077,7 +5076,7 @@ msgstr "ORGANIZÁCIA UDEĽUJÚCA LICENCIU NA OBSAH ZÁZNAMU"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/marc21_framework_DEFAULT.yml:marc_subfield_structure:8:row:3003
 msgid "REG (RLIN)"
-msgstr ""
+msgstr "REG (RLIN)"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/marc21_framework_DEFAULT.yml:marc_tag_structure:7:row:204
 msgid "RELATED COMPUTER FILES NOTE (CF) [OBSOLETE]"
@@ -5105,7 +5104,7 @@ msgstr "POZNÁMKA O REPRODUKCII"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/marc21_framework_DEFAULT.yml:marc_tag_structure:7:row:247
 msgid "RESOURCE IDENTIFIER"
-msgstr ""
+msgstr "IDENTIFIKÁTOR ZDROJA"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/marc21_framework_DEFAULT.yml:marc_tag_structure:7:row:155
 msgid "RESTRICTIONS ON ACCESS NOTE"
@@ -5113,7 +5112,7 @@ msgstr "POZNÁMKA O OBMEDZENIACH PRÍSTUPU"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/marc21_framework_DEFAULT.yml:marc_subfield_structure:8:row:4128
 msgid "RINS (RLIN)"
-msgstr ""
+msgstr "RINS (RLIN)"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/marc21_framework_DEFAULT.yml:marc_tag_structure:7:row:80
 msgid "ROMANIZED TITLE (BK AM CF MP MU VM) [OBSOLETE]"
@@ -5121,11 +5120,11 @@ msgstr ""
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/marc21_framework_DEFAULT.yml:marc_subfield_structure:8:row:4133
 msgid "RTYP (RLIN)"
-msgstr ""
+msgstr "RTYP (RLIN)"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/authorities_normal_marc21.yml:auth_tag_structure:2:row:165
 msgid "RULE IDENTIFICATION [CLASSIFICATION FORMAT]"
-msgstr ""
+msgstr "IDENTIFIKÁTOR PRAVIDIEL [CLASSIFICATION FORMAT]"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/marc21_framework_DEFAULT.yml:marc_subfield_structure:8:row:1465
 msgid "Range domain minimum and maximum"
@@ -5165,7 +5164,7 @@ msgstr "Evidenčné číslo záznamu"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/marc21_framework_DEFAULT.yml:marc_subfield_structure:8:row:854
 msgid "Recording medium"
-msgstr ""
+msgstr "Nahrávacie médium"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/marc21_framework_DEFAULT.yml:marc_subfield_structure:8:row:810
 msgid "Reference method used"
@@ -5173,15 +5172,15 @@ msgstr "Použitá referenčná metóda"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/marc21_framework_DEFAULT.yml:marc_subfield_structure:8:row:4079
 msgid "Referral note"
-msgstr ""
+msgstr "Odporúčanie"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/marc21_framework_DEFAULT.yml:marc_subfield_structure:8:row:887
 msgid "Regional encoding"
-msgstr ""
+msgstr "Regionálne kódovanie"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/marc21_framework_DEFAULT.yml:marc_subfield_structure:8:row:2917
 msgid "Regularity pattern"
-msgstr ""
+msgstr "Pravidelnosť"
 
 #: installer/data/mysql/en/marcflavour/marc21/mandatory/marc21_framework_DEFAULT.yml:marc_subfield_structure:8:row:1539
 msgid "Related computer files note"

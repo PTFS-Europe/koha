@@ -371,7 +371,7 @@ foreach my $item (@items) {
     if ( $analyze ) {
         # count if item is used in analytical bibliorecords
         # The 'countanalytics' flag is only used in the templates if analyze is set
-        my $countanalytics = C4::Context->preference('EasyAnalyticalRecords') ? GetAnalyticsCount($item->{itemnumber}) : 0;
+        my $countanalytics = GetAnalyticsCount( $item->{itemnumber} );
         if ($countanalytics > 0){
             $analytics_flag=1;
             $item->{countanalytics} = $countanalytics;
@@ -539,9 +539,8 @@ if (C4::Context->preference("FRBRizeEditions")==1) {
 }
 
 if ( C4::Context->preference("LocalCoverImages") == 1 ) {
-    my $images = $biblio->cover_images;
     $template->param(
-        localimages => $biblio->cover_images->search(
+        localimages => scalar $biblio->cover_images->search(
             {}, { order_by => [ \"COALESCE(itemnumber, 0, 1)", 'timestamp' ] }
         ),
     );

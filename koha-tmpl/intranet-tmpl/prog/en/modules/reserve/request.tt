@@ -789,7 +789,7 @@
                                         [% END # /FOREACH itemloo %]
                                     </tbody>
                                 </table> <!-- /#requestspecific -->
-
+				
                                 [% IF ( bibitemloo.hiddencount ) %]
                                     <form>
                                         <p class="hiddencount">
@@ -797,6 +797,7 @@
                                         </p>
                                     </form>
                                 [% END # /IF bibitemloo.hiddencount %]
+				
                             [% END # /FOREACH bibitemloo %]
 
                         [% ELSE # /UNLESS multi_hold %]
@@ -1362,7 +1363,12 @@
                 else {
                     msg = (_("- Please select an item to place a hold") + "\n");
                 }
+            } else {
+                if( $("#pickup").length < 1 || $("#pickup").val() == "" ){
+                    msg = _("- Please select a pickup location for this hold" + "\n");
+                }
             }
+
 
             if (msg == "") {
                 $('#hold-request-form').preventDoubleFormSubmit();

@@ -187,13 +187,17 @@ use C4::Biblio qw( GetMarcFromKohaField );
     if (%$invalid_av_per_framework) {
         new_section('Wrong values linked to authorised values');
         for my $frameworkcode ( keys %$invalid_av_per_framework ) {
-            my $output;
             while ( my ( $av_category, $v ) = each %{$invalid_av_per_framework->{$frameworkcode}} ) {
                 my $items     = $v->{items};
                 my $kohafield = $v->{kohafield};
                 my ( $table, $column ) = split '\.', $kohafield;
+                my $output;
                 while ( my $i = $items->next ) {
-                    my $value = $table eq 'items' ? $i->$column : $i->biblioitem->$column;
+                    my $value = $table eq 'items'
+                        ? $i->$column
+                        : $table eq 'biblio'
+                        ? $i->biblio->$column
+                        : $i->biblioitem->$column;
                     $output .= " {" . $i->itemnumber . " => " . $value . "}";
                 }
                 new_item(
