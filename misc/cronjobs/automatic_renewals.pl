@@ -215,7 +215,7 @@ while ( my $auto_renew = $auto_renews->next ) {
 
 }
 
-if ( $send_notices && $confirm ) {
+if ( $send_notices && ( $confirm || $verbose ) ) {
     for my $borrowernumber ( keys %report ) {
         my $patron = Koha::Patrons->find($borrowernumber);
         for my $issue ( @{ $report{$borrowernumber} } ) {
@@ -232,16 +232,23 @@ if ( $send_notices && $confirm ) {
                 lang => $patron->lang,
             );
 
-            my $library = Koha::Libraries->find( $patron->branchcode );
-            my $admin_email_address = $library->from_email_address;
+	    if ( $verbose ) {
+		say "Would send the following notice to borrowernumber: " . $patron->borrowernumber;
+		print $letter->{content};
+	    }
 
-            C4::Letters::EnqueueLetter(
-                {   letter                 => $letter,
-                    borrowernumber         => $borrowernumber,
-                    message_transport_type => 'email',
-                    from_address           => $admin_email_address,
-                }
-            );
+	    if ( $confirm ) {
+                my $library = Koha::Libraries->find( $patron->branchcode );
+                my $admin_email_address = $library->from_email_address;
+    
+                C4::Letters::EnqueueLetter(
+                    {   letter                 => $letter,
+                        borrowernumber         => $borrowernumber,
+                        message_transport_type => 'email',
+                        from_address           => $admin_email_address,
+                    }
+                );
+            }
         }
     }
 
@@ -251,12 +258,16 @@ if ( $send_notices && $confirm ) {
                 digests => $digests,
                 branchcode => $branchcode,
                 letter_code => 'AUTO_RENEWALS_DGST',
+		confirm => $confirm,
+		verbose => $verbose
             });
         }
     } else {
         send_digests({
             digests => $renew_digest,
             letter_code => 'AUTO_RENEWALS_DGST',
+	    confirm => $confirm,
+	    verbose => $verbose
         });
     }
 }
@@ -332,12 +343,19 @@ sub send_digests {
 
             next unless $letter;
 
-            C4::Letters::EnqueueLetter({
-                letter                 => $letter,
-                borrowernumber         => $borrowernumber,
-                from_address           => $from_address,
-                message_transport_type => $transport
-            });
+	    if ( $params->{verbose} ) {
+		say "Would send the following digest notice to borrowernumber: " . $patron->borrowernumber;
+		print $letter->{content};
+	    }
+
+	    if ($params->{confirm}) {
+                C4::Letters::EnqueueLetter({
+                    letter                 => $letter,
+                    borrowernumber         => $borrowernumber,
+                    from_address           => $from_address,
+                    message_transport_type => $transport
+                });
+            }
         }
     }
 }
