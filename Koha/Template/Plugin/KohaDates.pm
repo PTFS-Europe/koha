@@ -26,6 +26,14 @@ use Koha::DateUtils qw( dt_from_string output_pref );
 use C4::Context;
 our $DYNAMIC = 1;
 
+sub init {
+    my $self = shift;
+
+    $self->install_filter($self->{ _ARGS }->[0] || 'KohaDates');
+
+    return $self;
+}
+
 sub filter {
     my ( $self, $text, $args, $config ) = @_;
     return "" unless $text;
