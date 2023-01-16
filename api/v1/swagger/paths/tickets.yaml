@@ -9,14 +9,13 @@
     produces:
       - application/json
     parameters:
-      - $ref: "../swagger.yaml#/parameters/match"
-      - $ref: "../swagger.yaml#/parameters/order_by"
-      - $ref: "../swagger.yaml#/parameters/page"
-      - $ref: "../swagger.yaml#/parameters/per_page"
-      - $ref: "../swagger.yaml#/parameters/q_param"
-      - $ref: "../swagger.yaml#/parameters/q_body"
-      - $ref: "../swagger.yaml#/parameters/q_header"
-      - $ref: "../swagger.yaml#/parameters/request_id_header"
+      - $ref: "../parameters.yaml#/match"
+      - $ref: "../parameters.yaml#/order_by"
+      - $ref: "../parameters.yaml#/page"
+      - $ref: "../parameters.yaml#/per_page"
+      - $ref: "../parameters.yaml#/q_param"
+      - $ref: "../parameters.yaml#/q_body"
+      - $ref: "../parameters.yaml#/q_header"
       - name: x-koha-embed
         in: header
         required: false
@@ -36,22 +35,22 @@
         schema:
           type: array
           items:
-            $ref: "../swagger.yaml#/definitions/ticket"
+            $ref: "../definitions.yaml#/ticket"
       "403":
         description: Access forbidden
         schema:
-          $ref: "../swagger.yaml#/definitions/error"
+          $ref: "../definitions.yaml#/error"
       "500":
         description: |
           Internal server error. Possible `error_code` attribute values:
 
           * `internal_server_error`
         schema:
-          $ref: "../swagger.yaml#/definitions/error"
+          $ref: "../definitions.yaml#/error"
       "503":
         description: Under maintenance
         schema:
-          $ref: "../swagger.yaml#/definitions/error"
+          $ref: "../definitions.yaml#/error"
     x-koha-authorization:
       permissions:
         catalogue: "1"
@@ -67,33 +66,33 @@
         description: A JSON object containing informations about the new hold
         required: true
         schema:
-          $ref: "../swagger.yaml#/definitions/ticket"
+          $ref: "../definitions.yaml#/ticket"
     produces:
       - application/json
     responses:
       "201":
         description: Ticket added
         schema:
-          $ref: "../swagger.yaml#/definitions/ticket"
+          $ref: "../definitions.yaml#/ticket"
       "401":
         description: Authentication required
         schema:
-          $ref: "../swagger.yaml#/definitions/error"
+          $ref: "../definitions.yaml#/error"
       "403":
         description: Access forbidden
         schema:
-          $ref: "../swagger.yaml#/definitions/error"
+          $ref: "../definitions.yaml#/error"
       "500":
         description: |
           Internal server error. Possible `error_code` attribute values:
 
           * `internal_server_error`
         schema:
-          $ref: "../swagger.yaml#/definitions/error"
+          $ref: "../definitions.yaml#/error"
       "503":
         description: Under maintenance
         schema:
-          $ref: "../swagger.yaml#/definitions/error"
+          $ref: "../definitions.yaml#/error"
     x-koha-authorization:
       permissions:
         catalogue: "1"
@@ -105,29 +104,29 @@
       - tickets
     summary: Get ticket
     parameters:
-      - $ref: "../swagger.yaml#/parameters/ticket_id_pp"
+      - $ref: "../x-primitives.yaml#/ticket_id_pp"
     produces:
       - application/json
     responses:
       "200":
         description: A ticket
         schema:
-          $ref: "../swagger.yaml#/definitions/ticket"
+          $ref: "../definitions.yaml#/ticket"
       "404":
         description: Ticket not found
         schema:
-          $ref: "../swagger.yaml#/definitions/error"
+          $ref: "../definitions.yaml#/error"
       "500":
         description: |
           Internal server error. Possible `error_code` attribute values:
 
           * `internal_server_error`
         schema:
-          $ref: "../swagger.yaml#/definitions/error"
+          $ref: "../definitions.yaml#/error"
       "503":
         description: Under maintenance
         schema:
-          $ref: "../swagger.yaml#/definitions/error"
+          $ref: "../definitions.yaml#/error"
     x-koha-authorization:
       permissions:
         catalogue: "1"
@@ -138,40 +137,40 @@
       - tickets
     summary: Update ticket
     parameters:
-      - $ref: "../swagger.yaml#/parameters/ticket_id_pp"
+      - $ref: "../x-primitives.yaml#/ticket_id_pp"
       - name: body
         in: body
         description: A ticket object
         required: true
         schema:
-          $ref: "../swagger.yaml#/definitions/ticket"
+          $ref: "../definitions.yaml#/ticket"
     produces:
       - application/json
     responses:
       "200":
         description: A ticket
         schema:
-          $ref: "../swagger.yaml#/definitions/ticket"
+          $ref: "../definitions.yaml#/ticket"
       "401":
         description: Authentication required
         schema:
-          $ref: "../swagger.yaml#/definitions/error"
+          $ref: "../definitions.yaml#/error"
       "403":
         description: Access forbidden
         schema:
-          $ref: "../swagger.yaml#/definitions/error"
+          $ref: "../definitions.yaml#/error"
       "404":
         description: Ticket not found
         schema:
-          $ref: "../swagger.yaml#/definitions/error"
+          $ref: "../definitions.yaml#/error"
       "500":
         description: Internal error
         schema:
-          $ref: "../swagger.yaml#/definitions/error"
+          $ref: "../definitions.yaml#/error"
       "503":
         description: Under maintenance
         schema:
-          $ref: "../swagger.yaml#/definitions/error"
+          $ref: "../definitions.yaml#/error"
     x-koha-authorization:
       permissions:
         editcatalogue: edit_catalogue
@@ -182,7 +181,7 @@
       - tickets
     summary: Delete ticket
     parameters:
-      - $ref: "../swagger.yaml#/parameters/ticket_id_pp"
+      - $ref: "../x-primitives.yaml#/ticket_id_pp"
     produces:
       - application/json
     responses:
@@ -191,23 +190,23 @@
       "401":
         description: Authentication required
         schema:
-          $ref: "../swagger.yaml#/definitions/error"
+          $ref: "../definitions.yaml#/error"
       "403":
         description: Access forbidden
         schema:
-          $ref: "../swagger.yaml#/definitions/error"
+          $ref: "../definitions.yaml#/error"
       "404":
         description: Ticket not found
         schema:
-          $ref: "../swagger.yaml#/definitions/error"
+          $ref: "../definitions.yaml#/error"
       "500":
         description: Internal error
         schema:
-          $ref: "../swagger.yaml#/definitions/error"
+          $ref: "../definitions.yaml#/error"
       "503":
         description: Under maintenance
         schema:
-          $ref: "../swagger.yaml#/definitions/error"
+          $ref: "../definitions.yaml#/error"
     x-koha-authorization:
       permissions:
         editcatalogue: edit_catalogue
@@ -221,15 +220,14 @@
     produces:
       - application/json
     parameters:
-      - $ref: "../swagger.yaml#/parameters/ticket_id_pp"
-      - $ref: "../swagger.yaml#/parameters/match"
-      - $ref: "../swagger.yaml#/parameters/order_by"
-      - $ref: "../swagger.yaml#/parameters/page"
-      - $ref: "../swagger.yaml#/parameters/per_page"
-      - $ref: "../swagger.yaml#/parameters/q_param"
-      - $ref: "../swagger.yaml#/parameters/q_body"
-      - $ref: "../swagger.yaml#/parameters/q_header"
-      - $ref: "../swagger.yaml#/parameters/request_id_header"
+      - $ref: "../x-primitives.yaml#/ticket_id_pp"
+      - $ref: "../parameters.yaml#/match"
+      - $ref: "../parameters.yaml#/order_by"
+      - $ref: "../parameters.yaml#/page"
+      - $ref: "../parameters.yaml#/per_page"
+      - $ref: "../parameters.yaml#/q_param"
+      - $ref: "../parameters.yaml#/q_body"
+      - $ref: "../parameters.yaml#/q_header"
       - name: x-koha-embed
         in: header
         required: false
@@ -246,26 +244,26 @@
         schema:
           type: array
           items:
-            $ref: "../swagger.yaml#/definitions/ticket_update"
+            $ref: "../definitions.yaml#/ticket_update"
       "403":
         description: Access forbidden
         schema:
-          $ref: "../swagger.yaml#/definitions/error"
+          $ref: "../definitions.yaml#/error"
       "404":
         description: Ticket not found
         schema:
-          $ref: "../swagger.yaml#/definitions/error"
+          $ref: "../definitions.yaml#/error"
       "500":
         description: |
           Internal server error. Possible `error_code` attribute values:
 
           * `internal_server_error`
         schema:
-          $ref: "../swagger.yaml#/definitions/error"
+          $ref: "../definitions.yaml#/error"
       "503":
         description: Under maintenance
         schema:
-          $ref: "../swagger.yaml#/definitions/error"
+          $ref: "../definitions.yaml#/error"
     x-koha-authorization:
       permissions:
         catalogue: "1"
@@ -276,40 +274,40 @@
       - tickets
     summary: Add an update to the ticket
     parameters:
-      - $ref: "../swagger.yaml#/parameters/ticket_id_pp"
+      - $ref: "../x-primitives.yaml#/ticket_id_pp"
       - name: body
         in: body
         description: A ticket update object
         required: true
         schema:
-          $ref: "../swagger.yaml#/definitions/ticket_update"
+          $ref: "../definitions.yaml#/ticket_update"
     produces:
       - application/json
     responses:
       "201":
         description: Ticket added
         schema:
-          $ref: "../swagger.yaml#/definitions/ticket_update"
+          $ref: "../definitions.yaml#/ticket_update"
       "401":
         description: Authentication required
         schema:
-          $ref: "../swagger.yaml#/definitions/error"
+          $ref: "../definitions.yaml#/error"
       "403":
         description: Access forbidden
         schema:
-          $ref: "../swagger.yaml#/definitions/error"
+          $ref: "../definitions.yaml#/error"
       "404":
         description: Ticket not found
         schema:
-          $ref: "../swagger.yaml#/definitions/error"
+          $ref: "../definitions.yaml#/error"
       "500":
         description: Internal error
         schema:
-          $ref: "../swagger.yaml#/definitions/error"
+          $ref: "../definitions.yaml#/error"
       "503":
         description: Under maintenance
         schema:
-          $ref: "../swagger.yaml#/definitions/error"
+          $ref: "../definitions.yaml#/error"
     x-koha-authorization:
       permissions:
         editcatalogue: edit_catalogue
@@ -326,30 +324,30 @@
         description: A JSON object containing informations about the new hold
         required: true
         schema:
-          $ref: "../swagger.yaml#/definitions/ticket"
+          $ref: "../definitions.yaml#/ticket"
     produces:
       - application/json
     responses:
       "201":
         description: Ticket added
         schema:
-          $ref: "../swagger.yaml#/definitions/ticket"
+          $ref: "../definitions.yaml#/ticket"
       "401":
         description: Authentication required
         schema:
-          $ref: "../swagger.yaml#/definitions/error"
+          $ref: "../definitions.yaml#/error"
       "403":
         description: Access forbidden
         schema:
-          $ref: "../swagger.yaml#/definitions/error"
+          $ref: "../definitions.yaml#/error"
       "500":
         description: |
           Internal server error. Possible `error_code` attribute values:
 
           * `internal_server_error`
         schema:
-          $ref: "../swagger.yaml#/definitions/error"
+          $ref: "../definitions.yaml#/error"
       "503":
         description: Under maintenance
         schema:
-          $ref: "../swagger.yaml#/definitions/error"
+          $ref: "../definitions.yaml#/error"
