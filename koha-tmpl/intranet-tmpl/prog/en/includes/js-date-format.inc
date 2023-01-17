@@ -57,7 +57,7 @@
 
         window.$time = function(value, options) {
             if(!value) return '';
-            var tz = (opitons&&options.tz)||def_tz;
+            var tz = (options&&options.tz)||def_tz;
             var m = moment(value);
             if(tz) m.tz(tz);
 
@@ -65,6 +65,12 @@
             var timeformat = (dateformat=='rfc3339'&&'24hr')||(options&&options.timeformat)||def_time_format;
 
             return m.format(get_time_pattern(timeformat)+(dateformat=='rfc3339'?':ss'+(!m.isUTC()?'Z':''):''))+(dateformat=='rfc3339' && m.isUTC()?'Z':'');
+        }
+
+        window.$date_to_rfc3339 = function(value, options) {
+            var dateformat = (options&&options.dateformat)||def_date_format;
+            let m = moment(value, get_date_pattern(dateformat));
+            return m.format("YYYY-MM-DD");
         }
 
     })();
