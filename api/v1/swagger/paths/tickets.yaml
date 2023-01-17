@@ -16,19 +16,6 @@
       - $ref: "../parameters.yaml#/q_param"
       - $ref: "../parameters.yaml#/q_body"
       - $ref: "../parameters.yaml#/q_header"
-      - name: x-koha-embed
-        in: header
-        required: false
-        description: Embed list sent as a request header
-        type: array
-        items:
-          type: string
-          enum:
-            - reporter
-            - resolver
-            - biblio
-            - updates+count
-        collectionFormat: csv
     responses:
       "200":
         description: A list of tickets
@@ -54,6 +41,11 @@
     x-koha-authorization:
       permissions:
         catalogue: "1"
+    x-koha-embed:
+      - reporter
+      - resolver
+      - biblio
+      - updates+count
   post:
     x-mojo-to: Tickets#add
     operationId: addTicket
@@ -228,16 +220,6 @@
       - $ref: "../parameters.yaml#/q_param"
       - $ref: "../parameters.yaml#/q_body"
       - $ref: "../parameters.yaml#/q_header"
-      - name: x-koha-embed
-        in: header
-        required: false
-        description: Embed list sent as a request header
-        type: array
-        items:
-          type: string
-          enum:
-            - user
-        collectionFormat: csv
     responses:
       "200":
         description: A list of ticket updates
@@ -267,6 +249,8 @@
     x-koha-authorization:
       permissions:
         catalogue: "1"
+    x-koha-embed:
+      - user
   post:
     x-mojo-to: Tickets#add_update
     operationId: addTicketUpdate
