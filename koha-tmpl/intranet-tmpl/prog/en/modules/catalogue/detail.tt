@@ -1062,6 +1062,9 @@ Note that permanent location is a code, and location may be an authval.
     [% Asset.js("js/coce.js") | $raw %]
     [% Asset.js("lib/Chocolat/js/chocolat.js") | $raw %]
     [% IF ( Koha.Preference('CatalogConcerns') ) %]
+        [% INCLUDE 'js-date-format.inc' %]
+        [% INCLUDE 'js-patron-format.inc' %]
+        [% INCLUDE 'js-biblio-format.inc' %]
         <script>
             /* Set a variable needed by add_catalog_concern.js */
             var logged_in_user_borrowernumber = "[% logged_in_user.borrowernumber | html %]";
