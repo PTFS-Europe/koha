@@ -1242,4 +1242,9 @@ if ( C4::Context->preference('OPACAuthorIdentifiers') ) {
     $template->param( author_identifiers => \@author_identifiers );
 }
 
+my $opac_js_plugins = Koha::Template::Plugin::KohaPlugins->get_plugins_opac_js;
+if(index($opac_js_plugins, "Cover Image Plugin") != -1){
+    $template->param( Cover_Images_Required => 1 )
+}
+
 output_html_with_http_headers $query, $cookie, $template->output;

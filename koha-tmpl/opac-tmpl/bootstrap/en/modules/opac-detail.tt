@@ -59,7 +59,7 @@
 
                     <div class="bookcover">
 
-                        <div id="biblio-cover-slider" class="cover-slider">
+                        <div id="biblio-cover-slider" class="cover-slider cover_images_required">
                             [% IF ( OPACLocalCoverImages ) %]
                                 [% IF localimages.count %]
                                     [% FOREACH image IN localimages %]
@@ -1452,6 +1452,12 @@
     [% IF ( OpacStarRatings != 'disable' ) %]
         [% Asset.js("lib/jquery/plugins/jquery.barrating.min.js") | $raw %]
         [% Asset.js("js/ratings.js") | $raw %]
+    [% END %]
+
+    [% IF ( Cover_Images_Required ) %]
+        <script>
+            var normalized_isbn = "[% normalized_isbn %]";   
+        </script>
     [% END %]
 
     [% IF ( OpacHighlightedWords ) %][% Asset.js("lib/jquery/plugins/jquery.highlight-3.js") | $raw %][% END %]

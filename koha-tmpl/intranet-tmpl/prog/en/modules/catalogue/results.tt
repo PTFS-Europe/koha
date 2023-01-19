@@ -449,7 +449,7 @@
                                 <table>
                                     <thead>
                                     <tr>
-                                        [% IF ( AmazonCoverImages  || LocalCoverImages || ( SyndeticsCovers ) || (Koha.Preference('CustomCoverImages') && Koha.Preference('CustomCoverImagesURL')) ) %]
+                                        [% IF ( Cover_Images_Required || AmazonCoverImages  || LocalCoverImages || ( SyndeticsCovers ) || (Koha.Preference('CustomCoverImages') && Koha.Preference('CustomCoverImagesURL')) ) %]
                                             <th>&nbsp;</th>
                                         [% END %]
                                         <th colspan="2">Results</th>
@@ -461,9 +461,9 @@
                                     <tbody>
                                     [% FOREACH SEARCH_RESULT IN SEARCH_RESULTS %]
                                         <tr id="row[% SEARCH_RESULT.biblionumber | html %]">
-                                            [% IF ( AmazonCoverImages  || LocalCoverImages || IntranetCoce || ( SyndeticsCovers ) || (Koha.Preference('CustomCoverImages') && Koha.Preference('CustomCoverImagesURL')) ) %]
+                                            [% IF ( Cover_Images_Required || AmazonCoverImages  || LocalCoverImages || IntranetCoce || ( SyndeticsCovers ) || (Koha.Preference('CustomCoverImages') && Koha.Preference('CustomCoverImagesURL')) ) %]
     <td class="bookcoverimg">
-        <div id="cover-slides-[% SEARCH_RESULT.biblionumber | html %]" class="cover-slides" data-biblionumber="[% SEARCH_RESULT.biblionumber | html %]">
+        <div id="cover-slides-[% SEARCH_RESULT.biblionumber | html %]" class="cover-slides search_cover_images_required" data-biblionumber="[% SEARCH_RESULT.biblionumber | html %]">
             [% IF ( LocalCoverImages ) %][% SEARCH_RESULT.localimage | html %]
                 <div id="local-coverimg-[% SEARCH_RESULT.biblionumber | html %]" class="cover-image local-coverimg">
                     <a href="[% PROCESS biblio_a_href biblionumber => SEARCH_RESULT.biblionumber %]">
@@ -781,6 +781,18 @@
     [% Asset.css("css/humanmsg.css") | $raw %]
     [% Asset.js("lib/jquery/plugins/humanmsg.js") | $raw %]
     [% INCLUDE 'select2.inc' %]
+    [% IF ( Cover_Images_Required ) %]
+        <script>
+            const search_results = {};
+            [% FOREACH SEARCH_RESULT IN SEARCH_RESULTS %]
+                var cover_index = "[% loop.count %]";
+                search_results[cover_index] = {};
+                search_results[cover_index].isbn = "[% SEARCH_RESULT.normalized_isbn | html %]";
+                search_results[cover_index].biblionumber = "[% SEARCH_RESULT.biblionumber | html %]";
+                search_results[cover_index].processedBiblio = "[% PROCESS biblio_a_href biblionumber => SEARCH_RESULT.biblionumber | html %]"
+            [% END %]   
+        </script>
+    [% END %]
     <script>
         var PREF_AmazonCoverImages = parseInt( "[% Koha.Preference('AmazonCoverImages') | html %]", 10);
         var q_array = new Array();  // will hold search terms, if present

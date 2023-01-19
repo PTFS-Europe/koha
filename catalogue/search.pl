@@ -779,6 +779,11 @@ my $some_public_shelves = Koha::Virtualshelves->get_some_shelves(
     }
 );
 
+my $intranet_js_plugins = Koha::Template::Plugin::KohaPlugins->get_plugins_intranet_js;
+if(index($intranet_js_plugins, "Cover Image Plugin") != -1){
+    $template->param( Cover_Images_Required => 1 )
+}
+
 
 $template->param(
     add_to_some_private_shelves => $some_private_shelves,

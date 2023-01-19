@@ -924,5 +924,10 @@ if ($offset == 0) {
     $template->param(firstPage => 1);
 }
 
+my $opac_js_plugins = Koha::Template::Plugin::KohaPlugins->get_plugins_opac_js;
+if(index($opac_js_plugins, "Cover Image Plugin") != -1){
+    $template->param( Cover_Images_Required => 1 )
+}
+
     $template->param( borrowernumber    => $borrowernumber);
 output_with_http_headers $cgi, $cookie, $template->output, $content_type;
