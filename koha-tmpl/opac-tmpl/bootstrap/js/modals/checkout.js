@@ -263,6 +263,8 @@ $(document).ready(function() {
         let pageName = $(location).attr("pathname");
         if ( pageName == '/cgi-bin/koha/opac-user.pl' ) {
             location.reload();
+        } else {
+            location.href = "/cgi-bin/koha/opac-user.pl";
         }
     })
 });
