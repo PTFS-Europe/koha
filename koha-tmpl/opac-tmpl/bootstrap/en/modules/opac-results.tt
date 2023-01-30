@@ -1,6 +1,8 @@
 [% USE raw %]
 [% USE Asset %]
 [% USE Koha %]
+[% USE KohaPlugins %]
+[% USE To %]
 [% SET TagsShowEnabled = ( ( Koha.Preference( 'TagsEnabled' ) == 1 ) && TagsShowOnList ) %]
 [% SET TagsInputEnabled = ( ( Koha.Preference( 'opacuserlogin' ) == 1 ) && ( Koha.Preference( 'TagsEnabled' ) == 1 ) && TagsInputOnList ) %]
 
@@ -341,13 +343,14 @@
 
                                             [% # Cell 4: Search result details and controls %]
                                             <td class="bibliocol">
-                                                <div class="coverimages search_cover_images_required itemtype_[% SEARCH_RESULT.itemtype | html %]">
+                                                [% IF ( SEARCH_RESULT.title ) %]
+                                                    [% img_title = SEARCH_RESULT.title %]
+                                                [% ELSE %]
+                                                    [% img_title = SEARCH_RESULT.biblionumber %]
+                                                [% END %]
+                                                <div class="coverimages cover_images_required itemtype_[% SEARCH_RESULT.itemtype | html %]" data-isbn="[% To.json(SEARCH_RESULT.normalized_isbn) | $raw %]" data-imgtitle="[% img_title | html %]">
                                                     <a class="p1" href="/cgi-bin/koha/opac-detail.pl?biblionumber=[% SEARCH_RESULT.biblionumber | uri %]">
-                                                        [% IF ( SEARCH_RESULT.title ) %]
-                                                            [% img_title = SEARCH_RESULT.title %]
-                                                        [% ELSE %]
-                                                            [% img_title = SEARCH_RESULT.biblionumber %]
-                                                        [% END %]
+                                                        
                                                         [% IF ( OPACLocalCoverImages ) %]
                                                             <span title="[% img_title | html %]" class="[% SEARCH_RESULT.biblionumber | html %]" id="local-thumbnail[% loop.count | html %]"></span>
                                                         [% END %]
@@ -587,20 +590,8 @@
     [% IF OpenLibraryCovers || OpenLibrarySearch %]
         [% Asset.js("js/openlibrary.js") | $raw %]
     [% END %]
-    [% IF ( Cover_Images_Required ) %]
-        <script>
-            const search_results = {};
-            [% FOREACH SEARCH_RESULT IN SEARCH_RESULTS %]
-                var cover_index = "[% loop.count %]";
-                search_results[cover_index] = {};
-                search_results[cover_index].isbn = "[% SEARCH_RESULT.normalized_isbn | html %]";
-                [% IF SEARCH_RESULT.img_title %]
-                    search_results[cover_index].img_title = "[% SEARCH_RESULT.img_title | html %]";
-                [% ELSE %]
-                    search_results[cover_index].img_title = "[% SEARCH_RESULT.biblionumber | html %]";
-                [% END %]
-            [% END %]   
-        </script>
+    [% IF ( CoverImagesRequired ) %]
+        [% KohaPlugins.get_plugins_opac_cover_images | $raw %]
     [% END %]
     <script>
         [% IF ( Koha.Preference( 'opacuserlogin' ) == 1 ) && ( Koha.Preference( 'OPACHoldRequests' ) == 1 ) %]

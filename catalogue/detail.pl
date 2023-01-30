@@ -60,6 +60,7 @@ use Koha::Recalls;
 use Koha::SearchEngine::Search;
 use Koha::SearchEngine::QueryBuilder;
 use Koha::Serial::Items;
+use Koha::Template::Plugin::KohaPlugins;
 
 my $query = CGI->new();
 
@@ -686,9 +687,9 @@ $template->param(found1 => scalar $query->param('found1') );
 
 $template->param(biblio => $biblio);
 
-my $intranet_js_plugins = Koha::Template::Plugin::KohaPlugins->get_plugins_intranet_js;
-if(index($intranet_js_plugins, "Cover Image Plugin") != -1){
-    $template->param( Cover_Images_Required => 1 )
+my $intranet_cover_images_plugins = Koha::Template::Plugin::KohaPlugins->get_plugins_intranet_cover_images;
+if($intranet_cover_images_plugins){
+    $template->param( CoverImagesRequired => 1 )
 }
 
 output_html_with_http_headers $query, $cookie, $template->output;

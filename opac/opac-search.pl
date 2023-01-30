@@ -64,6 +64,7 @@ use Koha::Library::Groups;
 use Koha::Patrons;
 use Koha::Plugins;
 use Koha::SearchFields;
+use Koha::Template::Plugin::KohaPlugins;
 
 use POSIX qw(ceil floor strftime);
 use URI::Escape;
@@ -924,9 +925,9 @@ if ($offset == 0) {
     $template->param(firstPage => 1);
 }
 
-my $opac_js_plugins = Koha::Template::Plugin::KohaPlugins->get_plugins_opac_js;
-if(index($opac_js_plugins, "Cover Image Plugin") != -1){
-    $template->param( Cover_Images_Required => 1 )
+my $opac_cover_images_plugins = Koha::Template::Plugin::KohaPlugins->get_plugins_opac_cover_images;
+if($opac_cover_images_plugins){
+    $template->param( CoverImagesRequired => 1 )
 }
 
     $template->param( borrowernumber    => $borrowernumber);

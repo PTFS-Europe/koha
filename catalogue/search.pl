@@ -158,6 +158,7 @@ use Koha::SearchEngine::QueryBuilder;
 use Koha::Virtualshelves;
 use Koha::SearchFields;
 use Koha::SearchFilters;
+use Koha::Template::Plugin::KohaPlugins;
 
 use URI::Escape;
 use JSON qw( decode_json encode_json );
@@ -779,9 +780,9 @@ my $some_public_shelves = Koha::Virtualshelves->get_some_shelves(
     }
 );
 
-my $intranet_js_plugins = Koha::Template::Plugin::KohaPlugins->get_plugins_intranet_js;
-if(index($intranet_js_plugins, "Cover Image Plugin") != -1){
-    $template->param( Cover_Images_Required => 1 )
+my $intranet_cover_images_plugins = Koha::Template::Plugin::KohaPlugins->get_plugins_intranet_cover_images;
+if($intranet_cover_images_plugins){
+    $template->param( CoverImagesRequired => 1 )
 }
 
 
