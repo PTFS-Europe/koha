@@ -128,7 +128,7 @@
     [% END %]
 [% END %]
 
-[% IF ( Koha.Preference( 'OpacTrustedCheckout' ) && loggedinusername ) %]
+[% IF Koha.Preference( 'OpacTrustedCheckout' ) %]
     [% INCLUDE 'modals/checkout.inc' %]
 [% END %]
 
@@ -346,7 +346,7 @@ $(document).ready(function() {
 [% IF Koha.Preference( 'CookieConsent' ) %]
     [% Asset.js("js/cookieconsent.js") | $raw %]
 [% END %]
-[% IF ( Koha.Preference( 'OpacTrustedCheckout' ) && loggedinusername ) %]
+[% IF Koha.Preference( 'OpacTrustedCheckout' ) %]
     [% Asset.js("js/modals/checkout.js") | $raw %]
 [% END %]
 [% KohaPlugins.get_plugins_opac_js | $raw %]

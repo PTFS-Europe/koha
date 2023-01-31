@@ -185,8 +185,8 @@ $(document).ready(function(){
         if (content.length > 0) {
             $('html,body').animate({
                 scrollTop: content.first().offset().top
-            },
-        'slow');
-        content.first().find(':focusable').eq(0).focus();
-    }
+            }, 'slow');
+            content.first().find(':focusable').eq(0).focus();
+        }
+    });
 });
