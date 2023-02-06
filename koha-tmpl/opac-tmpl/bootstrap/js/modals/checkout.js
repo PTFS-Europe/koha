@@ -75,7 +75,9 @@ $(document).ready(function() {
     $('#checkoutModal').on('show.bs.modal', function(e) {
        // Redirect to login modal if not logged in
        if (logged_in_user_id === "") {
-           $('#modalAuth').append('<input type="hidden" name="return" value="' + window.location.pathname + window.location.search + '&modal=checkout" />');
+           let url = new URL(window.location.href);
+           url.searchParams.append('modal','checkout');
+           $('#modalAuth').append('<input type="hidden" name="return" value="' + url.href +'" />');
            $('#loginModal').modal('show');
            return false;
        }
