@@ -61,7 +61,7 @@ $(document).ready(function() {
                 "</td><td>" +
                 $biblio_to_html(current_item.biblio, { link: 0 }) +
                 "</td><td>" +
-                current_item.callnumber +
+                ( ( current_item.callnumber != null ) ? current_item.callnumber : '' ) +
                 "</td><td>" +
                 $date(checkout.due_date) +
                 "</td></tr>"
