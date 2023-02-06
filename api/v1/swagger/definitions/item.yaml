@@ -4,6 +4,8 @@ properties:
   item_id:
     type: integer
     description: Internal item identifier
+  biblio:
+    type: object
   biblio_id:
     type: integer
     description: Internal identifier for the parent bibliographic record
