@@ -21,6 +21,7 @@ use Try::Tiny qw( catch try );
 
 use Koha::BackgroundJobs;
 
+my $json = JSON->new->utf8(0);
 my $conn;
 try {
     $conn = Koha::BackgroundJob->connect;
@@ -66,7 +67,15 @@ while (1) {
     } else {
         my $jobs = Koha::BackgroundJobs->search({ status => 'new' });
         while ( my $job = $jobs->next ) {
-            my $args = decode_json($job->data);
+            my $args = try {
+		$json->decode($job->data);
+	    } catch {
+	      	Koha::Logger->get->warn(sprintf "Cannot decode data for job id=%s", $job->id);
+	      	$job->status('failed')->store; 
+	    };
+
+	    next unless $args;
+
             process_job( $job, { job_id => $job->id, %$args } );
         }
         sleep 10;
