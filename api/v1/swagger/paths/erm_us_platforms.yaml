@@ -1,0 +1,4 @@
+---
+/erm_us_platforms:
+  get:
+    x-mojo-to: erm_platforms#list
