@@ -34,9 +34,9 @@ $(document).ready(function() {
         } else if (code == 'NO_MORE_RENEWALS') {
             result += _("Maximum renewals reached for this item");
         } else if (code == 'NOT_FOR_LOAN') {
-            result += _("This item is not normally for loan, please select another or ask at the desk");
+            result += _("This item is not normally for loan, please select another or ask the librarian");
         } else if (code == 'WTHDRAWN') {
-            result += _("This item is marked withdrawn, please select another or ask at the desk");
+            result += _("This item is marked withdrawn, please select another or ask the librarian");
         } else if (code == 'EMPTY') {
             result += _("Please enter the barcode for the item you wish to checkout");
         } else {
