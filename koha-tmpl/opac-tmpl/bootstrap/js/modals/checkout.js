@@ -78,6 +78,9 @@ $(document).ready(function() {
            let url = new URL(window.location.href);
            url.searchParams.append('modal','checkout');
            $('#modalAuth').append('<input type="hidden" name="return" value="' + url.href +'" />');
+	   $('#shib_url').each(function(){
+	      this.href = this.href.replace(/target=(.*)$/, "target=" + url.href);
+	   });
            $('#loginModal').modal('show');
            return false;
        }
