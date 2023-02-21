@@ -1350,7 +1350,12 @@ se Library will only use your contact details in relation to direct library busi
                 return false;
             } );
 
-            $( ".dialog-confirm" ).dialog({
+            $(".cleardate").on("click", function(){
+                $('#borrower_dateofbirth').val('');
+                return false;
+            });
+
+            $(".dialog-confirm").dialog({
                 resizable: false,
                 height: "auto",
                 width: "80%",
@@ -1367,41 +1372,16 @@ se Library will only use your contact details in relation to direct library busi
                 }
             });
 
-            $('#dialog-confirm-lewisham').dialog({
-		resizable: false,
-		height: 'auto',
-		width: '80%',
-		modal: true,
- 		autoOpen: false,
-		buttons: {
-			"Agree": function () {
-				$('#memberentry-form').append(
-					'<input type="hidden" id="confirmed" name="confirmed" value="true" />'
-				);
-				document.getElementById('memberentry-form').submit();
-			},
-			Cancel: function () {
-				$(this).dialog('close');
-			},
-		},
-	    });
-
+            function check_policies() {
+            	if ($('#memberentry_library select#borrower_branchcode').val() == 'STEN') {
+                	$('.dialog-confirm.sten').dialog('open');
+            	} else if ($('#memberentry_library select#borrower_branchcode').val() == 'QEH') {
+                	$('.dialog-confirm.lewisham').dialog('open');
+            	} else {
+                	document.getElementById('memberentry-form').submit();
+            	}
+            }
         });
-
-    $(".cleardate").on("click", function(){
-        $('#borrower_dateofbirth').val('');
-        return false;
-    });
-
-    function check_policies() {
-    	if ($('#memberentry_library select#borrower_branchcode').val() == 'STEN') {
-        	$('.dialog-confirm.sten').dialog('open');
-    	} else if ($('#memberentry_library select#borrower_branchcode').val() == 'QEH') {
-        	$('.dialog-confirm.lewisham').dialog('open');
-    	} else {
-        	document.getElementById('memberentry-form').submit();
-    	}
-    }
 
     [% IF action != 'edit' and Koha.Preference('PatronSelfRegistrationConfirmEmail') %]
         $("#borrower_email").bind("cut copy paste", function(e){
