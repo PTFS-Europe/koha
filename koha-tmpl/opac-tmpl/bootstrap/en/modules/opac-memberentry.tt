@@ -1014,188 +1014,218 @@
                             [% ELSE %]
                                 <fieldset class="action">
                                     <input type="hidden" name="action" value="create" />
-                                    <input type="submit" class="btn" value="Submit" onclick="check_policies();return false;" />
+                                    <input type="submit" class="btn btn-primary btn-create" value="Submit" /> 
                                 </fieldset>
                             [% END %]
                         </div> <!-- /.col -->
                     </div> <!-- /.row -->
-
                 </form>
 
-<div class="dialog-confirm sten" title="Stenhouse Library regulations" style="font-size:0.7em">
-  
-  <p><strong>Library Membership</strong></p>
-  <ol>
-    <li>Membership of the library is open to all staff employed by or students on placement with Kingston Hospital NHS Foundation Trust.</li>
-    <li>Other persons with legitimate interest in health services may be allowed access to the library and library services. Persons wishing to use these facilities may become associate members on payment of a fee (ie private membership). Enquiries regarding private membership should be addressed to the Library Manager</li>
-    <li>All readers are required to register with the library before using library facilities.</li>
-    <li>All readers must update the library on changes to contact details or employment.</li>
-  </ol>
-  <p><strong>Loans</strong></p>
-  <ol>
-    <li>ID badges must be presented when borrowing books. This must be in the same names as your library record. A user barcode is required to us the self-service system</li>
-    <li>Items borrowed from the library remain your responsibility whilst on loan and should not be borrowed on behalf of another user.</li>
-    <li>All items must be issued by the Library Staff, or through self-service using the library loans system.</li>
-    <li>During unstaffed hours books must be issued through the self-service system or if there is a problem, using the forms provided.</li>
-    <li>Up to five books may be borrowed. Books may be borrowed either for a period of 3 weeks and may be renewed twice, or for 7 days and these may only be renewed once</li>
-    <li>Students and staff on undergraduate courses may borrow books for a maximum period of 2 weeks</li>
-    <li>If books are required by another reader, the books cannot be renewed and should be returned to the library by the due date.</li>
-    <li>Borrowers must bring books to the Library to be renewed if they are 7 or more days overdue</li>
-    <li>Borrowing rights will be suspended if the user has books 7 or more days overdue. A donation must be made before borrowing rights will be restored.</li>
-    <li>Current issues of journals and some textbooks marked reference may not be borrowed. Overnight and short loans are at the librarians’ discretion.</li>
-    <li>Library material which is not returned when recalled will be considered lost or stolen and the user will be charged the replacement price and administration charge or asked to provide a replacement themselves.</li>
-    <li>Library material must not be mutilated or defaced in any way and if found to be so the user will be charged the replacement price and administration charge or asked to provide a replacement themselves.</li>
-  </ol>
-  <p><strong>Use of IM&amp;T Facilities</strong></p>
-  <ol>
-    <li>Users are expected to abide by all Trust IM&T guidelines and policies relating to the use of computers and other IT equipment, information governance, and confidentiality.</li>
-    <li>It is the responsibility of all staff and students within the Trust to ensure that computer systems and the data which is accessed through them are safe and secure. This includes locking PCs and removing SmartCards when away from them.</li>
-    <li>Any SmartCards found unattended will be removed and may be returned to Information Governance.</li>
-    <li>Staff who are authorised to use the e–mail system have additional responsibilities relating to security, confidentiality and appropriate use.</li>
-    <li>Users are expected to ensure that any print documents containing person identifiable information is not left unattended. Any person identifiable information found unattended will be removed and will be reported as an incident to Information Governance.</li>
-  </ol>
-  <p><strong>Other</strong></p>
-  <ol>
-    <li>Food must not be consumed in the library.</li>
-    <li>24 hour access is available to all members using the swipe card access. </li>
-    <li>Cards can be borrowed from the library for 7 days </li>
-    <li>Cards must not be returned to the book return boxes</li>
-    <li>Users are expected to treat the facilities and other users in line with the Trusts values.</li>
-  </ol>
-  <p><strong>Privacy/data protection statement</strong></p>
-  <p>Your personal data and records of library use may be shared with library staff in accordance with the General Data Protection Regulation 2018 (GDPR). Your information may be accessible to library staff at other NHS and partner organisations within the South London shared library management consortium to enable loans of other libraries’ materials and the supply of other requested items e.g. journal articles. Stenhou
-se Library will only use your contact details in relation to direct library business including book loans, document delivery, training activities and events, electronic resources, library access and user satisfaction. Your data will not be shared with any third party.</p>
-  <p><strong>Agreement</strong></p>
-  <p>I understand that I am responsible for any item borrowed by me and I agree that replacement costs and administration charges may be payable and that library facilities may be withdrawn from users who do not conform to the library regulations.</p>
-  <p>I have read the rules and regulations governing the use of the library and I agree to abide by them. I consent to contact from the library in relation to my membership and the services provided by the library.</p>
-</div>
+                <div class="modal modal-confirm sten" tabindex="-1" aria-labelledby="confirmLabel" aria-hidden="true">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="confirmModal">Stenhouse Library regulations</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Cancel">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <p><strong>Library Membership</strong></p>
+                        <ol>
+                          <li>Membership of the library is open to all staff employed by or students on placement with Kingston Hospital NHS Foundation Trust.</li>
+                          <li>Other persons with legitimate interest in health services may be allowed access to the library and library services. Persons wishing to use these facilities may become associate members on payment of a fee (ie private membership). Enquiries regarding private membership should be addressed to the Library Manager</li>
+                          <li>All readers are required to register with the library before using library facilities.</li>
+                          <li>All readers must update the library on changes to contact details or employment.</li>
+                        </ol>
+                        <p><strong>Loans</strong></p>
+                        <ol>
+                          <li>ID badges must be presented when borrowing books. This must be in the same names as your library record. A user barcode is required to us the self-service system</li>
+                          <li>Items borrowed from the library remain your responsibility whilst on loan and should not be borrowed on behalf of another user.</li>
+                          <li>All items must be issued by the Library Staff, or through self-service using the library loans system.</li>
+                          <li>During unstaffed hours books must be issued through the self-service system or if there is a problem, using the forms provided.</li>
+                          <li>Up to five books may be borrowed. Books may be borrowed either for a period of 3 weeks and may be renewed twice, or for 7 days and these may only be renewed once</li>
+                          <li>Students and staff on undergraduate courses may borrow books for a maximum period of 2 weeks</li>
+                          <li>If books are required by another reader, the books cannot be renewed and should be returned to the library by the due date.</li>
+                          <li>Borrowers must bring books to the Library to be renewed if they are 7 or more days overdue</li>
+                          <li>Borrowing rights will be suspended if the user has books 7 or more days overdue. A donation must be made before borrowing rights will be restored.</li>
+                          <li>Current issues of journals and some textbooks marked reference may not be borrowed. Overnight and short loans are at the librarians’ discretion.</li>
+                          <li>Library material which is not returned when recalled will be considered lost or stolen and the user will be charged the replacement price and administration charge or asked to provide a replacement themselves.</li>
+                          <li>Library material must not be mutilated or defaced in any way and if found to be so the user will be charged the replacement price and administration charge or asked to provide a replacement themselves.</li>
+                        </ol>
+                        <p><strong>Use of IM&amp;T Facilities</strong></p>
+                        <ol>
+                          <li>Users are expected to abide by all Trust IM&T guidelines and policies relating to the use of computers and other IT equipment, information governance, and confidentiality.</li>
+                          <li>It is the responsibility of all staff and students within the Trust to ensure that computer systems and the data which is accessed through them are safe and secure. This includes locking PCs and removing SmartCards when away from them.</li>
+                          <li>Any SmartCards found unattended will be removed and may be returned to Information Governance.</li>
+                          <li>Staff who are authorised to use the e–mail system have additional responsibilities relating to security, confidentiality and appropriate use.</li>
+                          <li>Users are expected to ensure that any print documents containing person identifiable information is not left unattended. Any person identifiable information found unattended will be removed and will be reported as an incident to Information Governance.</li>
+                        </ol>
+                        <p><strong>Other</strong></p>
+                        <ol>
+                          <li>Food must not be consumed in the library.</li>
+                          <li>24 hour access is available to all members using the swipe card access. </li>
+                          <li>Cards can be borrowed from the library for 7 days </li>
+                          <li>Cards must not be returned to the book return boxes</li>
+                          <li>Users are expected to treat the facilities and other users in line with the Trusts values.</li>
+                        </ol>
+                        <p><strong>Privacy/data protection statement</strong></p>
+                        <p>Your personal data and records of library use may be shared with library staff in accordance with the General Data Protection Regulation 2018 (GDPR). Your information may be accessible to library staff at other NHS and partner organisations within the South London shared library management consortium to enable loans of other libraries’ materials and the supply of other requested items e.g. journal articles. Stenhou
+                      se Library will only use your contact details in relation to direct library business including book loans, document delivery, training activities and events, electronic resources, library access and user satisfaction. Your data will not be shared with any third party.</p>
+                        <p><strong>Agreement</strong></p>
+                        <p>I understand that I am responsible for any item borrowed by me and I agree that replacement costs and administration charges may be payable and that library facilities may be withdrawn from users who do not conform to the library regulations.</p>
+                        <p>I have read the rules and regulations governing the use of the library and I agree to abide by them. I consent to contact from the library in relation to my membership and the services provided by the library.</p>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-primary agree">Agree</button>
+                        <button type="button" class="btn btn-secondary cancel" data-dismiss="modal">Cancel</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
-<div class="dialog-confirm lewisham" title="Lewisham and Greenwich Library Rules and Regulations" style="font-size: 0.7em">
-    <p><strong>Membership</strong></p>
-    <ol>
-        <li>
-            Membership of LGT Library Services is open to all staff and students on placement within Lewisham
-            and Greenwich NHS Trust or its affiliated Trusts.
-        </li>
-        <li>
-            Other persons with legitimate interest in health services may be allowed to access the Library as
-            visitors, while some may have to pay as private members in order to borrow books and to access
-            other services.
-        </li>
-        <li>
-            All users are required to complete a membership application form before they can be registered as
-            members. Any changes of employment and contact details must be reported to library staff.
-        </li>
-        <li>
-            Library membership cards remain the property of the LKS and are not transferrable. Lost or stolen
-            library cards should be reported to library staff. Note: the cards may be replaced with a Library
-            barcode stuck on the student or staff ID badge.
-        </li>
-        <li>
-            Library users are expected to treat the facilities and others users with dignity and respect and
-            in line with the Trust’s values.
-        </li>
-    </ol>
-    <p><strong>Loans and Renewals</strong></p>
-    <ol>
-        <li>
-            All books may be borrowed except those marked <strong>&quot;Reference Only&quot;</strong> and
-            loose journals.
-        </li>
-        <li>
-            Library members are expected to use the self-service kiosks by default and only bring to the
-            counter books borrowed through the Inter-Library Loans service.
-        </li>
-        <li>
-            A maximum of 8 items may be borrowed at any one time and items should be returned or renewed on or
-            before their due date. Items may be renewed up to 3 times unless reserved by another user.
-        </li>
-        <li>
-            Renewals may be made online at
-            <a href="https://slhl.koha-ptfs.co.uk/">https://slhl.koha-ptfs.co.uk/</a> using the membership
-            card number for login and password unless a different pin number has been set-up. Books borrowed
-            may not be transferred to another without library staff approval. An alternative renewal method is
-            to email <a href="mailto:LG.LKS@nhs.net">LG.LKS@nhs.net</a> or telephone.
-        </li>
-        <li>
-            A fine for late returns will be charged at 0.10p per item per day. Users will be invoiced for the
-            replacement cost of items not returned to the Library. Any items damaged or defaced while on loan
-            will incur a replacement fee.
-        </li>
-        <li>
-            Users must return all library items (including library cards) before they leave the Trust.
-            Students can keep their library card if they wish, until they qualify. Members are encourage to
-            keep a record of their membership number and use it each time they use the self-service kiosks or
-            when they contact Library staff.
-        </li>
-    </ol>
-    <p><strong>Use of ICT Facilities</strong></p>
-    <ol>
-        <li>
-            Computers are provided for work or study purposes. Trust Staff are expected to obtain their own
-            login from IT. Generic login is only used for training purposes.
-        </li>
-        <li>
-            Users must comply with the Trust’s
-            <a href="https://lgnet.lewishamandgreenwich.nhs.uk/itservicedesk"
-                >Code of practice for the use of IT facilities</a
-            >
-            (details on the Intranet). This includes ensuring that documents or data containing personally
-            identifiable information is not left unattended. Incidents of breach of data protection
-            regulations will be reported to relevant departments.
-        </li>
-        <li>Computer users should ensure any private documents are not saved on public network folders.</li>
-        <li>
-            Eating or drinking is allowed except when using the computers. Users may be charged for any damage
-            to equipment and library items.
-        </li>
-        <li>
-            All users should pay for photocopying and printing with the exception of self-service scanning.
-        </li>
-        <li>
-            Out of hours access is available for limited times using a staff ID badge. Please check on each
-            site for out-of-hours access arrangements.
-        </li>
-        <li>
-            It is the responsibility of all staff and students within the Trust to ensure that computer
-            systems and the data which is accessed through them is safe and secure. This includes locking them
-            and removing Smartcards when away from them. Cards left unattended will be removed and reported to
-            the Information Governance Team.
-        </li>
-    </ol>
-    <p><strong>Environment and Security</strong></p>
-    <ol>
-        <li>Smoking is not permitted in the library. All rubbish should be placed in the bins provided.</li>
-        <li>Users are responsible for looking after their personal belongings.</li>
-        <li>Mobile phones should be set to silent or vibrate and calls taken outside the Library.</li>
-    </ol>
-    <p><strong>Copyright</strong></p>
-    <ol>
-        <li>NHS Copyright License should be observed. (see copyright posters near the copiers).</li>
-    </ol>
-    <p><strong>Privacy / Data protection statement</strong></p>
-    <p>
-        Your personal data and records of library use may be shared with Library Staff in accordance with the General Data
-        Protection Regulations 2018 (GDPR). Your information will be accessible to Library staff at other NHS Trusts and partner
-        organisations in England through Library Management Systems (LMS),that enable efficient use of resources through
-        Inter-Library Loan schemes. LGT Library staff will only use your contact details in relation to direct library business
-        including book loans, overdue notices, article requests, training, library bulletins, library access, user satisfaction
-        surveys and related services. Your data will not be shared with any third parties, except Library Management System
-        Suppliers who may have access by default.
-    </p>
-    <p><strong>Agreement</strong></p>
-    <p>
-        I understand that I am responsible for any items borrowed by me or using my membership card. I agree to pay overdue
-        fines and costs of replacement for books that go missing or I fail to return. I also agree to pay for any facilities
-        damaged as a result of my fault and that services may be withdrawn if I remain in default or in breach of Library
-        Regulations.
-    </p>
-    <p>
-        I have read the rules and regulations governing my membership and use of LGT Library Services. I confirm that I have
-        provided all contact details and I have ticked all relevant preferences on how I should be contacted concerning my
-        membership and the services provided by the Library.
-    </p>
-</div>
+                <div class="modal modal-confirm lewisham" tabindex="-1" aria-labelledby="confirmLabel" aria-hidden="true">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="confirmModal">Lewisham and Greenwich Library Rules and Regulations</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Cancel">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <p><strong>Membership</strong></p>
+                        <ol>
+                            <li>
+                                Membership of LGT Library Services is open to all staff and students on placement within Lewisham
+                                and Greenwich NHS Trust or its affiliated Trusts.
+                            </li>
+                            <li>
+                                Other persons with legitimate interest in health services may be allowed to access the Library as
+                                visitors, while some may have to pay as private members in order to borrow books and to access
+                                other services.
+                            </li>
+                            <li>
+                                All users are required to complete a membership application form before they can be registered as
+                                members. Any changes of employment and contact details must be reported to library staff.
+                            </li>
+                            <li>
+                                Library membership cards remain the property of the LKS and are not transferrable. Lost or stolen
+                                library cards should be reported to library staff. Note: the cards may be replaced with a Library
+                                barcode stuck on the student or staff ID badge.
+                            </li>
+                            <li>
+                                Library users are expected to treat the facilities and others users with dignity and respect and
+                                in line with the Trust’s values.
+                            </li>
+                        </ol>
+                        <p><strong>Loans and Renewals</strong></p>
+                        <ol>
+                            <li>
+                                All books may be borrowed except those marked <strong>&quot;Reference Only&quot;</strong> and
+                                loose journals.
+                            </li>
+                            <li>
+                                Library members are expected to use the self-service kiosks by default and only bring to the
+                                counter books borrowed through the Inter-Library Loans service.
+                            </li>
+                            <li>
+                                A maximum of 8 items may be borrowed at any one time and items should be returned or renewed on or
+                                before their due date. Items may be renewed up to 3 times unless reserved by another user.
+                            </li>
+                            <li>
+                                Renewals may be made online at
+                                <a href="https://slhl.koha-ptfs.co.uk/">https://slhl.koha-ptfs.co.uk/</a> using the membership
+                                card number for login and password unless a different pin number has been set-up. Books borrowed
+                                may not be transferred to another without library staff approval. An alternative renewal method is
+                                to email <a href="mailto:LG.LKS@nhs.net">LG.LKS@nhs.net</a> or telephone.
+                            </li>
+                            <li>
+                                A fine for late returns will be charged at 0.10p per item per day. Users will be invoiced for the
+                                replacement cost of items not returned to the Library. Any items damaged or defaced while on loan
+                                will incur a replacement fee.
+                            </li>
+                            <li>
+                                Users must return all library items (including library cards) before they leave the Trust.
+                                Students can keep their library card if they wish, until they qualify. Members are encourage to
+                                keep a record of their membership number and use it each time they use the self-service kiosks or
+                                when they contact Library staff.
+                            </li>
+                        </ol>
+                        <p><strong>Use of ICT Facilities</strong></p>
+                        <ol>
+                            <li>
+                                Computers are provided for work or study purposes. Trust Staff are expected to obtain their own
+                                login from IT. Generic login is only used for training purposes.
+                            </li>
+                            <li>
+                                Users must comply with the Trust’s
+                                <a href="https://lgnet.lewishamandgreenwich.nhs.uk/itservicedesk"
+                                    >Code of practice for the use of IT facilities</a
+                                >
+                                (details on the Intranet). This includes ensuring that documents or data containing personally
+                                identifiable information is not left unattended. Incidents of breach of data protection
+                                regulations will be reported to relevant departments.
+                            </li>
+                            <li>Computer users should ensure any private documents are not saved on public network folders.</li>
+                            <li>
+                                Eating or drinking is allowed except when using the computers. Users may be charged for any damage
+                                to equipment and library items.
+                            </li>
+                            <li>
+                                All users should pay for photocopying and printing with the exception of self-service scanning.
+                            </li>
+                            <li>
+                                Out of hours access is available for limited times using a staff ID badge. Please check on each
+                                site for out-of-hours access arrangements.
+                            </li>
+                            <li>
+                                It is the responsibility of all staff and students within the Trust to ensure that computer
+                                systems and the data which is accessed through them is safe and secure. This includes locking them
+                                and removing Smartcards when away from them. Cards left unattended will be removed and reported to
+                                the Information Governance Team.
+                            </li>
+                        </ol>
+                        <p><strong>Environment and Security</strong></p>
+                        <ol>
+                            <li>Smoking is not permitted in the library. All rubbish should be placed in the bins provided.</li>
+                            <li>Users are responsible for looking after their personal belongings.</li>
+                            <li>Mobile phones should be set to silent or vibrate and calls taken outside the Library.</li>
+                        </ol>
+                        <p><strong>Copyright</strong></p>
+                        <ol>
+                            <li>NHS Copyright License should be observed. (see copyright posters near the copiers).</li>
+                        </ol>
+                        <p><strong>Privacy / Data protection statement</strong></p>
+                        <p>
+                            Your personal data and records of library use may be shared with Library Staff in accordance with the General Data
+                            Protection Regulations 2018 (GDPR). Your information will be accessible to Library staff at other NHS Trusts and partner
+                            organisations in England through Library Management Systems (LMS),that enable efficient use of resources through
+                            Inter-Library Loan schemes. LGT Library staff will only use your contact details in relation to direct library business
+                            including book loans, overdue notices, article requests, training, library bulletins, library access, user satisfaction
+                            surveys and related services. Your data will not be shared with any third parties, except Library Management System
+                            Suppliers who may have access by default.
+                        </p>
+                        <p><strong>Agreement</strong></p>
+                        <p>
+                            I understand that I am responsible for any items borrowed by me or using my membership card. I agree to pay overdue
+                            fines and costs of replacement for books that go missing or I fail to return. I also agree to pay for any facilities
+                            damaged as a result of my fault and that services may be withdrawn if I remain in default or in breach of Library
+                            Regulations.
+                        </p>
+                        <p>
+                            I have read the rules and regulations governing my membership and use of LGT Library Services. I confirm that I have
+                            provided all contact details and I have ticked all relevant preferences on how I should be contacted concerning my
+                            membership and the services provided by the Library.
+                        </p>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-primary agree">Agree</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
                     </div><!--/div#update-account -->
                 </div>
@@ -1252,7 +1282,7 @@ se Library will only use your contact details in relation to direct library busi
                     }
                     else {
                         form.beenSubmitted = true;
-                        document.getElementById('memberentry-form').submit();
+                        check_policies(form);
                     }
                 }
             });
@@ -1355,35 +1385,33 @@ se Library will only use your contact details in relation to direct library busi
                 return false;
             });
 
-            $(".dialog-confirm").dialog({
-                resizable: false,
-                height: "auto",
-                width: "80%",
-                modal: true,
-                autoOpen: false,
-                buttons: {
-                    "Agree": function() {
-                        $('#memberentry-form').append('<input type="hidden" id="confirmed" name="confirmed" value="true" />');
-                        document.getElementById('memberentry-form').submit();
-                    },
-                   Cancel: function() {
-                        $( this ).dialog( "close" );
-                    }
-                }
+         });
+
+        /*
+         * Called from validate on success to replace submit with a modal pop-up and then submit on accept
+         */
+        function check_policies(form) {
+        	if ($('#memberentry_library select#borrower_branchcode').val() == 'STEN') {
+            	$('.modal-confirm.sten').modal("show");
+        	} else if ($('#memberentry_library select#borrower_branchcode').val() == 'QEH') {
+            	$('.modal-confirm.lewisham').modal("show");
+        	} else {
+                form.submit();
+            }
+
+            $('.agree').on("click", function(){
+                form.append('<input type="hidden" id="confirmed" name="confirmed" value="true" />');
+                form.submit();
             });
 
-            function check_policies() {
-            	if ($('#memberentry_library select#borrower_branchcode').val() == 'STEN') {
-                	$('.dialog-confirm.sten').dialog('open');
-            	} else if ($('#memberentry_library select#borrower_branchcode').val() == 'QEH') {
-                	$('.dialog-confirm.lewisham').dialog('open');
-            	} else {
-                	document.getElementById('memberentry-form').submit();
-            	}
-            }
-        });
+            $('.cancel').on("click", function(){
+                form.beenSubmitted = false;
+            });
 
-    [% IF action != 'edit' and Koha.Preference('PatronSelfRegistrationConfirmEmail') %]
+            return false;
+        }
+
+   [% IF action != 'edit' and Koha.Preference('PatronSelfRegistrationConfirmEmail') %]
         $("#borrower_email").bind("cut copy paste", function(e){
             e.preventDefault();
             $("#borrower_email").bind("contextmenu", function(e){
