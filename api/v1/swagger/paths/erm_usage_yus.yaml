@@ -19,6 +19,21 @@
         name: title_id
         required: false
         type: integer
+      - description: Case insensitive search on yearly_usage_summaries platform_id
+        in: query
+        name: platform_id
+        required: false
+        type: integer
+      - description: Case insensitive search on yearly_usage_summaries database_id
+        in: query
+        name: database_id
+        required: false
+        type: integer
+      - description: Case insensitive search on yearly_usage_summaries item_id
+        in: query
+        name: item_id
+        required: false
+        type: integer
       - description: Case insensitive search on yearly_usage_summaries usage_data_provider_id
         in: query
         name: usage_data_provider_id
@@ -39,6 +54,11 @@
         name: metric_type
         required: false
         type: integer
+      - description: Case insensitive search on yearly_usage_summaries access_type
+        in: query
+        name: access_type
+        required: false
+        type: string
       - description: Case insensitive search on yearly_usage_summaries report_type
         in: query
         name: report_type
