@@ -1312,6 +1312,21 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 erm_counter_logs
+
+Type: has_many
+
+Related object: L<Koha::Schema::Result::ErmCounterLog>
+
+=cut
+
+__PACKAGE__->has_many(
+  "erm_counter_logs",
+  "Koha::Schema::Result::ErmCounterLog",
+  { "foreign.borrowernumber" => "self.borrowernumber" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 erm_user_roles
 
 Type: has_many
@@ -2058,8 +2073,8 @@ Composing rels: L</user_permissions> -> permission
 __PACKAGE__->many_to_many("permissions", "user_permissions", "permission");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-11-10 17:43:30
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:5hh2lGCcKclyTnY7KNPkvg
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2023-02-08 17:39:27
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:4FwaGFQ6/gh08D3IOF4uyQ
 
 __PACKAGE__->has_many(
   "restrictions",
