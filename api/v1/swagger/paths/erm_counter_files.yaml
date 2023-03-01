@@ -1,0 +1,282 @@
+---
+/erm/counter_files:
+  get:
+    x-mojo-to: ERM::CounterFiles#list
+    operationId: listErmCounterFiles
+    tags:
+      - counter_file
+    summary: List counter_files
+    produces:
+      - application/json
+    parameters:
+      - description: Case insensitive search on counter_file erm_counter_files_id
+        in: query
+        name: erm_counter_files_id
+        required: false
+        type: integer
+      - description: Case insensitive search on counter_file harvester_id
+        in: query
+        name: harvester_id
+        required: false
+        type: integer
+      - description: Case insensitive search on counter_file filename
+        in: query
+        name: filename
+        required: false
+        type: string
+      - $ref: "../swagger.yaml#/parameters/match"
+      - $ref: "../swagger.yaml#/parameters/order_by"
+      - $ref: "../swagger.yaml#/parameters/page"
+      - $ref: "../swagger.yaml#/parameters/per_page"
+      - $ref: "../swagger.yaml#/parameters/q_param"
+      - $ref: "../swagger.yaml#/parameters/q_body"
+      - $ref: "../swagger.yaml#/parameters/q_header"
+    responses:
+      200:
+        description: A list of counter_files
+        schema:
+          items:
+            $ref: "../swagger.yaml#/definitions/erm_counter_file"
+          type: array
+      400:
+        description: Bad request
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      403:
+        description: Access forbidden
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      500:
+        description: |-
+          Internal server error. Possible `error_code` attribute values:
+          * `internal_server_error`
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      503:
+        description: Under maintenance
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+    x-koha-authorization:
+      permissions:
+        erm: 1
+  post:
+    x-mojo-to: ERM::CounterFiles#add
+    operationId: addErmCounterFiles
+    tags:
+      - counter_file
+    summary: Add counter_file
+    consumes:
+      - application/json
+    produces:
+      - application/json
+    parameters:
+      - description: A JSON object containing information about the new counter_file
+        in: body
+        name: body
+        required: true
+        schema:
+            $ref: "../swagger.yaml#/definitions/erm_counter_file"
+    responses:
+      201:
+        description: A successfully created counter_file
+        schema:
+          items:
+            $ref: "../swagger.yaml#/definitions/erm_counter_file"
+      400:
+        description: Bad parameter
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      401:
+        description: Authentication required
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      403:
+        description: Access forbidden
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      404:
+        description: Ressource not found
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      409:
+        description: Conflict in creating resource
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      413:
+        description: Payload too large
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      500:
+        description: |-
+          Internal server error. Possible `error_code` attribute values:
+          * `internal_server_error`
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      503:
+        description: Under maintenance
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+    x-koha-authorization:
+      permissions:
+        erm: 1
+"/erm/counter_files/{erm_counter_files_id}":
+  get:
+    x-mojo-to: ERM::CounterFiles#get
+    operationId: getERMCounterFile
+    tags:
+      - counter_file
+    summary: get counter_file
+    produces:
+      - application/json
+    parameters:
+      - $ref: "../swagger.yaml#/parameters/erm_counter_files_id_pp"
+      - name: x-koha-embed
+        in: header
+        required: false
+        description: Embed list sent as a request header
+        type: array
+        items:
+          type: string
+        collectionFormat: csv
+    responses:
+      200:
+        description: counter_file
+        schema:
+          items:
+            $ref: "../swagger.yaml#/definitions/erm_counter_file"
+      401:
+        description: authentication required
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      403:
+        description: access forbidden
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      404:
+        description: ressource not found
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      500:
+        description: |-
+          internal server error. possible `error_code` attribute values:
+          * `internal_server_error`
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      503:
+        description: under maintenance
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+    x-koha-authorization:
+      permissions:
+        erm: 1
+  put:
+    x-mojo-to: ERM::CounterFiles#update
+    operationId: updateERMCounterFiles
+    tags:
+      - counter_file
+    summary: update counter_file
+    consumes:
+      - application/json
+    produces:
+      - application/json
+    parameters:
+      - $ref: "../swagger.yaml#/parameters/erm_counter_files_id_pp"
+      - name: body
+        in: body
+        description: a json object containing new information about existing counter_file
+        required: true
+        schema:
+          $ref: "../swagger.yaml#/definitions/erm_counter_file"
+      - name: x-koha-embed
+        in: header
+        required: false
+        description: Embed list sent as a request header
+        type: array
+        items:
+          type: string
+        collectionFormat: csv
+    responses:
+      200:
+        description: a successfully updated counter_file
+        schema:
+          items:
+            $ref: "../swagger.yaml#/definitions/erm_counter_file"
+      400:
+        description: bad parameter
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      403:
+        description: access forbidden
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      404:
+        description: ressource not found
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      409:
+        description: conflict in updating resource
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      413:
+        description: Payload too large
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      500:
+        description: |-
+          internal server error. possible `error_code` attribute values:
+          * `internal_server_error`
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      503:
+        description: under maintenance
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+    x-koha-authorization:
+      permissions:
+        erm: 1
+  delete:
+    x-mojo-to: ERM::CounterFiles#delete
+    operationId: deleteERMCounterFiles
+    tags:
+      - counter_file
+    summary: Delete counter_file
+    produces:
+      - application/json
+    parameters:
+      - $ref: "../swagger.yaml#/parameters/erm_counter_files_id_pp"
+    responses:
+      204:
+        description: counter_file deleted
+      400:
+        description: counter_file deletion failed
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      401:
+        description: authentication required
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      403:
+        description: access forbidden
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      404:
+        description: ressource not found
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      409:
+        description: conflict in deleting resource
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      500:
+        description: |-
+          internal server error. possible `error_code` attribute values:
+          * `internal_server_error`
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      503:
+        description: under maintenance
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+    x-koha-authorization:
+      permissions:
+        erm: 1

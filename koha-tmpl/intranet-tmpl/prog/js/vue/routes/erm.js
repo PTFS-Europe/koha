@@ -22,6 +22,7 @@ import LicensesList from "../components/ERM/LicensesList.vue";
 import LicensesShow from "../components/ERM/LicensesShow.vue";
 import LicensesFormAdd from "../components/ERM/LicensesFormAdd.vue";
 import LicensesFormConfirmDelete from "../components/ERM/LicensesFormConfirmDelete.vue";
+import UsageStatistics from "../components/ERM/UsageStatistics.vue";
 
 const breadcrumbs = {
     home: {
@@ -71,6 +72,10 @@ const breadcrumbs = {
         text: "Licenses", // $t("Licenses")
         path: "/cgi-bin/koha/erm/licenses",
     },
+    usage_statistics: {
+        text: "Usage statistics", // $t("Usage statistics")
+        path: "/cgi-bin/koha/erm/usage_statistics",
+    },
 };
 const breadcrumb_paths = {
     agreements: [
@@ -96,6 +101,11 @@ const breadcrumb_paths = {
         breadcrumbs.eholdings.ebsco.home,
     ],
     licenses: [breadcrumbs.home, breadcrumbs.erm_home, breadcrumbs.licenses],
+    usage_statistics: [
+        breadcrumbs.home,
+        breadcrumbs.erm_home,
+        breadcrumbs.usage_statistics,
+    ],
 };
 
 function build_breadcrumb(parent_breadcrumb, current) {
@@ -539,4 +549,17 @@ export const routes = [
             },
         ],
     },
+    {
+        path: "/cgi-bin/koha/erm/usage_statistics",
+        children: [
+            {
+                path: "",
+                name: "UsageStatistics",
+                component: UsageStatistics,
+                meta: {
+                    breadcrumb: () => breadcrumb_paths.usage_statistics,
+                },
+            },
+        ],
+    }
 ];

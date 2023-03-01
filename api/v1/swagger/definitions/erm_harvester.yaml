@@ -1,0 +1,90 @@
+---
+type: object
+properties:
+  erm_harvester_id:
+    type: integer
+    description: internally assigned harvester identifier
+    readOnly: true
+  platform_id:
+    description: foreign key to erm_platform
+    type:
+      - integer
+      - "null"
+  status:
+    description: status of the harvester
+    type: 
+    - string
+    - "null"
+  method:
+    description: method of the harvester
+    type: 
+    - string
+    - "null"
+  aggregator:
+    description: aggregator of the harvester
+    type: 
+    - string
+    - "null"
+  service_type:
+    description: service_type of the harvester
+    type: 
+    - string
+    - "null"
+  service_url:
+    description: service_url of the harvester
+    type: 
+    - string
+    - "null"
+  report_release:
+    description: report_release of the harvester
+    type: 
+    - string
+    - "null"
+  harvest_start:
+    type:
+      - string
+      - "null"
+    format: date
+    description: Start of the harvester
+  harvest_end:
+    type:
+      - string
+      - "null"
+    format: date
+    description: End of the harvester
+  customer_id:
+    description: customer_id of the harvester
+    type:
+      - integer
+      - "null"
+  requestor_id:
+    description: requestor_id of the harvester
+    type:
+      - integer
+      - "null"
+  api_key:
+    description: api_key of the harvester
+    type: 
+    - string
+    - "null"
+  platform:
+    description: platform of the harvester
+    type: 
+    - string
+    - "null"
+  requestor_name:
+    description: requestor_name of the harvester
+    type: 
+    - string
+    - "null"
+  requestor_email:
+    description: requestor_email of the harvester
+    type: 
+    - string
+    - "null"
+
+additionalProperties: false
+required:
+  - erm_harvester_id
+  - platform_id
+  - status

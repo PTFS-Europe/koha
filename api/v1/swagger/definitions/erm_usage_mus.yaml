@@ -1,0 +1,37 @@
+---
+type: object
+properties:
+  monthly_usage_summary_id:
+    type: integer
+    description: internally assigned monthly usage summary identifier
+    readOnly: true
+  title_id:
+    description: title_id of the monthly usage summary
+    type:
+    - integer
+    - "null"
+  platform_id:
+    description: platform_id of the monthly usage summary
+    type:
+    - integer
+    - "null"
+  year:
+    description: year of the monthly usage summary
+    type:
+    - integer
+    - "null"
+  month:
+    description: month of the monthly usage summary
+    type:
+    - integer
+    - "null"
+  usage_count:
+    description: total count of the monthly usage summary
+    type:
+    - integer
+    - "null"
+
+additionalProperties: false
+required:
+  - title_id
+  - platform_id
