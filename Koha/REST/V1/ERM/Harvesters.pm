@@ -243,4 +243,33 @@ sub delete {
     };
 }
 
+=head3 run
+
+=cut
+
+sub run {
+    my $c = shift->openapi->valid_input or return;
+
+    my $harvester_id = $c->validation->param('erm_harvester_id');
+    my $harvester = Koha::ERM::Harvesters->find( $harvester_id );
+    unless ($harvester) {
+        return $c->render(
+            status  => 404,
+            openapi => { error => "Harvester not found" }
+        );
+    }
+
+    #TODO: Handle response to Vue below, what do we send?
+    return try {
+        $harvester->run;
+        return $c->render(
+            status  => 204,
+            openapi => q{}
+        );
+    }
+    catch {
+        $c->unhandled_exception($_);
+    };
+}
+
 1;
