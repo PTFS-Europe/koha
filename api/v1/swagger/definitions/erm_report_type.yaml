@@ -1,0 +1,21 @@
+---
+type: object
+properties:
+  erm_report_id:
+    type: integer
+    description: internally assigned report identifier
+    readOnly: true
+  harvester_id:
+    description: harvester_id of the report
+    type:
+    - integer
+    - "null"
+  type:
+    description: type of the report
+    type: 
+    - string
+    - "null"
+
+additionalProperties: false
+required:
+  - harvester_id

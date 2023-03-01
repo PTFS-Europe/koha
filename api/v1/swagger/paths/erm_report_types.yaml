@@ -1,0 +1,282 @@
+---
+/erm/report_types:
+  get:
+    x-mojo-to: ERM::ReportTypes#list
+    operationId: listErmReportTypes
+    tags:
+      - report_type
+    summary: List report_types
+    produces:
+      - application/json
+    parameters:
+      - description: Case insensitive search on report_type erm_report_id
+        in: query
+        name: erm_report_id
+        required: false
+        type: integer
+      - description: Case insensitive search on report_type harvester_id
+        in: query
+        name: harvester_id
+        required: false
+        type: integer
+      - description: Case insensitive search on report_type type
+        in: query
+        name: type
+        required: false
+        type: string
+      - $ref: "../swagger.yaml#/parameters/match"
+      - $ref: "../swagger.yaml#/parameters/order_by"
+      - $ref: "../swagger.yaml#/parameters/page"
+      - $ref: "../swagger.yaml#/parameters/per_page"
+      - $ref: "../swagger.yaml#/parameters/q_param"
+      - $ref: "../swagger.yaml#/parameters/q_body"
+      - $ref: "../swagger.yaml#/parameters/q_header"
+    responses:
+      200:
+        description: A list of report_types
+        schema:
+          items:
+            $ref: "../swagger.yaml#/definitions/erm_report_type"
+          type: array
+      400:
+        description: Bad request
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      403:
+        description: Access forbidden
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      500:
+        description: |-
+          Internal server error. Possible `error_code` attribute values:
+          * `internal_server_error`
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      503:
+        description: Under maintenance
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+    x-koha-authorization:
+      permissions:
+        erm: 1
+  post:
+    x-mojo-to: ERM::ReportTypes#add
+    operationId: addErmReportTypes
+    tags:
+      - report_type
+    summary: Add report_type
+    consumes:
+      - application/json
+    produces:
+      - application/json
+    parameters:
+      - description: A JSON object containing information about the new report_type
+        in: body
+        name: body
+        required: true
+        schema:
+            $ref: "../swagger.yaml#/definitions/erm_report_type"
+    responses:
+      201:
+        description: A successfully created report_type
+        schema:
+          items:
+            $ref: "../swagger.yaml#/definitions/erm_report_type"
+      400:
+        description: Bad parameter
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      401:
+        description: Authentication required
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      403:
+        description: Access forbidden
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      404:
+        description: Ressource not found
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      409:
+        description: Conflict in creating resource
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      413:
+        description: Payload too large
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      500:
+        description: |-
+          Internal server error. Possible `error_code` attribute values:
+          * `internal_server_error`
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      503:
+        description: Under maintenance
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+    x-koha-authorization:
+      permissions:
+        erm: 1
+"/erm/report_types/{erm_report_id}":
+  get:
+    x-mojo-to: ERM::ReportTypes#get
+    operationId: getERMReportType
+    tags:
+      - report_type
+    summary: get report_type
+    produces:
+      - application/json
+    parameters:
+      - $ref: "../swagger.yaml#/parameters/erm_report_id_pp"
+      - name: x-koha-embed
+        in: header
+        required: false
+        description: Embed list sent as a request header
+        type: array
+        items:
+          type: string
+        collectionFormat: csv
+    responses:
+      200:
+        description: report_type
+        schema:
+          items:
+            $ref: "../swagger.yaml#/definitions/erm_report_type"
+      401:
+        description: authentication required
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      403:
+        description: access forbidden
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      404:
+        description: ressource not found
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      500:
+        description: |-
+          internal server error. possible `error_code` attribute values:
+          * `internal_server_error`
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      503:
+        description: under maintenance
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+    x-koha-authorization:
+      permissions:
+        erm: 1
+  put:
+    x-mojo-to: ERM::ReportTypes#update
+    operationId: updateERMReportTypes
+    tags:
+      - report_type
+    summary: update report_type
+    consumes:
+      - application/json
+    produces:
+      - application/json
+    parameters:
+      - $ref: "../swagger.yaml#/parameters/erm_report_id_pp"
+      - name: body
+        in: body
+        description: a json object containing new information about existing report_type
+        required: true
+        schema:
+          $ref: "../swagger.yaml#/definitions/erm_report_type"
+      - name: x-koha-embed
+        in: header
+        required: false
+        description: Embed list sent as a request header
+        type: array
+        items:
+          type: string
+        collectionFormat: csv
+    responses:
+      200:
+        description: a successfully updated report_type
+        schema:
+          items:
+            $ref: "../swagger.yaml#/definitions/erm_report_type"
+      400:
+        description: bad parameter
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      403:
+        description: access forbidden
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      404:
+        description: ressource not found
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      409:
+        description: conflict in updating resource
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      413:
+        description: Payload too large
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      500:
+        description: |-
+          internal server error. possible `error_code` attribute values:
+          * `internal_server_error`
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      503:
+        description: under maintenance
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+    x-koha-authorization:
+      permissions:
+        erm: 1
+  delete:
+    x-mojo-to: ERM::ReportTypes#delete
+    operationId: deleteERMReportTypes
+    tags:
+      - report_type
+    summary: Delete report_type
+    produces:
+      - application/json
+    parameters:
+      - $ref: "../swagger.yaml#/parameters/erm_report_id_pp"
+    responses:
+      204:
+        description: report_type deleted
+      400:
+        description: report_type deletion failed
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      401:
+        description: authentication required
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      403:
+        description: access forbidden
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      404:
+        description: ressource not found
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      409:
+        description: conflict in deleting resource
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      500:
+        description: |-
+          internal server error. possible `error_code` attribute values:
+          * `internal_server_error`
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      503:
+        description: under maintenance
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+    x-koha-authorization:
+      permissions:
+        erm: 1
