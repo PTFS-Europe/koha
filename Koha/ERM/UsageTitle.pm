@@ -55,6 +55,42 @@ sub erm_usage_yuses {
     return Koha::ERM::YearlyUsages->_new_from_dbic($usage_yus_rs);
 }
 
+=head3 yearly_usages
+
+Getter/setter for yearly_usages for this title
+
+=cut
+
+sub yearly_usages {
+    my ( $self, $yearly_usages ) = @_;
+
+    if ($yearly_usages) {
+        for my $yearly_usage (@$yearly_usages) {
+            Koha::ERM::YearlyUsage->new($yearly_usage)->store;
+        }
+    }
+    my $yearly_usages_rs = $self->_result->erm_usage_yuses;
+    return Koha::ERM::YearlyUsages->_new_from_dbic($yearly_usages_rs);
+}
+
+=head3 monthly_usages
+
+Getter/setter for monthly_usages for this title
+
+=cut
+
+sub monthly_usages {
+    my ( $self, $monthly_usages ) = @_;
+
+    if ($monthly_usages) {
+        for my $monthly_usage (@$monthly_usages) {
+            Koha::ERM::MonthlyUsage->new($monthly_usage)->store;
+        }
+    }
+    my $monthly_usages_rs = $self->_result->erm_usage_muses;
+    return Koha::ERM::MonthlyUsages->_new_from_dbic($monthly_usages_rs);
+}
+
 =head2 Internal methods
 
 =head3 _type

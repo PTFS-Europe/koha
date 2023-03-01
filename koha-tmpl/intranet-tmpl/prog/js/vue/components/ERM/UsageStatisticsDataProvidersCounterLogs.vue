@@ -77,9 +77,11 @@ export default {
             let url = `/api/v1/erm/counter_files?usage_data_provider_id=${this.$route.params.usage_data_provider_id}`
             return url
         },
-        download_counter_file() {
-            alert("Downloading...")
-            // TODO: download functionality
+        download_counter_file(counter_file, dt, event) {
+            document.location.href =
+                "/api/v1/erm/counter_files/" +
+                counter_file.erm_counter_files_id +
+                "/file/content"
         },
         delete_counter_file(counter_file, dt, event) {
             this.setConfirmationDialog(
