@@ -1,0 +1,37 @@
+---
+type: object
+properties:
+  erm_counter_files_id:
+    type: integer
+    description: internally assigned counter_files identifier
+    readOnly: true
+  harvester_id:
+    description: harvester_id of the counter_files
+    type: integer
+  type:
+    description: type of the counter_files
+    type: 
+    - string
+    - "null"
+  date:
+    type:
+      - string
+      - "null"
+    format: date
+    description: Date of counter_file
+  filename:
+    description: filename of the harvester
+    type: string
+  file_content:
+    description: file_content of the harvester
+    type: string
+  date_uploaded:
+    type: string
+    format: date-time
+    description: Timestamp for the date of upload
+
+additionalProperties: false
+required:
+  - harvester_id
+  - filename
+  - file_content

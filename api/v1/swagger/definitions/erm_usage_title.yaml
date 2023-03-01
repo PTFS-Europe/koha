@@ -1,0 +1,16 @@
+---
+type: object
+properties:
+  title_id:
+    type: integer
+    description: internally assigned title identifier
+    readOnly: true
+  title:
+    description: title of the title
+    type: 
+    - string
+    - "null"
+
+additionalProperties: false
+required:
+  - title
