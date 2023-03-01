@@ -87,7 +87,11 @@ service_url of the harvester
 
 report_release of the harvester
 
+<<<<<<< HEAD
 =head2 begin_date
+=======
+=head2 harvest_start
+>>>>>>> 0294cdaa62 (DBIC files)
 
   data_type: 'date'
   datetime_undef_if_invalid: 1
@@ -95,7 +99,11 @@ report_release of the harvester
 
 start date of the harvester
 
+<<<<<<< HEAD
 =head2 end_date
+=======
+=head2 harvest_end
+>>>>>>> 0294cdaa62 (DBIC files)
 
   data_type: 'date'
   datetime_undef_if_invalid: 1
@@ -105,17 +113,27 @@ end date of the harvester
 
 =head2 customer_id
 
+<<<<<<< HEAD
   data_type: 'varchar'
   is_nullable: 0
   size: 50
+=======
+  data_type: 'integer'
+  is_nullable: 1
+>>>>>>> 0294cdaa62 (DBIC files)
 
 sushi customer id
 
 =head2 requestor_id
 
+<<<<<<< HEAD
   data_type: 'varchar'
   is_nullable: 1
   size: 50
+=======
+  data_type: 'integer'
+  is_nullable: 1
+>>>>>>> 0294cdaa62 (DBIC files)
 
 sushi requestor id
 
