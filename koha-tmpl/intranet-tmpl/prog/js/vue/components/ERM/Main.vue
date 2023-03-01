@@ -101,6 +101,14 @@
                                             </li>
                                         </ul>
                                     </li>
+                                    <li>
+                                        <router-link
+                                            :to="{ name: 'UsageStatistics' }"
+                                        >
+                                            <i class="fa fa-crosshairs"></i>
+                                            {{ $__("eUsage") }}
+                                        </router-link>
+                                    </li>
                                 </ul>
                             </div>
                         </div>
