@@ -1037,7 +1037,13 @@ sub header_cell_loop {
 #get a list of available tables for auto-complete
 sub get_tables {
     my $result = {};
-    my $tables = C4::Reports::Guided->get_all_tables();
+    my $cache  = Koha::Caches->get_instance();
+    my $tables = $cache->get_from_cache("Reports-SQL_tables-for-autocomplete");
+
+    return $tables
+      if $tables;
+
+    $tables = C4::Reports::Guided->get_all_tables();
     for my $table (@{$tables}) {
         my $sql = "SHOW COLUMNS FROM $table";
         my $rows = C4::Context->dbh->selectall_arrayref($sql, { Slice => {} });
@@ -1045,6 +1051,7 @@ sub get_tables {
             push @{$result->{$table}}, $row->{Field};
         }
     }
+    $cache->set_in_cache("Reports-SQL_tables-for-autocomplete",$result);
     return $result;
 }
 
