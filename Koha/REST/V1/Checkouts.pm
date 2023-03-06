@@ -177,6 +177,18 @@ sub add {
     my $patron_id = $params->{patron_id};
     my $onsite = $params->{onsite_checkout};
 
+    if ( $c->stash('is_public')
+        && !C4::Context->preference('OpacTrustedCheckout') )
+    {
+        return $c->render(
+            status  => 400,
+            openapi => {
+                error      => 'Feature disabled',
+                error_code => 'FEATURE_DISABLED'
+            }
+        );
+    }
+
     return try {
         my $item = Koha::Items->find( $item_id );
         unless ($item) {
