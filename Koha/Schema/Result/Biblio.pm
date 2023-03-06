@@ -555,6 +555,21 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 tickets
+
+Type: has_many
+
+Related object: L<Koha::Schema::Result::Ticket>
+
+=cut
+
+__PACKAGE__->has_many(
+  "tickets",
+  "Koha::Schema::Result::Ticket",
+  { "foreign.biblio_id" => "self.biblionumber" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 tmp_holdsqueues
 
 Type: has_many
