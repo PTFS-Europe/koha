@@ -1932,6 +1932,51 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 ticket_updates
+
+Type: has_many
+
+Related object: L<Koha::Schema::Result::TicketUpdate>
+
+=cut
+
+__PACKAGE__->has_many(
+  "ticket_updates",
+  "Koha::Schema::Result::TicketUpdate",
+  { "foreign.user_id" => "self.borrowernumber" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+=head2 tickets_reporters
+
+Type: has_many
+
+Related object: L<Koha::Schema::Result::Ticket>
+
+=cut
+
+__PACKAGE__->has_many(
+  "tickets_reporters",
+  "Koha::Schema::Result::Ticket",
+  { "foreign.reporter_id" => "self.borrowernumber" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+=head2 tickets_resolvers
+
+Type: has_many
+
+Related object: L<Koha::Schema::Result::Ticket>
+
+=cut
+
+__PACKAGE__->has_many(
+  "tickets_resolvers",
+  "Koha::Schema::Result::Ticket",
+  { "foreign.resolver_id" => "self.borrowernumber" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 tmp_holdsqueues
 
 Type: has_many
