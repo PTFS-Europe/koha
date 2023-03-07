@@ -553,19 +553,13 @@ function _dt_default_ajax (params){
                     var part = {};
                     var attr = attributes[i];
                     let criteria = options.criteria;
-                    if ( value === 'special:undefined' ) {
-                        value = null;
-                        criteria = "exact";
-                    }
-                    if ( value !== null ) {
-
+ 
                     if ( value.match(/^\^(.*)\$$/) ) {
                         value = value.replace(/^\^/, '').replace(/\$$/, '');
                         criteria = "exact";
                     } else {
                         // escape SQL LIKE special characters %
                         value = value.replace(/(\%|\\)/g, "\\$1");
-                    }
                     }
 
                     let built_value;
