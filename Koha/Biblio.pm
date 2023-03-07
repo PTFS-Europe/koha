@@ -996,7 +996,11 @@ sub to_api {
     my ($self, $args) = @_;
 
     my $response = $self->SUPER::to_api( $args );
-    my $biblioitem = $self->biblioitem->to_api( $args );
+
+    my $params    = {%$args};
+    delete $params->{embed};
+
+    my $biblioitem = $self->biblioitem->to_api( $params );
 
     return { %$response, %$biblioitem };
 }
