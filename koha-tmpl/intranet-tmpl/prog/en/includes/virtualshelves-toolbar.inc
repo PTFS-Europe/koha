@@ -16,8 +16,7 @@
         <div class="btn-group">
             <button class="btn btn-default dropdown-toggle" data-toggle="dropdown"><i class="fa fa-pencil"></i> Edit <span class="caret"></span></button>
             <ul class="dropdown-menu">
-                <li><a href="/cgi-bin/koha/virtualshelves/shelves.pl?op=edit_form&amp;shelfnumber=[% shelf.shelfnumber | uri %]&amp;referer=[% op | uri %]">Edit list</a></li>
-                <li>
+            <li>
                     <a id="deleteshelf_toolbar" href="#">Delete list</a>
                     <form id="deleteshelf_toolbar_form" action="shelves.pl" method="post">
                         [% INCLUDE 'csrf-token.inc' %]
