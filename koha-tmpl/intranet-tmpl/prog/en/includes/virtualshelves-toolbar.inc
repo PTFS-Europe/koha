@@ -16,8 +16,8 @@
         <div class="btn-group">
             <button class="btn btn-default dropdown-toggle" data-toggle="dropdown"><i class="fa fa-pencil"></i> Edit <span class="caret"></span></button>
             <ul class="dropdown-menu">
-                <li><a href="/cgi-bin/koha/virtualshelves/shelves.pl?op=edit_form&amp;shelfnumber=[% shelf.shelfnumber | uri %]&amp;referer=[% op | uri %]&amp;csrf_token=[% csrf_token | html %]">Edit list</a></li>
-                <li><a id="deleteshelf" href="/cgi-bin/koha/virtualshelves/shelves.pl?op=delete&amp;shelfnumber=[% shelf.shelfnumber | html %]&amp;csrf_token=[% csrf_token | html %]">Delete list</a></li>
+                <li><a href="/cgi-bin/koha/virtualshelves/shelves.pl?op=edit_form&amp;shelfnumber=[% shelf.shelfnumber | uri %]&amp;referer=[% op | uri %]&amp;csrf_token=[% csrf_token | uri %]">Edit list</a></li>
+                <li><a id="deleteshelf" href="/cgi-bin/koha/virtualshelves/shelves.pl?op=delete&amp;shelfnumber=[% shelf.shelfnumber | html %]&amp;csrf_token=[% csrf_token | uri %]">Delete list</a></li>
             </ul>
         </div>
         [% END %]
