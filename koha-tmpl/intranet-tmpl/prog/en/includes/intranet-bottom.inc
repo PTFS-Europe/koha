@@ -109,7 +109,7 @@
                             [% FOREACH consent IN consents %]
                                 <div class="consentModalItem">
                                     <div class="consentItemCheckbox">
-                                        <input class="consentCheckbox" type="checkbox" name="consentCheckbox" value="[% consent.id %]">
+                                        <input class="consentCheckbox" type="checkbox" name="consentCheckbox" value="[% consent.id | html %]">
                                     </div>
                                     <div class="consentItemMeta">
                                         <div class="consentItemName">[% consent.name | html %]</div>
