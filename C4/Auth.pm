@@ -37,6 +37,7 @@ use Koha::Logger;
 use Koha::Caches;
 use Koha::AuthUtils qw( get_script_name hash_password );
 use Koha::Auth::TwoFactorAuth;
+use Koha::Auth::Permissions;
 use Koha::Checkouts;
 use Koha::DateUtils qw( dt_from_string );
 use Koha::Library::Groups;
