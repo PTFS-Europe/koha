@@ -18,8 +18,8 @@ package Koha::ERM::Harvester;
 use Modern::Perl;
 
 use HTTP::Request;
+use JSON qw( from_json decode_json encode_json );
 use LWP::UserAgent;
-use JSON         qw( from_json decode_json encode_json );
 use Text::CSV_XS qw( csv );
 
 use Koha::Exceptions;
@@ -57,7 +57,7 @@ sub counter_files {
             }
         );
     }
-    my $counter_files_rs = $self->_result->counter_files;
+    my $counter_files_rs = $self->_result->erm_counter_files;
     return Koha::ERM::CounterFiles->_new_from_dbic($counter_files_rs);
 }
 
@@ -174,14 +174,15 @@ sub _build_query {
     my $url = $self->service_url;
 
     #FIXME: 'tr_j1' is supposed to be $self->report_type once that is done
+    #TODO: a Harvester may have more than one report_type, separated by ";"
     $url .= 'tr_j1?customer_id=' . $self->customer_id;
     $url .= '&requestor_id=' . $self->requestor_id if $self->requestor_id;
-    $url .= '&api_key=' . $self->api_key           if $self->api_key;
+    $url .= '&api_key=' . $self->api_key if $self->api_key;
 
 #FIXME: below date information should come from $self->begin_date and $self->end_date.
 #Currently in the database these are set as harvest_start and harvest_end
-    $url .= '&begin_date=2021-09';
-    $url .= '&end_date=2022-09';
+    $url .= '&begin_date=2020-02';
+    $url .= '&end_date=2023-04';
 
     return $url;
 }
@@ -198,10 +199,23 @@ sub _build_COUNTER_file {
 
     my @report = ( @{$header}, @{$column_headings}, @{$body} );
 
-#FIXME: Something wrong with utf-8, decode_utf8 doesn't seem to be working below
-    csv( in => \@report, out => "file.csv", decode_utf8 => 1 );
+    #TODO: change this to tab instead of comma
+    csv( in => \@report, out => \my $counter_file, encoding => "utf-8" );
 
-    #TODO: Add a counter_files database entry here (?)
+    $self->counter_files(
+        [
+            {
+                date          => "2022-01-01",
+                file_content  => $counter_file,
+                date_uploaded => POSIX::strftime( "%Y%m%d%H%M%S", localtime ),
+
+                #TODO: What should the filename be?
+                filename => "filename.csv"
+            }
+        ]
+    );
+
+    #TODO: Add erm_counter_log database entry here or in CounterFile->new (?)
 }
 
 =head3 _COUNTER_report_header
@@ -283,7 +297,7 @@ sub _COUNTER_title {
             $title->{Publisher}
               || "",
             $self->_get_SUSHI_Type_Value( $title->{Publisher_ID}, "ISNI" )
-              || "",    #FIXME: this can't be right
+              || "",    #FIXME: this ISNI can't be right, can it?
             $title->{Platform}
               || "",
             $self->_get_SUSHI_Type_Value( $title->{Item_ID}, "DOI" )
@@ -296,13 +310,16 @@ sub _COUNTER_title {
               || "",
             "",         #FIXME: What goes in URI?
             $metric_type,
-            #TODO: $count_total is only doing total for now, should it be doing total per year?
-            $count_total, 
+
+#TODO: $count_total is only doing total for now, should it be doing total per year?
+            $count_total,
             @usage_months_fields
         ]
     );
 
-    #TODO: Add a usage_titles database entry here (?)
+    #TODO: Add a erm_usage_titles database entry here
+    #TODO: Add a erm_usage_mus database entry here
+    #TODO: Add a erm_usage_yus database entry here
 }
 
 =head3 _COUNTER_report_body
@@ -428,7 +445,7 @@ sub _COUNTER_titles_report_column_headings {
             #"Access_Method", #TODO: Only if requested (?)
             "Metric_Type",
             "Reporting_Period_Total"
-            ,               #TODO: What format is this? example: "2020 total"
+            ,    #TODO: What format is this? example: "2020 total"
             @month_headings # Months in "Mmm-yyyy" format. Show unless Exclude_Monthly_Details=true
         ]
     );
