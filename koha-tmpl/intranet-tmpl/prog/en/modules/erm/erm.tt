@@ -32,6 +32,8 @@
         const license_table_settings = [% TablesSettings.GetTableSettings( 'erm', 'licenses', 'licenses', 'json' ) | $raw %];
         const eholdings_packages_table_settings = [% TablesSettings.GetTableSettings( 'erm', 'eholdings', 'packages', 'json' ) | $raw %];
         const eholdings_titles_table_settings = [% TablesSettings.GetTableSettings( 'erm', 'eholdings', 'titles', 'json' ) | $raw %];
+        const platform_table_settings = [% TablesSettings.GetTableSettings( 'erm', 'platforms', 'platforms', 'json' ) | $raw %];
+        const title_table_settings = [% TablesSettings.GetTableSettings( 'erm', 'titles', 'titles', 'json' ) | $raw %];
 
         const ERMProviders  = "[% Koha.Preference('ERMProviders') | html %]";
         const erm_providers = ERMProviders.split(',');

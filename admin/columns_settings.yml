@@ -822,6 +822,28 @@ modules:
               columnname: actions
               cannot_be_toggled: 1
               cannot_be_modified: 1
+    platforms:
+      platforms:
+        columns:
+            - 
+              columnname: name
+            -
+              columnname: description
+            - 
+              columnname: run_now
+              cannot_be_toggled: 1
+              cannot_be_modified: 1
+            - 
+              columnname: actions
+              cannot_be_toggled: 1
+              cannot_be_modified: 1
+    titles:
+      titles:
+        columns:
+            -
+              columnname: title_id
+            -
+              columnname: title        
 
   illrequests:
     ill-requests:
