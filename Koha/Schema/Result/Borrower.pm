@@ -892,7 +892,7 @@ __PACKAGE__->add_unique_constraint("userid", ["userid"]);
 
 =head1 RELATIONS
 
-=head2 accountlines
+=head2 accountlines_borrowernumbers
 
 Type: has_many
 
@@ -901,7 +901,7 @@ Related object: L<Koha::Schema::Result::Accountline>
 =cut
 
 __PACKAGE__->has_many(
-  "accountlines",
+  "accountlines_borrowernumbers",
   "Koha::Schema::Result::Accountline",
   { "foreign.borrowernumber" => "self.borrowernumber" },
   { cascade_copy => 0, cascade_delete => 0 },
@@ -1312,6 +1312,21 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 erm_counter_logs
+
+Type: has_many
+
+Related object: L<Koha::Schema::Result::ErmCounterLog>
+
+=cut
+
+__PACKAGE__->has_many(
+  "erm_counter_logs",
+  "Koha::Schema::Result::ErmCounterLog",
+  { "foreign.borrowernumber" => "self.borrowernumber" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 erm_user_roles
 
 Type: has_many
@@ -1432,7 +1447,7 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 issues
+=head2 issues_borrowernumbers
 
 Type: has_many
 
@@ -1441,7 +1456,7 @@ Related object: L<Koha::Schema::Result::Issue>
 =cut
 
 __PACKAGE__->has_many(
-  "issues",
+  "issues_borrowernumbers",
   "Koha::Schema::Result::Issue",
   { "foreign.borrowernumber" => "self.borrowernumber" },
   { cascade_copy => 0, cascade_delete => 0 },
@@ -1522,21 +1537,6 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 messages
-
-Type: has_many
-
-Related object: L<Koha::Schema::Result::Message>
-
-=cut
-
-__PACKAGE__->has_many(
-  "messages",
-  "Koha::Schema::Result::Message",
-  { "foreign.manager_id" => "self.borrowernumber" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
 =head2 messages_borrowernumbers
 
 Type: has_many
@@ -1552,7 +1552,22 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 old_issues
+=head2 messages_managers
+
+Type: has_many
+
+Related object: L<Koha::Schema::Result::Message>
+
+=cut
+
+__PACKAGE__->has_many(
+  "messages_managers",
+  "Koha::Schema::Result::Message",
+  { "foreign.manager_id" => "self.borrowernumber" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+=head2 old_issues_borrowernumbers
 
 Type: has_many
 
@@ -1561,7 +1576,7 @@ Related object: L<Koha::Schema::Result::OldIssue>
 =cut
 
 __PACKAGE__->has_many(
-  "old_issues",
+  "old_issues_borrowernumbers",
   "Koha::Schema::Result::OldIssue",
   { "foreign.borrowernumber" => "self.borrowernumber" },
   { cascade_copy => 0, cascade_delete => 0 },
@@ -2103,8 +2118,8 @@ Composing rels: L</user_permissions> -> permission
 __PACKAGE__->many_to_many("permissions", "user_permissions", "permission");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2023-03-06 14:23:57
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:/63fcorna7WyO+DyLg8qLA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2023-03-09 16:56:02
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:3TThIbSmkIGWi0yG2qMrkA
 
 __PACKAGE__->has_many(
   "restrictions",
