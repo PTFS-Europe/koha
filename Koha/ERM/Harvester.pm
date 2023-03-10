@@ -18,7 +18,7 @@ package Koha::ERM::Harvester;
 use Modern::Perl;
 
 use HTTP::Request;
-use JSON qw( from_json decode_json encode_json );
+use JSON qw( decode_json );
 use LWP::UserAgent;
 use Text::CSV_XS qw( csv );
 
