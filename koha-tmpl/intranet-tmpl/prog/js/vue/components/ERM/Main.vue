@@ -104,6 +104,43 @@
                                             </li>
                                         </ul>
                                     </li>
+                                    <li>
+                                        <router-link
+                                            :to="{ name: 'UsageStatistics' }"
+                                            class="disabled"
+                                        >
+                                            <i class="fa fa-crosshairs"></i>
+                                            {{ $__("eUsage") }}
+                                        </router-link>
+                                    </li>
+                                    <li>
+                                        <ul>
+                                            <li>
+                                                <router-link
+                                                    :to="{
+                                                        name: 'UsageStatisticsPlatformsList',
+                                                    }"
+                                                >
+                                                    <i
+                                                        class="fa fa-crosshairs"
+                                                    ></i>
+                                                    {{ $__("Platforms") }}
+                                                </router-link>
+                                            </li>
+                                            <li>
+                                                <router-link
+                                                    :to="{
+                                                        name: 'UsageStatisticsReports',
+                                                    }"
+                                                >
+                                                    <i
+                                                        class="fa fa-crosshairs"
+                                                    ></i>
+                                                    {{ $__("Reports") }}
+                                                </router-link>
+                                            </li>
+                                        </ul>
+                                    </li>
                                 </ul>
                             </div>
                         </div>
@@ -180,6 +217,7 @@ export default {
             av_package_types: "ERM_PACKAGE_TYPE",
             av_package_content_types: "ERM_PACKAGE_CONTENT_TYPE",
             av_title_publication_types: "ERM_TITLE_PUBLICATION_TYPE",
+            av_report_types: "ERM_REPORT_TYPES",
         }
 
         let av_cat_array = Object.keys(authorised_values).map(function (
