@@ -236,6 +236,84 @@ export class ERMAPIClient extends HttpClient {
                 }),
         };
     }
+
+    get platforms() {
+        return {
+            get: (id) =>
+                this.get({
+                    endpoint: "platforms/" + id,
+                    headers: {
+                        "x-koha-embed":
+                            "name,description",
+                    },
+                }),
+            getAll: (query) =>
+                this.get({
+                    endpoint: "platforms?" + (query || "_per_page=-1"),
+                }),
+            delete: (id) =>
+                this.delete({
+                    endpoint: "platforms/" + id,
+                }),
+            create: (platform) =>
+                this.post({
+                    endpoint: "platforms",
+                    body: platform,
+                }),
+            update: (platform, id) =>
+                this.put({
+                    endpoint: "platforms/" + id,
+                    body: platform,
+                }),
+            //count: () => this.count("platforms"), //TODO: Implement count method
+        };
+    }
+
+    get titles() {
+        return {
+            get: (id) =>
+                this.get({
+                    endpoint: "usage_titles/" + id,
+                    headers: {
+                        "x-koha-embed":
+                            "",
+                    },
+                }),
+            getAll: (query) =>
+                this.get({
+                    endpoint: "usage_titles?" + (query || "_per_page=-1"),
+                }),
+            //count: () => this.count("platforms"), //TODO: Implement count method
+        };
+    }
+
+    get harvesters() {
+        return {
+            get: (id) =>
+                this.get({
+                    endpoint: "harvesters/" + id,
+                    headers: {
+                        "x-koha-embed":
+                            "",
+                    },
+                }),
+            getAll: (query) =>
+                this.get({
+                    endpoint: "harvesters?" + (query || "_per_page=-1"),
+                }),
+            create: (harvester) =>
+                this.post({
+                    endpoint: "harvesters",
+                    body: harvester,
+                }),
+            update: (harvester, id) =>
+                this.put({
+                    endpoint: "harvesters/" + id,
+                    body: harvester,
+                }),
+            //count: () => this.count("platforms"), //TODO: Implement count method
+        };
+    }
 }
 
 export default ERMAPIClient;

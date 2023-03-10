@@ -22,6 +22,10 @@ import LicensesList from "../components/ERM/LicensesList.vue";
 import LicensesShow from "../components/ERM/LicensesShow.vue";
 import LicensesFormAdd from "../components/ERM/LicensesFormAdd.vue";
 import LicensesFormConfirmDelete from "../components/ERM/LicensesFormConfirmDelete.vue";
+import UsageStatisticsPlatformsList from "../components/ERM/UsageStatisticsPlatformsList.vue";
+import UsageStatisticsPlatformsFormAdd from "../components/ERM/UsageStatisticsPlatformsFormAdd.vue";
+import UsageStatisticsPlatformsShow from "../components/ERM/UsageStatisticsPlatformsShow.vue";
+import UsageStatisticsReports from "../components/ERM/UsageStatisticsReports.vue";
 
 const breadcrumbs = {
     home: {
@@ -71,6 +75,19 @@ const breadcrumbs = {
         text: "Licenses", // $t("Licenses")
         path: "/cgi-bin/koha/erm/licenses",
     },
+    eusage: {
+        home: {
+            text: "eUsage", // $t("eUsage")
+        },
+        platforms: {
+            text: "Platforms", // $t("Platforms")
+            path: "/cgi-bin/koha/erm/eusage/platforms",
+        },
+        reports: {
+            text: "Reports", // $t("Reports")
+            path: "/cgi-bin/koha/erm/eusage/reports",
+        }
+    },
 };
 const breadcrumb_paths = {
     agreements: [
@@ -96,6 +113,23 @@ const breadcrumb_paths = {
         breadcrumbs.eholdings.ebsco.home,
     ],
     licenses: [breadcrumbs.home, breadcrumbs.erm_home, breadcrumbs.licenses],
+    eusage: [
+        breadcrumbs.home,
+        breadcrumbs.erm_home,
+        breadcrumbs.eusage.home,
+    ],
+    eusage_platforms: [
+        breadcrumbs.home,
+        breadcrumbs.erm_home,
+        breadcrumbs.eusage.home,
+        breadcrumbs.eusage.platforms
+    ],
+    eusage_reports: [
+        breadcrumbs.home,
+        breadcrumbs.erm_home,
+        breadcrumbs.eusage.home,
+        breadcrumbs.eusage.reports
+    ]
 };
 
 function build_breadcrumb(parent_breadcrumb, current) {
@@ -539,4 +573,87 @@ export const routes = [
             },
         ],
     },
+    {
+        path: "/cgi-bin/koha/erm/eusage",
+        children: [
+            {
+                path: "",
+                name: "UsageStatistics",
+                meta: {
+                    breadcrumb: () => breadcrumb_paths.eusage.home,
+                },
+            },
+            {
+                path: "platforms",
+                meta: {
+                    breadcrumb: () => breadcrumb_paths.eusage_platforms,
+                },
+                children: [
+                    {
+                        path: "",
+                        name: "UsageStatisticsPlatformsList",
+                        component: UsageStatisticsPlatformsList,
+                        meta: {
+                            breadcrumb: () => breadcrumb_paths.eusage_platforms,
+                        },
+                    },
+                    {
+                        path: ":platform_id",
+                        name: "UsageStatisticsPlatformsShow",
+                        component: UsageStatisticsPlatformsShow,
+                        meta: {
+                            breadcrumb: () =>
+                                build_breadcrumb(
+                                    breadcrumb_paths.eusage_platforms,
+                                    "Show platform" // $t("Show platform")
+                                ),
+                        },
+                    },
+                    {
+                        path: "delete/:platform_id",
+                        // component: UsageStatisticsPlatformsFormConfirmDelete,
+                        meta: {
+                            breadcrumb: () =>
+                                build_breadcrumb(
+                                    breadcrumb_paths.eusage_platforms,
+                                    "Delete platform" // $t("Delete platform")
+                                ),
+                        },
+                    },
+                    {
+                        path: "add",
+                        name: "UsageStatisticsPlatformsFormAdd",
+                        component: UsageStatisticsPlatformsFormAdd,
+                        meta: {
+                            breadcrumb: () =>
+                                build_breadcrumb(
+                                    breadcrumb_paths.eusage_platforms,
+                                    "Add platform" // $t("Add platform")
+                                ),
+                        },
+                    },
+                    {
+                        path: "edit/:platform_id",
+                        name: "UsageStatisticsPlatformsFormAddEdit",
+                        component: UsageStatisticsPlatformsFormAdd,
+                        meta: {
+                            breadcrumb: () =>
+                                build_breadcrumb(
+                                    breadcrumb_paths.eusage_platforms,
+                                    "Edit platform" // $t("Edit platform")
+                                ),
+                        },
+                    },
+                ]
+            },
+            {
+                path: "reports",
+                name: "UsageStatisticsReports",
+                component: UsageStatisticsReports,
+                meta: {
+                    breadcrumb: () => breadcrumb_paths.eusage_reports,
+                },
+            }
+        ],
+    }
 ];
