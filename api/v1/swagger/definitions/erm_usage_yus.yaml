@@ -1,0 +1,42 @@
+---
+type: object
+properties:
+  yearly_usage_summary_id:
+    type: integer
+    description: internally assigned yearly usage summary identifier
+    readOnly: true
+  title_id:
+    description: title_id of the yearly usage summary
+    type:
+    - integer
+    - "null"
+  platform_id:
+    description: platform_id of the yearly usage summary
+    type:
+    - integer
+    - "null"
+  year:
+    description: year of the yearly usage summary
+    type:
+    - integer
+    - "null"
+  totalcount:
+    description: total count of the yearly usage summary
+    type:
+    - integer
+    - "null"
+  ytd_html_count:
+    description: ytd_html_count of the yearly usage summary
+    type:
+    - integer
+    - "null"
+  ytd_pdf_count:
+    description: ytd_pdf_count of the yearly usage summary
+    type:
+    - integer
+    - "null"
+
+additionalProperties: false
+required:
+  - title_id
+  - platform_id

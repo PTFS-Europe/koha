@@ -1,0 +1,305 @@
+---
+/erm/harvesters:
+  get:
+    x-mojo-to: ERM::Harvesters#list
+    operationId: listErmHarvesters
+    tags:
+      - harvester
+    summary: List harvesters
+    produces:
+      - application/json
+    parameters:
+      - description: Case insensitive search on harvester erm_harvester_id
+        in: query
+        name: erm_harvester_id
+        required: false
+        type: integer
+      - description: Case insensitive search on agreement platform_id
+        in: query
+        name: platform_id
+        required: false
+        type: integer
+      - description: Case insensitive search on harvester status
+        in: query
+        name: status
+        required: false
+        type: string
+      - description: Case insensitive search on harvester method
+        in: query
+        name: method
+        required: false
+        type: string
+      - description: Case insensitive search on harvester service_type
+        in: query
+        name: service_type
+        required: false
+        type: string
+      - description: Case insensitive search on harvester start date
+        in: query
+        name: begin_date
+        required: false
+        type: string
+      - description: Case insensitive search on harvester end date
+        in: query
+        name: harvest_end
+        required: false
+        type: string
+      - $ref: "../swagger.yaml#/parameters/match"
+      - $ref: "../swagger.yaml#/parameters/order_by"
+      - $ref: "../swagger.yaml#/parameters/page"
+      - $ref: "../swagger.yaml#/parameters/per_page"
+      - $ref: "../swagger.yaml#/parameters/q_param"
+      - $ref: "../swagger.yaml#/parameters/q_body"
+      - $ref: "../swagger.yaml#/parameters/q_header"
+    responses:
+      200:
+        description: A list of harvesters
+        schema:
+          items:
+            $ref: "../swagger.yaml#/definitions/erm_harvester"
+          type: array
+      400:
+        description: Bad request
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      403:
+        description: Access forbidden
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      500:
+        description: |-
+          Internal server error. Possible `error_code` attribute values:
+          * `internal_server_error`
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      503:
+        description: Under maintenance
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+    x-koha-authorization:
+      permissions:
+        erm: 1
+  post:
+    x-mojo-to: ERM::Harvesters#add
+    operationId: addERMHarvesters
+    tags:
+      - harvester
+    summary: Add harvester
+    consumes:
+      - application/json
+    produces:
+      - application/json
+    parameters:
+      - description: A JSON object containing information about the new harvester
+        in: body
+        name: body
+        required: true
+        schema:
+            $ref: "../swagger.yaml#/definitions/erm_harvester"
+    responses:
+      201:
+        description: A successfully created harvester
+        schema:
+          items:
+            $ref: "../swagger.yaml#/definitions/erm_harvester"
+      400:
+        description: Bad parameter
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      401:
+        description: Authentication required
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      403:
+        description: Access forbidden
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      404:
+        description: Ressource not found
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      409:
+        description: Conflict in creating resource
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      413:
+        description: Payload too large
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      500:
+        description: |-
+          Internal server error. Possible `error_code` attribute values:
+          * `internal_server_error`
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      503:
+        description: Under maintenance
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+    x-koha-authorization:
+      permissions:
+        erm: 1
+"/erm/harvesters/{erm_harvester_id}":
+  get:
+    x-mojo-to: ERM::Harvesters#get
+    operationId: getERMharvester
+    tags:
+      - harvester
+    summary: get harvester
+    produces:
+      - application/json
+    parameters:
+      - $ref: "../swagger.yaml#/parameters/erm_harvester_id_pp"
+      - name: x-koha-embed
+        in: header
+        required: false
+        description: Embed list sent as a request header
+        type: array
+        items:
+          type: string
+        collectionFormat: csv
+    responses:
+      200:
+        description: harvester
+        schema:
+          items:
+            $ref: "../swagger.yaml#/definitions/erm_harvester"
+      401:
+        description: authentication required
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      403:
+        description: access forbidden
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      404:
+        description: ressource not found
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      500:
+        description: |-
+          internal server error. possible `error_code` attribute values:
+          * `internal_server_error`
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      503:
+        description: under maintenance
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+    x-koha-authorization:
+      permissions:
+        erm: 1
+  put:
+    x-mojo-to: ERM::Harvesters#update
+    operationId: updateERMharvesters
+    tags:
+      - harvester
+    summary: update harvester
+    consumes:
+      - application/json
+    produces:
+      - application/json
+    parameters:
+      - $ref: "../swagger.yaml#/parameters/erm_harvester_id_pp"
+      - name: body
+        in: body
+        description: a json object containing new information about existing harvester
+        required: true
+        schema:
+          $ref: "../swagger.yaml#/definitions/erm_harvester"
+      - name: x-koha-embed
+        in: header
+        required: false
+        description: Embed list sent as a request header
+        type: array
+        items:
+          type: string
+          enum:
+            - user_roles
+            - documents
+        collectionFormat: csv
+    responses:
+      200:
+        description: a successfully updated harvester
+        schema:
+          items:
+            $ref: "../swagger.yaml#/definitions/erm_harvester"
+      400:
+        description: bad parameter
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      403:
+        description: access forbidden
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      404:
+        description: ressource not found
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      409:
+        description: conflict in updating resource
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      413:
+        description: Payload too large
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      500:
+        description: |-
+          internal server error. possible `error_code` attribute values:
+          * `internal_server_error`
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      503:
+        description: under maintenance
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+    x-koha-authorization:
+      permissions:
+        erm: 1
+  delete:
+    x-mojo-to: ERM::Harvesters#delete
+    operationId: deleteERMharvesters
+    tags:
+      - harvester
+    summary: Delete harvester
+    produces:
+      - application/json
+    parameters:
+      - $ref: "../swagger.yaml#/parameters/erm_harvester_id_pp"
+    responses:
+      204:
+        description: harvester deleted
+      400:
+        description: harvester deletion failed
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      401:
+        description: authentication required
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      403:
+        description: access forbidden
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      404:
+        description: ressource not found
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      409:
+        description: conflict in deleting resource
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      500:
+        description: |-
+          internal server error. possible `error_code` attribute values:
+          * `internal_server_error`
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      503:
+        description: under maintenance
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+    x-koha-authorization:
+      permissions:
+        erm: 1
