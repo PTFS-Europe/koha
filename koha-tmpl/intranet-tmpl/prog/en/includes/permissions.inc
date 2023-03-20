@@ -557,6 +557,11 @@
             Define notices
         </span>
         <span class="permissioncode">([% name | html %])</span>
+    [%- CASE 'view_generated_notices' -%]
+        <span class="sub_permission view_generated_notices_subpermission">
+            View and print generated notices
+        </span>
+        <span class="permissioncode">([% name | html %])</span>
     [%- CASE 'edit_patrons' -%]
         <span class="sub_permission edit_patrons_subpermission">
             Perform batch modification of patrons

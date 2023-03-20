@@ -260,6 +260,7 @@ subtest 'superlibrarian tests' => sub {
         'CAN_user_tools_edit_calendar'                              => 1,
         'CAN_user_tools_edit_notice_status_triggers'                => 1,
         'CAN_user_tools_edit_notices'                               => 1,
+        'CAN_user_tools_view_generated_notices'                     => 1,
         'CAN_user_tools_edit_patrons'                               => 1,
         'CAN_user_tools_edit_quotes'                                => 1,
         'CAN_user_tools_export_catalog'                             => 1,
