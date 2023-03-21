@@ -164,16 +164,18 @@ export default {
                 error => {}
             )
         },
-        doShow: function (agreement, dt, event) {
+        doShow: function ({ agreement_id }, dt, event) {
             event.preventDefault()
-            this.$router.push(
-                "/cgi-bin/koha/erm/agreements/" + agreement.agreement_id
-            )
+            this.$router.push({
+                name: "AgreementsShow",
+                params: { agreement_id },
+            })
         },
-        doEdit: function (agreement, dt, event) {
-            this.$router.push(
-                "/cgi-bin/koha/erm/agreements/edit/" + agreement.agreement_id
-            )
+        doEdit: function ({ agreement_id }, dt, event) {
+            this.$router.push({
+                name: "AgreementsFormAddEdit",
+                params: { agreement_id },
+            })
         },
         doDelete: function (agreement, dt, event) {
             this.setConfirmationDialog(
@@ -215,10 +217,8 @@ export default {
         },
         filter_table: async function () {
             if (!this.embedded) {
-                let new_route = build_url(
-                    "/cgi-bin/koha/erm/agreements",
-                    this.filters
-                )
+                let { href } = this.$router.resolve({ name: "AgreementsList" })
+                let new_route = build_url(href, this.filters)
                 this.$router.push(new_route)
             }
             if (this.filters.by_expired) {

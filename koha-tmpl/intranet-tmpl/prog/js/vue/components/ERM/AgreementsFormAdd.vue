@@ -167,7 +167,7 @@
                 <fieldset class="action">
                     <ButtonSubmit />
                     <router-link
-                        to="/cgi-bin/koha/erm/agreements"
+                        :to="{ name: 'AgreementsList' }"
                         role="button"
                         class="cancel"
                         >{{ $__("Cancel") }}</router-link
@@ -383,7 +383,7 @@ export default {
                 client.agreements.update(agreement, agreement_id).then(
                     success => {
                         setMessage(this.$__("Agreement updated"))
-                        this.$router.push("/cgi-bin/koha/erm/agreements")
+                        this.$router.push({ name: "AgreementsList" })
                     },
                     error => {}
                 )
@@ -391,7 +391,7 @@ export default {
                 client.agreements.create(agreement).then(
                     success => {
                         setMessage(this.$__("Agreement created"))
-                        this.$router.push("/cgi-bin/koha/erm/agreements")
+                        this.$router.push({ name: "AgreementsList" })
                     },
                     error => {}
                 )
