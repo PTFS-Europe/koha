@@ -30,7 +30,7 @@
             <h1>Tools</h1>
             <div class="row">
                 <div class="col-sm-6">
-                    [% IF ( CAN_user_tools_manage_patron_lists || CAN_user_clubs || CAN_user_tools_moderate_comments || CAN_user_tools_import_patrons  || CAN_user_tools_edit_notices || CAN_user_tools_edit_notice_status_triggers || CAN_user_tools_label_creator || CAN_user_tools_delete_anonymize_patrons  || CAN_user_tools_edit_patrons || CAN_user_tools_batch_extend_due_dates || CAN_user_tools_moderate_tags || CAN_user_tools_rotating_collections || ( CAN_user_tools_batch_upload_patron_images && Koha.Preference('patronimages') ) ) %]
+                    [% IF ( CAN_user_tools_manage_patron_lists || CAN_user_clubs || CAN_user_tools_moderate_comments || CAN_user_tools_import_patrons  || CAN_user_tools_edit_notices || CAN_user_tools_edit_notice_status_triggers || CAN_user_tools_label_creator || CAN_user_tools_delete_anonymize_patrons  || CAN_user_tools_edit_patrons || CAN_user_tools_batch_extend_due_dates || CAN_user_tools_moderate_tags || CAN_user_tools_rotating_collections || ( CAN_user_tools_batch_upload_patron_images && Koha.Preference('patronimages') ) || ( CAN_user_tools_view_generated_notices && Koha.Preference('NoticesManagement') ) ) %]
                         <h3>Patrons and circulation</h3>
                     [% END %]
                     <dl>
@@ -67,6 +67,11 @@
                         [% IF ( CAN_user_tools_edit_notice_status_triggers ) %]
                             <dt><a href="/cgi-bin/koha/tools/overduerules.pl">Overdue notice/status triggers</a></dt>
                             <dd>Set notice/status triggers for overdue items</dd>
+                        [% END %]
+
+                        [% IF ( CAN_user_tools_view_generated_notices && Koha.Preference('NoticesManagement') ) %]
+                            <dt><a href="/cgi-bin/koha/tools/notices.pl">Notices management</a></dt>
+                            <dd>View and print generated notices</dd>
                         [% END %]
 
                         [% IF ( CAN_user_tools_label_creator ) %]
