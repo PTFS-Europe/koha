@@ -203,6 +203,22 @@ sub scoped_style {
     return $css_content;
 }
 
+=head3 patron
+
+    my $patron = $message->patron;
+
+Returns the Koha::Patron object for the recipient of the queued message
+
+=cut
+
+sub patron {
+    my ($self) = @_;
+
+    $self->{_patron} ||= Koha::Patrons->find( $self->borrowernumber );
+
+    return $self->{_patron};
+}
+
 =head3 type
 
 =cut
