@@ -527,32 +527,32 @@ $(document).ready(function() {
         });
     } //END if window.location.search.length == 0
 
-    var clearSearch = function() {
-        table.api().search('').columns().search('');
-        activeFilters = {};
-        for (var filter in filterable) {
-            if (
-                filterable.hasOwnProperty(filter) &&
-                filterable[filter].hasOwnProperty('clear')
-            ) {
-                filterable[filter].clear();
-            }
-        }
-        table.api().draw();
-    };
+    // var clearSearch = function() {
+    //     table.api().search('').columns().search('');
+    //     activeFilters = {};
+    //     for (var filter in filterable) {
+    //         if (
+    //             filterable.hasOwnProperty(filter) &&
+    //             filterable[filter].hasOwnProperty('clear')
+    //         ) {
+    //             filterable[filter].clear();
+    //         }
+    //     }
+    //     table.api().draw();
+    // };
 
     // Apply any search filters, or clear any previous
     // ones
-    $('#illfilter_form').submit(function(event) {
-        event.preventDefault();
-        table.api().search('').columns().search('');
-        for (var active in activeFilters) {
-            if (activeFilters.hasOwnProperty(active)) {
-                activeFilters[active]();
-            }
-        }
-        table.api().draw();
-    });
+    // $('#illfilter_form').submit(function(event) {
+    //     event.preventDefault();
+    //     ill_requests_table.api().search('').columns().search('');
+    //     for (var active in activeFilters) {
+    //         if (activeFilters.hasOwnProperty(active)) {
+    //             activeFilters[active]();
+    //         }
+    //     }
+    //     ill_requests_table.api().draw();
+    // });
 
     // Clear all filters
     $('#clear_search').click(function() {
