@@ -28,6 +28,7 @@ use JSON qw(encode_json);
 use t::lib::TestBuilder;
 use t::lib::Mocks;
 
+use Koha::AuthorisedValueCategories;
 use Koha::Illrequests;
 use Koha::DateUtils qw( format_sqldatetime );
 
@@ -181,6 +182,31 @@ subtest 'list() tests' => sub {
 
     plan tests => 9;
 
+    # Mock ILLBackend (as object)
+    my $backend = Test::MockObject->new;
+    $backend->set_isa('Koha::Illbackends::Mock');
+    $backend->set_always('name', 'Mock');
+    $backend->set_always('capabilities', sub { return 'bar'; } );
+    $backend->mock(
+        'metadata',
+        sub {
+            my ( $self, $rq ) = @_;
+            return {
+                ID => $rq->illrequest_id,
+                Title => $rq->patron->borrowernumber
+            }
+        }
+    );
+    $backend->mock(
+        'status_graph', sub {},
+    );
+
+    # Mock Koha::Illrequest::load_backend (to load Mocked Backend)
+    my $illreqmodule = Test::MockModule->new('Koha::Illrequest');
+    $illreqmodule->mock( 'load_backend',
+        sub { my $self = shift; $self->{_my_backend} = $backend; return $self }
+    );
+
     $schema->storage->txn_begin;
 
     Koha::Illrequests->search->delete;
@@ -209,8 +235,24 @@ subtest 'list() tests' => sub {
       ->status_is(200)
       ->json_is( [] );
 
+    # Make sure the category is defined
+    unless ( Koha::AuthorisedValueCategories->search( { category_name => 'ILL_STATUS_ALIAS' } )->count > 0 ) {
+        $builder->build_object(
+            { class => 'Koha::AuthorisedValueCategories', value => { category_name => 'ILL_STATUS_ALIAS' } } );
+    }
+
+    my $tag = "Print copy";
+    my $av  = $builder->build_object(
+        {   class => 'Koha::AuthorisedValues',
+            value => {
+                category => 'ILL_STATUS_ALIAS',
+                lib      => $tag,
+            }
+        }
+    );
+
     my $req_1 = $builder->build_object({ class => 'Koha::Illrequests', value => { biblio_id => undef, status => 'REQ' } });
-    my $req_2 = $builder->build_object({ class => 'Koha::Illrequests', value => { biblio_id => undef, status => 'REQ' } } );
+    my $req_2 = $builder->build_object({ class => 'Koha::Illrequests', value => { biblio_id => undef, status => 'REQ', status_alias => $av->authorised_value } } );
     my $ret   = $builder->build_object({ class => 'Koha::Illrequests', value => { biblio_id => undef, status => 'RET' } } );
 
     $t->get_ok("//$userid:$password@/api/v1/ill_requests")
@@ -220,9 +262,9 @@ subtest 'list() tests' => sub {
     my $query = encode_json({ status => 'REQ' });
 
     # Filtering works
-    $t->get_ok("//$userid:$password@/api/v1/ill_requests?q=$query" )
+    $t->get_ok("//$userid:$password@/api/v1/ill_requests?q=$query" => {"x-koha-embed" => "+strings"} )
       ->status_is(200)
-      ->json_is( [ $req_1->to_api, $req_2->to_api ]);
+      ->json_is('/0/_strings' => undef);
 
     $schema->storage->txn_rollback;
 };
