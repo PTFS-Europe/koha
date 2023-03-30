@@ -94,6 +94,7 @@
                                     <label for="illfilter_branchname">Library:</label>
                                     <select name="illfilter_branchname" id="illfilter_branchname">
                                         <option value=""></option>
+                                        [% PROCESS options_for_libraries libraries => Branches.all( selected => userbranch, only_from_group => 1 ) %]
                                     </select>
                                 </li>
                                 <li>
@@ -150,7 +151,7 @@
                     [% IF !whole.stage || whole.stage == 'form' %]
                         <h1 id="ill-issue-title">Issue requested item to [% INCLUDE 'patron-title.inc' patron = request.patron %]</h1>
                         [% IF !request.biblio_id || request.biblio_id.length == 0 %]
-                        <div class="alert">This item cannot be checked out out as there is no bibliographic record associated with it</div>
+                        <div class="alert">This item cannot be issued as it has no biblio record associated with it</div>
                         [% END %]
                         [% IF whole.value.errors.itemcount %]
                         <div class="alert">The bibliographic record for this request has multiple items, it should only have one. Please fix this then try again.</div>
@@ -599,15 +600,16 @@
                             <span class="fa fa-eye"></span>
                             Display supplier metadata
                         </a>
-                        [% IF Koha.Preference('IllLog') %]
-                            <a title="ILL request log" id="ill-request-display-log" class="btn btn-default pull-right" href="#">
-                                <span class="fa fa-calendar"></span>
-                                ILL request log
-                            </a>
-                        [% END %]
+                        <a title="ILL request log" id="ill-request-display-log" class="btn btn-default pull-right" href="#">
+                            <span class="fa fa-calendar"></span>
+                            ILL request log
+                        </a>
                     </div>
-                    <div class="page-section">
-                        <h3>Request details</h3>
+                    <div class="ill-view-panel panel panel-default">
+                        <div class="panel-heading">
+                            <h3>Request details</h3>
+                        </div>
+                        <div class="panel-body">
                             <h4>Details from library</h4>
                             <div class="rows">
                                 <ol>
@@ -618,7 +620,7 @@
                                     <li class="borrowernumber">
                                         <span class="label borrowernumber">Patron:</span>
                                         [% borrowerlink = "/cgi-bin/koha/members/moremember.pl" _ "?borrowernumber=" _ request.patron.borrowernumber %]
-                                        <a href="[% borrowerlink | url %]" title="View patron details">
+                                        <a href="[% borrowerlink | url %]" title="View borrower details">
                                         [% request.patron.firstname _ " " _ request.patron.surname _ " [" _ request.patron.cardnumber _ "]" | html %]
                                         </a>
                                     </li>
@@ -664,7 +666,7 @@
                                         [% IF request.price_paid %][% request.price_paid | $Price %][% ELSE %]<span>N/A</span>[% END %]
                                     </li>
                                     <li class="req_id">
-                                        <span class="label req_id">Request ID:</span>
+                                        <span class="label req_id">Request number:</span>
                                         [% request.id_prefix _ request.illrequest_id | html %]
                                     </li>
                                     <li class="notesstaff">
@@ -672,7 +674,7 @@
                                         <p>[% request.notesstaff | html %]</p>
                                     </li>
                                     <li class="notesopac">
-                                        <span class="label notes_opac">OPAC notes:</span>
+                                        <span class="label notes_opac">Notes:</span>
                                         <p>[% request.notesopac | html %]</p>
                                     </li>
                                 </ol>
@@ -688,6 +690,7 @@
                                     [% END %]
                                 </ol>
                             </div>
+                        </div>
                     </div>
 
                     <div id="dataPreview" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="dataPreviewLabel" aria-hidden="true">
@@ -738,40 +741,44 @@
                         </div>
                     </div>
 
-                    <div class="page-section">
-                        <h3>[% request.illcomments.count | html %] comments</h3>
-                        [% IF request.illcomments.count && request.illcomments.count > 0 %]
-                            [% FOREACH comment IN request.illcomments %]
-                                <div class="rows comment_[% comment.patron.categorycode | html %]">
-                                <h5>Comment by:
-                                <a href="[% borrowerlink | url %]" title="View patron details">
-                                [% comment.patron.firstname _ " " _ comment.patron.surname _ " [" _ comment.patron.cardnumber _ "]" | html %]</a>
-                                [% comment.timestamp | $KohaDates with_hours => 1 %]</h5>
-                                <p>[% comment.comment | html %]</p>
-                                </div>
+                    <div class="ill-view-panel panel panel-default">
+                        <div class="panel-heading">
+                            <h3>[% request.illcomments.count | html %] comments</h3>
+                        </div>
+                        <div class="panel-body">
+                            [% IF request.illcomments.count && request.illcomments.count > 0 %]
+                                [% FOREACH comment IN request.illcomments %]
+                                    <div class="rows comment_[% comment.patron.categorycode | html %]">
+                                    <h5>Comment by:
+                                    <a href="[% borrowerlink | url %]" title="View borrower details">
+                                    [% comment.patron.firstname _ " " _ comment.patron.surname _ " [" _ comment.patron.cardnumber _ "]" | html %]</a>
+                                    [% comment.timestamp | $KohaDates with_hours => 1 %]</h5>
+                                    <p>[% comment.comment | html %]</p>
+                                    </div>
+                                [% END %]
                             [% END %]
-                        [% END %]
-                        <div class="rows">
-                            <h3><a id="toggle_addcomment" href="#">Add comment</a></h3>
-                            <div id="addcomment" class="content_hidden">
-                                <form class="validated" method="post" action="/cgi-bin/koha/ill/ill-requests.pl">
-                                    <input type="hidden" value="save_comment" name="method">
-                                    <input type="hidden" value="[% csrf_token | html %]" name="csrf_token">
-                                    <input type="hidden" value="[% request.illrequest_id | html %]" name="illrequest_id">
-                                    <fieldset class="rows">
-                                        <ol>
-                                            <li>
-                                                <label class="required" for="comment">Comment: </label>
-                                                <textarea class="required" required="required" cols="80" rows="10" id="comment" name="comment"></textarea>
-                                                <span class="required">Required</span>
-                                            </li>
-                                        </ol>
-                                    </fieldset>
-                                    <fieldset class="action">
-                                        <input type="submit" class="btn btn-primary" value="Submit" />
-                                    </fieldset>
-                                </form>
-                            </div>
+                                <div class="rows">
+                                    <h3><a id="toggle_addcomment" href="#">Add comment</a></h3>
+                                    <div id="addcomment" class="content_hidden">
+                                        <form class="validated" method="post" action="/cgi-bin/koha/ill/ill-requests.pl">
+                                            <input type="hidden" value="save_comment" name="method">
+                                            <input type="hidden" value="[% csrf_token | html %]" name="csrf_token">
+                                            <input type="hidden" value="[% request.illrequest_id | html %]" name="illrequest_id">
+                                            <fieldset class="rows">
+                                                <ol>
+                                                    <li>
+                                                        <label class="required" for="comment">Comment: </label>
+                                                        <textarea class="required" required="required" cols="80" rows="10" id="comment" name="comment"></textarea>
+                                                        <span class="required">Required</span>
+                                                    </li>
+                                                </ol>
+                                            </fieldset>
+                                            <fieldset class="action">
+                                                <input type="submit" class="btn btn-primary" value="Submit" />
+                                            </fieldset>
+                                        </form>
+                                    </div>
+                                </div>
                         </div>
                     </div>
 
@@ -780,12 +787,46 @@
                     <h1>View ILL requests</h1>
                     <div id="results" class="page-section">
                         <h2>Details for all requests</h2>
-                        [% INCLUDE 'ill-list-table.inc' %]
+                         [% INCLUDE 'ill-list-table.inc' %]
                     </div> <!-- /#results -->
+
+                    <h1>New table</h1>
+                        <table id="ill_requests">
+                            <thead>
+                                <tr id="ill_requests_header">
+                                    <th scope="col">Request ID</th>
+                                    <th scope="col">Author</th>
+                                    <th scope="col" data-datatype="related-object" data-related="ill_extended_attributes" data-related-key="type" data-related-value="title"         data-related-search-on="value">Title</th>
+                                    <th scope="col" data-datatype="related-object" data-related="ill_extended_attributes" data-related-key="type" data-related-value="article_title" data-related-search-on="value">Article title</th>
+                                    <th scope="col" data-datatype="related-object" data-related="ill_extended_attributes" data-related-key="type" data-related-value="issue"         data-related-search-on="value">Issue</th>
+                                    <th scope="col" data-datatype="related-object" data-related="ill_extended_attributes" data-related-key="type" data-related-value="volume"        data-related-search-on="value">Volume</th>
+                                    <th scope="col" data-datatype="related-object" data-related="ill_extended_attributes" data-related-key="type" data-related-value="year"          data-related-search-on="value">Year</th>
+                                    <th scope="col" data-datatype="related-object" data-related="ill_extended_attributes" data-related-key="type" data-related-value="pages"         data-related-search-on="value">Pages</th>
+                                    <th scope="col" data-datatype="related-object" data-related="ill_extended_attributes" data-related-key="type" data-related-value="type"          data-related-search-on="value">Request type</th>
+                                    <th scope="col">Order ID</th>
+                                    <th scope="col">Patron</th>
+                                    <th scope="col">Bibliographic record</th>
+                                    <th scope="col">Branch</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col" class="placed_formatted">Placed on</th>
+                                    <th scope="col" class="updated_formatted">Updated on</th>
+                                    <th scope="col">Replied</th>
+                                    <th scope="col" class="completed_formatted">Completed on</th>
+                                    <th scope="col">Access URL</th>
+                                    <th scope="col">Cost</th>
+                                    <th scope="col">Price paid</th>
+                                    <th scope="col">Comments</th>
+                                    <th scope="col">OPAC notes</th>
+                                    <th scope="col">Staff notes</th>
+                                    <th scope="col">Backend</th>
+                                    <th scope="col" class="actions"></th>
+                                </tr>
+                            </thead>
+                        </table>
                 [% ELSIF query_type == 'availability' %]
                     <!-- availability -->
                     <h1>Availability</h1>
-                    <div id="results" class="page-section">
+                    <div id="results">
                         <h3>Displaying availability results</h3>
                         <form method="POST" action="/cgi-bin/koha/ill/ill-requests.pl">
                             [% FOREACH key IN whole.keys %]
@@ -830,9 +871,252 @@
 
 [% MACRO jsinclude BLOCK %]
     [% INCLUDE 'datatables.inc' %]
+    [% INCLUDE 'js-biblio-format.inc' %]
+    [% INCLUDE 'js-patron-format.inc' %]
     [% INCLUDE 'columns_settings.inc' %]
     [% INCLUDE 'calendar.inc' %]
     [% INCLUDE 'select2.inc' %]
+    <script>
+        $(document).ready(function() {
+            function display_extended_attribute(row, type) {
+                var arr = $.grep(row.ill_extended_attributes, ( x => x.type === type ));
+                if (arr.length > 0) {
+                    return escape_str(arr[0].value);
+                }
+
+                return '';
+            }
+
+            var ill_requests_table = $("#ill_requests").kohaTable({
+                "ajax": {
+                    "url": '/api/v1/ill_requests'
+                },
+                "embed": [
+                    'biblio',
+                    'comments+count',
+                    'ill_extended_attributes',
+                    'library',
+                    'patron'
+                ],
+                "stateSave": true, // remember state on page reload
+                "columns": [
+                    {
+                        "data": "ill_request_id",
+                        "searchable": true,
+                        "orderable": true,
+                        "render": function(data, type, row, meta) {
+                            return escape_str(data);
+                        }
+                    },
+                    {
+                        "data": "biblio.author",
+                        "orderable": true,
+                        "render": function(data, type, row, meta) {
+                            return escape_str(data);
+                        }
+                    },
+                    {
+                        "data": "", // title
+                        "orderable": false,
+                        "render": function(data, type, row, meta) {
+                            return display_extended_attribute(row, 'title');
+                        }
+                    },
+                    {
+                        "data": "", // article_title
+                        "orderable": false,
+                        "render": function(data, type, row, meta) {
+                            return display_extended_attribute(row, 'article_title');
+                        }
+                    },
+                    {
+                        "data": "", // issue
+                        "orderable": false,
+                        "render": function(data, type, row, meta) {
+                            return display_extended_attribute(row, 'issue');
+                        }
+                    },
+                    {
+                        "data": "", // volume
+                        "orderable": false,
+                        "render": function(data, type, row, meta) {
+                            return display_extended_attribute(row, 'volume');
+                        }
+                    },
+                    {
+                        "data": "",  // year
+                        "orderable": false,
+                        "render": function(data, type, row, meta) {
+                            return display_extended_attribute(row, 'year');
+                        }
+                    },
+                    {
+                        "data": "", // pages
+                        "orderable": false,
+                        "render": function(data, type, row, meta) {
+                            return display_extended_attribute(row, 'pages');
+                        }
+                    },
+                    {
+                        "data": "", // type
+                        "orderable": false,
+                        "render": function(data, type, row, meta) {
+                            return display_extended_attribute(row, 'type');
+                        }
+                    },
+                    {
+                        "data": "ill_backend_request_id",
+                        "orderable": true,
+                        "render": function(data, type, row, meta) {
+                            return escape_str(data);
+                        }
+                    },
+                    {
+                        "data": "patron.firstname:patron.surname:patron.cardnumber",
+                        "render": function(data, type, row, meta) {
+                            return (row.patron) ? $patron_to_html( row.patron, { display_cardnumber: true, url: true } ) : ''; }                    },
+                    {
+                        "data": "biblio_id",
+                        "orderable": true,
+                        "render": function(data, type, row, meta) {
+                            if ( data === null ) {
+                                return "";
+                            }
+                            return $biblio_to_html(row.biblio, { biblio_id_only: 1, link: 1 });
+                        }
+                    },
+                    {
+                        "data": "library.name",
+                        "orderable": true,
+                        "render": function(data, type, row, meta) {
+                            return escape_str(data);
+                        }
+                    },
+                    {
+                        "data": "status",
+                        "orderable": true,
+                        "render": function(data, type, row, meta) {
+                            return escape_str(data);
+                        }
+                    },
+                    {
+                        "data": "requested_date",
+                        "orderable": true,
+                        "render": function(data, type, row, meta) {
+                            return $date(data);
+                        }
+                    },
+                    {
+                        "data": "timestamp",
+                        "orderable": true,
+                        "render": function(data, type, row, meta) {
+                            return $date(data);
+                        }
+                    },
+                    {
+                        "data": "replied_date",
+                        "orderable": true,
+                        "render": function(data, type, row, meta) {
+                            return $date(data);
+                        }
+                    },
+                    {
+                        "data": "completed_date",
+                        "orderable": true,
+                        "render": function(data, type, row, meta) {
+                            return $date(data);
+                        }
+                    },
+                    {
+                        "data": "access_url",
+                        "orderable": true,
+                        "render": function(data, type, row, meta) {
+                            return escape_str(data);
+                        }
+                    },
+                    {
+                        "data": "cost",
+                        "orderable": true,
+                        "render": function(data, type, row, meta) {
+                            return escape_str(data);
+                        }
+                    },
+                    {
+                        "data": "paid_price",
+                        "orderable": true,
+                        "render": function(data, type, row, meta) {
+                            return escape_str(data);
+                        }
+                    },
+                    {
+                        "data": "comments_count",
+                        "orderable": true,
+                        "searchable": false,
+                        "render": function(data, type, row, meta) {
+                            return escape_str(data);
+                        }
+                    },
+                    {
+                        "data": "opac_notes",
+                        "orderable": true,
+                        "render": function(data, type, row, meta) {
+                            return escape_str(data);
+                        }
+                    },
+                    {
+                        "data": "staff_notes",
+                        "orderable": true,
+                        "render": function(data, type, row, meta) {
+                            return escape_str(data);
+                        }
+                    },
+                    {
+                        "data": "ill_backend_id",
+                        "orderable": true,
+                        "render": function(data, type, row, meta) {
+                            return escape_str(data);
+                        }
+                    },
+                    {
+                        "data": "ill_request_id",
+                        "orderable": false,
+                        "render": function( data, type, row, meta ) {
+                            return '<a class="btn btn-default btn-sm" ' +
+                                    'href="/cgi-bin/koha/ill/ill-requests.pl?' +
+                                    'method=illview&amp;illrequest_id=' +
+                                    encodeURIComponent(data) +
+                                    '">' + ill_manage + '</a>';
+                        }
+                    }
+                ]
+            });
+
+            var clearSearch = function() {
+                table.api().search('').columns().search('');
+                activeFilters = {};
+                for (var filter in filterable) {
+                    if (
+                        filterable.hasOwnProperty(filter) &&
+                        filterable[filter].hasOwnProperty('clear')
+                    ) {
+                        filterable[filter].clear();
+                    }
+                }
+                table.api().draw();
+            };
+            
+            $('#illfilter_form').submit(function(event) {
+                event.preventDefault();
+                ill_requests_table.api().search('').columns().search('');
+                for (var active in activeFilters) {
+                    if (activeFilters.hasOwnProperty(active)) {
+                        activeFilters[active]();
+                    }
+                }
+                ill_requests_table.api().draw();
+            });            
+        });
+    </script>
     <script>
         var prefilters = '[% prefilters | $raw %]';
         // Set column settings
@@ -871,6 +1155,7 @@
     [% IF query_type == 'generic_confirm' && Koha.Preference('ILLCheckAvailability') %]
         [% Asset.js("js/ill-availability-partner.js") | $raw %]
     [% END %]
+
 [% END %]
 
 [% TRY %]
