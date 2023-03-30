@@ -35,11 +35,33 @@ Koha::REST::V1::Illrequests
 
 =head3 list
 
-Return a list of ILL requests, after applying filters.
+Controller function that handles listing Koha::Illrequest objects
 
 =cut
 
 sub list {
+    my $c = shift->openapi->valid_input or return;
+
+    return try {
+
+        my $reqs = $c->objects->search(Koha::Illrequests->new);
+
+        return $c->render(
+            status  => 200,
+            openapi => $reqs,
+        );
+    } catch {
+        $c->unhandled_exception($_);
+    };
+}
+
+=head3 list_legacy [DEPRECATED]
+
+Return a list of ILL requests, after applying filters.
+
+=cut
+
+sub list_legacy {
     my $c = shift->openapi->valid_input or return;
 
     my $args = $c->req->params->to_hash // {};
