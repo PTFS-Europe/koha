@@ -1,11 +1,11 @@
 ---
 /illrequests:
   get:
-    x-mojo-to: Illrequests#list
-    operationId: listIllrequests
+    x-mojo-to: Illrequests#list_legacy
+    operationId: listIllrequestsLegacy
     tags:
       - illrequests
-    summary: List ILL requests
+    summary: List ILL requests [DEPRECATED]
     parameters:
       - name: embed
         in: query
@@ -113,6 +113,71 @@
           $ref: "../swagger.yaml#/definitions/error"
       "404":
         description: ILL requests not found
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "500":
+        description: |
+          Internal server error. Possible `error_code` attribute values:
+
+          * `internal_server_error`
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "503":
+        description: Under maintenance
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+    x-koha-authorization:
+      permissions:
+        ill: "1"
+
+/ill_requests:
+  get:
+    x-mojo-to: Illrequests#list
+    operationId: listIllrequests
+    tags:
+      - ill_requests
+    summary: List ILL requests
+    parameters:
+      - $ref: "../swagger.yaml#/parameters/page"
+      - $ref: "../swagger.yaml#/parameters/per_page"
+      - $ref: "../swagger.yaml#/parameters/match"
+      - $ref: "../swagger.yaml#/parameters/order_by"
+      - $ref: "../swagger.yaml#/parameters/q_param"
+      - $ref: "../swagger.yaml#/parameters/q_body"
+      - $ref: "../swagger.yaml#/parameters/q_header"
+      - $ref: "../swagger.yaml#/parameters/request_id_header"
+      - name: x-koha-embed
+        in: header
+        required: false
+        description: Embed list sent as a request header
+        type: array
+        items:
+          type: string
+          enum:
+            - +strings
+            - article_title
+            - biblio
+            - comments
+            - comments+count
+            - ill_extended_attributes
+            - library
+            - patron
+        collectionFormat: csv
+    produces:
+      - application/json
+    responses:
+      "200":
+        description: A list of checkouts
+        schema:
+          type: array
+          items:
+            $ref: "../swagger.yaml#/definitions/ill_request"
+      "403":
+        description: Access forbidden
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "404":
+        description: Patron not found
         schema:
           $ref: "../swagger.yaml#/definitions/error"
       "500":
