@@ -2,6 +2,7 @@
 [% USE Asset %]
 [% USE Koha %]
 [% USE KohaDates %]
+[% USE TablesSettings %]
 [% USE Price %]
 [% PROCESS 'i18n.inc' %]
 [% SET footerjs = 1 %]
@@ -373,7 +374,7 @@
 
             if ( $("#receivedt").length ) {
                 var receivedt = $("#receivedt").dataTable($.extend(true, {}, dataTablesDefaults, {
-                    "stateSave": true,
+                    "stateSave": true, // We do not have table settings on this table
                     "pageLength": 10,
                     "lengthMenu": [[5, 10, 20, 50, 100, -1], [5, 10, 20, 50, 100, _("All")]],
                     "columnDefs": [
@@ -412,7 +413,6 @@
                     "current_item_level_holds+count",
                     "items"
                 ],
-                "stateSave": true, // remember state on page reload
                 "columns": [
                     { "data": "basket.name",
                       "searchable": true,
@@ -669,7 +669,9 @@
                 "orderable": false
             });
 
-            var pending_orders_table = $("#pending_orders").kohaTable(options, {}, 1, { "basket.vendor_id": [% booksellerid | html %] });
+            let table_settings = [% TablesSettings.GetTableSettings( 'acqui', 'parcel', 'pending_orders', 'json' ) | $raw %];
+
+            var pending_orders_table = $("#pending_orders").kohaTable(options, table_settings, 1, { "basket.vendor_id": [% booksellerid | html %] });
 
             var api = pending_orders_table.api();
             api.on('draw', function () {

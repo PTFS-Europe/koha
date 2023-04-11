@@ -776,7 +776,9 @@
                 patron_search_form.find(".searchpattern").parent().hide();
             });
 
-            if ( !defer_loading ) {
+            let table_dt = patrons_table.DataTable();
+            let loaded_from_state = table_dt.settings()[0].loaded_from_state;
+            if ( !defer_loading || loaded_from_state ) {
                 patron_search_form.submit();
             }
 
@@ -879,19 +881,23 @@
             $("#[% table_id | html %]_search_results").show();
 
             let table_dt = patrons_table.DataTable();
-            [% FOR c IN columns %]
-                [% SWITCH c %]
-                [% CASE 'branch' %]
-                    let library_id = patron_search_form.find(".branchcode_filter").val() || "";
-                    patrons_table.find('thead tr:eq(1) th[data-filter="libraries"] select').val(library_id);
-                    table_dt.column([% loop.count - 1 %]).search(library_id ? '^'+library_id+'$' : '');
-                [% CASE 'category' %]
-                    let category_id = patron_search_form.find(".categorycode_filter").val() || "";
-                    patrons_table.find('thead tr:eq(1) th[data-filter="categories"] select').val(category_id.toLowerCase());
-                    table_dt.column([% loop.count - 1 %]).search(category_id ? '^'+category_id+'$' : '');
+            let loaded_from_state = table_dt.settings()[0].loaded_from_state;
+            if ( !loaded_from_state ) {
+                table_dt.search("").columns().search("");
+                [% FOR c IN columns %]
+                    [% SWITCH c %]
+                    [% CASE 'branch' %]
+                        let library_id = patron_search_form.find(".branchcode_filter").val() || "";
+                        patrons_table.find('thead tr:eq(1) th[data-filter="libraries"] select').val(library_id);
+                        table_dt.column([% loop.count - 1 %]).search(library_id ? '^'+library_id+'$' : '');
+                    [% CASE 'category' %]
+                        let category_id = patron_search_form.find(".categorycode_filter").val() || "";
+                        patrons_table.find('thead tr:eq(1) th[data-filter="categories"] select').val(category_id.toLowerCase());
+                        table_dt.column([% loop.count - 1 %]).search(category_id ? '^'+category_id+'$' : '');
+                    [% END %]
                 [% END %]
-            [% END %]
-            table_dt.search("");
+            }
+            table_dt.settings()[0].loaded_from_state = false;
             first_draw = 1; // Only redirect if we are coming from here
             table_dt.draw();
             [% IF display_search_description %]

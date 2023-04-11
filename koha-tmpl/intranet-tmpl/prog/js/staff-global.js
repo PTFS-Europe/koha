@@ -425,6 +425,9 @@ function logOut() {
     localStorage.removeItem("patron_search_selections");
     localStorage.removeItem("item_search_selections");
     localStorage.removeItem("copiedPermissions");
+
+    // Remove DataTables states
+    Object.keys(localStorage).forEach(k => {if (k.match(/^DataTables_/)) { localStorage.removeItem(k)}});
 }
 
 function openHelp() {

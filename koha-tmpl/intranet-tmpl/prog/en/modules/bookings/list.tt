@@ -316,7 +316,7 @@
                     return result;
                 }
             }]
-        }, [], 0, additional_filters);
+        }, undefined, 0, additional_filters);
 
         var txtActivefilter = _("Show expired");
         var txtInactivefilter = _("Hide expired");
