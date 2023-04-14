@@ -160,6 +160,7 @@
             - comments+count
             - ill_extended_attributes
             - library
+            - id_prefix
             - patron
         collectionFormat: csv
     produces:

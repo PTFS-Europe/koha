@@ -672,6 +672,7 @@ $(document).ready(function() {
             'comments+count',
             'ill_extended_attributes',
             'library',
+            'id_prefix',
             'patron'
         ],
         "stateSave": true, // remember state on page reload
@@ -684,7 +685,7 @@ $(document).ready(function() {
                     return '<a href="/cgi-bin/koha/ill/ill-requests.pl?' +
                             'method=illview&amp;illrequest_id=' +
                             encodeURIComponent(data) +
-                            '">' + escape_str(data) + '</a>';
+                            '">' + escape_str(row.id_prefix) + escape_str(data) + '</a>';
                 }
             },
             {
