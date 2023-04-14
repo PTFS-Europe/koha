@@ -118,6 +118,11 @@ properties:
       - object
       - "null"
     description: The linked library object (x-koha-embed)
+  id_prefix:
+    type:
+      - string
+      - "null"
+    description: The id_prefix of the request (x-koha-embed)
   patron:
     type:
       - object
