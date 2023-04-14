@@ -69,9 +69,14 @@
                                     <input type="text" name="illfilter_keyword" id="illfilter_keyword" />
                                 </li>
                                 <li>
+                                    <label for="illfilter_backend">Backend:</label>
+                                    <select name="illfilter_backend" id="illfilter_backend">
+                                        <option value="">All backends</option>
+                                    </select>
+                                </li>
+                                <li>
                                     <label for="illfilter_status">Status:</label>
                                     <select name="illfilter_status" id="illfilter_status">
-                                        <option value=""></option>
                                     </select>
                                 </li>
                                 <li>
@@ -93,7 +98,7 @@
                                 <li>
                                     <label for="illfilter_branchname">Library:</label>
                                     <select name="illfilter_branchname" id="illfilter_branchname">
-                                        <option value=""></option>
+                                        <option value="">All libraries</option>
                                         [% PROCESS options_for_libraries libraries => Branches.all( selected => userbranch, only_from_group => 1 ) %]
                                     </select>
                                 </li>

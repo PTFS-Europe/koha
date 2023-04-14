@@ -527,38 +527,6 @@ $(document).ready(function() {
         });
     } //END if window.location.search.length == 0
 
-    // var clearSearch = function() {
-    //     table.api().search('').columns().search('');
-    //     activeFilters = {};
-    //     for (var filter in filterable) {
-    //         if (
-    //             filterable.hasOwnProperty(filter) &&
-    //             filterable[filter].hasOwnProperty('clear')
-    //         ) {
-    //             filterable[filter].clear();
-    //         }
-    //     }
-    //     table.api().draw();
-    // };
-
-    // Apply any search filters, or clear any previous
-    // ones
-    // $('#illfilter_form').submit(function(event) {
-    //     event.preventDefault();
-    //     ill_requests_table.api().search('').columns().search('');
-    //     for (var active in activeFilters) {
-    //         if (activeFilters.hasOwnProperty(active)) {
-    //             activeFilters[active]();
-    //         }
-    //     }
-    //     ill_requests_table.api().draw();
-    // });
-
-    // Clear all filters
-    $('#clear_search').click(function() {
-        clearSearch();
-    });
-
     function display_extended_attribute(row, type) {
         var arr = $.grep(row.ill_extended_attributes, ( x => x.type === type ));
         if (arr.length > 0) {
@@ -567,6 +535,116 @@ $(document).ready(function() {
 
         return '';
     }
+
+    let additional_filters = {
+        "me.backend": function(){
+            let backend = $("#illfilter_backend").val();
+            if (!backend) return "";
+            return { "=": backend  }
+        },
+        "me.branchcode": function(){
+            let branchcode = $("#illfilter_branchname").val();
+            if (!branchcode) return "";
+            return { "=": branchcode }
+        },
+        "me.borrowernumber": function(){
+            let borrowernumber_pre_filter = additional_prefilters.find(e => e.key === 'borrowernumber');
+            if ( additional_prefilters.length == 0 || typeof borrowernumber_pre_filter === undefined) return "";
+            return { "=": borrowernumber_pre_filter["value"] }
+        },
+        "-or": function(){
+            let patron = $("#illfilter_patron").val();
+            let status = $("#illfilter_status").val();
+            let filters = [];
+            let patron_sub_or = [];
+            let status_sub_or = [];
+            let subquery_and = [];
+
+            if(patron){
+                const patron_search_fields = "me.borrowernumber,patron.cardnumber,patron.firstname,patron.surname";
+                patron_search_fields.split(',').forEach(function(attr){
+                    let operator = "=";
+                    let patron_data = patron;
+                    if ( attr != "me.borrowernumber" && attr != "patron.cardnumber") {
+                        operator = "like";
+                        patron_data = "%" + patron + "%";
+                    }
+                    patron_sub_or.push({
+                        [attr]:{[operator]: patron_data }
+                    });
+                });
+                subquery_and.push(patron_sub_or);
+            }
+
+            if(status){
+                const status_search_fields = "me.status,me.status_av";
+                status_search_fields.split(',').forEach(function(attr){
+                    status_sub_or.push({
+                        [attr]:{"=": status }
+                    });
+                });
+                subquery_and.push(status_sub_or);
+            }
+
+            filters.push({"-and": subquery_and});
+
+            return filters;
+        },
+        "me.placed": function(){
+            let placed_start = $('#illfilter_dateplaced_start').get(0)._flatpickr.selectedDates[0];
+            let placed_end = $('#illfilter_dateplaced_end').get(0)._flatpickr.selectedDates[0];
+            if (!placed_start && !placed_end) return "";
+            return {
+                ...(placed_start && {">=": placed_start}),
+                ...(placed_end && {"<=": placed_end})
+            }
+        },
+        "me.updated": function(){
+            let updated_start = $('#illfilter_datemodified_start').get(0)._flatpickr.selectedDates[0];
+            let updated_end = $('#illfilter_datemodified_end').get(0)._flatpickr.selectedDates[0];
+            if (!updated_start && !updated_end) return "";
+            // set selected datetime hours and minutes to the end of the day
+            // to grab any request updated during that day
+            let updated_end_value = new Date(updated_end);
+            updated_end_value.setHours(updated_end_value.getHours()+23);
+            updated_end_value.setMinutes(updated_end_value.getMinutes()+59);
+            return {
+                ...(updated_start && {">=": updated_start}),
+                ...(updated_end && {"<=": updated_end_value})
+            }
+        },
+        "-and": function(){
+            let keyword = $("#illfilter_keyword").val();
+            if (!keyword) return "";
+
+            let filters = [];
+            let subquery_and = [];
+
+            const search_fields = "me.illrequest_id,me.borrowernumber,me.biblio_id,me.due_date,me.branchcode,me.status,me.status_alias,me.placed,me.replied,me.updated,me.completed,me.medium,me.accessurl,me.cost,me.price_paid,me.notesopac,me.notesstaff,me.orderid,me.backend,patron.firstname,patron.surname";
+            let sub_or = [];
+            search_fields.split(',').forEach(function(attr){
+                sub_or.push({
+                        [attr]:{"like":"%" + keyword + "%"}
+                });
+            });
+            subquery_and.push(sub_or);
+
+            const ill_extended_attributes = "type, title, author, article_title, pages, issue, volume, year";
+            let extended_sub_or = [];
+            ill_extended_attributes.split(',').forEach(function(attr){
+                extended_sub_or.push({
+                    "-and": {
+                        ["ill_extended_attributes.type"]:{"=": attr },
+                        ["ill_extended_attributes.value"]:{"like":"%" + keyword + "%"}
+                    }
+                });
+            });
+            subquery_and.push(extended_sub_or);
+
+            filters.push({"-or": subquery_and});
+            return filters;
+        }
+    };
 
     var ill_requests_table = $("#ill_requests").kohaTable({
         "ajax": {
@@ -590,8 +668,8 @@ $(document).ready(function() {
                 }
             },
             {
-                "data": "biblio.author",
-                "orderable": true,
+                "data": "", // author
+                "orderable": false,
                 "render": function(data, type, row, meta) {
                     return escape_str(data);
                 }
@@ -626,7 +704,7 @@ $(document).ready(function() {
             },
             {
                 "data": "",  // year
-                "orderable": false,
+                "orderable": true,
                 "render": function(data, type, row, meta) {
                     return display_extended_attribute(row, 'year');
                 }
@@ -761,6 +839,7 @@ $(document).ready(function() {
             {
                 "data": "ill_request_id",
                 "orderable": false,
+                "searchable": false,
                 "render": function( data, type, row, meta ) {
                     return '<a class="btn btn-default btn-sm" ' +
                             'href="/cgi-bin/koha/ill/ill-requests.pl?' +
@@ -770,31 +849,103 @@ $(document).ready(function() {
                 }
             }
         ]
+    }, table_settings, null, additional_filters);
+
+    $("#illfilter_form").on('submit', filter);
+
+    function redrawTable() {
+        let table_dt = ill_requests_table.DataTable();
+        table_dt.draw();
+    }
+
+    function filter() {
+        redrawTable();
+        return false;
+    }
+
+    function clearSearch() {
+        let filters = [
+            "illfilter_backend",
+            "illfilter_branchname",
+            "illfilter_patron",
+            "illfilter_keyword",
+        ];
+        filters.forEach((filter) => {
+            $("#"+filter).val("");
+        });
+
+        //Clear flatpickr date filters
+        $('#illfilter_form > fieldset > ol > li:nth-child(4) > span > a').click();
+        $('#illfilter_form > fieldset > ol > li:nth-child(5) > span > a').click();
+        $('#illfilter_form > fieldset > ol > li:nth-child(6) > span > a').click();
+        $('#illfilter_form > fieldset > ol > li:nth-child(7) > span > a').click();
+
+        disableStatusFilter();
+
+        redrawTable();
+    }
+
+    function populateStatusFilter(backend) {
+        $.ajax({
+            type: "GET",
+            url: "/api/v1/ill_backends/"+backend+"/statuses",
+            success: function(statuses){
+                $('#illfilter_status').append(
+                    '<option value="">'+ill_all_statuses+'</option>'
+                );
+                statuses.sort((a, b) => a.str.localeCompare(b.str)).forEach(function(status) {
+                    $('#illfilter_status').append(
+                        '<option value="' + status.code  +
+                        '">' + status.str +  '</option>'
+                    );
+                });
+            }
+        });
+    }
+
+    function populateBackendFilter() {
+        $.ajax({
+            type: "GET",
+            url: "/api/v1/ill_backends",
+            success: function(backends){
+                backends.sort((a, b) => a.ill_backend_id.localeCompare(b.ill_backend_id)).forEach(function(backend) {
+                    $('#illfilter_backend').append(
+                        '<option value="' + backend.ill_backend_id  +
+                        '">' + backend.ill_backend_id +  '</option>'
+                    );
+                });
+            }
+        });
+    }
+
+    function disableStatusFilter() {
+        $('#illfilter_status').children().remove();
+        $("#illfilter_status").attr('title', ill_manage_select_backend_first);
+        $('#illfilter_status').prop("disabled", true);
+    }
+
+    function enableStatusFilter() {
+        $('#illfilter_status').children().remove();
+        $("#illfilter_status").attr('title', '');
+        $('#illfilter_status').prop("disabled", false);
+    }
+
+    $('#illfilter_backend').change(function() {
+        var selected_backend = $('#illfilter_backend option:selected').val();
+        if (selected_backend && selected_backend.length > 0) {
+            populateStatusFilter(selected_backend);
+            enableStatusFilter();
+        } else {
+            disableStatusFilter();
+        }
     });
 
-    var clearSearch = function() {
-        table.api().search('').columns().search('');
-        activeFilters = {};
-        for (var filter in filterable) {
-            if (
-                filterable.hasOwnProperty(filter) &&
-                filterable[filter].hasOwnProperty('clear')
-            ) {
-                filterable[filter].clear();
-            }
-        }
-        table.api().draw();
-    };
-    
-    $('#illfilter_form').submit(function(event) {
-        event.preventDefault();
-        ill_requests_table.api().search('').columns().search('');
-        for (var active in activeFilters) {
-            if (activeFilters.hasOwnProperty(active)) {
-                activeFilters[active]();
-            }
-        }
-        ill_requests_table.api().draw();
-    });   
+    disableStatusFilter();
+    populateBackendFilter();
+
+    // Clear all filters
+    $('#clear_search').click(function() {
+        clearSearch();
+    });
 
 });
