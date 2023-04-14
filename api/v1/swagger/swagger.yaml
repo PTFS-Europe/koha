@@ -251,8 +251,6 @@ paths:
     $ref: "./paths/ill_backends.yaml#/~1ill_backends~1{ill_backend_id}"
   "/ill_backends/{ill_backend_id}/statuses":
     $ref: "./paths/ill_backends.yaml#/~1ill_backends~1{ill_backend_id}~1statuses"
-  /illrequests:
-    $ref: ./paths/illrequests.yaml#/~1illrequests
   /ill_requests:
     $ref: ./paths/illrequests.yaml#/~1ill_requests
   "/import_batches/{import_batch_id}/records/{import_record_id}/matches/chosen":
