@@ -536,6 +536,21 @@ $(document).ready(function() {
         return '';
     }
 
+    // At the moment, the only prefilter possible is borrowernumber
+    // see ill/ill-requests.pl and members/ill-requests.pl
+    let additional_prefilters = [];
+    if(prefilters){
+            let prefilters_array = prefilters.split("&");
+            prefilters_array.forEach((prefilter) => {
+                let prefilter_split = prefilter.split("=");
+                additional_prefilters.push( {
+                     "key": prefilter_split[0],
+                     "value": prefilter_split[1]
+                } );
+
+            });
+    }
+
     let additional_filters = {
         "me.backend": function(){
             let backend = $("#illfilter_backend").val();
@@ -591,6 +606,7 @@ $(document).ready(function() {
             return filters;
         },
         "me.placed": function(){
+            if ( additional_prefilters.length != 0 && !additional_prefilters.find(e => e.key === 'placed')) return "";
             let placed_start = $('#illfilter_dateplaced_start').get(0)._flatpickr.selectedDates[0];
             let placed_end = $('#illfilter_dateplaced_end').get(0)._flatpickr.selectedDates[0];
             if (!placed_start && !placed_end) return "";
@@ -600,6 +616,7 @@ $(document).ready(function() {
             }
         },
         "me.updated": function(){
+            if ( additional_prefilters.length != 0 && !additional_prefilters.find(e => e.key === 'updated')) return "";
             let updated_start = $('#illfilter_datemodified_start').get(0)._flatpickr.selectedDates[0];
             let updated_end = $('#illfilter_datemodified_end').get(0)._flatpickr.selectedDates[0];
             if (!updated_start && !updated_end) return "";
