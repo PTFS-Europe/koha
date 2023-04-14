@@ -668,6 +668,7 @@ $(document).ready(function() {
             "url": '/api/v1/ill_requests'
         },
         "embed": [
+            '+strings',
             'biblio',
             'comments+count',
             'ill_extended_attributes',
@@ -776,7 +777,12 @@ $(document).ready(function() {
                 "data": "status",
                 "orderable": true,
                 "render": function(data, type, row, meta) {
-                    return escape_str(data);
+                    let status_label = row._strings.status_av ?
+                        row._strings.status_av.str ?
+                            row._strings.status_av.str :
+                            row._strings.status_av.code :
+                        row._strings.status.str
+                    return escape_str(status_label);
                 }
             },
             {

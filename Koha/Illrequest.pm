@@ -1948,10 +1948,16 @@ sub strings_map {
       ? $status_graph_union->{ $self->status }->{name}
       : $self->status;
 
+    my $status_code =
+      ( exists $status_graph_union->{ $self->status } && defined $status_graph_union->{ $self->status }->{id} )
+      ? $status_graph_union->{ $self->status }->{id}
+      : $self->status;
+
     my $strings = {
         status => {
             backend => $self->backend, # the backend identifier
             str     => $status_string, # the status description, taken from the status graph
+            code    => $status_code,   # the status id, taken from the status graph
             type    => 'ill_status',   # fixed type
         }
     };
@@ -1961,6 +1967,7 @@ sub strings_map {
         $strings->{"status_alias"} = {
             category => 'ILL_STATUS_ALIAS',
             str      => $params->{public} ? $status_alias->lib_opac : $status_alias->lib,
+            code     => $status_alias->authorised_value,
             type     => 'av',
         };
     }
