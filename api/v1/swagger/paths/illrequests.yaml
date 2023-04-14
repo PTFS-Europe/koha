@@ -155,7 +155,6 @@
           type: string
           enum:
             - +strings
-            - article_title
             - biblio
             - comments
             - comments+count
@@ -167,7 +166,7 @@
       - application/json
     responses:
       "200":
-        description: A list of checkouts
+        description: A list of ILL requests
         schema:
           type: array
           items:

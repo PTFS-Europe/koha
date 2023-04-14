@@ -824,7 +824,7 @@ modules:
       ill-requests:
         columns:
             -
-              columnname: illrequest_id
+              columnname: ill_request_id
             -
               columnname: metadata_author
             -

@@ -663,8 +663,11 @@ $(document).ready(function() {
                 "data": "ill_request_id",
                 "searchable": true,
                 "orderable": true,
-                "render": function(data, type, row, meta) {
-                    return escape_str(data);
+                "render": function( data, type, row, meta ) {
+                    return '<a href="/cgi-bin/koha/ill/ill-requests.pl?' +
+                            'method=illview&amp;illrequest_id=' +
+                            encodeURIComponent(data) +
+                            '">' + escape_str(data) + '</a>';
                 }
             },
             {
@@ -704,7 +707,7 @@ $(document).ready(function() {
             },
             {
                 "data": "",  // year
-                "orderable": true,
+                "orderable": false,
                 "render": function(data, type, row, meta) {
                     return display_extended_attribute(row, 'year');
                 }
