@@ -2,7 +2,7 @@
 [% USE Koha %]
 [% USE Branches %]
 [% INCLUDE 'doc-head-open.inc' %]
-<title>Circulation &rsaquo; Koha</title>
+<title>Koha &rsaquo; Circulation</title>
 [% INCLUDE 'doc-head-close.inc' %]
 </head>
 <body id="circ_circulation-home" class="circ">
@@ -74,7 +74,7 @@
             </div>
 
             <div class="col-sm-5 col-md-4">
-                <h3>Holds</h3>
+                <h3>Daily reservation reports</h3>
 
                 <ul class="buttons-list">
                     <!-- <li>
@@ -89,14 +89,20 @@
                     <li>
                         <a class="circ-button" href="/cgi-bin/koha/reports/guided_reports.pl?reports=92&phase=Run+this+report"><i class="fa fa-tasks"></i> Reservations expired at de Havilland</a>
                     </li>
-                    <li>
+                    <!-- <li>
                         <a class="circ-button" href="/cgi-bin/koha/circ/view_holdsqueue.pl"><i class="fa fa-tasks"></i> Holds queue</a>
-                    </li>
+                    </li> -->
                     <li>
                         <a class="circ-button" href="/cgi-bin/koha/circ/pendingreserves.pl"><i class="fa fa-hand-grab-o"></i> Holds to pull</a>
                     </li>
                     <li>
-                        <a class="circ-button" href="/cgi-bin/koha/circ/waitingreserves.pl"><i class="fa fa-calendar"></i> Holds awaiting pickup</a>
+                        <!-- <a class="circ-button" href="/cgi-bin/koha/circ/pendingreserves.pl?uhlrc=CL"><i class="fa fa-hand-grab-o"></i> Holds to pull at CL</a>
+                    </li>
+                    <li>
+                        <a class="circ-button" href="/cgi-bin/koha/circ/pendingreserves.pl?uhlrc=DH"><i class="fa fa-hand-grab-o"></i> Holds to pull at DH</a>
+                    </li> -->
+                    <li>
+                        <a class="circ-button" href="/cgi-bin/koha/circ/waitingreserves.pl"><i class="fa fa-tasks"></i> Reservations awaiting pickup</a>
                     </li>
                     [% IF ( Koha.Preference('CurbsidePickup') && CAN_user_circulate_manage_curbside_pickups ) %]
                     <li>
@@ -104,8 +110,11 @@
                     </li>
                     [% END %]
                     <li>
-                        <a class="circ-button" href="/cgi-bin/koha/circ/reserveratios.pl"><i class="fa fa-line-chart"></i> Hold ratios</a>
+                        <a class="circ-button" href="/cgi-bin/koha/reports/guided_reports.pl?reports=290&phase=Run this report"><i class="fa fa-tasks"></i> Reservations placed by Content & Collections Team</a>
                     </li>
+                    <!-- <li>
+                        <a class="circ-button" href="/cgi-bin/koha/circ/reserveratios.pl"><i class="fa fa-line-chart"></i> Reservations ratios</a>
+                    </li> -->
                 </ul>
 
                 [% IF Koha.Preference('UseRecalls') and CAN_user_recalls %]
@@ -134,26 +143,40 @@
                     </ul>
                 [% END %]
 
-                <h3>Transfers</h3>
+                <!-- <h3>Transfers</h3> -->
+                <h3>Other reservation reports</h3>
 
                 <ul class="buttons-list">
-                    [% IF !Koha.Preference('IndependentBranchesTransfers') || CAN_user_superlibrarian %]
+                    <!-- [% IF Branches.InIndependentBranchesMode %]
                         <li>
                             <a class="circ-button" href="/cgi-bin/koha/circ/branchtransfers.pl"><i class="fa fa-exchange"></i> Transfer</a>
                         </li>
                     [% END %]
                     <li>
-                        <a class="circ-button" href="/cgi-bin/koha/circ/transfers_to_send.pl"><i class="fa fa-sign-out"></i> Transfers to send</a>
+                        <a class="circ-button" href="/cgi-bin/koha/circ/transferstoreceive.pl"><i class="fa fa-sign-in"></i> Transfers to receive</a>
+                    </li> -->
+                    <li>
+                        <a class="circ-button" href="/cgi-bin/koha/reports/guided_reports.pl?reports=95&phase=Run+this+report"><i class="fa fa-tasks"></i> Reservations awaiting pickup at CL</a>
                     </li>
                     <li>
-                        <a class="circ-button" href="/cgi-bin/koha/circ/transferstoreceive.pl"><i class="fa fa-sign-in"></i> Transfers to receive</a>
+                        <a class="circ-button" href="/cgi-bin/koha/reports/guided_reports.pl?reports=96&phase=Run+this+report"><i class="fa fa-tasks"></i> Reservations awaiting pickup at DH</a>
+                    </li>
+                    <li>
+                        <a class="circ-button" href="/cgi-bin/koha/reports/guided_reports.pl?reports=97&phase=Run+this+report"><i class="fa fa-tasks"></i> Reservations in transit</a>
+                    </li>
+                    <li>
+                        <a class="circ-button" href="/cgi-bin/koha/circ/reserveratios.pl"><i class="fa fa-tasks"></i> Reservations ratios</a>
+                    </li>
+                    <li>
+                        <a class="circ-button" href="/cgi-bin/koha/reports/guided_reports.pl?reports=123&phase=Run+this+report"><i class="fa fa-tasks"></i> Pending reservation notices </a>
                     </li>
                 </ul>
 
-                <h3>Overdues</h3>
+               <!--  <h3>Overdues</h3> -->
+                <h3>Other LTS reports</h3>
 
                 <ul class="buttons-list">
-                     [% IF ( CAN_user_circulate_overdues_report ) %]
+                    <!--  [% IF ( CAN_user_circulate_overdues_report ) %]
                         <li>
                             <a class="circ-button"
                                 href="/cgi-bin/koha/circ/overdue.pl"
@@ -166,6 +189,15 @@
                             href="/cgi-bin/koha/circ/branchoverdues.pl"
                             title="Limited to your library.  See report help for other details."
                         ><i class="fa fa-clock-o"></i> Overdues with fines</a>
+                    </li> -->
+                    <li>
+                        <a class="circ-button" href="/cgi-bin/koha/reports/guided_reports.pl?reports=214&phase=Run+this+report"><i class="fa fa-tasks"></i> Missing Items report</a>
+                    </li>
+                    <!-- <li>
+                        <a class="circ-button" href="/cgi-bin/koha/reports/guided_reports.pl?reports=172&phase=Run+this+report"><i class="fa fa-tasks"></i> Spine Label report</a>
+                    </li> -->
+                    <li>
+                        <a class="circ-button" href="/cgi-bin/koha/reports/guided_reports.pl?reports=258&phase=Run+this+report"><i class="fa fa-tasks"></i> Items in transit report</a>
                     </li>
                 </ul>
             </div>
@@ -175,7 +207,7 @@
                 [% Koha.Preference('IntranetCirculationHomeHTML') | $raw  %]
             </div>
         </div>
-        <div class="row" id="offline-circulation">
+       <!--  <div class="row" id="offline-circulation">
             <div class="col-md-12">
                 <h4>Offline circulation</h4>
                     <div class="col-sm-5 col-md-3">
@@ -190,6 +222,7 @@
                     <p><a href="https://addons.mozilla.org/[% lang | uri %]/firefox/addon/koct/"><i class="fa fa-firefox"></i> Get Firefox add-on</a></p>
                     </div>
             </div>
-        </div>
+        </div> -->
 
 [% INCLUDE 'intranet-bottom.inc' %]
+

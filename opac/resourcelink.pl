@@ -12,7 +12,7 @@ my $xsl = XML::Simple->new();
 # https://library.herts.ac.uk/cgi-bin/koha/oai.pl?verb=GetRecord&identifier=KOHA-OAI-HERT:300864&metadataPrefix=oai_dc
 
 my $bibID = $q->param('biblionumber');
-my $kurl = 'https://library.herts.ac.uk/cgi-bin/koha/oai.pl?verb=GetRecord&identifier=KOHA-OAI-HERT:' . $bibID . '&metadataPrefix=oai_dc';
+my $kurl = 'https://herttest.koha-ptfs.co.uk/cgi-bin/koha/oai.pl?verb=GetRecord&identifier=KOHA-OAI-HERT:' . $bibID . '&metadataPrefix=oai_dc';
 
 # print "Content-type: text/html\n\n";
 #print "The URL is $kurl\n";

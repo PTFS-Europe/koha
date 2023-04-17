@@ -89,7 +89,13 @@
     </thead>
     <tbody>
         [% FOREACH hold_info IN holds_info %]
-        <tr>
+	  [%# sg13abk %]
+	  [% uhLRC = 'LRC' %]
+	   [% FOR item IN hold_info.biblio.items %]
+		[% LAST IF loop.count > 1 %]
+		[% uhLRC = item.holdingbranch %]
+	   [% END %]
+        <tr class="[% uhLRC %]">
         [% SET patron = hold_info.patron %]
         [% SET item = hold_info.item %]
         [% SET hold = hold_info.hold %]

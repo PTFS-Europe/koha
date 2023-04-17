@@ -21,10 +21,11 @@
 
         <ul class="dropdown-menu [% pull_right | html %]" role="menu" aria-labelledby="[% aria_menu | html %]">
             <li>
-                <a class="ar-set-pending-request" href="#" onclick="HandleMulti( SetPending, [% id_arg | html %], $(this) ); return false;">
+		<!-- sg13abk commented out because we are hiding pending tab -->
+                <!-- <a class="ar-set-pending-request" href="#" onclick="HandleMulti( SetPending, [% id_arg | html %], $(this) ); return false;">
                     <i class="fa fa-bars"></i>
                     Set request as pending
-                </a>
+                </a> -->
 
                 <a class="ar-process-request" href="#" onclick="HandleMulti( Process, [% id_arg | html %], $(this) ); return false;">
                     <i class="fa fa-cog"></i>
@@ -144,7 +145,7 @@
                 <a href="/cgi-bin/koha/circ/circulation-home.pl">Circulation</a>
             </li>
             <li>
-                <a href="#" aria-current="page">Article requests</a>
+                <a href="#" aria-current="page">Article requests - SG</a>
             </li>
         </ol>
     </nav>
@@ -186,7 +187,7 @@
                             </a>
                         </li>
 
-                        <li role="presentation">
+                        <li role="presentation" id="UHARPENDING">
                             <a href="#article-requests-pending" aria-controls="article-requests-pending" role="tab" data-toggle="tab">
                                 Pending (<span id="ar_pending_count">[% article_requests_pending.count | html %]</span>)
                             </a>

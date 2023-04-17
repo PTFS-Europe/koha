@@ -12,7 +12,8 @@ use C4::Context;    # Koha Database Access
 my $DEBUG = 0;
 
 my %allowedIPs = (
-	"147.197.138.27" => "GLJ Server"
+	"147.197.138.27" => "GLJ Server",
+	"147.197.100.216" => "SG12ABK"
 );
 
 my $reqIP = $ENV{"REMOTE_ADDR"};

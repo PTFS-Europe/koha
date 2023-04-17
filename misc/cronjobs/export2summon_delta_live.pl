@@ -25,7 +25,8 @@ use Carp;
 use C4::Context;
 use C4::Auth;
 use C4::Output;
-use C4::Biblio;    # GetMarcBiblio GetXmlBiblio
+#use C4::Biblio;    # GetMarcBiblio GetXmlBiblio
+use C4::Biblio qw/GetMarcBiblio/;
 use C4::Koha;      # GetItemTypes
 use Net::FTP;
 use Mail::Sendmail;
@@ -47,7 +48,7 @@ $filename =~ s/-full-/-updates-/;
 write_file($filename);
 
 #uncomment
-transfer_file($filename);
+#transfer_file($filename);
 
 $filename =~ s/-updates-/-deletes-/;
 $filename =~ s/\.mrc$/\.txt/;
@@ -55,7 +56,7 @@ $filename =~ s/\.mrc$/\.txt/;
 write_file($filename);
 
 # uncomment
-transfer_file($filename);
+#transfer_file($filename);
 
 sub write_file {
     my $export_filename = shift;
@@ -198,8 +199,10 @@ sub get_filename {
 sub transfer_file {
     my $marc_file = shift;
     my $remote    = 'ftp.summon.serialssolutions.com';
-    my $username  = q(herts-catalog);
-    my $password  = q(96PeL5hEmc);
+    #my $username  = q(herts-catalog);
+    #my $password  = q(96PeL5hEmc);
+    my $username  = q(herts-catalogWrong);
+    my $password  = q(96PeL5hEmcWRONG);
 
     my $ftp = Net::FTP->new( $remote, Debug => 1, Passive => 1 )
       or croak "Cannot connect to smartsm: $@";
@@ -230,8 +233,8 @@ sub sendEmail($) {
 
 	my $message = $_[0];
 	my $m = encode('utf8',$message);
-	my $email = 's.graham4@herts.ac.uk books@herts.ac.uk';
-	# my $email = 's.graham4@herts.ac.uk';
+	#my $email = 's.graham4@herts.ac.uk books@herts.ac.uk';
+	my $email = 's.graham4@herts.ac.uk';
 	my $subject = "Koha records sent to Summon";
 	
 	my %mail    = (
@@ -241,6 +244,6 @@ sub sendEmail($) {
         Message => "$m"
     );
 	# commeneted out because test server does not send emails
-	sendmail(%mail);
+	#sendmail(%mail);
 
 }

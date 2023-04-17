@@ -9,7 +9,8 @@ use CGI::Carp qw(fatalsToBrowser);
 # Koha Imports
 use C4::Context;    # Koha Database Access
 
-my $showLink = C4::Context->preference('RequestOnOpac');
+#my $showLink = C4::Context->preference('RequestOnOpac');
+my $showLink = C4::Context->preference('OPACHoldRequests');
 my $showARLink = C4::Context->preference('ArticleRequests');
 
 my $rv = "{\"showlink\":\"$showLink\",\"showARLink\":\"$showARLink\"}";
