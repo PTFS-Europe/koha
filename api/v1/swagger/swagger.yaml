@@ -52,6 +52,10 @@ definitions:
     $ref: ./definitions/ill_backend.yaml
   ill_backends:
     $ref: ./definitions/ill_backends.yaml
+  ill_status:
+    $ref: ./definitions/ill_status.yaml
+  ill_statuses:
+    $ref: ./definitions/ill_statuses.yaml
   ill_request:
     $ref: ./definitions/ill_request.yaml
   import_batch_profile:
@@ -245,6 +249,8 @@ paths:
     $ref: ./paths/ill_backends.yaml#/~1ill_backends
   "/ill_backends/{ill_backend_id}":
     $ref: "./paths/ill_backends.yaml#/~1ill_backends~1{ill_backend_id}"
+  "/ill_backends/{ill_backend_id}/statuses":
+    $ref: "./paths/ill_backends.yaml#/~1ill_backends~1{ill_backend_id}~1statuses"
   /illrequests:
     $ref: ./paths/illrequests.yaml#/~1illrequests
   /ill_requests:
