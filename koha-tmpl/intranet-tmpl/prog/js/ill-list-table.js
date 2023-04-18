@@ -693,7 +693,7 @@ $(document).ready(function() {
                 "data": "", // author
                 "orderable": false,
                 "render": function(data, type, row, meta) {
-                    return escape_str(data);
+                    return display_extended_attribute(row, 'author');
                 }
             },
             {
