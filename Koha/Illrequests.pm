@@ -72,11 +72,15 @@ sub filter_by_visible {
     my $hidden_statuses = [ split '\|', $hidden_statuses_string ];
 
     if ( scalar @{$hidden_statuses} ) {
-        # TODO: Restore status_alias filtering here??
-        # Koha/REST/V1/Illrequests.pm#92
         return $self->search(
             {
-                status => { not_in  => $hidden_statuses }
+                -and => {
+                    status => { 'not in' => $hidden_statuses },
+                    status_alias => [ -or =>
+                        { 'not in' => $hidden_statuses },
+                        { '=' => undef }
+                    ]
+                }
             }
         );
     }
