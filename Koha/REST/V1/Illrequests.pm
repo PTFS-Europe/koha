@@ -44,7 +44,7 @@ sub list {
 
     return try {
 
-        my $reqs = $c->objects->search(Koha::Illrequests->new);
+        my $reqs = $c->objects->search(Koha::Illrequests->new->filter_by_visible);
 
         return $c->render(
             status  => 200,
