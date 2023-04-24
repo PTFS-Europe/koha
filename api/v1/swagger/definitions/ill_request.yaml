@@ -8,11 +8,12 @@ properties:
     type:
       - integer
       - "null"
+    description: Internal bibliographic record identifier
   batch_id:
     type:
-      - string
+      - integer
       - "null"
-    description: Internal bibliographic record identifier
+    description: Batch id this requests belongs to
   patron_id:
     type:
       - integer
@@ -137,5 +138,10 @@ properties:
       - object
       - "null"
     description: Expanded coded fiels (x-koha-embed)
+  metadata:
+    type:
+      - object
+      - "null"
+    description: Object containing illrequestattributes
 
 additionalProperties: false

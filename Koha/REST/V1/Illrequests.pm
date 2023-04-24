@@ -70,7 +70,7 @@ sub list_legacy {
     # Get the pipe-separated string of hidden ILL statuses
     my $hidden_statuses_string = C4::Context->preference('ILLHiddenRequestStatuses') // q{};
     # Turn into arrayref
-    my $hidden_statuses = [ split /\|/, $hidden_statuses_string ];
+    my $hidden_statuses = [ split (/\|/, $hidden_statuses_string) ];
 
     # Create a hash where all keys are embedded values
     # Enables easy checking
@@ -118,6 +118,9 @@ sub add {
     my $c = shift->openapi->valid_input or return;
 
     my $body = $c->validation->param('body');
+    $body->{backend} = delete $body->{ill_backend_id};
+    $body->{borrowernumber} = delete $body->{patron_id};
+    $body->{branchcode} = delete $body->{library_id};
 
     return try {
         my $request = Koha::Illrequest->new->load_backend( $body->{backend} );

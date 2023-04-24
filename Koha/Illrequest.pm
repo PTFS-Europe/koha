@@ -1904,7 +1904,7 @@ sub to_api_mapping {
     return {
         illrequest_id  => 'ill_request_id',
         borrowernumber => 'patron_id',
-        batchid        => 'batch_id',
+        batch          => 'batch',
         branchcode     => 'library_id',
         status_alias   => 'status_av',
         placed         => 'requested_date',
@@ -1985,6 +1985,18 @@ sub strings_map {
             str      => $params->{public} ? $status_alias->lib_opac : $status_alias->lib,
             code     => $status_alias->authorised_value,
             type     => 'av',
+        };
+    }
+
+    my $batch = $self->batch;
+    if ($batch) {
+        $strings->{"batch"} = {
+            id => $batch->id,
+            name => $batch->name,
+            backend => $batch->backend,
+            borrowernumber => $batch->borrowernumber,
+            branchcode => $batch->branchcode,
+            statuscode => $batch->statuscode
         };
     }
 

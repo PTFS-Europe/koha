@@ -297,9 +297,9 @@
     function makeLocalSubmission(identifier, metadata) {
         var payload = {
             batch_id: batchId,
-            backend: batch.data.backend,
-            borrowernumber: batch.data.patron.borrowernumber,
-            branchcode: batch.data.branchcode,
+            ill_backend_id: batch.data.backend,
+            patron_id: batch.data.patron.borrowernumber,
+            library_id: batch.data.branchcode,
             metadata: metadata
         };
         window.doCreateSubmission(payload)

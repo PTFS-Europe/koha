@@ -20,6 +20,7 @@
 
     // Make a "create local ILL submission" call
     window.doCreateSubmission = function (body, options) {
+        console.log(body);
         options = Object.assign(
             options || {},
             {
@@ -31,7 +32,7 @@
             }
         );
         return doApiRequest(
-            '/api/v1/illrequests',
+            '/api/v1/ill_requests',
             options
         )
     }
