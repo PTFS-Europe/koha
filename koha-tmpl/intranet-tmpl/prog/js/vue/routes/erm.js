@@ -18,6 +18,13 @@ import EHoldingsEBSCOTitlesShow from "../components/ERM/EHoldingsEBSCOTitlesShow
 import LicensesList from "../components/ERM/LicensesList.vue";
 import LicensesShow from "../components/ERM/LicensesShow.vue";
 import LicensesFormAdd from "../components/ERM/LicensesFormAdd.vue";
+import UsageStatisticsDataProvidersList from "../components/ERM/UsageStatisticsDataProvidersList.vue";
+import UsageStatisticsDataProvidersSummary from "../components/ERM/UsageStatisticsDataProvidersSummary.vue";
+import UsageStatisticsDataProvidersFormAdd from "../components/ERM/UsageStatisticsDataProvidersFormAdd.vue";
+import UsageStatisticsDataProvidersShow from "../components/ERM/UsageStatisticsDataProvidersShow.vue";
+import UsageStatisticsReportsHome from "../components/ERM/UsageStatisticsReportsHome.vue";
+import UsageStatisticsReportsViewer from "../components/ERM/UsageStatisticsReportsViewer.vue";
+
 
 const breadcrumbs = {
     home: {
@@ -67,6 +74,19 @@ const breadcrumbs = {
         text: "Licenses", // $t("Licenses")
         path: "/cgi-bin/koha/erm/licenses",
     },
+    eusage: {
+        home: {
+            text: "eUsage", // $t("eUsage")
+        },
+        usage_data_providers: {
+            text: "DataProviders", // $t("DataProviders")
+            path: "/cgi-bin/koha/erm/eusage/usage_data_providers",
+        },
+        reports: {
+            text: "Reports", // $t("Reports")
+            path: "/cgi-bin/koha/erm/eusage/reports",
+        }
+    },
 };
 const breadcrumb_paths = {
     agreements: [
@@ -92,6 +112,23 @@ const breadcrumb_paths = {
         breadcrumbs.eholdings.ebsco.home,
     ],
     licenses: [breadcrumbs.home, breadcrumbs.erm_home, breadcrumbs.licenses],
+    eusage: [
+        breadcrumbs.home,
+        breadcrumbs.erm_home,
+        breadcrumbs.eusage.home,
+    ],
+    eusage_usage_data_providers: [
+        breadcrumbs.home,
+        breadcrumbs.erm_home,
+        breadcrumbs.eusage.home,
+        breadcrumbs.eusage.usage_data_providers
+    ],
+    eusage_reports: [
+        breadcrumbs.home,
+        breadcrumbs.erm_home,
+        breadcrumbs.eusage.home,
+        breadcrumbs.eusage.reports
+    ]
 };
 
 function build_breadcrumb(parent_breadcrumb, current) {
@@ -505,4 +542,108 @@ export const routes = [
             },
         ],
     },
+    {
+        path: "/cgi-bin/koha/erm/eusage",
+        children: [
+            {
+                path: "",
+                name: "UsageStatistics",
+                meta: {
+                    breadcrumb: () => breadcrumb_paths.eusage.home,
+                },
+            },
+            {
+                path: "usage_data_providers",
+                meta: {
+                    breadcrumb: () => breadcrumb_paths.eusage_usage_data_providers,
+                },
+                children: [
+                    {
+                        path: "",
+                        name: "UsageStatisticsDataProvidersList",
+                        component: UsageStatisticsDataProvidersList,
+                        meta: {
+                            breadcrumb: () => breadcrumb_paths.eusage_usage_data_providers,
+                        },
+                    },
+                    {
+                        path: ":usage_data_provider_id",
+                        name: "UsageStatisticsDataProvidersShow",
+                        component: UsageStatisticsDataProvidersShow,
+                        meta: {
+                            breadcrumb: () =>
+                                build_breadcrumb(
+                                    breadcrumb_paths.eusage_usage_data_providers,
+                                    "Show data provider"
+                                ),
+                        },
+                    },
+                    {
+                        path: "add",
+                        name: "UsageStatisticsDataProvidersFormAdd",
+                        component: UsageStatisticsDataProvidersFormAdd,
+                        meta: {
+                            breadcrumb: () =>
+                                build_breadcrumb(
+                                    breadcrumb_paths.eusage_usage_data_providers,
+                                    "Add data provider"
+                                ),
+                        },
+                    },
+                    {
+                        path: "edit/:usage_data_provider_id",
+                        name: "UsageStatisticsDataProvidersFormAddEdit",
+                        component: UsageStatisticsDataProvidersFormAdd,
+                        meta: {
+                            breadcrumb: () =>
+                                build_breadcrumb(
+                                    breadcrumb_paths.eusage_usage_data_providers,
+                                    "Edit data provider"
+                                ),
+                        },
+                    },
+                    {
+                        path: "summary",
+                        name: "UsageStatisticsDataProvidersSummary",
+                        component: UsageStatisticsDataProvidersSummary,
+                        meta: {
+                            breadcrumb: () =>
+                                build_breadcrumb(
+                                    breadcrumb_paths.eusage_usage_data_providers,
+                                    "Data providers summary"
+                                ),
+                        },
+                    },
+                ]
+            },
+            {
+                path: "reports",
+                meta: {
+                    breadcrumb: () => breadcrumb_paths.eusage_reports,
+                },
+                children: [
+                    {
+                        path: "",
+                        name: "UsageStatisticsReportsHome",
+                        component: UsageStatisticsReportsHome,
+                        meta: {
+                            breadcrumb: () => breadcrumb_paths.eusage_reports,
+                        }
+                    },
+                    {
+                        path: "viewer",
+                        name: "UsageStatisticsReportsViewer",
+                        component: UsageStatisticsReportsViewer,
+                        meta: {
+                            breadcrumb: () =>
+                                build_breadcrumb(
+                                    breadcrumb_paths.eusage_reports,
+                                    "View report" // $t("View report")
+                                ),
+                        },
+                    }
+                ]
+            }
+        ],
+    }
 ];
