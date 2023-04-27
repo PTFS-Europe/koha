@@ -21,6 +21,7 @@ use Mojo::Base 'Mojolicious::Controller';
 
 use Koha::Illrequest::Config;
 use Koha::Illrequests;
+use Koha::Illbackend;
 
 =head1 NAME
 
@@ -51,50 +52,6 @@ sub list {
     return $c->render( status => 200, openapi => \@data );
 }
 
-=head3 list_statuses
-
-Return a list of existing ILL statuses
-
-=cut
-
-sub list_statuses {
-    my $c = shift->openapi->valid_input;
-
-    my $backend_id = $c->validation->param('ill_backend_id');
-
-    #FIXME: Currently fetching all requests, it'd be great if we could fetch distinct(status).
-    # Even doing it with distinct status, we need the ILL request object, so that strings_map works and
-    # the ILL request returns the correct status and info respective to its backend.
-    my $ill_requests = Koha::Illrequests->search(
-            {backend => $backend_id},
-            # {
-            #     columns => [ qw/status/ ],
-            #     group_by => [ qw/status/ ],
-            # }
-        );
-
-    my @data;
-    while (my $request = $ill_requests->next) {
-        my $status_data = $request->strings_map;
-
-        foreach my $status_class ( qw(status_alias status) ){
-            if ($status_data->{$status_class}){
-                push @data, {
-                    $status_data->{$status_class}->{str} ? (str => $status_data->{$status_class}->{str}) :
-                        $status_data->{$status_class}->{code} ? (str => $status_data->{$status_class}->{code}) : (),
-                    $status_data->{$status_class}->{code} ? (code => $status_data->{$status_class}->{code}) : (),
-                }
-            }
-        }
-    }
-
-    # Remove duplicate statuses
-    my %seen;
-    @data =  grep { my $e = $_; my $key = join '___', map { $e->{$_}; } sort keys %$_;!$seen{$key}++ } @data;
-
-    return $c->render( status => 200, openapi => \@data );
-}
-
 =head3 get
 
 Get one backend
@@ -107,13 +64,24 @@ sub get {
     my $backend_id = $c->validation->param('ill_backend_id');
 
     return try {
+        #FIXME: Should we move load_backend into Koha::Illbackend ?
         my $backend = Koha::Illrequest->new->load_backend( $backend_id );
+
+        my $backend_module = Koha::Illbackend->new;
+
+        my $embed =
+          $backend_module->embed( $backend_id,
+            $c->req->headers->header('x-koha-embed') );
+
+        #TODO: We need a to_api method in Koha::Illbackend
+        my $return = {
+                ill_backend_id => $backend_id,
+                capabilities => $backend->capabilities,
+        };
+
         return $c->render(
             status => 200,
-            openapi => {
-                ill_backend_id => $backend_id,
-                capabilities => $backend->capabilities
-            }
+            openapi => $embed ? { %$return, %$embed } : $return,
         );
     } catch {
         return $c->render(
