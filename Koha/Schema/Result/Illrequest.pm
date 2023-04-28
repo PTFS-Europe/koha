@@ -175,6 +175,14 @@ Backend id attached to request
 
 The backend used to create request
 
+=head2 batch_id
+
+  data_type: 'integer'
+  is_foreign_key: 1
+  is_nullable: 1
+
+Optional ID of batch that this request belongs to
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -230,6 +238,8 @@ __PACKAGE__->add_columns(
   { data_type => "varchar", is_nullable => 1, size => 50 },
   "backend",
   { data_type => "varchar", is_nullable => 1, size => 20 },
+  "batch_id",
+  { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -245,6 +255,26 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key("illrequest_id");
 
 =head1 RELATIONS
+
+=head2 batch
+
+Type: belongs_to
+
+Related object: L<Koha::Schema::Result::Illbatch>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "batch",
+  "Koha::Schema::Result::Illbatch",
+  { id => "batch_id" },
+  {
+    is_deferrable => 1,
+    join_type     => "LEFT",
+    on_delete     => "SET NULL",
+    on_update     => "CASCADE",
+  },
+);
 
 =head2 biblio
 
@@ -352,8 +382,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2023-04-26 08:46:17
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:a/x5km4Wh3NDancIsj9NwA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2023-04-28 11:24:22
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:i7xURQ9tMmQfW7wg1lAaEA
 
 __PACKAGE__->has_many(
   "comments",
