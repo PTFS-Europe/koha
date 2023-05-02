@@ -256,7 +256,11 @@
     // create a link in the table linking to the item
     function getAvailability(identifier, metadata) {
         // Prep the metadata for passing to the availability plugins
-        var prepped = encodeURIComponent(base64EncodeUnicode(JSON.stringify(metadata)));
+        let availability_object = {};
+        if (metadata.issn) availability_object['issn'] = metadata.issn;
+        if (metadata.doi) availability_object['doi'] = metadata.doi;
+        if (metadata.pubmedid) availability_object['pubmedid'] = metadata.pubmedid;
+        var prepped = encodeURIComponent(base64EncodeUnicode(JSON.stringify(availability_object)));
         for (i = 0; i < batch_availability_services.length; i++) {
             var service = batch_availability_services[i];
             window.doApiRequest(
@@ -795,11 +799,13 @@
     // Get an item's title
     function getTitle(meta) {
         if (meta.article_title && meta.article_title.length > 0) {
+            return 'article_title';
             return {
                 prop: 'article_title',
                 value: meta.article_title
             };
         } else if (meta.title && meta.title.length > 0) {
+            return 'title';
             return {
                 prop: 'title',
                 value: meta.title
@@ -852,16 +858,15 @@
 
         var container = document.createElement('div');
         container.classList.add('metadata-container');
-
         // Create the title row
         var title = getTitle(meta);
         if (title) {
             // Remove the title element from the props
             // we're about to iterate
             core = core.filter(function (i) {
-                return i !== title.prop;
+                return i !== title;
             });
-            var titleRow = createMetadataRow(data, meta, title.prop);
+            var titleRow = createMetadataRow(data, meta, title);
             container.appendChild(titleRow);
         }
 
