@@ -13,6 +13,22 @@ Interlibrary loans:
               type: textarea
               class: long
         -
+            - "Define disclaimer settings for each request type, after request creation. Example: <br><strong>
+            all:<br>
+            &nbsp;text: |<br>
+            &nbsp;&nbsp;&lt;h2&gt;HTML title&lt;/h2&gt;<br>
+            &nbsp;&nbsp;&lt;p&gt;This is an HTML paragraph&lt;/p&gt;<br>
+            &nbsp;&nbsp;&lt;p&gt;This is another HTML paragraph&lt;/p&gt;<br>
+            &nbsp;av_category_code: YES_NO<br>
+            article:<br>
+            &nbsp;text: copyright text for all article type requests<br>
+            &nbsp;av_category_code: YES_NO<br>
+            </strong>"
+            - pref: ILLModuleDisclaimerByType
+              type: textarea
+              syntax: text/x-yaml
+              class: code
+        -
             - pref: ILLModuleUnmediated
               default: 0
               choices:

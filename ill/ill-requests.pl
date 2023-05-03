@@ -43,6 +43,11 @@ my $illRequests = Koha::Illrequests->new;
 # of 'my'
 our $params = $cgi->Vars();
 
+        # use Data::Dumper; $Data::Dumper::Maxdepth = 2;
+        # warn Dumper('##### 1 CREATE OP line: ' . __LINE__);
+        # warn Dumper($params);
+        # warn Dumper('##### end1 #######################################################');
+
 # Leave immediately if ILLModule is disabled
 unless ( C4::Context->preference('ILLModule') ) {
     print $cgi->redirect("/cgi-bin/koha/errors/404.pl");
@@ -144,7 +149,18 @@ if ( $backends_available ) {
                 );
                 handle_commit_maybe($backend_result, $request);
             }
+        } elsif ( C4::Context->yaml_preference("ILLModuleDisclaimerByType") ) {
+                $op = 'typedisclaimer';
+            
+                my $backend_result = $request->backend_create($params);
+                $template->param(
+                    whole   => $backend_result,
+                    request => $request
+                );
+
+                handle_commit_maybe($backend_result, $request);
         } else {
+                            
             my $backend_result = $request->backend_create($params);
             $template->param(
                 whole   => $backend_result,
@@ -329,6 +345,28 @@ if ( $backends_available ) {
                     $template->param( services => $services );
                 }
             }
+
+            # my $disc_sys_pref = C4::Context->yaml_preference("ILLModuleDisclaimerByType") // {};
+            # if ( $disc_sys_pref ) {
+            #     my $disc_info = $request->get_disclaimer_type_info($disc_sys_pref);
+            #     # my $params->{illrequest_id} = $self->illrequest_id;
+
+
+            #     # return $self->expandTemplate($result);
+
+
+            #     # my $test = $self->expandTemplate($result);
+            #     # $test->{value} = {
+            #     #         disclaimer => $disc_info,
+            #     #         other   => $params,
+            #     #         backend => $self->_backend->name
+            #     #     };
+            #     #     $test->{method} = 'create';
+            #     #     $test->{stage} = 'typedisclaimer';
+
+            #     $template->param( disclaimer => $disc_info );
+            # }
+
 
             $template->param( error => $params->{error} )
                 if $params->{error};

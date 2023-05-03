@@ -25,6 +25,7 @@ use CGI qw ( -utf8 );
 use C4::Auth qw( get_template_and_user );
 use C4::Koha;
 use C4::Output qw( output_html_with_http_headers );
+use POSIX qw( strftime );
 
 use Koha::Illrequest::Config;
 use Koha::Illrequests;
@@ -57,6 +58,8 @@ my $backends = Koha::Illrequest::Config->new->available_backends($reduced);
 my $backends_available = ( scalar @{$backends} > 0 );
 $template->param( backends_available => $backends_available );
 
+my $disclaimer_sys_pref = C4::Context->yaml_preference("ILLModuleDisclaimerByType") // {};
+
 my $op = $params->{'method'} || 'list';
 
 if ( $op eq 'list' ) {
@@ -75,9 +78,39 @@ if ( $op eq 'list' ) {
         borrowernumber => $loggedinuser,
         illrequest_id  => $params->{illrequest_id}
     });
+
     $template->param(
         request => $request
     );
+
+    # Force user to submit disclaimer before viewing request
+    if ($disclaimer_sys_pref 
+            && !defined $request->illrequestattributes->find({ type => 'type_disclaimer_value'})
+            && !defined $request->illrequestattributes->find({ type => 'type_disclaimer_value'})
+        ){
+        # Force user onto the disclaimer stage
+
+
+        # return {
+        #     error   => 0,
+        #     status  => '',
+        #     message => '',
+        #     method  => 'create',
+        #     stage   => 'typedisclaimer',
+        #     value   => {
+        #         other   => $params,
+        #         backend => $self->_backend->name
+        #     }
+        # };
+
+        $template->param(
+            request => $request
+        );
+    } else {
+        $template->param(
+            request => $request
+        );
+    }
 
 } elsif ( $op eq 'update') {
     my $request = Koha::Illrequests->find({
@@ -158,13 +191,43 @@ if ( $op eq 'list' ) {
             borrowernumber => $loggedinuser
         })->cardnumber;
         $params->{opac} = 1;
+        # Request type disclaimer has been submitted
+        if ( $params->{type_disclaimer_value} ) {
+
+            my $type_disclaimer_date = {
+                illrequest_id => $params->{illrequest_id},
+                type          => "type_disclaimer_date",
+                value         => strftime ("%Y-%m-%dT%H:%M:%S", localtime(time())),
+                readonly      => 0
+            };
+            Koha::Illrequestattribute->new($type_disclaimer_date)->store;
+
+            my $type_disclaimer_value = {
+                illrequest_id => $params->{illrequest_id},
+                type          => "type_disclaimer_value",
+                value         => $params->{type_disclaimer_value},
+                readonly      => 0
+            };
+            Koha::Illrequestattribute->new($type_disclaimer_value)->store;
+
+            print $query->redirect('/cgi-bin/koha/opac-illrequests.pl?message=2');
+            exit;
+        }
         my $backend_result = $request->backend_create($params);
+
         if ($backend_result->{stage} eq 'copyrightclearance') {
             $template->param(
                 stage       => $backend_result->{stage},
                 whole       => $backend_result
             );
-        } else {
+        } elsif ($backend_result->{stage} eq 'typedisclaimer') {
+            $template->param(
+                stage       => $backend_result->{stage},
+                whole       => $backend_result,
+                request     => $request
+            );
+        } 
+        else {
             $template->param(
                 types       => [ "Book", "Article", "Journal" ],
                 branches    => Koha::Libraries->search->unblessed,

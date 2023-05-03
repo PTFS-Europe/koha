@@ -921,6 +921,47 @@ sub backend_create {
         $result = $unmediated_result if $unmediated_result;
     }
 
+    my $disc_sys_pref = C4::Context->yaml_preference("ILLModuleDisclaimerByType") // {};
+
+    if ( $disc_sys_pref ){
+        # Present disclaimer form if ILLModuleDisclaimerByType is defined and is proper YAML
+        if ( $params->{stage} eq 'form' && %{$disc_sys_pref} ) {
+
+            my $disc_info = $self->get_disclaimer_type_info($disc_sys_pref);
+            my $params->{illrequest_id} = $self->illrequest_id;
+
+
+    # return $self->expandTemplate($result);
+
+
+            # my $test = $self->expandTemplate($result);
+            # $test->{value} = {
+            #         disclaimer => $disc_info,
+            #         other   => $params,
+            #         backend => $self->_backend->name
+            #     };
+            #     $test->{method} = 'create';
+            #     $test->{stage} = 'typedisclaimer';
+
+            # return $test;
+
+            # return {
+            #     error   => 0,
+            #     status  => '',
+            #     message => '',
+            #     method  => 'create',
+            #     stage   => 'typedisclaimer',
+            #     value   => {
+            #         disclaimer => $disc_info,
+            #         other   => $params,
+            #         backend => $self->_backend->name
+            #     }
+            # };
+        }else{
+            warn "missing request type/'all' or YAML in ILLModuleCopyrightClearance sys pref is malformed";
+        }
+    }
+
     return $self->expandTemplate($result);
 }
 
@@ -1744,6 +1785,33 @@ sub _censor {
     $params->{display_reply_date} = ( $censorship->{censor_reply_date} ) ? 0 : 1;
 
     return $params;
+}
+
+=head3 get_disclaimer_type_info
+
+    my $get_disclaimer_type_info = $self->get_disclaimer_type_info;
+
+    Given sys pref, returns type disclaimer info for this request
+    Returns undef if sys pref is empty or malformed
+
+=cut
+
+sub get_disclaimer_type_info {
+    my ( $self, $disc_sys_pref ) = @_;
+
+    my @matching_request_type = map ( $_ eq $self->get_type ? $_ : (), keys %$disc_sys_pref );
+
+    my $disc_info = undef;
+    if ( scalar @matching_request_type ){
+        $disc_info->{text} = $disc_sys_pref->{$self->get_type}->{text};
+        $disc_info->{av_cat} = $disc_sys_pref->{$self->get_type}->{av_category_code};
+    } elsif ($disc_sys_pref->{all}) {
+        $disc_info->{text} = $disc_sys_pref->{all}->{text};
+        $disc_info->{av_cat} = $disc_sys_pref->{all}->{av_category_code};
+    } else {
+        return undef;
+    }
+    return $disc_info;
 }
 
 =head3 store
