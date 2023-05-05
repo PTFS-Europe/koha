@@ -102,7 +102,7 @@ sub get {
     };
 }
 
-=head3 get_availablity
+=head3 get_availability
 
 Controller function that handles retrieval of Checkout availability
 
@@ -123,12 +123,34 @@ sub get_availability {
       C4::Circulation::CanBookBeIssued( $patron, undef, undef, $inprocess, $ignore_reserves,
         $params );
 
+    # Upgrade some confirmations to blockers if public
+    if ( $c->stash('is_public') ) {
+        my @should_block = qw/TOO_MANY ISSUED_TO_ANOTHER RESERVED RESERVED_WAITING TRANSFERRED PROCESSING AGE_RESTRICTION/;
+        for my $block ( @should_block ) {
+            if ( exists($confirmation->{$block}) ) {
+                $impossible->{$block} = $confirmation->{$block};
+                delete $confirmation->{$block};
+            }
+        }
+    }
+
     my $token;
     if (keys %{$confirmation}) {
         my $claims = { map { $_ => 1 } keys %{$confirmation} };
         my $secret =
           md5_base64( Encode::encode( 'UTF-8', C4::Context->config('pass') ) );
         $token = Mojo::JWT->new( claims => $claims, secret => $secret )->encode;
+    }
+
+    # Remove any non-public info that's returned by CanBookBeIssued
+    if ( $c->stash('is_public') ) {
+        my @restricted_keys = qw/issued_borrowernumber issued_cardnumber issued_firstname issued_surname resborrowernumber resbranchcode rescardnumber reserve_id resfirstname resreservedate ressurname item_notforloan/;
+        for my $key (@restricted_keys) {
+            delete $confirmation->{$key};
+            delete $impossible->{$key};
+            delete $alerts->{$key};
+            delete $messages->{$key};
+        }
     }
 
     my $response = {
