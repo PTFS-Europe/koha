@@ -51,7 +51,7 @@ $(document).ready(function() {
         return '';
     }
 
-    // At the moment, the only prefilter possible is borrowernumber
+    // Possible prefilters: borrowernumber, batch_id
     // see ill/ill-requests.pl and members/ill-requests.pl
     let additional_prefilters = [];
     if(prefilters){
@@ -79,6 +79,9 @@ $(document).ready(function() {
         },
         "me.borrowernumber": function(){
             return (borrower_prefilter_value = get_prefilter_value('borrowernumber')) ? { "=": borrower_prefilter_value } : "";
+        },
+        "me.batch_id": function(){
+            return (batch_prefilter_value = get_prefilter_value('batch_id')) ? { "=": batch_prefilter_value } : "";
         },
         "-or": function(){
             let patron = $("#illfilter_patron").val();
@@ -179,6 +182,8 @@ $(document).ready(function() {
     let table_id = "#ill-requests";
     if (borrower_prefilter_value = get_prefilter_value('borrowernumber')) {
         table_id += "-patron-" + borrower_prefilter_value;
+    } else if (batch_id_prefilter_value = get_prefilter_value('batch_id')) {
+        table_id += "-batch-" + batch_id_prefilter_value;
     }
 
     var ill_requests_table = $(table_id).kohaTable({
@@ -190,6 +195,7 @@ $(document).ready(function() {
             'biblio',
             'comments+count',
             'extended_attributes',
+            'batch',
             'library',
             'id_prefix',
             'patron'
@@ -205,6 +211,19 @@ $(document).ready(function() {
                             'method=illview&amp;illrequest_id=' +
                             encodeURIComponent(data) +
                             '">' + escape_str(row.id_prefix) + escape_str(data) + '</a>';
+                }
+            },
+            {
+                "data": "batch.name", // batch
+                "orderable": false,
+                "render": function(data, type, row, meta) {
+                    return row.batch ?
+                        '<a href="/cgi-bin/koha/ill/ill-requests.pl?batch_id=' +
+                        row.batch_id +
+                        '">' +
+                        row.batch.name +
+                        '</a>'
+                        : "";
                 }
             },
             {
