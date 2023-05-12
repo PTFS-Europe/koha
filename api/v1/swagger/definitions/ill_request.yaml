@@ -9,6 +9,11 @@ properties:
       - integer
       - "null"
     description: Internal bibliographic record identifier
+  batch_id:
+    type:
+      - integer
+      - "null"
+    description: Batch id this requests belongs to
   patron_id:
     type:
       - integer
