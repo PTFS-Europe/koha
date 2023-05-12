@@ -79,8 +79,13 @@ $(document).ready(function() {
         },
         "me.borrowernumber": function(){
             let borrowernumber_pre_filter = additional_prefilters.find(e => e.key === 'borrowernumber');
-            if ( additional_prefilters.length == 0 || typeof borrowernumber_pre_filter === undefined) return "";
+            if ( additional_prefilters.length == 0 || typeof borrowernumber_pre_filter === "undefined") return "";
             return { "=": borrowernumber_pre_filter["value"] }
+        },
+        "me.batch_id": function(){
+            let batch_pre_filter = additional_prefilters.find(e => e.key === 'batch_id');
+            if ( additional_prefilters.length == 0 || typeof batch_pre_filter === "undefined") return "";
+            return { "=": batch_pre_filter["value"] }
         },
         "-or": function(){
             let patron = $("#illfilter_patron").val();
@@ -187,6 +192,7 @@ $(document).ready(function() {
             'biblio',
             'comments+count',
             'extended_attributes',
+            'batch',
             'library',
             'id_prefix',
             'patron'
@@ -202,6 +208,19 @@ $(document).ready(function() {
                             'method=illview&amp;illrequest_id=' +
                             encodeURIComponent(data) +
                             '">' + escape_str(row.id_prefix) + escape_str(data) + '</a>';
+                }
+            },
+            {
+                "data": "batch.name", // batch
+                "orderable": false,
+                "render": function(data, type, row, meta) {
+                    return row.batch ?
+                        '<a href="/cgi-bin/koha/ill/ill-requests.pl?batch_id=' +
+                        row.batch_id +
+                        '">' +
+                        row.batch.name +
+                        '</a>'
+                        : "";
                 }
             },
             {
