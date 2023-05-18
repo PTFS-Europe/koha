@@ -43,6 +43,15 @@
                     Manage request [% request.id_prefix _ request.illrequest_id | html %]
                 </a>
             </li>
+        [% ELSIF query_type == 'typedisclaimer' %]
+            <li>
+                <a href="/cgi-bin/koha/ill/ill-requests.pl">ILL requests</a>
+            </li>
+            <li>
+                <a href="#" aria-current="page">
+                    Request type disclaimer
+                </a>
+            </li>
         [% ELSE %]
             <li>
                 <a href="#" aria-current="page">
@@ -863,7 +872,8 @@
                                 <input type="hidden" name="method" value="create" />
                                 <input type="hidden" name="stage" value="form">
                                 <input type="hidden" name="type_disclaimer_submitted" value="1">
-                                <input type="submit" value="Next" />
+                                <input type="submit" value="Submit" />
+                                <a class="cancel" href="ill-requests.pl">Cancel</a>
                             </fieldset>
                         </form>
                     </div>
