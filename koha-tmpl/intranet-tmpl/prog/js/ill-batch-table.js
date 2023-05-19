@@ -93,7 +93,7 @@
     // A render function for batch name
     var createName = function (x, y, data) {
         var a = document.createElement('a');
-        a.setAttribute('href', '/cgi-bin/koha/ill/ill-requests.pl?batch_id=' + data.id);
+        a.setAttribute('href', '/cgi-bin/koha/ill/ill-batches.pl?method=listbatchrequests&batch_id=' + data.id);
         a.setAttribute('title', data.name);
         a.textContent = data.name;
         return a.outerHTML;

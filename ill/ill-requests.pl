@@ -375,38 +375,7 @@ if ( $backends_available ) {
             request => $request
         );
     } elsif ( $op eq 'illlist') {
-
-        # If we receive a pre-filter, make it available to the template
-        my $possible_filters = ['borrowernumber', 'batch_id'];
-        my $active_filters = {};
-        foreach my $filter(@{$possible_filters}) {
-            if ($params->{$filter}) {
-                # We shouldn't need to escape $filter here since we're using
-                # a whitelist, but just to be sure...
-                $active_filters->{uri_escape_utf8($filter)} =
-                    uri_escape_utf8(scalar $params->{$filter});
-            }
-        }
-        my @tpl_arr = ();
-        if (keys %{$active_filters}) {
-            foreach my $key (keys %{$active_filters}) {
-                push @tpl_arr, $key . "=" . $active_filters->{$key};
-            }
-        }
-        $template->param(
-            prefilters => join("&", @tpl_arr)
-        );
-
-        if ($active_filters->{batch_id}) {
-            my $batch_id = $active_filters->{batch_id};
-            if ($batch_id) {
-                my $batch = Koha::Illbatches->find($batch_id);
-                $template->param(
-                    batch => $batch
-                );
-            }
-        }
-
+        # Do not remove, it prevents us falling through to the 'else'
     } elsif ( $op eq "save_comment" ) {
         die "Wrong CSRF token" unless Koha::Token->new->check_csrf({
            session_id => scalar $cgi->cookie('CGISESSID'),

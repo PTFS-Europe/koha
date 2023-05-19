@@ -483,7 +483,7 @@
         updateBatch()
             .then(function () {
                 $('#ill-batch-modal').modal({ show: false });
-                location.href = '/cgi-bin/koha/ill/ill-requests.pl?batch_id=' + batch.data.id;
+                location.href = '/cgi-bin/koha/ill/ill-batches.pl?method=listbatchrequests&batch_id=' + batch.data.id;
             });
     };
 

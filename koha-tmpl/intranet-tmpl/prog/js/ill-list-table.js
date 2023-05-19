@@ -215,7 +215,7 @@ $(document).ready(function() {
                 "orderable": false,
                 "render": function(data, type, row, meta) {
                     return row.batch ?
-                        '<a href="/cgi-bin/koha/ill/ill-requests.pl?batch_id=' +
+                        '<a href="/cgi-bin/koha/ill/ill-batches.pl?method=listbatchrequests&batch_id=' +
                         row.batch_id +
                         '">' +
                         row.batch.name +
