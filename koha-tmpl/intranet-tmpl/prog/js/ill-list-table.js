@@ -78,9 +78,7 @@ $(document).ready(function() {
             return { "=": branchcode }
         },
         "me.borrowernumber": function(){
-            let borrowernumber_pre_filter = additional_prefilters.find(e => e.key === 'borrowernumber');
-            if ( additional_prefilters.length == 0 || typeof borrowernumber_pre_filter === undefined) return "";
-            return { "=": borrowernumber_pre_filter["value"] }
+            return (borrower_prefilter_value = get_prefilter_value('borrowernumber')) ? { "=": borrower_prefilter_value } : "";
         },
         "-or": function(){
             let patron = $("#illfilter_patron").val();
@@ -178,7 +176,12 @@ $(document).ready(function() {
         }
     };
 
-    var ill_requests_table = $("#ill-requests").kohaTable({
+    let table_id = "#ill-requests";
+    if (borrower_prefilter_value = get_prefilter_value('borrowernumber')) {
+        table_id += "-patron-" + borrower_prefilter_value;
+    }
+
+    var ill_requests_table = $(table_id).kohaTable({
         "ajax": {
             "url": '/api/v1/ill/requests'
         },
@@ -493,5 +496,10 @@ $(document).ready(function() {
     $('#clear_search').click(function() {
         clearSearch();
     });
+
+    function get_prefilter_value(prefilter_key) {
+        let pre_filter = additional_prefilters.find(e => e.key === prefilter_key);
+        return additional_prefilters.length != 0 && typeof pre_filter !== "undefined" ? pre_filter['value'] : null;
+    }
 
 });
