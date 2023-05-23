@@ -21,6 +21,7 @@ use Text::CSV_XS qw( csv );
 
 use Koha::ERM::CounterLog;
 use Koha::ERM::UsageTitle;
+use Koha::ERM::UsageTitles;
 use Koha::ERM::UsageDataProvider;
 
 use base qw(Koha::Object);
@@ -39,26 +40,42 @@ Koha::ERM::CounterFile - Koha ErmCounterFile Object class
 
 =head3 counter_logs
 
-Return the counter logs for this data provider
+Return the counter_logs for this counter_file
 
 =cut
 
 sub counter_logs {
-    my ( $self ) = @_;
+    my ($self) = @_;
+
     my $counter_logs_rs = $self->_result->erm_counter_logs;
     return Koha::ERM::CounterLogs->_new_from_dbic($counter_logs_rs);
 }
 
 =head3 store
 
-    $counter_file->store;
+    Koha::ERM::CounterFile->new($counter_file)->store( $self->{job_callbacks} );
+
+Stores the csv COUNTER file.
+Adds usage titles from the file.
+Adds the respective counter_log entry.
+
+=over
+
+=item background_job_callbacks
+
+Receive background_job_callbacks to be able to update job progress
+
+=back
 
 =cut
 
 sub store {
-    my $self = shift;
+    my ( $self, $background_job_callbacks ) = @_;
 
     my $result = $self->SUPER::store;
+
+    # Set class wide background_job callbacks
+    $self->{job_callbacks} = $background_job_callbacks;
 
     $self->_add_usage_titles;
     $self->_add_counter_log_entry;
@@ -81,10 +98,11 @@ sub get_usage_data_provider {
 
 =head2 Internal methods
 
-=head3 sub _add_usage_titles {
+=head3 _add_usage_titles
 
 Goes through COUNTER file and adds usage_title for each row
-#TODO: Yearly usage may be incorrect, it's only adding up the months in the current report, not necessarily the whole year
+
+#FIXME?: "Yearly" usage may be incorrect, it'll only add up the months in the current report, not necessarily the whole year
 
 =cut
 
@@ -95,25 +113,53 @@ sub _add_usage_titles {
     my $usage_data_provider = $self->get_usage_data_provider;
     my $previous_title      = undef;
     my $usage_title         = undef;
+    my $i                   = 0;
 
     foreach my $row ( @{$rows} ) {
 
-        # This is the same title, just a new row for a different metric_type
-        if ( $previous_title && $previous_title->title eq $row->{Title} ) {
+# INFO: A single title has multiple rows in the COUNTER report, for each metric_type
+# If we're on a row of a title that we've already gone through,
+# use the same usage_title and add usage statistics for the different metric_type
+        if ( $previous_title && $previous_title->title_doi eq $row->{DOI} ) {
             $usage_title = $previous_title;
         }
         else {
-            $usage_title = Koha::ERM::UsageTitle->new(
+            # Update background job step
+            $self->{job_callbacks}->{step_callback}->();
+
+            # Check if title already exists in this data provider, e.g. from a previous harvest
+            $usage_title = Koha::ERM::UsageTitles->search(
                 {
-                    title                  => $row->{Title},
+                    title_doi              => $row->{DOI},
                     usage_data_provider_id =>
-                      $usage_data_provider->erm_usage_data_provider_id,
-                    title_doi   => $row->{DOI},
-                    print_issn  => $row->{Print_ISSN},
-                    online_issn => $row->{Online_ISSN},
-                    title_uri   => $row->{URI}
+                      $usage_data_provider->erm_usage_data_provider_id
                 }
-            )->store;
+            )->last;
+
+            if ($usage_title) {
+                # Title already exists, add job warning message and do nothing else
+                $self->{job_callbacks}->{add_message_callback}->(
+                    {
+                        type  => 'warning',
+                        code  => 'title_already_exists',
+                        title => $row->{Title},
+                    }
+                );
+            }
+            else {
+                # Fresh title, create it
+                $usage_title = $self->_add_usage_title_entry( $row,
+                    $usage_data_provider->erm_usage_data_provider_id );
+
+                # Title created, add job success message
+                $self->{job_callbacks}->{add_message_callback}->(
+                    {
+                        type  => 'success',
+                        code  => 'title_added',
+                        title => $row->{Title},
+                    }
+                );
+            }
         }
 
         # Regex match for Mmm-yyyy expected format, e.g. "Jan 2022"
@@ -124,6 +170,7 @@ sub _add_usage_titles {
             warn "No monthly usage fields retrieved";
         }
 
+        # Add monthly usage statistics for this title
         my %yearly_usages = ();
         foreach my $year_month (@date_fields) {
             my $usage = %{$row}{$year_month};
@@ -141,11 +188,6 @@ sub _add_usage_titles {
                 $yearly_usages{$year} += $usage;
             }
 
-# TODO: Should we skip this monthly usage entry if title_id,metric_type,month,year already exists? To avoid duplicates
-
-            # Skip this monthly usage entry if it's 0
-            next if $usage eq "0";
-
             $usage_title->monthly_usages(
                 [
                     {
@@ -162,8 +204,11 @@ sub _add_usage_titles {
             );
         }
 
-        $self->_add_yearly_usage_entries( $usage_title, $row->{Metric_Type}, $usage_data_provider,
-            \%yearly_usages, $self->type );
+        # Add yearly usage statistics for this title
+        $self->_add_yearly_usage_entries(
+            $usage_title,         $row->{Metric_Type},
+            $usage_data_provider, \%yearly_usages
+        );
 
         $previous_title = $usage_title;
     }
@@ -176,10 +221,11 @@ Adds erm_usage_yus database entries
 =cut
 
 sub _add_yearly_usage_entries {
-    my ( $self, $usage_title, $metric_type, $usage_data_provider, $yearly_usages, $report_type ) = @_;
+    my ( $self, $usage_title, $metric_type, $usage_data_provider, $yearly_usages ) = @_;
 
     while ( my ( $year, $usage ) = each( %{$yearly_usages} ) ) {
 
+        # Skip this yearly usage entry if it's 0
         next if $usage eq "0";
 
         $usage_title->yearly_usages(
@@ -188,17 +234,17 @@ sub _add_yearly_usage_entries {
                     title_id               => $usage_title->title_id,
                     usage_data_provider_id =>
                       $usage_data_provider->erm_usage_data_provider_id,
-                    year       => $year,
-                    totalcount => $usage,
+                    year        => $year,
+                    totalcount  => $usage,
                     metric_type => $metric_type,
-                    report_type => $report_type
+                    report_type => $self->type
                 }
             ]
         );
     }
 }
 
-=head3 sub _get_rows_from_COUNTER_file
+=head3 _get_rows_from_COUNTER_file
 
 Returns array of rows from COUNTER file
 
@@ -217,7 +263,7 @@ sub _get_rows_from_COUNTER_file {
     return $csv->getline_hr_all($fh);
 }
 
-=head3 sub _get_month_number
+=head3 _get_month_number
 
 Returns month number for a given Mmm month
 
@@ -256,13 +302,35 @@ sub _add_counter_log_entry {
     Koha::ERM::CounterLog->new(
         {
 #TODO: borrowernumber only required for manual uploads, maybe also for "harvest now" button clicks?
-            borrowernumber         => undef,
-            counter_files_id       => $self->erm_counter_files_id,
-            importdate             => $self->date_uploaded,
-            filename               => $self->filename,
+            borrowernumber   => undef,
+            counter_files_id => $self->erm_counter_files_id,
+            importdate       => $self->date_uploaded,
+            filename         => $self->filename,
 
     #TODO: add eventual exceptions coming from the COUNTER report to logdetails?
             logdetails => undef
+        }
+    )->store;
+}
+
+
+=head3 _add_usage_title_entry
+
+Adds a erm_usage_title database entry
+
+=cut
+
+sub _add_usage_title_entry {
+    my ( $self, $row, $ud_provider_id ) = @_;
+
+    return Koha::ERM::UsageTitle->new(
+        {
+            title                  => $row->{Title},
+            usage_data_provider_id => $ud_provider_id,
+            title_doi              => $row->{DOI},
+            print_issn             => $row->{Print_ISSN},
+            online_issn            => $row->{Online_ISSN},
+            title_uri              => $row->{URI}
         }
     )->store;
 }
