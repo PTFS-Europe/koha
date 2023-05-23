@@ -28,6 +28,7 @@ use base qw(Koha::Object);
 
 use Koha::ERM::CounterFile;
 use Koha::ERM::CounterFiles;
+use Koha::BackgroundJob::ErmSushiHarvester;
 
 =head1 NAME
 
@@ -48,7 +49,8 @@ sub counter_files {
 
     if ($counter_files) {
         for my $counter_file (@$counter_files) {
-            Koha::ERM::CounterFile->new($counter_file)->store;
+            Koha::ERM::CounterFile->new($counter_file)
+              ->store( $self->{job_callbacks} );
         }
     }
     my $counter_files_rs = $self->_result->erm_counter_files;
@@ -57,22 +59,79 @@ sub counter_files {
 
 =head3 run
 
-Runs the harvest of this usage data provider
-* Builds the query and requests the COUNTER 5 SUSHI service
-* Parses the report header, column headings and report body
-* Add counter_files entry
-
-* COUNTER SUSHI api spec:
-https://app.swaggerhub.com/apis/COUNTER/counter-sushi_5_0_api/5.0.2
+Enqueues one harvest background job for each report type in this usage data provider
 
 =cut
 
 sub run {
     my ($self) = @_;
 
-    my $service_url = $self->service_url;
+    my @report_types = split( /;/, $self->report_types );
 
-    my $url      = $self->_build_url_query();
+    my @jobs;
+    foreach my $report_type (@report_types) {
+
+        my $job_id = Koha::BackgroundJob::ErmSushiHarvester->new->enqueue(
+            {
+                ud_provider_id => $self->erm_usage_data_provider_id,
+                report_type    => $report_type
+            }
+        );
+
+        push(
+            @jobs,
+            {
+                report_type => $report_type,
+                job_id      => $job_id
+            }
+        );
+    }
+
+    return \@jobs;
+}
+
+=head3 harvest
+
+    $ud_provider->harvest(
+        {
+            step_callback        => sub { $self->step; },
+            set_size_callback    => sub { $self->set_job_size(@_); },
+            add_message_callback => sub { $self->add_message(@_); },
+        }
+    );
+
+Run the SUSHI harvester of this usage data provider
+Builds the URL query and requests the COUNTER 5 SUSHI service
+
+COUNTER SUSHI api spec:
+https://app.swaggerhub.com/apis/COUNTER/counter-sushi_5_0_api/5.0.2
+
+=over
+
+=item report_type
+
+Report type to run this harvest on
+
+=back
+
+=over
+
+=item background_job_callbacks
+
+Receive background_job_callbacks to be able to update job
+
+=back
+
+=cut
+
+sub harvest {
+    my ( $self, $report_type, $background_job_callbacks ) = @_;
+
+    # Set class wide vars
+    $self->{job_callbacks} = $background_job_callbacks;
+    $self->{report_type} = $report_type;
+
+    my $url      = $self->_build_url_query;
     my $request  = HTTP::Request->new( 'GET' => $url );
     my $ua       = LWP::UserAgent->new;
     my $response = $ua->simple_request($request);
@@ -95,8 +154,10 @@ sub run {
                 }
             }
         }
+
+        #TODO: May want to add a job error message here?
         warn sprintf "ERROR - SUSHI service %s returned %s - %s\n", $url,
-          $response->code, $message;
+        $response->code, $message;
         if ( $response->code == 404 ) {
             Koha::Exceptions::ObjectNotFound->throw($message);
         }
@@ -104,29 +165,53 @@ sub run {
             Koha::Exceptions::Authorization::Unauthorized->throw($message);
         }
         else {
+            #TODO: May want to add a job error message here?
             die sprintf "ERROR requesting SUSHI service\n%s\ncode %s: %s\n",
-              $url, $response->code,
-              $message;
+            $url, $response->code,
+            $message;
         }
     }
     elsif ( $response->code == 204 ) {    # No content
         return;
     }
 
-    my $result = decode_json( $response->decoded_content );
+    # Parse the SUSHI response
+    $self->parse_SUSHI_response( decode_json( $response->decoded_content ) );
+}
 
+=head3 parse_SUSHI_response
+
+    $self->parse_SUSHI_response( decode_json( $response->decoded_content ) );
+
+Parse the SUSHI response, prepare the COUNTER report file header,
+column headings and body
+
+=over
+
+=item result
+
+The result of the SUSHI response after json decoded
+
+=back
+
+=cut
+
+sub parse_SUSHI_response {
+    my ( $self, $result ) = @_;
+
+    # Set class wide sushi response content
     $self->{sushi} = {
         header => $result->{Report_Header},
         body   => $result->{Report_Items}
     };
 
-    my @report_header          = $self->_COUNTER_report_header();
-    my @report_column_headings = $self->_COUNTER_column_headings();
-    my @report_body            = $self->_COUNTER_report_body();
+    # Get ready to build COUNTER file
+    my @report_header          = $self->_COUNTER_report_header;
+    my @report_column_headings = $self->_COUNTER_report_column_headings;
+    my @report_body            = $self->_COUNTER_report_body;
 
     $self->_build_COUNTER_report_file( \@report_header,
         \@report_column_headings, \@report_body );
-
 }
 
 =head2 Internal methods
@@ -151,8 +236,7 @@ sub _build_url_query {
     # Either validate this on UI form, here, or both
     my $url = $self->service_url;
 
-#TODO: a usage data provider may have more than one report_type, separated by ";"
-    $url .= $self->report_types;
+    $url .= $self->{report_type};
     $url .= '?customer_id=' . $self->customer_id;
     $url .= '&requestor_id=' . $self->requestor_id if $self->requestor_id;
     $url .= '&api_key=' . $self->api_key           if $self->api_key;
@@ -177,19 +261,15 @@ sub _build_COUNTER_report_file {
     #TODO: change this to tab instead of comma
     csv( in => \@report, out => \my $counter_file, encoding => "utf-8" );
 
-    my @report_types = split(/;/, $self->report_types);
-
-   #TODO: we need to add one counter_file per report_type in $self->report_types
     $self->counter_files(
         [
             {
                 usage_data_provider_id => $self->erm_usage_data_provider_id,
                 file_content           => $counter_file,
                 date_uploaded => POSIX::strftime( "%Y%m%d%H%M%S", localtime ),
-
-      # TODO: $self->report_types is wrong, it may contain multiple report_types
-                filename => $self->name . "_" . $self->report_types,
-                type  =>  $report_types[0]
+                #TODO: add ".csv" to end of filename here
+                filename => $self->name . "_" . $self->{report_type},
+                type  =>  $self->{report_type}
             }
         ]
     );
@@ -334,7 +414,7 @@ sub _get_title_usages {
               map( $_->{Metric_Type} eq $metric_type ? $_->{Count} : (),
                 @{$instances} );
 
-            if ( $period_usage_month eq $usage_month ) {
+            if ( $period_usage_month eq $usage_month && $metric_type_count[0] ) {
                 push( @usage_months_fields, $metric_type_count[0] );
                 $count_total += $metric_type_count[0];
                 $month_is_empty = 0;
@@ -345,7 +425,6 @@ sub _get_title_usages {
             push( @usage_months_fields, 0 );
         }
     }
-
     return ( $count_total, @usage_months_fields );
 }
 
@@ -373,9 +452,14 @@ sub _COUNTER_report_body {
 
     # Titles report body
     if ( $header->{Report_ID} =~ /TR/i ) {
+
+        # Set job size to the amount of titles we're processing
+        $self->{job_callbacks}->{set_size_callback}->( scalar( @{$body} ) );
+
+        my $total_records = 0;
         foreach my $title_row ( @{$body} ) {
 
-            # Add one usage title entry for each metric_type for the report
+            # Add one title report row for each metric_type we're working with
             foreach my $metric_type (@metric_types) {
                 push(
                     @report_body,
@@ -384,6 +468,7 @@ sub _COUNTER_report_body {
                     )
                 );
             }
+            $self->{counter_report} = { report_type => $self->{report_type}, total_records => ++$total_records };
         }
     }
 
@@ -420,13 +505,15 @@ sub _get_SUSHI_Type_Value {
     return $value[0];
 }
 
-=head3 _COUNTER_column_headings
+=head3 _COUNTER_report_column_headings
 
 Returns column headings by report type
+  Check the report type from the COUNTER header
+  and return column headings accordingly
 
 =cut
 
-sub _COUNTER_column_headings {
+sub _COUNTER_report_column_headings {
     my ($self) = @_;
 
     my $header = $self->{sushi}->{header};
@@ -436,7 +523,7 @@ sub _COUNTER_column_headings {
 
     # Titles Report
     if ( $header->{Report_ID} =~ /TR/i ) {
-        return $self->_COUNTER_titles_report_column_headings();
+        return $self->_COUNTER_titles_report_column_headings;
     }
 
     # TODO: Item Report

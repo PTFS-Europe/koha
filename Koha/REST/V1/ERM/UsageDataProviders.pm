@@ -259,12 +259,12 @@ sub run {
         );
     }
 
-    #TODO: Should this be a background_job?
     return try {
-        $udprovider->run;
+        my $jobs = $udprovider->run;
+
         return $c->render(
             status  => 200,
-            openapi => qq{Ran harvester}
+            openapi => { jobs => [ @{$jobs} ] }
         );
     }
     catch {

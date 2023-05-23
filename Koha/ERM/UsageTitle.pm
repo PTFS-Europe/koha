@@ -58,6 +58,7 @@ sub erm_usage_yuses {
 =head3 yearly_usages
 
 Getter/setter for yearly_usages for this title
+Skips adding yearly_usage if it already exists
 
 =cut
 
@@ -66,6 +67,7 @@ sub yearly_usages {
 
     if ($yearly_usages) {
         for my $yearly_usage (@$yearly_usages) {
+            next if $self->yearly_usages()->search($yearly_usage)->last;
             Koha::ERM::YearlyUsage->new($yearly_usage)->store;
         }
     }
@@ -76,6 +78,7 @@ sub yearly_usages {
 =head3 monthly_usages
 
 Getter/setter for monthly_usages for this title
+Skips adding monthly_usage if it already exists
 
 =cut
 
@@ -84,6 +87,7 @@ sub monthly_usages {
 
     if ($monthly_usages) {
         for my $monthly_usage (@$monthly_usages) {
+            next if $self->monthly_usages()->search($monthly_usage)->last;
             Koha::ERM::MonthlyUsage->new($monthly_usage)->store;
         }
     }
