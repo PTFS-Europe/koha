@@ -573,6 +573,35 @@ sub _COUNTER_master_report {
 ## TITLES COLUMN HEADINGS
 # https://cop5.projectcounter.org/en/5.0.2/04-reports/03-title-reports.html
 
+=head3 test_connection
+
+Tests the connection of the harvester to the SUSHI service and returns any alerts of planned SUSHI outages
+
+=cut
+
+sub test_connection {
+    my ($self) = @_;
+
+    my $url = $self->service_url;
+    $url .= '/status';
+    $url .= '?customer_id=' . $self->customer_id;
+    $url .= '&requestor_id=' . $self->requestor_id if $self->requestor_id;
+    $url .= '&api_key=' . $self->api_key           if $self->api_key;
+
+
+    my $request  = HTTP::Request->new( 'GET' => $url );
+    my $ua       = LWP::UserAgent->new;
+    my $response = $ua->simple_request($request);
+
+    my @result = decode_json( $response->decoded_content );
+    if($result[0][0]->{Service_Active}) {
+        return 1
+    } else {
+        return 0
+    }
+
+}
+
 =head3 _type
 
 =cut
