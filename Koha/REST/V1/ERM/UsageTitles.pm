@@ -309,8 +309,6 @@ sub monthly_report {
             my $provider_name = $provider_object[0]->{name};
             $title->{provider_name} = $provider_name;
 
-            # push @title_report_data, $title;
-
             # Split titles into metric_types i.e. one table row per metric_type
             for my $metric_type ( @$metric_types ) {
                 my $statistics = $title->{'erm_usage_muses'};
@@ -404,8 +402,6 @@ sub yearly_report {
             my $provider_name = $provider_object[0]->{name};
             $title->{provider_name} = $provider_name;
 
-            # push @title_report_data, $title;
-
             # Split titles into metric_types i.e. one table row per metric_type
             for my $metric_type ( @$metric_types ) {
                 my $statistics = $title->{'erm_usage_yuses'};
@@ -426,6 +422,101 @@ sub yearly_report {
 
                 push @title_report_data, \%title_hash;
             };
+        };
+
+        return $c->render( status => 200, openapi => \@title_report_data );
+    }
+    catch {
+        $c->unhandled_exception($_);
+    };
+
+}
+
+=head3 metric_types_report
+
+An endpoint to fetch report data for ERM usage statistics based on metric type columns
+
+=cut
+
+sub metric_types_report {
+    my $c = shift->openapi->valid_input or return;
+
+    return try {
+
+        my $args = $c->validation->output;
+
+        my $usage_titles_set = Koha::ERM::UsageTitles->new;
+        my $usage_titles = $c->objects->search( $usage_titles_set );
+
+        my $usage_data_providers = Koha::ERM::UsageDataProviders->search({}, {})->unblessed;
+
+        my @query_params_array;
+        my $json = JSON->new;
+
+        if ( ref( $args->{q} ) eq 'ARRAY' ) {
+            foreach my $q ( @{ $args->{q} } ) {
+                push @query_params_array, $json->decode($q)
+                    if $q; 
+            }
+        }
+
+        # Titles with no data in the selected range will not be returned by the API - we still want to include them if they have been specifically requested as a report parameter
+        my $title_ids = $query_params_array[0][0]->{'erm_usage_yuses.title_id'};
+
+        for my $title_id (@{ $title_ids }) {
+            my $check_title_exits = grep { $title_id eq $_->{title_id} } @{ $usage_titles };
+            if(!$check_title_exits) {
+                my $missing_usage_title = Koha::ERM::UsageTitles->find({ title_id => $title_id }, {})->unblessed;
+                my @blank_statistics = ();
+
+                my %missing_title_hash = (
+                    usage_data_provider_id => $missing_usage_title->{usage_data_provider_id},
+                    title_id => $missing_usage_title->{title_id},
+                    title => $missing_usage_title->{title},
+                    erm_usage_muses => \@blank_statistics,
+                    online_issn => $missing_usage_title->{online_issn},
+                    print_issn => $missing_usage_title->{print_issn},
+                    title_doi => $missing_usage_title->{title_doi},
+                    title_uri => $missing_usage_title->{title_uri},
+                );
+
+                push @{ $usage_titles }, \%missing_title_hash;
+            }
+        };
+
+        # my $metric_types = $query_params_array[0]->{'erm_usage_yuses.metric_type'};
+
+        my @title_report_data;
+
+        for my $title ( @{ $usage_titles } ) {
+            # Add provider name rather than embed provider object
+            my $usage_data_provider_id = $title->{usage_data_provider_id};
+            my @provider_object = grep { $usage_data_provider_id eq $_->{erm_usage_data_provider_id} } @{ $usage_data_providers };
+            my $provider_name = $provider_object[0]->{name};
+            $title->{provider_name} = $provider_name;
+
+            push @title_report_data, $title;
+
+            # Split titles into metric_types i.e. one table row per metric_type
+            # for my $metric_type ( @$metric_types ) {
+            #     my $statistics = $title->{'erm_usage_yuses'};
+            #     my @filtered_statistics = grep { $metric_type eq $_->{metric_type} } @$statistics;
+
+            #     my %title_hash = (
+            #         usage_data_provider_id => $title->{usage_data_provider_id},
+            #         provider_name => $title->{provider_name},
+            #         title_id => $title->{title_id},
+            #         title => $title->{title},
+            #         erm_usage_yuses => \@filtered_statistics,
+            #         online_issn => $title->{online_issn},
+            #         print_issn => $title->{print_issn},
+            #         title_doi => $title->{title_doi},
+            #         title_uri => $title->{title_uri},
+            #         metric_type => $metric_type,
+            #     );
+
+            #     push @title_report_data, \%title_hash;
+            # };
         };
 
         return $c->render( status => 200, openapi => \@title_report_data );

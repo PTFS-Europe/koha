@@ -279,6 +279,8 @@ paths:
     $ref: "./paths/erm_usage_titles.yaml#/~1erm~1usage_titles~1monthly_report"
   "/erm/usage_titles/yearly_report":
     $ref: "./paths/erm_usage_titles.yaml#/~1erm~1usage_titles~1yearly_report"
+  "/erm/usage_titles/metric_types_report":
+    $ref: "./paths/erm_usage_titles.yaml#/~1erm~1usage_titles~1metric_types_report"
   /erm/yearly_usage:
     $ref: ./paths/erm_usage_yus.yaml#/~1erm~1yearly_usage
   "/erm/yearly_usage/{yearly_usage_summary_id}":
