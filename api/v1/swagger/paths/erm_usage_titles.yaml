@@ -500,3 +500,97 @@
     x-koha-authorization:
       permissions:
         erm: 1
+"/erm/usage_titles/metric_types_report":
+  get:
+    x-mojo-to: ERM::UsageTitles#metric_types_report
+    operationId: getERMUsageTitleMetric_typesReport
+    tags:
+      - usage_title
+    summary: get usage_title metric_types report
+    produces:
+      - application/json
+    parameters:
+      - description: Case insensitive search on usage_title title_id
+        in: query
+        name: title_id
+        required: false
+        type: integer
+      - description: Case insensitive search on usage_title title
+        in: query
+        name: title
+        required: false
+        type: string
+      - description: Case insensitive search on usage_title usage_data_provider_id
+        in: query
+        name: usage_data_provider_id
+        required: false
+        type: string
+      - description: Case insensitive search on usage_title title_doi
+        in: query
+        name: title_doi
+        required: false
+        type: string
+      - description: Case insensitive search on usage_title print_issn
+        in: query
+        name: print_issn
+        required: false
+        type: string
+      - description: Case insensitive search on usage_title online_issn
+        in: query
+        name: online_issn
+        required: false
+        type: string
+      - description: Case insensitive search on usage_title title_uri
+        in: query
+        name: title_uri
+        required: false
+        type: string
+      - name: x-koha-embed
+        in: header
+        required: false
+        description: Embed list sent as a request header
+        type: array
+        items:
+          type: string
+          enum:
+            - erm_usage_muses
+        collectionFormat: csv
+      - $ref: "../swagger.yaml#/parameters/match"
+      - $ref: "../swagger.yaml#/parameters/order_by"
+      - $ref: "../swagger.yaml#/parameters/page"
+      - $ref: "../swagger.yaml#/parameters/per_page"
+      - $ref: "../swagger.yaml#/parameters/q_param"
+      - $ref: "../swagger.yaml#/parameters/q_body"
+      - $ref: "../swagger.yaml#/parameters/q_header"
+      - $ref: "../swagger.yaml#/parameters/request_id_header"
+    responses:
+      200:
+        description: usage_title
+        schema:
+          items:
+            $ref: "../swagger.yaml#/definitions/erm_usage_title"
+      401:
+        description: authentication required
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      403:
+        description: access forbidden
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      404:
+        description: ressource not found
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      500:
+        description: |-
+          internal server error. possible `error_code` attribute values:
+          * `internal_server_error`
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      503:
+        description: under maintenance
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+    x-koha-authorization:
+      permissions:
+        erm: 1
