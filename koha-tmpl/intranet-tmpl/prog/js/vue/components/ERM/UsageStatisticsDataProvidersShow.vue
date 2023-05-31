@@ -87,116 +87,9 @@
                 v-if="tab_content === 'detail'"
                 class="usage_data_provider_detail"
             >
-                <legend>{{ $__("Data provider") }}</legend>
-                <fieldset class="rows">
-                    <ol>
-                        <li>
-                            <label>{{ $__("Data provider name") }}:</label>
-                            <span>
-                                {{ usage_data_provider.name }}
-                            </span>
-                        </li>
-                        <li>
-                            <label>{{ $__("Description") }}:</label>
-                            <span>
-                                {{ usage_data_provider.description }}
-                            </span>
-                        </li>
-                        <li>
-                            <label>{{ $__("Status") }}:</label>
-                            <span>
-                                {{
-                                    usage_data_provider.active
-                                        ? "Active"
-                                        : "Inactive"
-                                }}
-                            </span>
-                        </li>
-                        <!-- <li>
-                            <label>{{ $__("Method") }}:</label>
-                            <span>
-                                {{ usage_data_provider.method }}
-                            </span>
-                        </li>
-                        <li>
-                            <label>{{ $__("Aggregator") }}:</label>
-                            <span>
-                                {{ usage_data_provider.aggregator }}
-                            </span>
-                        </li> -->
-                        <li>
-                            <label>{{ $__("Service Type") }}:</label>
-                            <span>
-                                {{ usage_data_provider.service_type }}
-                            </span>
-                        </li>
-                        <li>
-                            <label>{{ $__("Harvest Start") }}:</label>
-                            <span>
-                                {{ usage_data_provider.begin_date }}
-                            </span>
-                        </li>
-                        <li>
-                            <label>{{ $__("Harvest End") }}:</label>
-                            <span>
-                                {{ usage_data_provider.end_date }}
-                            </span>
-                        </li>
-                        <li>
-                            <label>{{ $__("Report types") }}:</label>
-                            <span>
-                                {{ usage_data_provider.report_types }}
-                            </span>
-                        </li>
-                    </ol>
-                </fieldset>
-                <legend>{{ $__("Sushi credentials") }}</legend>
-                <fieldset class="rows">
-                    <ol>
-                        <li>
-                            <label>{{ $__("Service URL") }}:</label>
-                            <span>
-                                {{ usage_data_provider.service_url }}
-                            </span>
-                        </li>
-                        <li>
-                            <label>{{ $__("Report Release") }}:</label>
-                            <span>
-                                {{ usage_data_provider.report_release }}
-                            </span>
-                        </li>
-                        <li>
-                            <label>{{ $__("Customer Id") }}:</label>
-                            <span>
-                                {{ usage_data_provider.customer_id }}
-                            </span>
-                        </li>
-                        <li>
-                            <label>{{ $__("Requestor Id") }}:</label>
-                            <span>
-                                {{ usage_data_provider.requestor_id }}
-                            </span>
-                        </li>
-                        <li>
-                            <label>{{ $__("API Key") }}:</label>
-                            <span>
-                                {{ usage_data_provider.api_key }}
-                            </span>
-                        </li>
-                        <li>
-                            <label>{{ $__("Requestor Name") }}:</label>
-                            <span>
-                                {{ usage_data_provider.requestor_name }}
-                            </span>
-                        </li>
-                        <li>
-                            <label>{{ $__("Requestor Email") }}:</label>
-                            <span>
-                                {{ usage_data_provider.requestor_email }}
-                            </span>
-                        </li>
-                    </ol>
-                </fieldset>
+                <UsageStatisticsDataProviderDetails
+                    :usage_data_provider="usage_data_provider"
+                />
             </div>
             <div v-if="tab_content === 'titles'">
                 <UsageStatisticsTitlesList />
@@ -225,6 +118,7 @@ import { APIClient } from "../../fetch/api-client.js"
 import UsageStatisticsTitlesList from "./UsageStatisticsTitlesList.vue"
 import UsageStatisticsDataProvidersFileImport from "./UsageStatisticsDataProvidersFileImport.vue"
 import UsageStatisticsDataProvidersCounterLogs from "./UsageStatisticsDataProvidersCounterLogs.vue"
+import UsageStatisticsDataProviderDetails from "./UsageStatisticsDataProviderDetails.vue"
 
 export default {
     setup() {
@@ -269,11 +163,6 @@ export default {
             vm.getUsageDataProvider(to.params.usage_data_provider_id)
         })
     },
-    beforeRouteUpdate(to, from) {
-        this.usage_data_provider = this.getUsageDataProvider(
-            to.params.usage_data_provider_id
-        )
-    },
     methods: {
         async getUsageDataProvider(usage_data_provider_id) {
             const client = APIClient.erm
@@ -286,7 +175,6 @@ export default {
             )
         },
         change_tab_content(e) {
-            this.initialized = false
             this.tab_content = e.target.getAttribute("data-content")
         },
         delete_usage_data_provider: function (
@@ -329,6 +217,7 @@ export default {
         UsageStatisticsTitlesList,
         UsageStatisticsDataProvidersFileImport,
         UsageStatisticsDataProvidersCounterLogs,
+        UsageStatisticsDataProviderDetails,
     },
 }
 </script>
