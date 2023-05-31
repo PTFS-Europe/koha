@@ -17,7 +17,6 @@
 
 <script>
 import { APIClient } from "../../fetch/api-client.js"
-import { useDataTable } from "../../composables/datatables"
 import { inject, ref } from "vue"
 import KohaTable from "../KohaTable.vue"
 
