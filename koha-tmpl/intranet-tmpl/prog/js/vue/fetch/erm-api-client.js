@@ -259,7 +259,8 @@ export class ERMAPIClient extends HttpClient {
                 }),
             getAll: (query) =>
                 this.get({
-                    endpoint: "usage_data_providers?" + (query || "_per_page=-1"),
+                    endpoint: "usage_data_providers",
+                    query
                 }),
             delete: (id) =>
                 this.delete({
@@ -299,11 +300,13 @@ export class ERMAPIClient extends HttpClient {
                 }),
             getAll: (query) =>
                 this.get({
-                    endpoint: "usage_titles?" + (query || "_per_page=-1"),
+                    endpoint: "usage_titles",
+                    query
                 }),
             getReport: (query, embed) =>
                 this.get({
-                    endpoint: "usage_titles/report?" + (query || "_per_page=-1"),
+                    endpoint: "usage_titles/report",
+                    query,
                     headers: {
                         "x-koha-embed":
                             `${embed}`,
@@ -316,7 +319,8 @@ export class ERMAPIClient extends HttpClient {
         return {
             getAll: (query) =>
                 this.get({
-                    endpoint: "counter_files?" + (query || "_per_page=-1"),
+                    endpoint: "counter_files",
+                    query,
                     headers: {
                         "x-koha-embed":
                             "counter_logs",
