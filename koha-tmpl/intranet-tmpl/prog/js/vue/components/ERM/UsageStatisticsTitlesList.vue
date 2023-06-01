@@ -41,8 +41,7 @@ export default {
     methods: {
         async getTitles() {
             const client = APIClient.erm
-            await client.titles.getAll("_per_page=10").then(
-                // paginated as this request is just to check if there are any titles and set this.initialized
+            await client.usage_titles.count().then(
                 titles => {
                     this.titles = titles
                     this.initialized = true
