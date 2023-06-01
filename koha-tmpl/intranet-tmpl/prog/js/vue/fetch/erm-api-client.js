@@ -285,7 +285,7 @@ export class ERMAPIClient extends HttpClient {
         };
     }
 
-    get titles() {
+    get usage_titles() {
         return {
             get: (id) =>
                 this.get({
@@ -296,7 +296,7 @@ export class ERMAPIClient extends HttpClient {
                     },
                 }),
             getAll: (query) =>
-                this.get({
+                this.getAll({
                     endpoint: "usage_titles",
                     query
                 }),
@@ -308,6 +308,16 @@ export class ERMAPIClient extends HttpClient {
                         "x-koha-embed":
                             `${embed}`,
                     },
+                }),
+            count: (query = {}) =>
+                this.count({
+                    endpoint:
+                        "usage_titles?" +
+                        new URLSearchParams({
+                            _page: 1,
+                            _per_page: 1,
+                            ...(query && { q: JSON.stringify(query) }),
+                        }),
                 }),
         };
     }
