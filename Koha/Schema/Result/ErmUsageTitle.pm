@@ -79,6 +79,22 @@ Online ISSN number for the title
 
 URI number for the title
 
+=head2 publisher
+
+  data_type: 'varchar'
+  is_nullable: 1
+  size: 24
+
+Publisher for the title
+
+=head2 publisher_id
+
+  data_type: 'varchar'
+  is_nullable: 1
+  size: 24
+
+Publisher ID for the title
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -95,6 +111,10 @@ __PACKAGE__->add_columns(
   "online_issn",
   { data_type => "varchar", is_nullable => 1, size => 24 },
   "title_uri",
+  { data_type => "varchar", is_nullable => 1, size => 24 },
+  "publisher",
+  { data_type => "varchar", is_nullable => 1, size => 24 },
+  "publisher_id",
   { data_type => "varchar", is_nullable => 1, size => 24 },
 );
 
@@ -158,8 +178,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2023-03-15 09:43:08
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:IfPJJVTctPmRyVYt0DUbYA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2023-06-01 16:24:08
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Pd0jk01S8AGLjLWoLGWwZA
 
 
 sub koha_object_class {
