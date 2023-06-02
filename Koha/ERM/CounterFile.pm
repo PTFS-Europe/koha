@@ -330,7 +330,9 @@ sub _add_usage_title_entry {
             title_doi              => $row->{DOI},
             print_issn             => $row->{Print_ISSN},
             online_issn            => $row->{Online_ISSN},
-            title_uri              => $row->{URI}
+            title_uri              => $row->{URI},
+            publisher              => $row->{Publisher},
+            publisher_id           => $row->{Publisher_ID},
         }
     )->store;
 }

@@ -92,6 +92,8 @@ return {
                 `print_issn` varchar(24) DEFAULT NULL COMMENT 'Print ISSN number for the title',
                 `online_issn` varchar(24) DEFAULT NULL COMMENT 'Online ISSN number for the title',
                 `title_uri` varchar(24) DEFAULT NULL COMMENT 'URI number for the title',
+                `publisher` varchar(24) DEFAULT NULL COMMENT 'Publisher for the title',
+                `publisher_id` varchar(24) DEFAULT NULL COMMENT 'Publisher ID for the title',
                 PRIMARY KEY (`title_id`),
                 CONSTRAINT `erm_usage_titles_ibfk_1` FOREIGN KEY (`usage_data_provider_id`) REFERENCES `erm_usage_data_providers` (`erm_usage_data_provider_id`) ON DELETE CASCADE ON UPDATE CASCADE
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

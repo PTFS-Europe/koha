@@ -294,8 +294,9 @@ sub monthly_report {
                     print_issn => $missing_usage_title->{print_issn},
                     title_doi => $missing_usage_title->{title_doi},
                     title_uri => $missing_usage_title->{title_uri},
+                    publisher => $missing_usage_title->{publisher},
+                    publisher_id => $missing_usage_title->{publisher_id},
                 );
-
                 push @{ $usage_titles }, \%missing_title_hash;
             }
         };
@@ -325,6 +326,8 @@ sub monthly_report {
                     title_doi => $title->{title_doi},
                     title_uri => $title->{title_uri},
                     metric_type => $metric_type,
+                    publisher => $title->{publisher},
+                    publisher_id => $title->{publisher_id},
                 );
 
                 push @title_report_data, \%title_hash;
@@ -385,6 +388,8 @@ sub yearly_report {
                     print_issn => $missing_usage_title->{print_issn},
                     title_doi => $missing_usage_title->{title_doi},
                     title_uri => $missing_usage_title->{title_uri},
+                    publisher => $missing_usage_title->{publisher},
+                    publisher_id => $missing_usage_title->{publisher_id},
                 );
 
                 push @{ $usage_titles }, \%missing_title_hash;
@@ -418,6 +423,8 @@ sub yearly_report {
                     title_doi => $title->{title_doi},
                     title_uri => $title->{title_uri},
                     metric_type => $metric_type,
+                    publisher => $title->{publisher},
+                    publisher_id => $title->{publisher_id},
                 );
 
                 push @title_report_data, \%title_hash;
@@ -478,6 +485,8 @@ sub metric_types_report {
                     print_issn => $missing_usage_title->{print_issn},
                     title_doi => $missing_usage_title->{title_doi},
                     title_uri => $missing_usage_title->{title_uri},
+                    publisher => $missing_usage_title->{publisher},
+                    publisher_id => $missing_usage_title->{publisher_id},
                 );
 
                 push @{ $usage_titles }, \%missing_title_hash;
@@ -496,29 +505,7 @@ sub metric_types_report {
             $title->{provider_name} = $provider_name;
 
             push @title_report_data, $title;
-
-            # Split titles into metric_types i.e. one table row per metric_type
-            # for my $metric_type ( @$metric_types ) {
-            #     my $statistics = $title->{'erm_usage_yuses'};
-            #     my @filtered_statistics = grep { $metric_type eq $_->{metric_type} } @$statistics;
-
-            #     my %title_hash = (
-            #         usage_data_provider_id => $title->{usage_data_provider_id},
-            #         provider_name => $title->{provider_name},
-            #         title_id => $title->{title_id},
-            #         title => $title->{title},
-            #         erm_usage_yuses => \@filtered_statistics,
-            #         online_issn => $title->{online_issn},
-            #         print_issn => $title->{print_issn},
-            #         title_doi => $title->{title_doi},
-            #         title_uri => $title->{title_uri},
-            #         metric_type => $metric_type,
-            #     );
-
-            #     push @title_report_data, \%title_hash;
-            # };
         };
-
         return $c->render( status => 200, openapi => \@title_report_data );
     }
     catch {
