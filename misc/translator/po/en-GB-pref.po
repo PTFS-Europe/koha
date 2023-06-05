@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: Koha 22.11\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-06-12 12:52+0000\n"
-"PO-Revision-Date: 2023-05-18 15:33+0000\n"
+"PO-Revision-Date: 2023-06-05 10:55+0100\n"
 "Last-Translator: ashimema <martin.renvoize@ptfs-europe.com>\n"
 "Language-Team: Koha Translation Team\n"
 "Language: en_GB\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Pootle 2.8\n"
+"X-Generator: Poedit 3.3.1\n"
 "X-Pootle-Path: /en_GB/22.11/en-GB-pref.po\n"
 "X-Pootle-Revision: 1\n"
 "X-POOTLE-MTIME: 1684423986.881648\n"
@@ -39,7 +39,7 @@ msgstr "Don't"
 
 # Accounting > Policy
 msgid "accounting.pref#AccountAutoReconcile# reconcile patron balances automatically on each transaction adding debits or credits."
-msgstr "reconcile patron balances automatically on each transaction, adding debits or credits."
+msgstr "reconcile user balances automatically on each transaction, adding debits or credits."
 
 # Accounting > Features
 msgid "accounting.pref#AutoCreditNumber# Automatic generation also has to be enabled for each credit type (<a href=\"/cgi-bin/koha/admin/credit_types.pl\">Configure credit types</a>)"
@@ -631,7 +631,7 @@ msgstr "Send"
 
 # Administration > Interface options > EmailOverduesNoEmail
 msgid "admin.pref#EmailOverduesNoEmail# overdue notices for patrons without email address to staff."
-msgstr "overdue notices for patrons without email address to staff."
+msgstr "overdue notices for users without email address to staff."
 
 # Patrons > Notices and notifications > PhoneNotification
 msgid "admin.pref#GoogleOAuth2ClientID# Along with <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=GoogleOAuth2ClientSecret\">GoogleOAuth2ClientSecret</a>, enables <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=GoogleOpenIDConnect\">GoogleOpenIDConnect.</a>"
@@ -675,7 +675,7 @@ msgstr "Don't allow"
 
 # Administration > Google OpenID Connect
 msgid "admin.pref#GoogleOpenIDConnectAutoRegister# patrons logging in with Google Open ID to automatically register. Requires <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=GoogleOpenIDConnect\">GoogleOpenIDConnect</a>."
-msgstr "patrons logging in with Google Open ID to automatically register. Requires <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=GoogleOpenIDConnect\">GoogleOpenIDConnect</a>."
+msgstr "users logging in with Google Open ID to automatically register. Requires <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=GoogleOpenIDConnect\">GoogleOpenIDConnect</a>."
 
 # Patrons > General
 msgid "admin.pref#GoogleOpenIDConnectDefaultBranch# Requires <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=GoogleOpenIDConnect\">GoogleOpenIDConnect</a>."
@@ -683,7 +683,7 @@ msgstr "Requires <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfi
 
 # Administration > Google OpenID Connect
 msgid "admin.pref#GoogleOpenIDConnectDefaultBranch# Use this branch code when automatically registering a Google Open ID patron: "
-msgstr "Use this branch code when automatically registering a Google Open ID patron: "
+msgstr "Use this branch code when automatically registering a Google Open ID user: "
 
 # Patrons > General
 msgid "admin.pref#GoogleOpenIDConnectDefaultCategory# Requires <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=GoogleOpenIDConnect\">GoogleOpenIDConnect</a>."
@@ -691,7 +691,7 @@ msgstr "Requires <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfi
 
 # Administration > Google OpenID Connect
 msgid "admin.pref#GoogleOpenIDConnectDefaultCategory# Use this category code when automatically registering a Google Open ID patron: "
-msgstr "Use this category code when automatically registering a Google Open ID patron: "
+msgstr "Use this category code when automatically registering a Google Open ID user: "
 
 # OPAC > OpenURL
 msgid "admin.pref#GoogleOpenIDConnectDomain# Leave blank for all Google domains. Requires <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=GoogleOpenIDConnect\">GoogleOpenIDConnect</a>."
@@ -711,7 +711,7 @@ msgstr "No"
 
 # Administration > Login options
 msgid "admin.pref#IndependentBranches# Prevent staff (but not superlibrarians) from modifying objects (holds, items, patrons, etc.) belonging to other libraries: "
-msgstr "Prevent staff (but not superlibrarians) from modifying objects (holds, items, patrons, etc.) belonging to other libraries: "
+msgstr "Prevent staff (but not superlibrarians) from modifying objects (holds, items, users, etc.) belonging to other libraries: "
 
 # Administration > Login options
 msgid "admin.pref#IndependentBranches# Yes"
@@ -723,7 +723,7 @@ msgstr "No"
 
 # Administration > Login options
 msgid "admin.pref#IndependentBranchesPatronModifications# Prevent staff (but not superlibrarians) from viewing and approving/denying patron modification requests for patrons belonging to other libraries: "
-msgstr "Prevent staff (but not superlibrarians) from viewing and approving/denying patron modification requests for patrons belonging to other libraries: "
+msgstr "Prevent staff (but not superlibrarians) from viewing and approving/denying user modification requests for users belonging to other libraries: "
 
 # Administration > Login options
 msgid "admin.pref#IndependentBranchesPatronModifications# Yes"
@@ -1807,7 +1807,7 @@ msgstr "Inactivity timeout in seconds to automatically log out users: "
 
 # Administration > Interface options
 msgid "admin.pref#virtualshelves# Allow staff and patrons to create and view saved lists of books: "
-msgstr "Allow staff and patrons to create and view saved lists of books: "
+msgstr "Allow staff and users to create and view saved lists of books: "
 
 # Administration > Interface options
 msgid "admin.pref#virtualshelves# No"
@@ -2896,7 +2896,7 @@ msgstr "Item bundles"
 
 # Circulation > Return claims
 msgid "circulation.pref Patron restrictions"
-msgstr "Patron restrictions"
+msgstr "User restrictions"
 
 # Circulation > Return claims
 msgid "circulation.pref Recalls"
@@ -2912,11 +2912,11 @@ msgstr "SIP2"
 
 # Circulation > Self check-in module
 msgid "circulation.pref Self check-in module"
-msgstr "Self check-in module"
+msgstr "Self return module"
 
 # Circulation > Self check-out module
 msgid "circulation.pref Self check-out module"
-msgstr "Self check-out module"
+msgstr "Self issue module"
 
 # Circulation > Stock rotation module
 msgid "circulation.pref Stock rotation module"
@@ -2928,7 +2928,7 @@ msgstr ". For example, enter target audience keyword(s) split by | (bar) FSK|PEG
 
 # Circulation > Checkout Policy
 msgid "circulation.pref#AgeRestrictionMarker# Restrict patrons with the following target audience values from checking out inappropriate materials:"
-msgstr "Restrict patrons with the following target audience values from checking out inappropriate materials:"
+msgstr "Restrict users with the following target audience values from checking out inappropriate materials:"
 
 # Circulation > Checkout Policy
 msgid "circulation.pref#AgeRestrictionOverride# Allow"
@@ -2940,7 +2940,7 @@ msgstr "Don't allow"
 
 # Circulation > Checkout Policy
 msgid "circulation.pref#AgeRestrictionOverride# staff to check out an item with age restriction."
-msgstr "staff to check out an item with age restriction."
+msgstr "staff to issue an item with age restriction."
 
 # Circulation > Checkout Policy
 msgid "circulation.pref#AllFinesNeedOverride# Don't require"
@@ -2952,7 +2952,7 @@ msgstr "Require"
 
 # Circulation > Checkout policy
 msgid "circulation.pref#AllFinesNeedOverride# staff to manually override all fines, even fines less than set in the <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=noissuescharge\">noissuescharge</a> system preference. Enabling this system preference will block all checkouts for patrons with fines both via the web-based self checkout system and via SIP."
-msgstr "staff to manually override all fines, even fines less than set in the <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=noissuescharge\">noissuescharge</a> system preference. Enabling this system preference will block all checkouts for patrons with fines both via the web-based self checkout system and via SIP."
+msgstr "staff to manually override all fines, even fines less than set in the <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=noissuescharge\">noissuescharge</a> system preference. Enabling this system preference will block all checkouts for users with fines both via the web-based self checkout system and via SIP."
 
 # Circulation > Interface
 msgid "circulation.pref#AllowAllMessageDeletion# Allow"
@@ -2976,7 +2976,7 @@ msgstr "Don't allow"
 
 # Circulation > Interface
 msgid "circulation.pref#AllowCheckoutNotes# patrons to submit notes about checked out items."
-msgstr "patrons to submit notes about checked out items."
+msgstr "users to submit notes about checked out items."
 
 # Circulation > Checkout Policy
 msgid "circulation.pref#AllowFineOverride# Allow"
@@ -2988,7 +2988,7 @@ msgstr "Don't allow"
 
 # Circulation > Checkout policy
 msgid "circulation.pref#AllowFineOverride# staff to manually override and check out items to patrons who have more in fines than set in the <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=noissuescharge\">noissuescharge</a> system preference."
-msgstr "staff to manually override and check out items to patrons who have more in fines than set in the <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=noissuescharge\">noissuescharge</a> system preference."
+msgstr "staff to manually override and issue items to users who have more in fines than set in the <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=noissuescharge\">noissuescharge</a> system preference."
 
 # Circulation > Holds Policy
 msgid "circulation.pref#AllowHoldDateInFuture# Allow"
@@ -3048,7 +3048,7 @@ msgstr "Don't allow"
 
 # Circulation > Holds Policy
 msgid "circulation.pref#AllowHoldsOnPatronsPossessions# a patron to place a hold on a record where the patron already has one or more items attached to that record checked out."
-msgstr "a patron to place a hold on a record where the patron already has one or more items attached to that record checked out."
+msgstr "a user to place a hold on a record where the user already has one or more items attached to that record checked out."
 
 # Circulation > Checkout Policy
 msgid "circulation.pref#AllowItemsOnHoldCheckoutSCO# Allow"
@@ -3092,7 +3092,7 @@ msgstr "Don't allow"
 
 # Circulation > Checkout policy
 msgid "circulation.pref#AllowMultipleIssuesOnABiblio# patrons to check out multiple items from the same record. (<strong>NOTE:</strong> This will only affect records without a subscription attached.)"
-msgstr "patrons to check out multiple items from the same record. (<strong>NOTE:</strong> This will only affect records without a subscription attached.)"
+msgstr "users to issue multiple items from the same record. (<strong>NOTE:</strong> This will only affect records without a subscription attached.)"
 
 # Circulation > Checkout Policy
 msgid "circulation.pref#AllowNotForLoanOverride# Allow"
@@ -3104,7 +3104,7 @@ msgstr "Don't allow"
 
 # Circulation > Checkout Policy
 msgid "circulation.pref#AllowNotForLoanOverride# staff to override and check out items that are marked as not for loan."
-msgstr "staff to override and check out items that are marked as not for loan."
+msgstr "staff to override and issue items that are marked as not for loan."
 
 # Circulation > Interface
 msgid "circulation.pref#AllowOfflineCirculation# Don't enable"
@@ -3128,7 +3128,7 @@ msgstr "Don't allow"
 
 # Circulation > Holds Policy
 msgid "circulation.pref#AllowRenewalIfOtherItemsAvailable# a patron to renew an item with unfilled holds if other available items can fill that hold."
-msgstr "a patron to renew an item with unfilled holds if other available items can fill that hold."
+msgstr "a user to renew an item with unfilled holds if other available items can fill that hold."
 
 # Circulation > Checkout Policy
 msgid "circulation.pref#AllowRenewalLimitOverride# Allow"
@@ -3196,7 +3196,7 @@ msgstr "Don't allow"
 
 # Circulation > Checkout Policy
 msgid "circulation.pref#AllowTooManyOverride# staff to override and check out items when the patron has reached the maximum number of allowed checkouts."
-msgstr "staff to override and check out items when the patron has reached the maximum number of allowed checkouts."
+msgstr "staff to override and issue items when the user has reached the maximum number of allowed checkouts."
 
 # Circulation > Article Requests
 msgid "circulation.pref#ArticleRequests# Don't enable"
@@ -3208,7 +3208,7 @@ msgstr "Enable"
 
 # Circulation > Article Requests
 msgid "circulation.pref#ArticleRequests# patrons to place article requests."
-msgstr "patrons to place article requests."
+msgstr "users to place article requests."
 
 # Circulation > Article Requests
 msgid "circulation.pref#ArticleRequestsLinkControl# Always show"
@@ -3348,7 +3348,7 @@ msgstr "Don't"
 
 # Circulation > Checkout policy
 msgid "circulation.pref#AutoRemoveOverduesRestrictions# allow OVERDUES restrictions triggered by sent notices to be cleared automatically when all overdue items are returned by a patron."
-msgstr "allow OVERDUES restrictions triggered by sent notices to be cleared automatically when all overdue items are returned by a patron."
+msgstr "allow OVERDUES restrictions triggered by sent notices to be cleared automatically when all overdue items are returned by a user."
 
 # Circulation > Holds policy
 msgid "circulation.pref#AutoResumeSuspendedHolds# <br><strong>NOTE:</strong> This system preference requires the <code>misc/cronjobs/holds/auto_unsuspend_holds.pl</code> cronjob. Ask your system administrator to schedule it."
@@ -3376,7 +3376,7 @@ msgstr "Don't"
 
 # Circulation > Checkout policy
 msgid "circulation.pref#AutoReturnCheckedOutItems# require librarians to manually confirm a checkout where the item is already checked out to another patron."
-msgstr "require librarians to manually confirm a checkout where the item is already checked out to another patron."
+msgstr "require librarians to manually confirm a checkout where the item is already checked out to another user."
 
 # Circulation > Self Checkout
 msgid "circulation.pref#AutoSelfCheckAllowed# ."
@@ -3392,7 +3392,7 @@ msgstr "Don't allow"
 
 # Circulation > Self check-out module
 msgid "circulation.pref#AutoSelfCheckAllowed# Note: Any patron entered here will be unable to log into the OPAC."
-msgstr "Note: Any patron entered here will be unable to log into the OPAC."
+msgstr "Note: Any user entered here will be unable to log into the OPAC."
 
 # Circulation > Self Checkout
 msgid "circulation.pref#AutoSelfCheckAllowed# and this password"
@@ -3412,11 +3412,11 @@ msgstr "Enable"
 
 # Circulation > Interface
 msgid "circulation.pref#AutoSwitchPatron# This should not be enabled if you have overlapping patron and book barcodes."
-msgstr "This should not be enabled if you have overlapping patron and book barcodes."
+msgstr "This should not be enabled if you have overlapping user and book barcodes."
 
 # Circulation > Interface
 msgid "circulation.pref#AutoSwitchPatron# the automatic redirection to another patron when a patron barcode is scanned instead of a book."
-msgstr "the automatic redirection to another patron when a patron barcode is scanned instead of a book."
+msgstr "the automatic redirection to another user when a user barcode is scanned instead of a book."
 
 # Circulation > Holds policy
 msgid "circulation.pref#AutomaticConfirmTransfer# Do"
@@ -3456,7 +3456,7 @@ msgstr "batch checkouts."
 
 # Circulation > Batch checkout
 msgid "circulation.pref#BatchCheckoutsValidCategories# Patron categories allowed to checkout in a batch:"
-msgstr "Patron categories allowed to checkout in a batch:"
+msgstr "User categories allowed to checkout in a batch:"
 
 # Circulation > Checkout policy
 msgid "circulation.pref#BlockReturnOfLostItems# Block"
@@ -3536,7 +3536,7 @@ msgstr "Allow to mark items as lost"
 
 # Circulation > Holds policy
 msgid "circulation.pref#CanMarkHoldsToPullAsLost# Allow to mark items as lost and notify the patron"
-msgstr "Allow to mark items as lost and notify the patron"
+msgstr "Allow to mark items as lost and notify the user"
 
 # Circulation > Holds policy
 msgid "circulation.pref#CanMarkHoldsToPullAsLost# Do not allow to mark items as lost"
@@ -3588,7 +3588,7 @@ msgstr "the library the item is from."
 
 # Circulation > Checkout policy
 msgid "circulation.pref#CircControl# the library the patron is from."
-msgstr "the library the patron is from."
+msgstr "the library the user is from."
 
 # Circulation > Checkout policy
 msgid "circulation.pref#CircControl# the library you are logged in at."
@@ -3652,7 +3652,7 @@ msgstr "to represent 'claims returned'."
 
 # Circulation > Return claims
 msgid "circulation.pref#ClaimReturnedWarningThreshold# Warn librarians that a patron has excessive return claims if the patron has claimed the return of more than"
-msgstr "Warn librarians that a patron has excessive return claims if the patron has claimed the return of more than"
+msgstr "Warn librarians that a user has excessive return claims if the user has claimed the return of more than"
 
 # Circulation > Holds policy
 msgid "circulation.pref#ClaimReturnedWarningThreshold# items."
@@ -3784,11 +3784,11 @@ msgstr "<br><strong>NOTE:</strong> This system preference requires the <code>mis
 
 # Circulation > Checkout policy
 msgid "circulation.pref#DefaultLongOverdueChargeValue# <br>Leave this field empty if you don't want to charge the patron for lost items."
-msgstr "<br>Leave this field empty if you don't want to charge the patron for lost items."
+msgstr "<br>Leave this field empty if you don't want to charge the user for lost items."
 
 # Circulation > Checkout policy
 msgid "circulation.pref#DefaultLongOverdueChargeValue# Charge a lost item to the patron's account when the LOST value of the item changes to:"
-msgstr "Charge a lost item to the patron's account when the LOST value of the item changes to:"
+msgstr "Charge a lost item to the user's account when the LOST value of the item changes to:"
 
 # Circulation > Checkout policy
 msgid "circulation.pref#DefaultLongOverdueLostValue# <br>(Used when the longoverdue.pl script is called without the --lost parameter)"
@@ -3848,7 +3848,7 @@ msgstr "Show print slip and clear screen buttons"
 
 # Circulation > Interface
 msgid "circulation.pref#DisplayClearScreenButton# to clear the current patron from the screen on the circulation screen."
-msgstr "to clear the current patron from the screen on the circulation screen."
+msgstr "to clear the current user from the screen on the circulation screen."
 
 # Circulation > Holds policy
 msgid "circulation.pref#DisplayMultiPlaceHold# Don't enable"
@@ -3940,7 +3940,7 @@ msgstr "."
 
 # Circulation > Holds policy
 msgid "circulation.pref#ExpireReservesMaxPickUpDelayCharge# If using <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=ExpireReservesMaxPickUpDelay\">ExpireReservesMaxPickUpDelay</a>, charge a patron who allows their waiting hold to expire a fee of"
-msgstr "If using <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=ExpireReservesMaxPickUpDelay\">ExpireReservesMaxPickUpDelay</a>, charge a patron who allows their waiting hold to expire a fee of"
+msgstr "If using <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=ExpireReservesMaxPickUpDelay\">ExpireReservesMaxPickUpDelay</a>, charge a user who allows their waiting hold to expire a fee of"
 
 # Circulation > Holds policy
 msgid "circulation.pref#ExpireReservesOnHolidays# If using <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=ExpireReservesMaxPickUpDelay\">ExpireReservesMaxPickUpDelay</a>,"
@@ -3968,7 +3968,7 @@ msgstr "Show"
 
 # Circulation > Interface
 msgid "circulation.pref#ExportCircHistory# the export patron checkout history options."
-msgstr "the export patron checkout history options."
+msgstr "the export user checkout history options."
 
 # Circulation > Interface
 msgid "circulation.pref#ExportRemoveFields# (separate fields with space, e.g. 100a 200b 300c)."
@@ -3976,7 +3976,7 @@ msgstr "(separate fields with space, e.g. 100a 200b 300c)."
 
 # Circulation > Interface
 msgid "circulation.pref#ExportRemoveFields# The following fields should be excluded from the patron checkout history CSV or MARC (ISO 2709) export:"
-msgstr "The following fields should be excluded from the patron checkout history CSV or MARC (ISO 2709) export:"
+msgstr "The following fields should be excluded from the user checkout history CSV or MARC (ISO 2709) export:"
 
 # Circulation > Interface
 msgid "circulation.pref#FilterBeforeOverdueReport# Don't require"
@@ -4024,7 +4024,7 @@ msgstr "Hide"
 
 # Circulation > Checkin policy
 msgid "circulation.pref#HidePersonalPatronDetailOnCirculation# a patron's phone number, email address, street address and city on the circulation page."
-msgstr "a patron's phone number, email address, street address and city on the circulation page."
+msgstr "a user's phone number, email address, street address and city on the circulation page."
 
 # Circulation > Fines Policy
 msgid "circulation.pref#HoldFeeMode# Charge a hold fee"
@@ -4192,7 +4192,7 @@ msgstr "Prevent"
 
 # Circulation > Checkout policy
 msgid "circulation.pref#IssuingInProcess# patrons from checking out an item whose rental charge would take them over the limit."
-msgstr "patrons from checking out an item whose rental charge would take them over the limit."
+msgstr "users from checking out an item whose rental charge would take them over the limit."
 
 # Circulation > Checkout policy
 msgid "circulation.pref#ItemsDeniedRenewal# <br /> <strong>NOTE:</strong> The word 'NULL' can be used to block renewal on undefined fields, while an empty string \"\" will block on an empty (but defined) field."
@@ -4248,7 +4248,7 @@ msgstr "pickup library"
 
 # Circulation > Holds policy
 msgid "circulation.pref#LocalHoldsPriority# priority for filling holds to patrons whose"
-msgstr "priority for filling holds to patrons whose"
+msgstr "priority for filling holds to users whose"
 
 # Circulation > Fines Policy
 msgid "circulation.pref#ManInvInNoissuesCharge# Don't include"
@@ -4280,7 +4280,7 @@ msgstr "from the batch item modification tool"
 
 # Circulation > Checkout policy
 msgid "circulation.pref#MarkLostItemsAsReturned# from the items tab of the catalog module"
-msgstr "from the items tab of the catalog module"
+msgstr "from the items tab of the catalogue module"
 
 # Circulation > Checkout policy
 msgid "circulation.pref#MarkLostItemsAsReturned# from the longoverdue cronjob"
@@ -4300,7 +4300,7 @@ msgstr "when receiving payment for the item"
 
 # Circulation > Checkout policy
 msgid "circulation.pref#NoIssuesChargeGuarantees# Prevent a patron from checking out if the patron has guarantees owing in total more than"
-msgstr "Prevent a patron from checking out if the patron has guarantees owing in total more than"
+msgstr "Prevent a user from checking out if the user has guarantees owing in total more than"
 
 # Circulation > Checkout policy
 msgid "circulation.pref#NoIssuesChargeGuarantees# [% local_currency %] in fines."
@@ -4308,7 +4308,7 @@ msgstr "[% local_currency %] in fines."
 
 # Circulation > Checkout policy
 msgid "circulation.pref#NoIssuesChargeGuarantorsWithGuarantees# Prevent a patron from checking out if the patron has guarantors and those guarantor's guarantees owing in total more than"
-msgstr "Prevent a patron from checking out if the patron has guarantors and those guarantor's guarantees owing in total more than"
+msgstr "Prevent a user from checking out if the user has guarantors and those guarantor's guarantees owing in total more than"
 
 # Circulation > Checkout policy
 msgid "circulation.pref#NoIssuesChargeGuarantorsWithGuarantees# [% local_currency %] in fines."
@@ -4360,7 +4360,7 @@ msgstr "Don't allow"
 
 # Circulation > Holds policy
 msgid "circulation.pref#OPACAllowHoldDateInFuture# patrons to place holds that don't enter the waiting list until a certain future date. (<a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=AllowHoldDateInFuture\">AllowHoldDateInFuture</a> must also be enabled)."
-msgstr "patrons to place holds that don't enter the waiting list until a certain future date. (<a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=AllowHoldDateInFuture\">AllowHoldDateInFuture</a> must also be enabled)."
+msgstr "users to place holds that don't enter the waiting list until a certain future date. (<a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=AllowHoldDateInFuture\">AllowHoldDateInFuture</a> must also be enabled)."
 
 # Circulation > Holds policy
 msgid "circulation.pref#OPACAllowUserToChangeBranch# Allow users to change the library to pick up a hold for these statuses:"
@@ -4392,7 +4392,7 @@ msgstr "a user to choose the library to pick up a hold from."
 
 # Circulation > Checkout policy
 msgid "circulation.pref#OPACFineNoRenewalsBlockAutoRenew# If a patron owes more than the value of <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=OPACFineNoRenewals\">OPACFineNoRenewals</a>,"
-msgstr "If a patron owes more than the value of <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=OPACFineNoRenewals\">OPACFineNoRenewals</a>,"
+msgstr "If a user owes more than the value of <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=OPACFineNoRenewals\">OPACFineNoRenewals</a>,"
 
 # Circulation > Checkout policy
 msgid "circulation.pref#OPACFineNoRenewalsBlockAutoRenew# allow"
@@ -4420,7 +4420,7 @@ msgstr "to pickup holds at libraries where the item is available."
 
 # Circulation > Holds policy
 msgid "circulation.pref#OPACHoldsIfAvailableAtPickupExceptions# Patron categories not affected by <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=OPACHoldsIfAvailableAtPickup\">OPACHoldsIfAvailableAtPickup</a>:"
-msgstr "Patron categories not affected by <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=OPACHoldsIfAvailableAtPickup\">OPACHoldsIfAvailableAtPickup</a>:"
+msgstr "User categories not affected by <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=OPACHoldsIfAvailableAtPickup\">OPACHoldsIfAvailableAtPickup</a>:"
 
 # Circulation > Checkin policy > StoreLastBorrower
 msgid "circulation.pref#OPACMandatoryHoldDates# <br><strong>NOTE:</strong> The hold start date option is only effective and shown on the hold form when <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=AllowHoldDateInFuture\">AllowHoldDateInFuture</a> and <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=OPACAllowHoldDateInFuture\">OPACAllowHoldDateInFuture</a> are enabled."
@@ -4484,7 +4484,7 @@ msgstr "Enable"
 
 # Circulation > Checkout policy
 msgid "circulation.pref#OnSiteCheckoutsForce# the on-site checkout for all cases (even if a patron is debarred, etc.)."
-msgstr "the on-site checkout for all cases (even if a patron is debarred, etc.)."
+msgstr "the on-site checkout for all cases (even if a user is debarred, etc.)."
 
 # Circulation > Holds policy
 msgid "circulation.pref#OverdueNoticeCalendar# Ignore calendar"
@@ -4532,11 +4532,11 @@ msgstr "Don't block"
 
 # Circulation > Checkout policy
 msgid "circulation.pref#OverduesBlockCirc# when checking out to a patron that has overdues outstanding."
-msgstr "when checking out to a patron that has overdues outstanding."
+msgstr "when checking out to a user that has overdues outstanding."
 
 # Circulation > Checkout policy
 msgid "circulation.pref#OverduesBlockRenewing# When a patron's checked out item is overdue,"
-msgstr "When a patron's checked out item is overdue,"
+msgstr "When a user's checked out item is overdue,"
 
 # Circulation > Checkout policy
 msgid "circulation.pref#OverduesBlockRenewing# allow renewing."
@@ -4544,7 +4544,7 @@ msgstr "allow renewing."
 
 # Circulation > Checkout policy
 msgid "circulation.pref#OverduesBlockRenewing# block renewing for all the patron's items."
-msgstr "block renewing for all the patron's items."
+msgstr "block renewing for all the user's items."
 
 # Circulation > Checkout policy
 msgid "circulation.pref#OverduesBlockRenewing# block renewing only for this item."
@@ -4564,7 +4564,7 @@ msgstr "Try"
 
 # Circulation > Interface
 msgid "circulation.pref#PatronAutoComplete# to guess the patron being entered while typing a patron search for circulation or patron search."
-msgstr "to guess the patron being entered while typing a patron search for circulation or patron search."
+msgstr "to guess the user being entered while typing a user search for circulation or user search."
 
 # Circulation > Checkout policy
 msgid "circulation.pref#PatronRestrictionTypes# Allow"
@@ -4576,7 +4576,7 @@ msgstr "Don't allow"
 
 # Circulation > Checkout Policy
 msgid "circulation.pref#PatronRestrictionTypes# the type of patron restriction to be specified when applying manually."
-msgstr "the type of patron restriction to be specified when applying manually."
+msgstr "the type of user restriction to be specified when applying manually."
 
 # Circulation > Holds policy
 msgid "circulation.pref#PrintNoticesMaxLines# Include up to"
@@ -4584,7 +4584,7 @@ msgstr "Include up to"
 
 # Circulation > Checkout policy
 msgid "circulation.pref#PrintNoticesMaxLines# item lines in a printed overdue notice. If the number of items is greater than this number, the notice will end with a warning asking the patron to check their online account for a full list of overdue items. Set to 0 to include all overdue items in the notice, no matter how many there are."
-msgstr "item lines in a printed overdue notice. If the number of items is greater than this number, the notice will end with a warning asking the patron to check their online account for a full list of overdue items. Set to 0 to include all overdue items in the notice, no matter how many there are."
+msgstr "item lines in a printed overdue notice. If the number of items is greater than this number, the notice will end with a warning asking the user to check their online account for a full list of overdue items. Set to 0 to include all overdue items in the notice, no matter how many there are."
 
 # Circulation > Fines Policy
 msgid "circulation.pref#ProcessingFeeNote# Text to be recorded in the column 'note', table 'accountlines' when the processing fee (defined for the item type) is applied:"
@@ -4644,7 +4644,7 @@ msgstr "If a lost item is returned, apply the refunding rules defined for the"
 
 # Circulation > Fines Policy
 msgid "circulation.pref#RefundLostOnReturnControl# check-in library."
-msgstr "check-in library."
+msgstr "return library."
 
 # Circulation > Fines Policy
 msgid "circulation.pref#RefundLostOnReturnControl# item's holding library."
@@ -4656,7 +4656,7 @@ msgstr "item's home library."
 
 # Circulation > Checkout policy
 msgid "circulation.pref#RenewAccruingItemInOpac# If a patron pays off all fines on an overdue item that is accruing fines in the OPAC via a payment plugin,"
-msgstr "If a patron pays off all fines on an overdue item that is accruing fines in the OPAC via a payment plugin,"
+msgstr "If a user pays off all fines on an overdue item that is accruing fines in the OPAC via a payment plugin,"
 
 # Circulation > Checkout policy
 msgid "circulation.pref#RenewAccruingItemInOpac# don't renew"
@@ -4672,7 +4672,7 @@ msgstr "the item automatically. If the system preference <a href=\"/cgi-bin/koha
 
 # Circulation > Checkout policy
 msgid "circulation.pref#RenewAccruingItemWhenPaid# If a patron pays off all fines on an overdue item that is accruing fines,"
-msgstr "If a patron pays off all fines on an overdue item that is accruing fines,"
+msgstr "If a user pays off all fines on an overdue item that is accruing fines,"
 
 # Circulation > Checkout policy
 msgid "circulation.pref#RenewAccruingItemWhenPaid# don't renew"
@@ -4708,7 +4708,7 @@ msgstr "Send"
 
 # Circulation > Checkout policy
 msgid "circulation.pref#RenewalSendNotice# a renewal notice according to patron's messaging preferences for 'Item checkout'."
-msgstr "a renewal notice according to patron's messaging preferences for 'Item checkout'."
+msgstr "a renewal notice according to user's messaging preferences for 'Item checkout'."
 
 # Circulation > Checkout policy
 msgid "circulation.pref#RentalFeesCheckoutConfirmation# When checking out an item with rental fees, "
@@ -4748,11 +4748,11 @@ msgstr "item's home library"
 
 # Circulation > Holds policy
 msgid "circulation.pref#ReservesControlBranch# patron's home library"
-msgstr "patron's home library"
+msgstr "user's home library"
 
 # Circulation > Holds policy
 msgid "circulation.pref#ReservesControlBranch# to see if the patron can place a hold on the item."
-msgstr "to see if the patron can place a hold on the item."
+msgstr "to see if the user can place a hold on the item."
 
 # Circulation > Holds policy
 msgid "circulation.pref#ReservesMaxPickUpDelay# Mark a hold as problematic if it has been waiting for more than"
@@ -4776,7 +4776,7 @@ msgstr "mark a hold as found and waiting when a hold is placed on a specific ite
 
 # Circulation > Checkout policy
 msgid "circulation.pref#RestrictionBlockRenewing# If a patron is restricted,"
-msgstr "If a patron is restricted,"
+msgstr "If a user is restricted,"
 
 # Circulation > Checkout Policy
 msgid "circulation.pref#RestrictionBlockRenewing# allow"
@@ -4800,7 +4800,7 @@ msgstr "Require"
 
 # Circulation > Checkout policy
 msgid "circulation.pref#ReturnBeforeExpiry# patrons to return items before their accounts expire (by restricting due dates to before the patron's expiration date)."
-msgstr "patrons to return items before their accounts expire (by restricting due dates to before the patron's expiration date)."
+msgstr "users to return items before their accounts expire (by restricting due dates to before the user's expiration date)."
 
 # Circulation > Checkin Policy
 msgid "circulation.pref#SCOAllowCheckin# Allow"
@@ -4812,7 +4812,7 @@ msgstr "Don't allow"
 
 # Circulation > Self check-out module
 msgid "circulation.pref#SCOAllowCheckin# patrons to return items through web-based self checkout system."
-msgstr "patrons to return items through web-based self checkout system."
+msgstr "users to return items through web-based self checkout system."
 
 # Circulation > Self check-out module
 msgid "circulation.pref#SCOMainUserBlock# Include the following HTML on the the web-based self checkout screen:"
@@ -4892,7 +4892,7 @@ msgstr "Include the following HTML in the Help page of the web-based self checko
 
 # Circulation > Self check-in module
 msgid "circulation.pref#SelfCheckInMainUserBlock# Include the following HTML on the self check-in screen:"
-msgstr "Include the following HTML on the self check-in screen:"
+msgstr "Include the following HTML on the self return screen:"
 
 # Circulation > Self Checkout
 msgid "circulation.pref#SelfCheckInModule# Don't enable"
@@ -4904,11 +4904,11 @@ msgstr "Enable"
 
 # Circulation > Self check-in module
 msgid "circulation.pref#SelfCheckInModule# the standalone self check-in module (available at: /cgi-bin/koha/sci/sci-main.pl)."
-msgstr "the standalone self check-in module (available at: /cgi-bin/koha/sci/sci-main.pl)."
+msgstr "the standalone self return module (available at: /cgi-bin/koha/sci/sci-main.pl)."
 
 # Circulation > Self check-in module
 msgid "circulation.pref#SelfCheckInTimeout# Reset the current self check-in screen after"
-msgstr "Reset the current self check-in screen after"
+msgstr "Reset the current self return screen after"
 
 # Circulation > Self Checkout
 msgid "circulation.pref#SelfCheckInTimeout# seconds."
@@ -4916,11 +4916,11 @@ msgstr "seconds."
 
 # Circulation > Self check-in module
 msgid "circulation.pref#SelfCheckInUserCSS# Include the following CSS on all the self check-in screens:"
-msgstr "Include the following CSS on all the self check-in screens:"
+msgstr "Include the following CSS on all the self return screens:"
 
 # Circulation > Self check-in module
 msgid "circulation.pref#SelfCheckInUserJS# Include the following JavaScript on all the self check-in screens:"
-msgstr "Include the following JavaScript on all the self check-in screens:"
+msgstr "Include the following JavaScript on all the self return screens:"
 
 # Circulation > Self Checkout
 msgid "circulation.pref#SelfCheckReceiptPrompt# Don't show"
@@ -4936,7 +4936,7 @@ msgstr "the print receipt popup dialog when self checkout is finished."
 
 # Circulation > Self check-out module
 msgid "circulation.pref#SelfCheckTimeout# Time out the current patron's web-based self checkout system login after"
-msgstr "Time out the current patron's web-based self checkout system login after"
+msgstr "Time out the current user's web-based self checkout system login after"
 
 # Circulation > Self Checkout
 msgid "circulation.pref#SelfCheckTimeout# seconds."
@@ -4944,11 +4944,11 @@ msgstr "seconds."
 
 # Circulation > Self check-out module > SelfCheckoutByLogin
 msgid "circulation.pref#SelfCheckoutByLogin# .</br>NOTE: If using 'cardnumber' and AutoSelfCheckAllowed you should set SelfCheckAllowByIPRanges to prevent brute force attacks to gain patron information outside the library."
-msgstr ".</br>NOTE: If using 'cardnumber' and AutoSelfCheckAllowed you should set SelfCheckAllowByIPRanges to prevent brute force attacks to gain patron information outside the library."
+msgstr ".</br>NOTE: If using 'cardnumber' and AutoSelfCheckAllowed you should set SelfCheckAllowByIPRanges to prevent brute force attacks to gain user information outside the library."
 
 # Circulation > Self check-out module
 msgid "circulation.pref#SelfCheckoutByLogin# Have patrons log into the web-based self checkout system with their"
-msgstr "Have patrons log into the web-based self checkout system with their"
+msgstr "Have users log into the web-based self checkout system with their"
 
 # Circulation > Self check-out module
 msgid "circulation.pref#SelfCheckoutByLogin# cardnumber"
@@ -4980,7 +4980,7 @@ msgstr "Show"
 
 # Circulation > Self check-out module
 msgid "circulation.pref#ShowPatronImageInWebBasedSelfCheck# the patron's picture (if one has been added) when they use the web-based self checkout."
-msgstr "the patron's picture (if one has been added) when they use the web-based self checkout."
+msgstr "the user's picture (if one has been added) when they use the web-based self checkout."
 
 # Circulation > Batch checkout
 msgid "circulation.pref#SkipHoldTrapOnNotForLoanValue# (list of not for loan values separated with a pipe '|')"
@@ -5016,7 +5016,7 @@ msgstr "Don't allow"
 
 # Circulation > Interface
 msgid "circulation.pref#SpecifyReturnDate# staff to specify a return date for a check in."
-msgstr "staff to specify a return date for a check in."
+msgstr "staff to specify a return date for a return."
 
 # Searching > Features
 msgid "circulation.pref#StaffSearchResultsDisplayBranch# For search results in the staff interface, display"
@@ -5084,7 +5084,7 @@ msgstr "Store"
 
 # Circulation > Checkin policy > StoreLastBorrower
 msgid "circulation.pref#StoreLastBorrower# the last patron to return an item. This setting is independent of the <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=opacreadinghistory\">opacreadinghistory</a> and <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=AnonymousPatron\">AnonymousPatron</a> system preferences."
-msgstr "the last patron to return an item. This setting is independent of the <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=opacreadinghistory\">opacreadinghistory</a> and <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=AnonymousPatron\">AnonymousPatron</a> system preferences."
+msgstr "the last user to return an item. This setting is independent of the <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=opacreadinghistory\">opacreadinghistory</a> and <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=AnonymousPatron\">AnonymousPatron</a> system preferences."
 
 # Circulation > Holds Policy
 msgid "circulation.pref#SuspendHoldsIntranet# Allow"
@@ -5188,7 +5188,7 @@ msgstr "Don't allow"
 
 # Circulation > Checkout policy > UnseenRenewals
 msgid "circulation.pref#UnseenRenewals# renewals to be recorded as \"unseen\" by the library, and count against the patrons unseen renewals limit."
-msgstr "renewals to be recorded as \"unseen\" by the library, and count against the patrons unseen renewals limit."
+msgstr "renewals to be recorded as \"unseen\" by the library, and count against the users unseen renewals limit."
 
 # Circulation > Checkin policy
 msgid "circulation.pref#UpdateItemLocationOnCheckin# Examples:<br/>"
@@ -5196,11 +5196,11 @@ msgstr "Examples:<br/>"
 
 # Circulation > Checkin policy
 msgid "circulation.pref#UpdateItemLocationOnCheckin# FIC: GEN - causes an item in the Fiction location to be updated into the General stacks location on check in.<br/>"
-msgstr "FIC: GEN - causes an item in the Fiction location to be updated into the General stacks location on check in.<br/>"
+msgstr "FIC: GEN - causes an item in the Fiction location to be updated into the General stacks location on return.<br/>"
 
 # Circulation > Checkin policy
 msgid "circulation.pref#UpdateItemLocationOnCheckin# FIC: _BLANK_ - causes an item in location FIC to be updated to a blank location on check in.<br/>"
-msgstr "FIC: _BLANK_ - causes an item in location FIC to be updated to a blank location on check in.<br/>"
+msgstr "FIC: _BLANK_ - causes an item in location FIC to be updated to a blank location on return.<br/>"
 
 # Circulation > Checkin Policy
 msgid "circulation.pref#UpdateItemLocationOnCheckin# General rule: if the location value on the left of the colon (:) matches the item's current location, it will be updated to match the location value on the right of the colon (:).<br/>"
@@ -5212,7 +5212,7 @@ msgstr "Note: PROC and CART are special values, for these locations the location
 
 # Circulation > Checkin policy
 msgid "circulation.pref#UpdateItemLocationOnCheckin# PROC: FIC - causes an item in the Processing Center location to be updated into the Fiction location on check in.<br/>"
-msgstr "PROC: FIC - causes an item in the Processing Center location to be updated into the Fiction location on check in.<br/>"
+msgstr "PROC: FIC - causes an item in the Processing Center location to be updated into the Fiction location on return.<br/>"
 
 # Circulation > Checkin Policy
 msgid "circulation.pref#UpdateItemLocationOnCheckin# PROC: _PERM_ - causes an item that is in the Processing Center to be updated to it's permanent location.<br/><br/>"
@@ -5232,11 +5232,11 @@ msgstr "This is a list of value pairs. The first value is followed immediately b
 
 # Circulation > Checkin Policy
 msgid "circulation.pref#UpdateItemLocationOnCheckin# _ALL_: FIC - causes all items to be updated into the Fiction location on check in.<br/>"
-msgstr "_ALL_: FIC - causes all items to be updated into the Fiction location on check in.<br/>"
+msgstr "_ALL_: FIC - causes all items to be updated into the Fiction location on return.<br/>"
 
 # Circulation > Checkin Policy
 msgid "circulation.pref#UpdateItemLocationOnCheckin# _BLANK_: FIC - causes an item that has no location to be updated into the Fiction location on check in.<br/>"
-msgstr "_BLANK_: FIC - causes an item that has no location to be updated into the Fiction location on check in.<br/>"
+msgstr "_BLANK_: FIC - causes an item that has no location to be updated into the Fiction location on return.<br/>"
 
 # Circulation > Holds policy
 msgid "circulation.pref#UpdateItemWhenLostFromHoldList# A list of values to update an item's values with when it is marked as lost from the 'Holds to pull' page."
@@ -5372,7 +5372,7 @@ msgstr "Notify"
 
 # Circulation > Interface
 msgid "circulation.pref#WaitingNotifyAtCheckin# librarians of waiting holds for the patron whose items they are checking in."
-msgstr "librarians of waiting holds for the patron whose items they are checking in."
+msgstr "librarians of waiting holds for the user whose items they are checking in."
 
 # Circulation > Self Checkout
 msgid "circulation.pref#WebBasedSelfCheck# Don't enable"
@@ -5396,7 +5396,7 @@ msgstr "Don't charge"
 
 # Circulation > Fines Policy
 msgid "circulation.pref#WhenLostChargeReplacementFee# the replacement price when a patron loses an item."
-msgstr "the replacement price when a patron loses an item."
+msgstr "the replacement price when a user loses an item."
 
 # Circulation > Holds policy
 msgid "circulation.pref#WhenLostForgiveFine# Don't forgive"
@@ -5536,7 +5536,7 @@ msgstr "Enable"
 
 # Circulation > Interface
 msgid "circulation.pref#itemBarcodeFallbackSearch# the automatic use of a keyword catalog search if the phrase entered as a barcode on the checkout page does not turn up any results during an item barcode search."
-msgstr "the automatic use of a keyword catalog search if the phrase entered as a barcode on the checkout page does not turn up any results during an item barcode search."
+msgstr "the automatic use of a keyword catalogue search if the phrase entered as a barcode on the checkout page does not turn up any results during an item barcode search."
 
 # Circulation > Interface
 msgid "circulation.pref#itemBarcodeInputFilter# Convert from CueCat form"
@@ -5568,7 +5568,7 @@ msgstr "scanned item barcodes. Mind that any leading or trailing whitespace in a
 
 # Circulation > Checkout policy
 msgid "circulation.pref#maxoutstanding# Prevent patrons from making holds on the OPAC if they owe more than"
-msgstr "Prevent patrons from making holds on the OPAC if they owe more than"
+msgstr "Prevent users from making holds on the OPAC if they owe more than"
 
 # Circulation > Checkout policy
 msgid "circulation.pref#maxoutstanding# [% local_currency %] in fines."
@@ -5576,7 +5576,7 @@ msgstr "[% local_currency %] in fines."
 
 # Circulation > Holds policy
 msgid "circulation.pref#maxreserves# Patrons can have a maximum of"
-msgstr "Patrons can have a maximum of"
+msgstr "Users can have a maximum of"
 
 # Circulation > Holds policy > maxreserves
 msgid "circulation.pref#maxreserves# holds at once (leave blank or set to 0 to disable). Additional limits may apply based on circulation rules."
@@ -5584,7 +5584,7 @@ msgstr "holds at once (leave blank or set to 0 to disable). Additional limits ma
 
 # Circulation > Checkout policy
 msgid "circulation.pref#noissuescharge# Prevent patrons from checking out items if they have more than"
-msgstr "Prevent patrons from checking out items if they have more than"
+msgstr "Prevent users from checking out items if they have more than"
 
 # Circulation > Checkout policy
 msgid "circulation.pref#noissuescharge# [% local_currency %] in fines."
@@ -5743,7 +5743,7 @@ msgstr "Put the associate tag"
 
 # Enhanced content > Amazon
 msgid "enhanced_content.pref#AmazonAssocTag# on links to Amazon. This can net your library referral fees if a patron decides to buy an item."
-msgstr "on links to Amazon. This can net your library referral fees if a patron decides to buy an item."
+msgstr "on links to Amazon. This can net your library referral fees if a user decides to buy an item."
 
 # Enhanced content > Amazon
 msgid "enhanced_content.pref#AmazonCoverImages# Don't show"
@@ -6285,11 +6285,11 @@ msgstr "Not required"
 
 # Enhanced content > OverDrive
 msgid "enhanced_content.pref#OverDriveCirculation# OverDrive for patron authentication against Koha"
-msgstr "OverDrive for patron authentication against Koha"
+msgstr "OverDrive for user authentication against Koha"
 
 # Enhanced content > OverDrive
 msgid "enhanced_content.pref#OverDriveCirculation# Overdrive uses the patron's"
-msgstr "Overdrive uses the patron's"
+msgstr "Overdrive uses the user's"
 
 # Enhanced content > OverDrive
 msgid "enhanced_content.pref#OverDriveCirculation# Required"
@@ -6329,7 +6329,7 @@ msgstr "."
 
 # Enhanced content > OverDrive
 msgid "enhanced_content.pref#OverDriveLibraryID# Show items from the OverDrive catalog of library #"
-msgstr "Show items from the OverDrive catalog of library #"
+msgstr "Show items from the OverDrive catalogue of library #"
 
 # Enhanced content > OverDrive
 msgid "enhanced_content.pref#OverDriveWebsiteID# ."
@@ -6357,7 +6357,7 @@ msgstr "."
 
 # Enhanced content > RecordedBooks
 msgid "enhanced_content.pref#RecordedBooksLibraryID# Show items from the RecordedBooks catalog of library ID"
-msgstr "Show items from the RecordedBooks catalog of library ID"
+msgstr "Show items from the RecordedBooks catalogue of library ID"
 
 # Enhanced content > Syndetics
 msgid "enhanced_content.pref#SyndeticsAuthorNotes# Don't show"
@@ -6509,7 +6509,7 @@ msgstr "Don't allow"
 
 # Enhanced content > Tagging
 msgid "enhanced_content.pref#TagsEnabled# patrons and staff to put tags on items."
-msgstr "patrons and staff to put tags on items."
+msgstr "users and staff to put tags on items."
 
 # Enhanced content > Tagging
 msgid "enhanced_content.pref#TagsExternalDictionary# Allow tags in the dictionary of the ispell executable"
@@ -6529,7 +6529,7 @@ msgstr "Don't allow"
 
 # Enhanced content > Tagging
 msgid "enhanced_content.pref#TagsInputOnDetail# patrons to input tags on item detail pages on the OPAC."
-msgstr "patrons to input tags on item detail pages on the OPAC."
+msgstr "users to input tags on item detail pages on the OPAC."
 
 # Enhanced content > Tagging
 msgid "enhanced_content.pref#TagsInputOnList# Allow"
@@ -6541,7 +6541,7 @@ msgstr "Don't allow"
 
 # Enhanced content > Tagging
 msgid "enhanced_content.pref#TagsInputOnList# patrons to input tags on search results on the OPAC."
-msgstr "patrons to input tags on search results on the OPAC."
+msgstr "users to input tags on search results on the OPAC."
 
 # Enhanced content > Tagging
 msgid "enhanced_content.pref#TagsModeration# Don't require"
@@ -6553,7 +6553,7 @@ msgstr "Require"
 
 # Enhanced content > Tagging
 msgid "enhanced_content.pref#TagsModeration# that tags submitted by patrons be reviewed by a staff member before being shown."
-msgstr "that tags submitted by patrons be reviewed by a staff member before being shown."
+msgstr "that tags submitted by users be reviewed by a staff member before being shown."
 
 # Enhanced content > Tagging
 msgid "enhanced_content.pref#TagsShowOnDetail# Show"
@@ -6719,7 +6719,7 @@ msgstr "Don't allow"
 
 # I18N/L10N
 msgid "i18n_l10n.pref#TranslateNotices# If set, notices will be translatable from the \"Notices and slips\" interface. The language used to send a notice to a patron will be the one defined for the patron."
-msgstr "If set, notices will be translatable from the \"Notices and slips\" interface. The language used to send a notice to a patron will be the one defined for the patron."
+msgstr "If set, notices will be translatable from the \"Notices and slips\" interface. The language used to send a notice to a user will be the one defined for the user."
 
 # I18N/L10N
 msgid "i18n_l10n.pref#TranslateNotices# notices to be translated."
@@ -6779,7 +6779,7 @@ msgstr "Don't allow"
 
 # I18N/L10N
 msgid "i18n_l10n.pref#opaclanguagesdisplay# patrons to change the language they see on the OPAC."
-msgstr "patrons to change the language they see on the OPAC."
+msgstr "users to change the language they see on the OPAC."
 
 msgid "interlibrary_loans.pref"
 msgstr "interlibrary_loans.pref"
@@ -6957,7 +6957,7 @@ msgstr "Log"
 
 # Logging > Logging
 msgid "logs.pref#BorrowersLog# changes to patron records."
-msgstr "changes to patron records."
+msgstr "changes to user records."
 
 # Logging > Logging
 msgid "logs.pref#CataloguingLog# Don't log"
@@ -7219,7 +7219,7 @@ msgstr "Don't allow"
 
 # OPAC > Privacy
 msgid "opac.pref#AllowPatronToSetCheckoutsVisibilityForGuarantor# patrons to choose their own privacy settings for showing the patron's checkouts to the patron's guarantor."
-msgstr "patrons to choose their own privacy settings for showing the patron's checkouts to the patron's guarantor."
+msgstr "users to choose their own privacy settings for showing the user's checkouts to the user's guarantor."
 
 # OPAC > Privacy
 msgid "opac.pref#AllowPatronToSetFinesVisibilityForGuarantor# Allow"
@@ -7231,7 +7231,7 @@ msgstr "Don't allow"
 
 # OPAC > Privacy
 msgid "opac.pref#AllowPatronToSetFinesVisibilityForGuarantor# patrons to choose their own privacy settings for showing the patron's charges to the patron's guarantor."
-msgstr "patrons to choose their own privacy settings for showing the patron's charges to the patron's guarantor."
+msgstr "users to choose their own privacy settings for showing the user's charges to the user's guarantor."
 
 # OPAC > Policy
 msgid "opac.pref#AnonSuggestions# Allow"
@@ -7243,7 +7243,7 @@ msgstr "Don't allow"
 
 # OPAC > Privacy > AnonSuggestions
 msgid "opac.pref#AnonSuggestions# patrons that aren't logged in to make purchase suggestions. Suggestions are connected to the <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=AnonymousPatron\">AnonymousPatron</a> system preference."
-msgstr "patrons that aren't logged in to make purchase suggestions. Suggestions are connected to the <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=AnonymousPatron\">AnonymousPatron</a> system preference."
+msgstr "users that aren't logged in to make purchase suggestions. Suggestions are connected to the <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=AnonymousPatron\">AnonymousPatron</a> system preference."
 
 # OPAC > Privacy
 msgid "opac.pref#AnonymousPatron# Use borrowernumber"
@@ -7251,7 +7251,7 @@ msgstr "Use borrowernumber"
 
 # OPAC > Privacy
 msgid "opac.pref#AnonymousPatron# as the anonymous patron (for anonymous suggestions and checkout history)."
-msgstr "as the anonymous patron (for anonymous suggestions and checkout history)."
+msgstr "as the anonymous user (for anonymous suggestions and checkout history)."
 
 # OPAC > Appearance > AuthorityXSLTOpacResultsDisplay
 msgid "opac.pref#AuthorityXSLTOpacResultsDisplay# <br />Options:<ul><li>Empty. No XSLT will be applied (<strong>default</strong>)</li><li>Enter a path to a custom XSLT file.</li><li>Enter a URL for an external stylesheet.</li></ul>If you have multiple stylesheets for: <ul><li>different languages: use the placeholder {langcode} - this will be replaced with the current interface language</li><li>authority types: use the placeholder {authtypecode} - this will be replaced with the authority type code"
@@ -7287,7 +7287,7 @@ msgstr "Don't block"
 
 # OPAC > Policy
 msgid "opac.pref#BlockExpiredPatronOpacActions# expired patrons from OPAC actions such as placing a hold or renewing. Note that the setting for a patron category takes priority over this system preference."
-msgstr "expired patrons from OPAC actions such as placing a hold or renewing. Note that the setting for a patron category takes priority over this system preference."
+msgstr "expired users from OPAC actions such as placing a hold or renewing. Note that the setting for a user category takes priority over this system preference."
 
 # OPAC > Appearance > COinSinOPACResults
 msgid "opac.pref#COinSinOPACResults# <br/><a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=OpenURLResolverURL\">OpenURLResolverURL</a>, <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=OPACShowOpenURL\">OPACShowOpenURL</a>, <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=OPACOpenURLItemTypes\">OPACOpenURLItemTypes</a>, <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=OpenURLText\">OpenURLText</a>, <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=OpenURLImageLocation\">OpenURLImageLocation</a>"
@@ -7327,7 +7327,7 @@ msgstr "<br>If you chooose <a href=\"/cgi-bin/koha/admin/preferences.pl?op=searc
 
 # OPAC > Self registration and modification
 msgid "opac.pref#EmailPatronRegistrations# Choose email address that new patron self-registrations will be sent to: "
-msgstr "Choose email address that new patron self-registrations will be sent to: "
+msgstr "Choose email address that new user self-registrations will be sent to: "
 
 # OPAC > Self registration and modification
 msgid "opac.pref#EmailPatronRegistrations# EmailAddressForPatronRegistrations"
@@ -7355,7 +7355,7 @@ msgstr "Keep"
 
 # OPAC > Privacy
 msgid "opac.pref#EnableOpacSearchHistory# patron search history in the OPAC."
-msgstr "patron search history in the OPAC."
+msgstr "user search history in the OPAC."
 
 # OPAC > Appearance
 msgid "opac.pref#LibraryName# Show"
@@ -7367,7 +7367,7 @@ msgstr "as the name of the library on the OPAC."
 
 # OPAC > Policy
 msgid "opac.pref#MaxOpenSuggestions# Limit patrons to"
-msgstr "Limit patrons to"
+msgstr "Limit users to"
 
 # OPAC > Policy
 msgid "opac.pref#MaxOpenSuggestions# open suggestions. Leave empty for no limit. **Note: this setting does not affect anonymous suggestions."
@@ -7435,7 +7435,7 @@ msgstr "Don't allow"
 
 # OPAC > Features
 msgid "opac.pref#OPACComments# patrons to make comments on items on the OPAC."
-msgstr "patrons to make comments on items on the OPAC."
+msgstr "users to make comments on items on the OPAC."
 
 # OPAC > Features
 msgid "opac.pref#OPACDetailQRCode# Disable"
@@ -7491,7 +7491,7 @@ msgstr "theme as the fallback theme on the OPAC."
 
 # OPAC > Policy
 msgid "opac.pref#OPACFineNoRenewals# Only allow patrons to renew their own books on the OPAC if they have less than"
-msgstr "Only allow patrons to renew their own books on the OPAC if they have less than"
+msgstr "Only allow users to renew their own books on the OPAC if they have less than"
 
 # OPAC > Policy > OPACFineNoRenewals
 msgid "opac.pref#OPACFineNoRenewals# [% local_currency %] in charges (leave blank to disable)."
@@ -7507,7 +7507,7 @@ msgstr "Include"
 
 # OPAC > Policy > OPACFineNoRenewalsIncludeCredits
 msgid "opac.pref#OPACFineNoRenewalsIncludeCredits# outstanding/unapplied credits when applying the <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=OPACFineNoRenewals\">OPACFineNoRenewals</a> rule to patrons."
-msgstr "outstanding/unapplied credits when applying the <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=OPACFineNoRenewals\">OPACFineNoRenewals</a> rule to patrons."
+msgstr "outstanding/unapplied credits when applying the <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=OPACFineNoRenewals\">OPACFineNoRenewals</a> rule to users."
 
 # OPAC > Features
 msgid "opac.pref#OPACFinesTab# Allow"
@@ -7519,7 +7519,7 @@ msgstr "Don't allow"
 
 # OPAC > Features
 msgid "opac.pref#OPACFinesTab# patrons to access the charges tab on their account page on the OPAC."
-msgstr "patrons to access the charges tab on their account page on the OPAC."
+msgstr "users to access the charges tab on their account page on the OPAC."
 
 # OPAC > Appearance
 msgid "opac.pref#OPACHoldRequests# Allow"
@@ -7531,7 +7531,7 @@ msgstr "Don't allow"
 
 # OPAC > Features
 msgid "opac.pref#OPACHoldRequests# patrons to place holds on items from the OPAC."
-msgstr "patrons to place holds on items from the OPAC."
+msgstr "users to place holds on items from the OPAC."
 
 # Searching > Results display
 msgid "opac.pref#OPACHoldingsDefaultSortField# First column of the table"
@@ -7559,7 +7559,7 @@ msgstr "Don't allow"
 
 # OPAC > Privacy
 msgid "opac.pref#OPACHoldsHistory# patrons to see the list of their past holds."
-msgstr "patrons to see the list of their past holds."
+msgstr "users to see the list of their past holds."
 
 # OPAC > Features
 msgid "opac.pref#OPACISBD# Use the following as the OPAC ISBD template:"
@@ -7571,7 +7571,7 @@ msgstr "<br />Note: The placeholders {BIBLIONUMBER}, {TITLE}, {ISBN} and {AUTHOR
 
 # OPAC > Appearance
 msgid "opac.pref#OPACMySummaryHTML# Include a \"Links\" column on the \"my summary\" and \"my checkout history\" tabs when a patron is logged in to the OPAC, with the following HTML (leave blank to disable):"
-msgstr "Include a \"Links\" column on the \"my summary\" and \"my checkout history\" tabs when a patron is logged in to the OPAC, with the following HTML (leave blank to disable):"
+msgstr "Include a \"Links\" column on the \"my summary\" and \"my checkout history\" tabs when a user is logged in to the OPAC, with the following HTML (leave blank to disable):"
 
 # OPAC > Appearance
 msgid "opac.pref#OPACNoResultsFound# <br />Note: You can insert placeholders {QUERY_KW} that will be replaced with the keywords of the query."
@@ -7599,7 +7599,7 @@ msgstr "Don't allow"
 
 # OPAC > Self registration and modification
 msgid "opac.pref#OPACPatronDetails# patrons to notify the library of changes to their contact information from the OPAC."
-msgstr "patrons to notify the library of changes to their contact information from the OPAC."
+msgstr "users to notify the library of changes to their contact information from the OPAC."
 
 # OPAC > Appearance
 msgid "opac.pref#OPACPlayMusicalInscripts# Don't play"
@@ -7635,7 +7635,7 @@ msgstr "Don't allow"
 
 # OPAC > Privacy > OPACPrivacy
 msgid "opac.pref#OPACPrivacy# patrons to choose their own privacy settings for their checkout history. This requires <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=opacreadinghistory\">opacreadinghistory</a> and <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=AnonymousPatron\">AnonymousPatron</a> system preferences."
-msgstr "patrons to choose their own privacy settings for their checkout history. This requires <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=opacreadinghistory\">opacreadinghistory</a> and <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=AnonymousPatron\">AnonymousPatron</a> system preferences."
+msgstr "users to choose their own privacy settings for their checkout history. This requires <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=opacreadinghistory\">opacreadinghistory</a> and <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=AnonymousPatron\">AnonymousPatron</a> system preferences."
 
 # OPAC > Features
 msgid "opac.pref#OPACReportProblem# <br/>"
@@ -7655,7 +7655,7 @@ msgstr "Don't allow"
 
 # OPAC > Features
 msgid "opac.pref#OPACReportProblem# patrons to submit problem reports for OPAC pages to the library or Koha administrator."
-msgstr "patrons to submit problem reports for OPAC pages to the library or Koha administrator."
+msgstr "users to submit problem reports for OPAC pages to the library or Koha administrator."
 
 # OPAC > Appearance
 msgid "opac.pref#OPACResultsLibrary# . Please note that this feature is currently available for MARC21 and UNIMARC."
@@ -7731,7 +7731,7 @@ msgstr "Show"
 
 # OPAC > Shelf browser
 msgid "opac.pref#OPACShelfBrowser# a shelf browser on item details pages, allowing patrons to see what's near that item on the shelf. Note that this uses up a fairly large amount of resources on your server, and should be avoided if your collection has a large number of items."
-msgstr "a shelf browser on item details pages, allowing patrons to see what's near that item on the shelf. Note that this uses up a fairly large amount of resources on your server, and should be avoided if your collection has a large number of items."
+msgstr "a shelf browser on item details pages, allowing users to see what's near that item on the shelf. Note that this uses up a fairly large amount of resources on your server, and should be avoided if your collection has a large number of items."
 
 # OPAC > Appearance
 msgid "opac.pref#OPACShibOnly# Allow"
@@ -7743,7 +7743,7 @@ msgstr "Don't allow"
 
 # OPAC > Privacy
 msgid "opac.pref#OPACShibOnly# patrons to login by means other than Shibboleth."
-msgstr "patrons to login by means other than Shibboleth."
+msgstr "users to login by means other than Shibboleth."
 
 # OPAC > Appearance
 msgid "opac.pref#OPACShowCheckoutName# Don't show"
@@ -7755,7 +7755,7 @@ msgstr "Show"
 
 # OPAC > Appearance
 msgid "opac.pref#OPACShowCheckoutName# the name of the patron that has an item checked out on item detail pages on the OPAC."
-msgstr "the name of the patron that has an item checked out on item detail pages on the OPAC."
+msgstr "the name of the user that has an item checked out on item detail pages on the OPAC."
 
 # OPAC > Appearance
 msgid "opac.pref#OPACShowHoldQueueDetails# Don't show any hold details"
@@ -7775,7 +7775,7 @@ msgstr "Show priority level"
 
 # OPAC > Appearance
 msgid "opac.pref#OPACShowHoldQueueDetails# to patrons in the OPAC."
-msgstr "to patrons in the OPAC."
+msgstr "to users in the OPAC."
 
 # OPAC > Appearance
 msgid "opac.pref#OPACShowMusicalInscripts# Don't show"
@@ -7831,7 +7831,7 @@ msgstr "<br />Note: if none of the above options are selected, 'Title' field wou
 
 # OPAC > Policy
 msgid "opac.pref#OPACSuggestionMandatoryFields# Fields that should be mandatory for patron purchase suggestions:"
-msgstr "Fields that should be mandatory for patron purchase suggestions:"
+msgstr "Fields that should be mandatory for user purchase suggestions:"
 
 # OPAC > Policy > OPACFineNoRenewalsIncludeCredits
 msgid "opac.pref#OPACSuggestionUnwantedFields# <br />Note: Do not make <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=OPACSuggestionMandatoryFields\">OPACSuggestionMandatoryFields</a> unwanted fields "
@@ -7839,11 +7839,11 @@ msgstr "<br />Note: Do not make <a href=\"/cgi-bin/koha/admin/preferences.pl?op=
 
 # OPAC > Policy
 msgid "opac.pref#OPACSuggestionUnwantedFields# Fields that should be hidden for patron purchase suggestions:"
-msgstr "Fields that should be hidden for patron purchase suggestions:"
+msgstr "Fields that should be hidden for user purchase suggestions:"
 
 # OPAC > Appearance
 msgid "opac.pref#OPACURLOpenInNewWindow# When patrons click on a link to another website from your OPAC (like Amazon or OCLC),"
-msgstr "When patrons click on a link to another website from your OPAC (like Amazon or OCLC),"
+msgstr "When users click on a link to another website from your OPAC (like Amazon or OCLC),"
 
 # OPAC > Appearance
 msgid "opac.pref#OPACURLOpenInNewWindow# do"
@@ -7875,7 +7875,7 @@ msgstr "Show"
 
 # OPAC > Appearance
 msgid "opac.pref#OPACUserSummary# a summary of a logged in patron's checkouts, overdues, holds and charges on the OPAC start page."
-msgstr "a summary of a logged in patron's checkouts, overdues, holds and charges on the OPAC start page."
+msgstr "a summary of a logged in user's checkouts, overdues, holds and charges on the OPAC start page."
 
 # OPAC > Policy
 msgid "opac.pref#OPACViewOthersSuggestions# Don't show"
@@ -7887,7 +7887,7 @@ msgstr "Show"
 
 # OPAC > Policy
 msgid "opac.pref#OPACViewOthersSuggestions# purchase suggestions from other patrons on the OPAC."
-msgstr "purchase suggestions from other patrons on the OPAC."
+msgstr "purchase suggestions from other users on the OPAC."
 
 # OPAC > Appearance > OPACXSLTDetailsDisplay
 msgid "opac.pref#OPACXSLTDetailsDisplay# <br />Options:<ul><li>Enter \"<a href=\"#\" class=\"set_syspref\" data-syspref=\"OPACXSLTDetailsDisplay\" data-value=\"default\">default</a>\" for the default stylesheet</li><li>Put a path to define an xslt file</li><li>Put a URL for an external specific stylesheet.</li></ul>If you have multiple stylesheets for different languages the placeholder {langcode} will be replaced with current interface language."
@@ -7923,7 +7923,7 @@ msgstr "Show"
 
 # OPAC > Features
 msgid "opac.pref#OPACpatronimages# patron images on the patron information page in the OPAC."
-msgstr "patron images on the patron information page in the OPAC."
+msgstr "user images on the user information page in the OPAC."
 
 # OPAC > Appearance
 msgid "opac.pref#OpacAddMastheadLibraryPulldown# Add"
@@ -8035,7 +8035,7 @@ msgstr "Don't allow"
 
 # OPAC > Policy
 msgid "opac.pref#OpacAllowSharingPrivateLists# OPAC users to share private lists with other patrons."
-msgstr "OPAC users to share private lists with other patrons."
+msgstr "OPAC users to share private lists with other users."
 
 # OPAC > Features
 msgid "opac.pref#OpacAuthorities# Allow"
@@ -8047,7 +8047,7 @@ msgstr "Don't allow"
 
 # OPAC > Features
 msgid "opac.pref#OpacAuthorities# patrons to search your authority records."
-msgstr "patrons to search your authority records."
+msgstr "users to search your authority records."
 
 # OPAC > Features
 msgid "opac.pref#OpacBrowseResults# Disable"
@@ -8087,7 +8087,7 @@ msgstr "Don't allow"
 
 # OPAC > Features
 msgid "opac.pref#OpacBrowser# patrons to browse subject authorities on the OPAC."
-msgstr "patrons to browse subject authorities on the OPAC."
+msgstr "users to browse subject authorities on the OPAC."
 
 # Circulation > Holds policy
 msgid "opac.pref#OpacCloud# <br><strong>NOTE:</strong> This system preference requires the <code>misc/cronjobs/build_browser_and_cloud.pl</code> cronjob. Ask your system administrator to schedule it."
@@ -8159,7 +8159,7 @@ msgstr "Define custom rules to hide specific items from search and view on the O
 
 # OPAC > Policy > OpacHiddenItemsExceptions
 msgid "opac.pref#OpacHiddenItemsExceptions# List of patron categories, that can see items otherwise hidden by <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=OpacHiddenItems\">OpacHiddenItems</a>:"
-msgstr "List of patron categories, that can see items otherwise hidden by <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=OpacHiddenItems\">OpacHiddenItems</a>:"
+msgstr "List of user categories, that can see items otherwise hidden by <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=OpacHiddenItems\">OpacHiddenItems</a>:"
 
 # OPAC > Appearance
 msgid "opac.pref#OpacHiddenItemsHidesRecord# Don't hide"
@@ -8187,7 +8187,7 @@ msgstr "Highlight"
 
 # OPAC > Appearance
 msgid "opac.pref#OpacHighlightedWords# words the patron searched for in their search results and detail pages. To prevent certain words from ever being highlighted, enter a list of stopwords here:"
-msgstr "words the patron searched for in their search results and detail pages. To prevent certain words from ever being highlighted, enter a list of stopwords here:"
+msgstr "words the user searched for in their search results and detail pages. To prevent certain words from ever being highlighted, enter a list of stopwords here:"
 
 # OPAC > Features
 msgid "opac.pref#OpacHoldNotes# Allow"
@@ -8199,7 +8199,7 @@ msgstr "Don't allow"
 
 # OPAC > Features
 msgid "opac.pref#OpacHoldNotes# patrons to add a note when placing a hold."
-msgstr "patrons to add a note when placing a hold."
+msgstr "users to add a note when placing a hold."
 
 # OPAC > Features
 msgid "opac.pref#OpacItemLocation# Show"
@@ -8327,7 +8327,7 @@ msgstr "Display up to"
 
 # OPAC > Appearance
 msgid "opac.pref#OpacMaxItemsToDisplay# items on the bibliographic record detail page (if the bibliographic record has more items than this, a link is displayed instead that allows the patron to choose to display all items)."
-msgstr "items on the bibliographic record detail page (if the bibliographic record has more items than this, a link is displayed instead that allows the patron to choose to display all items)."
+msgstr "items on the bibliographic record detail page (if the bibliographic record has more items than this, a link is displayed instead that allows the user to choose to display all items)."
 
 # OPAC > Appearance
 msgid "opac.pref#OpacMetaDescription# This description will show in search engine results (160 characters)."
@@ -8367,7 +8367,7 @@ msgstr "Don't allow"
 
 # OPAC > Features
 msgid "opac.pref#OpacPasswordChange# patrons to change their own password on the OPAC. Note that this must be off to use LDAP authentication."
-msgstr "patrons to change their own password on the OPAC. Note that this must be off to use LDAP authentication."
+msgstr "users to change their own password on the OPAC. Note that this must be off to use LDAP authentication."
 
 # OPAC > Appearance
 msgid "opac.pref#OpacPublic# Disable"
@@ -8395,7 +8395,7 @@ msgstr "Don't allow"
 
 # OPAC > Policy
 msgid "opac.pref#OpacRenewalAllowed# patrons to renew their own books on the OPAC."
-msgstr "patrons to renew their own books on the OPAC."
+msgstr "users to renew their own books on the OPAC."
 
 # OPAC > Policy
 msgid "opac.pref#OpacRenewalBranch# 'OPACRenew'"
@@ -8423,7 +8423,7 @@ msgstr "the library the item was checked out from"
 
 # OPAC > Policy
 msgid "opac.pref#OpacRenewalBranch# the patron's home library"
-msgstr "the patron's home library"
+msgstr "the user's home library"
 
 # OPAC > Policy
 msgid "opac.pref#OpacResetPassword#  to recover their password via e-mail in the OPAC."
@@ -8431,7 +8431,7 @@ msgstr " to recover their password via e-mail in the OPAC."
 
 # OPAC > Features
 msgid "opac.pref#OpacResetPassword# Library patrons are "
-msgstr "Library patrons are "
+msgstr "Library users are "
 
 # OPAC > Features
 msgid "opac.pref#OpacResetPassword# allowed"
@@ -8459,7 +8459,7 @@ msgstr "home library"
 
 # OPAC > Appearance
 msgid "opac.pref#OpacSeparateHoldings# is the logged in patrons's library. The second tab will contain all other items."
-msgstr "is the logged in patrons's library. The second tab will contain all other items."
+msgstr "is the logged in users's library. The second tab will contain all other items."
 
 # OPAC > Appearance
 msgid "opac.pref#OpacSeparateHoldings# items display into two tabs, where the first tab contains items whose"
@@ -8495,7 +8495,7 @@ msgstr "pages."
 
 # OPAC > Appearance
 msgid "opac.pref#OpacStarRatings# results, details, and patron"
-msgstr "results, details, and patron"
+msgstr "results, details, and user"
 
 # OPAC > Policy
 msgid "opac.pref#OpacSuggestionManagedBy# Don't show"
@@ -8519,7 +8519,7 @@ msgstr "Don't allow"
 
 # OPAC > Features
 msgid "opac.pref#OpacTopissue# patrons to access a list of the most checked out items on the OPAC. Note that this is somewhat experimental, and should be avoided if your collection has a large number of items."
-msgstr "patrons to access a list of the most checked out items on the OPAC. Note that this is somewhat experimental, and should be avoided if your collection has a large number of items."
+msgstr "users to access a list of the most checked out items on the OPAC. Note that this is somewhat experimental, and should be avoided if your collection has a large number of items."
 
 # OPAC > OpenURL
 msgid "opac.pref#OpenURLImageLocation# <br />- <code>/opac-tmpl/bootstrap/images/OpenURL.png</code>"
@@ -8555,15 +8555,15 @@ msgstr "Text of OpenURL links (or image title if <a href=\"/cgi-bin/koha/admin/p
 
 # OPAC > Self registration and modification
 msgid "opac.pref#PatronSelfModificationBorrowerUnwantedField# The following <a href='http://schema.koha-community.org/__VERSION__/tables/borrowers.html' target='blank'>database columns</a> will not appear on the patron self-modification screen:"
-msgstr "The following <a href='http://schema.koha-community.org/__VERSION__/tables/borrowers.html' target='blank'>database columns</a> will not appear on the patron self-modification screen:"
+msgstr "The following <a href='http://schema.koha-community.org/__VERSION__/tables/borrowers.html' target='blank'>database columns</a> will not appear on the user self-modification screen:"
 
 # OPAC > Self registration and modification
 msgid "opac.pref#PatronSelfModificationMandatoryField# The following <a href='http://schema.koha-community.org/__VERSION__/tables/borrowers.html' target='blank'>database columns</a> must be filled in on the patron modification screen:"
-msgstr "The following <a href='http://schema.koha-community.org/__VERSION__/tables/borrowers.html' target='blank'>database columns</a> must be filled in on the patron modification screen:"
+msgstr "The following <a href='http://schema.koha-community.org/__VERSION__/tables/borrowers.html' target='blank'>database columns</a> must be filled in on the user modification screen:"
 
 # OPAC > Self registration and modification
 msgid "opac.pref#PatronSelfRegistration# <br><strong>NOTE:</strong> This needs <a href='/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=PatronSelfRegistrationDefaultCategory'>PatronSelfRegistrationDefaultCategory</a> to be set to a valid patron category code."
-msgstr "<br><strong>NOTE:</strong> This needs <a href='/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=PatronSelfRegistrationDefaultCategory'>PatronSelfRegistrationDefaultCategory</a> to be set to a valid patron category code."
+msgstr "<br><strong>NOTE:</strong> This needs <a href='/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=PatronSelfRegistrationDefaultCategory'>PatronSelfRegistrationDefaultCategory</a> to be set to a valid user category code."
 
 # OPAC > Self registration and modification
 msgid "opac.pref#PatronSelfRegistration# Allow"
@@ -8575,19 +8575,19 @@ msgstr "Don't allow"
 
 # OPAC > Self registration and modification
 msgid "opac.pref#PatronSelfRegistration# library patrons to register for an account via the OPAC."
-msgstr "library patrons to register for an account via the OPAC."
+msgstr "library users to register for an account via the OPAC."
 
 # OPAC > Self registration and modification
 msgid "opac.pref#PatronSelfRegistrationAdditionalInstructions# Display the following additional instructions for patrons who self register via the OPAC ( HTML is allowed ):"
-msgstr "Display the following additional instructions for patrons who self register via the OPAC ( HTML is allowed ):"
+msgstr "Display the following additional instructions for users who self register via the OPAC ( HTML is allowed ):"
 
 # OPAC > Self registration and modification
 msgid "opac.pref#PatronSelfRegistrationBorrowerMandatoryField# The following <a href='http://schema.koha-community.org/__VERSION__/tables/borrowers.html' target='blank'>database columns</a> must be filled in on the patron entry screen:"
-msgstr "The following <a href='http://schema.koha-community.org/__VERSION__/tables/borrowers.html' target='blank'>database columns</a> must be filled in on the patron entry screen:"
+msgstr "The following <a href='http://schema.koha-community.org/__VERSION__/tables/borrowers.html' target='blank'>database columns</a> must be filled in on the user entry screen:"
 
 # OPAC > Self registration and modification
 msgid "opac.pref#PatronSelfRegistrationBorrowerUnwantedField# The following <a href='http://schema.koha-community.org/__VERSION__/tables/borrowers.html' target='blank'>database columns</a> will not appear on the patron self-registration screen:"
-msgstr "The following <a href='http://schema.koha-community.org/__VERSION__/tables/borrowers.html' target='blank'>database columns</a> will not appear on the patron self-registration screen:"
+msgstr "The following <a href='http://schema.koha-community.org/__VERSION__/tables/borrowers.html' target='blank'>database columns</a> will not appear on the user self-registration screen:"
 
 # OPAC > Self registration and modification
 msgid "opac.pref#PatronSelfRegistrationConfirmEmail# Don't require"
@@ -8599,15 +8599,15 @@ msgstr "Require"
 
 # OPAC > Self registration and modification
 msgid "opac.pref#PatronSelfRegistrationConfirmEmail# patrons to confirm their email address by entering it twice."
-msgstr "patrons to confirm their email address by entering it twice."
+msgstr "users to confirm their email address by entering it twice."
 
 # OPAC > Self registration and modification
 msgid "opac.pref#PatronSelfRegistrationDefaultCategory# <br><strong>WARNING: Do not use a regular patron category for self registration.</strong>"
-msgstr "<br><strong>WARNING: Do not use a regular patron category for self registration.</strong>"
+msgstr "<br><strong>WARNING: Do not use a regular user category for self registration.</strong>"
 
 # OPAC > Self registration and modification > PatronSelfRegistrationDefaultCategory
 msgid "opac.pref#PatronSelfRegistrationDefaultCategory# <br>If the <code>misc/cronjobs/cleanup_database.pl</code> cronjob is setup to delete unverified and unfinished OPAC self registrations, it will permanently and unrecoverably delete all patrons that have registered more than <a href='/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=PatronSelfRegistrationExpireTemporaryAccountsDelay'>PatronSelfRegistrationExpireTemporaryAccountsDelay</a> days ago (unless that delay is empty or zero)."
-msgstr "<br>If the <code>misc/cronjobs/cleanup_database.pl</code> cronjob is setup to delete unverified and unfinished OPAC self registrations, it will permanently and unrecoverably delete all patrons that have registered more than <a href='/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=PatronSelfRegistrationExpireTemporaryAccountsDelay'>PatronSelfRegistrationExpireTemporaryAccountsDelay</a> days ago (unless that delay is empty or zero)."
+msgstr "<br>If the <code>misc/cronjobs/cleanup_database.pl</code> cronjob is setup to delete unverified and unfinished OPAC self registrations, it will permanently and unrecoverably delete all users that have registered more than <a href='/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=PatronSelfRegistrationExpireTemporaryAccountsDelay'>PatronSelfRegistrationExpireTemporaryAccountsDelay</a> days ago (unless that delay is empty or zero)."
 
 # OPAC > Self registration and modification
 msgid "opac.pref#PatronSelfRegistrationDefaultCategory# Use"
@@ -8615,7 +8615,7 @@ msgstr "Use"
 
 # OPAC > Self registration and modification
 msgid "opac.pref#PatronSelfRegistrationDefaultCategory# as the default patron category for patrons registered via the OPAC."
-msgstr "as the default patron category for patrons registered via the OPAC."
+msgstr "as the default user category for users registered via the OPAC."
 
 # OPAC > Self registration and modification
 msgid "opac.pref#PatronSelfRegistrationEmailMustBeUnique# Consider"
@@ -8627,15 +8627,15 @@ msgstr "Don't consider"
 
 # OPAC > Self registration and modification
 msgid "opac.pref#PatronSelfRegistrationEmailMustBeUnique# patron's email (borrowers.email) as unique on self registering. An email won't be accepted if it already exists in the database."
-msgstr "patron's email (borrowers.email) as unique on self registering. An email won't be accepted if it already exists in the database."
+msgstr "user's email (borrowers.email) as unique on self registering. An email won't be accepted if it already exists in the database."
 
 # OPAC > Self registration and modification > PatronSelfRegistrationExpireTemporaryAccountsDelay
 msgid "opac.pref#PatronSelfRegistrationExpireTemporaryAccountsDelay# <br><strong>NOTE:</strong> This system preference requires the <code>misc/cronjobs/cleanup_database.pl</code> cronjob. Ask your system administrator to schedule it.<br>No patrons will be deleted if you set the pref to zero or make it empty."
-msgstr "<br><strong>NOTE:</strong> This system preference requires the <code>misc/cronjobs/cleanup_database.pl</code> cronjob. Ask your system administrator to schedule it.<br>No patrons will be deleted if you set the pref to zero or make it empty."
+msgstr "<br><strong>NOTE:</strong> This system preference requires the <code>misc/cronjobs/cleanup_database.pl</code> cronjob. Ask your system administrator to schedule it.<br>No users will be deleted if you set the pref to zero or make it empty."
 
 # OPAC > Self registration and modification
 msgid "opac.pref#PatronSelfRegistrationExpireTemporaryAccountsDelay# Delete patrons still in the category indicated by <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=PatronSelfRegistrationDefaultCategory\">PatronSelfRegistrationDefaultCategory</a>"
-msgstr "Delete patrons still in the category indicated by <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=PatronSelfRegistrationDefaultCategory\">PatronSelfRegistrationDefaultCategory</a>"
+msgstr "Delete users still in the category indicated by <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=PatronSelfRegistrationDefaultCategory\">PatronSelfRegistrationDefaultCategory</a>"
 
 # OPAC > Self registration and modification
 msgid "opac.pref#PatronSelfRegistrationExpireTemporaryAccountsDelay# days after account creation."
@@ -8663,7 +8663,7 @@ msgstr "Show and prefill"
 
 # OPAC > Self registration and modification
 msgid "opac.pref#PatronSelfRegistrationPrefillForm# password and login form after a patron has self registered."
-msgstr "password and login form after a patron has self registered."
+msgstr "password and login form after a user has self registered."
 
 # Circulation > Holds policy
 msgid "opac.pref#PatronSelfRegistrationVerifyByEmail# <br><strong>NOTE:</strong> This system preference requires the <code>misc/cronjobs/cleanup_database.pl</code> cronjob. Ask your system administrator to schedule it."
@@ -8679,7 +8679,7 @@ msgstr "Require"
 
 # OPAC > Self registration and modification
 msgid "opac.pref#PatronSelfRegistrationVerifyByEmail# that a self-registering patron verify themselves via email."
-msgstr "that a self-registering patron verify themselves via email."
+msgstr "that a self-registering user verify themselves via email."
 
 # OPAC > Features
 msgid "opac.pref#QuoteOfTheDay# OPAC"
@@ -8735,7 +8735,7 @@ msgstr "Limit"
 
 # OPAC > Policy
 msgid "opac.pref#SearchMyLibraryFirst# patrons' searches to the library they are registered at."
-msgstr "patrons' searches to the library they are registered at."
+msgstr "users' searches to the library they are registered at."
 
 # OPAC > Shelf browser
 msgid "opac.pref#ShelfBrowserUsesCcode# Don't use"
@@ -8815,7 +8815,7 @@ msgstr "Show"
 
 # OPAC > Features
 msgid "opac.pref#ShowReviewerPhoto# reviewer's avatar beside comments in OPAC. The avatar will be searched on <a href=\"https://www.libravatar.org\" target=\"_blank\">Libravatar</a> using the patron's e-mail address."
-msgstr "reviewer's avatar beside comments in OPAC. The avatar will be searched on <a href=\"https://www.libravatar.org\" target=\"_blank\">Libravatar</a> using the patron's e-mail address."
+msgstr "reviewer's avatar beside comments in OPAC. The avatar will be searched on <a href=\"https://www.libravatar.org\" target=\"_blank\">Libravatar</a> using the user's e-mail address."
 
 # OPAC > Features
 msgid "opac.pref#SocialNetworks# Email"
@@ -8855,7 +8855,7 @@ msgstr "Track anonymously"
 
 # OPAC > Privacy
 msgid "opac.pref#TrackClicks# links that patrons click on."
-msgstr "links that patrons click on."
+msgstr "links that users click on."
 
 # OPAC > Appearance
 msgid "opac.pref#hidelostitems# Don't show"
@@ -8887,7 +8887,7 @@ msgstr "Don't allow"
 
 # OPAC > Features
 msgid "opac.pref#opacbookbag# patrons to store items in a temporary \"Cart\" on the OPAC."
-msgstr "patrons to store items in a temporary \"Cart\" on the OPAC."
+msgstr "users to store items in a temporary \"Cart\" on the OPAC."
 
 # OPAC > Appearance
 msgid "opac.pref#opaclayoutstylesheet# Use the CSS stylesheet"
@@ -8907,7 +8907,7 @@ msgstr "Don't allow"
 
 # OPAC > Privacy
 msgid "opac.pref#opacreadinghistory# patrons to see what books they have checked out in the past."
-msgstr "patrons to see what books they have checked out in the past."
+msgstr "users to see what books they have checked out in the past."
 
 # OPAC > Appearance
 msgid "opac.pref#opacthemes# Use the"
@@ -8927,7 +8927,7 @@ msgstr "Don't allow"
 
 # OPAC > Features
 msgid "opac.pref#opacuserlogin# patrons to log in to their accounts on the OPAC."
-msgstr "patrons to log in to their accounts on the OPAC."
+msgstr "users to log in to their accounts on the OPAC."
 
 # OPAC > Policy
 msgid "opac.pref#suggestion# Disable"
@@ -8939,7 +8939,7 @@ msgstr "Enable"
 
 # Administration > Google OpenID Connect
 msgid "opac.pref#suggestion# When <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=suggestion\">suggestion</a> is enabled and <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=AnonSuggestions\">AnonSuggestions</a> is disabled, following patron categories are not allowed to make purchase suggestions:"
-msgstr "When <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=suggestion\">suggestion</a> is enabled and <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=AnonSuggestions\">AnonSuggestions</a> is disabled, following patron categories are not allowed to make purchase suggestions:"
+msgstr "When <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=suggestion\">suggestion</a> is enabled and <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=AnonSuggestions\">AnonSuggestions</a> is disabled, following user categories are not allowed to make purchase suggestions:"
 
 # OPAC > Features
 msgid "opac.pref#suggestion# purchase suggestions in the OPAC.<br>"
@@ -8947,7 +8947,7 @@ msgstr "purchase suggestions in the OPAC.<br>"
 
 # Patrons > Patron forms
 msgid "patrons.pref"
-msgstr "patrons.pref"
+msgstr "users.pref"
 
 # Patrons > Patron forms
 msgid "patrons.pref General"
@@ -8962,11 +8962,11 @@ msgstr "Notices and notifications"
 
 # Patrons > Patron forms
 msgid "patrons.pref Patron forms"
-msgstr "Patron forms"
+msgstr "User forms"
 
 # Patrons > Patron relationships
 msgid "patrons.pref Patron relationships"
-msgstr "Patron relationships"
+msgstr "User relationships"
 
 # Patrons > Patron forms
 msgid "patrons.pref Privacy"
@@ -8982,11 +8982,11 @@ msgstr "Allow only staff"
 
 # Patrons > General
 msgid "patrons.pref#AllowPatronToControlAutorenewal# Allow patrons"
-msgstr "Allow patrons"
+msgstr "Allow users"
 
 # Patrons > General
 msgid "patrons.pref#AllowPatronToControlAutorenewal# to allow/disallow auto-renewal for account. If allowed a patron will be able to update their own account to allow/disallow auto-renewal."
-msgstr "to allow/disallow auto-renewal for account. If allowed a patron will be able to update their own account to allow/disallow auto-renewal."
+msgstr "to allow/disallow auto-renewal for account. If allowed a user will be able to update their own account to allow/disallow auto-renewal."
 
 # Patrons > Patron relationships
 msgid "patrons.pref#AllowStaffToSetCheckoutsVisibilityForGuarantor# Allow"
@@ -8998,7 +8998,7 @@ msgstr "Don't allow"
 
 # Patrons > Patron relationships
 msgid "patrons.pref#AllowStaffToSetCheckoutsVisibilityForGuarantor# staff to set the ability for a patron's checkouts to be viewed by linked patrons in the OPAC."
-msgstr "staff to set the ability for a patron's checkouts to be viewed by linked patrons in the OPAC."
+msgstr "staff to set the ability for a user's checkouts to be viewed by linked users in the OPAC."
 
 # Patrons > Patron relationships
 msgid "patrons.pref#AllowStaffToSetFinesVisibilityForGuarantor# Allow"
@@ -9010,7 +9010,7 @@ msgstr "Don't allow"
 
 # Patrons > Patron relationships
 msgid "patrons.pref#AllowStaffToSetFinesVisibilityForGuarantor# staff to set the ability for a patron's charges to be viewed by linked patrons in the OPAC."
-msgstr "staff to set the ability for a patron's charges to be viewed by linked patrons in the OPAC."
+msgstr "staff to set the ability for a user's charges to be viewed by linked users in the OPAC."
 
 # Patrons > General
 msgid "patrons.pref#AutoApprovePatronProfileSettings# Disable"
@@ -9026,7 +9026,7 @@ msgstr "Requires <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfi
 
 # Patrons > General
 msgid "patrons.pref#AutoApprovePatronProfileSettings# automatic approval of patron detail changes from the OPAC."
-msgstr "automatic approval of patron detail changes from the OPAC."
+msgstr "automatic approval of user detail changes from the OPAC."
 
 # Patrons > Notices and notifications > AutoEmailNewUser
 msgid "patrons.pref#AutoEmailNewUser# <br><strong>NOTE:</strong> This uses the WELCOME notice."
@@ -9042,7 +9042,7 @@ msgstr "Send"
 
 # Patrons > Notices and notifications
 msgid "patrons.pref#AutoEmailNewUser# an email to newly created patrons."
-msgstr "an email to newly created patrons."
+msgstr "an email to newly created users."
 
 # Patrons > Notices and notifications
 msgid "patrons.pref#AutoEmailPrimaryAddress# Use"
@@ -9066,7 +9066,7 @@ msgstr "home"
 
 # Patrons > Notices and notifications
 msgid "patrons.pref#AutoEmailPrimaryAddress# patron email address for sending out emails."
-msgstr "patron email address for sending out emails."
+msgstr "user email address for sending out emails."
 
 # Patrons > Notices and notifications
 msgid "patrons.pref#AutoEmailPrimaryAddress# work"
@@ -9082,7 +9082,7 @@ msgstr "Send automatic renewal notices: "
 
 # Patrons > Patron forms
 msgid "patrons.pref#AutoRenewalNotices# according to patron messaging preferences"
-msgstr "according to patron messaging preferences"
+msgstr "according to user messaging preferences"
 
 # Patrons > Patron forms
 msgid "patrons.pref#AutoRenewalNotices# never"
@@ -9094,7 +9094,7 @@ msgstr "<strong>NOTE:</strong> If <a href=\"/cgi-bin/koha/admin/preferences.pl?o
 
 # Patrons > Patron forms
 msgid "patrons.pref#BorrowerMandatoryField# The following <a href='http://schema.koha-community.org/__VERSION__/tables/borrowers.html' target='blank'>database columns</a> must be filled in on the patron entry screen:"
-msgstr "The following <a href='http://schema.koha-community.org/__VERSION__/tables/borrowers.html' target='blank'>database columns</a> must be filled in on the patron entry screen:"
+msgstr "The following <a href='http://schema.koha-community.org/__VERSION__/tables/borrowers.html' target='blank'>database columns</a> must be filled in on the user entry screen:"
 
 # Circulation > Checkout policy
 msgid "patrons.pref#BorrowerRenewalPeriodBase# When renewing borrowers, base the new expiry date on"
@@ -9114,7 +9114,7 @@ msgstr "the latter of the current and expiry date."
 
 # Patrons > Patron forms
 msgid "patrons.pref#BorrowerUnwantedField# The following <a href='http://schema.koha-community.org/__VERSION__/tables/borrowers.html' target='blank'>database columns</a> will not appear on the patron entry screen:"
-msgstr "The following <a href='http://schema.koha-community.org/__VERSION__/tables/borrowers.html' target='blank'>database columns</a> will not appear on the patron entry screen:"
+msgstr "The following <a href='http://schema.koha-community.org/__VERSION__/tables/borrowers.html' target='blank'>database columns</a> will not appear on the user entry screen:"
 
 # Patrons > Patron forms
 msgid "patrons.pref#BorrowersTitles# (separate multiple choices with |)"
@@ -9126,7 +9126,7 @@ msgstr "Borrowers can have the following titles:"
 
 # Patrons > Patron forms
 msgid "patrons.pref#CardnumberLength# Card numbers for patrons must be"
-msgstr "Card numbers for patrons must be"
+msgstr "Card numbers for users must be"
 
 # Patrons > Patron forms > CardnumberLength
 msgid "patrons.pref#CardnumberLength# If <code>cardnumber</code> is included in the <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=BorrowerMandatoryField\">BorrowerMandatoryField</a> list, the minimum length, if not specified here, defaults to one. Maximum cannot be bigger than the database field size of 32."
@@ -9150,11 +9150,11 @@ msgstr "Do not"
 
 # Patrons > General
 msgid "patrons.pref#CheckPrevCheckout# Unless overridden by patron category, do"
-msgstr "Unless overridden by patron category, do"
+msgstr "Unless overridden by user category, do"
 
 # Patrons > General
 msgid "patrons.pref#CheckPrevCheckout# Unless overridden by patron category, do not"
-msgstr "Unless overridden by patron category, do not"
+msgstr "Unless overridden by user category, do not"
 
 # Patrons > General > CheckPrevCheckoutDelay
 msgid "patrons.pref#CheckPrevCheckoutDelay# Requires <a href='/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=CheckPrevCheckout'>CheckPrevCheckout</a> to be enabled. There is no time limit if 0 or empty."
@@ -9210,31 +9210,31 @@ msgstr "OPAC/Staff interface login"
 
 # Patrons > Patron forms
 msgid "patrons.pref#CollapseFieldsPatronAddForm# Patron account flags (existing patrons)"
-msgstr "Patron account flags (existing patrons)"
+msgstr "User account flags (existing users)"
 
 # Patrons > Patron forms
 msgid "patrons.pref#CollapseFieldsPatronAddForm# Patron identity"
-msgstr "Patron identity"
+msgstr "User identity"
 
 # Patrons > Patron forms
 msgid "patrons.pref#CollapseFieldsPatronAddForm# Patron messaging preferences"
-msgstr "Patron messaging preferences"
+msgstr "User messaging preferences"
 
 # Patrons > Patron forms
 msgid "patrons.pref#CollapseFieldsPatronAddForm# Patron restrictions (existing patrons)"
-msgstr "Patron restrictions (existing patrons)"
+msgstr "User restrictions (existing users)"
 
 # Patrons > Patron forms
 msgid "patrons.pref#CollapseFieldsPatronAddForm# When adding new patrons or editing existing patrons, collapse the following fields from the full form (can still be expanded later):"
-msgstr "When adding new patrons or editing existing patrons, collapse the following fields from the full form (can still be expanded later):"
+msgstr "When adding new users or editing existing users, collapse the following fields from the full form (can still be expanded later):"
 
 # Patrons > General
 msgid "patrons.pref#DefaultPatronSearchFields# Comma separated list defining the default fields to be used during a patron search using the \"standard\" option in the patrons or circulation module:"
-msgstr "Comma separated list defining the default fields to be used during a patron search using the \"standard\" option in the patrons or circulation module:"
+msgstr "Comma separated list defining the default fields to be used during a user search using the \"standard\" option in the users or circulation module:"
 
 # Patrons > General
 msgid "patrons.pref#DefaultPatronSearchFields# If empty Koha will default to \"firstname,middle_name,surname,othernames,cardnumber,userid\". Additional fields added to this preference will be added as search options in the dropdown menu on the patron search page."
-msgstr "If empty Koha will default to \"firstname,middle_name,surname,othernames,cardnumber,userid\". Additional fields added to this preference will be added as search options in the dropdown menu on the patron search page."
+msgstr "If empty Koha will default to \"firstname,middle_name,surname,othernames,cardnumber,userid\". Additional fields added to this preference will be added as search options in the dropdown menu on the user search page."
 
 # Patrons > General
 msgid "patrons.pref#EnableBorrowerFiles# Do"
@@ -9257,7 +9257,7 @@ msgstr "Enable"
 
 # Patrons > Security > EnableExpiredPasswordReset
 msgid "patrons.pref#EnableExpiredPasswordReset# If not enabled patrons must either use the 'Forgot your password' feature or have staff"
-msgstr "If not enabled patrons must either use the 'Forgot your password' feature or have staff"
+msgstr "If not enabled users must either use the 'Forgot your password' feature or have staff"
 
 # Patrons > Security > EnableExpiredPasswordReset
 msgid "patrons.pref#EnableExpiredPasswordReset# reset their password."
@@ -9265,11 +9265,11 @@ msgstr "reset their password."
 
 # Patrons > Security > EnableExpiredPasswordReset
 msgid "patrons.pref#EnableExpiredPasswordReset# the ability for patrons to directly reset their password when it is expired."
-msgstr "the ability for patrons to directly reset their password when it is expired."
+msgstr "the ability for users to directly reset their password when it is expired."
 
 # Patrons > Notices and notifications
 msgid "patrons.pref#EnhancedMessagingPreferences# <br><strong>NOTE:</strong> This only applies to courtesy notices. To manage if patrons have also access to these settings, use <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=EnhancedMessagingPreferencesOPAC\">EnhancedMessagingPreferencesOPAC</a>."
-msgstr "<br><strong>NOTE:</strong> This only applies to courtesy notices. To manage if patrons have also access to these settings, use <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=EnhancedMessagingPreferencesOPAC\">EnhancedMessagingPreferencesOPAC</a>."
+msgstr "<br><strong>NOTE:</strong> This only applies to courtesy notices. To manage if users have also access to these settings, use <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=EnhancedMessagingPreferencesOPAC\">EnhancedMessagingPreferencesOPAC</a>."
 
 # Circulation > Holds policy
 msgid "patrons.pref#EnhancedMessagingPreferences# <br><strong>NOTE:</strong> This system preference requires the <code>misc/cronjobs/process_message_queue.pl</code> and the <code>misc/cronjobs/advance_notices.pl</code> cronjob. Ask your system administrator to schedule them."
@@ -9285,7 +9285,7 @@ msgstr "Don't allow"
 
 # Patrons > Notices and notifications
 msgid "patrons.pref#EnhancedMessagingPreferences# staff to manage which notices patrons will receive and when they will receive them."
-msgstr "staff to manage which notices patrons will receive and when they will receive them."
+msgstr "staff to manage which notices users will receive and when they will receive them."
 
 # Patrons > Notices and notifications
 msgid "patrons.pref#EnhancedMessagingPreferencesOPAC# <br><strong>NOTE:</strong> <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=EnhancedMessagingPreferences\">EnhancedMessagingPreferences</a> must be enabled."
@@ -9301,7 +9301,7 @@ msgstr "Show"
 
 # Patrons > Notices and notifications
 msgid "patrons.pref#EnhancedMessagingPreferencesOPAC# patron messaging setting on the OPAC."
-msgstr "patron messaging setting on the OPAC."
+msgstr "user messaging setting on the OPAC."
 
 # Patrons > General
 msgid "patrons.pref#ExtendedPatronAttributes# Don't enable"
@@ -9312,11 +9312,11 @@ msgstr "Enable"
 
 # Patrons > General
 msgid "patrons.pref#ExtendedPatronAttributes# searching, editing and display of custom attributes on patrons."
-msgstr "searching, editing and display of custom attributes on patrons."
+msgstr "searching, editing and display of custom attributes on users."
 
 # Patrons > Security
 msgid "patrons.pref#FailedLoginAttempts# Block a patron's account if it reaches"
-msgstr "Block a patron's account if it reaches"
+msgstr "Block a user's account if it reaches"
 
 # Patrons > Security
 msgid "patrons.pref#FailedLoginAttempts# failed login attempts."
@@ -9332,7 +9332,7 @@ msgstr "Enable"
 
 # Patrons > Notices and notifications
 msgid "patrons.pref#FallbackToSMSIfNoEmail# sending purchase suggestion messages by SMS if no patron email is defined."
-msgstr "sending purchase suggestion messages by SMS if no patron email is defined."
+msgstr "sending purchase suggestion messages by SMS if no user email is defined."
 
 # Patrons > Security
 msgid "patrons.pref#FeeOnChangePatronCategory# Do"
@@ -9344,23 +9344,23 @@ msgstr "Don't"
 
 # Patrons > General
 msgid "patrons.pref#FeeOnChangePatronCategory# charge a fee when a patron changes to a category with an enrollment fee."
-msgstr "charge a fee when a patron changes to a category with an enrollment fee."
+msgstr "charge a fee when a user changes to a category with an enrollment fee."
 
 # Patrons > General > ListOwnershipUponPatronDeletion
 msgid "patrons.pref#ListOwnershipUponPatronDeletion# <br/>When changing owner at patron deletion, use borrowernumber "
-msgstr "<br/>When changing owner at patron deletion, use borrowernumber "
+msgstr "<br/>When changing owner at user deletion, use borrowernumber "
 
 # Patrons > General > ListOwnershipUponPatronDeletion
 msgid "patrons.pref#ListOwnershipUponPatronDeletion# All public or shared lists of this patron are either deleted or transferred to a new owner according to your choice; other private lists (not shared) are deleted."
-msgstr "All public or shared lists of this patron are either deleted or transferred to a new owner according to your choice; other private lists (not shared) are deleted."
+msgstr "All public or shared lists of this user are either deleted or transferred to a new owner according to your choice; other private lists (not shared) are deleted."
 
 # Patrons > General > ListOwnershipUponPatronDeletion
 msgid "patrons.pref#ListOwnershipUponPatronDeletion# When deleting a patron who owns public or shared lists,"
-msgstr "When deleting a patron who owns public or shared lists,"
+msgstr "When deleting a user who owns public or shared lists,"
 
 # Patrons > General > ListOwnershipUponPatronDeletion
 msgid "patrons.pref#ListOwnershipUponPatronDeletion# as new list owner, or leave this field empty in order to change owner to the active staff member who deletes the patron."
-msgstr "as new list owner, or leave this field empty in order to change owner to the active staff member who deletes the patron."
+msgstr "as new list owner, or leave this field empty in order to change owner to the active staff member who deletes the user."
 
 # Patrons > General > ListOwnershipUponPatronDeletion
 msgid "patrons.pref#ListOwnershipUponPatronDeletion# change owner of these lists."
@@ -9376,7 +9376,7 @@ msgstr "<br><strong>NOTE:</strong> This system preference requires the misc/cron
 
 # Patrons > Privacy
 msgid "patrons.pref#LockExpiredDelay# Lock expired patrons after"
-msgstr "Lock expired patrons after"
+msgstr "Lock expired users after"
 
 # Patrons > Privacy
 msgid "patrons.pref#LockExpiredDelay# days. Leave empty to disable this behavior."
@@ -9400,7 +9400,7 @@ msgstr "<br><strong>NOTE:</strong> This system preference requires the <code>mis
 
 # Patrons > Membership expiry
 msgid "patrons.pref#MembershipExpiryDaysNotice# Send an account expiration notice when a patron's card will expire in"
-msgstr "Send an account expiration notice when a patron's card will expire in"
+msgstr "Send an account expiration notice when a user's card will expire in"
 
 # Patrons > Membership expiry
 msgid "patrons.pref#MembershipExpiryDaysNotice# days."
@@ -9408,7 +9408,7 @@ msgstr "days."
 
 # Patrons > Membership expiry
 msgid "patrons.pref#NotifyBorrowerDeparture# Show a notice if the patron is about to expire or has expired"
-msgstr "Show a notice if the patron is about to expire or has expired"
+msgstr "Show a notice if the user is about to expire or has expired"
 
 # Patrons > Membership expiry
 msgid "patrons.pref#NotifyBorrowerDeparture# days beforehand."
@@ -9424,7 +9424,7 @@ msgstr "Notify"
 
 # OPAC > Policy
 msgid "patrons.pref#NotifyPasswordChange# patrons whenever their password is changed."
-msgstr "patrons whenever their password is changed."
+msgstr "users whenever their password is changed."
 
 # Patrons > Patron forms
 msgid "patrons.pref#PatronDuplicateMatchingAddFields# The following <a href='http://schema.koha-community.org/__VERSION__/tables/borrowers.html' target='blank'>database columns</a>:"
@@ -9432,7 +9432,7 @@ msgstr "The following <a href='http://schema.koha-community.org/__VERSION__/tabl
 
 # Patrons > Patron forms
 msgid "patrons.pref#PatronDuplicateMatchingAddFields# will be used to detect possible duplicates when adding a new patron."
-msgstr "will be used to detect possible duplicates when adding a new patron."
+msgstr "will be used to detect possible duplicates when adding a new user."
 
 # Patrons > Patron forms
 msgid "patrons.pref#PatronQuickAddFields# The following <a href='http://schema.koha-community.org/__VERSION__/tables/borrowers.html' target='blank'>database columns</a>:"
@@ -9440,7 +9440,7 @@ msgstr "The following <a href='http://schema.koha-community.org/__VERSION__/tabl
 
 # Patrons > Patron forms
 msgid "patrons.pref#PatronQuickAddFields# will be added to the patron quick add form when entering a new patron. Displays only mandatory fields and fields specified here. If applicable the guarantor form will be shown as well, individual fields in that form will be ignored."
-msgstr "will be added to the patron quick add form when entering a new patron. Displays only mandatory fields and fields specified here. If applicable the guarantor form will be shown as well, individual fields in that form will be ignored."
+msgstr "will be added to the user quick add form when entering a new user. Displays only mandatory fields and fields specified here. If applicable the guarantor form will be shown as well, individual fields in that form will be ignored."
 
 # Patrons > Patron relationships
 msgid "patrons.pref#PatronsPerPage# By default, show"
@@ -9464,7 +9464,7 @@ msgstr "Enable"
 
 # Patrons > Notices and notifications
 msgid "patrons.pref#PhoneNotification# patron phone notifications generation. A plugin will be required to process the phone notifications."
-msgstr "patron phone notifications generation. A plugin will be required to process the phone notifications."
+msgstr "user phone notifications generation. A plugin will be required to process the phone notifications."
 
 # Patrons > Patron relationships
 msgid "patrons.pref#PrefillGuaranteeField# Alternate address - Address"
@@ -9608,15 +9608,15 @@ msgstr "Surname"
 
 # Patrons > Patron relationships
 msgid "patrons.pref#PrefillGuaranteeField# When adding a guarantee to a guarantor patron fill the following fields in the guarantee's member entry form from the guarantors record:"
-msgstr "When adding a guarantee to a guarantor patron fill the following fields in the guarantee's member entry form from the guarantors record:"
+msgstr "When adding a guarantee to a guarantor user fill the following fields in the guarantee's member entry form from the guarantors record:"
 
 # Patrons > Privacy
 msgid "patrons.pref#PrivacyPolicyConsent# . When you enforce a data privacy policy, patrons need to give consent before using the OPAC. If you set to permissive, Koha will warn but not enforce."
-msgstr ". When you enforce a data privacy policy, patrons need to give consent before using the OPAC. If you set to permissive, Koha will warn but not enforce."
+msgstr ". When you enforce a data privacy policy, users need to give consent before using the OPAC. If you set to permissive, Koha will warn but not enforce."
 
 # OPAC > Self registration and modification
 msgid "patrons.pref#PrivacyPolicyConsent# <br><strong>NOTE:</strong> If you enable this you will also have to set the URL of your public privacy policy with the <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=PrivacyPolicyURL\">PrivacyPolicyURL</a> setting."
-msgstr "patrons.pref#PrivacyPolicyConsent# <br><strong>NOTE:</strong> If you enable this, you will also have to set the URL of your public privacy policy with the <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=PrivacyPolicyURL\">PrivacyPolicyURL</a> setting."
+msgstr "users.pref#PrivacyPolicyConsent# <br><strong>NOTE:</strong> If you enable this, you will also have to set the URL of your public privacy policy with the <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=PrivacyPolicyURL\">PrivacyPolicyURL</a> setting."
 
 # Patrons > Privacy > PrivacyPolicyConsent
 msgid "patrons.pref#PrivacyPolicyConsent# Set data privacy policy consent to:"
@@ -9688,7 +9688,7 @@ msgstr "Date and time of the transaction"
 
 # Patrons > Security
 msgid "patrons.pref#Pseudonymization# Date the patron was added to Koha"
-msgstr "Date the patron was added to Koha"
+msgstr "Date the user was added to Koha"
 
 # Patrons > Security
 msgid "patrons.pref#Pseudonymization# Disable"
@@ -9732,15 +9732,15 @@ msgstr " User category"
 
 # Patrons > Security
 msgid "patrons.pref#Pseudonymization# Patron's gender"
-msgstr "Patron's gender"
+msgstr "User's gender"
 
 # Patrons > Security
 msgid "patrons.pref#Pseudonymization# Patron's library"
-msgstr "Patron's library"
+msgstr "User's library"
 
 # Patrons > Security
 msgid "patrons.pref#Pseudonymization# Patron's title"
-msgstr "Patron's title"
+msgstr "User's title"
 
 # Patrons > Security
 msgid "patrons.pref#Pseudonymization# Patrons and transactions will be copied to a separate table for statistical purposes."
@@ -9768,7 +9768,7 @@ msgstr " Postcode"
 
 # Patrons > Security
 msgid "patrons.pref#Pseudonymization# pseudonymization to comply with data privacy policies and regulations like GDPR for managing personal information."
-msgstr "patrons.pref#Pseudonymization# pseudonymization to comply with data privacy policies and regulations like GDPR for managing personal information."
+msgstr "users.pref#Pseudonymization# pseudonymization to comply with data privacy policies and regulations like GDPR for managing personal information."
 
 # Patrons > Security
 msgid "patrons.pref#RequireStrongPassword# (must contain at least one digit, one lowercase and one uppercase)."
@@ -9784,7 +9784,7 @@ msgstr "Require"
 
 # Patrons > Security
 msgid "patrons.pref#RequireStrongPassword# a strong password for staff and patrons"
-msgstr "a strong password for staff and patrons"
+msgstr "a strong password for staff and users"
 
 # Patrons > Notices and notifications > SMSSendDriver
 msgid "patrons.pref#SMSSendDriver# <br><strong>NOTE:</strong> Many mobile providers have deprecated support for this feature and it is not recommended for use unless you have a dedicated SMS to Email gateway."
@@ -9824,7 +9824,7 @@ msgstr "If empty, defaults to: location|itype|ccode"
 
 # Patrons > General
 msgid "patrons.pref#StatisticsFields# Show the following fields from the items database table as columns on the statistics tab on the patron record: "
-msgstr "Show the following fields from the items database table as columns on the statistics tab on the patron record: "
+msgstr "Show the following fields from the items database table as columns on the statistics tab on the user record: "
 
 # Circulation > Checkin policy > StoreLastBorrower
 msgid "patrons.pref#TalkingTechItivaPhoneNotification# <br/><i class=\"fa fa-exclamation-triangle\"></i> If <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=TalkingTechItivaPhoneNotification\">TalkingTechItivaPhoneNotification</a> is enabled, <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=PhoneNotification\">PhoneNotification</a> should be disabled."
@@ -9840,7 +9840,7 @@ msgstr "Enable"
 
 # Patrons > Notices and notifications
 msgid "patrons.pref#TalkingTechItivaPhoneNotification# patron phone notifications using Talking Tech i-tiva (overdues, predues and holds notices currently supported)."
-msgstr "patron phone notifications using Talking Tech i-tiva (overdues, predues and holds notices currently supported)."
+msgstr "user phone notifications using Talking Tech i-tiva (overdues, predues and holds notices currently supported)."
 
 # Patrons > General
 msgid "patrons.pref#TrackLastPatronActivity# Do"
@@ -9852,19 +9852,19 @@ msgstr "Don't"
 
 # Patrons > General
 msgid "patrons.pref#TrackLastPatronActivity# The first time each day that a patron logs into the OPAC, connects to Koha via SIP or ILS-DI, or checks an item out the borrowers.lastseen will update with the current date and time."
-msgstr "The first time each day that a patron logs into the OPAC, connects to Koha via SIP or ILS-DI, or checks an item out the borrowers.lastseen will update with the current date and time."
+msgstr "The first time each day that a user logs into the OPAC, connects to Koha via SIP or ILS-DI, or checks an item out the borrowers.lastseen will update with the current date and time."
 
 # Patrons > General
 msgid "patrons.pref#TrackLastPatronActivity# track last patron activity."
-msgstr "track last patron activity."
+msgstr "track last user activity."
 
 # Patrons > Privacy
 msgid "patrons.pref#UnsubscribeReflectionDelay# Lock/expire patrons that submitted an unsubscribe request (refused consent) after"
-msgstr "Lock/expire patrons that submitted an unsubscribe request (refused consent) after"
+msgstr "Lock/expire users that submitted an unsubscribe request (refused consent) after"
 
 # Patrons > Privacy
 msgid "patrons.pref#UnsubscribeReflectionDelay# days and remove anonymized patron accounts after"
-msgstr "days and remove anonymized patron accounts after"
+msgstr "days and remove anonymized user accounts after"
 
 # Patrons > Privacy
 msgid "patrons.pref#UnsubscribeReflectionDelay# days, anonymize locked/expired accounts after"
@@ -9884,7 +9884,7 @@ msgstr "Send"
 
 # Patrons > Notices and notifications
 msgid "patrons.pref#UseEmailReceipts# email receipts to patrons for payments and writeoffs."
-msgstr "email receipts to patrons for payments and writeoffs."
+msgstr "email receipts to users for payments and writeoffs."
 
 # Patrons > Patron forms > autoMemberNum
 msgid "patrons.pref#autoMemberNum# <strong>NOTE:</strong> If <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=autoMemberNum\">autoMemberNum</a> is enabled, the system preference <a href=\"/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=BorrowerMandatoryField\">BorrowerMandatoryField</a> must not contain the field <code>cardnumber</code>."
@@ -9900,7 +9900,7 @@ msgstr "Don't"
 
 # Patrons > Patron forms
 msgid "patrons.pref#autoMemberNum# default the card number field on the patron addition screen to the next available card number (for example, if the largest currently used card number is 26345000012941, then this field will default to 26345000012942)."
-msgstr "default the card number field on the patron addition screen to the next available card number (for example, if the largest currently used card number is 26345000012941, then this field will default to 26345000012942)."
+msgstr "default the card number field on the user addition screen to the next available card number (for example, if the largest currently used card number is 26345000012941, then this field will default to 26345000012942)."
 
 # Patrons > Patron relationships
 msgid "patrons.pref#borrowerRelationship# (input multiple choices separated by |). Leave empty to deactivate."
@@ -9920,11 +9920,11 @@ msgstr "Don't allow"
 
 # Patrons > General
 msgid "patrons.pref#intranetreadinghistory# staff to access a patron's checkout and hold history (checkout history is still stored, regardless of staff being allowed access or not)."
-msgstr "staff to access a patron's checkout and hold history (checkout history is still stored, regardless of staff being allowed access or not)."
+msgstr "staff to access a user's checkout and hold history (checkout history is still stored, regardless of staff being allowed access or not)."
 
 # Patrons > Security
 msgid "patrons.pref#minPasswordLength# Login passwords for staff and patrons must be at least"
-msgstr "Login passwords for staff and patrons must be at least"
+msgstr "Login passwords for staff and users must be at least"
 
 # Patrons > Security
 msgid "patrons.pref#minPasswordLength# characters long."
@@ -9940,7 +9940,7 @@ msgstr "Don't allow"
 
 # Patrons > General
 msgid "patrons.pref#patronimages# images to be uploaded and shown for patrons on the staff interface."
-msgstr "images to be uploaded and shown for patrons on the staff interface."
+msgstr "images to be uploaded and shown for users on the staff interface."
 
 # Patrons > Patron forms
 msgid "patrons.pref#uppercasesurnames# Do"
@@ -10075,7 +10075,7 @@ msgstr "Keep"
 
 # Searching > Features
 msgid "searching.pref#EnableSearchHistory# patron search history in the staff interface."
-msgstr "patron search history in the staff interface."
+msgstr "user search history in the staff interface."
 
 # Searching > Results display
 msgid "searching.pref#FacetLabelTruncationLength# Truncate facets length to"
@@ -10167,7 +10167,7 @@ msgstr "Don't add"
 
 # Searching > Search form
 msgid "searching.pref#LoadSearchHistoryToTheFirstLoggedUser# search history of the unlogged user to the next patron logging in."
-msgstr "search history of the unlogged user to the next patron logging in."
+msgstr "search history of the unlogged user to the next user logging in."
 
 # Searching > Results display
 msgid "searching.pref#MaxSearchResultsItemsPerRecordStatusCheck# <br/>Availability statuses may show incorrectly in search results if a record has more items than the limit set. Statuses will display correctly in the record details."
@@ -10367,7 +10367,7 @@ msgstr "Retain"
 
 # Searching > Results display > RetainCatalogSearchTerms
 msgid "searching.pref#RetainCatalogSearchTerms# search terms between searches when searching from the 'search the catalog' tab in the staff interface header."
-msgstr "search terms between searches when searching from the 'search the catalog' tab in the staff interface header."
+msgstr "search terms between searches when searching from the 'search the catalogue' tab in the staff interface header."
 
 # Searching > Features
 msgid "searching.pref#RetainPatronsSearchTerms# Don't retain"
@@ -10379,7 +10379,7 @@ msgstr "Retain"
 
 # Searching > Results display > RetainPatronsSearchTerms
 msgid "searching.pref#RetainPatronsSearchTerms# search terms between searches when searching from the 'checkout' and 'search patrons' tab in the staff interface header."
-msgstr "search terms between searches when searching from the 'checkout' and 'search patrons' tab in the staff interface header."
+msgstr "search terms between searches when searching from the 'checkout' and 'search users' tab in the staff interface header."
 
 # Searching > Results display
 msgid "searching.pref#SavedSearchFilters# Disable"
@@ -10818,7 +10818,7 @@ msgstr "Show"
 
 # Staff interface > Options
 msgid "staff_interface.pref#HidePatronName# the names of patrons that have items checked out or on hold on detail pages or the \"Place Hold\" screen."
-msgstr "the names of patrons that have items checked out or on hold on detail pages or the \"Place Hold\" screen."
+msgstr "the names of users that have items checked out or on hold on detail pages or the \"Place Hold\" screen."
 
 # Staff interface > Options
 msgid "staff_interface.pref#IntranetAddMastheadLibraryPulldown# Don't show"
@@ -10842,7 +10842,7 @@ msgstr "Show"
 
 # Staff interface > Options
 msgid "staff_interface.pref#IntranetCatalogSearchPulldown# a search field pulldown for 'Search the catalog' boxes."
-msgstr "a search field pulldown for 'Search the catalog' boxes."
+msgstr "a search field pulldown for 'Search the catalogue' boxes."
 
 # Staff interface > Appearance
 msgid "staff_interface.pref#IntranetCirculationHomeHTML# Show the following HTML in its own div on the bottom of the home page of the circulation module:"
@@ -11030,7 +11030,7 @@ msgstr "Show"
 
 # Staff interface > Options
 msgid "staff_interface.pref#showLastPatron# a link to the last searched patron in the staff interface."
-msgstr "a link to the last searched patron in the staff interface."
+msgstr "a link to the last searched user in the staff interface."
 
 # Staff interface > Appearance
 msgid "staff_interface.pref#staffClientBaseURL# The staff interface is located at"
@@ -11114,7 +11114,7 @@ msgstr "News"
 
 # Tools > Patron cards
 msgid "tools.pref Patron cards"
-msgstr "Patron cards"
+msgstr "User cards"
 
 # Tools > Patron cards
 msgid "tools.pref Upload"

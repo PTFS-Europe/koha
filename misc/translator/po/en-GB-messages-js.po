@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: Koha 22.11\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-05-17 19:32-0300\n"
-"PO-Revision-Date: 2023-05-16 11:46+0000\n"
+"PO-Revision-Date: 2023-06-05 11:00+0100\n"
 "Last-Translator: ashimema <martin.renvoize@ptfs-europe.com>\n"
 "Language-Team: Koha Translation Team\n"
 "Language: en_GB\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Pootle 2.8\n"
+"X-Generator: Poedit 3.3.1\n"
 "X-Pootle-Path: /en_GB/22.11/en-GB-messages-js.po\n"
 "X-Pootle-Revision: 1\n"
 "X-POOTLE-MTIME: 1684237588.378872\n"
@@ -1328,11 +1328,11 @@ msgstr "Returned"
 
 #: koha-tmpl/intranet-tmpl/prog/js/checkouts.js:123
 msgid "Patron note"
-msgstr "Patron note"
+msgstr "User note"
 
 #: koha-tmpl/intranet-tmpl/prog/js/checkouts.js:126
 msgid "Unable to check in"
-msgstr "Unable to check in"
+msgstr "Unable to return"
 
 #: koha-tmpl/intranet-tmpl/prog/js/checkouts.js:142
 msgid "Confirm"
@@ -1365,7 +1365,7 @@ msgstr "on reservation"
 #: koha-tmpl/intranet-tmpl/prog/js/checkouts.js:198
 #: koha-tmpl/intranet-tmpl/prog/js/checkouts.js:497
 msgid "Not allowed: patron restricted"
-msgstr "Not allowed: patron restricted"
+msgstr "Not allowed: user restricted"
 
 #: koha-tmpl/intranet-tmpl/prog/js/checkouts.js:200
 #: koha-tmpl/intranet-tmpl/prog/js/checkouts.js:504
@@ -1864,7 +1864,7 @@ msgstr "Are you sure you want to renew this users registration?"
 
 #: koha-tmpl/intranet-tmpl/prog/js/members.js:20
 msgid "Please confirm whether this is a duplicate patron"
-msgstr "Please confirm whether this is a duplicate patron"
+msgstr "Please confirm whether this is a duplicate user"
 
 #: koha-tmpl/intranet-tmpl/prog/js/members.js:75
 #, javascript-format
