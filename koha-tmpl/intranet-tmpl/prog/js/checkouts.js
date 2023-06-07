@@ -1,6 +1,8 @@
 /* global __ */
 
 $(document).ready(function() {
+    var loadIssuesTableDelayTimeoutId;
+
     var barcodefield = $("#barcode");
 
     var onHoldDueDateSet = false;
@@ -252,13 +254,18 @@ $(document).ready(function() {
         barcodefield.focus();
     });
     $('#issues-table-load-now-button').click(function(){
+        if ( loadIssuesTableDelayTimeoutId ) clearTimeout(loadIssuesTableDelayTimeoutId);
         LoadIssuesTable();
         barcodefield.focus();
         return false;
     });
 
     if ( Cookies.get("issues-table-load-immediately-" + script) == "true" ) {
-        LoadIssuesTable();
+        if ( LoadCheckoutsTableDelay ) {
+            loadIssuesTableDelayTimeoutId = setTimeout( function(){ LoadIssuesTable() }, LoadCheckoutsTableDelay * 1000);
+        } else {
+            LoadIssuesTable();
+        }
         $('#issues-table-load-immediately').prop('checked', true);
     }
     $('#issues-table-load-immediately').on( "change", function(){
