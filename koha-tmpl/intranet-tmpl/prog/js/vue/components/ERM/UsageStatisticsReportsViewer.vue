@@ -17,7 +17,7 @@
                 :value="$__('Update table')"
             />
         </fieldset>
-        <div class="page-section">
+        <div class="page-section hide-table" ref="table_div">
             <KohaTable ref="table" v-bind="tableOptions"></KohaTable>
         </div>
     </div>
@@ -35,6 +35,7 @@ export default {
 
         return {
             getMonthsData,
+            table,
         }
     },
     beforeCreate() {
@@ -275,6 +276,44 @@ export default {
                 return url
             }
         },
+        mergeTitleDataIntoOneLine(numberOfMetricTypes) {
+            let dt = this.$refs.table.useTableObject()
+            dt.on("draw", () => {
+                const rows = dt.rows().nodes().to$()
+
+                const titles = []
+                for (let i = 0; i < rows.length; i = i + numberOfMetricTypes) {
+                    titles.push([rows.slice(i, i + numberOfMetricTypes)])
+                }
+
+                titles
+                    .map(item => item[0])
+                    .forEach(titleRows => {
+                        Array.from(titleRows).forEach((row, i) => {
+                            const cells = row.cells
+                            if (i === 0) {
+                                cells[0].rowSpan = numberOfMetricTypes
+                            } else {
+                                cells[0].remove()
+                            }
+                        })
+                    })
+            })
+            this.$refs.table_div.classList.remove("hide-table")
+        },
+    },
+    watch: {
+        table() {
+            // table needs to be rendered before header can be created and
+            // table is hidden by .hide-table until table header is created
+            if (this.report_type !== "metric_type") {
+                this.mergeTitleDataIntoOneLine(
+                    this.params.queryObject.metric_types.length
+                )
+            } else {
+                this.$refs.table_div.classList.remove("hide-table")
+            }
+        },
     },
     mounted() {
         if (!this.building_table) {
@@ -308,5 +347,8 @@ export default {
 }
 .v-select {
     max-width: 30%;
+}
+.hide-table {
+    display: none;
 }
 </style>
