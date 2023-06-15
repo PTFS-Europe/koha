@@ -1,11 +1,11 @@
 <template>
     <div v-if="!initialized">{{ $__("Loading") }}</div>
-    <div v-else-if="titles" id="titles_list">
-        <div v-if="titles.length" class="page-section">
+    <div v-else id="titles_list">
+        <div v-if="titles_count > 0" class="page-section">
             <KohaTable ref="table" v-bind="tableOptions"></KohaTable>
         </div>
         <div v-else-if="initialized" class="dialog message">
-            {{ $__("There are no titles defined") }}
+            {{ $__("No title data has been harvested for this provider") }}
         </div>
     </div>
 </template>
@@ -25,7 +25,7 @@ export default {
     },
     data: function () {
         return {
-            titles: [],
+            titles_count: 0,
             initialized: false,
             before_route_entered: false,
             building_table: false,
@@ -41,13 +41,18 @@ export default {
     methods: {
         async getTitles() {
             const client = APIClient.erm
-            await client.usage_titles.count().then(
-                titles => {
-                    this.titles = titles
-                    this.initialized = true
-                },
-                error => {}
-            )
+            await client.usage_titles
+                .count({
+                    usage_data_provider_id:
+                        this.$route.params.usage_data_provider_id,
+                })
+                .then(
+                    count => {
+                        this.titles_count = count
+                        this.initialized = true
+                    },
+                    error => {}
+                )
         },
         table_url() {
             let url = `/api/v1/erm/usage_titles?usage_data_provider_id=${this.$route.params.usage_data_provider_id}`
