@@ -1,7 +1,7 @@
 <template>
     <div class="page-section" id="files">
         <form @submit="addDocument($event)" class="file_upload">
-            <h2>Manual import:</h2>
+            <h2>Manual upload:</h2>
             <label>{{ $__("File") }}:</label>
             <div class="file_information">
                 <span v-if="!file.filename">

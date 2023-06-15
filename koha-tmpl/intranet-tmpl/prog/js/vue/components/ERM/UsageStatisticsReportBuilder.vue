@@ -543,8 +543,9 @@ export default {
                 alert(
                     "Please select a start and end year before choosing this option"
                 )
-                e.target.checked = false
-            } else {
+                return
+            }
+            if (e.target.id === "yearly_filter_required_no") {
                 const years = []
                 for (
                     let i = parseInt(this.query.start_year);
@@ -562,6 +563,9 @@ export default {
 
                 this.time_period_columns_builder = months
                 this.yearly_filter_required = false
+            } else {
+                this.time_period_columns_builder = null
+                this.yearly_filter_required = true
             }
         },
         determineMonths(query, years, months_data) {

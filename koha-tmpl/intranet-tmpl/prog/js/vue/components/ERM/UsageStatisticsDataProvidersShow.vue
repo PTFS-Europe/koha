@@ -184,7 +184,7 @@ export default {
             this.setConfirmationDialog(
                 {
                     title: this.$__(
-                        "Are you sure you want to remove this usage data provider?"
+                        "Are you sure you want to remove this data provider?"
                     ),
                     message: usage_data_provider_name,
                     accept_label: this.$__("Yes, delete"),

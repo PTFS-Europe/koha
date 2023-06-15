@@ -272,7 +272,16 @@ export class ERMAPIClient extends HttpClient {
                 this.get({
                     endpoint: "usage_data_providers/" + id + "/test_connection",
                 }),
-            //count: () => this.count("usage_data_providers"), //TODO: Implement count method
+            count: (query = {}) =>
+                this.count({
+                    endpoint:
+                        "usage_data_providers?" +
+                        new URLSearchParams({
+                            _page: 1,
+                            _per_page: 1,
+                            ...(query && { q: JSON.stringify(query) }),
+                        }),
+                }),
         };
     }
 
@@ -327,6 +336,16 @@ export class ERMAPIClient extends HttpClient {
             delete: (id) =>
                 this.delete({
                     endpoint: "counter_files/" + id,
+                }),
+            count: (query = {}) =>
+                this.count({
+                    endpoint:
+                        "counter_files?" +
+                        new URLSearchParams({
+                            _page: 1,
+                            _per_page: 1,
+                            ...(query && { q: JSON.stringify(query) }),
+                        }),
                 }),
         };
     }

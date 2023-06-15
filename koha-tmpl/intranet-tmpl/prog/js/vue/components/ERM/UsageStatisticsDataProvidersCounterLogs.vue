@@ -1,7 +1,7 @@
 <template>
     <div v-if="!initialized">{{ $__("Loading") }}</div>
-    <div v-else-if="counter_files" id="counter_logs_list">
-        <div v-if="counter_files.length" class="page-section">
+    <div v-else id="counter_logs_list">
+        <div v-if="counter_files_count > 0" class="page-section">
             <KohaTable
                 ref="table"
                 v-bind="tableOptions"
@@ -34,7 +34,7 @@ export default {
     },
     data: function () {
         return {
-            counter_files: [],
+            counter_files_count: 0,
             initialized: false,
             before_route_entered: false,
             building_table: false,
@@ -63,21 +63,26 @@ export default {
     methods: {
         async getCounterFiles() {
             const client = APIClient.erm
-            await client.counter_files.getAll("_per_page=10").then(
-                // paginated as this request is just to check if there are any counter_files and set this.initialized
-                counter_files => {
-                    this.counter_files = counter_files
-                    this.initialized = true
-                },
-                error => {}
-            )
+            await client.counter_files
+                .count({
+                    usage_data_provider_id:
+                        this.$route.params.usage_data_provider_id,
+                })
+                .then(
+                    // paginated as this request is just to check if there are any counter_files and set this.initialized
+                    count => {
+                        this.counter_files_count = count
+                        this.initialized = true
+                    },
+                    error => {}
+                )
         },
         table_url() {
             let url = `/api/v1/erm/counter_files?usage_data_provider_id=${this.$route.params.usage_data_provider_id}`
             return url
         },
         download_counter_file(counter_file, dt, event) {
-            document.location.href =
+            window.location.href =
                 "/api/v1/erm/counter_files/" +
                 counter_file.erm_counter_files_id +
                 "/file/content"
@@ -122,14 +127,8 @@ export default {
                 {
                     title: __("Import date"),
                     render: function (data, type, row, meta) {
-                        const date = row.counter_logs[0].importdate.substr(
-                            0,
-                            10
-                        )
-                        const time = row.counter_logs[0].importdate.substr(
-                            11,
-                            8
-                        )
+                        const date = row.date_uploaded.substr(0, 10)
+                        const time = row.date_uploaded.substr(11, 8)
                         return `${date} ${time}`
                     },
                     searchable: true,
