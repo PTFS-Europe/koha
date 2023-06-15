@@ -46,7 +46,7 @@
                                 >{{ $__("Harvester status") }}:</label
                             >
                             <v-select
-                                id="report_type"
+                                id="harvester_status"
                                 v-model="usage_data_provider.active"
                                 label="description"
                                 :reduce="status => status.value"
@@ -84,20 +84,21 @@
                             <label for="usage_data_provider_begin_date"
                                 >{{ $__("Harvest start date") }}:
                             </label>
-                            <input
+                            <flat-pickr
                                 id="usage_data_provider_begin_date"
                                 v-model="usage_data_provider.begin_date"
-                                type="date"
+                                :config="fp_config"
+                                data-date_to="usage_data_provider_end_date"
                             />
                         </li>
                         <li>
                             <label for="usage_data_provider_end_date"
                                 >{{ $__("Harvest end date") }}:
                             </label>
-                            <input
+                            <flat-pickr
                                 id="usage_data_provider_end_date"
                                 v-model="usage_data_provider.end_date"
-                                type="date"
+                                :config="fp_config"
                             />
                         </li>
                         <li>
@@ -113,7 +114,22 @@
                                 :reduce="av => av.value"
                                 :options="av_report_types"
                                 multiple
-                            />
+                                :required="
+                                    !usage_data_provider.report_types.length
+                                "
+                            >
+                                <template #search="{ attributes, events }">
+                                    <input
+                                        :required="
+                                            !usage_data_provider.report_types
+                                                .length
+                                        "
+                                        class="vs__search"
+                                        v-bind="attributes"
+                                        v-on="events"
+                                    />
+                                </template>
+                            </v-select>
                             <span class="required">{{ $__("Required") }}</span>
                         </li>
                     </ol>
@@ -230,6 +246,7 @@ import { setMessage, setError, setWarning } from "../../messages"
 import { APIClient } from "../../fetch/api-client.js"
 import { inject } from "vue"
 import { storeToRefs } from "pinia"
+import flatPickr from "vue-flatpickr-component"
 
 export default {
     setup() {
@@ -267,6 +284,7 @@ export default {
                 { description: "Active", value: 1 },
                 { description: "Inactive", value: 0 },
             ],
+            fp_config: flatpickr_defaults,
         }
     },
     beforeRouteEnter(to, from, next) {
@@ -366,6 +384,7 @@ export default {
     },
     components: {
         ButtonSubmit,
+        flatPickr,
     },
     name: "UsageStatisticsDataProvidersFormAdd",
 }

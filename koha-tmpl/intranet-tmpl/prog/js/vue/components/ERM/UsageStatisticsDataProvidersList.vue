@@ -1,10 +1,10 @@
 <template>
     <div v-if="!initialized">{{ $__("Loading") }}</div>
-    <div v-else-if="usage_data_providers" id="usage_data_providers_list">
+    <div v-else id="usage_data_providers_list">
         <template class="toolbar_options">
             <Toolbar />
             <div
-                v-if="usage_data_providers.length"
+                v-if="usage_data_provider_count > 0"
                 id="toolbar"
                 class="btn-toolbar"
             >
@@ -17,7 +17,7 @@
                 >
             </div>
         </template>
-        <div v-if="usage_data_providers.length" class="page-section">
+        <div v-if="usage_data_provider_count > 0" class="page-section">
             <KohaTable
                 ref="table"
                 v-bind="tableOptions"
@@ -61,7 +61,7 @@ export default {
     },
     data: function () {
         return {
-            usage_data_providers: [],
+            usage_data_provider_count: 0,
             initialized: false,
             building_table: false,
             tableOptions: {
@@ -93,11 +93,11 @@ export default {
         }
     },
     methods: {
-        async getUsageDataProviders() {
+        async getUsageDataProviderCount() {
             const client = APIClient.erm
-            await client.usage_data_providers.getAll().then(
-                usage_data_providers => {
-                    this.usage_data_providers = usage_data_providers
+            await client.usage_data_providers.count().then(
+                count => {
+                    this.usage_data_provider_count = count
                     this.initialized = true
                 },
                 error => {}
@@ -324,7 +324,7 @@ export default {
     mounted() {
         if (!this.building_table) {
             this.building_table = true
-            this.getUsageDataProviders()
+            this.getUsageDataProviderCount()
         }
     },
     components: { Toolbar, KohaTable },
