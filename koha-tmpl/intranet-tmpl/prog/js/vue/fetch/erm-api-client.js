@@ -330,6 +330,21 @@ export class ERMAPIClient extends HttpClient {
                 }),
         };
     }
+
+    get default_usage_reports() {
+        return {
+            getAll: (query) =>
+                this.get({
+                    endpoint: "default_usage_reports",
+                    query,
+                }),
+            create: (default_usage_report) =>
+                this.post({
+                    endpoint: "default_usage_reports",
+                    body: default_usage_report,
+                }),
+        };
+    }
 }
 
 export default ERMAPIClient;

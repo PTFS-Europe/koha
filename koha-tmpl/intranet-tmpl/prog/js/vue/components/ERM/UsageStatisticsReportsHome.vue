@@ -44,15 +44,15 @@
                     <fieldset class="rows">
                         <ol>
                             <li>
-                                <label for="default_reports"
+                                <label for="default_usage_reports"
                                     >{{ $__("Choose report") }}:</label
                                 >
                                 <v-select
-                                    id="default_report"
-                                    v-model="query.default_report"
-                                    label="description"
-                                    :reduce="report => report"
-                                    :options="default_reports"
+                                    id="default_usage_reports"
+                                    v-model="default_usage_report"
+                                    label="report_name"
+                                    :reduce="report => report.report_url_params"
+                                    :options="default_usage_reports"
                                 />
                             </li>
                         </ol>
@@ -92,35 +92,20 @@ export default {
         return {
             initialized: false,
             custom_or_default: "default",
-            query: {
-                interval: "monthly",
-                report_type: null,
-                metric_types: null,
-                usage_data_providers: null,
-                titles: null,
-                start_month: null,
-                start_year: null,
-                end_month: null,
-                end_year: null,
-            },
-            default_reports: [
-                "Top resource requests",
-                "Publisher rollup",
-                "Provider rollup",
-                "Yearly usage requests",
-                "Titles",
-                // etc etc
-            ],
+            default_usage_report: null,
+            default_usage_reports: [],
+            usage_data_providers: [],
         }
     },
     beforeRouteEnter(to, from, next) {
         next(vm => {
             vm.getUsageDataProviders()
+            vm.getDefaultUsageReports()
         })
     },
-    beforeRouteUpdate(to, from) {
-        this.usage_data_provider = this.getUsageDataProviders()
-    },
+    // beforeRouteUpdate(to, from) {
+    //     this.usage_data_provider = this.getUsageDataProviders()
+    // },
     methods: {
         async getUsageDataProviders() {
             const client = APIClient.erm
@@ -134,6 +119,15 @@ export default {
                         )
                     }
                     this.usage_data_providers = usage_data_providers
+                },
+                error => {}
+            )
+        },
+        async getDefaultUsageReports() {
+            const client = APIClient.erm
+            await client.default_usage_reports.getAll().then(
+                default_usage_reports => {
+                    this.default_usage_reports = default_usage_reports
                     this.initialized = true
                 },
                 error => {}
@@ -144,6 +138,11 @@ export default {
         },
         displayDefaultReport(e) {
             e.preventDefault()
+
+            this.$router.push({
+                name: "UsageStatisticsReportsViewer",
+                query: { data: this.default_usage_report },
+            })
         },
     },
     components: {

@@ -40,6 +40,8 @@ definitions:
     $ref: ./definitions/erm_counter_file.yaml
   erm_counter_log:
     $ref: ./definitions/erm_counter_log.yaml
+  erm_default_usage_report:
+    $ref: ./definitions/erm_default_usage_report.yaml
   erm_eholdings_title:
     $ref: ./definitions/erm_eholdings_title.yaml
   erm_eholdings_package:
@@ -237,6 +239,10 @@ paths:
     $ref: ./paths/erm_counter_logs.yaml#/~1erm~1counter_logs
   "/erm/counter_logs/{erm_counter_log_id}":
     $ref: "./paths/erm_counter_logs.yaml#/~1erm~1counter_logs~1{erm_counter_log_id}"
+  /erm/default_usage_reports:
+    $ref: ./paths/erm_default_usage_reports.yaml#/~1erm~1default_usage_reports
+  "/erm/default_usage_reports/{erm_default_usage_report_id}":
+    $ref: "./paths/erm_default_usage_reports.yaml#/~1erm~1default_usage_reports~1{erm_default_usage_report_id}"
   "/erm/eholdings/{provider}/titles":
     $ref: "./paths/erm_eholdings_titles.yaml#/~1erm~1eholdings~1{provider}~1titles"
   /erm/eholdings/local/titles/import:
@@ -549,6 +555,12 @@ parameters:
     description: ERM counter_log internal identifier
     in: path
     name: erm_counter_log_id
+    required: true
+    type: integer
+  erm_default_usage_report_id_pp:
+    description: ERM default_usage_report internal identifier
+    in: path
+    name: erm_default_usage_report_id
     required: true
     type: integer
   erm_usage_data_provider_id_pp:
