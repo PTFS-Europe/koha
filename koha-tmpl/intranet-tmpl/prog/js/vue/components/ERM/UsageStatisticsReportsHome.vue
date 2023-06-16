@@ -15,7 +15,7 @@
                         role="tab"
                         data-content="default"
                         @click="changeCustomOrDefault"
-                        >Default</a
+                        >Saved reports</a
                     >
                 </li>
                 <li
@@ -29,38 +29,14 @@
                         role="tab"
                         data-content="custom"
                         @click="changeCustomOrDefault"
-                        >Custom</a
+                        >Create report</a
                     >
                 </li>
             </ul>
         </div>
         <div class="tab-content">
             <div v-if="custom_or_default === 'default'">
-                <form
-                    class="default-report"
-                    @submit="displayDefaultReport($event)"
-                >
-                    <h2>{{ $__("Select default report") }}</h2>
-                    <fieldset class="rows">
-                        <ol>
-                            <li>
-                                <label for="default_usage_reports"
-                                    >{{ $__("Choose report") }}:</label
-                                >
-                                <v-select
-                                    id="default_usage_reports"
-                                    v-model="default_usage_report"
-                                    label="report_name"
-                                    :reduce="report => report.report_url_params"
-                                    :options="default_usage_reports"
-                                />
-                            </li>
-                        </ol>
-                    </fieldset>
-                    <fieldset class="action">
-                        <ButtonSubmit />
-                    </fieldset>
-                </form>
+                <UsageStatisticsSavedReports />
             </div>
             <div v-if="custom_or_default === 'custom'">
                 <UsageStatisticsReportBuilder
@@ -76,6 +52,7 @@ import { inject } from "vue"
 import ButtonSubmit from "../ButtonSubmit.vue"
 import { APIClient } from "../../fetch/api-client.js"
 import UsageStatisticsReportBuilder from "./UsageStatisticsReportBuilder.vue"
+import UsageStatisticsSavedReports from "./UsageStatisticsSavedReports.vue"
 
 export default {
     setup() {
@@ -100,7 +77,6 @@ export default {
     beforeRouteEnter(to, from, next) {
         next(vm => {
             vm.getUsageDataProviders()
-            vm.getDefaultUsageReports()
         })
     },
     // beforeRouteUpdate(to, from) {
@@ -119,15 +95,6 @@ export default {
                         )
                     }
                     this.usage_data_providers = usage_data_providers
-                },
-                error => {}
-            )
-        },
-        async getDefaultUsageReports() {
-            const client = APIClient.erm
-            await client.default_usage_reports.getAll().then(
-                default_usage_reports => {
-                    this.default_usage_reports = default_usage_reports
                     this.initialized = true
                 },
                 error => {}
@@ -136,18 +103,11 @@ export default {
         changeCustomOrDefault(e) {
             this.custom_or_default = e.target.getAttribute("data-content")
         },
-        displayDefaultReport(e) {
-            e.preventDefault()
-
-            this.$router.push({
-                name: "UsageStatisticsReportsViewer",
-                query: { data: this.default_usage_report },
-            })
-        },
     },
     components: {
         ButtonSubmit,
         UsageStatisticsReportBuilder,
+        UsageStatisticsSavedReports,
     },
     name: "UsageStatisticsReportsHome",
 }
