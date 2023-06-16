@@ -287,7 +287,7 @@
                     @click="saveToDefaultReports($event)"
                     class="button_format"
                 >
-                    Save to default reports
+                    Save report
                 </button>
             </div>
         </form>
