@@ -689,6 +689,30 @@ sub test_connection {
 
 }
 
+=head3 erm_usage_titles
+
+Method to embed erm_usage_titles to titles for report formatting
+
+=cut
+
+sub erm_usage_titles {
+    my ( $self ) = @_;
+    my $usage_title_rs = $self->_result->erm_usage_titles;
+    return Koha::ERM::UsageTitles->_new_from_dbic($usage_title_rs);
+}
+
+=head3 erm_usage_muses
+
+Method to embed erm_usage_muses to titles for report formatting
+
+=cut
+
+sub erm_usage_muses {
+    my ( $self ) = @_;
+    my $usage_mus_rs = $self->_result->erm_usage_muses;
+    return Koha::ERM::MonthlyUsages->_new_from_dbic($usage_mus_rs);
+}
+
 =head3 _type
 
 =cut
