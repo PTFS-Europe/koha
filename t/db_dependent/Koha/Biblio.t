@@ -17,7 +17,7 @@
 
 use Modern::Perl;
 
-use Test::More tests => 23;
+use Test::More tests => 24;
 use Test::Exception;
 use Test::Warn;
 
