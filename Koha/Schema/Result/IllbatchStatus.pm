@@ -118,4 +118,12 @@ __PACKAGE__->add_columns(
     '+is_system' => { is_boolean => 1 },
 );
 
+sub koha_object_class {
+    'Koha::IllbatchStatus';
+}
+
+sub koha_objects_class {
+    'Koha::IllbatchStatuses';
+}
+
 1;
