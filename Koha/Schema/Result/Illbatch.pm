@@ -29,11 +29,15 @@ __PACKAGE__->table("illbatches");
   is_auto_increment: 1
   is_nullable: 0
 
+Batch ID
+
 =head2 name
 
   data_type: 'varchar'
   is_nullable: 0
   size: 100
+
+Unique name of batch
 
 =head2 backend
 
@@ -41,11 +45,15 @@ __PACKAGE__->table("illbatches");
   is_nullable: 0
   size: 20
 
+Name of batch backend
+
 =head2 borrowernumber
 
   data_type: 'integer'
   is_foreign_key: 1
   is_nullable: 1
+
+Patron associated with batch
 
 =head2 branchcode
 
@@ -54,12 +62,16 @@ __PACKAGE__->table("illbatches");
   is_nullable: 1
   size: 50
 
+Branch associated with batch
+
 =head2 statuscode
 
   data_type: 'varchar'
   is_foreign_key: 1
   is_nullable: 1
   size: 20
+
+Status of batch
 
 =cut
 
@@ -182,8 +194,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2023-04-28 11:24:22
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:j4UhTuwaQnwWhjSd9j35tg
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2023-06-29 15:39:23
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:YFYggCyLuYgreuB/JSbV/g
 
 sub koha_object_class {
     'Koha::Illbatch';
