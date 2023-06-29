@@ -15,7 +15,10 @@ return {
                 `branchcode` varchar(50) COMMENT "Branch associated with batch",
                 `statuscode` varchar(20) COMMENT "Status of batch",
                 PRIMARY KEY (`id`),
-                UNIQUE KEY `u_illbatches__name` (`name`)
+                UNIQUE KEY `u_illbatches__name` (`name`),
+                CONSTRAINT `illbatches_bnfk` FOREIGN KEY (`borrowernumber`) REFERENCES `borrowers` (`borrowernumber`) ON DELETE SET NULL ON UPDATE CASCADE,
+                CONSTRAINT `illbatches_bcfk` FOREIGN KEY (`branchcode`) REFERENCES `branches` (`branchcode`) ON DELETE SET NULL ON UPDATE CASCADE,
+                CONSTRAINT `illbatches_sfk` FOREIGN KEY (`statuscode`) REFERENCES `illbatch_statuses` (`code`) ON DELETE SET NULL ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         });
         $dbh->do(q{
