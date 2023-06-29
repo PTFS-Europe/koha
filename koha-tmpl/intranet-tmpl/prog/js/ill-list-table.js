@@ -200,6 +200,7 @@ $(document).ready(function() {
             'id_prefix',
             'patron'
         ],
+        "scrollX": true,
         "stateSave": true, // remember state on page reload
         "columns": [
             {
