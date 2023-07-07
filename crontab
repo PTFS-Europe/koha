@@ -25,30 +25,7 @@
 KOHA_CONF=/etc/koha/sites/kss/koha-conf.xml
 PERL5LIB=/usr/share/koha/lib
 
-*/15 * * * * /usr/share/koha/bin/cronjobs/process_message_queue.pl -v --code 2FA_ENABLE > /tmp/crontest 2>&1
-*/15 * * * * /usr/share/koha/bin/cronjobs/process_message_queue.pl -v --code PREDUEDGST > /tmp/predue 2>&1
-*/15 * * * * /usr/share/koha/bin/cronjobs/process_message_queue.pl --code ILL_PARTNER_REQ
-*/15 * * * * /usr/share/koha/bin/cronjobs/process_message_queue.pl --code ILL_REQUEST_UNAVAIL
-*/15 * * * * /usr/share/koha/bin/cronjobs/process_message_queue.pl --code CHECKIN
-*/15 * * * * /usr/share/koha/bin/cronjobs/process_message_queue.pl --code CHECKOUT
-*/15 * * * * /usr/share/koha/bin/cronjobs/process_message_queue.pl --code DUEDGST
-*/15 * * * * /usr/share/koha/bin/cronjobs/process_message_queue.pl --code WELCOME
-*/15 * * * * /usr/share/koha/bin/cronjobs/process_message_queue.pl --code MEMBERSHIP_EXPIRY
-*/15 * * * * /usr/share/koha/bin/cronjobs/process_message_queue.pl --code PASSWORD_RESET
-*/15 * * * * /usr/share/koha/bin/cronjobs/process_message_queue.pl --code AUTO_RENEWALS_DGST
-*/15 * * * * /usr/share/koha/bin/cronjobs/process_message_queue.pl --code RENEWAL
-*/15 * * * * /usr/share/koha/bin/cronjobs/process_message_queue.pl --code ODUE
-*/15 * * * * /usr/share/koha/bin/cronjobs/process_message_queue.pl --code ODUE2
-*/15 * * * * /usr/share/koha/bin/cronjobs/process_message_queue.pl --code ODUE3
-*/15 * * * * /usr/share/koha/bin/cronjobs/process_message_queue.pl --code HOLD_REMINDER
-
-*/15 * * * * /usr/share/koha/bin/cronjobs/process_message_queue.pl --code NEW_SUGGESTION
-*/15 * * * * /usr/share/koha/bin/cronjobs/process_message_queue.pl --code TO_PROCESS
-*/15 * * * * /usr/share/koha/bin/cronjobs/process_message_queue.pl --code NOTIFY_MANAGER
-*/15 * * * * /usr/share/koha/bin/cronjobs/process_message_queue.pl --code ACCEPTED
-*/15 * * * * /usr/share/koha/bin/cronjobs/process_message_queue.pl --code AVAILABLE
-*/15 * * * * /usr/share/koha/bin/cronjobs/process_message_queue.pl --code ORDERED
-*/15 * * * * /usr/share/koha/bin/cronjobs/process_message_queue.pl --code REJECTED
+*/15 * * * * /usr/share/koha/bin/cronjobs/process_message_queue.pl --code ILL_PARTNER_REQ --code ILL_REQUEST_UNAVAIL --code CHECKIN --code CHECKOUT --code DUEDGST --code WELCOME --code MEMBERSHIP_EXPIRY --code PASSWORD_RESET --code AUTO_RENEWALS_DGST --code RENEWAL --code ODUE --code ODUE2 --code ODUE3 --code HOLD_REMINDER --code NEW_SUGGESTION --code TO_PROCESS --code NOTIFY_MANAGER --code ACCEPTED --code AVAILABLE --code ORDERED --code REJECTED --code 2FA_ENABLE --code 2FA_DISABLE --code PREDUEDGST --code PEP_EMAILER --code PEP_USERANNOUCEMENT
 
 30 6 * * * /usr/share/koha/bin/cronjobs/process_message_queue.pl --code LIBCHANGESBRP
 30 6 * * * /usr/share/koha/bin/cronjobs/process_message_queue.pl --code LIBCHANGESHS
@@ -64,9 +41,6 @@ PERL5LIB=/usr/share/koha/lib
 
 0 10,15 * * * /usr/share/koha/bin/cronjobs/process_message_queue.pl --code HOLD
 0 10,15 * * * /usr/share/koha/bin/cronjobs/process_message_queue.pl --code ILL_PICKUP_READY
-
-*/15 * * * * /usr/share/koha/bin/cronjobs/process_message_queue.pl --code PEP_EMAILER
-*/15 * * * * /usr/share/koha/bin/cronjobs/process_message_queue.pl --code PEP_USERANNOUCEMENT
 
 #Emailing reports
 10 8 * * * /usr/share/koha/bin/cronjobs/runreport.pl --to='rsc-tr.library@nhs.net' --subject='GU users with items 6 weeks overdue' -a --format=csv --csv-header 85 >/dev/null 2>&1
