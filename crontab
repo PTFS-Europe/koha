@@ -27,17 +27,7 @@ PERL5LIB=/usr/share/koha/lib
 
 */15 * * * * /usr/share/koha/bin/cronjobs/process_message_queue.pl --code ILL_PARTNER_REQ --code ILL_REQUEST_UNAVAIL --code CHECKIN --code CHECKOUT --code DUEDGST --code WELCOME --code MEMBERSHIP_EXPIRY --code PASSWORD_RESET --code AUTO_RENEWALS_DGST --code RENEWAL --code ODUE --code ODUE2 --code ODUE3 --code HOLD_REMINDER --code NEW_SUGGESTION --code TO_PROCESS --code NOTIFY_MANAGER --code ACCEPTED --code AVAILABLE --code ORDERED --code REJECTED --code 2FA_ENABLE --code 2FA_DISABLE --code PREDUEDGST --code PEP_EMAILER --code PEP_USERANNOUCEMENT
 
-30 6 * * * /usr/share/koha/bin/cronjobs/process_message_queue.pl --code LIBCHANGESBRP
-30 6 * * * /usr/share/koha/bin/cronjobs/process_message_queue.pl --code LIBCHANGESHS
-30 6 * * * /usr/share/koha/bin/cronjobs/process_message_queue.pl --code LIBCHANGESBR
-30 6 * * * /usr/share/koha/bin/cronjobs/process_message_queue.pl --code LIBCHANGESBN
-30 6 * * * /usr/share/koha/bin/cronjobs/process_message_queue.pl --code LIBCHANGEMD
-30 6 * * * /usr/share/koha/bin/cronjobs/process_message_queue.pl --code LIBCHANGEKMS
-30 6 * * * /usr/share/koha/bin/cronjobs/process_message_queue.pl --code LIBCHANGEGU
-30 6 * * * /usr/share/koha/bin/cronjobs/process_message_queue.pl --code LIBCHANGEKTW
-30 6 * * * /usr/share/koha/bin/cronjobs/process_message_queue.pl --code LIBCHANGEALL
-30 6 * * * /usr/share/koha/bin/cronjobs/process_message_queue.pl --code MEMBERFLLWP_KMS
-30 6 * * * /usr/share/koha/bin/cronjobs/process_message_queue.pl --code MEMBERFLLWP_KTW
+30 6 * * * /usr/share/koha/bin/cronjobs/process_message_queue.pl --code LIBCHANGESBRP --code LIBCHANGESHS --code LIBCHANGESBR --code LIBCHANGESBN --code LIBCHANGEMD --code LIBCHANGEKMS --code LIBCHANGEGU --code LIBCHANGEKTW --code LIBCHANGEALL --code MEMBERFLLWP_KMS --code MEMBERFLLWP_KTW
 
 0 10,15 * * * /usr/share/koha/bin/cronjobs/process_message_queue.pl --code HOLD
 0 10,15 * * * /usr/share/koha/bin/cronjobs/process_message_queue.pl --code ILL_PICKUP_READY
