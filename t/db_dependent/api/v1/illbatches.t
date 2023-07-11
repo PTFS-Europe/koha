@@ -89,7 +89,7 @@ subtest 'list() tests' => sub {
     # One batch created, should get returned
     $t->get_ok("//$userid:$password@/api/v1/illbatches")
       ->status_is(200)
-      ->json_has( '/0/id', 'Batch ID' )
+      ->json_has( '/0/batch_id', 'Batch ID' )
       ->json_has( '/0/name', 'Batch name' )
       ->json_has( '/0/backend', 'Backend name' )
       ->json_has( '/0/borrowernumber', 'Borrowernumber' )
@@ -176,7 +176,7 @@ subtest 'get() tests' => sub {
 
     $t->get_ok( "//$userid:$password@/api/v1/illbatches/" . $batch->id )
       ->status_is(200)
-      ->json_has( '/id', 'Batch ID' )
+      ->json_has( '/batch_id', 'Batch ID' )
       ->json_has( '/name', 'Batch name' )
       ->json_has( '/backend', 'Backend name' )
       ->json_has( '/borrowernumber', 'Borrowernumber' )

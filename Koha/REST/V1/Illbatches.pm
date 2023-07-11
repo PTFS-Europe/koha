@@ -87,7 +87,12 @@ sub list {
         my $branch = $branch_results->find({ branchcode => $it_batch->branchcode });
         my $status = $status_results->find({ code => $it_batch->statuscode });
         push @to_return, {
-            %{$it_batch->unblessed},
+            batch_id       => $it_batch->id,
+            backend        => $it_batch->backend,
+            branchcode     => $it_batch->branchcode,
+            name           => $it_batch->name,
+            statuscode     => $it_batch->statuscode,
+            borrowernumber => $it_batch->borrowernumber,
             patron         => $patron,
             branch         => $branch,
             status         => $status,
@@ -121,7 +126,12 @@ sub get {
     return $c->render(
         status => 200,
         openapi => {
-            %{$batch->unblessed},
+            batch_id       => $batch->id,
+            backend        => $batch->backend,
+            branchcode     => $batch->branchcode,
+            name           => $batch->name,
+            statuscode     => $batch->statuscode,
+            borrowernumber => $batch->borrowernumber,
             patron         => $batch->patron->unblessed,
             branch         => $batch->branch->unblessed,
             status         => $batch->status->unblessed,
@@ -161,7 +171,12 @@ sub add {
         $c->res->headers->location( $c->req->url->to_string . '/' . $batch->id );
 
         my $ret = {
-            %{$batch->unblessed},
+            batch_id         => $batch->id,
+            backend          => $batch->backend,
+            branchcode       => $batch->branchcode,
+            name             => $batch->name,
+            statuscode       => $batch->statuscode,
+            borrowernumber => $batch->borrowernumber,
             patron           => $batch->patron->unblessed,
             branch           => $batch->branch->unblessed,
             status           => $batch->status->unblessed,
@@ -211,7 +226,12 @@ sub update {
         $batch->update_and_log( $params );
 
         my $ret = {
-            %{$batch->unblessed},
+            batch_id       => $batch->id,
+            backend        => $batch->backend,
+            branchcode     => $batch->branchcode,
+            name           => $batch->name,
+            statuscode     => $batch->statuscode,
+            borrowernumber => $batch->borrowernumber,
             patron         => $batch->patron->unblessed,
             branch         => $batch->branch->unblessed,
             status         => $batch->status->unblessed,

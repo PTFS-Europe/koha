@@ -1,7 +1,7 @@
 ---
 type: object
 properties:
-  id:
+  batch_id:
     type: string
     description: Internal ILL batch identifier
   name:

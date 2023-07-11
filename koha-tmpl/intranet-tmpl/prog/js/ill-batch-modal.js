@@ -378,7 +378,7 @@
             var option = document.createElement('option')
             option.value = status.code;
             option.text = status.name;
-            if (batch.data.id && batch.data.statuscode === status.code) {
+            if (batch.data.batch_id && batch.data.statuscode === status.code) {
                 option.selected = true;
             }
             statusesSelect.add(option);
@@ -479,7 +479,7 @@
         updateBatch()
             .then(function () {
                 $('#ill-batch-modal').modal({ show: false });
-                location.href = '/cgi-bin/koha/ill/ill-requests.pl?batch_id=' + batch.data.id;
+                location.href = '/cgi-bin/koha/ill/ill-requests.pl?batch_id=' + batch.data.batch_id;
             });
     };
 
@@ -505,7 +505,7 @@
             })
             .then(function (jsoned) {
                 batch.data = {
-                    id: jsoned.id,
+                    batch_id: jsoned.batch_id,
                     name: jsoned.name,
                     backend: jsoned.backend,
                     cardnumber: jsoned.cardnumber,
@@ -545,9 +545,9 @@
                 return Promise.reject(response);
             })
             .then(function (body) {
-                batchId = body.id;
+                batchId = body.batch_id;
                 batch.data = {
-                    id: body.id,
+                    batch_id: body.batch_id,
                     name: body.name,
                     backend: body.backend,
                     cardnumber: body.patron.cardnumber,
@@ -572,7 +572,7 @@
     function updateBatch() {
         var selectedBranchcode = branchcodeSelect.selectedOptions[0].value;
         var selectedStatuscode = statusesSelect.selectedOptions[0].value;
-        return doBatchApiRequest('/' + batch.data.id, {
+        return doBatchApiRequest('/' + batch.data.batch_id, {
             method: 'PUT',
             headers: {
                 'Content-type': 'application/json'
@@ -1039,7 +1039,7 @@
     }
 
     function manageBatchItemsDisplay() {
-        batchItemsDisplay.style.display = batch.data.id ? 'block' : 'none'
+        batchItemsDisplay.style.display = batch.data.batch_id ? 'block' : 'none'
     };
 
     function updateBatchInputs() {
