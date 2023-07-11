@@ -20,38 +20,29 @@
 [% INCLUDE 'header.inc' %]
 [% INCLUDE 'prefs-admin-search.inc' %]
 
-<nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumb">
-    <ol>
-        <li>
-            <a href="/cgi-bin/koha/mainpage.pl">Home</a>
-        </li>
-        <li>
+[% WRAPPER 'sub-header.inc' %]
+    [% WRAPPER breadcrumbs %]
+        [% WRAPPER breadcrumb_item %]
             <a href="/cgi-bin/koha/admin/admin-home.pl">Administration</a>
-        </li>
-
-        [% IF op == 'add_form' %]
-            <li>
-                <a href="/cgi-bin/koha/admin/ill_batch_statuses.pl">Interlibrary loan batch statuses</a>
-            </li>
-            <li>
-                <a href="#" aria-current="page">
-                    [% IF status.id %]
-                        <span>Modify batch status</span>
-                    [% ELSE %]
-                        <span>New batch status</span>
-                    [% END %]
-                </a>
-            </li>
-
-        [% ELSE %]
-            <li>
-                <a href="#" aria-current="page">
-                    Interlibrary loan batch statuses
-                </a>
-            </li>
         [% END %]
-    </ol>
-</nav>
+        [% IF op == 'add_form' %]
+            [% WRAPPER breadcrumb_item %]
+                <a href="/cgi-bin/koha/admin/ill_batch_statuses.pl">Interlibrary loan batch statuses</a>
+            [% END %]
+            [% WRAPPER breadcrumb_item bc_active= 1 %]
+                [% IF status.id %]
+                    <span>Modify batch status</span>
+                [% ELSE %]
+                    <span>New batch status</span>
+                [% END %]
+            [% END %]
+        [% ELSE %]
+            [% WRAPPER breadcrumb_item bc_active= 1 %]
+                Interlibrary loan batch statuses
+            [% END %]
+        [% END %]
+    [% END #/ WRAPPER breadcrumbs %]
+[% END #/ WRAPPER sub-header.inc %]
 
 <div class="main container-fluid">
     <div class="row">
