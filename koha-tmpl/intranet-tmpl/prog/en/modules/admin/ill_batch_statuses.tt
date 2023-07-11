@@ -11,7 +11,7 @@
        [% ELSE %]
            New batch status
        [% END %] &rsaquo; [% END %]
-    Interlibrary Loan batch statuses &rsaquo; Administration &rsaquo; Koha
+    Interlibrary loan batch statuses &rsaquo; Administration &rsaquo; Koha
 </title>
 [% INCLUDE 'doc-head-close.inc' %]
 </head>
@@ -31,7 +31,7 @@
 
         [% IF op == 'add_form' %]
             <li>
-                <a href="/cgi-bin/koha/admin/ill_batch_statuses.pl">Interlibrary Loan batch statuses</a>
+                <a href="/cgi-bin/koha/admin/ill_batch_statuses.pl">Interlibrary loan batch statuses</a>
             </li>
             <li>
                 <a href="#" aria-current="page">
@@ -46,7 +46,7 @@
         [% ELSE %]
             <li>
                 <a href="#" aria-current="page">
-                    Interlibrary Loan batch statuses
+                    Interlibrary loan batch statuses
                 </a>
             </li>
         [% END %]
@@ -123,7 +123,7 @@
                         <a class="btn btn-default" id="newillbatchstatus" href="/cgi-bin/koha/admin/ill_batch_statuses.pl?op=add_form"><i class="fa fa-plus"></i> New batch status</a>
                     </div>
 
-                    <h1>Interlibrary Loan batch statuses</h1>
+                    <h1>Interlibrary loan batch statuses</h1>
                     [% IF statuses.count %]
                         <table id="table_batch_statuses">
                             <thead>
