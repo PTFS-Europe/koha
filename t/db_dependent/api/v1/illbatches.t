@@ -92,7 +92,7 @@ subtest 'list() tests' => sub {
       ->json_has( '/0/batch_id', 'Batch ID' )
       ->json_has( '/0/name', 'Batch name' )
       ->json_has( '/0/backend', 'Backend name' )
-      ->json_has( '/0/borrowernumber', 'Borrowernumber' )
+      ->json_has( '/0/patron_id', 'Borrowernumber' )
       ->json_has( '/0/branchcode', 'Branchcode' )
       ->json_has( '/0/patron', 'patron embedded' )
       ->json_has( '/0/branch', 'branch embedded' )
@@ -179,7 +179,7 @@ subtest 'get() tests' => sub {
       ->json_has( '/batch_id', 'Batch ID' )
       ->json_has( '/name', 'Batch name' )
       ->json_has( '/backend', 'Backend name' )
-      ->json_has( '/borrowernumber', 'Borrowernumber' )
+      ->json_has( '/patron_id', 'Borrowernumber' )
       ->json_has( '/branchcode', 'Branchcode' )
       ->json_has( '/patron', 'patron embedded' )
       ->json_has( '/branch', 'branch embedded' )
@@ -272,7 +272,7 @@ subtest 'add() tests' => sub {
         ->status_is( 201 )
         ->json_is( '/name'           => $batch_metadata->{name} )
         ->json_is( '/backend'        => $batch_metadata->{backend} )
-        ->json_is( '/borrowernumber' => $librarian->borrowernumber )
+        ->json_is( '/patron_id'      => $librarian->borrowernumber )
         ->json_is( '/branchcode'     => $batch_metadata->{branchcode} )
         ->json_is( '/statuscode'     => $batch_status->code )
         ->json_has( '/patron' )
@@ -336,7 +336,7 @@ subtest 'update() tests' => sub {
     # Attempt partial update on a PUT
     my $batch_with_missing_field = {
         backend => "Mock",
-        borrowernumber => $librarian->borrowernumber,
+        patron_id => $librarian->borrowernumber,
         branchcode => $branch->branchcode,
         statuscode => $batch_status->code
     };
@@ -351,7 +351,7 @@ subtest 'update() tests' => sub {
     my $batch_with_updated_field = {
         name           => "Master Ploo Koon",
         backend        => "Mock",
-        borrowernumber => $librarian->borrowernumber,
+        patron_id => $librarian->borrowernumber,
         branchcode => $branch->branchcode,
         statuscode => $batch_status->code
     };

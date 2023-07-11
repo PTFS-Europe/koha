@@ -13,7 +13,7 @@ properties:
   cardnumber:
     type: string
     description: Card number of the patron of the ILL batch
-  borrowernumber:
+  patron_id:
     type: string
     description: Borrower number of the patron of the ILL batch
   branchcode:

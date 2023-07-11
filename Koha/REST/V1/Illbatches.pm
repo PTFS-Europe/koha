@@ -92,7 +92,7 @@ sub list {
             branchcode     => $it_batch->branchcode,
             name           => $it_batch->name,
             statuscode     => $it_batch->statuscode,
-            borrowernumber => $it_batch->borrowernumber,
+            patron_id => $it_batch->borrowernumber,
             patron         => $patron,
             branch         => $branch,
             status         => $status,
@@ -131,7 +131,7 @@ sub get {
             branchcode     => $batch->branchcode,
             name           => $batch->name,
             statuscode     => $batch->statuscode,
-            borrowernumber => $batch->borrowernumber,
+            patron_id => $batch->borrowernumber,
             patron         => $batch->patron->unblessed,
             branch         => $batch->branch->unblessed,
             status         => $batch->status->unblessed,
@@ -176,7 +176,7 @@ sub add {
             branchcode       => $batch->branchcode,
             name             => $batch->name,
             statuscode       => $batch->statuscode,
-            borrowernumber => $batch->borrowernumber,
+            patron_id        => $batch->borrowernumber,
             patron           => $batch->patron->unblessed,
             branch           => $batch->branch->unblessed,
             status           => $batch->status->unblessed,
@@ -221,6 +221,7 @@ sub update {
 
     my $params = $c->req->json;
     delete $params->{cardnumber};
+    $params->{borrowernumber} = delete $params->{patron_id} if $params->{patron_id};
 
     return try {
         $batch->update_and_log( $params );
@@ -231,7 +232,7 @@ sub update {
             branchcode     => $batch->branchcode,
             name           => $batch->name,
             statuscode     => $batch->statuscode,
-            borrowernumber => $batch->borrowernumber,
+            patron_id      => $batch->borrowernumber,
             patron         => $batch->patron->unblessed,
             branch         => $batch->branch->unblessed,
             status         => $batch->status->unblessed,
