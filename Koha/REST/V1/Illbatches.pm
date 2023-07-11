@@ -89,7 +89,7 @@ sub list {
         push @to_return, {
             batch_id       => $it_batch->id,
             backend        => $it_batch->backend,
-            branchcode     => $it_batch->branchcode,
+            library_id     => $it_batch->branchcode,
             name           => $it_batch->name,
             statuscode     => $it_batch->statuscode,
             patron_id => $it_batch->borrowernumber,
@@ -128,7 +128,7 @@ sub get {
         openapi => {
             batch_id       => $batch->id,
             backend        => $batch->backend,
-            branchcode     => $batch->branchcode,
+            library_id => $batch->branchcode,
             name           => $batch->name,
             statuscode     => $batch->statuscode,
             patron_id => $batch->borrowernumber,
@@ -164,6 +164,7 @@ sub add {
 
     delete $body->{cardnumber};
     $body->{borrowernumber} = $patron->borrowernumber;
+    $body->{branchcode} = delete $body->{library_id};
 
     return try {
         my $batch = Koha::Illbatch->new( $body );
@@ -173,7 +174,7 @@ sub add {
         my $ret = {
             batch_id         => $batch->id,
             backend          => $batch->backend,
-            branchcode       => $batch->branchcode,
+            library_id       => $batch->branchcode,
             name             => $batch->name,
             statuscode       => $batch->statuscode,
             patron_id        => $batch->borrowernumber,
@@ -222,6 +223,7 @@ sub update {
     my $params = $c->req->json;
     delete $params->{cardnumber};
     $params->{borrowernumber} = delete $params->{patron_id} if $params->{patron_id};
+    $params->{branchcode} = delete $params->{library_id} if $params->{library_id};
 
     return try {
         $batch->update_and_log( $params );
@@ -229,7 +231,7 @@ sub update {
         my $ret = {
             batch_id       => $batch->id,
             backend        => $batch->backend,
-            branchcode     => $batch->branchcode,
+            library_id     => $batch->branchcode,
             name           => $batch->name,
             statuscode     => $batch->statuscode,
             patron_id      => $batch->borrowernumber,

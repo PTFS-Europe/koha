@@ -16,7 +16,7 @@ properties:
   patron_id:
     type: string
     description: Borrower number of the patron of the ILL batch
-  branchcode:
+  library_id:
     type: string
     description: Branch code of the branch of the ILL batch
   patron:
@@ -44,5 +44,5 @@ additionalProperties: false
 required:
   - name
   - backend
-  - branchcode
+  - library_id
   - statuscode

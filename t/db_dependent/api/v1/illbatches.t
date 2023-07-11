@@ -93,7 +93,7 @@ subtest 'list() tests' => sub {
       ->json_has( '/0/name', 'Batch name' )
       ->json_has( '/0/backend', 'Backend name' )
       ->json_has( '/0/patron_id', 'Borrowernumber' )
-      ->json_has( '/0/branchcode', 'Branchcode' )
+      ->json_has( '/0/library_id', 'Branchcode' )
       ->json_has( '/0/patron', 'patron embedded' )
       ->json_has( '/0/branch', 'branch embedded' )
       ->json_has( '/0/requests_count', 'request count' );
@@ -180,7 +180,7 @@ subtest 'get() tests' => sub {
       ->json_has( '/name', 'Batch name' )
       ->json_has( '/backend', 'Backend name' )
       ->json_has( '/patron_id', 'Borrowernumber' )
-      ->json_has( '/branchcode', 'Branchcode' )
+      ->json_has( '/library_id', 'Branchcode' )
       ->json_has( '/patron', 'patron embedded' )
       ->json_has( '/branch', 'branch embedded' )
       ->json_has( '/requests_count', 'request count' );
@@ -241,7 +241,7 @@ subtest 'add() tests' => sub {
         name           => "Anakin's requests",
         backend        => "Mock",
         cardnumber     => $librarian->cardnumber,
-        branchcode     => $branch->branchcode,
+        library_id     => $branch->branchcode,
         statuscode     => $batch_status->code
     };
 
@@ -273,7 +273,7 @@ subtest 'add() tests' => sub {
         ->json_is( '/name'           => $batch_metadata->{name} )
         ->json_is( '/backend'        => $batch_metadata->{backend} )
         ->json_is( '/patron_id'      => $librarian->borrowernumber )
-        ->json_is( '/branchcode'     => $batch_metadata->{branchcode} )
+        ->json_is( '/library_id'     => $batch_metadata->{library_id} )
         ->json_is( '/statuscode'     => $batch_status->code )
         ->json_has( '/patron' )
         ->json_has( '/status' )
@@ -337,7 +337,7 @@ subtest 'update() tests' => sub {
     my $batch_with_missing_field = {
         backend => "Mock",
         patron_id => $librarian->borrowernumber,
-        branchcode => $branch->branchcode,
+        library_id => $branch->branchcode,
         statuscode => $batch_status->code
     };
 
@@ -352,7 +352,7 @@ subtest 'update() tests' => sub {
         name           => "Master Ploo Koon",
         backend        => "Mock",
         patron_id => $librarian->borrowernumber,
-        branchcode => $branch->branchcode,
+        library_id => $branch->branchcode,
         statuscode => $batch_status->code
     };
 

@@ -310,7 +310,7 @@
             batch_id: batchId,
             ill_backend_id: batch.data.backend,
             patron_id: batch.data.patron.borrowernumber,
-            library_id: batch.data.branchcode,
+            library_id: batch.data.library_id,
             extended_attributes: extended_attributes
         };
         window.doCreateSubmission(payload)
@@ -509,7 +509,7 @@
                     name: jsoned.name,
                     backend: jsoned.backend,
                     cardnumber: jsoned.cardnumber,
-                    branchcode: jsoned.branchcode,
+                    library_id: jsoned.library_id,
                     statuscode: jsoned.statuscode
                 }
                 return jsoned;
@@ -534,7 +534,7 @@
                 name: nameInput.value,
                 backend: backend,
                 cardnumber: cardnumberInput.value,
-                branchcode: selectedBranchcode,
+                library_id: selectedBranchcode,
                 statuscode: selectedStatuscode
             })
         })
@@ -551,7 +551,7 @@
                     name: body.name,
                     backend: body.backend,
                     cardnumber: body.patron.cardnumber,
-                    branchcode: body.branchcode,
+                    library_id: body.library_id,
                     statuscode: body.statuscode,
                     patron: body.patron,
                     status: body.status
@@ -581,7 +581,7 @@
                 name: nameInput.value,
                 backend: batch.data.backend,
                 cardnumber: batch.data.patron.cardnumber,
-                branchcode: selectedBranchcode,
+                library_id: selectedBranchcode,
                 statuscode: selectedStatuscode
             })
         })
@@ -1045,7 +1045,7 @@
     function updateBatchInputs() {
         nameInput.value = batch.data.name || '';
         cardnumberInput.value = batch.data.cardnumber || '';
-        branchcodeSelect.value = batch.data.branchcode || '';
+        branchcodeSelect.value = batch.data.library_id || '';
     }
 
     function debounce(func) {
