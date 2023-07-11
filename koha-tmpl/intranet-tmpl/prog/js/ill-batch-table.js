@@ -106,13 +106,7 @@
 
     // A render function for our patron link
     var createPatronLink = function (data) {
-        var link = document.createElement('a');
-        link.setAttribute('title', ill_batch_borrower_details);
-        link.setAttribute('href', '/cgi-bin/koha/members/moremember.pl?borrowernumber=' + data.borrowernumber);
-        var displayText = [data.firstname, data.surname].join(' ') + ' ( ' + data.cardnumber + ' )';
-        link.appendChild(document.createTextNode(displayText));
-
-        return link.outerHTML;
+        return data ? $patron_to_html(data, { display_cardnumber: true, url: true }) : '';
     };
 
     // A render function for our row action buttons
