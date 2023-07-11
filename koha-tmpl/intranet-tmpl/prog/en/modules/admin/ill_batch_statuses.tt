@@ -36,10 +36,10 @@
             <li>
                 <a href="#" aria-current="page">
                     [% IF status.id %]
-                        Modify
+                        <span>Modify batch status</span>
                     [% ELSE %]
-                        New
-                    [% END %] batch status
+                        <span>New batch status</span>
+                    [% END %]
                 </a>
             </li>
 
@@ -101,7 +101,11 @@
                                 </li>
                                 <li>
                                     <label for="is_system">Is a system status: </label>
-                                    <strong>[% status.is_system ? "Yes" : "No" | html %]</strong>
+                                    [% IF status.is_system %]
+                                        <strong>Yes</strong>
+                                    [% ELSE %]
+                                        <strong>No</strong>
+                                    [% END %]
                                     <input type="hidden" name="is_system" value="[% status.is_system | html %]" />
                                 </li>
                             </ol>

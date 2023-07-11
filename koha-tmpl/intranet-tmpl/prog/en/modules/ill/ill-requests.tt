@@ -803,9 +803,10 @@
                 [% ELSIF query_type == 'illlist' %]
                     <!-- illlist -->
                     <h1>
-                        View ILL requests
-                        [% IF batch %]
-                        for batch "[% batch.name | html %]"
+                        [% IF !batch %]
+                        <span>View ILL requests</span>
+                        [% ELSIF batch %]
+                        <span>View ILL requests for batch "[% batch.name | html %]"</span>
                         [% END %]
                     </h1>
                     <div id="results" class="page-section">
