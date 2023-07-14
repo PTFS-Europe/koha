@@ -86,7 +86,9 @@
                 updateTable();
                 updateRowCount();
                 updateProcessTotals();
-                checkAvailability();
+                if (ill_check_availability_syspref == 1){
+                    checkAvailability();
+                }
             }
         }
     );
@@ -247,22 +249,23 @@
                 !availabilitySent[row.value]
             ) {
                 availabilitySent[row.value] = 1;
-                getAvailability(row.value, row.metadata);
+                getAvailability(row);
             }
         });
     };
 
     // Check availability services for immediate availability, if found,
     // create a link in the table linking to the item
-    function getAvailability(identifier, metadata) {
+    function getAvailability(row) {
+        let metadata = row.metadata;
         // Prep the metadata for passing to the availability plugins
         let availability_object = {};
         if (metadata.issn) availability_object['issn'] = metadata.issn;
         if (metadata.doi) availability_object['doi'] = metadata.doi;
         if (metadata.pubmedid) availability_object['pubmedid'] = metadata.pubmedid;
         var prepped = encodeURIComponent(base64EncodeUnicode(JSON.stringify(availability_object)));
-        for (i = 0; i < batch_availability_services.length; i++) {
-            var service = batch_availability_services[i];
+        row.av_hits = [];
+        batch_availability_services.map(async (service) => {
             window.doApiRequest(
                 service.endpoint + prepped
             )
@@ -272,16 +275,17 @@
                 .then(function (data) {
                     if (data.results.search_results && data.results.search_results.length > 0) {
                         var result = data.results.search_results[0];
-                        tableContent.data = tableContent.data.map(function (row) {
-                            if (row.value === identifier) {
-                                row.url = result.url;
-                                row.availabilitySupplier = service.name;
-                            }
-                            return row;
-                        });
+                        row.av_hits.push({name:service.name, url:result.url});
+                        return row;
+                    }else {
+                        row.av_hits.push({ name: service.name, empty: 1 })
                     }
+                })
+                .then(function (response) {
+                    updateTable();
                 });
-        }
+            });
+        // }
     };
 
     // Help btoa with > 8 bit strings
@@ -820,15 +824,7 @@
         label.innerText = ill_batch_metadata[prop] + ': ';
 
         // Add a link to the availability URL if appropriate
-        var value;
-        if (!data.url) {
-            value = document.createElement('span');
-        } else {
-            value = document.createElement('a');
-            value.setAttribute('href', data.url);
-            value.setAttribute('target', '_blank');
-            value.setAttribute('title', ill_batch_available_via + ' ' + data.availabilitySupplier);
-        }
+        var value = document.createElement('span');
         value.classList.add('metadata-value');
         value.innerText = meta[prop];
         div.appendChild(label);
@@ -930,6 +926,30 @@
         return data.requestStatus || '-';
     }
 
+    function createRequestAvailability(x, y, data) {
+
+        // If the fetch failed
+        if (data.failed.length > 0) {
+            return data.failed;
+        }
+
+        let str = '';
+        let has_some = false;
+        if(typeof data.av_hits !== 'undefined' && data.av_hits.length>0){
+            data.av_hits.forEach((av_hit) => {
+                if(!av_hit.empty){
+                    has_some = true;
+                    str += '<li><a target="_blank" href="' + av_hit.url + '">' + av_hit.name + '</a></li>'
+                }
+            });
+
+            if(!has_some){
+                str = ill_batch_none;
+            }
+        }
+        return str || ill_populate_waiting;
+    };
+
     function buildTable(identifiers) {
         table = KohaTable('identifier-table', {
             processing: true,
@@ -963,8 +983,13 @@
                     width: '6.5%',
                     render: createRequestStatus
                 },
+                ...( ill_check_availability_syspref == 1 ? [{
+                    data: '',
+                    width: '13%',
+                    render: createRequestAvailability, }] : []
+                    ),
                 {
-                    width: '18%',
+                    width: '6.5%',
                     render: createActions,
                     className: 'action-column'
                 }

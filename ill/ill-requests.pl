@@ -323,6 +323,7 @@ if ( $backends_available ) {
             # Prepare availability searching, if required
             # Get the definition for the z39.50 plugin
             if ( C4::Context->preference('ILLCheckAvailability') ) {
+                # FIXME: the below get_services call is bugged, needs to be updated
                 my $availability = Koha::Illrequest::Workflow::Availability->new($request->metadata);
                 my $services = $availability->get_services({
                     ui_context => 'partners',
@@ -553,8 +554,6 @@ sub get_ill_availability {
         }
     }
 
-    my $availability = Koha::Illrequest::Workflow::Availability->new($id_types);
-    return $availability->get_services({
-        ui_context => 'staff'
-    });
+    my $availability = Koha::Illrequest::Workflow::Availability->new($id_types, 'staff');
+    return $availability->get_services();
 }
