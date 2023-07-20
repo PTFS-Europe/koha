@@ -17,6 +17,7 @@ package Koha::REST::V1::ERM::CounterFiles;
 
 use Modern::Perl;
 
+use MIME::Base64 qw( decode_base64 );
 use Mojo::Base 'Mojolicious::Controller';
 
 use Koha::ERM::CounterFiles;
@@ -93,6 +94,10 @@ sub add {
 
                 my $body = $c->validation->param('body');
 
+                my $file_content =
+                    defined( $body->{file_content} ) ? decode_base64( $body->{file_content} ) : "";
+                $body->{file_content} = $file_content;
+
                 my $counter_file = Koha::ERM::CounterFile->new_from_api($body)->store;
 
                 $c->res->headers->location($c->req->url->to_string . '/' . $counter_file->erm_counter_files_id);
@@ -138,6 +143,12 @@ sub add {
                 return $c->render(
                     status  => 413,
                     openapi => { error => $_->error }
+                );
+            }
+            elsif ( $_->isa('Koha::Exceptions::ERM::CounterFile::UnsupportedRelease') ) {
+                return $c->render(
+                    status  => 400,
+                    openapi => { error => $_->description }
                 );
             }
         }
