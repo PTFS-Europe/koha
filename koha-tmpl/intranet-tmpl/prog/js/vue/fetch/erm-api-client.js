@@ -333,6 +333,11 @@ export class ERMAPIClient extends HttpClient {
                             "counter_logs",
                     }
                 }),
+            create: (counter_file) =>
+                this.post({
+                    endpoint: "counter_files",
+                    body: counter_file,
+                }),
             delete: (id) =>
                 this.delete({
                     endpoint: "counter_files/" + id,
