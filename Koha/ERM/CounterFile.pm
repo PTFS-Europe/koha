@@ -23,6 +23,7 @@ use Koha::ERM::CounterLog;
 use Koha::ERM::UsageTitle;
 use Koha::ERM::UsageTitles;
 use Koha::ERM::UsageDataProvider;
+use Koha::Exceptions::ERM::CounterFile;
 
 use base qw(Koha::Object);
 
@@ -71,6 +72,9 @@ Receive background_job_callbacks to be able to update job progress
 
 sub store {
     my ( $self, $background_job_callbacks ) = @_;
+
+    $self->_validate;
+    $self->_set_report_type_from_file;
 
     my $result = $self->SUPER::store;
 
@@ -125,7 +129,7 @@ sub _add_usage_titles {
         }
         else {
             # Update background job step
-            $self->{job_callbacks}->{step_callback}->();
+            $self->{job_callbacks}->{step_callback}->() if $self->{job_callbacks};
 
             # Check if title already exists in this data provider, e.g. from a previous harvest
             $usage_title = Koha::ERM::UsageTitles->search(
@@ -144,7 +148,7 @@ sub _add_usage_titles {
                         code  => 'title_already_exists',
                         title => $row->{Title},
                     }
-                );
+                ) if $self->{job_callbacks};
             }
             else {
                 # Fresh title, create it
@@ -158,7 +162,7 @@ sub _add_usage_titles {
                         code  => 'title_added',
                         title => $row->{Title},
                     }
-                );
+                ) if $self->{job_callbacks};
             }
         }
 
@@ -242,6 +246,57 @@ sub _add_yearly_usage_entries {
             ]
         );
     }
+}
+
+=head3 _validate
+
+Verifies if the given file_content is a valid COUNTER file or not
+
+A I <Koha::Exceptions::ERM::CounterFile> exception is thrown
+    if the file is invalid .
+
+=cut
+
+sub _validate {
+    my ($self) = @_;
+
+    open my $fh, "<", \$self->file_content or die;
+    my $csv = Text::CSV_XS->new( { binary => 1, always_quote => 1, eol => $/, decode_utf8 => 1 } );
+
+    $csv->column_names(qw( header_key header_value ));
+    my @header_rows = $csv->getline_hr_all( $fh, 0, 12 );
+    my @header = $header_rows[0];
+
+    my @release_row =  map( $_->{header_key} eq 'Release' ? $_ : (), @{ $header[0] } );
+    my $release = $release_row[0];
+
+    # TODO: Validate that there is an empty row between header and body
+
+    Koha::Exceptions::ERM::CounterFile::UnsupportedRelease->throw
+        if $release && $release->{header_value} != 5;
+
+}
+
+=head3 _set_report_type_from_file
+
+Extracts Report_ID from file and sets report_type for this counter_file
+
+=cut
+
+sub _set_report_type_from_file {
+    my ($self) = @_;
+
+    open my $fh, "<", \$self->file_content or die;
+    my $csv = Text::CSV_XS->new( { binary => 1, always_quote => 1, eol => $/, decode_utf8 => 1 } );
+
+    $csv->column_names(qw( header_key header_value ));
+    my @header_rows = $csv->getline_hr_all( $fh, 0, 12 );
+    my @header      = $header_rows[0];
+
+    my @report_id_row = map( $_->{header_key} eq 'Report_ID' ? $_ : (), @{ $header[0] } );
+    my $report        = $report_id_row[0];
+
+    $self->type( $report->{header_value} );
 }
 
 =head3 _get_rows_from_COUNTER_file
