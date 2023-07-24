@@ -308,6 +308,21 @@ __PACKAGE__->belongs_to(
   },
 );
 
+=head2 marc_order_accounts
+
+Type: has_many
+
+Related object: L<Koha::Schema::Result::MarcOrderAccount>
+
+=cut
+
+__PACKAGE__->has_many(
+  "marc_order_accounts",
+  "Koha::Schema::Result::MarcOrderAccount",
+  { "foreign.budget_id" => "self.budget_id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 suggestions
 
 Type: has_many
@@ -349,8 +364,8 @@ Composing rels: L</aqbudgetborrowers> -> borrowernumber
 __PACKAGE__->many_to_many("borrowernumbers", "aqbudgetborrowers", "borrowernumber");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-01-21 13:39:29
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:sl+TGQXY85UWwS+Ld/vvyQ
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2023-07-12 16:51:53
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:pCgGAZOv1TPHe6LIQhb1BQ
 
 __PACKAGE__->belongs_to(
   "budget",
