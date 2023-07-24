@@ -19,6 +19,11 @@
         name: title_id
         required: false
         type: integer
+      - description: Case insensitive search on monthly_usage_summaries platform_id
+        in: query
+        name: platform_id
+        required: false
+        type: integer
       - description: Case insensitive search on monthly_usage_summaries usage_data_provider_id
         in: query
         name: usage_data_provider_id
