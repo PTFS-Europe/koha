@@ -494,6 +494,21 @@ __PACKAGE__->belongs_to(
   },
 );
 
+=head2 marc_order_accounts
+
+Type: has_many
+
+Related object: L<Koha::Schema::Result::MarcOrderAccount>
+
+=cut
+
+__PACKAGE__->has_many(
+  "marc_order_accounts",
+  "Koha::Schema::Result::MarcOrderAccount",
+  { "foreign.vendor_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 vendor_edi_accounts
 
 Type: has_many
@@ -510,8 +525,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2023-06-30 09:54:35
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:xjeOqpcdN3Kb1wmLGDjzLg
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2023-07-12 16:43:09
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:4L14+X0NSAgyWGrKaFPR5w
 
 __PACKAGE__->add_columns(
     '+active' => { is_boolean => 1 },
