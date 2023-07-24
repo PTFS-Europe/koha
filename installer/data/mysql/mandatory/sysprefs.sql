@@ -368,6 +368,7 @@ INSERT INTO systempreferences ( `variable`, `value`, `options`, `explanation`, `
 ('MarcFieldsToOrder','',NULL,'Set the mapping values for a new order line created from a MARC record in a staged file. In a YAML format.','textarea'),
 ('MarcItemFieldsToOrder','',NULL,'Set the mapping values for new item records created from a MARC record in a staged file. In a YAML format.','textarea'),
 ('MarkLostItemsAsReturned','batchmod,moredetail,cronjob,additem,pendingreserves,onpayment','claim_returned|batchmod|moredetail|cronjob|additem|pendingreserves|onpayment','Mark items as returned when flagged as lost','multiple'),
+('MarcOrderingAutomation','0',NULL,'Enables automatic order line creation from MARC records','YesNo'),
 ('MARCOrgCode','OSt','','Define MARC Organization Code for MARC21 records - http://www.loc.gov/marc/organizations/orgshome.html','free'),
 ('MARCOverlayRules','0',NULL,'Use the MARC record overlay rules system to decide what actions to take for each field when modifying records.','YesNo'),
 ('MaxFine',NULL,'','Maximum fine a patron can have for all late returns at one moment. Single item caps are specified in the circulation rules matrix.','Integer'),
