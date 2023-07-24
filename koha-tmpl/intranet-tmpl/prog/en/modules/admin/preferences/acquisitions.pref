@@ -149,6 +149,13 @@ Acquisitions:
               class: email
             - 'when sending serial claim notices.'
             - '<br>If left empty, it will fall back to the first defined address in the following list: Library ReplyTo, Library Email, <a href="/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=ReplytoDefault">ReplytoDefault</a>, <a href="/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=KohaAdminEmailAddress">KohaAdminEmailAddress</a>.'
+        -
+            - pref: MarcOrderingAutomation
+              default: no
+              choices:
+                1: Enable
+                0:  Disable
+            - Enables automatic order line creation from MARC records
     Printing:
         -
             - Use the
