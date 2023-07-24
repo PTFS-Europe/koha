@@ -39,6 +39,14 @@ primary key
 
 item title id number
 
+=head2 platform_id
+
+  data_type: 'integer'
+  is_foreign_key: 1
+  is_nullable: 1
+
+platform id number
+
 =head2 usage_data_provider_id
 
   data_type: 'integer'
@@ -84,6 +92,8 @@ __PACKAGE__->add_columns(
   { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
   "title_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
+  "platform_id",
+  { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
   "usage_data_provider_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
   "year",
@@ -109,6 +119,26 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key("yearly_usage_summary_id");
 
 =head1 RELATIONS
+
+=head2 platform
+
+Type: belongs_to
+
+Related object: L<Koha::Schema::Result::ErmUsagePlatform>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "platform",
+  "Koha::Schema::Result::ErmUsagePlatform",
+  { platform_id => "platform_id" },
+  {
+    is_deferrable => 1,
+    join_type     => "LEFT",
+    on_delete     => "CASCADE",
+    on_update     => "CASCADE",
+  },
+);
 
 =head2 title
 
@@ -151,8 +181,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2023-04-25 13:49:06
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:zXTpOQQ2kTmGzzOSohg0YA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2023-07-24 16:30:43
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:OYZ/fbfa9Tlh7Gy65arP2Q
 
 
 sub koha_object_class {

@@ -245,6 +245,23 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 erm_usage_platforms
+
+Type: has_many
+
+Related object: L<Koha::Schema::Result::ErmUsagePlatform>
+
+=cut
+
+__PACKAGE__->has_many(
+  "erm_usage_platforms",
+  "Koha::Schema::Result::ErmUsagePlatform",
+  {
+    "foreign.usage_data_provider_id" => "self.erm_usage_data_provider_id",
+  },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 erm_usage_titles
 
 Type: has_many
@@ -280,8 +297,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2023-03-16 17:38:56
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:XdI3SAA+QWQsWyQdoS0EEQ
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2023-07-24 16:26:47
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:+9fmxTBePYI6Ex1y6OuMsg
 
 # __PACKAGE__->add_columns(
 #     '+active' => { is_boolean => 1 }
