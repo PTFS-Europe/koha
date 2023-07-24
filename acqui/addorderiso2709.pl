@@ -54,6 +54,7 @@ use Koha::Acquisition::Booksellers;
 use Koha::ImportBatches;
 use Koha::Import::Records;
 use Koha::Patrons;
+use Koha::MarcOrder;
 
 my $input = CGI->new;
 my ($template, $loggedinuser, $cookie, $userflags) = get_template_and_user({
@@ -153,218 +154,63 @@ if ($op eq ""){
     my @sort2 = $input->multi_param('sort2');
     my $matcher_id = $input->param('matcher_id');
     my $active_currency = Koha::Acquisition::Currencies->get_active;
-    my $biblio_count = 0;
     while( my $import_record = $import_records->next ){
-        $biblio_count++;
-        my $duplifound = 0;
-        # Check if this import_record_id was selected
-        next if not grep { $_ eq $import_record->import_record_id } @import_record_id_selected;
-        my $marcrecord = $import_record->get_marc_record || die "couldn't translate marc information";
-        my $matches = $import_record->get_import_record_matches({ chosen => 1 });
-        my $match = $matches->count ? $matches->next : undef;
-        my $biblionumber = $match ? $match->candidate_match_id : 0;
-        my $c_quantity = shift( @quantities ) || GetMarcQuantity($marcrecord, C4::Context->preference('marcflavour') ) || 1;
-        my $c_budget_id = shift( @budgets_id ) || $input->param('all_budget_id') || $budget_id;
-        my $c_discount = shift ( @discount);
-        my $c_sort1 = shift( @sort1 ) || $input->param('all_sort1') || '';
-        my $c_sort2 = shift( @sort2 ) || $input->param('all_sort2') || '';
-        my $c_replacement_price = shift( @orderreplacementprices );
-        my $c_price = shift( @prices ) || GetMarcPrice($marcrecord, C4::Context->preference('marcflavour'));
-
-        # Insert the biblio, or find it through matcher
-        if ( $biblionumber ) { # If matched during staging we can continue
-            $import_record->status('imported')->store;
-            if( $overlay_action eq 'replace' ){
-                my $biblio = Koha::Biblios->find( $biblionumber );
-                $import_record->replace({ biblio => $biblio });
-            }
-        } else { # Otherwise we check for duplicates, and skip if they exist
-            if ($matcher_id) {
-                if ( $matcher_id eq '_TITLE_AUTHOR_' ) {
-                    $duplifound = 1 if FindDuplicate($marcrecord);
-                }
-                else {
-                    my $matcher = C4::Matcher->fetch($matcher_id);
-                    my @matches = $matcher->get_matches( $marcrecord, my $max_matches = 1 );
-                    $duplifound = 1 if @matches;
-                }
-
-                $duplinbatch = $import_batch_id and next if $duplifound;
-            }
-
-            # remove hyphens (-) from ISBN
-            # FIXME: This should probably be optional
-            my ( $isbnfield, $isbnsubfield ) = GetMarcFromKohaField( 'biblioitems.isbn' );
-            if ( $marcrecord->field($isbnfield) ) {
-                foreach my $field ( $marcrecord->field($isbnfield) ) {
-                    foreach my $subfield ( $field->subfield($isbnsubfield) ) {
-                        my $newisbn = $field->subfield($isbnsubfield);
-                        $newisbn =~ s/-//g;
-                        $field->update( $isbnsubfield => $newisbn );
-                    }
-                }
-            }
-
-            # add the biblio
-            ( $biblionumber, undef ) = AddBiblio( $marcrecord, $cgiparams->{'frameworkcode'} || '' );
-            $import_record->status('imported')->store;
-        }
-
-        $import_record->import_biblio->matched_biblionumber($biblionumber)->store;
-
-        # Add items from MarcItemFieldsToOrder
-        my @homebranches = $input->multi_param('homebranch_' . $import_record->import_record_id);
-        my $count = scalar @homebranches;
-        my @holdingbranches = $input->multi_param('holdingbranch_' . $import_record->import_record_id);
-        my @itypes = $input->multi_param('itype_' . $import_record->import_record_id);
-        my @nonpublic_notes = $input->multi_param('nonpublic_note_' . $import_record->import_record_id);
-        my @public_notes = $input->multi_param('public_note_' . $import_record->import_record_id);
-        my @locs = $input->multi_param('loc_' . $import_record->import_record_id);
-        my @ccodes = $input->multi_param('ccode_' . $import_record->import_record_id);
-        my @notforloans = $input->multi_param('notforloan_' . $import_record->import_record_id);
-        my @uris = $input->multi_param('uri_' . $import_record->import_record_id);
-        my @copynos = $input->multi_param('copyno_' . $import_record->import_record_id);
-        my @budget_codes = $input->multi_param('budget_code_' . $import_record->import_record_id);
-        my @itemprices = $input->multi_param('itemprice_' . $import_record->import_record_id);
+        my $marcrecord        = $import_record->get_marc_record || die "couldn't translate marc information";
+        my @homebranches      = $input->multi_param('homebranch_' . $import_record->import_record_id);
+        my @holdingbranches   = $input->multi_param('holdingbranch_' . $import_record->import_record_id);
+        my @itypes            = $input->multi_param('itype_' . $import_record->import_record_id);
+        my @nonpublic_notes   = $input->multi_param('nonpublic_note_' . $import_record->import_record_id);
+        my @public_notes      = $input->multi_param('public_note_' . $import_record->import_record_id);
+        my @locs              = $input->multi_param('loc_' . $import_record->import_record_id);
+        my @ccodes            = $input->multi_param('ccode_' . $import_record->import_record_id);
+        my @notforloans       = $input->multi_param('notforloan_' . $import_record->import_record_id);
+        my @uris              = $input->multi_param('uri_' . $import_record->import_record_id);
+        my @copynos           = $input->multi_param('copyno_' . $import_record->import_record_id);
+        my @budget_codes      = $input->multi_param('budget_code_' . $import_record->import_record_id);
+        my @itemprices        = $input->multi_param('itemprice_' . $import_record->import_record_id);
         my @replacementprices = $input->multi_param('replacementprice_' . $import_record->import_record_id);
-        my @itemcallnumbers = $input->multi_param('itemcallnumber_' . $import_record->import_record_id);
-        my $itemcreation = 0;
+        my @itemcallnumbers   = $input->multi_param('itemcallnumber_' . $import_record->import_record_id);
+        
+        my $client_item_fields = {
+            homebranches        => \@homebranches,
+            holdingbranches     => \@holdingbranches,
+            itypes              => \@itypes,
+            nonpublic_notes     => \@nonpublic_notes,
+            public_notes        => \@public_notes,
+            locs                => \@locs,
+            ccodes              => \@ccodes,
+            notforloans         => \@notforloans,
+            uris                => \@uris,
+            copynos             => \@copynos,
+            budget_codes        => \@budget_codes,
+            itemprices          => \@itemprices,
+            replacementprices   => \@replacementprices,
+            itemcallnumbers     => \@itemcallnumbers,
+            c_quantity          => shift( @quantities ) || GetMarcQuantity($marcrecord, C4::Context->preference('marcflavour') ) || 1,
+            c_budget_id         => shift( @budgets_id ) || $input->param('all_budget_id') || $budget_id,
+            c_discount          => shift ( @discount),
+            c_sort1             => shift( @sort1 ) || $input->param('all_sort1') || '',
+            c_sort2             => shift( @sort2 ) || $input->param('all_sort2') || '',
+            c_replacement_price => shift( @orderreplacementprices ),
+            c_price             => shift( @prices ) || GetMarcPrice($marcrecord, C4::Context->preference('marcflavour')),
+        };
 
-        my @itemnumbers;
-        for (my $i = 0; $i < $count; $i++) {
-            $itemcreation = 1;
-            my $item = Koha::Item->new(
-                {
-                    biblionumber        => $biblionumber,
-                    homebranch          => $homebranches[$i],
-                    holdingbranch       => $holdingbranches[$i],
-                    itemnotes_nonpublic => $nonpublic_notes[$i],
-                    itemnotes           => $public_notes[$i],
-                    location            => $locs[$i],
-                    ccode               => $ccodes[$i],
-                    itype               => $itypes[$i],
-                    notforloan          => $notforloans[$i],
-                    uri                 => $uris[$i],
-                    copynumber          => $copynos[$i],
-                    price               => $itemprices[$i],
-                    replacementprice    => $replacementprices[$i],
-                    itemcallnumber      => $itemcallnumbers[$i],
-                }
-            )->store;
-            push( @itemnumbers, $item->itemnumber );
-        }
-        if ($itemcreation == 1) {
-            # Group orderlines from MarcItemFieldsToOrder
-            my $budget_hash;
-            for (my $i = 0; $i < $count; $i++) {
-                $budget_hash->{$budget_codes[$i]}->{quantity} += 1;
-                $budget_hash->{$budget_codes[$i]}->{price} = $itemprices[$i];
-                $budget_hash->{$budget_codes[$i]}->{replacementprice} = $replacementprices[$i];
-                $budget_hash->{$budget_codes[$i]}->{itemnumbers} //= [];
-                push @{ $budget_hash->{$budget_codes[$i]}->{itemnumbers} }, $itemnumbers[$i];
-            }
-
-            # Create orderlines from MarcItemFieldsToOrder
-            while(my ($budget_id, $infos) = each %$budget_hash) {
-                if ($budget_id) {
-                    my %orderinfo = (
-                        biblionumber       => $biblionumber,
-                        basketno           => $cgiparams->{'basketno'},
-                        quantity           => $infos->{quantity},
-                        budget_id          => $budget_id,
-                        currency           => $cgiparams->{'all_currency'},
-                    );
-
-                    my $price = $infos->{price};
-                    if ($price){
-                        # in France, the cents separator is the , but sometimes, ppl use a .
-                        # in this case, the price will be x100 when unformatted ! Replace the . by a , to get a proper price calculation
-                        $price =~ s/\./,/ if C4::Context->preference("CurrencyFormat") eq "FR";
-                        $price = Koha::Number::Price->new($price)->unformat;
-                        $orderinfo{tax_rate_on_ordering} = $bookseller->tax_rate;
-                        $orderinfo{tax_rate_on_receiving} = $bookseller->tax_rate;
-                        my $order_discount = $c_discount ? $c_discount : $bookseller->discount;
-                        $orderinfo{discount} = $order_discount;
-                        $orderinfo{rrp} = $price;
-                        $orderinfo{ecost} = $order_discount ? $price * ( 1 - $order_discount / 100 ) : $price;
-                        $orderinfo{listprice} = $orderinfo{rrp} / $active_currency->rate;
-                        $orderinfo{unitprice} = $orderinfo{ecost};
-                    } else {
-                        $orderinfo{listprice} = 0;
-                    }
-                    $orderinfo{replacementprice} = $infos->{replacementprice} || 0;
-
-                    # remove uncertainprice flag if we have found a price in the MARC record
-                    $orderinfo{uncertainprice} = 0 if $orderinfo{listprice};
-
-                    my $order = Koha::Acquisition::Order->new( \%orderinfo );
-                    $order->populate_with_prices_for_ordering();
-                    $order->populate_with_prices_for_receiving();
-                    $order->store;
-                    $order->add_item( $_ ) for @{ $budget_hash->{$budget_id}->{itemnumbers} };
-                }
-            }
-        } else {
-            # 3rd add order
-            my $patron = Koha::Patrons->find( $loggedinuser );
-            # get quantity in the MARC record (1 if none)
-            my $quantity = GetMarcQuantity($marcrecord, C4::Context->preference('marcflavour')) || 1;
-            my %orderinfo = (
-                biblionumber       => $biblionumber,
-                basketno           => $cgiparams->{'basketno'},
-                quantity           => $c_quantity,
-                branchcode         => $patron->branchcode,
-                budget_id          => $c_budget_id,
-                uncertainprice     => 1,
-                sort1              => $c_sort1,
-                sort2              => $c_sort2,
-                order_internalnote => $cgiparams->{'all_order_internalnote'},
-                order_vendornote   => $cgiparams->{'all_order_vendornote'},
-                currency           => $cgiparams->{'all_currency'},
-                replacementprice   => $c_replacement_price,
-            );
-            # get the price if there is one.
-            if ($c_price){
-                # in France, the cents separator is the , but sometimes, ppl use a .
-                # in this case, the price will be x100 when unformatted ! Replace the . by a , to get a proper price calculation
-                $c_price =~ s/\./,/ if C4::Context->preference("CurrencyFormat") eq "FR";
-                $c_price = Koha::Number::Price->new($c_price)->unformat;
-                $orderinfo{tax_rate_on_ordering} = $bookseller->tax_rate;
-                $orderinfo{tax_rate_on_receiving} = $bookseller->tax_rate;
-                my $order_discount = $c_discount ? $c_discount : $bookseller->discount;
-                $orderinfo{discount} = $order_discount;
-                $orderinfo{rrp}   = $c_price;
-                $orderinfo{ecost} = $order_discount ? $c_price * ( 1 - $order_discount / 100 ) : $c_price;
-                $orderinfo{listprice} = $orderinfo{rrp} / $active_currency->rate;
-                $orderinfo{unitprice} = $orderinfo{ecost};
-            } else {
-                $orderinfo{listprice} = 0;
-            }
-
-            # remove uncertainprice flag if we have found a price in the MARC record
-            $orderinfo{uncertainprice} = 0 if $orderinfo{listprice};
-
-            my $order = Koha::Acquisition::Order->new( \%orderinfo );
-            $order->populate_with_prices_for_ordering();
-            $order->populate_with_prices_for_receiving();
-            $order->store;
-
-            # 4th, add items if applicable
-            # parse the item sent by the form, and create an item just for the import_record_id we are dealing with
-            # this is not optimised, but it's working !
-            if ( $basket->effective_create_items eq 'ordering' && !$basket->is_standing ) {
-                my @tags         = $input->multi_param('tag');
-                my @subfields    = $input->multi_param('subfield');
-                my @field_values = $input->multi_param('field_value');
-                my @serials      = $input->multi_param('serial');
-                my $xml = TransformHtmlToXml( \@tags, \@subfields, \@field_values );
-                my $record = MARC::Record::new_from_xml( $xml, 'UTF-8' );
-                for (my $qtyloop=1;$qtyloop <= $c_quantity;$qtyloop++) {
-                    my ( $biblionumber, undef, $itemnumber ) = AddItemFromMarc( $record, $biblionumber );
-                    $order->add_item( $itemnumber );
-                }
-            }
-        }
+        my $args = {
+            import_batch_id           => $import_batch_id,
+            import_record             => $import_record,
+            matcher_id                => $matcher_id,
+            overlay_action            => $overlay_action,
+            agent                     => 'client',
+            import_record_id_selected => @import_record_id_selected,
+            client_item_fields        => $client_item_fields,
+            basket_id                 => $cgiparams->{'basketno'},
+            vendor                    => $bookseller,
+            budget_id                 => $budget_id,
+        };
+        my $result = Koha::MarcOrder->import_record_and_create_order_lines($args);
+        
+        $duplinbatch = $result->{duplicates_in_batch} if $result->{duplicates_in_batch};
+        next if $result->{skip}; # If a duplicate is found, or the import record wasn't selected it will be skipped
         $imported++;
     }
 
