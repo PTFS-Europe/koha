@@ -20,6 +20,8 @@ use Modern::Perl;
 use Text::CSV_XS qw( csv );
 
 use Koha::ERM::CounterLog;
+use Koha::ERM::UsagePlatform;
+use Koha::ERM::UsagePlatforms;
 use Koha::ERM::UsageTitle;
 use Koha::ERM::UsageTitles;
 use Koha::ERM::UsageDataProvider;
@@ -81,7 +83,7 @@ sub store {
     # Set class wide background_job callbacks
     $self->{job_callbacks} = $background_job_callbacks;
 
-    $self->_add_usage_titles;
+    $self->_add_usage_objects;
     $self->_add_counter_log_entry;
 
     return $result;
@@ -102,67 +104,49 @@ sub get_usage_data_provider {
 
 =head2 Internal methods
 
-=head3 _add_usage_titles
+=head3 _add_usage_objects
 
-Goes through COUNTER file and adds usage_title for each row
+Goes through COUNTER file and adds usage objects for each row
+A usage object may be a erm_usage_title, erm_usage_platform, erm_usage_item or erm_usage_database
 
 #FIXME?: "Yearly" usage may be incorrect, it'll only add up the months in the current report, not necessarily the whole year
 
 =cut
 
-sub _add_usage_titles {
+sub _add_usage_objects {
     my ($self) = @_;
 
     my $rows                = $self->_get_rows_from_COUNTER_file;
     my $usage_data_provider = $self->get_usage_data_provider;
-    my $previous_title      = undef;
-    my $usage_title         = undef;
+    my $previous_object     = undef;
+    my $usage_object        = undef;
     my $i                   = 0;
 
     foreach my $row ( @{$rows} ) {
 
-# INFO: A single title has multiple rows in the COUNTER report, for each metric_type
-# If we're on a row of a title that we've already gone through,
-# use the same usage_title and add usage statistics for the different metric_type
-        if ( $previous_title && $previous_title->title_doi eq $row->{DOI} ) {
-            $usage_title = $previous_title;
+# INFO: A single row may have multiple instances in the COUNTER report, one for each metric_type (TODO: or access_type)
+# If we're on a row that we've already gone through, use the same usage object
+# and add usage statistics for the different metric_type (TODO: or access_type)
+        if ( $self->_is_same_usage_object($previous_object, $row) ) {
+            $usage_object = $previous_object;
         }
         else {
             # Update background job step
             $self->{job_callbacks}->{step_callback}->() if $self->{job_callbacks};
 
-            # Check if title already exists in this data provider, e.g. from a previous harvest
-            $usage_title = Koha::ERM::UsageTitles->search(
-                {
-                    title_doi              => $row->{DOI},
-                    usage_data_provider_id =>
-                      $usage_data_provider->erm_usage_data_provider_id
-                }
-            )->last;
+            # Check if usage object already exists in this data provider, e.g. from a previous harvest
+            $usage_object = $self->_search_for_usage_object($row);
 
-            if ($usage_title) {
-                # Title already exists, add job warning message and do nothing else
-                $self->{job_callbacks}->{add_message_callback}->(
-                    {
-                        type  => 'warning',
-                        code  => 'title_already_exists',
-                        title => $row->{Title},
-                    }
-                ) if $self->{job_callbacks};
+            if ($usage_object) {
+                # Usage object already exists, add job warning message and do nothing else
+                $self->_add_job_message('warning', 'object_already_exists', $row);
             }
             else {
-                # Fresh title, create it
-                $usage_title = $self->_add_usage_title_entry( $row,
-                    $usage_data_provider->erm_usage_data_provider_id );
+                # Fresh usage object, create it
+                $usage_object = $self->_add_usage_object_entry($row);
 
-                # Title created, add job success message
-                $self->{job_callbacks}->{add_message_callback}->(
-                    {
-                        type  => 'success',
-                        code  => 'title_added',
-                        title => $row->{Title},
-                    }
-                ) if $self->{job_callbacks};
+                # Usage object created, add job success message
+                $self->_add_job_message( 'success', 'object_added', $row );
             }
         }
 
@@ -174,7 +158,7 @@ sub _add_usage_titles {
             warn "No monthly usage fields retrieved";
         }
 
-        # Add monthly usage statistics for this title
+        # Add monthly usage statistics for this usage object
         my %yearly_usages = ();
         foreach my $year_month (@date_fields) {
             my $usage = %{$row}{$year_month};
@@ -192,30 +176,41 @@ sub _add_usage_titles {
                 $yearly_usages{$year} += $usage;
             }
 
-            $usage_title->monthly_usages(
-                [
-                    {
-                        title_id               => $usage_title->title_id,
-                        usage_data_provider_id =>
-                          $usage_data_provider->erm_usage_data_provider_id,
-                        year        => $year,
-                        month       => $self->_get_month_number($month),
-                        usage_count => $usage,
-                        metric_type => $row->{Metric_Type},
-                        report_type => $self->type
-                    }
-                ]
-            );
+            $self->_add_monthly_usage_entries( $usage_object, $row->{Metric_Type}, $row, $year, $month, $usage );
         }
 
-        # Add yearly usage statistics for this title
-        $self->_add_yearly_usage_entries(
-            $usage_title,         $row->{Metric_Type},
-            $usage_data_provider, \%yearly_usages
-        );
+        # Add yearly usage statistics for this usage object
+        $self->_add_yearly_usage_entries( $usage_object, $row->{Metric_Type}, \%yearly_usages );
 
-        $previous_title = $usage_title;
+        $previous_object = $usage_object;
     }
+}
+
+=head3 _add_monthly_usage_entries
+
+Adds erm_usage_mus database entries
+
+=cut
+
+sub _add_monthly_usage_entries {
+    my ( $self, $usage_object, $metric_type, $row, $year, $month, $usage ) = @_;
+
+    my $usage_data_provider = $self->get_usage_data_provider;
+    my $usage_object_info = $self->_get_usage_object_id_hash($usage_object);
+
+    $usage_object->monthly_usages(
+        [
+            {
+                %{$usage_object_info},
+                usage_data_provider_id => $usage_data_provider->erm_usage_data_provider_id,
+                year                   => $year,
+                month                  => $self->_get_month_number($month),
+                usage_count            => $usage,
+                metric_type            => $row->{Metric_Type},
+                report_type            => $self->type
+            }
+        ]
+    );
 }
 
 =head3 _add_yearly_usage_entries
@@ -225,23 +220,25 @@ Adds erm_usage_yus database entries
 =cut
 
 sub _add_yearly_usage_entries {
-    my ( $self, $usage_title, $metric_type, $usage_data_provider, $yearly_usages ) = @_;
+    my ( $self, $usage_object, $metric_type, $yearly_usages ) = @_;
+
+    my $usage_data_provider = $self->get_usage_data_provider;
+    my $usage_object_info = $self->_get_usage_object_id_hash($usage_object);
 
     while ( my ( $year, $usage ) = each( %{$yearly_usages} ) ) {
 
         # Skip this yearly usage entry if it's 0
         next if $usage eq "0";
 
-        $usage_title->yearly_usages(
+        $usage_object->yearly_usages(
             [
                 {
-                    title_id               => $usage_title->title_id,
-                    usage_data_provider_id =>
-                      $usage_data_provider->erm_usage_data_provider_id,
-                    year        => $year,
-                    totalcount  => $usage,
-                    metric_type => $metric_type,
-                    report_type => $self->type
+                    %{$usage_object_info},
+                    usage_data_provider_id => $usage_data_provider->erm_usage_data_provider_id,
+                    year                   => $year,
+                    totalcount             => $usage,
+                    metric_type            => $metric_type,
+                    report_type            => $self->type
                 }
             ]
         );
@@ -318,6 +315,100 @@ sub _get_rows_from_COUNTER_file {
     return $csv->getline_hr_all($fh);
 }
 
+=head3 _add_job_message
+
+Add a message to be displayed in the background job
+
+=cut
+
+sub _add_job_message {
+    my ( $self, $type, $code, $row ) = @_;
+
+    my $usage_data_provider = $self->get_usage_data_provider;
+
+    my $object_title;
+
+    if ( $self->type =~ /PR/i ) {
+        $object_title = $row->{Platform};
+    } elsif ( $self->type =~ /TR/i ) {
+        $object_title = $row->{Title};
+    }
+
+    $self->{job_callbacks}->{add_message_callback}->(
+        {
+            type  => $type,
+            code  => $code,
+            title => $object_title,
+        }
+    ) if $self->{job_callbacks};
+}
+
+=head3 _get_usage_object_id_hash
+
+Return a usage_object id hash to be used when adding new yus/mus
+
+=cut
+
+sub _get_usage_object_id_hash {
+    my ( $self, $usage_object ) = @_;
+
+    if ( $self->type =~ /PR/i ) {
+        return { platform_id => $usage_object->platform_id };
+    } elsif ( $self->type =~ /TR/i ) {
+        return { title_id => $usage_object->title_id };
+    }
+    return 0;
+}
+
+=head3 _search_for_usage_object
+
+Returns usage object if found
+
+=cut
+
+sub _search_for_usage_object {
+    my ( $self, $row ) = @_;
+
+    my $usage_data_provider = $self->get_usage_data_provider;
+
+    if ( $self->type =~ /PR/i ) {
+        return Koha::ERM::UsagePlatforms->search(
+            {
+                platform               => $row->{Platform},
+                usage_data_provider_id => $usage_data_provider->erm_usage_data_provider_id
+            }
+        )->last;
+    } elsif ( $self->type =~ /TR/i ) {
+        return Koha::ERM::UsageTitles->search(
+            {
+                title_doi              => $row->{DOI},
+                usage_data_provider_id => $usage_data_provider->erm_usage_data_provider_id
+            }
+        )->last;
+    }
+
+    return 0;
+}
+
+=head3 _is_same_usage_object
+
+Returns true if is the same usage object
+
+=cut
+
+sub _is_same_usage_object {
+    my ( $self, $previous_object, $row ) = @_;
+
+    if ( $self->type =~ /PR/i ) {
+        return $previous_object && $previous_object->platform eq $row->{Platform};
+    } elsif ( $self->type =~ /TR/i ) {
+        #TODO: We need to consider the case for Access_type! it may be same DOI (same record, but it's new usage statistics of a different access_type)
+        return $previous_object && $previous_object->title_doi eq $row->{DOI};
+    }
+
+    return 0;
+}
+
 =head3 _get_month_number
 
 Returns month number for a given Mmm month
@@ -369,27 +460,38 @@ sub _add_counter_log_entry {
 }
 
 
-=head3 _add_usage_title_entry
+=head3 _add_usage_object_entry
 
-Adds a erm_usage_title database entry
+Adds a usage object database entry
 
 =cut
 
-sub _add_usage_title_entry {
-    my ( $self, $row, $ud_provider_id ) = @_;
+sub _add_usage_object_entry {
+    my ( $self, $row ) = @_;
 
-    return Koha::ERM::UsageTitle->new(
-        {
-            title                  => $row->{Title},
-            usage_data_provider_id => $ud_provider_id,
-            title_doi              => $row->{DOI},
-            print_issn             => $row->{Print_ISSN},
-            online_issn            => $row->{Online_ISSN},
-            title_uri              => $row->{URI},
-            publisher              => $row->{Publisher},
-            publisher_id           => $row->{Publisher_ID},
-        }
-    )->store;
+    my $usage_data_provider = $self->get_usage_data_provider;
+
+    if ( $self->type =~ /PR/i ) {
+        return Koha::ERM::UsagePlatform->new(
+            {
+                usage_data_provider_id => $usage_data_provider->erm_usage_data_provider_id,
+                platform               => $row->{Platform},
+            }
+        )->store;
+    } elsif ( $self->type =~ /TR/i ) {
+        return Koha::ERM::UsageTitle->new(
+            {
+                title                  => $row->{Title},
+                usage_data_provider_id => $usage_data_provider->erm_usage_data_provider_id,
+                title_doi              => $row->{DOI},
+                print_issn             => $row->{Print_ISSN},
+                online_issn            => $row->{Online_ISSN},
+                title_uri              => $row->{URI},
+                publisher              => $row->{Publisher},
+                publisher_id           => $row->{Publisher_ID},
+            }
+        )->store;
+    }
 }
 
 =head3 _type
