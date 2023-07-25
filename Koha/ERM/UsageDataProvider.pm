@@ -205,6 +205,8 @@ sub parse_SUSHI_response {
         body   => $result->{Report_Items}
     };
 
+    #TODO: Handle empty $self->{sushi}->{body} here!
+
     # Get ready to build COUNTER file
     my @report_header          = $self->_COUNTER_report_header;
     my @report_column_headings = $self->_COUNTER_report_column_headings;
@@ -344,6 +346,27 @@ sub _COUNTER_report_header {
     );
 }
 
+=head3 _COUNTER_platform_report_row
+
+Return a COUNTER platform for the COUNTER platforms report body
+https://cop5.projectcounter.org/en/5.0.2/04-reports/01-platform-reports.html#column-headings-elements
+
+=cut
+
+sub _COUNTER_platform_report_row {
+    my ( $self, $platform_row, $metric_type, $total_usage, $monthly_usages ) = @_;
+
+    return (
+        [
+            $platform_row->{Platform}
+                || "",
+            $metric_type,
+            $total_usage,
+            @{$monthly_usages}
+        ]
+    );
+}
+
 =head3 _COUNTER_title_report_row
 
 Return a COUNTER title for the COUNTER titles report body
@@ -352,49 +375,66 @@ https://cop5.projectcounter.org/en/5.0.2/04-reports/03-title-reports.html#column
 =cut
 
 sub _COUNTER_title_report_row {
-    my ( $self, $title_row, $metric_type ) = @_;
-
-    my ( $total_usage, @monthly_usages ) =
-      $self->_get_title_usages( $title_row, $metric_type );
+    my ( $self, $title_row, $metric_type, $total_usage, $monthly_usages ) = @_;
 
     return (
         [
             $title_row->{Title}
-              || "",
+                || "",
             $title_row->{Publisher}
-              || "",
+                || "",
             $self->_get_SUSHI_Type_Value( $title_row->{Publisher_ID}, "ISNI" )
-              || "",    #FIXME: this ISNI can't be right, can it?
+                || "",    #FIXME: this ISNI can't be right, can it?
             $title_row->{Platform}
-              || "",
+                || "",
             $self->_get_SUSHI_Type_Value( $title_row->{Item_ID}, "DOI" )
-              || "",
-            $self->_get_SUSHI_Type_Value(
-                $title_row->{Item_ID}, "Proprietary"
-              )
-              || "",
+                || "",
+            $self->_get_SUSHI_Type_Value( $title_row->{Item_ID}, "Proprietary" )
+                || "",
             $self->_get_SUSHI_Type_Value( $title_row->{Item_ID}, "Print_ISSN" )
-              || "",
-            $self->_get_SUSHI_Type_Value(
-                $title_row->{Item_ID}, "Online_ISSN"
-              )
-              || "",
-            "",    #FIXME: What goes in URI?
+                || "",
+            $self->_get_SUSHI_Type_Value( $title_row->{Item_ID}, "Online_ISSN" )
+                || "",
+            "",           #FIXME: What goes in URI?
             $metric_type,
             $total_usage,
-            @monthly_usages
+            @{$monthly_usages}
         ]
     );
 }
 
-=head3 _get_title_usages
+=head3 _COUNTER_report_row
 
-Returns the total and monthly usages for a title
+Return a COUNTER row for the COUNTER report body
 
 =cut
 
-sub _get_title_usages {
-    my ( $self, $title, $metric_type ) = @_;
+sub _COUNTER_report_row {
+    my ( $self, $report_row, $metric_type ) = @_;
+
+    my $header = $self->{sushi}->{header};
+
+    my ( $total_usage, @monthly_usages ) = $self->_get_row_usages( $report_row, $metric_type );
+
+    if ( $header->{Report_ID} =~ /PR/i ) {
+        return $self->_COUNTER_platform_report_row( $report_row, $metric_type, $total_usage, \@monthly_usages );
+    } elsif ( $header->{Report_ID} =~ /TR/i ) {
+        return $self->_COUNTER_title_report_row( $report_row, $metric_type, $total_usage, \@monthly_usages );
+    }
+
+    # TODO: Database report body
+    # TODO: Items report body
+
+}
+
+=head3 _get_row_usages
+
+Returns the total and monthly usages for a row
+
+=cut
+
+sub _get_row_usages {
+    my ( $self, $row, $metric_type ) = @_;
 
     my @usage_months = $self->_get_usage_months( $self->{sushi}->{header} );
 
@@ -404,14 +444,12 @@ sub _get_title_usages {
     foreach my $usage_month (@usage_months) {
         my $month_is_empty = 1;
 
-        foreach my $performance ( @{ $title->{Performance} } ) {
+        foreach my $performance ( @{ $row->{Performance} } ) {
             my $period             = $performance->{Period};
             my $period_usage_month = substr( $period->{Begin_Date}, 0, 7 );
 
-            my $instances = $performance->{Instance};
-            my @metric_type_count =
-              map( $_->{Metric_Type} eq $metric_type ? $_->{Count} : (),
-                @{$instances} );
+            my $instances         = $performance->{Instance};
+            my @metric_type_count = map( $_->{Metric_Type} eq $metric_type ? $_->{Count} : (), @{$instances} );
 
             if ( $period_usage_month eq $usage_month && $metric_type_count[0] ) {
                 push( @usage_months_fields, $metric_type_count[0] );
@@ -439,39 +477,26 @@ sub _COUNTER_report_body {
     my $header = $self->{sushi}->{header};
     my $body   = $self->{sushi}->{body};
 
-    my @metric_types_string =
-      $self->_get_SUSHI_Name_Value( $header->{Report_Filters}, "Metric_Type" );
-    my @metric_types = split( /\|/, $metric_types_string[0] );
+    my @metric_types_string = $self->_get_SUSHI_Name_Value( $header->{Report_Filters}, "Metric_Type" );
+    my @metric_types        = split( /\|/, $metric_types_string[0] );
 
     my @report_body = ();
 
-    # TODO: Platform report body
+    # Set job size to the amount of rows we're processing
+    $self->{job_callbacks}->{set_size_callback}->( scalar( @{$body} ) );
 
-    # TODO: Database report body
+    my $total_records = 0;
+    foreach my $report_row ( @{$body} ) {
 
-    # Titles report body
-    if ( $header->{Report_ID} =~ /TR/i ) {
-
-        # Set job size to the amount of titles we're processing
-        $self->{job_callbacks}->{set_size_callback}->( scalar( @{$body} ) );
-
-        my $total_records = 0;
-        foreach my $title_row ( @{$body} ) {
-
-            # Add one title report row for each metric_type we're working with
-            foreach my $metric_type (@metric_types) {
-                push(
-                    @report_body,
-                    $self->_COUNTER_title_report_row(
-                        $title_row, $metric_type
-                    )
-                );
-            }
-            $self->{counter_report} = { report_type => $self->{report_type}, total_records => ++$total_records };
+        # Add one report row for each metric_type we're working with
+        foreach my $metric_type (@metric_types) {
+            push(
+                @report_body,
+                $self->_COUNTER_report_row( $report_row, $metric_type )
+            );
         }
+        $self->{counter_report} = { report_type => $self->{report_type}, total_records => ++$total_records };
     }
-
-    # TODO: Items report body
 
     return @report_body;
 }
@@ -517,17 +542,41 @@ sub _COUNTER_report_column_headings {
 
     my $header = $self->{sushi}->{header};
 
-    # TODO: Platform Report
-    # TODO: Database Report
-
-    # Titles Report
-    if ( $header->{Report_ID} =~ /TR/i ) {
+    if ( $header->{Report_ID} =~ /PR/i ) {
+        return $self->_COUNTER_platforms_report_column_headings;
+    }elsif ( $header->{Report_ID} =~ /TR/i ) {
         return $self->_COUNTER_titles_report_column_headings;
     }
 
     # TODO: Item Report
+    # TODO: Database Report
 
     return;
+}
+
+
+=head3 _COUNTER_platforms_report_column_headings
+
+Return platforms report column headings
+
+=cut
+
+sub _COUNTER_platforms_report_column_headings {
+    my ($self) = @_;
+
+    my $header         = $self->{sushi}->{header};
+    my @month_headings = $self->_get_usage_months( $header, 1 );
+
+    return (
+        [
+            "Platform",
+            "Metric_Type",
+            "Reporting_Period_Total",
+
+            # @month_headings in "Mmm-yyyy" format. TODO: Show unless Exclude_Monthly_Details=true
+            @month_headings
+        ]
+    );
 }
 
 =head3 _COUNTER_titles_report_column_headings
@@ -551,22 +600,22 @@ sub _COUNTER_titles_report_column_headings {
             "DOI",
             "Proprietary_ID",
 
-           #"ISBN", #TODO: Only if report_type does not contain insensitive tr_j
+            #"ISBN", #TODO: Add ISBN column header for TR_B1, TR_B2 and TR_B3
             "Print_ISSN",
             "Online_ISSN",
             "URI",
 
             #"Data_Type", #TODO: Only if requested (?)
             #"Section_Type", #TODO: Only if requested (?)
-            #"YOP", #TODO: Only if requested (?)
-            #"Access_Type", #TODO: Only if requested (?)
+            #"YOP", #TODO: Add YOP column header for TR_B1, TR_B2, TR_B3 and TR_J4
+            #"Access_Type", #TODO: Access_Type column header for TR_B3 and TR_J3
             #"Access_Method", #TODO: Only if requested (?)
             "Metric_Type",
 
             #TODO: What format is Reporting_Period_Total? example: "2020 total"
             "Reporting_Period_Total",
 
-# @month_headings in "Mmm-yyyy" format. TODO: Show unless Exclude_Monthly_Details=true
+            # @month_headings in "Mmm-yyyy" format. TODO: Show unless Exclude_Monthly_Details=true
             @month_headings
         ]
     );
