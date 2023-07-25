@@ -5,8 +5,7 @@
     [% IF report %]
         <div class="dialog message">
             [% IF job.status == 'finished' %]
-                <p>Processed [% report.counter_report.total_records %] records for report <strong>[% report.counter_report.report_type %]</strong></p>
-                <p>in data provider <a href="/cgi-bin/koha/erm/eusage/usage_data_providers/[% report.ud_provider_id %]" title="Visit usage data provider">[% report.ud_provider_name %]</a></p>
+                <p>Processed [% report.counter_report.total_records %] rows in report <strong>[% report.counter_report.report_type %]</strong> from <a href="/cgi-bin/koha/erm/eusage/usage_data_providers/[% report.ud_provider_id %]" title="Visit usage data provider">[% report.ud_provider_name %]</a></p>
             [% ELSIF job.status == 'started' %]
                 [% IF job.progress == 0 %]
                     <p>Requesting SUSHI service</p>
@@ -36,10 +35,10 @@
                 <i class="fa fa-exclamation error"></i>
             [% END %]
             [% SWITCH m.code %]
-            [% CASE 'title_already_exists' %]
-                <span>Title <strong>[% m.title %]</strong> already exists in this data provider and was not created. New usage statistics were verified anyway</span>
-            [% CASE 'title_added' %]
-                <span>Title [% m.title %] successfully added</span>
+            [% CASE 'object_already_exists' %]
+                <span><strong>[% m.title %]</strong> already exists in this data provider and was not created. New usage statistics were verified anyway</span>
+            [% CASE 'object_added' %]
+                <span><strong>[% m.title %]</strong> successfully added</span>
             [% END %]
         </div>
     [% END %]
