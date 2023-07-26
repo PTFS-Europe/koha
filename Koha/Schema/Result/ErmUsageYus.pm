@@ -55,6 +55,14 @@ platform id number
 
 database id number
 
+=head2 item_id
+
+  data_type: 'integer'
+  is_foreign_key: 1
+  is_nullable: 1
+
+item id number
+
 =head2 usage_data_provider_id
 
   data_type: 'integer'
@@ -104,6 +112,8 @@ __PACKAGE__->add_columns(
   { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
   "database_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
+  "item_id",
+  { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
   "usage_data_provider_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
   "year",
@@ -142,6 +152,26 @@ __PACKAGE__->belongs_to(
   "database",
   "Koha::Schema::Result::ErmUsageDatabase",
   { database_id => "database_id" },
+  {
+    is_deferrable => 1,
+    join_type     => "LEFT",
+    on_delete     => "CASCADE",
+    on_update     => "CASCADE",
+  },
+);
+
+=head2 item
+
+Type: belongs_to
+
+Related object: L<Koha::Schema::Result::ErmUsageItem>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "item",
+  "Koha::Schema::Result::ErmUsageItem",
+  { item_id => "item_id" },
   {
     is_deferrable => 1,
     join_type     => "LEFT",
@@ -211,8 +241,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2023-07-26 11:45:56
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:NaS/VJJO4vkd+VNdQQlscA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2023-07-26 14:35:34
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:DOun70cYuj4b2LihZUA5mg
 
 
 sub koha_object_class {
