@@ -346,6 +346,32 @@ sub _COUNTER_report_header {
     );
 }
 
+=head3 _COUNTER_item_report_row
+
+Return a COUNTER item for the COUNTER items report body
+https://cop5.projectcounter.org/en/5.0.2/04-reports/04-item-reports.html#column-headings-elements
+
+=cut
+
+sub _COUNTER_item_report_row {
+    my ( $self, $item_row, $metric_type, $total_usage, $monthly_usages ) = @_;
+
+    return (
+        [
+            $item_row->{Item}                                                 || "",
+            $item_row->{Publisher}                                            || "",
+            $self->_get_SUSHI_Type_Value( $item_row->{Publisher_ID}, "ISNI" ) || "",
+            $item_row->{Platform}                                             || "",
+            $self->_get_SUSHI_Type_Value( $item_row->{Item_ID}, "DOI" )       || "",
+            $item_row->{Proprietary_ID}                                       || "",
+            "",    #FIXME: What goes in URI?
+            $metric_type,
+            $total_usage,
+            @{$monthly_usages}
+        ]
+    );
+}
+
 =head3 _COUNTER_database_report_row
 
 Return a COUNTER database for the COUNTER databases report body
@@ -444,6 +470,8 @@ sub _COUNTER_report_row {
         return $self->_COUNTER_platform_report_row( $report_row, $metric_type, $total_usage, \@monthly_usages );
     } elsif ( $header->{Report_ID} =~ /DR/i ) {
         return $self->_COUNTER_database_report_row( $report_row, $metric_type, $total_usage, \@monthly_usages );
+    } elsif ( $header->{Report_ID} =~ /IR/i ) {
+        return $self->_COUNTER_item_report_row( $report_row, $metric_type, $total_usage, \@monthly_usages );
     } elsif ( $header->{Report_ID} =~ /TR/i ) {
         return $self->_COUNTER_title_report_row( $report_row, $metric_type, $total_usage, \@monthly_usages );
     }
@@ -571,6 +599,8 @@ sub _COUNTER_report_column_headings {
         return $self->_COUNTER_platforms_report_column_headings;
     }elsif ( $header->{Report_ID} =~ /DR/i ) {
         return $self->_COUNTER_databases_report_column_headings;
+    }elsif ( $header->{Report_ID} =~ /IR/i ) {
+        return $self->_COUNTER_items_report_column_headings;
     }elsif ( $header->{Report_ID} =~ /TR/i ) {
         return $self->_COUNTER_titles_report_column_headings;
     }
@@ -578,6 +608,69 @@ sub _COUNTER_report_column_headings {
     # TODO: Item Report
 
     return;
+}
+
+=head3 _COUNTER_items_report_column_headings
+
+Return items report column headings
+
+=cut
+
+sub _COUNTER_items_report_column_headings {
+    my ($self) = @_;
+
+    my $header         = $self->{sushi}->{header};
+    my @month_headings = $self->_get_usage_months( $header, 1 );
+
+    return (
+        [
+            "Item",
+            "Publisher",
+            "Publisher_ID",
+            "Platform",
+
+            # "Authors", #IR_A1 only
+            # "Publication_Date", #IR_A1 only
+            # "Article_Version", #IR_A1 only
+            "DOI",
+            "Proprietary_ID",
+
+            # "ISBN", #IR only
+            # "Print_ISSN", #IR_A1 only
+            # "Online_ISSN", #IR_A1 only
+            "URI",
+            # "Parent_Title", #IR_A1 only
+            # "Parent_Authors", #IR_A1 only
+            # "Parent_Publication_Date", #IR only
+            # "Parent_Article_Version", #IR_A1 only
+            # "Parent_Data_Type", #IR only
+            # "Parent_DOI", #IR_A1 only
+            # "Parent_Proprietary_ID", #IR_A1 only
+            # "Parent_ISBN", #IR only
+            # "Parent_Print_ISSN", #IR_A1 only
+            # "Parent_Online_ISSN", #IR_A1 only
+            # "Parent_URI", #IR_A1 only
+            # "Component_Title", #IR only
+            # "Component_Authors", #IR only
+            # "Component_Publication_Date", #IR only
+            # "Component_Data_Type", #IR only
+            # "Component_DOI", #IR only
+            # "Component_Proprietary_ID", #IR only
+            # "Component_ISBN", #IR only
+            # "Component_Print_ISSN", #IR only
+            # "Component_Online_ISSN", #IR only
+            # "Component_URI", #IR only
+            # "Data_Type", #IR only
+            # "YOP", #IR only
+            # "Access_Type", #IR_A1 only
+            # "Access_Method", #IR only
+            "Metric_Type",
+            "Reporting_Period_Total",
+
+            # @month_headings in "Mmm-yyyy" format. TODO: Show unless Exclude_Monthly_Details=true
+            @month_headings
+        ]
+    );
 }
 
 =head3 _COUNTER_databases_report_column_headings
