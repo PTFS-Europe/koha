@@ -144,6 +144,26 @@ return {
             say $out "erm_usage_databases table already exists - skipping to next table";
         }
 
+        unless ( TableExists('erm_usage_items') ) {
+            $dbh->do(
+                q{
+                CREATE TABLE `erm_usage_items` (
+                `item_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'primary key',
+                `item` varchar(255) DEFAULT NULL COMMENT 'item title',
+                `platform` varchar(80) DEFAULT NULL COMMENT 'item platform',
+                `publisher` varchar(80) DEFAULT NULL COMMENT 'Publisher for the item',
+                `usage_data_provider_id` int(11) NOT NULL COMMENT 'data provider the database is harvested by',
+                PRIMARY KEY (`item_id`),
+                CONSTRAINT `erm_usage_items_ibfk_1` FOREIGN KEY (`usage_data_provider_id`) REFERENCES `erm_usage_data_providers` (`erm_usage_data_provider_id`) ON DELETE CASCADE ON UPDATE CASCADE
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+                }
+            );
+
+            say $out "Added new table erm_usage_items";
+        } else {
+            say $out "erm_usage_items table already exists - skipping to next table";
+        }
+
         unless( TableExists( 'erm_usage_mus')) {
             $dbh->do(
                 q{
@@ -152,6 +172,7 @@ return {
                 `title_id` int(11) DEFAULT NULL COMMENT 'item title id number',
                 `platform_id` int(11) DEFAULT NULL COMMENT 'platform id number',
                 `database_id` int(11) DEFAULT NULL COMMENT 'database id number',
+                `item_id` int(11) DEFAULT NULL COMMENT 'item id number',
                 `usage_data_provider_id` int(11) DEFAULT NULL COMMENT 'item title id number',
                 `year` int(4) DEFAULT NULL COMMENT 'year of usage statistics',
                 `month` int(2) DEFAULT NULL COMMENT 'month of usage statistics',
@@ -162,7 +183,8 @@ return {
                 CONSTRAINT `erm_usage_mus_ibfk_1` FOREIGN KEY (`title_id`) REFERENCES `erm_usage_titles` (`title_id`) ON DELETE CASCADE ON UPDATE CASCADE,
                 CONSTRAINT `erm_usage_mus_ibfk_2` FOREIGN KEY (`usage_data_provider_id`) REFERENCES `erm_usage_data_providers` (`erm_usage_data_provider_id`) ON DELETE CASCADE ON UPDATE CASCADE,
                 CONSTRAINT `erm_usage_mus_ibfk_3` FOREIGN KEY (`platform_id`) REFERENCES `erm_usage_platforms` (`platform_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-                CONSTRAINT `erm_usage_mus_ibfk_4` FOREIGN KEY (`database_id`) REFERENCES `erm_usage_databases` (`database_id`) ON DELETE CASCADE ON UPDATE CASCADE
+                CONSTRAINT `erm_usage_mus_ibfk_4` FOREIGN KEY (`database_id`) REFERENCES `erm_usage_databases` (`database_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+                CONSTRAINT `erm_usage_mus_ibfk_5` FOREIGN KEY (`item_id`) REFERENCES `erm_usage_items` (`item_id`) ON DELETE CASCADE ON UPDATE CASCADE
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
                 }
             );
@@ -180,6 +202,7 @@ return {
                 `title_id` int(11) DEFAULT NULL COMMENT 'item title id number',
                 `platform_id` int(11) DEFAULT NULL COMMENT 'platform id number',
                 `database_id` int(11) DEFAULT NULL COMMENT 'database id number',
+                `item_id` int(11) DEFAULT NULL COMMENT 'item id number',
                 `usage_data_provider_id` int(11) DEFAULT NULL COMMENT 'item title id number',
                 `year` int(4) DEFAULT NULL COMMENT 'year of usage statistics',
                 `totalcount` int(11) DEFAULT NULL COMMENT 'usage count for the title',
@@ -189,7 +212,8 @@ return {
                 CONSTRAINT `erm_usage_yus_ibfk_1` FOREIGN KEY (`title_id`) REFERENCES `erm_usage_titles` (`title_id`) ON DELETE CASCADE ON UPDATE CASCADE,
                 CONSTRAINT `erm_usage_yus_ibfk_2` FOREIGN KEY (`usage_data_provider_id`) REFERENCES `erm_usage_data_providers` (`erm_usage_data_provider_id`) ON DELETE CASCADE ON UPDATE CASCADE,
                 CONSTRAINT `erm_usage_yus_ibfk_3` FOREIGN KEY (`platform_id`) REFERENCES `erm_usage_platforms` (`platform_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-                CONSTRAINT `erm_usage_yus_ibfk_4` FOREIGN KEY (`database_id`) REFERENCES `erm_usage_databases` (`database_id`) ON DELETE CASCADE ON UPDATE CASCADE
+                CONSTRAINT `erm_usage_yus_ibfk_4` FOREIGN KEY (`database_id`) REFERENCES `erm_usage_databases` (`database_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+                CONSTRAINT `erm_usage_yus_ibfk_5` FOREIGN KEY (`item_id`) REFERENCES `erm_usage_items` (`item_id`) ON DELETE CASCADE ON UPDATE CASCADE
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
                 }
             );
