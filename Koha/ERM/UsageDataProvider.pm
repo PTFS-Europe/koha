@@ -346,6 +346,30 @@ sub _COUNTER_report_header {
     );
 }
 
+=head3 _COUNTER_database_report_row
+
+Return a COUNTER database for the COUNTER databases report body
+https://cop5.projectcounter.org/en/5.0.2/04-reports/02-database-reports.html#column-headings-elements
+
+=cut
+
+sub _COUNTER_database_report_row {
+    my ( $self, $database_row, $metric_type, $total_usage, $monthly_usages ) = @_;
+
+    return (
+        [
+            $database_row->{Database}                                             || "",
+            $database_row->{Publisher}                                            || "",
+            $self->_get_SUSHI_Type_Value( $database_row->{Publisher_ID}, "ISNI" ) || "",
+            $database_row->{Platform}                                             || "",
+            $database_row->{Proprietary_ID}                                       || "",
+            $metric_type,
+            $total_usage,
+            @{$monthly_usages}
+        ]
+    );
+}
+
 =head3 _COUNTER_platform_report_row
 
 Return a COUNTER platform for the COUNTER platforms report body
@@ -418,11 +442,12 @@ sub _COUNTER_report_row {
 
     if ( $header->{Report_ID} =~ /PR/i ) {
         return $self->_COUNTER_platform_report_row( $report_row, $metric_type, $total_usage, \@monthly_usages );
+    } elsif ( $header->{Report_ID} =~ /DR/i ) {
+        return $self->_COUNTER_database_report_row( $report_row, $metric_type, $total_usage, \@monthly_usages );
     } elsif ( $header->{Report_ID} =~ /TR/i ) {
         return $self->_COUNTER_title_report_row( $report_row, $metric_type, $total_usage, \@monthly_usages );
     }
 
-    # TODO: Database report body
     # TODO: Items report body
 
 }
@@ -544,16 +569,44 @@ sub _COUNTER_report_column_headings {
 
     if ( $header->{Report_ID} =~ /PR/i ) {
         return $self->_COUNTER_platforms_report_column_headings;
+    }elsif ( $header->{Report_ID} =~ /DR/i ) {
+        return $self->_COUNTER_databases_report_column_headings;
     }elsif ( $header->{Report_ID} =~ /TR/i ) {
         return $self->_COUNTER_titles_report_column_headings;
     }
 
     # TODO: Item Report
-    # TODO: Database Report
 
     return;
 }
 
+=head3 _COUNTER_databases_report_column_headings
+
+Return databases report column headings
+
+=cut
+
+sub _COUNTER_databases_report_column_headings {
+    my ($self) = @_;
+
+    my $header         = $self->{sushi}->{header};
+    my @month_headings = $self->_get_usage_months( $header, 1 );
+
+    return (
+        [
+            "Database",
+            "Publisher",
+            "Publisher_ID",
+            "Platform",
+            "Proprietary_ID",
+            "Metric_Type",
+            "Reporting_Period_Total",
+
+            # @month_headings in "Mmm-yyyy" format. TODO: Show unless Exclude_Monthly_Details=true
+            @month_headings
+        ]
+    );
+}
 
 =head3 _COUNTER_platforms_report_column_headings
 

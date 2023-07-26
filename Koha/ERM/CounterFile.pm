@@ -22,6 +22,8 @@ use Text::CSV_XS qw( csv );
 use Koha::ERM::CounterLog;
 use Koha::ERM::UsagePlatform;
 use Koha::ERM::UsagePlatforms;
+use Koha::ERM::UsageDatabase;
+use Koha::ERM::UsageDatabases;
 use Koha::ERM::UsageTitle;
 use Koha::ERM::UsageTitles;
 use Koha::ERM::UsageDataProvider;
@@ -330,6 +332,8 @@ sub _add_job_message {
 
     if ( $self->type =~ /PR/i ) {
         $object_title = $row->{Platform};
+    } elsif ( $self->type =~ /DR/i ) {
+        $object_title = $row->{Database};
     } elsif ( $self->type =~ /TR/i ) {
         $object_title = $row->{Title};
     }
@@ -354,6 +358,8 @@ sub _get_usage_object_id_hash {
 
     if ( $self->type =~ /PR/i ) {
         return { platform_id => $usage_object->platform_id };
+    } elsif ( $self->type =~ /DR/i ) {
+        return { database_id => $usage_object->database_id };
     } elsif ( $self->type =~ /TR/i ) {
         return { title_id => $usage_object->title_id };
     }
@@ -375,6 +381,13 @@ sub _search_for_usage_object {
         return Koha::ERM::UsagePlatforms->search(
             {
                 platform               => $row->{Platform},
+                usage_data_provider_id => $usage_data_provider->erm_usage_data_provider_id
+            }
+        )->last;
+    } elsif ( $self->type =~ /DR/i ) {
+        return Koha::ERM::UsageDatabases->search(
+            {
+                database               => $row->{Database},
                 usage_data_provider_id => $usage_data_provider->erm_usage_data_provider_id
             }
         )->last;
@@ -401,6 +414,8 @@ sub _is_same_usage_object {
 
     if ( $self->type =~ /PR/i ) {
         return $previous_object && $previous_object->platform eq $row->{Platform};
+    } elsif ( $self->type =~ /DR/i ) {
+        return $previous_object && $previous_object->database eq $row->{Database};
     } elsif ( $self->type =~ /TR/i ) {
         #TODO: We need to consider the case for Access_type! it may be same DOI (same record, but it's new usage statistics of a different access_type)
         return $previous_object && $previous_object->title_doi eq $row->{DOI};
@@ -476,6 +491,16 @@ sub _add_usage_object_entry {
             {
                 usage_data_provider_id => $usage_data_provider->erm_usage_data_provider_id,
                 platform               => $row->{Platform},
+            }
+        )->store;
+    } elsif ( $self->type =~ /DR/i ) {
+        return Koha::ERM::UsageDatabase->new(
+            {
+                database               => $row->{Database},
+                usage_data_provider_id => $usage_data_provider->erm_usage_data_provider_id,
+                platform               => $row->{Platform},
+                publisher              => $row->{Publisher},
+                publisher_id           => $row->{Publisher_ID},
             }
         )->store;
     } elsif ( $self->type =~ /TR/i ) {
