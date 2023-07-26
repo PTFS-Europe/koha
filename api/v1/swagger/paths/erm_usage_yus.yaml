@@ -29,6 +29,11 @@
         name: database_id
         required: false
         type: integer
+      - description: Case insensitive search on yearly_usage_summaries item_id
+        in: query
+        name: item_id
+        required: false
+        type: integer
       - description: Case insensitive search on yearly_usage_summaries usage_data_provider_id
         in: query
         name: usage_data_provider_id
