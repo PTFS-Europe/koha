@@ -20,6 +20,11 @@ properties:
     type:
     - integer
     - "null"
+  item_id:
+    description: item_id of the monthly usage summary
+    type:
+    - integer
+    - "null"
   usage_data_provider_id:
     description: usage_data_provider_id of the monthly usage summary
     type:
