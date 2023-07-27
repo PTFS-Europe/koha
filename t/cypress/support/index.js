@@ -168,3 +168,182 @@ cy.get_usage_title = () => {
         }
     ]
 }
+
+cy.get_default_report = () => {
+    const params = {
+        "url": "/api/v1/erm/usage_titles/monthly_report?q=[{\"erm_usage_muses.year\":2022,\"erm_usage_muses.report_type\":\"TR_J1\",\"erm_usage_muses.month\":[1,2,3,4,5,6,7,8,9,10,11,12],\"erm_usage_muses.metric_type\":[\"Total_Item_Requests\",\"Unique_Item_Requests\"]},{\"erm_usage_muses.year\":2023,\"erm_usage_muses.report_type\":\"TR_J1\",\"erm_usage_muses.month\":[1,2,3,4,5,6,7,8,9,10,11,12],\"erm_usage_muses.metric_type\":[\"Total_Item_Requests\",\"Unique_Item_Requests\"]}]",
+        "columns": [1],
+        "queryObject": {
+            "data_display": "monthly",
+            "report_type": "TR_J1",
+            "metric_types": [
+                "Total_Item_Requests",
+                "Unique_Item_Requests"
+            ],
+            "usage_data_providers": null,
+            "titles": null,
+            "start_month": null,
+            "start_year": "2022",
+            "end_month": null,
+            "end_year": "2023"
+        },
+        "yearly_filter": true,
+        "type": "monthly",
+        "tp_columns": {
+            "2022": [
+                {
+                    "short": "Jan",
+                    "description": "January",
+                    "value": 1,
+                    "active": true
+                },
+                {
+                    "short": "Feb",
+                    "description": "February",
+                    "value": 2,
+                    "active": true
+                },
+                {
+                    "short": "Mar",
+                    "description": "March",
+                    "value": 3,
+                    "active": true
+                },
+                {
+                    "short": "Apr",
+                    "description": "April",
+                    "value": 4,
+                    "active": true
+                },
+                {
+                    "short": "May",
+                    "description": "May",
+                    "value": 5,
+                    "active": true
+                },
+                {
+                    "short": "Jun",
+                    "description": "June",
+                    "value": 6,
+                    "active": true
+                },
+                {
+                    "short": "Jul",
+                    "description": "July",
+                    "value": 7,
+                    "active": true
+                },
+                {
+                    "short": "Aug",
+                    "description": "August",
+                    "value": 8,
+                    "active": true
+                },
+                {
+                    "short": "Sep",
+                    "description": "September",
+                    "value": 9,
+                    "active": true
+                },
+                {
+                    "short": "Oct",
+                    "description": "October",
+                    "value": 10,
+                    "active": true
+                },
+                {
+                    "short": "Nov",
+                    "description": "November",
+                    "value": 11,
+                    "active": true
+                },
+                {
+                    "short": "Dec",
+                    "description": "December",
+                    "value": 12,
+                    "active": true
+                }
+            ],
+            "2023": [
+                {
+                    "short": "Jan",
+                    "description": "January",
+                    "value": 1,
+                    "active": true
+                },
+                {
+                    "short": "Feb",
+                    "description": "February",
+                    "value": 2,
+                    "active": true
+                },
+                {
+                    "short": "Mar",
+                    "description": "March",
+                    "value": 3,
+                    "active": true
+                },
+                {
+                    "short": "Apr",
+                    "description": "April",
+                    "value": 4,
+                    "active": true
+                },
+                {
+                    "short": "May",
+                    "description": "May",
+                    "value": 5,
+                    "active": true
+                },
+                {
+                    "short": "Jun",
+                    "description": "June",
+                    "value": 6,
+                    "active": true
+                },
+                {
+                    "short": "Jul",
+                    "description": "July",
+                    "value": 7,
+                    "active": true
+                },
+                {
+                    "short": "Aug",
+                    "description": "August",
+                    "value": 8,
+                    "active": true
+                },
+                {
+                    "short": "Sep",
+                    "description": "September",
+                    "value": 9,
+                    "active": true
+                },
+                {
+                    "short": "Oct",
+                    "description": "October",
+                    "value": 10,
+                    "active": true
+                },
+                {
+                    "short": "Nov",
+                    "description": "November",
+                    "value": 11,
+                    "active": true
+                },
+                {
+                    "short": "Dec",
+                    "description": "December",
+                    "value": 12,
+                    "active": true
+                }
+            ]
+        }
+    }
+
+    return {
+        "erm_default_usage_report_id": 1,
+        "report_name": "Cypress report",
+        "report_url_params": JSON.stringify(params)
+    }
+}
