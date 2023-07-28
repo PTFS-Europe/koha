@@ -66,6 +66,70 @@ return {
             });
         }
 
+        # Get any existing NEW batch status
+        my ($new_status) = $dbh->selectrow_array(
+            q|
+            SELECT name FROM illbatch_statuses WHERE code='NEW';
+        |
+        );
+
+        if ($new_status) {
+            say $out "Bug 30719: NEW ILL batch status found. Update has already been run.";
+        } else {
+            $dbh->do(qq{
+            INSERT INTO illbatch_statuses ( name, code, is_system ) VALUES ('New', 'NEW', '1')
+            });
+            say $out "Bug 30719: Added NEW ILL batch status";
+        }
+
+        # Get any existing IN_PROGRESS batch status
+        my ($in_progress_status) = $dbh->selectrow_array(
+            q|
+            SELECT name FROM illbatch_statuses WHERE code='IN_PROGRESS';
+        |
+        );
+
+        if ($in_progress_status) {
+            say $out "Bug 30719: IN_PROGRESS ILL batch status found. Update has already been run.";
+        } else {
+            $dbh->do(qq{
+            INSERT INTO illbatch_statuses( name, code, is_system ) VALUES( 'In progress', 'IN_PROGRESS', '1' )
+            });
+            say $out "Bug 30719: Added IN_PROGRESS ILL batch status";
+        }
+
+        # Get any existing COMPLETED batch status
+        my ($completed_status) = $dbh->selectrow_array(
+            q|
+            SELECT name FROM illbatch_statuses WHERE code='COMPLETED';
+        |
+        );
+
+        if ($completed_status) {
+            say $out "Bug 30719: COMPLETED ILL batch status found. Update has already been run.";
+        } else {
+            $dbh->do(qq{
+            INSERT INTO illbatch_statuses( name, code, is_system ) VALUES( 'Completed', 'COMPLETED', '1' )
+            });
+            say $out "Bug 30719: Added COMPLETED ILL batch status";
+        }
+
+        # Get any existing UNKNOWN batch status
+        my ($unknown_status) = $dbh->selectrow_array(
+            q|
+            SELECT name FROM illbatch_statuses WHERE code='UNKNOWN';
+        |
+        );
+
+        if ($unknown_status) {
+            say $out "Bug 30719: UNKNOWN ILL batch status found. Update has already been run.";
+        } else {
+            $dbh->do(qq{
+            INSERT INTO illbatch_statuses( name, code, is_system ) VALUES( 'Unknown', 'UNKNOWN', '1' )
+            });
+            say $out "Bug 30719: Added UNKNOWN ILL batch status";
+        }
+
         say $out "Bug 30719: Add ILL batches completed"
     },
 };
