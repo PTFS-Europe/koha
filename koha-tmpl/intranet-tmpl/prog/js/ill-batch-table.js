@@ -76,7 +76,8 @@
                 {
                     render: createActions,
                     width: '10%',
-                    orderable: false
+                    orderable: false,
+                    className: 'noExport'
                 }
             ],
             processing: true,
