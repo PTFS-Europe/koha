@@ -72,6 +72,7 @@ sub existing_statuses {
                 : $status_data->{status}->{code} ? ( str => $status_data->{status}->{code} )
                 : (),
                 $status_data->{status}->{code} ? ( code => $status_data->{status}->{code} ) : (),
+                $status_data->{status}->{type} ? ( type => $status_data->{status}->{type} ) : (),
             };
         }
     }
@@ -94,6 +95,7 @@ sub existing_statuses {
                 : $status_data->{status_alias}->{code} ? ( str => $status_data->{status_alias}->{code} )
                 : (),
                 $status_data->{status_alias}->{code} ? ( code => $status_data->{status_alias}->{code} ) : (),
+                $status_data->{status_alias}->{type} ? ( type => $status_data->{status_alias}->{type} ) : (),
             };
         }
     }
