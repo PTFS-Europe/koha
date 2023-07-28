@@ -116,29 +116,31 @@
 
                     <h1>Interlibrary loan batch statuses</h1>
                     [% IF statuses.count %]
-                        <table id="table_batch_statuses">
-                            <thead>
-                                <th>Name</th>
-                                <th>Code</th>
-                                <th>Is system</th>
-                                <th class="noExport">Actions</th>
-                            </thead>
-                            <tbody>
-                                [% FOREACH status IN statuses %]
-                                <tr>
-                                    <td>[% status.name | html %]</td>
-                                    <td>[% status.code | html %]</td>
-                                    <td>[% status.is_system ? "Yes" : "No" | html %]</td>
-                                    <td class="actions">
-                                        <a class="btn btn-default btn-xs" href="/cgi-bin/koha/admin/ill_batch_statuses.pl?op=add_form&amp;code=[% status.code | uri %]"><i class="fa fa-pencil"></i> Edit</a>
-                                        [% IF !status.is_system %]
-                                        <a class="btn btn-default btn-xs" href="/cgi-bin/koha/admin/ill_batch_statuses.pl?op=delete&amp;code=[% status.code | uri %]"><i class="fa fa-delete"></i> Delete</a>
-                                        [% END %]
-                                    </td>
-                                </tr>
-                                [% END %]
-                            </tbody>
-                        </table>
+                        <div class="page-section">
+                            <table id="table_batch_statuses">
+                                <thead>
+                                    <th>Name</th>
+                                    <th>Code</th>
+                                    <th>Is system</th>
+                                    <th class="noExport">Actions</th>
+                                </thead>
+                                <tbody>
+                                    [% FOREACH status IN statuses %]
+                                    <tr>
+                                        <td>[% status.name | html %]</td>
+                                        <td>[% status.code | html %]</td>
+                                        <td>[% status.is_system ? "Yes" : "No" | html %]</td>
+                                        <td class="actions">
+                                            <a class="btn btn-default btn-xs" href="/cgi-bin/koha/admin/ill_batch_statuses.pl?op=add_form&amp;code=[% status.code | uri %]"><i class="fa fa-pencil"></i> Edit</a>
+                                            [% IF !status.is_system %]
+                                            <a class="btn btn-default btn-xs" href="/cgi-bin/koha/admin/ill_batch_statuses.pl?op=delete&amp;code=[% status.code | uri %]"><i class="fa fa-delete"></i> Delete</a>
+                                            [% END %]
+                                        </td>
+                                    </tr>
+                                    [% END %]
+                                </tbody>
+                            </table>
+                        </page-section>
                     [% ELSE %]
                         <div class="dialog message">
                             There are no batch statuses defined. <a href="/cgi-bin/koha/admin/ill_batch_statuses.pl?op=add_form">Create new batch status</a>
