@@ -367,6 +367,10 @@ export class ERMAPIClient extends HttpClient {
                     endpoint: "default_usage_reports",
                     body: default_usage_report,
                 }),
+            delete: (id) =>
+                this.delete({
+                    endpoint: "default_usage_reports/" + id,
+                }),
         };
     }
 }
