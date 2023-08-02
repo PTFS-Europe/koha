@@ -50,6 +50,11 @@ properties:
     type:
     - string
     - "null"
+  access_type:
+    description: access type of the monthly usage summary
+    type:
+    - string
+    - "null"
   report_type:
     description: report type of the monthly usage summary
     type:
