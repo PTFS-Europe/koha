@@ -94,6 +94,8 @@ return {
                 `title_uri` varchar(24) DEFAULT NULL COMMENT 'URI number for the title',
                 `publisher` varchar(24) DEFAULT NULL COMMENT 'Publisher for the title',
                 `publisher_id` varchar(24) DEFAULT NULL COMMENT 'Publisher ID for the title',
+                `yop` varchar(24) DEFAULT NULL COMMENT 'year of publication of the title',
+                `isbn` varchar(24) DEFAULT NULL COMMENT 'ISBN of the title',
                 PRIMARY KEY (`title_id`),
                 CONSTRAINT `erm_usage_titles_ibfk_1` FOREIGN KEY (`usage_data_provider_id`) REFERENCES `erm_usage_data_providers` (`erm_usage_data_provider_id`) ON DELETE CASCADE ON UPDATE CASCADE
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -178,6 +180,7 @@ return {
                 `month` int(2) DEFAULT NULL COMMENT 'month of usage statistics',
                 `usage_count` int(11) DEFAULT NULL COMMENT 'usage count for the title',
                 `metric_type` varchar(50) DEFAULT NULL COMMENT 'metric type for the usage statistic',
+                `access_type` varchar(50) DEFAULT NULL COMMENT 'access type for the usage statistic',
                 `report_type` varchar(50) DEFAULT NULL COMMENT 'report type for the usage statistic',
                 PRIMARY KEY (`monthly_usage_summary_id`),
                 CONSTRAINT `erm_usage_mus_ibfk_1` FOREIGN KEY (`title_id`) REFERENCES `erm_usage_titles` (`title_id`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -207,6 +210,7 @@ return {
                 `year` int(4) DEFAULT NULL COMMENT 'year of usage statistics',
                 `totalcount` int(11) DEFAULT NULL COMMENT 'usage count for the title',
                 `metric_type` varchar(50) DEFAULT NULL COMMENT 'metric type for the usage statistic',
+                `access_type` varchar(50) DEFAULT NULL COMMENT 'access type for the usage statistic',
                 `report_type` varchar(50) DEFAULT NULL COMMENT 'report type for the usage statistic',
                 PRIMARY KEY (`yearly_usage_summary_id`),
                 CONSTRAINT `erm_usage_yus_ibfk_1` FOREIGN KEY (`title_id`) REFERENCES `erm_usage_titles` (`title_id`) ON DELETE CASCADE ON UPDATE CASCADE,
