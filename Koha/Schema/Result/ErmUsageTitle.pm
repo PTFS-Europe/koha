@@ -95,6 +95,22 @@ Publisher for the title
 
 Publisher ID for the title
 
+=head2 yop
+
+  data_type: 'varchar'
+  is_nullable: 1
+  size: 24
+
+year of publication of the title
+
+=head2 isbn
+
+  data_type: 'varchar'
+  is_nullable: 1
+  size: 24
+
+ISBN of the title
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -115,6 +131,10 @@ __PACKAGE__->add_columns(
   "publisher",
   { data_type => "varchar", is_nullable => 1, size => 24 },
   "publisher_id",
+  { data_type => "varchar", is_nullable => 1, size => 24 },
+  "yop",
+  { data_type => "varchar", is_nullable => 1, size => 24 },
+  "isbn",
   { data_type => "varchar", is_nullable => 1, size => 24 },
 );
 
@@ -178,8 +198,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2023-06-01 16:24:08
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Pd0jk01S8AGLjLWoLGWwZA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2023-08-02 16:27:18
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:2ChttNyhXjVRUWg0nCfg8A
 
 
 sub koha_object_class {
