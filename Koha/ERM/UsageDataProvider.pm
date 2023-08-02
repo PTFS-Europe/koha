@@ -432,27 +432,56 @@ https://cop5.projectcounter.org/en/5.0.2/04-reports/03-title-reports.html#column
 sub _COUNTER_title_report_row {
     my ( $self, $title_row, $metric_type, $total_usage, $monthly_usages ) = @_;
 
+    my $header          = $self->{sushi}->{header};
+    my $specific_fields = $self->get_report_type_specific_fields( $header->{Report_ID} );
+
     return (
         [
-            $title_row->{Title}
-                || "",
-            $title_row->{Publisher}
-                || "",
-            $self->_get_SUSHI_Type_Value( $title_row->{Publisher_ID}, "ISNI" )
-                || "",    #FIXME: this ISNI can't be right, can it?
-            $title_row->{Platform}
-                || "",
-            $self->_get_SUSHI_Type_Value( $title_row->{Item_ID}, "DOI" )
-                || "",
-            $self->_get_SUSHI_Type_Value( $title_row->{Item_ID}, "Proprietary" )
-                || "",
-            $self->_get_SUSHI_Type_Value( $title_row->{Item_ID}, "Print_ISSN" )
-                || "",
-            $self->_get_SUSHI_Type_Value( $title_row->{Item_ID}, "Online_ISSN" )
-                || "",
-            "",           #FIXME: What goes in URI?
+            # Title
+            $title_row->{Title} || "",
+
+            # Publisher
+            $title_row->{Publisher} || "",
+
+            # Publisher_ID
+            $self->_get_SUSHI_Type_Value( $title_row->{Publisher_ID}, "ISNI" ) || "",
+
+            # Platform
+            $title_row->{Platform} || "",
+
+            # DOI
+            $self->_get_SUSHI_Type_Value( $title_row->{Item_ID}, "DOI" ) || "",
+
+            # Proprietary_ID
+            $self->_get_SUSHI_Type_Value( $title_row->{Item_ID}, "Proprietary" ) || "",
+
+            # ISBN
+            grep ( /ISBN/, @{$specific_fields} )
+            ? ( $self->_get_SUSHI_Type_Value( $title_row->{Item_ID}, "ISBN" ) || "" )
+            : (),
+
+            # Print_ISSN
+            $self->_get_SUSHI_Type_Value( $title_row->{Item_ID}, "Print_ISSN" ) || "",
+
+            # Online_ISSN
+            $self->_get_SUSHI_Type_Value( $title_row->{Item_ID}, "Online_ISSN" ) || "",
+
+            # URI - FIXME: What goes in URI?
+            "",
+
+            # YOP
+            grep ( /YOP/, @{$specific_fields} ) ? ( $title_row->{YOP} || "" ) : (),
+
+            # Access_Type
+            grep ( /Access_Type/, @{$specific_fields} ) ? ( $title_row->{Access_Type} || "" ) : (),
+
+            # Metric_Type
             $metric_type,
+
+            # Report_Period_Total
             $total_usage,
+
+            # Monthly usage entries
             @{$monthly_usages}
         ]
     );
@@ -540,9 +569,6 @@ sub _COUNTER_report_body {
 
     my @report_body = ();
 
-    # Set job size to the amount of rows we're processing
-    $self->{job_callbacks}->{set_size_callback}->( scalar( @{$body} ) );
-
     my $total_records = 0;
     foreach my $report_row ( @{$body} ) {
 
@@ -553,7 +579,7 @@ sub _COUNTER_report_body {
                 $self->_COUNTER_report_row( $report_row, $metric_type )
             );
         }
-        $self->{counter_report} = { report_type => $self->{report_type}, total_records => ++$total_records };
+        $self->{total_records} = ++$total_records;
     }
 
     return @report_body;
@@ -739,8 +765,9 @@ Return titles report column headings
 sub _COUNTER_titles_report_column_headings {
     my ($self) = @_;
 
-    my $header         = $self->{sushi}->{header};
-    my @month_headings = $self->_get_usage_months( $header, 1 );
+    my $header          = $self->{sushi}->{header};
+    my @month_headings  = $self->_get_usage_months( $header, 1 );
+    my $specific_fields = $self->get_report_type_specific_fields( $header->{Report_ID} );
 
     return (
         [
@@ -750,20 +777,18 @@ sub _COUNTER_titles_report_column_headings {
             "Platform",
             "DOI",
             "Proprietary_ID",
-
-            #"ISBN", #TODO: Add ISBN column header for TR_B1, TR_B2 and TR_B3
+            grep ( /ISBN/, @{$specific_fields} ) ? ("ISBN") : (),
             "Print_ISSN",
             "Online_ISSN",
             "URI",
 
             #"Data_Type", #TODO: Only if requested (?)
             #"Section_Type", #TODO: Only if requested (?)
-            #"YOP", #TODO: Add YOP column header for TR_B1, TR_B2, TR_B3 and TR_J4
-            #"Access_Type", #TODO: Access_Type column header for TR_B3 and TR_J3
+            grep ( /YOP/,         @{$specific_fields} ) ? ("YOP")         : (),
+            grep ( /Access_Type/, @{$specific_fields} ) ? ("Access_Type") : (),
+
             #"Access_Method", #TODO: Only if requested (?)
             "Metric_Type",
-
-            #TODO: What format is Reporting_Period_Total? example: "2020 total"
             "Reporting_Period_Total",
 
             # @month_headings in "Mmm-yyyy" format. TODO: Show unless Exclude_Monthly_Details=true
@@ -811,6 +836,27 @@ sub _get_usage_months {
     }
 
     return @month_headings;
+}
+
+=head3 get_report_type_specific_fields
+
+Returns the specific fields for a given report_type
+
+=cut
+
+sub get_report_type_specific_fields {
+    my ( $self, $report_type ) = @_;
+
+    my %report_type_map = (
+        "TR_B1" => [ 'YOP', 'ISBN' ],
+        "TR_B2" => [ 'YOP', 'ISBN' ],
+        "TR_B3" => [ 'YOP', 'Access_Type', 'ISBN' ],
+        "TR_J3" => ['Access_Type'],
+        "TR_J4" => ['YOP'],
+    );
+
+    return $report_type_map{$report_type};
+
 }
 
 =head3 _COUNTER_master_report
