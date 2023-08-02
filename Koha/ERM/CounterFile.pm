@@ -124,7 +124,9 @@ sub _add_usage_objects {
     my $usage_data_provider = $self->get_usage_data_provider;
     my $previous_object     = undef;
     my $usage_object        = undef;
-    my $i                   = 0;
+
+    # Set job size to the amount of rows we're processing
+    $self->{job_callbacks}->{set_size_callback}->( scalar( @{$rows} ) ) if $self->{job_callbacks};
 
     foreach my $row ( @{$rows} ) {
 
@@ -135,9 +137,6 @@ sub _add_usage_objects {
             $usage_object = $previous_object;
         }
         else {
-            # Update background job step
-            $self->{job_callbacks}->{step_callback}->() if $self->{job_callbacks};
-
             # Check if usage object already exists in this data provider, e.g. from a previous harvest
             $usage_object = $self->_search_for_usage_object($row);
 
@@ -184,9 +183,12 @@ sub _add_usage_objects {
         }
 
         # Add yearly usage statistics for this usage object
-        $self->_add_yearly_usage_entries( $usage_object, $row->{Metric_Type}, \%yearly_usages );
+        $self->_add_yearly_usage_entries( $usage_object, $row->{Metric_Type}, $row, \%yearly_usages );
 
         $previous_object = $usage_object;
+
+        # Update background job step
+        $self->{job_callbacks}->{step_callback}->() if $self->{job_callbacks};
     }
 }
 
@@ -200,7 +202,8 @@ sub _add_monthly_usage_entries {
     my ( $self, $usage_object, $metric_type, $row, $year, $month, $usage ) = @_;
 
     my $usage_data_provider = $self->get_usage_data_provider;
-    my $usage_object_info = $self->_get_usage_object_id_hash($usage_object);
+    my $usage_object_info   = $self->_get_usage_object_id_hash($usage_object);
+    my $specific_fields     = $usage_data_provider->get_report_type_specific_fields( $self->type );
 
     $usage_object->monthly_usages(
         [
@@ -211,9 +214,11 @@ sub _add_monthly_usage_entries {
                 month                  => $self->_get_month_number($month),
                 usage_count            => $usage,
                 metric_type            => $row->{Metric_Type},
-                report_type            => $self->type
+                grep ( /Access_Type/, @{$specific_fields} ) ? ( access_type => $row->{Access_Type} ) : (),
+                report_type => $self->type
             }
-        ]
+        ],
+        $self->{job_callbacks}
     );
 }
 
@@ -224,10 +229,11 @@ Adds erm_usage_yus database entries
 =cut
 
 sub _add_yearly_usage_entries {
-    my ( $self, $usage_object, $metric_type, $yearly_usages ) = @_;
+    my ( $self, $usage_object, $metric_type, $row, $yearly_usages ) = @_;
 
     my $usage_data_provider = $self->get_usage_data_provider;
-    my $usage_object_info = $self->_get_usage_object_id_hash($usage_object);
+    my $usage_object_info   = $self->_get_usage_object_id_hash($usage_object);
+    my $specific_fields     = $usage_data_provider->get_report_type_specific_fields( $self->type );
 
     while ( my ( $year, $usage ) = each( %{$yearly_usages} ) ) {
 
@@ -242,9 +248,11 @@ sub _add_yearly_usage_entries {
                     year                   => $year,
                     totalcount             => $usage,
                     metric_type            => $metric_type,
-                    report_type            => $self->type
+                    grep ( /Access_Type/, @{$specific_fields} ) ? ( access_type => $row->{Access_Type} ) : (),
+                    report_type => $self->type
                 }
-            ]
+            ],
+            $self->{job_callbacks}
         );
     }
 }
@@ -433,7 +441,6 @@ sub _is_same_usage_object {
     } elsif ( $self->type =~ /IR/i ) {
         return $previous_object && $previous_object->item eq $row->{Item} && $previous_object->publisher eq $row->{Publisher};
     } elsif ( $self->type =~ /TR/i ) {
-        #TODO: We need to consider the case for Access_type! it may be same DOI (same record, but it's new usage statistics of a different access_type)
         return $previous_object && $previous_object->title_doi eq $row->{DOI};
     }
 
@@ -501,6 +508,7 @@ sub _add_usage_object_entry {
     my ( $self, $row ) = @_;
 
     my $usage_data_provider = $self->get_usage_data_provider;
+    my $specific_fields     = $usage_data_provider->get_report_type_specific_fields( $self->type );
 
     if ( $self->type =~ /PR/i ) {
         return Koha::ERM::UsagePlatform->new(
@@ -539,6 +547,8 @@ sub _add_usage_object_entry {
                 title_uri              => $row->{URI},
                 publisher              => $row->{Publisher},
                 publisher_id           => $row->{Publisher_ID},
+                grep ( /YOP/,  @{$specific_fields} ) ? ( yop  => $row->{YOP} )  : (),
+                grep ( /ISBN/, @{$specific_fields} ) ? ( isbn => $row->{ISBN} ) : (),
             }
         )->store;
     }
