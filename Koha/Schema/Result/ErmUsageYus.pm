@@ -93,6 +93,14 @@ usage count for the title
 
 metric type for the usage statistic
 
+=head2 access_type
+
+  data_type: 'varchar'
+  is_nullable: 1
+  size: 50
+
+access type for the usage statistic
+
 =head2 report_type
 
   data_type: 'varchar'
@@ -121,6 +129,8 @@ __PACKAGE__->add_columns(
   "totalcount",
   { data_type => "integer", is_nullable => 1 },
   "metric_type",
+  { data_type => "varchar", is_nullable => 1, size => 50 },
+  "access_type",
   { data_type => "varchar", is_nullable => 1, size => 50 },
   "report_type",
   { data_type => "varchar", is_nullable => 1, size => 50 },
@@ -241,8 +251,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2023-07-26 14:35:34
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:DOun70cYuj4b2LihZUA5mg
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2023-08-02 15:57:07
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:B439wdXto/YBcahGqalurg
 
 
 sub koha_object_class {
