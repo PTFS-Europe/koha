@@ -54,6 +54,11 @@
         name: metric_type
         required: false
         type: integer
+      - description: Case insensitive search on yearly_usage_summaries access_type
+        in: query
+        name: access_type
+        required: false
+        type: string
       - description: Case insensitive search on yearly_usage_summaries report_type
         in: query
         name: report_type
