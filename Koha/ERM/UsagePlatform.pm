@@ -63,11 +63,15 @@ Skips adding yearly_usage if it already exists
 =cut
 
 sub yearly_usages {
-    my ( $self, $yearly_usages ) = @_;
+    my ( $self, $yearly_usages, $job_callbacks ) = @_;
 
     if ($yearly_usages) {
         for my $yearly_usage (@$yearly_usages) {
-            next if $self->yearly_usages()->search($yearly_usage)->last;
+            if ( $self->yearly_usages()->search($yearly_usage)->last ) {
+                $job_callbacks->{report_info_callback}->('skipped_yus') if $job_callbacks;
+                next;
+            }
+            $job_callbacks->{report_info_callback}->('added_yus') if $job_callbacks;
             Koha::ERM::YearlyUsage->new($yearly_usage)->store;
         }
     }
@@ -83,11 +87,15 @@ Skips adding monthly_usage if it already exists
 =cut
 
 sub monthly_usages {
-    my ( $self, $monthly_usages ) = @_;
+    my ( $self, $monthly_usages, $job_callbacks ) = @_;
 
     if ($monthly_usages) {
         for my $monthly_usage (@$monthly_usages) {
-            next if $self->monthly_usages()->search($monthly_usage)->last;
+            if ( $self->monthly_usages()->search($monthly_usage)->last ) {
+                $job_callbacks->{report_info_callback}->('skipped_mus') if $job_callbacks;
+                next;
+            }
+            $job_callbacks->{report_info_callback}->('added_mus') if $job_callbacks;
             Koha::ERM::MonthlyUsage->new($monthly_usage)->store;
         }
     }
