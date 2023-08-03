@@ -373,6 +373,66 @@ export class ERMAPIClient extends HttpClient {
                 }),
         };
     }
+
+    get usage_platforms() {
+        return {
+            getAll: (query) =>
+                this.getAll({
+                    endpoint: "usage_platforms",
+                    query
+                }),
+            count: (query = {}) =>
+                this.count({
+                    endpoint:
+                        "usage_platforms?" +
+                        new URLSearchParams({
+                            _page: 1,
+                            _per_page: 1,
+                            ...(query && { q: JSON.stringify(query) }),
+                        }),
+                }),
+        };
+    }
+
+    get usage_items() {
+        return {
+            getAll: (query) =>
+                this.getAll({
+                    endpoint: "usage_items",
+                    query
+                }),
+            count: (query = {}) =>
+                this.count({
+                    endpoint:
+                        "usage_items?" +
+                        new URLSearchParams({
+                            _page: 1,
+                            _per_page: 1,
+                            ...(query && { q: JSON.stringify(query) }),
+                        }),
+                }),
+        };
+    }
+
+    get usage_databases() {
+        return {
+            getAll: (query) =>
+                this.getAll({
+                    endpoint: "usage_databases",
+                    query
+                }),
+            count: (query = {}) =>
+                this.count({
+                    endpoint:
+                        "usage_databases?" +
+                        new URLSearchParams({
+                            _page: 1,
+                            _per_page: 1,
+                            ...(query && { q: JSON.stringify(query) }),
+                        }),
+                }),
+        };
+    }
 }
 
 export default ERMAPIClient;
