@@ -370,18 +370,21 @@ export default {
             dt.on("draw", () => {
                 const rows = dt.rows().nodes().to$()
 
-                const titles = []
+                const data_rows = []
                 for (let i = 0; i < rows.length; i = i + numberOfMetricTypes) {
-                    titles.push([rows.slice(i, i + numberOfMetricTypes)])
+                    data_rows.push([rows.slice(i, i + numberOfMetricTypes)])
                 }
 
-                titles
+                data_rows
                     .map(item => item[0])
                     .forEach(titleRows => {
                         Array.from(titleRows).forEach((row, i) => {
                             const cells = row.cells
                             if (i === 0) {
                                 cells[0].rowSpan = numberOfMetricTypes
+                                cells[0].style.textAlign = "center"
+                                cells[0].style.verticalAlign = "middle"
+                                cells[0].style.borderRight = "1px solid #BCBCBC"
                             } else {
                                 cells[0].remove()
                             }
@@ -437,5 +440,8 @@ export default {
 }
 .hide-table {
     display: none;
+}
+.title_cell {
+    color: red;
 }
 </style>
