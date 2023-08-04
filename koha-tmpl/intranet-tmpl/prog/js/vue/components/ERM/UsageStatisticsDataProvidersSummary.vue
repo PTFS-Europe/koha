@@ -176,14 +176,34 @@ export default {
                         return date
                     },
                 },
+                {
+                    title: __("Start"),
+                    data: "description",
+                    searchable: true,
+                    orderable: true,
+                    render: function (data, type, row, meta) {
+                        const date = getEarliestDate(row, "IR")
+                        return date
+                    },
+                },
+                {
+                    title: __("End"),
+                    data: "description",
+                    searchable: true,
+                    orderable: true,
+                    render: function (data, type, row, meta) {
+                        const date = getLatestDate(row, "IR")
+                        return date
+                    },
+                },
             ]
         },
         createTableHeader() {
             const table = this.$refs.table.$el.getElementsByTagName("table")[0]
 
             const row = table.insertRow(0)
-            const [cellOne, cellTwo, cellThree, cellFour] = [
-                ...Array(4).keys(),
+            const [cellOne, cellTwo, cellThree, cellFour, cellFive] = [
+                ...Array(5).keys(),
             ].map(item => {
                 const cell = document.createElement("th")
                 row.appendChild(cell)
@@ -195,6 +215,8 @@ export default {
             cellThree.innerHTML = "Platform reports"
             cellFour.colSpan = 2
             cellFour.innerHTML = "Database reports"
+            cellFive.colSpan = 2
+            cellFive.innerHTML = "Item reports"
 
             this.$refs.table_div.classList.remove("hide-table")
         },
