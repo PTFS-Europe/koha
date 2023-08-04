@@ -88,6 +88,8 @@ sub monthly_report {
             for my $metric_type ( @$metric_types ) {
                 my $statistics = $data_object->{'erm_usage_muses'};
                 my @filtered_statistics = grep { $metric_type eq $_->{metric_type} } @$statistics;
+                my @usage_counts = map { $_->{usage_count} } @filtered_statistics;
+                my $sum = scalar(@usage_counts) > 0 ? eval join '+', @usage_counts : 0;
 
                 my $data_object_hash = _get_object_hash({
                     data_type   => $data_type,
@@ -96,6 +98,7 @@ sub monthly_report {
                     provider    => $provider_name,
                     metric_type => $metric_type,
                     period      => 'monthly',
+                    sum         => $sum
                 });
 
                 push @report_data, $data_object_hash;
@@ -248,6 +251,8 @@ sub metric_types_report {
 
 =head3 provider_rollup_report
 
+An endpoint to fetch all data for all providers for a given report type
+
 =cut
 
 sub provider_rollup_report {
@@ -285,6 +290,8 @@ sub provider_rollup_report {
                 for my $data_object ( @{ $usage_data_provider->{$key} }) {
                     my $statistics = $data_object->{'erm_usage_muses'};
                     my @filtered_statistics = grep { $metric_type eq $_->{metric_type} } @$statistics;
+                    my @usage_counts = map { $_->{usage_count} } @filtered_statistics;
+                    my $sum = scalar(@usage_counts) > 0 ? eval join '+', @usage_counts : 0;
 
                     my $data_object_hash = _get_object_hash({
                         data_type   => $data_type,
@@ -293,29 +300,34 @@ sub provider_rollup_report {
                         provider    => '',
                         metric_type => $metric_type,
                         period      => 'monthly',
+                        sum         => $sum,
                     });
 
                     push @filtered_object_data, $data_object_hash;
                 }
 
+                my @data_object_usage_totals = map { $_->{usage_total} } @filtered_object_data;
+                my $provider_rollup_total    = scalar(@data_object_usage_totals) > 0 ? eval join '+', @data_object_usage_totals : 0;
+
                 my %usage_data_provider_hash = (
                     erm_usage_data_provider_id => $usage_data_provider->{erm_usage_data_provider_id},
-                    aggregator => $usage_data_provider->{aggregator},
-                    api_key => $usage_data_provider->{api_key},
-                    begin_date => $usage_data_provider->{begin_date},
-                    customer_id => $usage_data_provider->{customer_id},
-                    description => $usage_data_provider->{description},
-                    end_date => $usage_data_provider->{end_date},
-                    method => $usage_data_provider->{method},
-                    name => $usage_data_provider->{name},
-                    report_release => $usage_data_provider->{report_release},
-                    report_types => $usage_data_provider->{report_types},
-                    requestor_email => $usage_data_provider->{requestor_email},
-                    requestor_id => $usage_data_provider->{requestor_id},
-                    requestor_name => $usage_data_provider->{requestor_name},
-                    service_type => $usage_data_provider->{service_type},
-                    service_url => $usage_data_provider->{service_url},
-                    metric_type => $metric_type
+                    aggregator                 => $usage_data_provider->{aggregator},
+                    api_key                    => $usage_data_provider->{api_key},
+                    begin_date                 => $usage_data_provider->{begin_date},
+                    customer_id                => $usage_data_provider->{customer_id},
+                    description                => $usage_data_provider->{description},
+                    end_date                   => $usage_data_provider->{end_date},
+                    method                     => $usage_data_provider->{method},
+                    name                       => $usage_data_provider->{name},
+                    report_release             => $usage_data_provider->{report_release},
+                    report_types               => $usage_data_provider->{report_types},
+                    requestor_email            => $usage_data_provider->{requestor_email},
+                    requestor_id               => $usage_data_provider->{requestor_id},
+                    requestor_name             => $usage_data_provider->{requestor_name},
+                    service_type               => $usage_data_provider->{service_type},
+                    service_url                => $usage_data_provider->{service_url},
+                    metric_type                => $metric_type,
+                    provider_rollup_total      => $provider_rollup_total,
                 );
                 $usage_data_provider_hash{$key} = \@filtered_object_data;
 
@@ -330,7 +342,11 @@ sub provider_rollup_report {
     };
 }
 
+=head3 _get_data_set
 
+Returns the Koha object that needs to be used to fetch the data for this report.
+
+=cut
 
 sub _get_data_set {
     my ( $data_type ) = @_;
@@ -350,6 +366,13 @@ sub _get_data_set {
     return 0;
 }
 
+=head3 _get_correct_query_param
+
+Returns the array of ids (or an empty array) for the data type that has been requested as a report parameter.
+e.g. If it is a titles report and the user has requested titles with the ids 1,2,3, these will be fetched from the query parameters and returned as (1,2,3).
+
+=cut
+
 sub _get_correct_query_param {
     my ( $data_type, $array_ref, $period ) = @_;
 
@@ -367,6 +390,13 @@ sub _get_correct_query_param {
 
     return $param
 }
+
+=head3 _get_result_with_no_statistics
+
+Takes in an id number and a dataset. If that id number exists within the dataset then no action is needed.
+If it isn't found then that means there are no statistics for that object. It is however required in the report so is returned with a blank dataset.
+
+=cut
 
 sub _get_result_with_no_statistics {
     my ( $args ) = @_;
@@ -388,7 +418,14 @@ sub _get_result_with_no_statistics {
             metric_type => '',
         });
     }
+    return 0;
 }
+
+=head3 _get_object_hash
+
+Returns a hash for a given data type with some additional parameters.
+
+=cut
 
 sub _get_object_hash {
     my ( $args ) = @_;
@@ -399,6 +436,7 @@ sub _get_object_hash {
     my $provider    = $args->{provider};
     my $metric_type = $args->{metric_type};
     my $period      = $args->{period};
+    my $sum         = $args->{sum};
     my %object_hash;
 
     if($data_type eq 'title') {
@@ -450,6 +488,8 @@ sub _get_object_hash {
         );
     }
 
+    $object_hash{usage_total} = $sum if $sum;
+
     if($period eq 'yearly') {
         $object_hash{erm_usage_yuses} = $statistics;
     } else {
@@ -457,6 +497,12 @@ sub _get_object_hash {
     }
     return \%object_hash;
 }
+
+=head3 _get_missing_data
+
+If an id is identified as missing, this piece of data is fetched and returned into _get_result_with_no_statistics for processing.
+
+=cut
 
 sub _get_missing_data {
     my ( $data_type, $id ) = @_;
@@ -467,7 +513,7 @@ sub _get_missing_data {
         $item = Koha::ERM::UsageTitles->find({ title_id => $id }, {})->unblessed;
     }
     if($data_type eq 'platform') {
-        $item = Koha::ERM::UsagePlatform->find({ platform_id => $id }, {})->unblessed;
+        $item = Koha::ERM::UsagePlatforms->find({ platform_id => $id }, {})->unblessed;
     }
     if($data_type eq 'database') {
         $item = Koha::ERM::UsageDatabases->find({ database_id => $id }, {})->unblessed;
