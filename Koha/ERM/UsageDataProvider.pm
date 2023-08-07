@@ -564,13 +564,20 @@ sub _COUNTER_report_body {
     my $header = $self->{sushi}->{header};
     my $body   = $self->{sushi}->{body};
 
-    my @metric_types_string = $self->_get_SUSHI_Name_Value( $header->{Report_Filters}, "Metric_Type" );
-    my @metric_types        = split( /\|/, $metric_types_string[0] );
-
     my @report_body = ();
 
     my $total_records = 0;
     foreach my $report_row ( @{$body} ) {
+
+        my @metric_types = ();
+        # Grab all metric_types this SUSHI result has statistics for
+        foreach my $performance ( @{ $report_row->{Performance} } ) {
+            my @SUSHI_metric_types = map( $_->{Metric_Type}, @{ $performance->{Instance} } );
+
+            foreach my $sushi_metric_type (@SUSHI_metric_types){
+                push( @metric_types, $sushi_metric_type ) unless grep { $_ eq $sushi_metric_type } @metric_types;
+            }
+        }
 
         # Add one report row for each metric_type we're working with
         foreach my $metric_type (@metric_types) {
