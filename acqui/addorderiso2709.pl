@@ -201,7 +201,7 @@ if ($op eq ""){
             matcher_id                => $matcher_id,
             overlay_action            => $overlay_action,
             agent                     => 'client',
-            import_record_id_selected => @import_record_id_selected,
+            import_record_id_selected => \@import_record_id_selected,
             client_item_fields        => $client_item_fields,
             basket_id                 => $cgiparams->{'basketno'},
             vendor                    => $bookseller,

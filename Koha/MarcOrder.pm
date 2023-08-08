@@ -325,6 +325,41 @@ sub _stage_file {
     };
 }
 
+=head3 _get_MarcFieldsToOrder_syspref_data
+
+    my $marc_fields_to_order = _get_MarcFieldsToOrder_syspref_data('MarcFieldsToOrder', $marcrecord, $fields);
+
+    Fetches data from a marc record based on the mappings in the syspref MarcFieldsToOrder using the fields selected in $fields (array).
+
+=cut
+
+sub _get_MarcFieldsToOrder_syspref_data {
+    my ($syspref_name, $record, $field_list) = @_;
+    my $syspref = C4::Context->preference($syspref_name);
+    $syspref = "$syspref\n\n";
+    my $yaml = eval {
+        YAML::XS::Load(Encode::encode_utf8($syspref));
+    };
+    if ( $@ ) {
+        warn "Unable to parse $syspref syspref : $@";
+        return ();
+    }
+    my $r;
+    for my $field_name ( @$field_list ) {
+        next unless exists $yaml->{$field_name};
+        my @fields = split /\|/, $yaml->{$field_name};
+        for my $field ( @fields ) {
+            my ( $f, $sf ) = split /\$/, $field;
+            next unless $f and $sf;
+            if ( my $v = $record->subfield( $f, $sf ) ) {
+                $r->{$field_name} = $v;
+            }
+            last if $yaml->{$field};
+        }
+    }
+    return $r;
+}
+
 =head3 _get_MarcItemFieldsToOrder_syspref_data
 
     my $marc_item_fields_to_order = _get_MarcItemFieldsToOrder_syspref_data('MarcItemFieldsToOrder', $marcrecord, $fields);
@@ -359,8 +394,6 @@ sub _get_MarcItemFieldsToOrder_syspref_data {
     }
     @tags_list = List::MoreUtils::uniq(@tags_list);
 
-    die "System preference MarcItemFieldsToOrder has not been filled in. Please set the mapping values to use this cron script." if scalar(@tags_list == 0);
-
     my $tags_count = _verify_number_of_fields(\@tags_list, $record);
     # Return if the number of these fields in the record is not the same.
     die "Invalid number of fields detected on field $tags_count->{key}, please check this file" if $tags_count->{error};
@@ -375,21 +408,24 @@ sub _get_MarcItemFieldsToOrder_syspref_data {
         $fields_hash->{$tag} = \@tmp_fields;
     }
 
-    for (my $i = 0; $i < $tags_count->{count}; $i++) {
-        my $r;
-        for my $field_name ( @$field_list ) {
-            next unless exists $yaml->{$field_name};
-            my @fields = split /\|/, $yaml->{$field_name};
-            for my $field ( @fields ) {
-                my ( $f, $sf ) = split /\$/, $field;
-                next unless $f and $sf;
-                my $v = $fields_hash->{$f}[$i] ? $fields_hash->{$f}[$i]->subfield( $sf ) : undef;
-                $r->{$field_name} = $v if (defined $v);
-                last if $yaml->{$field};
+    if($tags_count->{count}){
+        for (my $i = 0; $i < $tags_count->{count}; $i++) {
+            my $r;
+            for my $field_name ( @$field_list ) {
+                next unless exists $yaml->{$field_name};
+                my @fields = split /\|/, $yaml->{$field_name};
+                for my $field ( @fields ) {
+                    my ( $f, $sf ) = split /\$/, $field;
+                    next unless $f and $sf;
+                    my $v = $fields_hash->{$f}[$i] ? $fields_hash->{$f}[$i]->subfield( $sf ) : undef;
+                    $r->{$field_name} = $v if (defined $v);
+                    last if $yaml->{$field};
+                }
             }
+            push @result, $r;
         }
-        push @result, $r;
     }
+
     return $result[0];
 }
 
@@ -416,7 +452,6 @@ sub _verify_number_of_fields {
             return { error => 1, key => $key } if $tag_fields_count->{$key} != $tags_count; # All counts of various fields should be equal if they exist
         }
     }
-
     return { error => 0, count => $tags_count };
 }
 
@@ -539,6 +574,23 @@ sub add_items_from_import_record {
     my @order_line_details;
 
     if($agent eq 'cron') {
+        my $marc_fields_to_order = _get_MarcFieldsToOrder_syspref_data('MarcFieldsToOrder', $marcrecord, ['price', 'quantity', 'budget_code', 'discount', 'sort1', 'sort2']);
+        my $quantity             = $marc_fields_to_order->{quantity};
+        my $budget_code          = $marc_fields_to_order->{budget_code} || $budget_id; # Use fallback from ordering profile if not mapped
+        my $price                = $marc_fields_to_order->{price};
+        my $discount             = $marc_fields_to_order->{discount};
+        my $sort1                = $marc_fields_to_order->{sort1};
+        my $sort2                = $marc_fields_to_order->{sort2};
+        my $mapped_budget;
+        if($budget_code) {
+            my $biblio_budget = GetBudgetByCode($budget_code);
+            if($biblio_budget) {
+                $mapped_budget = $biblio_budget->{budget_id};
+            } else {
+                $mapped_budget = $budget_id;
+            }
+        }
+
         my $marc_item_fields_to_order = _get_MarcItemFieldsToOrder_syspref_data('MarcItemFieldsToOrder', $marcrecord, ['homebranch', 'holdingbranch', 'itype', 'nonpublic_note', 'public_note', 'loc', 'ccode', 'notforloan', 'uri', 'copyno', 'price', 'replacementprice', 'itemcallnumber', 'quantity', 'budget_code']);
         my $item_homebranch           = $marc_item_fields_to_order->{homebranch};
         my $item_holdingbranch        = $marc_item_fields_to_order->{holdingbranch};
@@ -550,7 +602,7 @@ sub add_items_from_import_record {
         my $item_notforloan           = $marc_item_fields_to_order->{notforloan};
         my $item_uri                  = $marc_item_fields_to_order->{uri};
         my $item_copyno               = $marc_item_fields_to_order->{copyno};
-        my $item_quantity             = $marc_item_fields_to_order->{quantity};
+        my $item_quantity             = $marc_item_fields_to_order->{quantity} || 0;
         my $item_budget_code          = $marc_item_fields_to_order->{budget_code};
         my $item_budget_id;
         if ( $marc_item_fields_to_order->{budget_code} ) {
@@ -566,13 +618,10 @@ sub add_items_from_import_record {
         my $item_price             = $marc_item_fields_to_order->{price};
         my $item_replacement_price = $marc_item_fields_to_order->{replacementprice};
         my $item_callnumber        = $marc_item_fields_to_order->{itemcallnumber};
-
-        if(!$item_quantity) {
-            my $isbn = $marcrecord->subfield( '020', "a" );
-            warn "No quantity found for record with ISBN: $isbn. No items will be added.";
-        }
+        my $itemcreation           = 0;
 
         for (my $i = 0; $i < $item_quantity; $i++) {
+            $itemcreation = 1;
             my $item = Koha::Item->new({
                 biblionumber          => $biblionumber,
                 homebranch            => $item_homebranch,
@@ -592,8 +641,8 @@ sub add_items_from_import_record {
 
             my %order_detail_hash = (
                 biblionumber => $biblionumber,
-                itemnumbers  => ($item->itemnumber),
                 basketno     => $basket_id,
+                itemnumbers   => ($item->itemnumber),
                 quantity     => 1,
                 budget_id    => $item_budget_id,
                 currency     => $vendor->listprice,
@@ -613,6 +662,34 @@ sub add_items_from_import_record {
             $order_detail_hash{replacementprice} = $item_replacement_price || 0;
             $order_detail_hash{uncertainprice}   = 0 if $order_detail_hash{listprice};
 
+            push @order_line_details, \%order_detail_hash;
+        }
+
+        if(!$itemcreation) {
+            my %order_detail_hash = (
+                biblionumber       => $biblionumber,
+                basketno           => $basket_id,
+                quantity           => $quantity,
+                budget_id          => $mapped_budget,
+                uncertainprice     => 1,
+                sort1              => $sort1,
+                sort2              => $sort2,
+            );
+
+            if ($price){
+                $order_detail_hash{tax_rate_on_ordering}  = $vendor->tax_rate;
+                $order_detail_hash{tax_rate_on_receiving} = $vendor->tax_rate;
+                my $order_discount                        = $discount ? $discount : $vendor->discount;
+                $order_detail_hash{discount}              = $order_discount;
+                $order_detail_hash{rrp}                   = $price;
+                $order_detail_hash{ecost}                 = $order_discount ? $price * ( 1 - $order_discount / 100 ) : $price;
+                $order_detail_hash{listprice}             = $order_detail_hash{rrp} / $active_currency->rate;
+                $order_detail_hash{unitprice}             = $order_detail_hash{ecost};
+            } else {
+                $order_detail_hash{listprice} = 0;
+            }
+
+            $order_detail_hash{uncertainprice} = 0 if $order_detail_hash{listprice};
             push @order_line_details, \%order_detail_hash;
         }
     }
@@ -750,7 +827,7 @@ sub create_order_lines {
     my $order_line_details = $args->{order_line_details};
 
     foreach  my $order_detail ( @{ $order_line_details } ) {
-        my @itemnumbers = $order_detail->{itemnumbers};
+        my @itemnumbers = $order_detail->{itemnumbers} || ();
         delete($order_detail->{itemnumber});
         my $order = Koha::Acquisition::Order->new( \%{ $order_detail } );
         $order->populate_with_prices_for_ordering();
