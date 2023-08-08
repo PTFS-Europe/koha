@@ -100,6 +100,9 @@ foreach my $acct ( @accounts ) {
     opendir my $dir, $working_dir or die "Can't open filepath";
     my @files = grep { /\.(mrc|marcxml|mrk)/i } readdir $dir;
     closedir $dir;
+    print "No new files found\n" if scalar(@files) == 0;
+
+    my $files_processed = 0;
 
     foreach my $filename ( @files ) {
         say sprintf "Creating order lines from file %s", $filename if $verbose;
@@ -113,6 +116,7 @@ foreach my $acct ( @accounts ) {
             };
             my $result = Koha::MarcOrder->create_order_lines_from_file($args);
             if($result->{success}) {
+                $files_processed++;
                 say sprintf "Successfully processed file: %s", $filename if $verbose;
                 unlink $full_path;
             } else {
@@ -121,7 +125,7 @@ foreach my $acct ( @accounts ) {
             };
         }
     }
-    print "All files completed\n";
+    say sprintf "%s files processed", $files_processed unless $files_processed == 0;
     print "Moving to next account\n\n";
 }
 print "Process complete\n";
