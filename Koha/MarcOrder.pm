@@ -125,18 +125,15 @@ sub create_order_lines_from_file {
             }
         );
 
-        while ( my $import_record = $import_records->next ) {
-            my $result = add_biblio_from_import_record(
-                {
-                    import_batch_id => $import_batch_id,
-                    import_record   => $import_record,
-                    matcher_id      => $params->{matcher_id},
-                    overlay_action  => $params->{overlay_action},
-                    agent           => $agent,
-                }
-            );
-            warn "Duplicates found in $result->{duplicates_in_batch}, record was skipped."
-                if $result->{duplicates_in_batch};
+        while( my $import_record = $import_records->next ){
+            my $result = add_biblio_from_import_record({
+                import_batch_id => $import_batch_id,
+                import_record   => $import_record,
+                matcher_id      => $params->{matcher_id},
+                overlay_action  => $params->{overlay_action},
+                agent           => $agent,
+            });
+            warn "Duplicates found in $result->{duplicates_in_batch}, record was skipped." if $result->{duplicates_in_batch};
             next if $result->{skip};
 
             my $order_line_details = add_items_from_import_record(
@@ -417,7 +414,6 @@ sub _verify_number_of_fields {
                 $tags_count;                              # All counts of various fields should be equal if they exist
         }
     }
-
     return { error => 0, count => $tags_count };
 }
 
@@ -1214,7 +1210,7 @@ sub _create_item_fields_from_syspref {
             push @uris,              $infoset->{uri};
             push @copynos,           $infoset->{copyno};
             push @budget_codes,      $item_budget_id;
-            push @itemprices,        $infoset->{itemprice};
+            push @itemprices,        $infoset->{price};
             push @replacementprices, $infoset->{replacementprice};
             push @itemcallnumbers,   $infoset->{itemcallnumber};
         }

@@ -98,6 +98,9 @@ foreach my $acct (@accounts) {
     opendir my $dir, $working_dir or die "Can't open filepath";
     my @files = grep { /\.(mrc|marcxml|mrk)/i } readdir $dir;
     closedir $dir;
+    print "No new files found\n" if scalar(@files) == 0;
+
+    my $files_processed = 0;
 
     foreach my $filename (@files) {
         my $full_path = "$working_dir/$filename";
@@ -124,7 +127,7 @@ foreach my $acct (@accounts) {
             }
         }
     }
-    print "All files completed\n";
+    say sprintf "%s files processed", $files_processed unless $files_processed == 0;
     print "Moving to next account\n\n";
 }
 print "Process complete\n";
