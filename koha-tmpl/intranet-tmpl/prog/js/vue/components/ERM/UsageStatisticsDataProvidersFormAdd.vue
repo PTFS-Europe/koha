@@ -145,7 +145,7 @@
                             </label>
                             <input
                                 id="usage_data_provider_service_url"
-                                v-model="usage_data_provider.service_url"
+                                v-model="service_url"
                                 required
                             />
                             <span class="required">{{ $__("Required") }}</span>
@@ -171,7 +171,7 @@
                             </label>
                             <input
                                 id="usage_data_provider_customer_id"
-                                v-model="usage_data_provider.customer_id"
+                                v-model="customer_id"
                                 required
                             />
                             <span class="required">{{ $__("Required") }}</span>
@@ -184,7 +184,7 @@
                             </label>
                             <input
                                 id="usage_data_provider_requestor_id"
-                                v-model="usage_data_provider.requestor_id"
+                                v-model="requestor_id"
                                 required
                             />
                             <span class="required">{{ $__("Required") }}</span>
@@ -285,6 +285,9 @@ export default {
                 { description: "Inactive", value: 0 },
             ],
             fp_config: flatpickr_defaults,
+            service_url: "www.demo_url.com",
+            customer_id: "demo_customer_id",
+            requestor_id: "demo_requestor_id",
         }
     },
     beforeRouteEnter(to, from, next) {
