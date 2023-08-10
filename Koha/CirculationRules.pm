@@ -151,6 +151,9 @@ our $RULE_KINDS = {
     norenewalbefore => {
         scope => [ 'branchcode', 'categorycode', 'itemtype' ],
     },
+    noautorenewalbefore => {
+        scope => [ 'branchcode', 'categorycode', 'itemtype' ],
+    },
     onshelfholds => {
         scope => [ 'branchcode', 'categorycode', 'itemtype' ],
     },
