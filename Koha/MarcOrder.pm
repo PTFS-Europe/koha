@@ -42,6 +42,7 @@ use C4::Biblio qw(
     AddBiblio
     GetMarcFromKohaField
     TransformHtmlToXml
+    GetMarcQuantity
 );
 use C4::Items qw( AddItemFromMarc );
 use C4::Budgets qw( GetBudgetByCode );
@@ -163,7 +164,7 @@ sub import_record_and_create_order_lines {
     my ( $self, $args ) = @_;
 
     my $import_batch_id           = $args->{import_batch_id};
-    my @import_record_id_selected = $args->{import_record_id_selected} || ();
+    my $import_record_id_selected = $args->{import_record_id_selected} || ();
     my $matcher_id                = $args->{matcher_id};
     my $overlay_action            = $args->{overlay_action};
     my $import_record             = $args->{import_record};
@@ -179,7 +180,7 @@ sub import_record_and_create_order_lines {
         matcher_id                => $matcher_id,
         overlay_action            => $overlay_action,
         agent                     => $agent,
-        import_record_id_selected => @import_record_id_selected,
+        import_record_id_selected => $import_record_id_selected,
     });
 
     return {
@@ -476,7 +477,7 @@ sub add_biblios_from_import_record {
     my ( $args ) = @_;
 
     my $import_batch_id           = $args->{import_batch_id};
-    my @import_record_id_selected = $args->{import_record_id_selected} || ();
+    my $import_record_id_selected = $args->{import_record_id_selected} || ();
     my $matcher_id                = $args->{matcher_id};
     my $overlay_action            = $args->{overlay_action};
     my $import_record             = $args->{import_record};
@@ -489,7 +490,7 @@ sub add_biblios_from_import_record {
             record_result       => 0,
             duplicates_in_batch => 0,
             skip                => 1
-        } if not grep { $_ eq $import_record->import_record_id } @import_record_id_selected;
+        } if not grep { $_ eq $import_record->import_record_id } @{$import_record_id_selected};
     }
 
     my $marcrecord   = $import_record->get_marc_record || die "Couldn't translate marc information";
