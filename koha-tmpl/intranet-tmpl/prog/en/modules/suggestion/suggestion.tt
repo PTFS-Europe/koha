@@ -714,6 +714,8 @@
                             <form class="update_suggestions" name="f" method="post" action="/cgi-bin/koha/suggestion/suggestion.pl#[% suggestion.suggestiontype| uri %]">
                             [% INCLUDE 'csrf-token.inc' %]
 
+                                [% INCLUDE 'csrf-token.inc' %]
+
                                 [% IF suggestion.suggestions.size %]
                                     <p>
                                         <a class="checkall" href="#">Check all</a> | <a class="uncheckall" href="#">Uncheck all</a>
@@ -849,9 +851,9 @@
                                                             <ul class="dropdown-menu pull-right" role="menu" aria-labelledby="more_actions_[% s.suggestionid | html %]">
                                                                 <li><a class="deletesuggestion" href="suggestion.pl?op=delete&amp;suggestionid=[% s.suggestionid | html %]&amp;csrf_token=[% csrf_token | html %]"><i class="fa fa-trash"></i> Delete</a></li>
                                                                 [% UNLESS s.archived %]
-                                                                    <li><a class="archivesuggestion" href="suggestion.pl?op=archive&amp;suggestionid=[% s.suggestionid | html %]"><i class="fa fa-archive"></i> Archive</a></li>
+                                                                    <li><a class="archivesuggestion" href="suggestion.pl?op=archive&amp;csrf_token=[% csrf_token | html %]&amp;suggestionid=[% s.suggestionid | html %]"><i class="fa fa-archive"></i> Archive</a></li>
                                                                 [% ELSE %]
-                                                                    <li><a class="unarchivesuggestion" href="suggestion.pl?op=unarchive&amp;suggestionid=[% s.suggestionid | html %]"><i class="fa fa-archive"></i> Unarchive</a></li>
+                                                                    <li><a class="unarchivesuggestion" href="suggestion.pl?op=unarchive&amp;csrf_token=[% csrf_token | html %]&amp;suggestionid=[% s.suggestionid | html %]"><i class="fa fa-archive"></i> Unarchive</a></li>
                                                                 [% END %]
                                                             </ul>
                                                         </div>
