@@ -1,5 +1,7 @@
 package Koha::REST::V1::ERM::CustomReports;
 
+# Copyright 2023 PTFS Europe
+
 # This file is part of Koha.
 #
 # Koha is free software; you can redistribute it and/or modify it
@@ -227,8 +229,6 @@ sub metric_types_report {
             });
             push @{ $data }, $missing_result if $missing_result;
         };
-
-        # my $metric_types = $query_params_array[0]->{'erm_usage_yuses.metric_type'};
 
         my @report_data;
 
