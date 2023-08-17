@@ -1,5 +1,7 @@
 package Koha::REST::V1::ERM::UsageDataProviders;
 
+# Copyright 2023 PTFS Europe
+
 # This file is part of Koha.
 #
 # Koha is free software; you can redistribute it and/or modify it
@@ -40,7 +42,7 @@ sub list {
     return try {
         my $usage_data_providers_set = Koha::ERM::UsageDataProviders->new;
         my $usage_data_providers = $c->objects->search( $usage_data_providers_set );
-        if($c->validation->output->{"x-koha-embed"}[0] eq 'counter_files') {
+        if($c->validation->output->{"x-koha-embed"}[0] && $c->validation->output->{"x-koha-embed"}[0] eq 'counter_files') {
             foreach my $provider ( @$usage_data_providers ) {
                 my $title_dates = _get_earliest_and_latest_dates('TR', $provider->{erm_usage_data_provider_id});
                 $provider->{earliest_title} = $title_dates->{earliest_date} ? $title_dates->{earliest_date} : '';
