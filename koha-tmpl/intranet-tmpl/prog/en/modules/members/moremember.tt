@@ -780,7 +780,7 @@
                 if ( !bookings_table ) {
                     var today = new Date();
                     var bookings_table_url = "/api/v1/bookings";
-                    bookings_table = $('#bookings-table').kohaTable({
+                    bookings_table = $('#bookings_table').kohaTable({
                         "ajax": {
                             "url": bookings_table_url
                         },
@@ -792,9 +792,7 @@
                         "columns": [{
                             "data": "booking_id",
                             "title": "Booking ID",
-                            "visible": false,
-                            "searchable": false,
-                            "orderable": false
+                            "visible": false
                         },
                         {
                             "data": "biblio.title",
@@ -825,7 +823,7 @@
                             "searchable": true,
                             "orderable": true,
                             "render": function(data, type, row, meta) {
-                                return $datetime(row.start_date);
+                                return $date(row.start_date);
                             }
                         },
                         {
@@ -834,7 +832,7 @@
                             "searchable": true,
                             "orderable": true,
                             "render": function(data, type, row, meta) {
-                                return $datetime(row.end_date);
+                                return $date(row.end_date);
                             }
                         },
                         {
@@ -847,7 +845,7 @@
                                 return result;
                             }
                         }]
-                    }, [], 1, { patron_id: "[% patron.borrowernumber | html %]", end_date: { ">=": today.toISOString() } });
+                    }, [], 0, { patron_id: "[% patron.borrowernumber | html %]", end_date: { ">=": today.toISOString() } });
                 };
             });
             // Bookings
