@@ -73,6 +73,7 @@
                 <i class="fa fa-warning warn"></i>
             [% ELSIF m.type == 'error' %]
                 <i class="fa fa-exclamation error"></i>
+                [% m.message %]
             [% END %]
             [% SWITCH m.code %]
             [% CASE 'object_already_exists' %]

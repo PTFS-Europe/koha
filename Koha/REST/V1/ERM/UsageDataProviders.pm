@@ -331,7 +331,7 @@ sub process_COUNTER_file {
                     status  => 413,
                     openapi => { error => $_->error }
                 );
-            } elsif ( $_->isa('Koha::Exceptions::ERM::CounterFile::UnsupportedRelease') ) {
+            } elsif ( $_->isa('Koha::Exceptions::ERM::UsageStatistics::UnsupportedCOUNTERRelease') ) {
                 return $c->render(
                     status  => 400,
                     openapi => { error => $_->description }
@@ -387,6 +387,22 @@ sub process_SUSHI_response {
         );
     }
     catch {
+        if ( blessed $_ ) {
+            if ( $_->isa('Koha::Exceptions::ERM::UsageStatistics::ReportNotSupported') ) {
+                use Data::Dumper;
+                $Data::Dumper::Maxdepth = 2;
+                warn Dumper( '##### 1 #######################################################line: ' . __LINE__ );
+                warn Dumper($_);
+                warn Dumper('##### end1 #######################################################');
+                # return $c->render(
+                #     status  => 400,
+                #     openapi => {
+                #         error => $_->error,
+                #         conflict => $_->duplicate_id
+                #     }
+                # );
+            }
+        }
         $c->unhandled_exception($_);
     };
 }

@@ -34,6 +34,7 @@ use Koha::ERM::UsagePlatforms;
 use Koha::ERM::UsageDatabases;
 use Koha::ERM::MonthlyUsages;
 use Koha::BackgroundJob::ErmSushiHarvester;
+use Koha::Exceptions::ERM::UsageStatistics;
 
 =head1 NAME
 
@@ -199,7 +200,13 @@ sub harvest_sushi {
             }
         }
 
-        #TODO: May want to add a job error message here?
+        $self->{job_callbacks}->{add_message_callback}->(
+            {
+                type  => 'error',
+                message => $message,
+            }
+        );
+
         warn sprintf "ERROR - SUSHI service %s returned %s - %s\n", $url,
         $response->code, $message;
         if ( $response->code == 404 ) {
@@ -208,11 +215,13 @@ sub harvest_sushi {
         elsif ( $response->code == 401 ) {
             Koha::Exceptions::Authorization::Unauthorized->throw($message);
         }
-        else {
-            #TODO: May want to add a job error message here?
-            die sprintf "ERROR requesting SUSHI service\n%s\ncode %s: %s\n",
-            $url, $response->code,
-            $message;
+        elsif ($result->{Code} == 3000) {
+                            use Data::Dumper;
+                            $Data::Dumper::Maxdepth = 2;
+                            warn Dumper('###3000##############################################');
+            Koha::Exceptions::ERM::UsageStatistics::ReportNotSupported->throw($message);
+        }else{
+            return;
         }
     }
     elsif ( $response->code == 204 ) {    # No content

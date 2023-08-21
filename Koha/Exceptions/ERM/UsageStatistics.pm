@@ -1,4 +1,4 @@
-package Koha::Exceptions::ERM::CounterFile;
+package Koha::Exceptions::ERM::UsageStatistics;
 
 # This file is part of Koha.
 #
@@ -21,27 +21,31 @@ use Koha::Exception;
 
 use Exception::Class (
 
-    'Koha::Exceptions::ERM::CounterFile' => {
+    'Koha::Exceptions::ERM::UsageStatistics' => {
         isa => 'Koha::Exception',
     },
-    'Koha::Exceptions::ERM::CounterFile::UnsupportedRelease' => {
-        isa => 'Koha::Exceptions::ERM::CounterFile',
+    'Koha::Exceptions::ERM::UsageStatistics::UnsupportedCOUNTERRelease' => {
+        isa => 'Koha::Exceptions::ERM::UsageStatistics',
         description => 'This COUNTER release is not supported'
-    }
+    },
+    'Koha::Exceptions::ERM::UsageStatistics::ReportNotSupported' => {
+        isa         => 'Koha::Exceptions::ERM::UsageStatistics',
+        description => 'This report type is not supported'
+    },
 );
 
 =head1 NAME
 
-Koha::Exceptions::ERM::CounterFile - Base class for CounterFile exceptions
+Koha::Exceptions::ERM::UsageStatistics - Base class for UsageStatistics exceptions
 
 =head1 Exceptions
 
 
-=head2 Koha::Exceptions::ERM::CounterFile
+=head2 Koha::Exceptions::ERM::UsageStatistics
 
-Generic CounterFile exception
+Generic UsageStatistics exception
 
-=head2 Koha::Exceptions::ERM::CounterFile::UnsupportedRelease
+=head2 Koha::Exceptions::ERM::UsageStatistics::UnsupportedRelease
 
 Exception to be used when a report is submit with an unsupported COUNTER release
 

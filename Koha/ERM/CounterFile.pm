@@ -29,7 +29,7 @@ use Koha::ERM::UsageItems;
 use Koha::ERM::UsageTitle;
 use Koha::ERM::UsageTitles;
 use Koha::ERM::UsageDataProvider;
-use Koha::Exceptions::ERM::CounterFile;
+use Koha::Exceptions::ERM::UsageStatistics;
 
 use base qw(Koha::Object);
 
@@ -260,7 +260,7 @@ sub _add_yearly_usage_entries {
 
 Verifies if the given file_content is a valid COUNTER file or not
 
-A I <Koha::Exceptions::ERM::CounterFile> exception is thrown
+A I <Koha::Exceptions::ERM::UsageStatistics> exception is thrown
     if the file is invalid .
 
 =cut
@@ -280,7 +280,7 @@ sub validate {
 
     # TODO: Validate that there is an empty row between header and body
 
-    Koha::Exceptions::ERM::CounterFile::UnsupportedRelease->throw
+    Koha::Exceptions::ERM::UsageStatistics::UnsupportedCOUNTERRelease->throw
         if $release && $release->{header_value} != 5;
 
 }
