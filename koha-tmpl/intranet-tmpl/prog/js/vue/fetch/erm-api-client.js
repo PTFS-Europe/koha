@@ -273,9 +273,18 @@ export class ERMAPIClient extends HttpClient {
                     endpoint: "usage_data_providers/" + id,
                     body: usage_data_provider,
                 }),
-            run: (id, body) =>
+            process_SUSHI_response: (id, body) =>
                 this.post({
-                    endpoint: "usage_data_providers/" + id + "/run",
+                    endpoint:
+                        "usage_data_providers/" +
+                        id +
+                        "/process_SUSHI_response",
+                    body: body,
+                }),
+            process_COUNTER_file: (id, body) =>
+                this.post({
+                    endpoint:
+                        "usage_data_providers/" + id + "/process_COUNTER_file",
                     body: body,
                 }),
             test: id =>
@@ -340,11 +349,6 @@ export class ERMAPIClient extends HttpClient {
                         "x-koha-embed": "counter_logs",
                     },
                 }),
-            create: counter_file =>
-                this.post({
-                    endpoint: "counter_files",
-                    body: counter_file,
-                }),
             delete: id =>
                 this.delete({
                     endpoint: "counter_files/" + id,
@@ -383,10 +387,10 @@ export class ERMAPIClient extends HttpClient {
 
     get usage_platforms() {
         return {
-            getAll: (query) =>
+            getAll: query =>
                 this.getAll({
                     endpoint: "usage_platforms",
-                    query
+                    query,
                 }),
             count: (query = {}) =>
                 this.count({
@@ -403,10 +407,10 @@ export class ERMAPIClient extends HttpClient {
 
     get usage_items() {
         return {
-            getAll: (query) =>
+            getAll: query =>
                 this.getAll({
                     endpoint: "usage_items",
-                    query
+                    query,
                 }),
             count: (query = {}) =>
                 this.count({
@@ -423,10 +427,10 @@ export class ERMAPIClient extends HttpClient {
 
     get usage_databases() {
         return {
-            getAll: (query) =>
+            getAll: query =>
                 this.getAll({
                     endpoint: "usage_databases",
-                    query
+                    query,
                 }),
             count: (query = {}) =>
                 this.count({
