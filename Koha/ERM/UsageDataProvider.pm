@@ -62,13 +62,41 @@ sub counter_files {
     return Koha::ERM::CounterFiles->_new_from_dbic($counter_files_rs);
 }
 
-=head3 run
+=head3 enqueue_counter_file_processing_job
+
+Enqueues a background job to process a COUNTER file that has been uploaded
+
+=cut
+
+sub enqueue_counter_file_processing_job {
+    my ( $self, $args ) = @_;
+
+    my @jobs;
+    my $job_id = Koha::BackgroundJob::ErmSushiHarvester->new->enqueue(
+        {
+            ud_provider_id => $self->erm_usage_data_provider_id,
+            file_content   => $args->{file_content},
+        }
+    );
+
+    push(
+        @jobs,
+        {
+            # report_type => $report_type,
+            job_id      => $job_id
+        }
+    );
+
+    return \@jobs;
+}
+
+=head3 enqueue_sushi_harvest_jobs
 
 Enqueues one harvest background job for each report type in this usage data provider
 
 =cut
 
-sub run {
+sub enqueue_sushi_harvest_jobs {
     my ($self, $args) = @_;
 
     my @report_types = split( /;/, $self->report_types );
@@ -97,21 +125,37 @@ sub run {
     return \@jobs;
 }
 
-=head3 harvest
+=head3 harvest_sushi
 
-    $ud_provider->harvest(
+    $ud_provider->harvest_sushi(
         {
-            step_callback        => sub { $self->step; },
-            set_size_callback    => sub { $self->set_job_size(@_); },
-            add_message_callback => sub { $self->add_message(@_); },
+            begin_date  => $args->{begin_date},
+            end_date    => $args->{end_date},
+            report_type => $args->{report_type}
         }
     );
 
-Run the SUSHI harvester of this usage data provider
+Runs this usage data provider's SUSHI harvester
 Builds the URL query and requests the COUNTER 5 SUSHI service
 
 COUNTER SUSHI api spec:
 https://app.swaggerhub.com/apis/COUNTER/counter-sushi_5_0_api/5.0.2
+
+=over
+
+=item begin_date
+
+Begin date of the SUSHI harvest
+
+=back
+
+=over
+
+=item end_date
+
+End date of the SUSHI harvest
+
+=back
 
 =over
 
@@ -121,24 +165,15 @@ Report type to run this harvest on
 
 =back
 
-=over
-
-=item background_job_callbacks
-
-Receive background_job_callbacks to be able to update job
-
-=back
-
 =cut
 
-sub harvest {
-    my ( $self, $begin_date, $end_date, $report_type, $background_job_callbacks ) = @_;
+sub harvest_sushi {
+    my ( $self, $args ) = @_;
 
     # Set class wide vars
-    $self->{job_callbacks} = $background_job_callbacks;
-    $self->{report_type}   = $report_type;
-    $self->{begin_date}    = $begin_date;
-    $self->{end_date}      = $end_date;
+    $self->{report_type} = $args->{report_type};
+    $self->{begin_date}  = $args->{begin_date};
+    $self->{end_date}    = $args->{end_date};
 
     my $url      = $self->_build_url_query;
     my $request  = HTTP::Request->new( 'GET' => $url );
@@ -186,6 +221,28 @@ sub harvest {
 
     # Parse the SUSHI response
     $self->parse_SUSHI_response( decode_json( $response->decoded_content ) );
+}
+
+=head3 set_background_job_callbacks
+
+    $self->set_background_job_callbacks($background_job_callbacks);
+
+Sets the background job callbacks
+
+=over
+
+=item background_job_callbacks
+
+Background job callbacks
+
+=back
+
+=cut
+
+sub set_background_job_callbacks {
+    my ( $self, $background_job_callbacks ) = @_;
+
+    $self->{job_callbacks} = $background_job_callbacks;
 }
 
 =head3 parse_SUSHI_response

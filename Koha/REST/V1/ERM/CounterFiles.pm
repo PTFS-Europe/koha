@@ -17,7 +17,6 @@ package Koha::REST::V1::ERM::CounterFiles;
 
 use Modern::Perl;
 
-use MIME::Base64 qw( decode_base64 );
 use Mojo::Base 'Mojolicious::Controller';
 
 use Koha::ERM::CounterFiles;
@@ -75,84 +74,6 @@ sub get {
         );
     }
     catch {
-        $c->unhandled_exception($_);
-    };
-}
-
-=head3 add
-
-Controller function that handles adding a new Koha::ERM::CounterFile object
-
-=cut
-
-sub add {
-    my $c = shift->openapi->valid_input or return;
-
-    return try {
-        Koha::Database->new->schema->txn_do(
-            sub {
-
-                my $body = $c->validation->param('body');
-
-                my $file_content =
-                    defined( $body->{file_content} ) ? decode_base64( $body->{file_content} ) : "";
-                $body->{file_content} = $file_content;
-
-                my $counter_file = Koha::ERM::CounterFile->new_from_api($body)->store;
-
-                $c->res->headers->location($c->req->url->to_string . '/' . $counter_file->erm_counter_files_id);
-                return $c->render(
-                    status  => 201,
-                    openapi => $counter_file->to_api
-                );
-            }
-        );
-    }
-    catch {
-
-        my $to_api_mapping = Koha::ERM::CounterFile->new->to_api_mapping;
-
-        if ( blessed $_ ) {
-            if ( $_->isa('Koha::Exceptions::Object::DuplicateID') ) {
-                return $c->render(
-                    status  => 409,
-                    openapi => { error => $_->error, conflict => $_->duplicate_id }
-                );
-            }
-            elsif ( $_->isa('Koha::Exceptions::Object::FKConstraint') ) {
-                return $c->render(
-                    status  => 400,
-                    openapi => {
-                            error => "Given "
-                            . $to_api_mapping->{ $_->broken_fk }
-                            . " does not exist"
-                    }
-                );
-            }
-            elsif ( $_->isa('Koha::Exceptions::BadParameter') ) {
-                return $c->render(
-                    status  => 400,
-                    openapi => {
-                            error => "Given "
-                            . $to_api_mapping->{ $_->parameter }
-                            . " does not exist"
-                    }
-                );
-            }
-            elsif ( $_->isa('Koha::Exceptions::PayloadTooLarge') ) {
-                return $c->render(
-                    status  => 413,
-                    openapi => { error => $_->error }
-                );
-            }
-            elsif ( $_->isa('Koha::Exceptions::ERM::CounterFile::UnsupportedRelease') ) {
-                return $c->render(
-                    status  => 400,
-                    openapi => { error => $_->description }
-                );
-            }
-        }
-
         $c->unhandled_exception($_);
     };
 }
