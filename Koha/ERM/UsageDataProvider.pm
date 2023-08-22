@@ -84,8 +84,7 @@ sub enqueue_counter_file_processing_job {
     push(
         @jobs,
         {
-            # report_type => $report_type,
-            job_id      => $job_id
+            job_id => $job_id
         }
     );
 
@@ -99,7 +98,7 @@ Enqueues one harvest background job for each report type in this usage data prov
 =cut
 
 sub enqueue_sushi_harvest_jobs {
-    my ($self, $args) = @_;
+    my ( $self, $args ) = @_;
 
     my @report_types = split( /;/, $self->report_types );
 
@@ -203,7 +202,7 @@ sub harvest_sushi {
 
         #TODO: May want to add a job error message here?
         warn sprintf "ERROR - SUSHI service %s returned %s - %s\n", $url,
-        $response->code, $message;
+          $response->code, $message;
         if ( $response->code == 404 ) {
             Koha::Exceptions::ObjectNotFound->throw($message);
         }
@@ -213,8 +212,8 @@ sub harvest_sushi {
         else {
             #TODO: May want to add a job error message here?
             die sprintf "ERROR requesting SUSHI service\n%s\ncode %s: %s\n",
-            $url, $response->code,
-            $message;
+              $url, $response->code,
+              $message;
         }
     }
     elsif ( $response->code == 204 ) {    # No content
@@ -337,6 +336,7 @@ sub _build_COUNTER_report_file {
                 usage_data_provider_id => $self->erm_usage_data_provider_id,
                 file_content           => $counter_file,
                 date_uploaded => POSIX::strftime( "%Y%m%d%H%M%S", localtime ),
+
                 #TODO: add ".csv" to end of filename here
                 filename => $self->name . "_" . $self->{report_type},
             }
@@ -426,12 +426,13 @@ sub _COUNTER_item_report_row {
 
     return (
         [
-            $item_row->{Item}                                                 || "",
-            $item_row->{Publisher}                                            || "",
-            $self->_get_SUSHI_Type_Value( $item_row->{Publisher_ID}, "ISNI" ) || "",
-            $item_row->{Platform}                                             || "",
-            $self->_get_SUSHI_Type_Value( $item_row->{Item_ID}, "DOI" )       || "",
-            $item_row->{Proprietary_ID}                                       || "",
+            $item_row->{Item}      || "",
+            $item_row->{Publisher} || "",
+            $self->_get_SUSHI_Type_Value( $item_row->{Publisher_ID}, "ISNI" )
+              || "",
+            $item_row->{Platform}                                       || "",
+            $self->_get_SUSHI_Type_Value( $item_row->{Item_ID}, "DOI" ) || "",
+            $item_row->{Proprietary_ID}                                 || "",
             "",    #FIXME: What goes in URI?
             $metric_type,
             $total_usage,
@@ -448,15 +449,18 @@ https://cop5.projectcounter.org/en/5.0.2/04-reports/02-database-reports.html#col
 =cut
 
 sub _COUNTER_database_report_row {
-    my ( $self, $database_row, $metric_type, $total_usage, $monthly_usages ) = @_;
+    my ( $self, $database_row, $metric_type, $total_usage, $monthly_usages ) =
+      @_;
 
     return (
         [
-            $database_row->{Database}                                             || "",
-            $database_row->{Publisher}                                            || "",
-            $self->_get_SUSHI_Type_Value( $database_row->{Publisher_ID}, "ISNI" ) || "",
-            $database_row->{Platform}                                             || "",
-            $database_row->{Proprietary_ID}                                       || "",
+            $database_row->{Database}  || "",
+            $database_row->{Publisher} || "",
+            $self->_get_SUSHI_Type_Value( $database_row->{Publisher_ID},
+                "ISNI" )
+              || "",
+            $database_row->{Platform}       || "",
+            $database_row->{Proprietary_ID} || "",
             $metric_type,
             $total_usage,
             @{$monthly_usages}
@@ -472,15 +476,13 @@ https://cop5.projectcounter.org/en/5.0.2/04-reports/01-platform-reports.html#col
 =cut
 
 sub _COUNTER_platform_report_row {
-    my ( $self, $platform_row, $metric_type, $total_usage, $monthly_usages ) = @_;
+    my ( $self, $platform_row, $metric_type, $total_usage, $monthly_usages ) =
+      @_;
 
     return (
         [
-            $platform_row->{Platform}
-                || "",
-            $metric_type,
-            $total_usage,
-            @{$monthly_usages}
+            $platform_row->{Platform} || "", $metric_type,
+            $total_usage,                    @{$monthly_usages}
         ]
     );
 }
@@ -495,8 +497,9 @@ https://cop5.projectcounter.org/en/5.0.2/04-reports/03-title-reports.html#column
 sub _COUNTER_title_report_row {
     my ( $self, $title_row, $metric_type, $total_usage, $monthly_usages ) = @_;
 
-    my $header          = $self->{sushi}->{header};
-    my $specific_fields = $self->get_report_type_specific_fields( $header->{Report_ID} );
+    my $header = $self->{sushi}->{header};
+    my $specific_fields =
+      $self->get_report_type_specific_fields( $header->{Report_ID} );
 
     return (
         [
@@ -507,7 +510,8 @@ sub _COUNTER_title_report_row {
             $title_row->{Publisher} || "",
 
             # Publisher_ID
-            $self->_get_SUSHI_Type_Value( $title_row->{Publisher_ID}, "ISNI" ) || "",
+            $self->_get_SUSHI_Type_Value( $title_row->{Publisher_ID}, "ISNI" )
+              || "",
 
             # Platform
             $title_row->{Platform} || "",
@@ -516,27 +520,39 @@ sub _COUNTER_title_report_row {
             $self->_get_SUSHI_Type_Value( $title_row->{Item_ID}, "DOI" ) || "",
 
             # Proprietary_ID
-            $self->_get_SUSHI_Type_Value( $title_row->{Item_ID}, "Proprietary" ) || "",
+            $self->_get_SUSHI_Type_Value(
+                $title_row->{Item_ID}, "Proprietary"
+              )
+              || "",
 
             # ISBN
             grep ( /ISBN/, @{$specific_fields} )
-            ? ( $self->_get_SUSHI_Type_Value( $title_row->{Item_ID}, "ISBN" ) || "" )
+            ? ( $self->_get_SUSHI_Type_Value( $title_row->{Item_ID}, "ISBN" )
+                  || "" )
             : (),
 
             # Print_ISSN
-            $self->_get_SUSHI_Type_Value( $title_row->{Item_ID}, "Print_ISSN" ) || "",
+            $self->_get_SUSHI_Type_Value( $title_row->{Item_ID}, "Print_ISSN" )
+              || "",
 
             # Online_ISSN
-            $self->_get_SUSHI_Type_Value( $title_row->{Item_ID}, "Online_ISSN" ) || "",
+            $self->_get_SUSHI_Type_Value(
+                $title_row->{Item_ID}, "Online_ISSN"
+              )
+              || "",
 
             # URI - FIXME: What goes in URI?
             "",
 
             # YOP
-            grep ( /YOP/, @{$specific_fields} ) ? ( $title_row->{YOP} || "" ) : (),
+            grep ( /YOP/, @{$specific_fields} )
+            ? ( $title_row->{YOP} || "" )
+            : (),
 
             # Access_Type
-            grep ( /Access_Type/, @{$specific_fields} ) ? ( $title_row->{Access_Type} || "" ) : (),
+            grep ( /Access_Type/, @{$specific_fields} )
+            ? ( $title_row->{Access_Type} || "" )
+            : (),
 
             # Metric_Type
             $metric_type,
@@ -561,20 +577,25 @@ sub _COUNTER_report_row {
 
     my $header = $self->{sushi}->{header};
 
-    my ( $total_usage, @monthly_usages ) = $self->_get_row_usages( $report_row, $metric_type );
+    my ( $total_usage, @monthly_usages ) =
+      $self->_get_row_usages( $report_row, $metric_type );
 
     if ( $header->{Report_ID} =~ /PR/i ) {
-        return $self->_COUNTER_platform_report_row( $report_row, $metric_type, $total_usage, \@monthly_usages );
-    } elsif ( $header->{Report_ID} =~ /DR/i ) {
-        return $self->_COUNTER_database_report_row( $report_row, $metric_type, $total_usage, \@monthly_usages );
-    } elsif ( $header->{Report_ID} =~ /IR/i ) {
-        return $self->_COUNTER_item_report_row( $report_row, $metric_type, $total_usage, \@monthly_usages );
-    } elsif ( $header->{Report_ID} =~ /TR/i ) {
-        return $self->_COUNTER_title_report_row( $report_row, $metric_type, $total_usage, \@monthly_usages );
+        return $self->_COUNTER_platform_report_row( $report_row, $metric_type,
+            $total_usage, \@monthly_usages );
     }
-
-    # TODO: Items report body
-
+    elsif ( $header->{Report_ID} =~ /DR/i ) {
+        return $self->_COUNTER_database_report_row( $report_row, $metric_type,
+            $total_usage, \@monthly_usages );
+    }
+    elsif ( $header->{Report_ID} =~ /IR/i ) {
+        return $self->_COUNTER_item_report_row( $report_row, $metric_type,
+            $total_usage, \@monthly_usages );
+    }
+    elsif ( $header->{Report_ID} =~ /TR/i ) {
+        return $self->_COUNTER_title_report_row( $report_row, $metric_type,
+            $total_usage, \@monthly_usages );
+    }
 }
 
 =head3 _get_row_usages
@@ -598,10 +619,13 @@ sub _get_row_usages {
             my $period             = $performance->{Period};
             my $period_usage_month = substr( $period->{Begin_Date}, 0, 7 );
 
-            my $instances         = $performance->{Instance};
-            my @metric_type_count = map( $_->{Metric_Type} eq $metric_type ? $_->{Count} : (), @{$instances} );
+            my $instances = $performance->{Instance};
+            my @metric_type_count =
+              map( $_->{Metric_Type} eq $metric_type ? $_->{Count} : (),
+                @{$instances} );
 
-            if ( $period_usage_month eq $usage_month && $metric_type_count[0] ) {
+            if ( $period_usage_month eq $usage_month && $metric_type_count[0] )
+            {
                 push( @usage_months_fields, $metric_type_count[0] );
                 $count_total += $metric_type_count[0];
                 $month_is_empty = 0;
@@ -633,21 +657,22 @@ sub _COUNTER_report_body {
     foreach my $report_row ( @{$body} ) {
 
         my @metric_types = ();
+
         # Grab all metric_types this SUSHI result has statistics for
         foreach my $performance ( @{ $report_row->{Performance} } ) {
-            my @SUSHI_metric_types = map( $_->{Metric_Type}, @{ $performance->{Instance} } );
+            my @SUSHI_metric_types =
+              map( $_->{Metric_Type}, @{ $performance->{Instance} } );
 
-            foreach my $sushi_metric_type (@SUSHI_metric_types){
-                push( @metric_types, $sushi_metric_type ) unless grep { $_ eq $sushi_metric_type } @metric_types;
+            foreach my $sushi_metric_type (@SUSHI_metric_types) {
+                push( @metric_types, $sushi_metric_type )
+                  unless grep { $_ eq $sushi_metric_type } @metric_types;
             }
         }
 
         # Add one report row for each metric_type we're working with
         foreach my $metric_type (@metric_types) {
-            push(
-                @report_body,
-                $self->_COUNTER_report_row( $report_row, $metric_type )
-            );
+            push( @report_body,
+                $self->_COUNTER_report_row( $report_row, $metric_type ) );
         }
         $self->{total_records} = ++$total_records;
     }
@@ -698,15 +723,16 @@ sub _COUNTER_report_column_headings {
 
     if ( $header->{Report_ID} =~ /PR/i ) {
         return $self->_COUNTER_platforms_report_column_headings;
-    }elsif ( $header->{Report_ID} =~ /DR/i ) {
+    }
+    elsif ( $header->{Report_ID} =~ /DR/i ) {
         return $self->_COUNTER_databases_report_column_headings;
-    }elsif ( $header->{Report_ID} =~ /IR/i ) {
+    }
+    elsif ( $header->{Report_ID} =~ /IR/i ) {
         return $self->_COUNTER_items_report_column_headings;
-    }elsif ( $header->{Report_ID} =~ /TR/i ) {
+    }
+    elsif ( $header->{Report_ID} =~ /TR/i ) {
         return $self->_COUNTER_titles_report_column_headings;
     }
-
-    # TODO: Item Report
 
     return;
 }
@@ -740,6 +766,7 @@ sub _COUNTER_items_report_column_headings {
             # "Print_ISSN", #IR_A1 only
             # "Online_ISSN", #IR_A1 only
             "URI",
+
             # "Parent_Title", #IR_A1 only
             # "Parent_Authors", #IR_A1 only
             # "Parent_Publication_Date", #IR only
@@ -768,7 +795,7 @@ sub _COUNTER_items_report_column_headings {
             "Metric_Type",
             "Reporting_Period_Total",
 
-            # @month_headings in "Mmm-yyyy" format. TODO: Show unless Exclude_Monthly_Details=true
+# @month_headings in "Mmm-yyyy" format. TODO: Show unless Exclude_Monthly_Details=true
             @month_headings
         ]
     );
@@ -796,7 +823,7 @@ sub _COUNTER_databases_report_column_headings {
             "Metric_Type",
             "Reporting_Period_Total",
 
-            # @month_headings in "Mmm-yyyy" format. TODO: Show unless Exclude_Monthly_Details=true
+# @month_headings in "Mmm-yyyy" format. TODO: Show unless Exclude_Monthly_Details=true
             @month_headings
         ]
     );
@@ -820,7 +847,7 @@ sub _COUNTER_platforms_report_column_headings {
             "Metric_Type",
             "Reporting_Period_Total",
 
-            # @month_headings in "Mmm-yyyy" format. TODO: Show unless Exclude_Monthly_Details=true
+# @month_headings in "Mmm-yyyy" format. TODO: Show unless Exclude_Monthly_Details=true
             @month_headings
         ]
     );
@@ -835,9 +862,10 @@ Return titles report column headings
 sub _COUNTER_titles_report_column_headings {
     my ($self) = @_;
 
-    my $header          = $self->{sushi}->{header};
-    my @month_headings  = $self->_get_usage_months( $header, 1 );
-    my $specific_fields = $self->get_report_type_specific_fields( $header->{Report_ID} );
+    my $header         = $self->{sushi}->{header};
+    my @month_headings = $self->_get_usage_months( $header, 1 );
+    my $specific_fields =
+      $self->get_report_type_specific_fields( $header->{Report_ID} );
 
     return (
         [
@@ -861,7 +889,7 @@ sub _COUNTER_titles_report_column_headings {
             "Metric_Type",
             "Reporting_Period_Total",
 
-            # @month_headings in "Mmm-yyyy" format. TODO: Show unless Exclude_Monthly_Details=true
+# @month_headings in "Mmm-yyyy" format. TODO: Show unless Exclude_Monthly_Details=true
             @month_headings
         ]
     );
@@ -929,52 +957,6 @@ sub get_report_type_specific_fields {
 
 }
 
-=head3 _COUNTER_master_report
-
-Returns the master report for a given report type
-NOTE: Not being used at the moment, but could be useful later
-https://www.projectcounter.org/code-of-practice-five-sections/3-0-technical-specifications/#reportsforlibraries
-
-=cut
-
-sub _COUNTER_master_report {
-    my ( $self, $report_type ) = @_;
-
-    #TODO: Below if/elsif could probably do better with regex instead
-    if ( $report_type == "PR" || $report_type == "PR_P1" ) {
-        return "PLATFORM";
-    }
-    elsif ($report_type == "DR"
-        || $report_type == "DR_D1"
-        || $report_type == "DR_D2" )
-    {
-        return "database";
-    }
-    elsif ($report_type == "TR"
-        || $report_type == "TR_B1"
-        || $report_type == "TR_B2"
-        || $report_type == "TR_B3"
-        || $report_type == "TR_J1"
-        || $report_type == "TR_J2"
-        || $report_type == "TR_J3"
-        || $report_type == "TR_J4" )
-    {
-        return "title";
-    }
-    elsif ($report_type == "IR"
-        || $report_type == "IR_A1"
-        || $report_type == "IR_M1" )
-    {
-        return "item";
-    }
-}
-
-## GENERAL COLUMN HEADINGS:
-## Report Item Description, Platform, Report Item Identifiers, Parent Item, Component Item Description & IDs, Report/Item, Metric_Types, Usage
-
-## TITLES COLUMN HEADINGS
-# https://cop5.projectcounter.org/en/5.0.2/04-reports/03-title-reports.html
-
 =head3 test_connection
 
 Tests the connection of the harvester to the SUSHI service and returns any alerts of planned SUSHI outages
@@ -990,16 +972,16 @@ sub test_connection {
     $url .= '&requestor_id=' . $self->requestor_id if $self->requestor_id;
     $url .= '&api_key=' . $self->api_key           if $self->api_key;
 
-
     my $request  = HTTP::Request->new( 'GET' => $url );
     my $ua       = LWP::UserAgent->new;
     my $response = $ua->simple_request($request);
 
     my @result = decode_json( $response->decoded_content );
-    if($result[0][0]->{Service_Active}) {
-        return 1
-    } else {
-        return 0
+    if ( $result[0][0]->{Service_Active} ) {
+        return 1;
+    }
+    else {
+        return 0;
     }
 
 }
@@ -1011,7 +993,7 @@ Method to embed erm_usage_titles to titles for report formatting
 =cut
 
 sub erm_usage_titles {
-    my ( $self ) = @_;
+    my ($self) = @_;
     my $usage_title_rs = $self->_result->erm_usage_titles;
     return Koha::ERM::UsageTitles->_new_from_dbic($usage_title_rs);
 }
@@ -1023,7 +1005,7 @@ Method to embed erm_usage_muses to titles for report formatting
 =cut
 
 sub erm_usage_muses {
-    my ( $self ) = @_;
+    my ($self) = @_;
     my $usage_mus_rs = $self->_result->erm_usage_muses;
     return Koha::ERM::MonthlyUsages->_new_from_dbic($usage_mus_rs);
 }
@@ -1035,7 +1017,7 @@ Method to embed erm_usage_platforms to platforms for report formatting
 =cut
 
 sub erm_usage_platforms {
-    my ( $self ) = @_;
+    my ($self) = @_;
     my $usage_platform_rs = $self->_result->erm_usage_platforms;
     return Koha::ERM::UsagePlatforms->_new_from_dbic($usage_platform_rs);
 }
@@ -1047,7 +1029,7 @@ Method to embed erm_usage_items to items for report formatting
 =cut
 
 sub erm_usage_items {
-    my ( $self ) = @_;
+    my ($self) = @_;
     my $usage_item_rs = $self->_result->erm_usage_items;
     return Koha::ERM::UsageItems->_new_from_dbic($usage_item_rs);
 }
@@ -1059,7 +1041,7 @@ Method to embed erm_usage_databases to databases for report formatting
 =cut
 
 sub erm_usage_databases {
-    my ( $self ) = @_;
+    my ($self) = @_;
     my $usage_database_rs = $self->_result->erm_usage_databases;
     return Koha::ERM::UsageDatabases->_new_from_dbic($usage_database_rs);
 }
