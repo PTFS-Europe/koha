@@ -26,7 +26,7 @@ use Koha::ERM::UsageDataProviders;
 use Koha::ERM::MonthlyUsages;
 
 use Scalar::Util qw( blessed );
-use Try::Tiny qw( catch try );
+use Try::Tiny    qw( catch try );
 
 =head1 API
 
@@ -42,24 +42,53 @@ sub list {
 
     return try {
         my $usage_data_providers_set = Koha::ERM::UsageDataProviders->new;
-        my $usage_data_providers = $c->objects->search( $usage_data_providers_set );
-        if($c->validation->output->{"x-koha-embed"}[0] && $c->validation->output->{"x-koha-embed"}[0] eq 'counter_files') {
-            foreach my $provider ( @$usage_data_providers ) {
-                my $title_dates = _get_earliest_and_latest_dates('TR', $provider->{erm_usage_data_provider_id});
-                $provider->{earliest_title} = $title_dates->{earliest_date} ? $title_dates->{earliest_date} : '';
-                $provider->{latest_title} = $title_dates->{latest_date} ? $title_dates->{latest_date} : '';
+        my $usage_data_providers =
+          $c->objects->search($usage_data_providers_set);
+        if (   $c->validation->output->{"x-koha-embed"}[0]
+            && $c->validation->output->{"x-koha-embed"}[0] eq 'counter_files' )
+        {
+            foreach my $provider (@$usage_data_providers) {
+                my $title_dates = _get_earliest_and_latest_dates( 'TR',
+                    $provider->{erm_usage_data_provider_id} );
+                $provider->{earliest_title} =
+                    $title_dates->{earliest_date}
+                  ? $title_dates->{earliest_date}
+                  : '';
+                $provider->{latest_title} =
+                    $title_dates->{latest_date}
+                  ? $title_dates->{latest_date}
+                  : '';
 
-                my $platform_dates = _get_earliest_and_latest_dates('PR', $provider->{erm_usage_data_provider_id});
-                $provider->{earliest_platform} = $platform_dates->{earliest_date} ? $platform_dates->{earliest_date} : '';
-                $provider->{latest_platform} = $platform_dates->{latest_date} ? $platform_dates->{latest_date} : '';
+                my $platform_dates = _get_earliest_and_latest_dates( 'PR',
+                    $provider->{erm_usage_data_provider_id} );
+                $provider->{earliest_platform} =
+                    $platform_dates->{earliest_date}
+                  ? $platform_dates->{earliest_date}
+                  : '';
+                $provider->{latest_platform} =
+                    $platform_dates->{latest_date}
+                  ? $platform_dates->{latest_date}
+                  : '';
 
-                my $item_dates = _get_earliest_and_latest_dates('IR', $provider->{erm_usage_data_provider_id});
-                $provider->{earliest_item} = $item_dates->{earliest_date} ? $item_dates->{earliest_date} : '';
-                $provider->{latest_item} = $item_dates->{latest_date} ? $item_dates->{latest_date} : '';
+                my $item_dates = _get_earliest_and_latest_dates( 'IR',
+                    $provider->{erm_usage_data_provider_id} );
+                $provider->{earliest_item} =
+                    $item_dates->{earliest_date}
+                  ? $item_dates->{earliest_date}
+                  : '';
+                $provider->{latest_item} =
+                  $item_dates->{latest_date} ? $item_dates->{latest_date} : '';
 
-                my $database_dates = _get_earliest_and_latest_dates('DR', $provider->{erm_usage_data_provider_id});
-                $provider->{earliest_database} = $database_dates->{earliest_date} ? $database_dates->{earliest_date} : '';
-                $provider->{latest_database} = $database_dates->{latest_date} ? $database_dates->{latest_date} : '';
+                my $database_dates = _get_earliest_and_latest_dates( 'DR',
+                    $provider->{erm_usage_data_provider_id} );
+                $provider->{earliest_database} =
+                    $database_dates->{earliest_date}
+                  ? $database_dates->{earliest_date}
+                  : '';
+                $provider->{latest_database} =
+                    $database_dates->{latest_date}
+                  ? $database_dates->{latest_date}
+                  : '';
             }
         }
 
@@ -81,8 +110,11 @@ sub get {
     my $c = shift->openapi->valid_input or return;
 
     return try {
-        my $usage_data_provider_id = $c->validation->param('erm_usage_data_provider_id');
-        my $usage_data_provider    = $c->objects->find( Koha::ERM::UsageDataProviders->search, $usage_data_provider_id );
+        my $usage_data_provider_id =
+          $c->validation->param('erm_usage_data_provider_id');
+        my $usage_data_provider =
+          $c->objects->find( Koha::ERM::UsageDataProviders->search,
+            $usage_data_provider_id );
 
         unless ($usage_data_provider) {
             return $c->render(
@@ -116,9 +148,11 @@ sub add {
 
                 my $body = $c->validation->param('body');
 
-                my $usage_data_provider = Koha::ERM::UsageDataProvider->new_from_api($body)->store;
+                my $usage_data_provider =
+                  Koha::ERM::UsageDataProvider->new_from_api($body)->store;
 
-                $c->res->headers->location($c->req->url->to_string . '/' . $usage_data_provider->erm_usage_data_provider_id);
+                $c->res->headers->location( $c->req->url->to_string . '/'
+                      . $usage_data_provider->erm_usage_data_provider_id );
                 return $c->render(
                     status  => 201,
                     openapi => $usage_data_provider->to_api
@@ -134,7 +168,8 @@ sub add {
             if ( $_->isa('Koha::Exceptions::Object::DuplicateID') ) {
                 return $c->render(
                     status  => 409,
-                    openapi => { error => $_->error, conflict => $_->duplicate_id }
+                    openapi =>
+                      { error => $_->error, conflict => $_->duplicate_id }
                 );
             }
             elsif ( $_->isa('Koha::Exceptions::Object::FKConstraint') ) {
@@ -142,8 +177,8 @@ sub add {
                     status  => 400,
                     openapi => {
                             error => "Given "
-                            . $to_api_mapping->{ $_->broken_fk }
-                            . " does not exist"
+                          . $to_api_mapping->{ $_->broken_fk }
+                          . " does not exist"
                     }
                 );
             }
@@ -152,8 +187,8 @@ sub add {
                     status  => 400,
                     openapi => {
                             error => "Given "
-                            . $to_api_mapping->{ $_->parameter }
-                            . " does not exist"
+                          . $to_api_mapping->{ $_->parameter }
+                          . " does not exist"
                     }
                 );
             }
@@ -178,8 +213,10 @@ Controller function that handles updating a Koha::ERM::UsageDataProvider object
 sub update {
     my $c = shift->openapi->valid_input or return;
 
-    my $usage_data_provider_id = $c->validation->param('erm_usage_data_provider_id');
-    my $usage_data_provider = Koha::ERM::UsageDataProviders->find( $usage_data_provider_id );
+    my $usage_data_provider_id =
+      $c->validation->param('erm_usage_data_provider_id');
+    my $usage_data_provider =
+      Koha::ERM::UsageDataProviders->find($usage_data_provider_id);
 
     unless ($usage_data_provider) {
         return $c->render(
@@ -196,7 +233,8 @@ sub update {
 
                 $usage_data_provider->set_from_api($body)->store;
 
-                $c->res->headers->location($c->req->url->to_string . '/' . $usage_data_provider->erm_usage_data_provider_id);
+                $c->res->headers->location( $c->req->url->to_string . '/'
+                      . $usage_data_provider->erm_usage_data_provider_id );
                 return $c->render(
                     status  => 200,
                     openapi => $usage_data_provider->to_api
@@ -213,8 +251,8 @@ sub update {
                     status  => 400,
                     openapi => {
                             error => "Given "
-                            . $to_api_mapping->{ $_->broken_fk }
-                            . " does not exist"
+                          . $to_api_mapping->{ $_->broken_fk }
+                          . " does not exist"
                     }
                 );
             }
@@ -223,8 +261,8 @@ sub update {
                     status  => 400,
                     openapi => {
                             error => "Given "
-                            . $to_api_mapping->{ $_->parameter }
-                            . " does not exist"
+                          . $to_api_mapping->{ $_->parameter }
+                          . " does not exist"
                     }
                 );
             }
@@ -238,7 +276,7 @@ sub update {
 
         $c->unhandled_exception($_);
     };
-};
+}
 
 =head3 delete
 
@@ -247,8 +285,10 @@ sub update {
 sub delete {
     my $c = shift->openapi->valid_input or return;
 
-    my $usage_data_provider_id = $c->validation->param('erm_usage_data_provider_id');
-    my $usage_data_provider = Koha::ERM::UsageDataProviders->find( $usage_data_provider_id );
+    my $usage_data_provider_id =
+      $c->validation->param('erm_usage_data_provider_id');
+    my $usage_data_provider =
+      Koha::ERM::UsageDataProviders->find($usage_data_provider_id);
     unless ($usage_data_provider) {
         return $c->render(
             status  => 404,
@@ -285,16 +325,20 @@ sub process_COUNTER_file {
                 my $body = $c->validation->param('body');
 
                 my $file_content =
-                    defined( $body->{file_content} ) ? decode_base64( $body->{file_content} ) : "";
+                  defined( $body->{file_content} )
+                  ? decode_base64( $body->{file_content} )
+                  : "";
 
-                # Validate the file_content without storing, it'll throw an exception if fail
+   # Validate the file_content without storing, it'll throw an exception if fail
                 my $counter_file_validation =
-                    Koha::ERM::CounterFile->new( { file_content => $file_content } );
+                  Koha::ERM::CounterFile->new(
+                    { file_content => $file_content } );
                 $counter_file_validation->validate;
 
                 # Validation was successful, enqueue the job
                 my $udprovider =
-                    Koha::ERM::UsageDataProviders->find( $c->validation->param('erm_usage_data_provider_id') );
+                  Koha::ERM::UsageDataProviders->find(
+                    $c->validation->param('erm_usage_data_provider_id') );
 
                 my $jobs = $udprovider->enqueue_counter_file_processing_job(
                     {
@@ -308,7 +352,8 @@ sub process_COUNTER_file {
                 );
             }
         );
-    } catch {
+    }
+    catch {
 
         my $to_api_mapping = Koha::ERM::CounterFile->new->to_api_mapping;
 
@@ -316,24 +361,41 @@ sub process_COUNTER_file {
             if ( $_->isa('Koha::Exceptions::Object::DuplicateID') ) {
                 return $c->render(
                     status  => 409,
-                    openapi => { error => $_->error, conflict => $_->duplicate_id }
+                    openapi =>
+                      { error => $_->error, conflict => $_->duplicate_id }
                 );
-            } elsif ( $_->isa('Koha::Exceptions::Object::FKConstraint') ) {
+            }
+            elsif ( $_->isa('Koha::Exceptions::Object::FKConstraint') ) {
                 return $c->render(
                     status  => 400,
-                    openapi => { error => "Given " . $to_api_mapping->{ $_->broken_fk } . " does not exist" }
+                    openapi => {
+                            error => "Given "
+                          . $to_api_mapping->{ $_->broken_fk }
+                          . " does not exist"
+                    }
                 );
-            } elsif ( $_->isa('Koha::Exceptions::BadParameter') ) {
+            }
+            elsif ( $_->isa('Koha::Exceptions::BadParameter') ) {
                 return $c->render(
                     status  => 400,
-                    openapi => { error => "Given " . $to_api_mapping->{ $_->parameter } . " does not exist" }
+                    openapi => {
+                            error => "Given "
+                          . $to_api_mapping->{ $_->parameter }
+                          . " does not exist"
+                    }
                 );
-            } elsif ( $_->isa('Koha::Exceptions::PayloadTooLarge') ) {
+            }
+            elsif ( $_->isa('Koha::Exceptions::PayloadTooLarge') ) {
                 return $c->render(
                     status  => 413,
                     openapi => { error => $_->error }
                 );
-            } elsif ( $_->isa('Koha::Exceptions::ERM::CounterFile::UnsupportedRelease') ) {
+            }
+            elsif (
+                $_->isa(
+                    'Koha::Exceptions::ERM::CounterFile::UnsupportedRelease')
+              )
+            {
                 return $c->render(
                     status  => 400,
                     openapi => { error => $_->description }
@@ -366,7 +428,8 @@ sub process_SUSHI_response {
         );
     }
 
-    my $udprovider = Koha::ERM::UsageDataProviders->find( $c->validation->param('erm_usage_data_provider_id') );
+    my $udprovider = Koha::ERM::UsageDataProviders->find(
+        $c->validation->param('erm_usage_data_provider_id') );
 
     unless ($udprovider) {
         return $c->render(
@@ -400,7 +463,8 @@ sub process_SUSHI_response {
 sub test_connection {
     my $c = shift->openapi->valid_input or return;
 
-    my $udprovider = Koha::ERM::UsageDataProviders->find( $c->validation->param('erm_usage_data_provider_id') );
+    my $udprovider = Koha::ERM::UsageDataProviders->find(
+        $c->validation->param('erm_usage_data_provider_id') );
 
     unless ($udprovider) {
         return $c->render(
@@ -428,54 +492,55 @@ sub _get_earliest_and_latest_dates {
     my ( $report_type, $id ) = @_;
 
     my @years = Koha::ERM::MonthlyUsages->search(
-        { 
+        {
             usage_data_provider_id => $id,
-            report_type => { -like => "%$report_type%" }
-        }, 
+            report_type            => { -like => "%$report_type%" }
+        },
         {
             columns => [
                 { earliestYear => { min => "year" } },
-                { latestYear => { max => "year" } },
+                { latestYear   => { max => "year" } },
             ]
         }
     )->unblessed;
-    if($years[0][0]->{earliestYear}) {
+    if ( $years[0][0]->{earliestYear} ) {
         my @earliest_month = Koha::ERM::MonthlyUsages->search(
-            { 
-                usage_data_provider_id => $id,
-                report_type => { -like => "%$report_type%" },
-                year => $years[0][0]->{earliestYear},
-            }, 
             {
-                columns => [
-                    { month => { min => "month" } },
-                ]
+                usage_data_provider_id => $id,
+                report_type            => { -like => "%$report_type%" },
+                year                   => $years[0][0]->{earliestYear},
+            },
+            {
+                columns => [ { month => { min => "month" } }, ]
             }
         )->unblessed;
         my @latest_month = Koha::ERM::MonthlyUsages->search(
-            { 
-                usage_data_provider_id => $id,
-                report_type => { -like => "%$report_type%" },
-                year => $years[0][0]->{latestYear},
-            }, 
             {
-                columns => [
-                    { month => { max => "month" } },
-                ]
+                usage_data_provider_id => $id,
+                report_type            => { -like => "%$report_type%" },
+                year                   => $years[0][0]->{latestYear},
+            },
+            {
+                columns => [ { month => { max => "month" } }, ]
             }
         )->unblessed;
 
-        $earliest_month[0][0]->{month} = _format_month("0$earliest_month[0][0]->{month}");
-        $latest_month[0][0]->{month} = _format_month("0$latest_month[0][0]->{month}");
+        $earliest_month[0][0]->{month} =
+          _format_month("0$earliest_month[0][0]->{month}");
+        $latest_month[0][0]->{month} =
+          _format_month("0$latest_month[0][0]->{month}");
 
-        my $earliest_date = "$years[0][0]->{earliestYear}-$earliest_month[0][0]->{month}";
-        my $latest_date = "$years[0][0]->{latestYear}-$latest_month[0][0]->{month}";
+        my $earliest_date =
+          "$years[0][0]->{earliestYear}-$earliest_month[0][0]->{month}";
+        my $latest_date =
+          "$years[0][0]->{latestYear}-$latest_month[0][0]->{month}";
 
         return {
             earliest_date => $earliest_date,
             latest_date   => $latest_date,
         };
-    } else {
+    }
+    else {
         return {
             earliest_date => 0,
             latest_date   => 0,
@@ -488,7 +553,7 @@ sub _get_earliest_and_latest_dates {
 =cut
 
 sub _format_month {
-    my ( $month ) = @_;
+    my ($month) = @_;
 
     $month = length($month) eq 2 ? $month : "0$month";
 

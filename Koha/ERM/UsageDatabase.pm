@@ -40,7 +40,7 @@ Method to embed erm_usage_muses to databases for report formatting
 =cut
 
 sub erm_usage_muses {
-    my ( $self ) = @_;
+    my ($self) = @_;
     my $usage_mus_rs = $self->_result->erm_usage_muses;
     return Koha::ERM::MonthlyUsages->_new_from_dbic($usage_mus_rs);
 }
@@ -52,7 +52,7 @@ Method to embed erm_usage_yuses to databases for report formatting
 =cut
 
 sub erm_usage_yuses {
-    my ( $self ) = @_;
+    my ($self) = @_;
     my $usage_yus_rs = $self->_result->erm_usage_yuses;
     return Koha::ERM::YearlyUsages->_new_from_dbic($usage_yus_rs);
 }
@@ -70,10 +70,12 @@ sub yearly_usages {
     if ($yearly_usages) {
         for my $yearly_usage (@$yearly_usages) {
             if ( $self->yearly_usages()->search($yearly_usage)->last ) {
-                $job_callbacks->{report_info_callback}->('skipped_yus') if $job_callbacks;
+                $job_callbacks->{report_info_callback}->('skipped_yus')
+                  if $job_callbacks;
                 next;
             }
-            $job_callbacks->{report_info_callback}->('added_yus') if $job_callbacks;
+            $job_callbacks->{report_info_callback}->('added_yus')
+              if $job_callbacks;
             Koha::ERM::YearlyUsage->new($yearly_usage)->store;
         }
     }
@@ -94,10 +96,12 @@ sub monthly_usages {
     if ($monthly_usages) {
         for my $monthly_usage (@$monthly_usages) {
             if ( $self->monthly_usages()->search($monthly_usage)->last ) {
-                $job_callbacks->{report_info_callback}->('skipped_mus') if $job_callbacks;
+                $job_callbacks->{report_info_callback}->('skipped_mus')
+                  if $job_callbacks;
                 next;
             }
-            $job_callbacks->{report_info_callback}->('added_mus') if $job_callbacks;
+            $job_callbacks->{report_info_callback}->('added_mus')
+              if $job_callbacks;
             Koha::ERM::MonthlyUsage->new($monthly_usage)->store;
         }
     }
