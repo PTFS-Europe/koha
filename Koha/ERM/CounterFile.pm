@@ -127,26 +127,26 @@ sub _add_usage_objects {
     my $usage_object        = undef;
 
     # Set job size to the amount of rows we're processing
-    $self->{job_callbacks}->{set_size_callback}->( scalar( @{$rows} ) ) if $self->{job_callbacks};
+    $self->{job_callbacks}->{set_size_callback}->( scalar( @{$rows} ) )
+      if $self->{job_callbacks};
 
     foreach my $row ( @{$rows} ) {
 
-# INFO: A single row may have multiple instances in the COUNTER report, one for each metric_type (TODO: or access_type)
+# INFO: A single row may have multiple instances in the COUNTER report, one for each metric_type or access_type
 # If we're on a row that we've already gone through, use the same usage object
-# and add usage statistics for the different metric_type (TODO: or access_type)
-        if ( $self->_is_same_usage_object($previous_object, $row) ) {
+# and add usage statistics for the different metric_type or access_type
+        if ( $self->_is_same_usage_object( $previous_object, $row ) ) {
             $usage_object = $previous_object;
         }
         else {
-            # Update background job step
-            $self->{job_callbacks}->{step_callback}->() if $self->{job_callbacks};
-
-            # Check if usage object already exists in this data provider, e.g. from a previous harvest
+# Check if usage object already exists in this data provider, e.g. from a previous harvest
             $usage_object = $self->_search_for_usage_object($row);
 
             if ($usage_object) {
-                # Usage object already exists, add job warning message and do nothing else
-                $self->_add_job_message('warning', 'object_already_exists', $row);
+
+      # Usage object already exists, add job warning message and do nothing else
+                $self->_add_job_message( 'warning', 'object_already_exists',
+                    $row );
             }
             else {
                 # Fresh usage object, create it
@@ -183,11 +183,13 @@ sub _add_usage_objects {
                 $yearly_usages{$year} += $usage;
             }
 
-            $self->_add_monthly_usage_entries( $usage_object, $row->{Metric_Type}, $row, $year, $month, $usage );
+            $self->_add_monthly_usage_entries( $usage_object,
+                $row->{Metric_Type}, $row, $year, $month, $usage );
         }
 
         # Add yearly usage statistics for this usage object
-        $self->_add_yearly_usage_entries( $usage_object, $row->{Metric_Type}, $row, \%yearly_usages );
+        $self->_add_yearly_usage_entries( $usage_object, $row->{Metric_Type},
+            $row, \%yearly_usages );
 
         $previous_object = $usage_object;
 
@@ -207,18 +209,22 @@ sub _add_monthly_usage_entries {
 
     my $usage_data_provider = $self->get_usage_data_provider;
     my $usage_object_info   = $self->_get_usage_object_id_hash($usage_object);
-    my $specific_fields     = $usage_data_provider->get_report_type_specific_fields( $self->type );
+    my $specific_fields =
+      $usage_data_provider->get_report_type_specific_fields( $self->type );
 
     $usage_object->monthly_usages(
         [
             {
                 %{$usage_object_info},
-                usage_data_provider_id => $usage_data_provider->erm_usage_data_provider_id,
-                year                   => $year,
-                month                  => $self->_get_month_number($month),
-                usage_count            => $usage,
-                metric_type            => $row->{Metric_Type},
-                grep ( /Access_Type/, @{$specific_fields} ) ? ( access_type => $row->{Access_Type} ) : (),
+                usage_data_provider_id =>
+                  $usage_data_provider->erm_usage_data_provider_id,
+                year        => $year,
+                month       => $self->_get_month_number($month),
+                usage_count => $usage,
+                metric_type => $row->{Metric_Type},
+                grep ( /Access_Type/, @{$specific_fields} )
+                ? ( access_type => $row->{Access_Type} )
+                : (),
                 report_type => $self->type
             }
         ],
@@ -237,7 +243,8 @@ sub _add_yearly_usage_entries {
 
     my $usage_data_provider = $self->get_usage_data_provider;
     my $usage_object_info   = $self->_get_usage_object_id_hash($usage_object);
-    my $specific_fields     = $usage_data_provider->get_report_type_specific_fields( $self->type );
+    my $specific_fields =
+      $usage_data_provider->get_report_type_specific_fields( $self->type );
 
     while ( my ( $year, $usage ) = each( %{$yearly_usages} ) ) {
 
@@ -248,11 +255,14 @@ sub _add_yearly_usage_entries {
             [
                 {
                     %{$usage_object_info},
-                    usage_data_provider_id => $usage_data_provider->erm_usage_data_provider_id,
-                    year                   => $year,
-                    totalcount             => $usage,
-                    metric_type            => $metric_type,
-                    grep ( /Access_Type/, @{$specific_fields} ) ? ( access_type => $row->{Access_Type} ) : (),
+                    usage_data_provider_id =>
+                      $usage_data_provider->erm_usage_data_provider_id,
+                    year        => $year,
+                    totalcount  => $usage,
+                    metric_type => $metric_type,
+                    grep ( /Access_Type/, @{$specific_fields} )
+                    ? ( access_type => $row->{Access_Type} )
+                    : (),
                     report_type => $self->type
                 }
             ],
@@ -274,19 +284,21 @@ sub validate {
     my ($self) = @_;
 
     open my $fh, "<", \$self->file_content or die;
-    my $csv = Text::CSV_XS->new( { binary => 1, always_quote => 1, eol => $/, decode_utf8 => 1 } );
+    my $csv = Text::CSV_XS->new(
+        { binary => 1, always_quote => 1, eol => $/, decode_utf8 => 1 } );
 
     $csv->column_names(qw( header_key header_value ));
     my @header_rows = $csv->getline_hr_all( $fh, 0, 12 );
-    my @header = $header_rows[0];
+    my @header      = $header_rows[0];
 
-    my @release_row =  map( $_->{header_key} eq 'Release' ? $_ : (), @{ $header[0] } );
+    my @release_row =
+      map( $_->{header_key} eq 'Release' ? $_ : (), @{ $header[0] } );
     my $release = $release_row[0];
 
     # TODO: Validate that there is an empty row between header and body
 
     Koha::Exceptions::ERM::CounterFile::UnsupportedRelease->throw
-        if $release && $release->{header_value} != 5;
+      if $release && $release->{header_value} != 5;
 
 }
 
@@ -300,14 +312,16 @@ sub _set_report_type_from_file {
     my ($self) = @_;
 
     open my $fh, "<", \$self->file_content or die;
-    my $csv = Text::CSV_XS->new( { binary => 1, always_quote => 1, eol => $/, decode_utf8 => 1 } );
+    my $csv = Text::CSV_XS->new(
+        { binary => 1, always_quote => 1, eol => $/, decode_utf8 => 1 } );
 
     $csv->column_names(qw( header_key header_value ));
     my @header_rows = $csv->getline_hr_all( $fh, 0, 12 );
     my @header      = $header_rows[0];
 
-    my @report_id_row = map( $_->{header_key} eq 'Report_ID' ? $_ : (), @{ $header[0] } );
-    my $report        = $report_id_row[0];
+    my @report_id_row =
+      map( $_->{header_key} eq 'Report_ID' ? $_ : (), @{ $header[0] } );
+    my $report = $report_id_row[0];
 
     $self->type( $report->{header_value} );
 }
@@ -322,7 +336,8 @@ sub _get_rows_from_COUNTER_file {
     my ($self) = @_;
 
     open my $fh, "<", \$self->file_content or die;
-    my $csv = Text::CSV_XS->new( { binary => 1, always_quote => 1, eol => $/, decode_utf8 => 1 } );
+    my $csv = Text::CSV_XS->new(
+        { binary => 1, always_quote => 1, eol => $/, decode_utf8 => 1 } );
 
     my $header_columns = $csv->getline_all( $fh, 13, 1 );
     $csv->column_names( @{$header_columns}[0] );
@@ -346,11 +361,14 @@ sub _add_job_message {
 
     if ( $self->type =~ /PR/i ) {
         $object_title = $row->{Platform};
-    } elsif ( $self->type =~ /DR/i ) {
+    }
+    elsif ( $self->type =~ /DR/i ) {
         $object_title = $row->{Database};
-    } elsif ( $self->type =~ /IR/i ) {
+    }
+    elsif ( $self->type =~ /IR/i ) {
         $object_title = $row->{Item};
-    } elsif ( $self->type =~ /TR/i ) {
+    }
+    elsif ( $self->type =~ /TR/i ) {
         $object_title = $row->{Title};
     }
 
@@ -374,11 +392,14 @@ sub _get_usage_object_id_hash {
 
     if ( $self->type =~ /PR/i ) {
         return { platform_id => $usage_object->platform_id };
-    } elsif ( $self->type =~ /DR/i ) {
+    }
+    elsif ( $self->type =~ /DR/i ) {
         return { database_id => $usage_object->database_id };
-    } elsif ( $self->type =~ /IR/i ) {
+    }
+    elsif ( $self->type =~ /IR/i ) {
         return { item_id => $usage_object->item_id };
-    } elsif ( $self->type =~ /TR/i ) {
+    }
+    elsif ( $self->type =~ /TR/i ) {
         return { title_id => $usage_object->title_id };
     }
     return 0;
@@ -399,29 +420,36 @@ sub _search_for_usage_object {
         return Koha::ERM::UsagePlatforms->search(
             {
                 platform               => $row->{Platform},
-                usage_data_provider_id => $usage_data_provider->erm_usage_data_provider_id
+                usage_data_provider_id =>
+                  $usage_data_provider->erm_usage_data_provider_id
             }
         )->last;
-    } elsif ( $self->type =~ /DR/i ) {
+    }
+    elsif ( $self->type =~ /DR/i ) {
         return Koha::ERM::UsageDatabases->search(
             {
                 database               => $row->{Database},
-                usage_data_provider_id => $usage_data_provider->erm_usage_data_provider_id
+                usage_data_provider_id =>
+                  $usage_data_provider->erm_usage_data_provider_id
             }
         )->last;
-    } elsif ( $self->type =~ /IR/i ) {
+    }
+    elsif ( $self->type =~ /IR/i ) {
         return Koha::ERM::UsageItems->search(
             {
                 item                   => $row->{Item},
                 publisher              => $row->{Publisher},
-                usage_data_provider_id => $usage_data_provider->erm_usage_data_provider_id
+                usage_data_provider_id =>
+                  $usage_data_provider->erm_usage_data_provider_id
             }
         )->last;
-    } elsif ( $self->type =~ /TR/i ) {
+    }
+    elsif ( $self->type =~ /TR/i ) {
         return Koha::ERM::UsageTitles->search(
             {
                 title_doi              => $row->{DOI},
-                usage_data_provider_id => $usage_data_provider->erm_usage_data_provider_id
+                usage_data_provider_id =>
+                  $usage_data_provider->erm_usage_data_provider_id
             }
         )->last;
     }
@@ -439,12 +467,20 @@ sub _is_same_usage_object {
     my ( $self, $previous_object, $row ) = @_;
 
     if ( $self->type =~ /PR/i ) {
-        return $previous_object && $previous_object->platform eq $row->{Platform};
-    } elsif ( $self->type =~ /DR/i ) {
-        return $previous_object && $previous_object->database eq $row->{Database};
-    } elsif ( $self->type =~ /IR/i ) {
-        return $previous_object && $previous_object->item eq $row->{Item} && $previous_object->publisher eq $row->{Publisher};
-    } elsif ( $self->type =~ /TR/i ) {
+        return $previous_object
+          && $previous_object->platform eq $row->{Platform};
+    }
+    elsif ( $self->type =~ /DR/i ) {
+        return $previous_object
+          && $previous_object->database eq $row->{Database};
+    }
+    elsif ( $self->type =~ /IR/i ) {
+        return
+             $previous_object
+          && $previous_object->item eq $row->{Item}
+          && $previous_object->publisher eq $row->{Publisher};
+    }
+    elsif ( $self->type =~ /TR/i ) {
         return $previous_object && $previous_object->title_doi eq $row->{DOI};
     }
 
@@ -489,7 +525,7 @@ sub _add_counter_log_entry {
 
     Koha::ERM::CounterLog->new(
         {
-#TODO: borrowernumber only required for manual uploads, maybe also for "harvest now" button clicks?
+#TODO: borrowernumber only required for manual uploads or "harvest now" button clicks
             borrowernumber   => undef,
             counter_files_id => $self->erm_counter_files_id,
             importdate       => $self->date_uploaded,
@@ -501,7 +537,6 @@ sub _add_counter_log_entry {
     )->store;
 }
 
-
 =head3 _add_usage_object_entry
 
 Adds a usage object database entry
@@ -512,47 +547,57 @@ sub _add_usage_object_entry {
     my ( $self, $row ) = @_;
 
     my $usage_data_provider = $self->get_usage_data_provider;
-    my $specific_fields     = $usage_data_provider->get_report_type_specific_fields( $self->type );
+    my $specific_fields =
+      $usage_data_provider->get_report_type_specific_fields( $self->type );
 
     if ( $self->type =~ /PR/i ) {
         return Koha::ERM::UsagePlatform->new(
             {
-                usage_data_provider_id => $usage_data_provider->erm_usage_data_provider_id,
-                platform               => $row->{Platform},
+                usage_data_provider_id =>
+                  $usage_data_provider->erm_usage_data_provider_id,
+                platform => $row->{Platform},
             }
         )->store;
-    } elsif ( $self->type =~ /DR/i ) {
+    }
+    elsif ( $self->type =~ /DR/i ) {
         return Koha::ERM::UsageDatabase->new(
             {
                 database               => $row->{Database},
-                usage_data_provider_id => $usage_data_provider->erm_usage_data_provider_id,
-                platform               => $row->{Platform},
-                publisher              => $row->{Publisher},
-                publisher_id           => $row->{Publisher_ID},
+                usage_data_provider_id =>
+                  $usage_data_provider->erm_usage_data_provider_id,
+                platform     => $row->{Platform},
+                publisher    => $row->{Publisher},
+                publisher_id => $row->{Publisher_ID},
             }
         )->store;
-    } elsif ( $self->type =~ /IR/i ) {
+    }
+    elsif ( $self->type =~ /IR/i ) {
         return Koha::ERM::UsageItem->new(
             {
                 item                   => $row->{Item},
-                usage_data_provider_id => $usage_data_provider->erm_usage_data_provider_id,
-                platform               => $row->{Platform},
-                publisher              => $row->{Publisher},
+                usage_data_provider_id =>
+                  $usage_data_provider->erm_usage_data_provider_id,
+                platform  => $row->{Platform},
+                publisher => $row->{Publisher},
             }
         )->store;
-    } elsif ( $self->type =~ /TR/i ) {
+    }
+    elsif ( $self->type =~ /TR/i ) {
         return Koha::ERM::UsageTitle->new(
             {
                 title                  => $row->{Title},
-                usage_data_provider_id => $usage_data_provider->erm_usage_data_provider_id,
-                title_doi              => $row->{DOI},
-                print_issn             => $row->{Print_ISSN},
-                online_issn            => $row->{Online_ISSN},
-                title_uri              => $row->{URI},
-                publisher              => $row->{Publisher},
-                publisher_id           => $row->{Publisher_ID},
-                grep ( /YOP/,  @{$specific_fields} ) ? ( yop  => $row->{YOP} )  : (),
-                grep ( /ISBN/, @{$specific_fields} ) ? ( isbn => $row->{ISBN} ) : (),
+                usage_data_provider_id =>
+                  $usage_data_provider->erm_usage_data_provider_id,
+                title_doi    => $row->{DOI},
+                print_issn   => $row->{Print_ISSN},
+                online_issn  => $row->{Online_ISSN},
+                title_uri    => $row->{URI},
+                publisher    => $row->{Publisher},
+                publisher_id => $row->{Publisher_ID},
+                grep ( /YOP/, @{$specific_fields} ) ? ( yop => $row->{YOP} )
+                : (),
+                grep ( /ISBN/, @{$specific_fields} ) ? ( isbn => $row->{ISBN} )
+                : (),
             }
         )->store;
     }

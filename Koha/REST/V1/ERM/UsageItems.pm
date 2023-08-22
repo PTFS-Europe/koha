@@ -24,9 +24,9 @@ use Module::Load qw( load );
 
 use Koha::ERM::UsageItems;
 
-use Clone qw( clone );
+use Clone        qw( clone );
 use Scalar::Util qw( blessed );
-use Try::Tiny qw( catch try );
+use Try::Tiny    qw( catch try );
 use JSON;
 
 =head1 API
@@ -42,7 +42,7 @@ sub list {
 
     return try {
         my $usage_items_set = Koha::ERM::UsageItems->new;
-        my $usage_items = $c->objects->search( $usage_items_set );
+        my $usage_items     = $c->objects->search($usage_items_set);
         return $c->render( status => 200, openapi => $usage_items );
     }
     catch {
