@@ -307,138 +307,96 @@ export class ERMAPIClient extends HttpClient {
         };
     }
 
+    
+    get counter_files() {
+        return {
+            delete: id =>
+            this.delete({
+                endpoint: "counter_files/" + id,
+            }),
+            count: (query = {}) =>
+            this.count({
+                endpoint:
+                "counter_files?" +
+                new URLSearchParams({
+                    _page: 1,
+                    _per_page: 1,
+                    ...(query && { q: JSON.stringify(query) }),
+                }),
+            }),
+        };
+    }
+    
+    get default_usage_reports() {
+        return {
+            getAll: query =>
+            this.get({
+                endpoint: "default_usage_reports",
+                query,
+            }),
+            create: default_usage_report =>
+            this.post({
+                endpoint: "default_usage_reports",
+                body: default_usage_report,
+            }),
+            delete: id =>
+            this.delete({
+                endpoint: "default_usage_reports/" + id,
+            }),
+        };
+    }
+    
+    get usage_platforms() {
+        return {
+            count: (query = {}) =>
+            this.count({
+                endpoint:
+                "usage_platforms?" +
+                new URLSearchParams({
+                    _page: 1,
+                    _per_page: 1,
+                    ...(query && { q: JSON.stringify(query) }),
+                }),
+            }),
+        };
+    }
+    
+    get usage_items() {
+        return {
+            count: (query = {}) =>
+            this.count({
+                endpoint:
+                "usage_items?" +
+                new URLSearchParams({
+                    _page: 1,
+                    _per_page: 1,
+                    ...(query && { q: JSON.stringify(query) }),
+                }),
+            }),
+        };
+    }
+    
+    get usage_databases() {
+        return {
+            count: (query = {}) =>
+            this.count({
+                endpoint:
+                "usage_databases?" +
+                new URLSearchParams({
+                    _page: 1,
+                    _per_page: 1,
+                    ...(query && { q: JSON.stringify(query) }),
+                }),
+            }),
+        };
+    }
+    
     get usage_titles() {
         return {
-            get: id =>
-                this.get({
-                    endpoint: "usage_titles/" + id,
-                    headers: {
-                        "x-koha-embed": "usage_mus",
-                    },
-                }),
-            getAll: query =>
-                this.getAll({
-                    endpoint: "usage_titles",
-                    query,
-                }),
-            getReport: (query, embed) =>
-                this.get({
-                    endpoint: "usage_titles/report",
-                    query,
-                    headers: {
-                        "x-koha-embed": `${embed}`,
-                    },
-                }),
             count: (query = {}) =>
                 this.count({
                     endpoint:
                         "usage_titles?" +
-                        new URLSearchParams({
-                            _page: 1,
-                            _per_page: 1,
-                            ...(query && { q: JSON.stringify(query) }),
-                        }),
-                }),
-        };
-    }
-
-    get counter_files() {
-        return {
-            getAll: query =>
-                this.get({
-                    endpoint: "counter_files",
-                    query,
-                    headers: {
-                        "x-koha-embed": "counter_logs",
-                    },
-                }),
-            delete: id =>
-                this.delete({
-                    endpoint: "counter_files/" + id,
-                }),
-            count: (query = {}) =>
-                this.count({
-                    endpoint:
-                        "counter_files?" +
-                        new URLSearchParams({
-                            _page: 1,
-                            _per_page: 1,
-                            ...(query && { q: JSON.stringify(query) }),
-                        }),
-                }),
-        };
-    }
-
-    get default_usage_reports() {
-        return {
-            getAll: query =>
-                this.get({
-                    endpoint: "default_usage_reports",
-                    query,
-                }),
-            create: default_usage_report =>
-                this.post({
-                    endpoint: "default_usage_reports",
-                    body: default_usage_report,
-                }),
-            delete: id =>
-                this.delete({
-                    endpoint: "default_usage_reports/" + id,
-                }),
-        };
-    }
-
-    get usage_platforms() {
-        return {
-            getAll: query =>
-                this.getAll({
-                    endpoint: "usage_platforms",
-                    query,
-                }),
-            count: (query = {}) =>
-                this.count({
-                    endpoint:
-                        "usage_platforms?" +
-                        new URLSearchParams({
-                            _page: 1,
-                            _per_page: 1,
-                            ...(query && { q: JSON.stringify(query) }),
-                        }),
-                }),
-        };
-    }
-
-    get usage_items() {
-        return {
-            getAll: query =>
-                this.getAll({
-                    endpoint: "usage_items",
-                    query,
-                }),
-            count: (query = {}) =>
-                this.count({
-                    endpoint:
-                        "usage_items?" +
-                        new URLSearchParams({
-                            _page: 1,
-                            _per_page: 1,
-                            ...(query && { q: JSON.stringify(query) }),
-                        }),
-                }),
-        };
-    }
-
-    get usage_databases() {
-        return {
-            getAll: query =>
-                this.getAll({
-                    endpoint: "usage_databases",
-                    query,
-                }),
-            count: (query = {}) =>
-                this.count({
-                    endpoint:
-                        "usage_databases?" +
                         new URLSearchParams({
                             _page: 1,
                             _per_page: 1,
