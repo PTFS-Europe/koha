@@ -82,19 +82,14 @@ subtest 'list() tests' => sub {
 
     # Two usage_titles created, they should both be returned
     $t->get_ok("//$userid:$password@/api/v1/erm/usage_titles")->status_is(200)
-      ->json_is(
-        [
-            $usage_title->to_api,
-            $another_usage_title->to_api,
-        ]
-      );
+      ->json_is( [ $usage_title->to_api, $another_usage_title->to_api, ] );
 
     # Attempt to search by title like 'ko'
     $usage_title->delete;
     $another_usage_title->delete;
-    $t->get_ok( qq~//$userid:$password@/api/v1/erm/usage_titles?q=[{"me.title":{"like":"%ko%"}}]~)
-      ->status_is(200)
-      ->json_is( [] );
+    $t->get_ok(
+qq~//$userid:$password@/api/v1/erm/usage_titles?q=[{"me.title":{"like":"%ko%"}}]~
+    )->status_is(200)->json_is( [] );
 
     my $usage_title_to_search = $builder->build_object(
         {
@@ -106,9 +101,9 @@ subtest 'list() tests' => sub {
     );
 
     # Search works, searching for title like 'ko'
-    $t->get_ok( qq~//$userid:$password@/api/v1/erm/usage_titles?q=[{"me.title":{"like":"%ko%"}}]~)
-      ->status_is(200)
-      ->json_is( [ $usage_title_to_search->to_api ] );
+    $t->get_ok(
+qq~//$userid:$password@/api/v1/erm/usage_titles?q=[{"me.title":{"like":"%ko%"}}]~
+    )->status_is(200)->json_is( [ $usage_title_to_search->to_api ] );
 
     # Warn on unsupported query parameter
     $t->get_ok("//$userid:$password@/api/v1/erm/usage_titles?blah=blah")
@@ -202,18 +197,20 @@ subtest 'add() tests' => sub {
       $builder->build_object( { class => 'Koha::ERM::UsageDataProviders' } );
 
     my $usage_title = {
-        title                     => "usage_title title",
-        usage_data_provider_id    => $usage_data_provider->erm_usage_data_provider_id,
+        title                  => "usage_title title",
+        usage_data_provider_id =>
+          $usage_data_provider->erm_usage_data_provider_id,
     };
 
     # Unauthorized attempt to write
-    $t->post_ok( "//$unauth_userid:$password@/api/v1/erm/usage_titles" => json =>
+    $t->post_ok(
+        "//$unauth_userid:$password@/api/v1/erm/usage_titles" => json =>
           $usage_title )->status_is(403);
 
     # Authorized attempt to write invalid data
     my $usage_title_with_invalid_field = {
-        blah             => "usage_title Blah",
-        title            => "usage_title title",
+        blah  => "usage_title Blah",
+        title => "usage_title title",
     };
 
     $t->post_ok( "//$userid:$password@/api/v1/erm/usage_titles" => json =>
@@ -233,7 +230,7 @@ subtest 'add() tests' => sub {
       ->status_is( 201, 'SWAGGER3.2.1' )->header_like(
         Location => qr|^/api/v1/erm/usage_titles/\d*|,
         'SWAGGER3.4.1'
-    )->json_is( '/title'     => $usage_title->{title} )
+    )->json_is( '/title' => $usage_title->{title} )
       ->tx->res->json->{title_id};
 
     # Authorized attempt to create with null id
@@ -292,40 +289,41 @@ subtest 'update() tests' => sub {
 
     # Unauthorized attempt to update
     $t->put_ok(
-        "//$unauth_userid:$password@/api/v1/erm/usage_titles/$usage_title_id" =>
-          json => { name => 'New unauthorized name change' } )->status_is(403);
+        "//$unauth_userid:$password@/api/v1/erm/usage_titles/$usage_title_id"
+          => json => { name => 'New unauthorized name change' } )
+      ->status_is(403);
 
     # Attempt partial update on a PUT
-    my $usage_title_with_missing_field = {
-        usage_data_provider_id    => $usage_data_provider->erm_usage_data_provider_id
-    };
+    my $usage_title_with_missing_field = { usage_data_provider_id =>
+          $usage_data_provider->erm_usage_data_provider_id };
 
     $t->put_ok(
-        "//$userid:$password@/api/v1/erm/usage_titles/$usage_title_id" => json =>
-          $usage_title_with_missing_field )->status_is(400)
+        "//$userid:$password@/api/v1/erm/usage_titles/$usage_title_id" =>
+          json => $usage_title_with_missing_field )->status_is(400)
       ->json_is( "/errors" =>
           [ { message => "Missing property.", path => "/body/title" } ] );
 
     # Full object update on PUT
     my $usage_title_with_updated_field = {
-        title      => 'New title',
-        usage_data_provider_id    => $usage_data_provider->erm_usage_data_provider_id,
+        title                  => 'New title',
+        usage_data_provider_id =>
+          $usage_data_provider->erm_usage_data_provider_id,
     };
 
     $t->put_ok(
-        "//$userid:$password@/api/v1/erm/usage_titles/$usage_title_id" => json =>
-          $usage_title_with_updated_field )->status_is(200)
+        "//$userid:$password@/api/v1/erm/usage_titles/$usage_title_id" =>
+          json => $usage_title_with_updated_field )->status_is(200)
       ->json_is( '/title' => 'New title' );
 
     # Authorized attempt to write invalid data
     my $usage_title_with_invalid_field = {
-        blah             => "usage_title Blah",
-        title            => "usage_title title",
+        blah  => "usage_title Blah",
+        title => "usage_title title",
     };
 
     $t->put_ok(
-        "//$userid:$password@/api/v1/erm/usage_titles/$usage_title_id" => json =>
-          $usage_title_with_invalid_field )->status_is(400)->json_is(
+        "//$userid:$password@/api/v1/erm/usage_titles/$usage_title_id" =>
+          json => $usage_title_with_invalid_field )->status_is(400)->json_is(
         "/errors" => [
             {
                 message => "Properties not allowed: blah.",
@@ -340,15 +338,16 @@ subtest 'update() tests' => sub {
     my $non_existent_id = $usage_title_to_delete->title_id;
     $usage_title_to_delete->delete;
 
-    $t->put_ok( "//$userid:$password@/api/v1/erm/usage_titles/$non_existent_id" =>
+    $t->put_ok(
+        "//$userid:$password@/api/v1/erm/usage_titles/$non_existent_id" =>
           json => $usage_title_with_updated_field )->status_is(404);
 
     # Wrong method (POST)
     $usage_title_with_updated_field->{title_id} = 2;
 
     $t->post_ok(
-        "//$userid:$password@/api/v1/erm/usage_titles/$usage_title_id" => json =>
-          $usage_title_with_updated_field )->status_is(404);
+        "//$userid:$password@/api/v1/erm/usage_titles/$usage_title_id" =>
+          json => $usage_title_with_updated_field )->status_is(404);
 
     $schema->storage->txn_rollback;
 };
@@ -388,11 +387,13 @@ subtest 'delete() tests' => sub {
       ->status_is(403);
 
     # Delete existing usage_title
-    $t->delete_ok("//$userid:$password@/api/v1/erm/usage_titles/$usage_title_id")
+    $t->delete_ok(
+        "//$userid:$password@/api/v1/erm/usage_titles/$usage_title_id")
       ->status_is( 204, 'SWAGGER3.2.4' )->content_is( '', 'SWAGGER3.3.4' );
 
     # Attempt to delete non-existent usage_title
-    $t->delete_ok("//$userid:$password@/api/v1/erm/usage_titles/$usage_title_id")
+    $t->delete_ok(
+        "//$userid:$password@/api/v1/erm/usage_titles/$usage_title_id")
       ->status_is(404);
 
     $schema->storage->txn_rollback;

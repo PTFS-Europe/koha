@@ -24,7 +24,7 @@ use Mojo::Base 'Mojolicious::Controller';
 use Koha::ERM::CounterFiles;
 
 use Scalar::Util qw( blessed );
-use Try::Tiny qw( catch try );
+use Try::Tiny    qw( catch try );
 
 =head1 API
 
@@ -39,7 +39,7 @@ sub list {
 
     return try {
         my $counter_files_set = Koha::ERM::CounterFiles->new;
-        my $counter_files = $c->objects->search( $counter_files_set );
+        my $counter_files     = $c->objects->search($counter_files_set);
         return $c->render( status => 200, openapi => $counter_files );
     }
     catch {
@@ -72,84 +72,13 @@ sub get {
 
         $c->render_file(
             'data'     => $counter_file->file_content,
-            'filename' => $counter_file->filename.'.csv'
+            'filename' => $counter_file->filename . '.csv'
         );
     }
     catch {
         $c->unhandled_exception($_);
     };
 }
-
-=head3 update
-
-Controller function that handles updating a Koha::ERM::CounterFile object
-
-=cut
-
-sub update {
-    my $c = shift->openapi->valid_input or return;
-
-    my $counter_file_id = $c->validation->param('erm_counter_files_id');
-    my $counter_file = Koha::ERM::CounterFiles->find( $counter_file_id );
-
-    unless ($counter_file) {
-        return $c->render(
-            status  => 404,
-            openapi => { error => "Counter file not found" }
-        );
-    }
-
-    return try {
-        Koha::Database->new->schema->txn_do(
-            sub {
-
-                my $body = $c->validation->param('body');
-
-                $counter_file->set_from_api($body)->store;
-
-                $c->res->headers->location($c->req->url->to_string . '/' . $counter_file->erm_counter_files_id);
-                return $c->render(
-                    status  => 200,
-                    openapi => $counter_file->to_api
-                );
-            }
-        );
-    }
-    catch {
-        my $to_api_mapping = Koha::ERM::CounterFile->new->to_api_mapping;
-
-        if ( blessed $_ ) {
-            if ( $_->isa('Koha::Exceptions::Object::FKConstraint') ) {
-                return $c->render(
-                    status  => 400,
-                    openapi => {
-                            error => "Given "
-                            . $to_api_mapping->{ $_->broken_fk }
-                            . " does not exist"
-                    }
-                );
-            }
-            elsif ( $_->isa('Koha::Exceptions::BadParameter') ) {
-                return $c->render(
-                    status  => 400,
-                    openapi => {
-                            error => "Given "
-                            . $to_api_mapping->{ $_->parameter }
-                            . " does not exist"
-                    }
-                );
-            }
-            elsif ( $_->isa('Koha::Exceptions::PayloadTooLarge') ) {
-                return $c->render(
-                    status  => 413,
-                    openapi => { error => $_->error }
-                );
-            }
-        }
-
-        $c->unhandled_exception($_);
-    };
-};
 
 =head3 delete
 
@@ -159,7 +88,7 @@ sub delete {
     my $c = shift->openapi->valid_input or return;
 
     my $counter_file_id = $c->validation->param('erm_counter_files_id');
-    my $counter_file = Koha::ERM::CounterFiles->find( $counter_file_id );
+    my $counter_file    = Koha::ERM::CounterFiles->find($counter_file_id);
     unless ($counter_file) {
         return $c->render(
             status  => 404,

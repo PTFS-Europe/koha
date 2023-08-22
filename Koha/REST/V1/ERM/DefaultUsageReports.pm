@@ -25,7 +25,7 @@ use Koha::ERM::DefaultUsageReport;
 use Koha::ERM::DefaultUsageReports;
 
 use Scalar::Util qw( blessed );
-use Try::Tiny qw( catch try );
+use Try::Tiny    qw( catch try );
 
 =head1 API
 
@@ -40,43 +40,14 @@ sub list {
 
     return try {
         my $default_usage_report_set = Koha::ERM::DefaultUsageReports->new;
-        my $default_usage_report = $c->objects->search( $default_usage_report_set );
+        my $default_usage_report =
+          $c->objects->search($default_usage_report_set);
         return $c->render( status => 200, openapi => $default_usage_report );
     }
     catch {
         $c->unhandled_exception($_);
     };
 
-}
-
-=head3 get
-
-Controller function that handles retrieving a single Koha::ERM::DefaultUsageReport object
-
-=cut
-
-sub get {
-    my $c = shift->openapi->valid_input or return;
-
-    return try {
-        my $default_report_id = $c->validation->param('erm_default_usage_report_id');
-        my $default_report    = $c->objects->find( Koha::ERM::DefaultUsageReports->search, $default_report_id );
-
-        unless ($default_report) {
-            return $c->render(
-                status  => 404,
-                openapi => { error => "Default report not found" }
-            );
-        }
-
-        return $c->render(
-            status  => 200,
-            openapi => $default_report
-        );
-    }
-    catch {
-        $c->unhandled_exception($_);
-    };
 }
 
 =head3 add
@@ -94,9 +65,11 @@ sub add {
 
                 my $body = $c->validation->param('body');
 
-                my $default_report = Koha::ERM::DefaultUsageReport->new_from_api($body)->store;
+                my $default_report =
+                  Koha::ERM::DefaultUsageReport->new_from_api($body)->store;
 
-                $c->res->headers->location($c->req->url->to_string . '/' . $default_report->erm_default_usage_report_id);
+                $c->res->headers->location( $c->req->url->to_string . '/'
+                      . $default_report->erm_default_usage_report_id );
                 return $c->render(
                     status  => 201,
                     openapi => $default_report->to_api
@@ -112,7 +85,8 @@ sub add {
             if ( $_->isa('Koha::Exceptions::Object::DuplicateID') ) {
                 return $c->render(
                     status  => 409,
-                    openapi => { error => $_->error, conflict => $_->duplicate_id }
+                    openapi =>
+                      { error => $_->error, conflict => $_->duplicate_id }
                 );
             }
             elsif ( $_->isa('Koha::Exceptions::Object::FKConstraint') ) {
@@ -120,8 +94,8 @@ sub add {
                     status  => 400,
                     openapi => {
                             error => "Given "
-                            . $to_api_mapping->{ $_->broken_fk }
-                            . " does not exist"
+                          . $to_api_mapping->{ $_->broken_fk }
+                          . " does not exist"
                     }
                 );
             }
@@ -130,8 +104,8 @@ sub add {
                     status  => 400,
                     openapi => {
                             error => "Given "
-                            . $to_api_mapping->{ $_->parameter }
-                            . " does not exist"
+                          . $to_api_mapping->{ $_->parameter }
+                          . " does not exist"
                     }
                 );
             }
@@ -156,8 +130,10 @@ Controller function that handles updating a Koha::ERM::DefaultUsageReport object
 sub update {
     my $c = shift->openapi->valid_input or return;
 
-    my $default_report_id = $c->validation->param('erm_default_usage_report_id');
-    my $default_report = Koha::ERM::DefaultUsageReports->find( $default_report_id );
+    my $default_report_id =
+      $c->validation->param('erm_default_usage_report_id');
+    my $default_report =
+      Koha::ERM::DefaultUsageReports->find($default_report_id);
 
     unless ($default_report) {
         return $c->render(
@@ -174,7 +150,8 @@ sub update {
 
                 $default_report->set_from_api($body)->store;
 
-                $c->res->headers->location($c->req->url->to_string . '/' . $default_report->erm_default_usage_report_id);
+                $c->res->headers->location( $c->req->url->to_string . '/'
+                      . $default_report->erm_default_usage_report_id );
                 return $c->render(
                     status  => 200,
                     openapi => $default_report->to_api
@@ -191,8 +168,8 @@ sub update {
                     status  => 400,
                     openapi => {
                             error => "Given "
-                            . $to_api_mapping->{ $_->broken_fk }
-                            . " does not exist"
+                          . $to_api_mapping->{ $_->broken_fk }
+                          . " does not exist"
                     }
                 );
             }
@@ -201,8 +178,8 @@ sub update {
                     status  => 400,
                     openapi => {
                             error => "Given "
-                            . $to_api_mapping->{ $_->parameter }
-                            . " does not exist"
+                          . $to_api_mapping->{ $_->parameter }
+                          . " does not exist"
                     }
                 );
             }
@@ -216,7 +193,7 @@ sub update {
 
         $c->unhandled_exception($_);
     };
-};
+}
 
 =head3 delete
 
@@ -225,8 +202,10 @@ sub update {
 sub delete {
     my $c = shift->openapi->valid_input or return;
 
-    my $default_report_id = $c->validation->param('erm_default_usage_report_id');
-    my $default_report = Koha::ERM::DefaultUsageReports->find( $default_report_id );
+    my $default_report_id =
+      $c->validation->param('erm_default_usage_report_id');
+    my $default_report =
+      Koha::ERM::DefaultUsageReports->find($default_report_id);
     unless ($default_report) {
         return $c->render(
             status  => 404,
