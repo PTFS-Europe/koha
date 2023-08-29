@@ -30,7 +30,7 @@ use_ok('Koha::Illrequestattributes');
 
 subtest 'Basic object tests' => sub {
 
-    plan tests => 5;
+    plan tests => 6;
 
     $schema->storage->txn_begin;
 
@@ -42,12 +42,15 @@ subtest 'Basic object tests' => sub {
 
     my $illrqattr_obj = Koha::Illrequestattributes->find(
         $illrqattr->{illrequest_id},
+        $illrqattr->{backend},
         $illrqattr->{type}
     );
     isa_ok($illrqattr_obj, 'Koha::Illrequestattribute',
         "Correctly create and load an illrequestattribute object.");
     is($illrqattr_obj->illrequest_id, $illrqattr->{illrequest_id},
        "Illrequest_id getter works.");
+    is($illrqattr_obj->backend, $illrqattr->{backend},
+       "Backend getter works.");
     is($illrqattr_obj->type, $illrqattr->{type},
        "Type getter works.");
     is($illrqattr_obj->value, $illrqattr->{value},
