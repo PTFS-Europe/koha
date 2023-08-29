@@ -1,0 +1,469 @@
+#!/usr/bin/perl
+
+# This file is part of Koha
+#
+# Koha is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# Koha is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Koha; if not, see <http://www.gnu.org/licenses>.
+
+use Modern::Perl;
+
+use Test::More tests => 3;
+
+use Koha::ERM::EUsage::SushiCounter;
+use Koha::Database;
+use Koha::DateUtils qw( dt_from_string );
+use JSON            qw( decode_json );
+
+use t::lib::TestBuilder;
+
+my $schema  = Koha::Database->new->schema;
+my $builder = t::lib::TestBuilder->new;
+
+my $sushi_counter_5_response = decode_json <<'__END_JSON__';
+    {
+        "Report_Header": {
+            "Institution_Name": "Test Institution",
+            "Customer_ID": "EALTEST001",
+            "Institution_ID": [
+                {
+                    "Type": "Proprietary",
+                    "Value": "TInsti:EALTEST001"
+                },
+                {
+                    "Type": "ISNI",
+                    "Value": "0000000123456789"
+                }
+            ],
+            "Report_Filters": [
+                {
+                    "Name": "End_Date",
+                    "Value": "2022-09-30"
+                },
+                {
+                    "Name": "Access_Method",
+                    "Value": "Regular"
+                },
+                {
+                    "Name": "Metric_Type",
+                    "Value": "Total_Item_Requests|Unique_Item_Requests"
+                },
+                {
+                    "Name": "Data_Type",
+                    "Value": "Journal"
+                },
+                {
+                    "Name": "Begin_Date",
+                    "Value": "2021-09-01"
+                },
+                {
+                    "Name": "Access_Type",
+                    "Value": "Controlled"
+                }
+            ],
+            "Created": "2023-08-29T07:11:41Z",
+            "Created_By": "Test Systems Inc.",
+            "Release": "5",
+            "Report_ID": "TR_J1",
+            "Report_Name": "Journal Requests (Excluding OA_Gold)"
+        },
+        "Report_Items": [
+            {
+                "Platform": "Unit Test Library",
+                "Performance": [
+                    {
+                        "Period": {
+                            "Begin_Date": "2021-10-01",
+                            "End_Date": "2021-10-31"
+                        },
+                        "Instance": [
+                            {
+                                "Metric_Type": "Total_Item_Requests",
+                                "Count": 1
+                            },
+                            {
+                                "Metric_Type": "Unique_Item_Requests",
+                                "Count": 1
+                            }
+                        ]
+                    },
+                    {
+                        "Period": {
+                            "Begin_Date": "2021-11-01",
+                            "End_Date": "2021-11-30"
+                        },
+                        "Instance": [
+                            {
+                                "Metric_Type": "Total_Item_Requests",
+                                "Count": 1
+                            },
+                            {
+                                "Metric_Type": "Unique_Item_Requests",
+                                "Count": 1
+                            }
+                        ]
+                    },
+                    {
+                        "Period": {
+                            "Begin_Date": "2022-01-01",
+                            "End_Date": "2022-01-31"
+                        },
+                        "Instance": [
+                            {
+                                "Metric_Type": "Total_Item_Requests",
+                                "Count": 1
+                            },
+                            {
+                                "Metric_Type": "Unique_Item_Requests",
+                                "Count": 1
+                            }
+                        ]
+                    },
+                    {
+                        "Period": {
+                            "Begin_Date": "2022-02-01",
+                            "End_Date": "2022-02-28"
+                        },
+                        "Instance": [
+                            {
+                                "Metric_Type": "Total_Item_Requests",
+                                "Count": 3
+                            },
+                            {
+                                "Metric_Type": "Unique_Item_Requests",
+                                "Count": 2
+                            }
+                        ]
+                    },
+                    {
+                        "Period": {
+                            "Begin_Date": "2022-04-01",
+                            "End_Date": "2022-04-30"
+                        },
+                        "Instance": [
+                            {
+                                "Metric_Type": "Total_Item_Requests",
+                                "Count": 1
+                            },
+                            {
+                                "Metric_Type": "Unique_Item_Requests",
+                                "Count": 1
+                            }
+                        ]
+                    },
+                    {
+                        "Period": {
+                            "Begin_Date": "2022-05-01",
+                            "End_Date": "2022-05-31"
+                        },
+                        "Instance": [
+                            {
+                                "Metric_Type": "Total_Item_Requests",
+                                "Count": 3
+                            },
+                            {
+                                "Metric_Type": "Unique_Item_Requests",
+                                "Count": 1
+                            }
+                        ]
+                    },
+                    {
+                        "Period": {
+                            "Begin_Date": "2022-06-01",
+                            "End_Date": "2022-06-30"
+                        },
+                        "Instance": [
+                            {
+                                "Metric_Type": "Total_Item_Requests",
+                                "Count": 1
+                            },
+                            {
+                                "Metric_Type": "Unique_Item_Requests",
+                                "Count": 1
+                            }
+                        ]
+                    },
+                    {
+                        "Period": {
+                            "Begin_Date": "2022-08-01",
+                            "End_Date": "2022-08-31"
+                        },
+                        "Instance": [
+                            {
+                                "Metric_Type": "Total_Item_Requests",
+                                "Count": 2
+                            },
+                            {
+                                "Metric_Type": "Unique_Item_Requests",
+                                "Count": 1
+                            }
+                        ]
+                    },
+                    {
+                        "Period": {
+                            "Begin_Date": "2022-09-01",
+                            "End_Date": "2022-09-30"
+                        },
+                        "Instance": [
+                            {
+                                "Metric_Type": "Total_Item_Requests",
+                                "Count": 1
+                            },
+                            {
+                                "Metric_Type": "Unique_Item_Requests",
+                                "Count": 1
+                            }
+                        ]
+                    }
+                ],
+                "Item_ID": [
+                    {
+                        "Type": "DOI",
+                        "Value": "10.1002/(ISSN)2472-5390"
+                    },
+                    {
+                        "Type": "Proprietary",
+                        "Value": "TInsti:ABC1"
+                    },
+                    {
+                        "Type": "Online_ISSN",
+                        "Value": "1111-2222"
+                    },
+                    {
+                        "Type": "Print_ISSN",
+                        "Value": "3333-4444"
+                    }
+                ],
+                "Title": "Education and Training",
+                "Publisher_ID": [
+                    {
+                        "Type": "ISNI",
+                        "Value": "0000000123456789"
+                    }
+                ],
+                "Publisher": "Test Publisher"
+            },
+            {
+                "Platform": "Unit Test Library",
+                "Performance": [
+                    {
+                        "Period": {
+                            "Begin_Date": "2022-01-01",
+                            "End_Date": "2022-01-31"
+                        },
+                        "Instance": [
+                            {
+                                "Metric_Type": "Total_Item_Requests",
+                                "Count": 1
+                            },
+                            {
+                                "Metric_Type": "Unique_Item_Requests",
+                                "Count": 1
+                            }
+                        ]
+                    },
+                    {
+                        "Period": {
+                            "Begin_Date": "2022-06-01",
+                            "End_Date": "2022-06-30"
+                        },
+                        "Instance": [
+                            {
+                                "Metric_Type": "Total_Item_Requests",
+                                "Count": 1
+                            },
+                            {
+                                "Metric_Type": "Unique_Item_Requests",
+                                "Count": 1
+                            }
+                        ]
+                    }
+                ],
+                "Item_ID": [
+                    {
+                        "Type": "DOI",
+                        "Value": "10.1002/(ISSN)1111-2222"
+                    },
+                    {
+                        "Type": "Proprietary",
+                        "Value": "TInsti:ABC1"
+                    },
+                    {
+                        "Type": "Online_ISSN",
+                        "Value": "5555-6666"
+                    },
+                    {
+                        "Type": "Print_ISSN",
+                        "Value": "7777-8888"
+                    }
+                ],
+                "Title": "Test Journal",
+                "Publisher_ID": [
+                    {
+                        "Type": "ISNI",
+                        "Value": "0000000123456789"
+                    }
+                ],
+                "Publisher": "Test Publisher"
+            }
+        ]
+    }
+__END_JSON__
+
+my $sushi_counter = Koha::ERM::EUsage::SushiCounter->new( { response => $sushi_counter_5_response } );
+
+# subtest 'get_COUNTER_from_SUSHI' => sub {
+
+#     plan tests => 1;
+
+#     my $report_file = $sushi_counter->get_COUNTER_from_SUSHI;
+
+#     #Create a dummy test .csv file - Base on Import.t
+# };
+
+subtest '_COUNTER_report_header' => sub {
+
+    plan tests => 37;
+
+    my @report_header = $sushi_counter->_COUNTER_report_header;
+
+    # Header row #1 - Report_Name
+    is( $report_header[0][0], 'Report_Name',                          '1st row is report name' );
+    is( $report_header[0][1], 'Journal Requests (Excluding OA_Gold)', '1st row is report name' );
+    is( $report_header[0][2], undef,                                  '1st row is report name' );
+
+    # Header row #2 - Report_ID
+    is( $report_header[1][0], 'Report_ID', '2nd row is report name' );
+    is( $report_header[1][1], 'TR_J1',     '2nd row is report name' );
+    is( $report_header[1][2], undef,       '2nd row is report name' );
+
+    # Header row #3 - Release
+    is( $report_header[2][0], 'Release', '3rd row is counter release' );
+    is( $report_header[2][1], '5',       '3rd row is counter release' );
+    is( $report_header[2][2], undef,     '3rd row is counter release' );
+
+    # Header row #4 - Institution_Name
+    is( $report_header[3][0], 'Institution_Name', '4th row is institution name' );
+    is( $report_header[3][1], 'Test Institution', '4th row is institution name' );
+    is( $report_header[3][2], undef,              '4th row is institution name' );
+
+    # Header row #5 - Institution_ID
+    is( $report_header[4][0], 'Institution_ID',                                       '5th row is institution id' );
+    is( $report_header[4][1], 'Proprietary:TInsti:EALTEST001; ISNI:0000000123456789', '5th row is institution id' );
+    is( $report_header[4][2], undef,                                                  '5th row is institution id' );
+
+    # Header row #6 - Metric_Types
+    is( $report_header[5][0], 'Metric_Types',                              '6th row is metric types' );
+    is( $report_header[5][1], 'Total_Item_Requests; Unique_Item_Requests', '6th row is metric types' );
+    is( $report_header[5][2], undef,                                       '6th row is metric types' );
+
+    # Header row #7 - Report_Filters
+    is( $report_header[6][0], 'Report_Filters', '7th row is report filters' );
+    is(
+        $report_header[6][1],
+        'End_Date:2022-09-30; Access_Method:Regular; Metric_Type:Total_Item_Requests|Unique_Item_Requests; Data_Type:Journal; Begin_Date:2021-09-01; Access_Type:Controlled',
+        '7th row is report filters'
+    );
+    is( $report_header[6][2], undef, '7th row is report filters' );
+
+    # Header row #8 - Report_Attributes
+    is( $report_header[7][0], 'Report_Attributes', '8th row is report attributes' );
+    is( $report_header[7][1], '',                  '8th row is report attributes' );
+    is( $report_header[7][2], undef,               '8th row is report attributes' );
+
+    # Header row #9 - Exceptions
+    is( $report_header[8][0], 'Exceptions', '9th row is exceptions' );
+    is( $report_header[8][1], '',           '9th row is exceptions' );
+    is( $report_header[8][2], undef,        '9th row is exceptions' );
+
+    # Header row #10 - Reporting_Period
+    is( $report_header[9][0], 'Reporting_Period',                           '10th row is reporting period' );
+    is( $report_header[9][1], 'Begin_Date=2021-09-01; End_Date=2022-09-30', '10th row is reporting period' );
+    is( $report_header[9][2], undef,                                        '10th row is reporting period' );
+
+    # Header row #11 - Created
+    is( $report_header[10][0], 'Created',              '11th row is created' );
+    is( $report_header[10][1], '2023-08-29T07:11:41Z', '11th row is created' );
+    is( $report_header[10][2], undef,                  '11th row is created' );
+
+    # Header row #12 - Created
+    is( $report_header[11][0], 'Created_By',        '12th row is created by' );
+    is( $report_header[11][1], 'Test Systems Inc.', '12th row is created by' );
+    is( $report_header[11][2], undef,               '12th row is created by' );
+
+    # Header row #13 - This needs to be empty
+    is( $report_header[12][0], '', '13th row is empty' );
+};
+
+subtest '_COUNTER_report_column_headings' => sub {
+
+    plan tests => 19;
+
+    my @report_column_headings = $sushi_counter->_COUNTER_report_column_headings;
+
+    # Standard TR_J1 column headings
+    is( $report_column_headings[0][0],  'Title',                  '1st column heading is title' );
+    is( $report_column_headings[0][1],  'Publisher',              '2nd column heading is publisher' );
+    is( $report_column_headings[0][2],  'Publisher_ID',           '3rd column heading is publisher ID' );
+    is( $report_column_headings[0][3],  'Platform',               '4th column heading is platform' );
+    is( $report_column_headings[0][4],  'DOI',                    '5th column heading is DOI' );
+    is( $report_column_headings[0][5],  'Proprietary_ID',         '6th column heading is proprietary ID' );
+    is( $report_column_headings[0][6],  'Print_ISSN',             '7th column heading is print ISSN' );
+    is( $report_column_headings[0][7],  'Online_ISSN',            '8th column heading is print ISSN' );
+    is( $report_column_headings[0][8],  'URI',                    '9th column heading is URI' );
+    is( $report_column_headings[0][9],  'Metric_Type',            '10th column heading is metric type' );
+    is( $report_column_headings[0][10], 'Reporting_Period_Total', '11th column heading is reporting period total' );
+
+    # Months column headings
+    is( $report_column_headings[0][11], 'Sep 2021', '12th column is month column heading' );
+    is( $report_column_headings[0][12], 'Oct 2021', '13th column is month column heading' );
+    is( $report_column_headings[0][13], 'Nov 2021', '14th column is month column heading' );
+    is( $report_column_headings[0][14], 'Dec 2021', '15th column is month column heading' );
+    is( $report_column_headings[0][15], 'Jan 2022', '16th column is month column heading' );
+    is( $report_column_headings[0][16], 'Feb 2022', '17th column is month column heading' );
+    # ... period is september 2021 to september 2022, i.e. 13 months
+    is( $report_column_headings[0][23], 'Sep 2022', '23rd column is the last month column heading' );
+    is( $report_column_headings[0][24], undef, '24th column is empty, no more months' );
+};
+
+subtest '_COUNTER_report_body' => sub {
+
+    plan tests => 16;
+
+    my @report_body = $sushi_counter->_COUNTER_report_body;
+
+    # The same title is sequential but for different metric types
+    is( $report_body[0][0], 'Education and Training', 'same title, different metric type' );
+    is( $report_body[1][0], 'Education and Training', 'same title, different metric type' );
+    is( $report_body[0][9], 'Total_Item_Requests',    'same title, different metric type' );
+    is( $report_body[1][9], 'Unique_Item_Requests',   'same title, different metric type' );
+
+    # The data is in the correct column
+    is( $report_body[2][0], 'Test Journal', '1st column is title' );
+    is( $report_body[2][1], 'Test Publisher', '2nd column is publisher' );
+    is( $report_body[2][2], '0000000123456789', '3rd column heading is publisher ID' );
+    is( $report_body[2][3], 'Unit Test Library', '4th column is platform' );
+    is( $report_body[2][4], '10.1002/(ISSN)1111-2222', '5th column is DOI' );
+    is( $report_body[2][5], 'TInsti:ABC1', '6th column is proprietary ID' );
+    is( $report_body[2][6], '7777-8888', '7th column is print ISSN' );
+    is( $report_body[2][7], '5555-6666', '8th column is print ISSN' );
+    is( $report_body[2][8],  '',                    '9th column is URI' );
+    is( $report_body[2][9], 'Total_Item_Requests', '10th column is metric type' );
+    is( $report_body[2][10], 2, '11th column is reporting period total' );
+
+    # The period total is the sum of all the month columns
+    my $stats_total = 0;
+    for (my $i = 11; $i < 24; $i++ ){
+        $stats_total += $report_body[0][$i];
+    }
+    is( $report_body[0][10], $stats_total, 'Reporting period total matches the sum of all the monthly usage statistics' );
+};
