@@ -25,7 +25,7 @@ use Test::Mojo;
 use t::lib::TestBuilder;
 use t::lib::Mocks;
 
-use Koha::ERM::UsageTitles;
+use Koha::ERM::EUsage::UsageTitles;
 use Koha::Database;
 
 my $schema  = Koha::Database->new->schema;
@@ -40,7 +40,7 @@ subtest 'list() tests' => sub {
 
     $schema->storage->txn_begin;
 
-    Koha::ERM::UsageTitles->search->delete;
+    Koha::ERM::EUsage::UsageTitles->search->delete;
 
     my $librarian = $builder->build_object(
         {
@@ -68,7 +68,7 @@ subtest 'list() tests' => sub {
       ->json_is( [] );
 
     my $usage_title =
-      $builder->build_object( { class => 'Koha::ERM::UsageTitles' } );
+      $builder->build_object( { class => 'Koha::ERM::EUsage::UsageTitles' } );
 
     # One usage_title created, should get returned
     $t->get_ok("//$userid:$password@/api/v1/erm/usage_titles")->status_is(200)
@@ -76,7 +76,7 @@ subtest 'list() tests' => sub {
 
     my $another_usage_title = $builder->build_object(
         {
-            class => 'Koha::ERM::UsageTitles',
+            class => 'Koha::ERM::EUsage::UsageTitles',
         }
     );
 
@@ -93,7 +93,7 @@ qq~//$userid:$password@/api/v1/erm/usage_titles?q=[{"me.title":{"like":"%ko%"}}]
 
     my $usage_title_to_search = $builder->build_object(
         {
-            class => 'Koha::ERM::UsageTitles',
+            class => 'Koha::ERM::EUsage::UsageTitles',
             value => {
                 title => 'koha',
             }
@@ -125,7 +125,7 @@ subtest 'get() tests' => sub {
     $schema->storage->txn_begin;
 
     my $usage_title =
-      $builder->build_object( { class => 'Koha::ERM::UsageTitles' } );
+      $builder->build_object( { class => 'Koha::ERM::EUsage::UsageTitles' } );
     my $librarian = $builder->build_object(
         {
             class => 'Koha::Patrons',
@@ -157,7 +157,7 @@ subtest 'get() tests' => sub {
 
     # Attempt to get non-existent usage_title
     my $usage_title_to_delete =
-      $builder->build_object( { class => 'Koha::ERM::UsageTitles' } );
+      $builder->build_object( { class => 'Koha::ERM::EUsage::UsageTitles' } );
     my $non_existent_id = $usage_title_to_delete->title_id;
     $usage_title_to_delete->delete;
 
@@ -194,7 +194,7 @@ subtest 'add() tests' => sub {
     my $unauth_userid = $patron->userid;
 
     my $usage_data_provider =
-      $builder->build_object( { class => 'Koha::ERM::UsageDataProviders' } );
+      $builder->build_object( { class => 'Koha::ERM::EUsage::UsageDataProviders' } );
 
     my $usage_title = {
         title                  => "usage_title title",
@@ -282,10 +282,10 @@ subtest 'update() tests' => sub {
     my $unauth_userid = $patron->userid;
 
     my $usage_data_provider =
-      $builder->build_object( { class => 'Koha::ERM::UsageDataProviders' } );
+      $builder->build_object( { class => 'Koha::ERM::EUsage::UsageDataProviders' } );
 
     my $usage_title_id =
-      $builder->build_object( { class => 'Koha::ERM::UsageTitles' } )->title_id;
+      $builder->build_object( { class => 'Koha::ERM::EUsage::UsageTitles' } )->title_id;
 
     # Unauthorized attempt to update
     $t->put_ok(
@@ -334,7 +334,7 @@ subtest 'update() tests' => sub {
 
     # Attempt to update non-existent usage_title
     my $usage_title_to_delete =
-      $builder->build_object( { class => 'Koha::ERM::UsageTitles' } );
+      $builder->build_object( { class => 'Koha::ERM::EUsage::UsageTitles' } );
     my $non_existent_id = $usage_title_to_delete->title_id;
     $usage_title_to_delete->delete;
 
@@ -379,7 +379,7 @@ subtest 'delete() tests' => sub {
     my $unauth_userid = $patron->userid;
 
     my $usage_title_id =
-      $builder->build_object( { class => 'Koha::ERM::UsageTitles' } )->title_id;
+      $builder->build_object( { class => 'Koha::ERM::EUsage::UsageTitles' } )->title_id;
 
     # Unauthorized attempt to delete
     $t->delete_ok(
