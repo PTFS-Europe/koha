@@ -1,0 +1,1491 @@
+{
+  "Report_Header": {
+    "Institution_Name": "Test Institution",
+    "Customer_ID": "99999999",
+    "Institution_ID": [
+      {
+        "Type": "Proprietary",
+        "Value": "aaaa:99999999"
+      }
+    ],
+    "Report_Filters": [
+      {
+        "Name": "Data_Type",
+        "Value": "Journal"
+      },
+      {
+        "Name": "End_Date",
+        "Value": "2023-09-30"
+      },
+      {
+        "Name": "Access_Method",
+        "Value": "Regular"
+      },
+      {
+        "Name": "Metric_Type",
+        "Value": "Limit_Exceeded|No_License"
+      },
+      {
+        "Name": "Begin_Date",
+        "Value": "2023-08-01"
+      }
+    ],
+    "Created": "2023-10-23T07:27:10Z",
+    "Created_By": "Test Systems Inc.",
+    "Release": "5",
+    "Report_Name": "Journal Access Denied",
+    "Report_ID": "TR_J2"
+  },
+  "Report_Items": [
+    {
+      "Platform": "Unit Test Library",
+      "Performance": [
+        {
+          "Period": {
+            "Begin_Date": "2023-08-01",
+            "End_Date": "2023-08-31"
+          },
+          "Instance": [
+            {
+              "Metric_Type": "No_License",
+              "Count": 3
+            }
+          ]
+        },
+        {
+          "Period": {
+            "Begin_Date": "2023-09-01",
+            "End_Date": "2023-09-30"
+          },
+          "Instance": [
+            {
+              "Metric_Type": "No_License",
+              "Count": 2
+            }
+          ]
+        }
+      ],
+      "Item_ID": [
+        {
+          "Type": "DOI",
+          "Value": "10.1021/aamick"
+        },
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:aamick"
+        },
+        {
+          "Type": "Online_ISSN",
+          "Value": "1944-8252"
+        },
+        {
+          "Type": "Print_ISSN",
+          "Value": "1944-8244"
+        }
+      ],
+      "Title": "ACS Applied Materials & Interfaces",
+      "Publisher_ID": [
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:aaa"
+        }
+      ],
+      "Publisher": "Test Publisher"
+    },
+    {
+      "Platform": "Unit Test Library",
+      "Performance": [
+        {
+          "Period": {
+            "Begin_Date": "2023-08-01",
+            "End_Date": "2023-08-31"
+          },
+          "Instance": [
+            {
+              "Metric_Type": "No_License",
+              "Count": 5
+            }
+          ]
+        },
+        {
+          "Period": {
+            "Begin_Date": "2023-09-01",
+            "End_Date": "2023-09-30"
+          },
+          "Instance": [
+            {
+              "Metric_Type": "No_License",
+              "Count": 3
+            }
+          ]
+        }
+      ],
+      "Item_ID": [
+        {
+          "Type": "DOI",
+          "Value": "10.1021/acbcct"
+        },
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:acbcct"
+        },
+        {
+          "Type": "Online_ISSN",
+          "Value": "1554-8937"
+        },
+        {
+          "Type": "Print_ISSN",
+          "Value": "1554-8929"
+        }
+      ],
+      "Title": "ACS Chemical Biology",
+      "Publisher_ID": [
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:aaa"
+        }
+      ],
+      "Publisher": "Test Publisher"
+    },
+    {
+      "Platform": "Unit Test Library",
+      "Performance": [
+        {
+          "Period": {
+            "Begin_Date": "2023-08-01",
+            "End_Date": "2023-08-31"
+          },
+          "Instance": [
+            {
+              "Metric_Type": "No_License",
+              "Count": 2
+            }
+          ]
+        }
+      ],
+      "Item_ID": [
+        {
+          "Type": "DOI",
+          "Value": "10.1021/aaaac5"
+        },
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:aaaac5"
+        },
+        {
+          "Type": "Online_ISSN",
+          "Value": "1878-0504"
+        }
+      ],
+      "Title": "ACS Chemical Health & Safety",
+      "Publisher_ID": [
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:aaa"
+        }
+      ],
+      "Publisher": "Test Publisher"
+    },
+    {
+      "Platform": "Unit Test Library",
+      "Performance": [
+        {
+          "Period": {
+            "Begin_Date": "2023-09-01",
+            "End_Date": "2023-09-30"
+          },
+          "Instance": [
+            {
+              "Metric_Type": "No_License",
+              "Count": 1
+            }
+          ]
+        }
+      ],
+      "Item_ID": [
+        {
+          "Type": "DOI",
+          "Value": "10.1021/afsthl"
+        },
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:afsthl"
+        },
+        {
+          "Type": "Online_ISSN",
+          "Value": "2692-1944"
+        }
+      ],
+      "Title": "ACS Food Science & Technology",
+      "Publisher_ID": [
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:aaa"
+        }
+      ],
+      "Publisher": "Test Publisher"
+    },
+    {
+      "Platform": "Unit Test Library",
+      "Performance": [
+        {
+          "Period": {
+            "Begin_Date": "2023-09-01",
+            "End_Date": "2023-09-30"
+          },
+          "Instance": [
+            {
+              "Metric_Type": "No_License",
+              "Count": 6
+            }
+          ]
+        }
+      ],
+      "Item_ID": [
+        {
+          "Type": "DOI",
+          "Value": "10.1021/amlccd"
+        },
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:amlccd"
+        },
+        {
+          "Type": "Online_ISSN",
+          "Value": "2161-1653"
+        }
+      ],
+      "Title": "ACS Macro Letters",
+      "Publisher_ID": [
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:aaa"
+        }
+      ],
+      "Publisher": "Test Publisher"
+    },
+    {
+      "Platform": "Unit Test Library",
+      "Performance": [
+        {
+          "Period": {
+            "Begin_Date": "2023-08-01",
+            "End_Date": "2023-08-31"
+          },
+          "Instance": [
+            {
+              "Metric_Type": "No_License",
+              "Count": 16
+            }
+          ]
+        },
+        {
+          "Period": {
+            "Begin_Date": "2023-09-01",
+            "End_Date": "2023-09-30"
+          },
+          "Instance": [
+            {
+              "Metric_Type": "No_License",
+              "Count": 6
+            }
+          ]
+        }
+      ],
+      "Item_ID": [
+        {
+          "Type": "DOI",
+          "Value": "10.1021/ancac3"
+        },
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:ancac3"
+        },
+        {
+          "Type": "Online_ISSN",
+          "Value": "1936-086X"
+        },
+        {
+          "Type": "Print_ISSN",
+          "Value": "1936-0851"
+        }
+      ],
+      "Title": "ACS Nano",
+      "Publisher_ID": [
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:aaa"
+        }
+      ],
+      "Publisher": "Test Publisher"
+    },
+    {
+      "Platform": "Unit Test Library",
+      "Performance": [
+        {
+          "Period": {
+            "Begin_Date": "2023-08-01",
+            "End_Date": "2023-08-31"
+          },
+          "Instance": [
+            {
+              "Metric_Type": "No_License",
+              "Count": 2
+            }
+          ]
+        }
+      ],
+      "Item_ID": [
+        {
+          "Type": "DOI",
+          "Value": "10.1021/ascefj"
+        },
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:ascefj"
+        },
+        {
+          "Type": "Online_ISSN",
+          "Value": "2379-3694"
+        }
+      ],
+      "Title": "ACS Sensors",
+      "Publisher_ID": [
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:aaa"
+        }
+      ],
+      "Publisher": "Test Publisher"
+    },
+    {
+      "Platform": "Unit Test Library",
+      "Performance": [
+        {
+          "Period": {
+            "Begin_Date": "2023-09-01",
+            "End_Date": "2023-09-30"
+          },
+          "Instance": [
+            {
+              "Metric_Type": "No_License",
+              "Count": 4
+            }
+          ]
+        }
+      ],
+      "Item_ID": [
+        {
+          "Type": "DOI",
+          "Value": "10.1021/achre4"
+        },
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:achre4"
+        },
+        {
+          "Type": "Online_ISSN",
+          "Value": "1520-4898"
+        },
+        {
+          "Type": "Print_ISSN",
+          "Value": "0001-4842"
+        }
+      ],
+      "Title": "Accounts of Chemical Research",
+      "Publisher_ID": [
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:aaa"
+        }
+      ],
+      "Publisher": "Test Publisher"
+    },
+    {
+      "Platform": "Unit Test Library",
+      "Performance": [
+        {
+          "Period": {
+            "Begin_Date": "2023-08-01",
+            "End_Date": "2023-08-31"
+          },
+          "Instance": [
+            {
+              "Metric_Type": "No_License",
+              "Count": 22
+            }
+          ]
+        },
+        {
+          "Period": {
+            "Begin_Date": "2023-09-01",
+            "End_Date": "2023-09-30"
+          },
+          "Instance": [
+            {
+              "Metric_Type": "No_License",
+              "Count": 10
+            }
+          ]
+        }
+      ],
+      "Item_ID": [
+        {
+          "Type": "DOI",
+          "Value": "10.1021/ancham"
+        },
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:ancham"
+        },
+        {
+          "Type": "Online_ISSN",
+          "Value": "1520-6882"
+        },
+        {
+          "Type": "Print_ISSN",
+          "Value": "0003-2700"
+        }
+      ],
+      "Title": "Analytical Chemistry",
+      "Publisher_ID": [
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:aaa"
+        }
+      ],
+      "Publisher": "Test Publisher"
+    },
+    {
+      "Platform": "Unit Test Library",
+      "Performance": [
+        {
+          "Period": {
+            "Begin_Date": "2023-09-01",
+            "End_Date": "2023-09-30"
+          },
+          "Instance": [
+            {
+              "Metric_Type": "No_License",
+              "Count": 1
+            }
+          ]
+        }
+      ],
+      "Item_ID": [
+        {
+          "Type": "DOI",
+          "Value": "10.1021/bichaw"
+        },
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:bichaw"
+        },
+        {
+          "Type": "Online_ISSN",
+          "Value": "1520-4995"
+        },
+        {
+          "Type": "Print_ISSN",
+          "Value": "0006-2960"
+        }
+      ],
+      "Title": "Biochemistry",
+      "Publisher_ID": [
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:aaa"
+        }
+      ],
+      "Publisher": "Test Publisher"
+    },
+    {
+      "Platform": "Unit Test Library",
+      "Performance": [
+        {
+          "Period": {
+            "Begin_Date": "2023-08-01",
+            "End_Date": "2023-08-31"
+          },
+          "Instance": [
+            {
+              "Metric_Type": "No_License",
+              "Count": 3
+            }
+          ]
+        },
+        {
+          "Period": {
+            "Begin_Date": "2023-09-01",
+            "End_Date": "2023-09-30"
+          },
+          "Instance": [
+            {
+              "Metric_Type": "No_License",
+              "Count": 2
+            }
+          ]
+        }
+      ],
+      "Item_ID": [
+        {
+          "Type": "DOI",
+          "Value": "10.1021/bcches"
+        },
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:bcches"
+        },
+        {
+          "Type": "Online_ISSN",
+          "Value": "1520-4812"
+        },
+        {
+          "Type": "Print_ISSN",
+          "Value": "1043-1802"
+        }
+      ],
+      "Title": "Bioconjugate Chemistry",
+      "Publisher_ID": [
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:aaa"
+        }
+      ],
+      "Publisher": "Test Publisher"
+    },
+    {
+      "Platform": "Unit Test Library",
+      "Performance": [
+        {
+          "Period": {
+            "Begin_Date": "2023-08-01",
+            "End_Date": "2023-08-31"
+          },
+          "Instance": [
+            {
+              "Metric_Type": "No_License",
+              "Count": 2
+            }
+          ]
+        }
+      ],
+      "Item_ID": [
+        {
+          "Type": "DOI",
+          "Value": "10.1021/bomaf6"
+        },
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:bomaf6"
+        },
+        {
+          "Type": "Online_ISSN",
+          "Value": "1526-4602"
+        },
+        {
+          "Type": "Print_ISSN",
+          "Value": "1525-7797"
+        }
+      ],
+      "Title": "Biomacromolecules",
+      "Publisher_ID": [
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:aaa"
+        }
+      ],
+      "Publisher": "Test Publisher"
+    },
+    {
+      "Platform": "Unit Test Library",
+      "Performance": [
+        {
+          "Period": {
+            "Begin_Date": "2023-08-01",
+            "End_Date": "2023-08-31"
+          },
+          "Instance": [
+            {
+              "Metric_Type": "No_License",
+              "Count": 2
+            }
+          ]
+        },
+        {
+          "Period": {
+            "Begin_Date": "2023-09-01",
+            "End_Date": "2023-09-30"
+          },
+          "Instance": [
+            {
+              "Metric_Type": "No_License",
+              "Count": 1
+            }
+          ]
+        }
+      ],
+      "Item_ID": [
+        {
+          "Type": "DOI",
+          "Value": "10.1021/crtoec"
+        },
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:crtoec"
+        },
+        {
+          "Type": "Online_ISSN",
+          "Value": "1520-5010"
+        },
+        {
+          "Type": "Print_ISSN",
+          "Value": "0893-228X"
+        }
+      ],
+      "Title": "Chemical Research in Toxicology",
+      "Publisher_ID": [
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:aaa"
+        }
+      ],
+      "Publisher": "Test Publisher"
+    },
+    {
+      "Platform": "Unit Test Library",
+      "Performance": [
+        {
+          "Period": {
+            "Begin_Date": "2023-08-01",
+            "End_Date": "2023-08-31"
+          },
+          "Instance": [
+            {
+              "Metric_Type": "No_License",
+              "Count": 1
+            }
+          ]
+        },
+        {
+          "Period": {
+            "Begin_Date": "2023-09-01",
+            "End_Date": "2023-09-30"
+          },
+          "Instance": [
+            {
+              "Metric_Type": "No_License",
+              "Count": 9
+            }
+          ]
+        }
+      ],
+      "Item_ID": [
+        {
+          "Type": "DOI",
+          "Value": "10.1021/chreay"
+        },
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:chreay"
+        },
+        {
+          "Type": "Online_ISSN",
+          "Value": "1520-6890"
+        },
+        {
+          "Type": "Print_ISSN",
+          "Value": "0009-2665"
+        }
+      ],
+      "Title": "Chemical Reviews",
+      "Publisher_ID": [
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:aaa"
+        }
+      ],
+      "Publisher": "Test Publisher"
+    },
+    {
+      "Platform": "Unit Test Library",
+      "Performance": [
+        {
+          "Period": {
+            "Begin_Date": "2023-08-01",
+            "End_Date": "2023-08-31"
+          },
+          "Instance": [
+            {
+              "Metric_Type": "No_License",
+              "Count": 2
+            }
+          ]
+        }
+      ],
+      "Item_ID": [
+        {
+          "Type": "DOI",
+          "Value": "10.1021/esthag"
+        },
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:esthag"
+        },
+        {
+          "Type": "Online_ISSN",
+          "Value": "1520-5851"
+        },
+        {
+          "Type": "Print_ISSN",
+          "Value": "0013-936X"
+        }
+      ],
+      "Title": "Environmental Science & Technology",
+      "Publisher_ID": [
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:aaa"
+        }
+      ],
+      "Publisher": "Test Publisher"
+    },
+    {
+      "Platform": "Unit Test Library",
+      "Performance": [
+        {
+          "Period": {
+            "Begin_Date": "2023-08-01",
+            "End_Date": "2023-08-31"
+          },
+          "Instance": [
+            {
+              "Metric_Type": "No_License",
+              "Count": 1
+            }
+          ]
+        },
+        {
+          "Period": {
+            "Begin_Date": "2023-09-01",
+            "End_Date": "2023-09-30"
+          },
+          "Instance": [
+            {
+              "Metric_Type": "No_License",
+              "Count": 2
+            }
+          ]
+        }
+      ],
+      "Item_ID": [
+        {
+          "Type": "DOI",
+          "Value": "10.1021/estlcu"
+        },
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:estlcu"
+        },
+        {
+          "Type": "Online_ISSN",
+          "Value": "2328-8930"
+        }
+      ],
+      "Title": "Environmental Science & Technology Letters",
+      "Publisher_ID": [
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:aaa"
+        }
+      ],
+      "Publisher": "Test Publisher"
+    },
+    {
+      "Platform": "Unit Test Library",
+      "Performance": [
+        {
+          "Period": {
+            "Begin_Date": "2023-08-01",
+            "End_Date": "2023-08-31"
+          },
+          "Instance": [
+            {
+              "Metric_Type": "No_License",
+              "Count": 4
+            }
+          ]
+        },
+        {
+          "Period": {
+            "Begin_Date": "2023-09-01",
+            "End_Date": "2023-09-30"
+          },
+          "Instance": [
+            {
+              "Metric_Type": "No_License",
+              "Count": 3
+            }
+          ]
+        }
+      ],
+      "Item_ID": [
+        {
+          "Type": "DOI",
+          "Value": "10.1021/jafcau"
+        },
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:jafcau"
+        },
+        {
+          "Type": "Online_ISSN",
+          "Value": "1520-5118"
+        },
+        {
+          "Type": "Print_ISSN",
+          "Value": "0021-8561"
+        }
+      ],
+      "Title": "Journal of Agricultural and Food Chemistry",
+      "Publisher_ID": [
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:aaa"
+        }
+      ],
+      "Publisher": "Test Publisher"
+    },
+    {
+      "Platform": "Unit Test Library",
+      "Performance": [
+        {
+          "Period": {
+            "Begin_Date": "2023-09-01",
+            "End_Date": "2023-09-30"
+          },
+          "Instance": [
+            {
+              "Metric_Type": "No_License",
+              "Count": 3
+            }
+          ]
+        }
+      ],
+      "Item_ID": [
+        {
+          "Type": "DOI",
+          "Value": "10.1021/jceaax"
+        },
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:jceaax"
+        },
+        {
+          "Type": "Online_ISSN",
+          "Value": "1520-5134"
+        },
+        {
+          "Type": "Print_ISSN",
+          "Value": "0021-9568"
+        }
+      ],
+      "Title": "Journal of Chemical & Engineering Data",
+      "Publisher_ID": [
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:aaa"
+        }
+      ],
+      "Publisher": "Test Publisher"
+    },
+    {
+      "Platform": "Unit Test Library",
+      "Performance": [
+        {
+          "Period": {
+            "Begin_Date": "2023-08-01",
+            "End_Date": "2023-08-31"
+          },
+          "Instance": [
+            {
+              "Metric_Type": "No_License",
+              "Count": 2
+            }
+          ]
+        }
+      ],
+      "Item_ID": [
+        {
+          "Type": "DOI",
+          "Value": "10.1021/jcisd8"
+        },
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:jcisd8"
+        },
+        {
+          "Type": "Online_ISSN",
+          "Value": "1549-960X"
+        },
+        {
+          "Type": "Print_ISSN",
+          "Value": "1549-9596"
+        }
+      ],
+      "Title": "Journal of Chemical Information and Modeling",
+      "Publisher_ID": [
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:aaa"
+        }
+      ],
+      "Publisher": "Test Publisher"
+    },
+    {
+      "Platform": "Unit Test Library",
+      "Performance": [
+        {
+          "Period": {
+            "Begin_Date": "2023-08-01",
+            "End_Date": "2023-08-31"
+          },
+          "Instance": [
+            {
+              "Metric_Type": "No_License",
+              "Count": 2
+            }
+          ]
+        }
+      ],
+      "Item_ID": [
+        {
+          "Type": "DOI",
+          "Value": "10.1021/jctcce"
+        },
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:jctcce"
+        },
+        {
+          "Type": "Online_ISSN",
+          "Value": "1549-9626"
+        },
+        {
+          "Type": "Print_ISSN",
+          "Value": "1549-9618"
+        }
+      ],
+      "Title": "Journal of Chemical Theory and Computation",
+      "Publisher_ID": [
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:aaa"
+        }
+      ],
+      "Publisher": "Test Publisher"
+    },
+    {
+      "Platform": "Unit Test Library",
+      "Performance": [
+        {
+          "Period": {
+            "Begin_Date": "2023-08-01",
+            "End_Date": "2023-08-31"
+          },
+          "Instance": [
+            {
+              "Metric_Type": "No_License",
+              "Count": 11
+            }
+          ]
+        },
+        {
+          "Period": {
+            "Begin_Date": "2023-09-01",
+            "End_Date": "2023-09-30"
+          },
+          "Instance": [
+            {
+              "Metric_Type": "No_License",
+              "Count": 1
+            }
+          ]
+        }
+      ],
+      "Item_ID": [
+        {
+          "Type": "DOI",
+          "Value": "10.1021/jmcmar"
+        },
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:jmcmar"
+        },
+        {
+          "Type": "Online_ISSN",
+          "Value": "1520-4804"
+        },
+        {
+          "Type": "Print_ISSN",
+          "Value": "0022-2623"
+        }
+      ],
+      "Title": "Journal of Medicinal Chemistry",
+      "Publisher_ID": [
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:aaa"
+        }
+      ],
+      "Publisher": "Test Publisher"
+    },
+    {
+      "Platform": "Unit Test Library",
+      "Performance": [
+        {
+          "Period": {
+            "Begin_Date": "2023-08-01",
+            "End_Date": "2023-08-31"
+          },
+          "Instance": [
+            {
+              "Metric_Type": "No_License",
+              "Count": 5
+            }
+          ]
+        },
+        {
+          "Period": {
+            "Begin_Date": "2023-09-01",
+            "End_Date": "2023-09-30"
+          },
+          "Instance": [
+            {
+              "Metric_Type": "No_License",
+              "Count": 1
+            }
+          ]
+        }
+      ],
+      "Item_ID": [
+        {
+          "Type": "DOI",
+          "Value": "10.1021/jprobs"
+        },
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:jprobs"
+        },
+        {
+          "Type": "Online_ISSN",
+          "Value": "1535-3907"
+        },
+        {
+          "Type": "Print_ISSN",
+          "Value": "1535-3893"
+        }
+      ],
+      "Title": "Journal of Proteome Research",
+      "Publisher_ID": [
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:aaa"
+        }
+      ],
+      "Publisher": "Test Publisher"
+    },
+    {
+      "Platform": "Unit Test Library",
+      "Performance": [
+        {
+          "Period": {
+            "Begin_Date": "2023-08-01",
+            "End_Date": "2023-08-31"
+          },
+          "Instance": [
+            {
+              "Metric_Type": "No_License",
+              "Count": 6
+            }
+          ]
+        },
+        {
+          "Period": {
+            "Begin_Date": "2023-09-01",
+            "End_Date": "2023-09-30"
+          },
+          "Instance": [
+            {
+              "Metric_Type": "No_License",
+              "Count": 6
+            }
+          ]
+        }
+      ],
+      "Item_ID": [
+        {
+          "Type": "DOI",
+          "Value": "10.1021/jacsat"
+        },
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:jacsat"
+        },
+        {
+          "Type": "Online_ISSN",
+          "Value": "1520-5126"
+        },
+        {
+          "Type": "Print_ISSN",
+          "Value": "0002-7863"
+        }
+      ],
+      "Title": "Journal of the Test Publisher",
+      "Publisher_ID": [
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:aaa"
+        }
+      ],
+      "Publisher": "Test Publisher"
+    },
+    {
+      "Platform": "Unit Test Library",
+      "Performance": [
+        {
+          "Period": {
+            "Begin_Date": "2023-08-01",
+            "End_Date": "2023-08-31"
+          },
+          "Instance": [
+            {
+              "Metric_Type": "No_License",
+              "Count": 5
+            }
+          ]
+        },
+        {
+          "Period": {
+            "Begin_Date": "2023-09-01",
+            "End_Date": "2023-09-30"
+          },
+          "Instance": [
+            {
+              "Metric_Type": "No_License",
+              "Count": 2
+            }
+          ]
+        }
+      ],
+      "Item_ID": [
+        {
+          "Type": "DOI",
+          "Value": "10.1021/langd5"
+        },
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:langd5"
+        },
+        {
+          "Type": "Online_ISSN",
+          "Value": "1520-5827"
+        },
+        {
+          "Type": "Print_ISSN",
+          "Value": "0743-7463"
+        }
+      ],
+      "Title": "Langmuir",
+      "Publisher_ID": [
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:aaa"
+        }
+      ],
+      "Publisher": "Test Publisher"
+    },
+    {
+      "Platform": "Unit Test Library",
+      "Performance": [
+        {
+          "Period": {
+            "Begin_Date": "2023-09-01",
+            "End_Date": "2023-09-30"
+          },
+          "Instance": [
+            {
+              "Metric_Type": "No_License",
+              "Count": 9
+            }
+          ]
+        }
+      ],
+      "Item_ID": [
+        {
+          "Type": "DOI",
+          "Value": "10.1021/mamobx"
+        },
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:mamobx"
+        },
+        {
+          "Type": "Online_ISSN",
+          "Value": "1520-5835"
+        },
+        {
+          "Type": "Print_ISSN",
+          "Value": "0024-9297"
+        }
+      ],
+      "Title": "Macromolecules",
+      "Publisher_ID": [
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:aaa"
+        }
+      ],
+      "Publisher": "Test Publisher"
+    },
+    {
+      "Platform": "Unit Test Library",
+      "Performance": [
+        {
+          "Period": {
+            "Begin_Date": "2023-08-01",
+            "End_Date": "2023-08-31"
+          },
+          "Instance": [
+            {
+              "Metric_Type": "No_License",
+              "Count": 5
+            }
+          ]
+        }
+      ],
+      "Item_ID": [
+        {
+          "Type": "DOI",
+          "Value": "10.1021/oprdfk"
+        },
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:oprdfk"
+        },
+        {
+          "Type": "Online_ISSN",
+          "Value": "1520-586X"
+        },
+        {
+          "Type": "Print_ISSN",
+          "Value": "1083-6160"
+        }
+      ],
+      "Title": "Organic Process Research & Development",
+      "Publisher_ID": [
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:aaa"
+        }
+      ],
+      "Publisher": "Test Publisher"
+    },
+    {
+      "Platform": "Unit Test Library",
+      "Performance": [
+        {
+          "Period": {
+            "Begin_Date": "2023-08-01",
+            "End_Date": "2023-08-31"
+          },
+          "Instance": [
+            {
+              "Metric_Type": "No_License",
+              "Count": 1
+            }
+          ]
+        },
+        {
+          "Period": {
+            "Begin_Date": "2023-09-01",
+            "End_Date": "2023-09-30"
+          },
+          "Instance": [
+            {
+              "Metric_Type": "No_License",
+              "Count": 1
+            }
+          ]
+        }
+      ],
+      "Item_ID": [
+        {
+          "Type": "DOI",
+          "Value": "10.1021/joceah"
+        },
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:joceah"
+        },
+        {
+          "Type": "Online_ISSN",
+          "Value": "1520-6904"
+        },
+        {
+          "Type": "Print_ISSN",
+          "Value": "0022-3263"
+        }
+      ],
+      "Title": "The Journal of Organic Chemistry",
+      "Publisher_ID": [
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:aaa"
+        }
+      ],
+      "Publisher": "Test Publisher"
+    },
+    {
+      "Platform": "Unit Test Library",
+      "Performance": [
+        {
+          "Period": {
+            "Begin_Date": "2023-08-01",
+            "End_Date": "2023-08-31"
+          },
+          "Instance": [
+            {
+              "Metric_Type": "No_License",
+              "Count": 3
+            }
+          ]
+        }
+      ],
+      "Item_ID": [
+        {
+          "Type": "DOI",
+          "Value": "10.1021/jpchax"
+        },
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:jpchax"
+        },
+        {
+          "Type": "Online_ISSN",
+          "Value": "1541-5740"
+        },
+        {
+          "Type": "Print_ISSN",
+          "Value": "0022-3654"
+        }
+      ],
+      "Title": "The Journal of Physical Chemistry",
+      "Publisher_ID": [
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:aaa"
+        }
+      ],
+      "Publisher": "Test Publisher"
+    },
+    {
+      "Platform": "Unit Test Library",
+      "Performance": [
+        {
+          "Period": {
+            "Begin_Date": "2023-08-01",
+            "End_Date": "2023-08-31"
+          },
+          "Instance": [
+            {
+              "Metric_Type": "No_License",
+              "Count": 2
+            }
+          ]
+        },
+        {
+          "Period": {
+            "Begin_Date": "2023-09-01",
+            "End_Date": "2023-09-30"
+          },
+          "Instance": [
+            {
+              "Metric_Type": "No_License",
+              "Count": 2
+            }
+          ]
+        }
+      ],
+      "Item_ID": [
+        {
+          "Type": "DOI",
+          "Value": "10.1021/jpcafh"
+        },
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:jpcafh"
+        },
+        {
+          "Type": "Online_ISSN",
+          "Value": "1520-5215"
+        },
+        {
+          "Type": "Print_ISSN",
+          "Value": "1089-5639"
+        }
+      ],
+      "Title": "The Journal of Physical Chemistry A",
+      "Publisher_ID": [
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:aaa"
+        }
+      ],
+      "Publisher": "Test Publisher"
+    },
+    {
+      "Platform": "Unit Test Library",
+      "Performance": [
+        {
+          "Period": {
+            "Begin_Date": "2023-09-01",
+            "End_Date": "2023-09-30"
+          },
+          "Instance": [
+            {
+              "Metric_Type": "No_License",
+              "Count": 1
+            }
+          ]
+        }
+      ],
+      "Item_ID": [
+        {
+          "Type": "DOI",
+          "Value": "10.1021/jpcbfk"
+        },
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:jpcbfk"
+        },
+        {
+          "Type": "Online_ISSN",
+          "Value": "1520-5207"
+        },
+        {
+          "Type": "Print_ISSN",
+          "Value": "1520-6106"
+        }
+      ],
+      "Title": "The Journal of Physical Chemistry B",
+      "Publisher_ID": [
+        {
+          "Type": "Proprietary",
+          "Value": "aaaa:aaa"
+        }
+      ],
+      "Publisher": "Test Publisher"
+    }
+  ]
+}
