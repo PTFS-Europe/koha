@@ -814,6 +814,10 @@ sub attributes_from_api {
             };
         }
 
+        next if ($koha_field_name eq 'customer_id' && !$value);
+        next if ($koha_field_name eq 'requestor_id' && !$value);
+        next if ($koha_field_name eq 'api_key' && !$value);
+
         $params->{$koha_field_name} = $value;
     }
 

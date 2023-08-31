@@ -442,6 +442,9 @@ export default {
             required_fields: [],
             sushi_service: null,
             searching: false,
+            customer_id: null,
+            requestor_id: null,
+            api_key: null,
         }
     },
     beforeRouteEnter(to, from, next) {
@@ -467,6 +470,15 @@ export default {
                     this.usage_data_provider.report_types =
                         this.formatReportTypes(usage_data_provider.report_types)
                     this.getCounterRegistry(usage_data_provider.name, "edit")
+
+                    this.customer_id = usage_data_provider.customer_id
+                    this.requestor_id = usage_data_provider.requestor_id
+                    this.api_key = usage_data_provider.api_key
+
+                    this.usage_data_provider.customer_id = "**********"
+                    this.usage_data_provider.requestor_id = "**********"
+                    this.usage_data_provider.api_key = "**********"
+
                     this.initialized = true
                 },
                 error => {}
@@ -587,6 +599,19 @@ export default {
             usage_data_provider.report_types = this.formatReportTypes(
                 usage_data_provider.report_types
             )
+
+            usage_data_provider.customer_id =
+                usage_data_provider.customer_id !== "**********"
+                    ? usage_data_provider.customer_id
+                    : this.customer_id
+            usage_data_provider.requestor_id =
+                usage_data_provider.requestor_id !== "**********"
+                    ? usage_data_provider.requestor_id
+                    : this.requestor_id
+            usage_data_provider.api_key =
+                usage_data_provider.api_key !== "**********"
+                    ? usage_data_provider.api_key
+                    : this.api_key
 
             delete usage_data_provider.erm_usage_data_provider_id
 

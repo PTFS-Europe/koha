@@ -104,6 +104,11 @@ sub list {
                     { columns => [ { date_uploaded => { max => "date_uploaded" } }, ] }
                 )->unblessed;
                 $provider->{last_run} = $last_run[0][0]->{date_uploaded};
+
+                $provider->{customer_id}  = '';
+                $provider->{requestor_id} = '';
+                $provider->{api_key}      = '';
+
             }
         # }
 
@@ -129,6 +134,10 @@ sub get {
             Koha::ERM::EUsage::UsageDataProviders->search,
             $usage_data_provider_id
         );
+
+        $usage_data_provider->{customer_id} = '';
+        $usage_data_provider->{requestor_id} = '';
+        $usage_data_provider->{api_key} = '';
 
         unless ($usage_data_provider) {
             return $c->render(
@@ -215,6 +224,10 @@ sub update {
     my $usage_data_provider_id = $c->validation->param('erm_usage_data_provider_id');
     my $usage_data_provider    = Koha::ERM::EUsage::UsageDataProviders->find($usage_data_provider_id);
 
+    my $customer_id = $usage_data_provider->{customer_id};
+    my $requestor_id = $usage_data_provider->{requestor_id};
+    my $api_key = $usage_data_provider->{api_key};
+
     unless ($usage_data_provider) {
         return $c->render(
             status  => 404,
@@ -225,10 +238,15 @@ sub update {
     return try {
         Koha::Database->new->schema->txn_do(
             sub {
-
                 my $body = $c->validation->param('body');
 
-                $usage_data_provider->set_from_api($body)->store;
+                my $udp = $usage_data_provider->set_from_api($body);
+
+                $udp->customer_id($customer_id) if $udp->customer_id eq '';
+                $udp->requestor_id($requestor_id) if $udp->requestor_id eq '';
+                $udp->api_key($api_key) if $udp->api_key eq '';
+                
+                $udp->store;
 
                 $c->res->headers->location(
                     $c->req->url->to_string . '/' . $usage_data_provider->erm_usage_data_provider_id );

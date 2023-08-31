@@ -51,21 +51,15 @@
             </li>
             <li>
                 <label>{{ $__("Customer Id") }}:</label>
-                <span id="usage_data_provider_customer_id">
-                    {{ usage_data_provider.customer_id }}
-                </span>
+                <span id="usage_data_provider_customer_id"> ********** </span>
             </li>
             <li>
                 <label>{{ $__("Requestor Id") }}:</label>
-                <span id="usage_data_provider_requestor_id">
-                    {{ usage_data_provider.requestor_id }}
-                </span>
+                <span id="usage_data_provider_requestor_id"> ********** </span>
             </li>
             <li>
                 <label>{{ $__("API Key") }}:</label>
-                <span id="usage_data_provider_api_key">
-                    {{ usage_data_provider.api_key }}
-                </span>
+                <span id="usage_data_provider_api_key"> ********** </span>
             </li>
             <li>
                 <label>{{ $__("Requestor Name") }}:</label>
