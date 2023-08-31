@@ -500,10 +500,12 @@ $(document).ready(function() {
             },
             success: function(backends){
                 backends.sort((a, b) => a.ill_backend_id.localeCompare(b.ill_backend_id)).forEach(function(backend) {
-                    $('#illfilter_backend').append(
-                        '<option value="' + backend.ill_backend_id  +
-                        '">' + backend.ill_backend_id +  '</option>'
-                    );
+                    if( $('#illfilter_backend option[value=' + backend.ill_backend_id + ']').length == 0 ){
+                        $('#illfilter_backend').append(
+                            '<option value="' + backend.ill_backend_id  +
+                            '">' + backend.ill_backend_id +  '</option>'
+                        );
+                    }
                 });
 
                 let all_existing_statuses = [];
@@ -536,7 +538,6 @@ $(document).ready(function() {
                         }
                     }
                 )
-
             }
         });
     }
