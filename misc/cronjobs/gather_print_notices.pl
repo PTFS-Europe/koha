@@ -114,7 +114,7 @@ if ( $html ) {
     ## carriage return replaced by <br/> as output is html
     foreach my $message (@all_messages) {
         local $_ = $message->{'content'};
-        s/\n/<br \/>/g;
+        s/^\s*\n/<br \/>/g;
         s/\r//g;
         $message->{'content'} = $_;
     }
