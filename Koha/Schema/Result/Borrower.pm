@@ -2133,16 +2133,11 @@ Composing rels: L</user_permissions> -> permission
 __PACKAGE__->many_to_many("permissions", "user_permissions", "permission");
 
 
-<<<<<<< HEAD
 # Created by DBIx::Class::Schema::Loader v0.07049 @ 2023-04-25 13:49:06
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:8/hydCvWX7QlaDoSoY6paw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
-=======
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2023-04-28 11:24:21
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:RUWvcq9kgQvACo14H/u9jQ
->>>>>>> Bug 30719: dbic specific, DONT PUSH
 
 __PACKAGE__->has_many(
   "restrictions",
