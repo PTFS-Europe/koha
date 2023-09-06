@@ -90,14 +90,7 @@ sub create_order_lines_from_file {
     my $vendor_id = $profile->vendor_id;
     my $budget_id = $profile->budget_id;
 
-    my $vendor_record = Koha::Acquisition::Booksellers->find( { id => $vendor_id } );
-
-    my $basket_id = _create_basket_for_file(
-        {
-            filename  => $filename,
-            vendor_id => $vendor_id
-        }
-    );
+    my $vendor_record = Koha::Acquisition::Booksellers->find({ id => $vendor_id });
 
     my $format = index( $filename, '.mrc' ) != -1 ? 'ISO2709' : 'MARCXML';
     my $params = {
@@ -117,9 +110,14 @@ sub create_order_lines_from_file {
     try {
         my $import_batch_id = _stage_file($params);
 
-        my $import_records = Koha::Import::Records->search(
+        my $import_records = Koha::Import::Records->search({
+            import_batch_id => $import_batch_id,
+        });
+
+        my $basket_id  = _create_basket_for_file(
             {
-                import_batch_id => $import_batch_id,
+                vendor_id      => $vendor_id,
+                import_records => $import_records
             }
         );
 
@@ -223,7 +221,7 @@ sub import_record_and_create_order_lines {
 =head3 _create_basket_for_file
 
     my $basket_id = _create_basket_for_file({
-        filename  => $filename,
+        import_records => $import_records,
         vendor_id => $vendor_id
     });
 
@@ -233,8 +231,14 @@ sub import_record_and_create_order_lines {
 sub _create_basket_for_file {
     my ($args) = @_;
 
-    my $filename  = $args->{filename};
-    my $vendor_id = $args->{vendor_id};
+    my $vendor_id            = $args->{vendor_id};
+    my @import_records       = $args->{import_records}->as_list;
+    my $marcrecord           = $import_records[0]->get_marc_record;
+    my $marc_fields_to_order = _get_MarcFieldsToOrder_syspref_data(
+        'MarcFieldsToOrder', $marcrecord,
+        [ 'sort1' ]
+    );
+    my $filename = $marc_fields_to_order->{sort1};
 
     # aqbasketname.basketname has a max length of 50 characters so long file names will need to be truncated
     my $basketname = length($filename) > 50 ? substr( $filename, 0, 50 ) : $filename;
@@ -660,8 +664,6 @@ sub add_items_from_import_record {
 
         return $order_line_details;
     }
-
-    # return \@order_line_details;
 }
 
 =head3 create_items_and_generate_order_hash
