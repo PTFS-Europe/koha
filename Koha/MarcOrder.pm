@@ -89,11 +89,6 @@ sub create_order_lines_from_file {
 
     my $vendor_record = Koha::Acquisition::Booksellers->find({ id => $vendor_id });
 
-    my $basket_id = _create_basket_for_file({
-        filename  => $filename,
-        vendor_id => $vendor_id
-    });
-
     my $format = index($filename, '.mrc') != -1 ? 'ISO2709' : 'MARCXML';
     my $params = {
         record_type                => $profile->record_type,
@@ -116,6 +111,13 @@ sub create_order_lines_from_file {
             import_batch_id => $import_batch_id,
         });
 
+        my $basket_id  = _create_basket_for_file(
+            {
+                vendor_id      => $vendor_id,
+                import_records => $import_records
+            }
+        );
+
         while( my $import_record = $import_records->next ){
             my $result = add_biblios_from_import_record({
                 import_batch_id => $import_batch_id,
@@ -128,11 +130,11 @@ sub create_order_lines_from_file {
             next if $result->{skip};
 
             my $order_line_details = add_items_from_import_record({
-                record_result   => $result->{record_result},
-                basket_id       => $basket_id,
-                vendor          => $vendor_record,
-                budget_id       => $budget_id,
-                agent           => $agent,
+                record_result        => $result->{record_result},
+                vendor               => $vendor_record,
+                basket_id            => $basket_id,
+                budget_id            => $budget_id,
+                agent                => $agent,
             });
 
             my $order_lines = create_order_lines({
@@ -210,7 +212,7 @@ sub import_record_and_create_order_lines {
 =head3 _create_basket_for_file
 
     my $basket_id = _create_basket_for_file({
-        filename  => $filename,
+        import_records => $import_records,
         vendor_id => $vendor_id
     });
 
@@ -221,8 +223,14 @@ sub import_record_and_create_order_lines {
 sub _create_basket_for_file {
     my ( $args ) = @_;
 
-    my $filename = $args->{filename};
-    my $vendor_id = $args->{vendor_id};
+    my $vendor_id            = $args->{vendor_id};
+    my @import_records       = $args->{import_records}->as_list;
+    my $marcrecord           = $import_records[0]->get_marc_record;
+    my $marc_fields_to_order = _get_MarcFieldsToOrder_syspref_data(
+        'MarcFieldsToOrder', $marcrecord,
+        [ 'sort1' ]
+    );
+    my $filename = $marc_fields_to_order->{sort1};
 
     # aqbasketname.basketname has a max length of 50 characters so long file names will need to be truncated
     my $basketname = length($filename) > 50 ? substr( $filename, 0, 50 ): $filename;
@@ -563,19 +571,22 @@ sub add_biblios_from_import_record {
 sub add_items_from_import_record {
     my ( $args ) = @_;
 
-    my $record_result      = $args->{record_result};
-    my $basket_id          = $args->{basket_id};
-    my $budget_id          = $args->{budget_id};
-    my $vendor             = $args->{vendor};
-    my $agent              = $args->{agent};
-    my $client_item_fields = $args->{client_item_fields} || undef;
-    my $active_currency    = Koha::Acquisition::Currencies->get_active;
-    my $biblionumber       = $record_result->{biblionumber};
-    my $marcrecord         = $record_result->{marcrecord};
+    my $record_result        = $args->{record_result};
+    my $budget_id            = $args->{budget_id};
+    my $basket_id            = $args->{basket_id};
+    my $vendor               = $args->{vendor};
+    my $agent                = $args->{agent};
+    my $client_item_fields   = $args->{client_item_fields} || undef;
+    my $active_currency      = Koha::Acquisition::Currencies->get_active;
+    my $biblionumber         = $record_result->{biblionumber};
+    my $marcrecord           = $record_result->{marcrecord};
     my @order_line_details;
 
     if($agent eq 'cron') {
-        my $marc_fields_to_order = _get_MarcFieldsToOrder_syspref_data('MarcFieldsToOrder', $marcrecord, ['price', 'quantity', 'budget_code', 'discount', 'sort1', 'sort2']);
+        my $marc_fields_to_order = _get_MarcFieldsToOrder_syspref_data(
+            'MarcFieldsToOrder', $marcrecord,
+            [ 'price', 'quantity', 'budget_code', 'discount', 'sort1', 'sort2' ]
+        );
         my $quantity             = $marc_fields_to_order->{quantity};
         my $budget_code          = $marc_fields_to_order->{budget_code} || $budget_id; # Use fallback from ordering profile if not mapped
         my $price                = $marc_fields_to_order->{price};
@@ -643,7 +654,7 @@ sub add_items_from_import_record {
             my %order_detail_hash = (
                 biblionumber => $biblionumber,
                 basketno     => $basket_id,
-                itemnumbers   => ($item->itemnumber),
+                itemnumbers  => ($item->itemnumber),
                 quantity     => 1,
                 budget_id    => $item_budget_id,
                 currency     => $vendor->listprice,
