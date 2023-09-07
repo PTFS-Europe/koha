@@ -116,6 +116,22 @@ type of record in the file
 
 file encoding
 
+=head2 match_field
+
+  data_type: 'varchar'
+  is_nullable: 1
+  size: 10
+
+the field that a vendor account has been mapped to in a marc record
+
+=head2 match_value
+
+  data_type: 'varchar'
+  is_nullable: 1
+  size: 50
+
+the value to be matched against the marc record
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -142,6 +158,10 @@ __PACKAGE__->add_columns(
   "record_type",
   { data_type => "varchar", is_nullable => 1, size => 50 },
   "encoding",
+  { data_type => "varchar", is_nullable => 1, size => 50 },
+  "match_field",
+  { data_type => "varchar", is_nullable => 1, size => 10 },
+  "match_value",
   { data_type => "varchar", is_nullable => 1, size => 50 },
 );
 
@@ -200,8 +220,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-07-31 13:01:54
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Fz6iYOJIQLrlYvAnmW6C4A
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-10-21 14:34:15
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:6WEUWsxB/YuNiYoIg8TjMQ
 
 __PACKAGE__->add_columns(
     '+parse_items' => { is_boolean => 1 },
