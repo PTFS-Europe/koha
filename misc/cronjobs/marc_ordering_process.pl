@@ -106,14 +106,18 @@ foreach my $acct ( @accounts ) {
 
     foreach my $filename ( @files ) {
         say sprintf "Creating order lines from file %s", $filename if $verbose;
+        my $full_path = "$working_dir/$filename";
+        my $args = {
+            filename => $filename,
+            filepath => $full_path,
+            profile  => $acct,
+            agent    => 'cron'
+        };
+        if($acct->match_field && $acct->match_value) {
+            my $file_match = Koha::MarcOrder->match_file_to_account($args);
+            next if !$file_match;
+        }
         if($confirm) {
-            my $full_path = "$working_dir/$filename";
-            my $args = {
-                filename => $filename,
-                filepath => $full_path,
-                profile  => $acct,
-                agent    => 'cron'
-            };
             my $result = Koha::MarcOrder->create_order_lines_from_file($args);
             if($result->{success}) {
                 $files_processed++;
@@ -125,7 +129,7 @@ foreach my $acct ( @accounts ) {
             };
         }
     }
-    say sprintf "%s files processed", $files_processed unless $files_processed == 0;
+    say sprintf "%s file(s) processed", $files_processed unless $files_processed == 0;
     print "Moving to next account\n\n";
 }
 print "Process complete\n";
