@@ -266,7 +266,7 @@ Tests the connection of the harvester to the SUSHI service and returns any alert
 sub test_connection {
     my ($self) = @_;
 
-    my $url = $self->service_url;
+    my $url = _validate_url($self->service_url);
     $url .= 'status';
     $url .= '?customer_id=' . $self->customer_id;
     $url .= '&requestor_id=' . $self->requestor_id if $self->requestor_id;
@@ -383,10 +383,7 @@ sub _build_url_query {
             $self->erm_usage_data_provider_id;
     }
 
-    # FIXME: service_url needs to end in 'reports/'
-    # below concat will result in a badly formed URL otherwise
-    # Either validate this on UI form, here, or both
-    my $url = $self->service_url;
+    my $url = _validate_url($self->service_url);
 
     $url .= $self->{report_type};
     $url .= '?customer_id=' . $self->customer_id;
@@ -395,6 +392,24 @@ sub _build_url_query {
     $url .= '&begin_date=' . $self->{begin_date}   if $self->{begin_date};
     $url .= '&end_date=' . $self->{end_date}       if $self->{end_date};
 
+    return $url;
+}
+
+
+=head3 _validate_url
+
+Checks whether the url ends in a trailing "/" and adds one if not
+
+=cut
+
+sub _validate_url {
+    my ( $url ) = @_;
+
+    my $trailing_char = substr $url, -1;
+    if($trailing_char ne '/') {
+        $url .= '/'
+    }
+    
     return $url;
 }
 
