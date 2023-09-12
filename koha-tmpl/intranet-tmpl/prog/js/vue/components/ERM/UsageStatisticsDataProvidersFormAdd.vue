@@ -71,6 +71,14 @@
                             >
                                 {{ $__("Create manually") }}
                             </button>
+                            <button
+                                v-else
+                                type="button"
+                                style="margin-left: 1em"
+                                @click="createFromRegistry()"
+                            >
+                                {{ $__("Create from registry") }}
+                            </button>
                         </li>
                         <li>
                             <label for="usage_data_provider_description"
@@ -167,7 +175,11 @@
                     <ol class="credentials_form">
                         <li>
                             <label
-                                class="required"
+                                :class="
+                                    required_fields.includes('URL')
+                                        ? 'required'
+                                        : ''
+                                "
                                 for="usage_data_provider_service_url"
                                 >{{ $__("Service URL") }}:
                             </label>
@@ -175,14 +187,22 @@
                                 id="usage_data_provider_service_url"
                                 style="min-width: 60%"
                                 v-model="usage_data_provider.service_url"
-                                required
+                                :required="required_fields.includes('URL')"
                                 :disabled="!selected_provider && !manual_form"
                             />
-                            <span class="required">{{ $__("Required") }}</span>
+                            <span
+                                class="required"
+                                v-if="required_fields.includes('URL')"
+                                >{{ $__("Required") }}
+                            </span>
                         </li>
                         <li>
                             <label
-                                class="required"
+                                :class="
+                                    required_fields.includes('Release')
+                                        ? 'required'
+                                        : ''
+                                "
                                 for="usage_data_provider_report_release"
                                 >{{ $__("Report release") }}:
                             </label>
@@ -190,14 +210,22 @@
                                 id="usage_data_provider_report_release"
                                 style="min-width: 60%"
                                 v-model="usage_data_provider.report_release"
-                                required
+                                :required="required_fields.includes('Release')"
                                 :disabled="!selected_provider && !manual_form"
                             />
-                            <span class="required">{{ $__("Required") }}</span>
+                            <span
+                                class="required"
+                                v-if="required_fields.includes('Release')"
+                                >{{ $__("Required") }}
+                            </span>
                         </li>
                         <li>
                             <label
-                                class="required"
+                                :class="
+                                    required_fields.includes('Customer')
+                                        ? 'required'
+                                        : ''
+                                "
                                 for="usage_data_provider_customer_id"
                                 >{{ $__("Customer Id") }}:
                             </label>
@@ -205,10 +233,14 @@
                                 id="usage_data_provider_customer_id"
                                 style="min-width: 60%"
                                 v-model="usage_data_provider.customer_id"
-                                required
+                                :required="required_fields.includes('Customer')"
                                 :disabled="!selected_provider && !manual_form"
                             />
-                            <span class="required">{{ $__("Required") }}</span>
+                            <span
+                                class="required"
+                                v-if="required_fields.includes('Customer')"
+                                >{{ $__("Required") }}
+                            </span>
                         </li>
                         <li>
                             <label
@@ -447,7 +479,7 @@ export default {
                     const { url, api_key_required, requestor_id_required } =
                         sushi_service
                     this.usage_data_provider.service_url = url
-                    this.required_fields = []
+                    this.required_fields = ["URL", "Release", "Customer"]
                     api_key_required && this.required_fields.push("API")
                     requestor_id_required &&
                         this.required_fields.push("Requestor")
@@ -485,7 +517,14 @@ export default {
             this.manual_form = true
             this.selected_provider = null
             this.sushi_service = null
-            this.required_fields = ["API", "Requestor"]
+            this.required_fields = []
+        },
+        createFromRegistry() {
+            this.manual_form = false
+            this.selected_provider = null
+            this.sushi_service = null
+            this.required_fields = []
+            this.usage_data_provider.report_types = []
         },
         formatReportTypes(reportTypes) {
             const dataType =
