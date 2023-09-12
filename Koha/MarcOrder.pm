@@ -60,6 +60,7 @@ use Koha::Import::Records;
 use Koha::Acquisition::Currencies;
 use Koha::Acquisition::Booksellers;
 use Koha::Acquisition::Baskets;
+use Koha::Plugins;
 
 =head1 NAME
 
