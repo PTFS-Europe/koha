@@ -54,6 +54,7 @@ use Koha::Import::Records;
 use Koha::Acquisition::Currencies;
 use Koha::Acquisition::Booksellers;
 use Koha::Acquisition::Baskets;
+use Koha::Plugins;
 
 =head1 NAME
 
@@ -702,7 +703,16 @@ sub add_items_from_import_record {
             }
 
             $order_detail_hash{uncertainprice} = 0 if $order_detail_hash{listprice};
+            Koha::Plugins->call(
+                'before_orderline_create',
+                {
+                    marcrecord => $marcrecord,
+                    orderline  => \%order_detail_hash,
+                    marcfields => $marc_fields_to_order
+                }
+            );
             push @order_line_details, \%order_detail_hash;
+
         }
     }
 
