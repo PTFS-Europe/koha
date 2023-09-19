@@ -53,7 +53,6 @@ export default {
             building_table: false,
             tableOptions: {
                 columns: this.getTableColumns(),
-                options: { embed: "counter_files" },
                 url: () => this.table_url(),
                 table_settings: this.usage_data_provider_table_settings,
                 // add_filters: true,
