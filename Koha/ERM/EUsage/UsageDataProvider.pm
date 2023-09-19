@@ -385,12 +385,12 @@ sub _build_url_query {
 
     my $url = _validate_url($self->service_url, 'harvest');
 
-    $url .= $self->{report_type};
+    $url .= lc $self->{report_type};
     $url .= '?customer_id=' . $self->customer_id;
     $url .= '&requestor_id=' . $self->requestor_id if $self->requestor_id;
     $url .= '&api_key=' . $self->api_key           if $self->api_key;
-    $url .= '&begin_date=' . $self->{begin_date}   if $self->{begin_date};
-    $url .= '&end_date=' . $self->{end_date}       if $self->{end_date};
+    $url .= '&begin_date=' . substr $self->{begin_date}, 0, 7   if $self->{begin_date};
+    $url .= '&end_date=' . substr $self->{end_date}, 0, 7       if $self->{end_date};
 
     return $url;
 }
