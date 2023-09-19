@@ -266,7 +266,7 @@ Tests the connection of the harvester to the SUSHI service and returns any alert
 sub test_connection {
     my ($self) = @_;
 
-    my $url = _validate_url($self->service_url);
+    my $url = _validate_url($self->service_url, 'status');
     $url .= 'status';
     $url .= '?customer_id=' . $self->customer_id;
     $url .= '&requestor_id=' . $self->requestor_id if $self->requestor_id;
@@ -383,7 +383,7 @@ sub _build_url_query {
             $self->erm_usage_data_provider_id;
     }
 
-    my $url = _validate_url($self->service_url);
+    my $url = _validate_url($self->service_url, 'harvest');
 
     $url .= $self->{report_type};
     $url .= '?customer_id=' . $self->customer_id;
@@ -403,13 +403,30 @@ Checks whether the url ends in a trailing "/" and adds one if not
 =cut
 
 sub _validate_url {
+    my ( $url, $caller ) = @_;
+
+    if($caller eq 'harvest') {
+        # Not all urls will end in "/" - add one so they are standardised
+        $url = _check_trailing_character($url);
+        # All SUSHI report requests should be to the "/reports" endpoint
+        # Not all providers in the counter registry include this in their data so we need to check and add it
+        my $reports_param = substr $url, -8;
+        $url .= 'reports/' if $reports_param ne 'reports/';
+    } else {
+        $url = _check_trailing_character($url);
+    }
+
+    return $url;
+}
+
+sub _check_trailing_character {
     my ( $url ) = @_;
 
     my $trailing_char = substr $url, -1;
-    if($trailing_char ne '/') {
-        $url .= '/'
+    if ( $trailing_char ne '/' ) {
+        $url .= '/';
     }
-    
+
     return $url;
 }
 
