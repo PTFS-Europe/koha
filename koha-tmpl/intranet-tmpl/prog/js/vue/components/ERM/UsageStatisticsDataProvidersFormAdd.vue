@@ -154,6 +154,22 @@
                                     !usage_data_provider.report_types.length
                                 "
                             >
+                                <template #list-header>
+                                    <button
+                                        type="button"
+                                        @click="selectAll()"
+                                        class="list-header-btns"
+                                    >
+                                        {{ $__("Select all") }}
+                                    </button>
+                                    <button
+                                        class="list-header-btns"
+                                        type="button"
+                                        @click="unselectAll()"
+                                    >
+                                        {{ $__("Unselect all") }}
+                                    </button>
+                                </template>
                                 <template #search="{ attributes, events }">
                                     <input
                                         :required="
@@ -466,6 +482,12 @@ export default {
                             platform =>
                                 platform.name === this.usage_data_provider.name
                         )
+                        this.valid_report_types =
+                            this.valid_report_types.filter(report =>
+                                this.selected_provider.reports.some(
+                                    r => r.report_id === report.value
+                                )
+                            )
                     }
                     this.searching = false
                 },
@@ -524,6 +546,16 @@ export default {
             this.selected_provider = null
             this.sushi_service = null
             this.required_fields = []
+            this.usage_data_provider.report_types = []
+        },
+        selectAll() {
+            this.usage_data_provider.report_types = this.valid_report_types.map(
+                report => {
+                    return report.value
+                }
+            )
+        },
+        unselectAll() {
             this.usage_data_provider.report_types = []
         },
         formatReportTypes(reportTypes) {
@@ -608,5 +640,8 @@ export default {
 }
 .credentials_form {
     width: 50%;
+}
+.list-header-btns {
+    margin: 0.5em 0 0.5em 0.5em;
 }
 </style>
