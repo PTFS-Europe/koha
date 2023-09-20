@@ -63,7 +63,7 @@ while ( my $udprovider = $udproviders->next ) {
     );
 
     my $harvest_begin_date = dt_from_string($begin_date);
-    my $harvest_end_date   = $end_date || dt_from_string();
+    my $harvest_end_date   = dt_from_string($end_date) || dt_from_string();
 
     if ( $harvest_begin_date > $harvest_end_date ) {
         die sprintf(
