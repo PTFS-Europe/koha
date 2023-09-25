@@ -682,12 +682,7 @@ else {
         $item_info->{holding_library_info} = $opac_info_holding->content if $opac_info_holding;
         $item_info->{home_library_info} = $opac_info_home->content if $opac_info_home;
 
-        if ( $patron ) {
-            $has_reservable_items = IsAvailableForItemLevelRequest($item, $patron, undef);
-        } else {
-            $has_reservable_items =
-                Koha::CirculationRules->get_onshelfholds_policy( { item => $item, patron => undef } );
-        }
+        $has_reservable_items = $has_reservable_items || IsAvailableForItemLevelRequest ( $item, $patron, undef );
 
         # get collection code description, too
         my $ccode = $item->ccode;
