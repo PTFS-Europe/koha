@@ -658,7 +658,7 @@ if ( C4::Context->preference('OPACAcquisitionDetails' ) ) {
     };
 }
 
-my $can_item_be_reserved = 0;
+my $has_reservable_items = 0;
 my ( $itemloop_has_images, $otheritemloop_has_images );
 if ( not $viewallitems and $items->count > $max_items_to_display ) {
     $template->param(
@@ -683,9 +683,9 @@ else {
         $item_info->{home_library_info} = $opac_info_home->content if $opac_info_home;
 
         if ( $patron ) {
-            $can_item_be_reserved = IsAvailableForItemLevelRequest($item, $patron, undef);
+            $has_reservable_items = IsAvailableForItemLevelRequest($item, $patron, undef);
         } else {
-            $can_item_be_reserved =
+            $has_reservable_items =
                 Koha::CirculationRules->get_onshelfholds_policy( { item => $item, patron => undef } );
         }
 
@@ -763,7 +763,7 @@ else {
     }
 }
 
-if( $can_item_be_reserved || CountItemsIssued($biblionumber) || $biblio->has_items_waiting_or_intransit ) {
+if( $has_reservable_items || CountItemsIssued($biblionumber) || $biblio->has_items_waiting_or_intransit ) {
     $template->param( ReservableItems => 1 );
 }
 
