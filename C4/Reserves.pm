@@ -1395,7 +1395,7 @@ sub IsAvailableForItemLevelRequest {
 
     if ( $on_shelf_holds == 1 ) {
         return 1;
-    } elsif ( $on_shelf_holds == 2 ) {
+    } elsif ( $on_shelf_holds == 2 && $patron) {
 
         # if we have this param predefined from outer caller sub, we just need
         # to return it, so we saving from having loop inside other loop:
