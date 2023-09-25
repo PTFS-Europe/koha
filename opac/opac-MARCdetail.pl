@@ -136,14 +136,14 @@ $template->param(
 ) if $tagslib->{$bt_tag}->{$bt_subtag}->{hidden} <= 0 && # <=0 OPAC visible.
      $tagslib->{$bt_tag}->{$bt_subtag}->{hidden} > -8;   # except -8;
 
-my $can_item_be_reserved = 0;
+my $has_reservable_items = 0;
 $items->reset;
 
 while ( my $item = $items->next ) {
-    $can_item_be_reserved = $can_item_be_reserved || $patron && IsAvailableForItemLevelRequest( $item, $patron, undef );
+    $has_reservable_items = $has_reservable_items || IsAvailableForItemLevelRequest( $item, $patron, undef );
 }
 
-if( $can_item_be_reserved || CountItemsIssued($biblionumber) || $biblio->has_items_waiting_or_intransit ) {
+if( $has_reservable_items || CountItemsIssued($biblionumber) || $biblio->has_items_waiting_or_intransit ) {
     $template->param( ReservableItems => 1 );
 }
 
