@@ -1404,7 +1404,7 @@ sub IsAvailableForItemLevelRequest {
 
     if ( $on_shelf_holds == 1 ) {
         return 1;
-    } elsif ( $on_shelf_holds == 2 ) {
+    } elsif ( $on_shelf_holds == 2 && $patron) {
 
         # These calculations work at the biblio level, and can be expensive
         # we use the in-memory cache to avoid calling once per item when looping items on a biblio
