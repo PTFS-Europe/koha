@@ -400,6 +400,10 @@ sub _build_url_query {
 
 Checks whether the url ends in a trailing "/" and adds one if not
 
+my $url = _validate_url($url, 'harvest')
+
+$caller is either the harvest_sushi function ("harvest") or the test_connection function ("status")
+
 =cut
 
 sub _validate_url {
@@ -418,6 +422,12 @@ sub _validate_url {
 
     return $url;
 }
+
+=head3 _check_trailing_character
+
+Checks whether a url string ends in a "/" before we concatenate further params to the end of the url
+
+=cut
 
 sub _check_trailing_character {
     my ( $url ) = @_;
