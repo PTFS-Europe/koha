@@ -83,6 +83,14 @@ mode of operation (get or set) for marcfield
 
 is the field searchable?
 
+=head2 repeatable
+
+  data_type: 'tinyint'
+  default_value: 0
+  is_nullable: 0
+
+is the field repeatable?
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -104,6 +112,8 @@ __PACKAGE__->add_columns(
     is_nullable => 0,
   },
   "searchable",
+  { data_type => "tinyint", default_value => 0, is_nullable => 0 },
+  "repeatable",
   { data_type => "tinyint", default_value => 0, is_nullable => 0 },
 );
 
