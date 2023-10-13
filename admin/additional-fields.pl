@@ -53,6 +53,7 @@ if ( $op eq 'add' ) {
     my $marcfield = $input->param('marcfield') // q{};
     my $marcfield_mode = $input->param('marcfield_mode') // 'get';
     my $searchable = $input->param('searchable') ? 1 : 0;
+    my $repeatable = $input->param('repeatable') ? 1 : 0;
     if ( $field_id and $name ) {
         my $updated = 0;
         eval {
@@ -63,6 +64,7 @@ if ( $op eq 'add' ) {
                 marcfield => $marcfield,
                 marcfield_mode => $marcfield_mode,
                 searchable => $searchable,
+                repeatable => $repeatable,
             });
             $updated = $af->store ? 1 : 0;
         };
@@ -80,6 +82,7 @@ if ( $op eq 'add' ) {
                 marcfield => $marcfield,
                 marcfield_mode => $marcfield_mode,
                 searchable => $searchable,
+                repeatable => $repeatable,
             });
             $inserted = $af->store ? 1 : 0;
         };
