@@ -374,17 +374,18 @@ if ( $basket->{is_standing} || $orderinfo->{quantity} ne '0' ) {
     ModOrderUsers( $order->ordernumber, @order_users );
 
     # Retrieve and save additional fields values
-    my @additional_fields = Koha::AdditionalFields->search({ tablename => 'aqorders' })->as_list;
-    my @additional_field_values;
-    foreach my $af (@additional_fields) {
-        my $id = $af->id;
-        my $value = $input->param("additional_field_$id");
-        push @additional_field_values, {
-            id => $id,
-            value => $value,
-        };
+    my @additional_fields;
+    my $order_fields = Koha::AdditionalFields->search( { tablename => 'aqorders' } );
+    while ( my $field = $order_fields->next ) {
+        my @field_values = $input->param( 'additional_field_' . $field->id );
+        foreach my $value (@field_values) {
+            push @additional_fields, {
+                id    => $field->id,
+                value => $value,
+            } if $value;
+        }
     }
-    $order->set_additional_fields(\@additional_field_values);
+    $order->set_additional_fields(\@additional_fields);
 
     # now, add items if applicable
     if ($basket->effective_create_items eq 'ordering') {
