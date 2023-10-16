@@ -127,7 +127,7 @@ my $numberpattern = C4::Serials::Numberpattern::GetSubscriptionNumberpattern($su
 
 $template->param(
     available_additional_fields => Koha::AdditionalFields->search( { tablename => 'subscription' } ),
-    additional_field_values => { map { $_->field->name => $_->value } $subscription->additional_field_values->as_list },
+    additional_field_values => $subscription->get_additional_field_values_for_template,
 );
 
 # FIXME Do we want to hide canceled orders?
