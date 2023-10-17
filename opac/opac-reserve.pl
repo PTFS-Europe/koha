@@ -40,6 +40,7 @@ use Koha::ItemTypes;
 use Koha::Checkouts;
 use Koha::Libraries;
 use Koha::Patrons;
+use Koha::DateUtils qw( dt_from_string );
 use List::MoreUtils qw( uniq );
 
 my $maxreserves = C4::Context->preference("maxreserves");
@@ -626,6 +627,7 @@ if (
     ) {
     $template->param(
 	    reserve_in_future         => 1,
+        date                      => dt_from_string,
     );
 }
 
