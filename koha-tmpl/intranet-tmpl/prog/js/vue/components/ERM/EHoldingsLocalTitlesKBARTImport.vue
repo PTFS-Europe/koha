@@ -2,7 +2,22 @@
     <h2>{{ $__("Import from a KBART file") }}</h2>
     <div class="page-section" id="files">
         <form @submit="addDocument($event)" class="file_upload">
-            <label>{{ $__("File") }}:</label>
+            <h3>{{ $__("Requirements:") }}</h3>
+            <ul style="margin-bottom: 1.5em">
+                <li>{{ $__("The file must be in TSV format") }}</li>
+                <li>
+                    {{
+                        $__(
+                            "The file should not contain any additional information / header rows, e.g. a file with a single title would be structured as follows:"
+                        )
+                    }}
+                    <ol>
+                        <li>Column headings row</li>
+                        <li>Title data row</li>
+                    </ol>
+                </li>
+            </ul>
+            <h3>{{ $__("File") }}:</h3>
             <div class="file_information">
                 <span v-if="!file.filename">
                     {{ $__("Select a file") }}
@@ -116,20 +131,17 @@ export default {
                         setMessage(message, true)
                     }
                     if (success.invalid_columns) {
-                        message +=
+                        message += this.$__(
                             "<p>Invalid columns were detected in your report, please check the list below:</p>"
+                        )
                         success.invalid_columns.forEach(column => {
                             message += this.$__(
                                 `<li style="font-weight: normal; font-size: medium;">%s</li>`
                             ).format(column)
                         })
-                        message +=
-                            '<p style="margin-top: 1em;">Below is a list of columns allowed in a KBART phase II report:</p>'
-                        success.valid_columns.forEach(column => {
-                            message += this.$__(
-                                `<li style="font-weight: normal; font-size: medium;">%s</li>`
-                            ).format(column)
-                        })
+                        message += this.$__(
+                            '<p style="margin-top: 1em;">For a list of compliant column headers, please click <a target="_blank" href="https://groups.niso.org/higherlogic/ws/public/download/16900/RP-9-2014_KBART.pdf" />here</p>'
+                        )
                         setWarning(message)
                     }
                 },

@@ -296,15 +296,17 @@ sub import_from_kbart_file {
         my $max_allowed_packet = C4::Context->dbh->selectrow_array(q{SELECT @@max_allowed_packet});
         my $file_content       = defined( $file->{file_content} ) ? decode_base64( $file->{file_content} ) : "";
         $file_content =~ s/\n/\r/g;
-        my @lines          = split /\r/, $file_content;
-        my @column_headers = split /\t/, $lines[0];
+        my @lines            = split /\r/, $file_content;
+        my @headers_to_check = split /\t/, $lines[0];
+        my $column_headers   = Koha::BackgroundJob::ImportKBARTFile::rescue_EBSCO_files( \@headers_to_check );
+
         shift @lines;    # Remove headers row
-        my @remove_null_lines = grep $_ ne '', @lines;
+        my @valid_lines = grep $_ ne '', @lines;
 
         # Check that the column headers in the file match the standardised KBART phase II columns
         # If not, return a warning before the job is queued
         my @valid_headers = Koha::BackgroundJob::ImportKBARTFile::get_valid_headers();
-        foreach my $header (@column_headers) {
+        foreach my $header (@$column_headers) {
             if ( !grep { $_ eq $header } @valid_headers ) {
                 push @invalid_columns, $header;
             }
@@ -321,13 +323,13 @@ sub import_from_kbart_file {
 
             my $max_number_of_lines = Koha::BackgroundJob::ImportKBARTFile::calculate_chunked_file_size(
                 $file_size, $max_allowed_packet,
-                scalar(@remove_null_lines)
+                scalar(@valid_lines)
             );
             my @chunked_files;
-            push @chunked_files, [ splice @remove_null_lines, 0, $max_number_of_lines ] while @remove_null_lines;
+            push @chunked_files, [ splice @valid_lines, 0, $max_number_of_lines ] while @valid_lines;
 
             foreach my $chunk (@chunked_files) {
-                unshift( @{$chunk}, join( "\t", @column_headers ) );
+                unshift( @{$chunk}, join( "\t", @$column_headers ) );
                 my $chunked_file = {
                     filename     => $file->{filename},
                     file_content => encode_base64( join( "\r", @{$chunk} ) )

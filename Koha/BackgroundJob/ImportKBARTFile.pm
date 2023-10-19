@@ -194,7 +194,7 @@ sub format_title {
     delete $title->{title_id};
 
     # Some files appear to use coverage_notes instead of "notes" as in the KBART standard
-    if ( $title->{coverage_notes} ) {
+    if ( exists $title->{coverage_notes} ) {
         $title->{notes} = $title->{coverage_notes};
         delete $title->{coverage_notes};
     }
@@ -213,12 +213,13 @@ sub format_file {
 
     my $file_content = decode_base64( $file->{file_content} );
     $file_content =~ s/\n/\r/g;
-    my @lines          = split /\r/, $file_content;
-    my @column_headers = split /\t/, $lines[0];
+    my @lines            = split /\r/, $file_content;
+    my @headers_to_check = split /\t/, $lines[0];
+    my $column_headers   = rescue_EBSCO_files( \@headers_to_check );
     shift @lines;    # Remove headers row
-    my @remove_null_lines = grep $_ ne '', @lines;
+    my @valid_lines = grep $_ ne '', @lines;
 
-    return ( \@column_headers, \@remove_null_lines );
+    return ( $column_headers, \@valid_lines );
 }
 
 =head3 create_title_hash_from_line_data
@@ -289,6 +290,23 @@ sub calculate_chunked_file_size {
     my $lines_possible    = $max_allowed_packet / $average_line_size;
     my $moderated_value   = floor( $lines_possible * 0.9 );
     return $moderated_value;
+}
+
+=head3
+
+EBSCO have an incorrect spelling of "preceding_publication_title_id" in all of their KBART files ("preceeding" instead of "preceding").
+This is very annoying because it means all of their KBART files fail to import using the current methodology.
+There is no simple way of finding out who the vendor is before importing so all KBART files from any vendor are going to have to be checked for this spelling and corrected.
+
+=cut
+
+sub rescue_EBSCO_files {
+    my ($column_headers) = @_;
+
+    my ($index) = grep { @$column_headers[$_] eq 'preceeding_publication_title_id' } ( 0 .. @$column_headers - 1 );
+    @$column_headers[$index] = 'preceding_publication_title_id' if $index;
+
+    return $column_headers;
 }
 
 1;
