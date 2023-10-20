@@ -68,6 +68,10 @@ sub monthly_report {
             Koha::ERM::EUsage::UsageDataProviders->search( {}, {} )->unblessed;
         my $metric_types =
             $query_params_array[0][0]->{'erm_usage_muses.metric_type'};
+        my $access_types =
+              $query_params_array[0][0]->{'erm_usage_muses.access_type'}
+            ? $query_params_array[0][0]->{'erm_usage_muses.access_type'}
+            : ();
 
         # Objects with no data in the selected range will not be returned by the API - we still want to include them if they have been requested
         my $requested_ids = _get_correct_query_param(
@@ -97,29 +101,61 @@ sub monthly_report {
 
             # Split data objects into metric_types i.e. one table row per metric_type
             for my $metric_type (@$metric_types) {
-                my $statistics = $data_object->{'erm_usage_muses'};
-                my @filtered_statistics =
-                    grep { $metric_type eq $_->{metric_type} } @$statistics;
-                my @usage_counts =
-                    map { $_->{usage_count} } @filtered_statistics;
-                my $sum =
-                    scalar(@usage_counts) > 0
-                    ? eval join '+', @usage_counts
-                    : 0;
+                if( $access_types && scalar(@$access_types) > 0) {
+                    for my $access_type ( @$access_types ) {
+                        my $statistics = $data_object->{'erm_usage_muses'};
+                        my @stats_by_metric_type =
+                            grep { $metric_type eq $_->{metric_type} } @$statistics;
+                        my @stats_by_access_type =
+                            grep { $access_type eq $_->{access_type} } @stats_by_metric_type;
+                        my @usage_counts =
+                            map { $_->{usage_count} } @stats_by_access_type;
+                        my $sum =
+                            scalar(@usage_counts) > 0
+                            ? eval join '+', @usage_counts
+                            : 0;
 
-                my $data_object_hash = _get_object_hash(
-                    {
-                        data_type   => $data_type,
-                        data_object => $data_object,
-                        statistics  => \@filtered_statistics,
-                        provider    => $provider_name,
-                        metric_type => $metric_type,
-                        period      => 'monthly',
-                        sum         => $sum
+                        my $data_object_hash = _get_object_hash(
+                            {
+                                data_type   => $data_type,
+                                data_object => $data_object,
+                                statistics  => \@stats_by_access_type,
+                                provider    => $provider_name,
+                                metric_type => $metric_type,
+                                access_type => $access_type,
+                                period      => 'monthly',
+                                sum         => $sum
+                            }
+                        );
+
+                        push @report_data, $data_object_hash;
                     }
-                );
+                } else {
+                    my $statistics = $data_object->{'erm_usage_muses'};
+                    my @filtered_statistics =
+                        grep { $metric_type eq $_->{metric_type} } @$statistics;
+                    my @usage_counts =
+                        map { $_->{usage_count} } @filtered_statistics;
+                    my $sum =
+                        scalar(@usage_counts) > 0
+                        ? eval join '+', @usage_counts
+                        : 0;
 
-                push @report_data, $data_object_hash;
+                    my $data_object_hash = _get_object_hash(
+                        {
+                            data_type   => $data_type,
+                            data_object => $data_object,
+                            statistics  => \@filtered_statistics,
+                            provider    => $provider_name,
+                            metric_type => $metric_type,
+                            access_type => undef,
+                            period      => 'monthly',
+                            sum         => $sum
+                        }
+                    );
+                    push @report_data, $data_object_hash;
+                }
+
             }
         }
 
@@ -176,6 +212,11 @@ sub yearly_report {
         }
 
         my $metric_types = $query_params_array[0]->{'erm_usage_yuses.metric_type'};
+        my $access_types =
+              $query_params_array[0]->{'erm_usage_yuses.access_type'}
+            ? $query_params_array[0]->{'erm_usage_yuses.access_type'}
+            : ();
+
         my @report_data;
 
         for my $data_object ( @{$data} ) {
@@ -188,22 +229,46 @@ sub yearly_report {
 
             # Split data objects into metric_types i.e. one table row per metric_type
             for my $metric_type (@$metric_types) {
-                my $statistics = $data_object->{'erm_usage_yuses'};
-                my @filtered_statistics =
-                    grep { $metric_type eq $_->{metric_type} } @$statistics;
+                if ( $access_types && scalar(@$access_types) ) {
+                    for my $access_type (@$access_types) {
+                        my $statistics = $data_object->{'erm_usage_yuses'};
+                        my @stats_by_metric_type =
+                            grep { $metric_type eq $_->{metric_type} } @$statistics;
+                        my @stats_by_access_type =
+                            grep { $access_type eq $_->{access_type} } @stats_by_metric_type;
 
-                my $data_object_hash = _get_object_hash(
-                    {
-                        data_type   => $data_type,
-                        data_object => $data_object,
-                        statistics  => \@filtered_statistics,
-                        provider    => $provider_name,
-                        metric_type => $metric_type,
-                        period      => 'yearly'
+                        my $data_object_hash = _get_object_hash(
+                            {
+                                data_type   => $data_type,
+                                data_object => $data_object,
+                                statistics  => \@stats_by_access_type,
+                                provider    => $provider_name,
+                                metric_type => $metric_type,
+                                access_type => $access_type,
+                                period      => 'yearly',
+                            }
+                        );
+
+                        push @report_data, $data_object_hash;
                     }
-                );
+                } else {
+                    my $statistics = $data_object->{'erm_usage_yuses'};
+                    my @filtered_statistics =
+                        grep { $metric_type eq $_->{metric_type} } @$statistics;
 
-                push @report_data, $data_object_hash;
+                    my $data_object_hash = _get_object_hash(
+                        {
+                            data_type   => $data_type,
+                            data_object => $data_object,
+                            statistics  => \@filtered_statistics,
+                            provider    => $provider_name,
+                            metric_type => $metric_type,
+                            access_type => undef,
+                            period      => 'yearly',
+                        }
+                    );
+                    push @report_data, $data_object_hash;
+                }
             }
         }
 
@@ -483,6 +548,7 @@ sub _get_object_hash {
     my $statistics  = $args->{statistics};
     my $provider    = $args->{provider};
     my $metric_type = $args->{metric_type};
+    my $access_type = $args->{access_type};
     my $period      = $args->{period};
     my $sum         = $args->{sum};
     my %object_hash;
@@ -500,6 +566,7 @@ sub _get_object_hash {
             publisher              => $data_object->{publisher},
             publisher_id           => $data_object->{publisher_id},
             metric_type            => $metric_type,
+            access_type            => $access_type,
         );
     }
     if ( $data_type eq 'platform' ) {
