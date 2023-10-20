@@ -139,6 +139,18 @@ export default {
                     searchable: true,
                     orderable: true,
                 })
+                // Add access type if it is a TR_J3 or TR_B3 report
+                if (
+                    params.queryObject.report_type === "TR_J3" ||
+                    params.queryObject.report_type === "TR_J3"
+                ) {
+                    column_set.push({
+                        title: __("Access type"),
+                        data: "access_type",
+                        searchable: true,
+                        orderable: true,
+                    })
+                }
             }
 
             if (report_type === "usage_data_provider") {
@@ -239,25 +251,48 @@ export default {
                 }
                 if (report_type === "metric_type") {
                     const metric_types = query.metric_types
+                    const access_types = query.access_types
                     metric_types.forEach(metric => {
-                        column_set.push({
-                            title: __(metric),
-                            render: function (data, type, row, meta) {
-                                const filterByMetric =
-                                    row.erm_usage_muses.filter(
-                                        item => item.metric_type === metric
-                                    )
-                                const period_total = filterByMetric.reduce(
-                                    (acc, item) => {
-                                        return acc + item.usage_count
+                        if (access_types && access_types.length > 0) {
+                            access_types.forEach(access => {
+                                column_set.push({
+                                    title: __(access),
+                                    render: function (data, type, row, meta) {
+                                        const filterByType =
+                                            row.erm_usage_muses.filter(
+                                                item =>
+                                                    item.access_type === access
+                                            )
+                                        const period_total =
+                                            filterByType.reduce((acc, item) => {
+                                                return acc + item.usage_count
+                                            }, 0)
+                                        return period_total
                                     },
-                                    0
-                                )
-                                return period_total
-                            },
-                            searchable: false,
-                            orderable: false,
-                        })
+                                    searchable: false,
+                                    orderable: false,
+                                })
+                            })
+                        } else {
+                            column_set.push({
+                                title: __(metric),
+                                render: function (data, type, row, meta) {
+                                    const filterByMetric =
+                                        row.erm_usage_muses.filter(
+                                            item => item.metric_type === metric
+                                        )
+                                    const period_total = filterByMetric.reduce(
+                                        (acc, item) => {
+                                            return acc + item.usage_count
+                                        },
+                                        0
+                                    )
+                                    return period_total
+                                },
+                                searchable: false,
+                                orderable: false,
+                            })
+                        }
                     })
                 }
             }
@@ -279,6 +314,7 @@ export default {
             const queryObject = {}
             const {
                 metric_types,
+                access_types,
                 usage_data_providers,
                 keywords,
                 report_type,
@@ -319,6 +355,10 @@ export default {
             if (metric_types) {
                 queryObject[`erm_usage_muses.metric_type`] = metric_types
             }
+            // Add any metric types query
+            if (access_types) {
+                queryObject[`erm_usage_muses.access_type`] = access_types
+            }
             // Add any data provider query
             if (usage_data_providers) {
                 queryObject[`erm_usage_muses.usage_data_provider_id`] =
@@ -348,14 +388,16 @@ export default {
                 return url
             }
         },
-        mergeTitleDataIntoOneLine(numberOfMetricTypes) {
+        mergeTitleDataIntoOneLine(numberOfMetricTypes, numberOfAccessTypes) {
             let dt = this.$refs.table.useTableObject()
             dt.on("draw", () => {
                 const rows = dt.rows().nodes().to$()
-
+                const numberOfRows = numberOfAccessTypes
+                    ? numberOfMetricTypes * numberOfAccessTypes
+                    : numberOfMetricTypes
                 const data_rows = []
-                for (let i = 0; i < rows.length; i = i + numberOfMetricTypes) {
-                    data_rows.push([rows.slice(i, i + numberOfMetricTypes)])
+                for (let i = 0; i < rows.length; i = i + numberOfRows) {
+                    data_rows.push([rows.slice(i, i + numberOfRows)])
                 }
 
                 data_rows
@@ -364,7 +406,7 @@ export default {
                         Array.from(titleRows).forEach((row, i) => {
                             const cells = row.cells
                             if (i === 0) {
-                                cells[0].rowSpan = numberOfMetricTypes
+                                cells[0].rowSpan = numberOfRows
                                 cells[0].style.textAlign = "center"
                                 cells[0].style.verticalAlign = "middle"
                                 cells[0].style.borderRight = "1px solid #BCBCBC"
@@ -376,15 +418,50 @@ export default {
             })
             this.$refs.table_div.classList.remove("hide-table")
         },
+        createMetricReportTableHeader(metric_types, access_types) {
+            const table = this.$refs.table.$el.getElementsByTagName("table")[0]
+            const numberOfColumns = table.rows[0].cells.length
+            const dataColumns = metric_types.length * access_types
+            const numberOfNonStatisticColumns = numberOfColumns - dataColumns
+            const numberOfCellsToCreate =
+                numberOfNonStatisticColumns + metric_types.length
+
+            const row = table.insertRow(0)
+            const cellsToInsert = Array.from("1".repeat(numberOfCellsToCreate))
+            const cells = cellsToInsert.map(item => {
+                const cell = document.createElement("th")
+                row.appendChild(cell)
+                return cell
+            })
+
+            const metricTypeColumns = cells.splice(numberOfNonStatisticColumns)
+            metric_types.forEach((metric, i) => {
+                const cell = metricTypeColumns[i]
+                cell.colSpan = access_types
+                cell.innerHTML = metric
+            })
+            this.$refs.table_div.classList.remove("hide-table")
+        },
     },
     watch: {
         table() {
-            if (this.report_type !== "metric_type") {
-                this.mergeTitleDataIntoOneLine(
-                    this.params.queryObject.metric_types.length
-                )
+            const number_of_access_types = this.params.queryObject.access_types
+                ? this.params.queryObject.access_types.length
+                : 0
+            if (this.report_type === "metric_type") {
+                if (number_of_access_types) {
+                    this.createMetricReportTableHeader(
+                        this.params.queryObject.metric_types,
+                        number_of_access_types
+                    )
+                } else {
+                    this.$refs.table_div.classList.remove("hide-table")
+                }
             } else {
-                this.$refs.table_div.classList.remove("hide-table")
+                this.mergeTitleDataIntoOneLine(
+                    this.params.queryObject.metric_types.length,
+                    number_of_access_types
+                )
             }
         },
     },
