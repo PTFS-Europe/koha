@@ -322,8 +322,8 @@ export default {
                         const status = row.active ? "Active" : "Inactive"
                         return status
                     },
-                    searchable: true,
-                    orderable: true,
+                    searchable: false,
+                    orderable: false,
                 },
                 {
                     title: __("Last run"),

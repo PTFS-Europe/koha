@@ -94,8 +94,8 @@ export default {
                     {
                         title: __("Start"),
                         data: "description",
-                        searchable: true,
-                        orderable: true,
+                        searchable: false,
+                        orderable: false,
                         render: function (data, type, row, meta) {
                             const date = row[`earliest_${data_type}`]
                                 ? row[`earliest_${data_type}`]
@@ -106,8 +106,8 @@ export default {
                     {
                         title: __("End"),
                         data: "description",
-                        searchable: true,
-                        orderable: true,
+                        searchable: false,
+                        orderable: false,
                         render: function (data, type, row, meta) {
                             const date = row[`latest_${data_type}`]
                                 ? row[`latest_${data_type}`]

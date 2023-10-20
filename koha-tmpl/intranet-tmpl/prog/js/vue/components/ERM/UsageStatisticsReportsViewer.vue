@@ -135,9 +135,7 @@ export default {
             if (report_type !== "metric_type") {
                 column_set.push({
                     title: __("Metric"),
-                    render: function (data, type, row, meta) {
-                        return row.metric_type
-                    },
+                    data: "metric_type",
                     searchable: true,
                     orderable: true,
                 })
@@ -175,8 +173,8 @@ export default {
                                 : "-"
                             return usage
                         },
-                        searchable: true,
-                        orderable: true,
+                        searchable: false,
+                        orderable: false,
                     })
                 })
             } else {
@@ -211,8 +209,8 @@ export default {
                                             : "-"
                                         return usage
                                     },
-                                    searchable: true,
-                                    orderable: true,
+                                    searchable: false,
+                                    orderable: false,
                                 })
                             }
                         })
@@ -234,8 +232,8 @@ export default {
                                     : "-"
                                 return usage
                             },
-                            searchable: true,
-                            orderable: true,
+                            searchable: false,
+                            orderable: false,
                         })
                     })
                 }
@@ -257,8 +255,8 @@ export default {
                                 )
                                 return period_total
                             },
-                            searchable: true,
-                            orderable: true,
+                            searchable: false,
+                            orderable: false,
                         })
                     })
                 }
