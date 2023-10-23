@@ -120,7 +120,7 @@ qq~//$userid:$password@/api/v1/erm/counter_files?q=[{"me.type":{"like":"%ko%"}}]
 
 subtest 'get() tests' => sub {
 
-    plan tests => 8;
+    plan tests => 7;
 
     $schema->storage->txn_begin;
 
@@ -148,12 +148,11 @@ subtest 'get() tests' => sub {
 
     # This counter_file exists, should get returned
     $t->get_ok( "//$userid:$password@/api/v1/erm/counter_files/"
-          . $counter_file->erm_counter_files_id )->status_is(200)
-      ->json_is( $counter_file->to_api );
+          . $counter_file->erm_counter_files_id . "/file/content" )->status_is(200);
 
     # Unauthorized access
     $t->get_ok( "//$unauth_userid:$password@/api/v1/erm/counter_files/"
-          . $counter_file->erm_counter_files_id )->status_is(403);
+          . $counter_file->erm_counter_files_id . "/file/content")->status_is(403);
 
     # Attempt to get non-existent counter_file
     my $counter_file_to_delete =
@@ -161,7 +160,7 @@ subtest 'get() tests' => sub {
     my $non_existent_id = $counter_file_to_delete->erm_counter_files_id;
     $counter_file_to_delete->delete;
 
-    $t->get_ok("//$userid:$password@/api/v1/erm/counter_files/$non_existent_id")
+    $t->get_ok("//$userid:$password@/api/v1/erm/counter_files/$non_existent_id/file/content")
       ->status_is(404)->json_is( '/error' => 'Counter file not found' );
 
     $schema->storage->txn_rollback;

@@ -103,7 +103,8 @@ sub list {
                     },
                     { columns => [ { date_uploaded => { max => "date_uploaded" } }, ] }
                 )->unblessed;
-                $provider->{last_run} = $last_run[0][0]->{date_uploaded};
+                $provider->{last_run} = $last_run[0][0]->{date_uploaded} ? $last_run[0][0]->{date_uploaded} : '';
+
             }
         # }
 
