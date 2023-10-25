@@ -760,7 +760,7 @@ export default {
                 const object_ids = keywords.map(object => {
                     return object[`${db_table}_id`]
                 })
-                queryByYear[`erm_usage_yuses.${db_table}_id`] = object_ids
+                queryObject[`erm_usage_yuses.${db_table}_id`] = object_ids
             }
             // Add any data provider query
             if (usage_data_providers) {

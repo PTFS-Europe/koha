@@ -31,11 +31,13 @@ export default {
     setup() {
         const table = ref()
 
-        const { getMonthsData, getColumnOptions } = inject("reportsStore")
+        const { getMonthsData, getColumnOptions, checkReportColumns } =
+            inject("reportsStore")
 
         return {
             getMonthsData,
             getColumnOptions,
+            checkReportColumns,
             table,
         }
     },
@@ -106,13 +108,14 @@ export default {
         }
     },
     methods: {
-        buildColumnArray(report_type, params, data_type) {
+        buildColumnArray(report_display, params, data_type) {
             const columns = params.columns
             const months_data = this.getMonthsData()
             const column_options = this.getColumnOptions()
             const time_period_columns = params.tp_columns
             const yearly_filter = params.yearly_filter
             const query = params.queryObject
+            const report_type = params.queryObject.report_type
             const column_set = []
 
             columns.forEach(column => {
@@ -121,7 +124,7 @@ export default {
                 if (column !== 1) column_options[column].active = false
             })
 
-            report_type !== "usage_data_provider" &&
+            report_display !== "usage_data_provider" &&
                 column_set.unshift({
                     title: __(
                         data_type.charAt(0).toUpperCase() + data_type.slice(1)
@@ -132,7 +135,7 @@ export default {
                 })
 
             // Add metric type to each row
-            if (report_type !== "metric_type") {
+            if (report_display !== "metric_type") {
                 column_set.push({
                     title: __("Metric"),
                     render: function (data, type, row, meta) {
@@ -141,11 +144,17 @@ export default {
                     searchable: true,
                     orderable: true,
                 })
-                // Add access type if it is a TR_J3 or TR_B3 report
-                if (
-                    params.queryObject.report_type === "TR_J3" ||
-                    params.queryObject.report_type === "TR_B3"
-                ) {
+                // Add yop if it is required
+                if (this.checkReportColumns(report_type, "YOP")) {
+                    column_set.push({
+                        title: __("YOP"),
+                        data: "yop",
+                        searchable: true,
+                        orderable: true,
+                    })
+                }
+                // Add access type if it is required
+                if (this.checkReportColumns(report_type, "Access_Type")) {
                     column_set.push({
                         title: __("Access type"),
                         data: "access_type",
@@ -155,7 +164,7 @@ export default {
                 }
             }
 
-            if (report_type === "usage_data_provider") {
+            if (report_display === "usage_data_provider") {
                 column_set.unshift({
                     title: __("Data provider"),
                     data: "name",
@@ -192,7 +201,7 @@ export default {
                     })
                 })
             } else {
-                if (report_type.includes("monthly")) {
+                if (report_display.includes("monthly")) {
                     const years = Object.keys(time_period_columns)
 
                     years.forEach(year => {
@@ -230,7 +239,7 @@ export default {
                         })
                     })
                 }
-                if (report_type === "yearly") {
+                if (report_display === "yearly") {
                     const years = time_period_columns
 
                     years.forEach(year => {
@@ -251,9 +260,18 @@ export default {
                         })
                     })
                 }
-                if (report_type === "metric_type") {
+                if (report_display === "metric_type") {
                     const metric_types = query.metric_types
                     const access_types = query.access_types
+                    // Add yop if it is required
+                    if (this.checkReportColumns(report_type, "YOP")) {
+                        column_set.push({
+                            title: __("YOP"),
+                            data: "yop",
+                            searchable: true,
+                            orderable: true,
+                        })
+                    }
                     metric_types.forEach(metric => {
                         if (access_types && access_types.length > 0) {
                             access_types.forEach(access => {
@@ -309,7 +327,7 @@ export default {
                 }
             }
             // Add totals column if required
-            if (report_type === "monthly_with_totals") {
+            if (report_display === "monthly_with_totals") {
                 column_set.push({
                     title: __("Period total"),
                     data: "usage_total",
