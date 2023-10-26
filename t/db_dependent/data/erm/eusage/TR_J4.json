@@ -40,7 +40,7 @@
       "YOP": "2021",
       "Title": "TEST Infectious Diseases",
       "Publisher_ID": [{ "Type": "Proprietary", "Value": "aaaa:TEST" }],
-      "Publisher": "American Chemical Society"
+      "Publisher": "Test Publisher"
     },
     {
       "Platform": "TEST",
@@ -61,7 +61,7 @@
       "YOP": "2022",
       "Title": "TEST Infectious Diseases",
       "Publisher_ID": [{ "Type": "Proprietary", "Value": "aaaa:TEST" }],
-      "Publisher": "American Chemical Society"
+      "Publisher": "Test Publisher"
     },
     {
       "Platform": "TEST",
@@ -82,7 +82,7 @@
       "YOP": "2023",
       "Title": "TEST Infectious Diseases",
       "Publisher_ID": [{ "Type": "Proprietary", "Value": "aaaa:TEST" }],
-      "Publisher": "American Chemical Society"
+      "Publisher": "Test Publisher"
     },
     {
       "Platform": "TEST",
@@ -104,7 +104,7 @@
       "YOP": "2016",
       "Title": "Analytical Chemistry",
       "Publisher_ID": [{ "Type": "Proprietary", "Value": "aaaa:TEST" }],
-      "Publisher": "American Chemical Society"
+      "Publisher": "Test Publisher"
     },
     {
       "Platform": "TEST",
@@ -125,7 +125,7 @@
       "YOP": "2016",
       "Title": "C&EN Global Enterprise",
       "Publisher_ID": [{ "Type": "Proprietary", "Value": "aaaa:TEST" }],
-      "Publisher": "American Chemical Society"
+      "Publisher": "Test Publisher"
     },
     {
       "Platform": "TEST",
@@ -147,7 +147,7 @@
       "YOP": "1977",
       "Title": "Environmental Science & Technology",
       "Publisher_ID": [{ "Type": "Proprietary", "Value": "aaaa:TEST" }],
-      "Publisher": "American Chemical Society"
+      "Publisher": "Test Publisher"
     },
     {
       "Platform": "TEST",
@@ -169,7 +169,7 @@
       "YOP": "2002",
       "Title": "Environmental Science & Technology",
       "Publisher_ID": [{ "Type": "Proprietary", "Value": "aaaa:TEST" }],
-      "Publisher": "American Chemical Society"
+      "Publisher": "Test Publisher"
     },
     {
       "Platform": "TEST",
@@ -191,7 +191,7 @@
       "YOP": "2004",
       "Title": "Environmental Science & Technology",
       "Publisher_ID": [{ "Type": "Proprietary", "Value": "aaaa:TEST" }],
-      "Publisher": "American Chemical Society"
+      "Publisher": "Test Publisher"
     },
     {
       "Platform": "TEST",
@@ -213,7 +213,7 @@
       "YOP": "2006",
       "Title": "Environmental Science & Technology",
       "Publisher_ID": [{ "Type": "Proprietary", "Value": "aaaa:TEST" }],
-      "Publisher": "American Chemical Society"
+      "Publisher": "Test Publisher"
     },
     {
       "Platform": "TEST",
@@ -235,7 +235,7 @@
       "YOP": "2007",
       "Title": "Environmental Science & Technology",
       "Publisher_ID": [{ "Type": "Proprietary", "Value": "aaaa:TEST" }],
-      "Publisher": "American Chemical Society"
+      "Publisher": "Test Publisher"
     },
     {
       "Platform": "TEST",
@@ -257,7 +257,7 @@
       "YOP": "2008",
       "Title": "Environmental Science & Technology",
       "Publisher_ID": [{ "Type": "Proprietary", "Value": "aaaa:TEST" }],
-      "Publisher": "American Chemical Society"
+      "Publisher": "Test Publisher"
     },
     {
       "Platform": "TEST",
@@ -279,7 +279,7 @@
       "YOP": "2009",
       "Title": "Environmental Science & Technology",
       "Publisher_ID": [{ "Type": "Proprietary", "Value": "aaaa:TEST" }],
-      "Publisher": "American Chemical Society"
+      "Publisher": "Test Publisher"
     },
     {
       "Platform": "TEST",
@@ -301,7 +301,7 @@
       "YOP": "2010",
       "Title": "Environmental Science & Technology",
       "Publisher_ID": [{ "Type": "Proprietary", "Value": "aaaa:TEST" }],
-      "Publisher": "American Chemical Society"
+      "Publisher": "Test Publisher"
     },
     {
       "Platform": "TEST",
@@ -323,7 +323,7 @@
       "YOP": "2011",
       "Title": "Environmental Science & Technology",
       "Publisher_ID": [{ "Type": "Proprietary", "Value": "aaaa:TEST" }],
-      "Publisher": "American Chemical Society"
+      "Publisher": "Test Publisher"
     },
     {
       "Platform": "TEST",
@@ -345,7 +345,7 @@
       "YOP": "2012",
       "Title": "Environmental Science & Technology",
       "Publisher_ID": [{ "Type": "Proprietary", "Value": "aaaa:TEST" }],
-      "Publisher": "American Chemical Society"
+      "Publisher": "Test Publisher"
     },
     {
       "Platform": "TEST",
@@ -374,7 +374,7 @@
       "YOP": "2013",
       "Title": "Environmental Science & Technology",
       "Publisher_ID": [{ "Type": "Proprietary", "Value": "aaaa:TEST" }],
-      "Publisher": "American Chemical Society"
+      "Publisher": "Test Publisher"
     },
     {
       "Platform": "TEST",
@@ -396,7 +396,7 @@
       "YOP": "2015",
       "Title": "Environmental Science & Technology",
       "Publisher_ID": [{ "Type": "Proprietary", "Value": "aaaa:TEST" }],
-      "Publisher": "American Chemical Society"
+      "Publisher": "Test Publisher"
     },
     {
       "Platform": "TEST",
@@ -418,7 +418,7 @@
       "YOP": "2018",
       "Title": "Environmental Science & Technology",
       "Publisher_ID": [{ "Type": "Proprietary", "Value": "aaaa:TEST" }],
-      "Publisher": "American Chemical Society"
+      "Publisher": "Test Publisher"
     },
     {
       "Platform": "TEST",
@@ -447,7 +447,7 @@
       "YOP": "2019",
       "Title": "Environmental Science & Technology",
       "Publisher_ID": [{ "Type": "Proprietary", "Value": "aaaa:TEST" }],
-      "Publisher": "American Chemical Society"
+      "Publisher": "Test Publisher"
     },
     {
       "Platform": "TEST",
@@ -476,7 +476,7 @@
       "YOP": "2020",
       "Title": "Environmental Science & Technology",
       "Publisher_ID": [{ "Type": "Proprietary", "Value": "aaaa:TEST" }],
-      "Publisher": "American Chemical Society"
+      "Publisher": "Test Publisher"
     },
     {
       "Platform": "TEST",
@@ -498,7 +498,7 @@
       "YOP": "2021",
       "Title": "Environmental Science & Technology",
       "Publisher_ID": [{ "Type": "Proprietary", "Value": "aaaa:TEST" }],
-      "Publisher": "American Chemical Society"
+      "Publisher": "Test Publisher"
     },
     {
       "Platform": "TEST",
@@ -520,7 +520,7 @@
       "YOP": "2022",
       "Title": "Environmental Science & Technology",
       "Publisher_ID": [{ "Type": "Proprietary", "Value": "aaaa:TEST" }],
-      "Publisher": "American Chemical Society"
+      "Publisher": "Test Publisher"
     },
     {
       "Platform": "TEST",
@@ -542,7 +542,7 @@
       "YOP": "2023",
       "Title": "Environmental Science & Technology",
       "Publisher_ID": [{ "Type": "Proprietary", "Value": "aaaa:TEST" }],
-      "Publisher": "American Chemical Society"
+      "Publisher": "Test Publisher"
     },
     {
       "Platform": "TEST",
@@ -571,7 +571,7 @@
       "YOP": "9999",
       "Title": "Environmental Science & Technology",
       "Publisher_ID": [{ "Type": "Proprietary", "Value": "aaaa:TEST" }],
-      "Publisher": "American Chemical Society"
+      "Publisher": "Test Publisher"
     },
     {
       "Platform": "TEST",
@@ -591,9 +591,9 @@
         { "Type": "Print_ISSN", "Value": "0002-7863" }
       ],
       "YOP": "2020",
-      "Title": "Journal of the American Chemical Society",
+      "Title": "Journal of the Test Publisher",
       "Publisher_ID": [{ "Type": "Proprietary", "Value": "aaaa:TEST" }],
-      "Publisher": "American Chemical Society"
+      "Publisher": "Test Publisher"
     }
   ]
 }
