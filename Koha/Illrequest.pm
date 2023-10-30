@@ -760,7 +760,7 @@ sub custom_capability {
                     request    => $self,
                     other      => $params,
                 });
-            return $self->expandTemplate($response);
+            return $self->expand_template($response);
         }
     }
     return 0;
@@ -825,7 +825,7 @@ sub backend_illview {
         request    => $self,
         other      => $params,
     });
-    return $self->expandTemplate($response) if $response;
+    return $self->expand_template($response) if $response;
     return $response;
 }
 
@@ -843,7 +843,7 @@ sub backend_migrate {
             request    => $self,
             other      => $params,
         });
-    return $self->expandTemplate($response) if $response;
+    return $self->expand_template($response) if $response;
     return $response;
 }
 
@@ -868,7 +868,7 @@ sub backend_confirm {
             request    => $self,
             other      => $params,
         });
-    return $self->expandTemplate($response);
+    return $self->expand_template($response);
 }
 
 =head3 backend_update_status
@@ -877,7 +877,7 @@ sub backend_confirm {
 
 sub backend_update_status {
     my ( $self, $params ) = @_;
-    return $self->expandTemplate($self->_backend->update_status($params));
+    return $self->expand_template($self->_backend->update_status($params));
 }
 
 =head3 backend_cancel
@@ -896,7 +896,7 @@ sub backend_cancel {
         other => $params
     });
 
-    return $self->expandTemplate($result);
+    return $self->expand_template($result);
 }
 
 =head3 backend_renew
@@ -909,7 +909,7 @@ The standard interface method allowing for request renewal queries.
 
 sub backend_renew {
     my ( $self ) = @_;
-    return $self->expandTemplate(
+    return $self->expand_template(
         $self->_backend->renew({
             request    => $self,
         })
@@ -960,7 +960,7 @@ sub backend_create {
 
     # ... simple case: we're not at 'commit' stage.
     my $stage = $result->{stage};
-    return $self->expandTemplate($result)
+    return $self->expand_template($result)
         unless ( 'commit' eq $stage );
 
     # ... complex case: commit!
@@ -993,7 +993,7 @@ sub backend_create {
         $result = $unmediated_result if $unmediated_result;
     }
 
-    return $self->expandTemplate($result);
+    return $self->expand_template($result);
 }
 
 =head3 backend_get_update
@@ -1018,15 +1018,15 @@ sub backend_get_update {
     return $response;
 }
 
-=head3 expandTemplate
+=head3 expand_template
 
-    my $params = $abstract->expandTemplate($params);
+    my $params = $abstract->expand_template($params);
 
 Return a version of $PARAMS augmented with our required template path.
 
 =cut
 
-sub expandTemplate {
+sub expand_template {
     my ( $self, $params ) = @_;
     my $backend = $self->_backend->name;
     # Generate path to file to load
