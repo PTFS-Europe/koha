@@ -118,18 +118,13 @@ sub process {
                         };
                         $failed_imports++;
                     } else {
-                        my $imported_title          = Koha::ERM::EHoldings::Title->new($formatted_title)->store;
-                        my $title_id                = $imported_title->title_id;
-                        my $date_first_issue_online = $imported_title->date_first_issue_online;
-                        my $date_last_issue_online  = $imported_title->date_last_issue_online;
-                        Koha::ERM::EHoldings::Resource->new(
+                        my $imported_title = Koha::ERM::EHoldings::Title->new($formatted_title)->store;
+                        create_linked_resource(
                             {
-                                title_id   => $title_id,
-                                package_id => $package_id,
-                                started_on => $date_first_issue_online,
-                                ended_on   => $date_last_issue_online,
+                                title      => $imported_title,
+                                package_id => $package_id
                             }
-                        )->store;
+                        );
 
                         # No need to add a message for a successful import,
                         # files could have 1000s of titles which will lead to lots of messages in background_job->data
@@ -140,7 +135,7 @@ sub process {
                     push @messages, {
                         code          => 'title_failed',
                         type          => 'error',
-                        error_message => $_->{msg},
+                        error_message => $_->{msg} || "Please check your file",
                         title         => $new_title->{publication_title}
                     }
                 };
@@ -260,8 +255,8 @@ sub check_for_matching_title {
     $match_parameters->{print_identifier}  = $title->{print_identifier}  if $title->{print_identifier};
     $match_parameters->{online_identifier} = $title->{online_identifier} if $title->{online_identifier};
 
-    # Use title_id in case title exists for a different provider, we want to add it for the new provider
-    $match_parameters->{title_id} = $title->{title_id} if $title->{title_id};
+    # Use external__id in case title exists for a different provider, we want to add it for the new provider
+    $match_parameters->{external_id} = $title->{title_id} if $title->{title_id};
 
     # If no match parameters are provided in the file we should add the new title
     return 0 if !%$match_parameters;
@@ -269,6 +264,35 @@ sub check_for_matching_title {
     my $title_match = Koha::ERM::EHoldings::Titles->search($match_parameters)->count;
 
     return $title_match;
+}
+
+=head3 create_linked_resource
+
+Creates a resource for a newly stored title. In case dates aren't provided correctly in the file it tries again with no dates if the first attempt fails
+
+=cut
+
+sub create_linked_resource {
+    my ( $args ) = @_;
+
+    my $title      = $args->{title};
+    my $package_id = $args->{package_id};
+
+    my $title_id = $title->title_id;
+    my $date_first_issue_online =
+        $title->date_first_issue_online =~ /^\d{4}((-\d{2}-\d{2}$|-\d{2}$)|$)$/ ? $title->date_first_issue_online : '';
+    my $date_last_issue_online =
+        $title->date_last_issue_online =~ /^\d{4}((-\d{2}-\d{2}$|-\d{2}$)|$)$/ ? $title->date_last_issue_online : '';
+    my $resource = Koha::ERM::EHoldings::Resource->new(
+        {
+            title_id   => $title_id,
+            package_id => $package_id,
+            started_on => $date_first_issue_online,
+            ended_on   => $date_last_issue_online,
+        }
+    )->store;
+
+    return;
 }
 
 =head3 get_valid_headers
