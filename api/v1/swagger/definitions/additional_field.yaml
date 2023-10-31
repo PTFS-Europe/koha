@@ -28,6 +28,9 @@ properties:
   searchable:
     description: is the additional field searchable
     type: boolean
+  repeatable:
+    description: is the additional field repetable
+    type: boolean
 
 additionalProperties: false
 required:
