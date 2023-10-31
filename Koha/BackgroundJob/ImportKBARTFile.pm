@@ -95,7 +95,7 @@ sub process {
         foreach my $line ( @{$lines} ) {
             next if !$line;
             my $new_title   = create_title_hash_from_line_data( $line, $column_headers );
-            my $title_match = Koha::ERM::EHoldings::Titles->search( { external_id => $new_title->{title_id} } )->count;
+            my $title_match = check_for_matching_title($new_title);
 
             if ($title_match) {
                 $duplicate_titles++;
@@ -118,10 +118,18 @@ sub process {
                         };
                         $failed_imports++;
                     } else {
-                        my $imported_title = Koha::ERM::EHoldings::Title->new($formatted_title)->store;
-                        my $title_id = $imported_title->title_id;
-                        Koha::ERM::EHoldings::Resource->new( { title_id => $title_id, package_id => $package_id } )
-                            ->store;
+                        my $imported_title          = Koha::ERM::EHoldings::Title->new($formatted_title)->store;
+                        my $title_id                = $imported_title->title_id;
+                        my $date_first_issue_online = $imported_title->date_first_issue_online;
+                        my $date_last_issue_online  = $imported_title->date_last_issue_online;
+                        Koha::ERM::EHoldings::Resource->new(
+                            {
+                                title_id   => $title_id,
+                                package_id => $package_id,
+                                started_on => $date_first_issue_online,
+                                ended_on   => $date_last_issue_online,
+                            }
+                        )->store;
 
                         # No need to add a message for a successful import,
                         # files could have 1000s of titles which will lead to lots of messages in background_job->data
@@ -239,6 +247,30 @@ sub create_title_hash_from_line_data {
     return \%new_title;
 }
 
+=head3 check_for_matching_title
+
+Checks whether this title already exists to avoid duplicates
+
+=cut
+
+sub check_for_matching_title {
+    my ($title) = @_;
+
+    my $match_parameters = {};
+    $match_parameters->{print_identifier}  = $title->{print_identifier}  if $title->{print_identifier};
+    $match_parameters->{online_identifier} = $title->{online_identifier} if $title->{online_identifier};
+
+    # Use title_id in case title exists for a different provider, we want to add it for the new provider
+    $match_parameters->{title_id} = $title->{title_id} if $title->{title_id};
+
+    # If no match parameters are provided in the file we should add the new title
+    return 0 if !%$match_parameters;
+
+    my $title_match = Koha::ERM::EHoldings::Titles->search($match_parameters)->count;
+
+    return $title_match;
+}
+
 =head3 get_valid_headers
 
 Returns a list of permitted headers in a KBART phase II file
@@ -290,6 +322,22 @@ sub calculate_chunked_file_size {
     my $lines_possible    = $max_allowed_packet / $average_line_size;
     my $moderated_value   = floor( $lines_possible * 0.9 );
     return $moderated_value;
+}
+
+=head3 get_file_size
+
+Calculates the final size of the background job object that will need storing to check if we exceed the max_allowed_packet
+
+=cut
+
+sub get_file_size {
+    my ( $params_to_store ) = @_;
+
+    my $json = JSON->new->utf8(0);
+    my $encoded_params = $json->encode($params_to_store);
+    my $file_size = length $encoded_params;
+
+    return $file_size;
 }
 
 =head3

@@ -316,8 +316,8 @@ sub import_from_kbart_file {
             openapi => { invalid_columns => \@invalid_columns, valid_columns => \@valid_headers }
         ) if scalar(@invalid_columns) > 0;
 
-        my $file_size = length($file_content);
-
+        my $params = { file => $file, package_id => $package_id };
+        my $file_size = Koha::BackgroundJob::ImportKBARTFile::get_file_size($params);
         # If the file is too large, we can break the file into smaller chunks and enqueue one job per chunk
         if ( $file_size > $max_allowed_packet ) {
 
@@ -327,7 +327,6 @@ sub import_from_kbart_file {
             );
             my @chunked_files;
             push @chunked_files, [ splice @valid_lines, 0, $max_number_of_lines ] while @valid_lines;
-
             foreach my $chunk (@chunked_files) {
                 unshift( @{$chunk}, join( "\t", @$column_headers ) );
                 my $chunked_file = {
@@ -339,7 +338,6 @@ sub import_from_kbart_file {
                 push @job_ids, $job_id;
             }
         } else {
-            my $params = { file => $file, package_id => $package_id };
             my $job_id = Koha::BackgroundJob::ImportKBARTFile->new->enqueue($params);
             push @job_ids, $job_id;
         }

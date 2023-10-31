@@ -119,7 +119,7 @@ export default {
                     let message = ""
                     if (success.job_ids) {
                         if (success.job_ids.length > 1) {
-                            message += this.__(
+                            message += this.$__(
                                 "<li>Your file was too large to process in one job, the file has been split into %s jobs to meet the maximum size limits.</li>"
                             ).format(success.job_ids.length)
                         }
