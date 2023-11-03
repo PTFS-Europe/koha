@@ -1009,7 +1009,6 @@ sub getIndexes{
                     'Conference-name-seealso',
                     'Content-type',
                     'Control-number',
-                    'cnum',
                     'Control-number-identifier',
                     'cni',
                     'copydate',

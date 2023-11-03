@@ -82,7 +82,6 @@ our %index_field_convert = (
     'notes' => 'note',
     'rcn' => 'record-control-number',
     'cni' => 'control-number-identifier',
-    'cnum' => 'control-number',
     'su' => 'subject',
     'su-to' => 'subject',
     #'su-geo' => 'subject',
