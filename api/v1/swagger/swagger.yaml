@@ -6,6 +6,8 @@ definitions:
     $ref: ./definitions/account_line.yaml
   additional_field:
     $ref: ./definitions/additional_field.yaml
+  additional_field_value:
+    $ref: ./definitions/additional_field_value.yaml
   advancededitormacro:
     $ref: ./definitions/advancededitormacro.yaml
   allows_renewal:
