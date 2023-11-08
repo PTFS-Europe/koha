@@ -132,6 +132,12 @@
                     </li>
                 </ol>
             </fieldset>
+            <AdditionalFieldsDisplay
+                tablename="erm_licenses"
+                :additional_field_values="
+                    license._strings.additional_field_values
+                "
+            />
             <fieldset class="action">
                 <router-link
                     :to="{ name: 'LicensesList' }"
@@ -147,6 +153,7 @@
 <script>
 import { inject } from "vue"
 import { APIClient } from "../../fetch/api-client.js"
+import AdditionalFieldsDisplay from "../AdditionalFieldsDisplay.vue"
 
 export default {
     setup() {
@@ -177,6 +184,8 @@ export default {
                 type: "",
                 status: "",
                 user_roles: [],
+                extended_attributes: [],
+                _strings: [],
                 started_on: undefined,
                 ended_on: undefined,
             },
@@ -227,7 +236,9 @@ export default {
             )
         },
     },
-    components: {},
+    components: {
+        AdditionalFieldsDisplay,
+    },
     name: "LicensesShow",
 }
 </script>
