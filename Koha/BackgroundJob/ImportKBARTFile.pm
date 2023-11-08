@@ -239,6 +239,13 @@ sub create_title_hash_from_line_data {
 
     @new_title{ @{$column_headers} } = @values;
 
+    # If the file has been converted from CSV to TSV for import, then some titles containing commas will be enclosed in ""
+    my $first_char = substr($new_title{publication_title}, 0, 1);
+    my $last_char = substr($new_title{publication_title}, -1);
+    if($first_char eq '"' && $last_char eq '"') {
+        $new_title{publication_title} =~ s/^"|"$//g;
+    }
+
     return \%new_title;
 }
 
@@ -280,9 +287,9 @@ sub create_linked_resource {
 
     my $title_id = $title->title_id;
     my $date_first_issue_online =
-        $title->date_first_issue_online =~ /^\d{4}((-\d{2}-\d{2}$|-\d{2}$)|$)$/ ? $title->date_first_issue_online : '';
+        $title->date_first_issue_online =~ /^\d{4}((-\d{2}-\d{2}$|-\d{2}$)|$)$/ ? $title->date_first_issue_online : undef;
     my $date_last_issue_online =
-        $title->date_last_issue_online =~ /^\d{4}((-\d{2}-\d{2}$|-\d{2}$)|$)$/ ? $title->date_last_issue_online : '';
+        $title->date_last_issue_online =~ /^\d{4}((-\d{2}-\d{2}$|-\d{2}$)|$)$/ ? $title->date_last_issue_online : undef;
     my $resource = Koha::ERM::EHoldings::Resource->new(
         {
             title_id   => $title_id,

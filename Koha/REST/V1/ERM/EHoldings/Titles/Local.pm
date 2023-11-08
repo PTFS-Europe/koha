@@ -294,6 +294,15 @@ sub import_from_kbart_file {
         my @job_ids;
         my @invalid_columns;
         my $max_allowed_packet = C4::Context->dbh->selectrow_array(q{SELECT @@max_allowed_packet});
+
+        # Check if file is in TSV format and send an error back if not
+        if($file->{filename} =~ /\.csv$/) {
+            return $c->render(
+                status  => 201,
+                openapi => { invalid_filetype => 1 }
+            )
+        }
+
         my $file_content       = defined( $file->{file_content} ) ? decode_base64( $file->{file_content} ) : "";
         $file_content =~ s/\n/\r/g;
         my @lines            = split /\r/, $file_content;
@@ -313,7 +322,7 @@ sub import_from_kbart_file {
         }
         return $c->render(
             status  => 201,
-            openapi => { invalid_columns => \@invalid_columns, valid_columns => \@valid_headers }
+            openapi => { invalid_columns => \@invalid_columns, valid_columns => \@valid_headers, invalid_filetype => 0 }
         ) if scalar(@invalid_columns) > 0;
 
         my $params = { file => $file, package_id => $package_id };

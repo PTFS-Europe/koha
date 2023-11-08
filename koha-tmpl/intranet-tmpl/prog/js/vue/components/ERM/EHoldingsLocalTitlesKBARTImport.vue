@@ -144,6 +144,12 @@ export default {
                         )
                         setWarning(message)
                     }
+                    if (success.invalid_filetype) {
+                        message += this.$__(
+                            "<p>The file must be in .tsv format, please convert your file and try again.</p>"
+                        )
+                        setWarning(message)
+                    }
                 },
                 error => {}
             )
