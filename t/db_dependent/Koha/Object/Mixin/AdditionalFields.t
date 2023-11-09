@@ -12,7 +12,7 @@ use Koha::ERM::License;
 use C4::Context;
 
 my $builder = t::lib::TestBuilder->new;
-my $schema = Koha::Database->schema;
+my $schema  = Koha::Database->schema;
 
 subtest 'set_additional_fields with marcfield_mode = "get"' => sub {
     plan tests => 1;
@@ -22,9 +22,9 @@ subtest 'set_additional_fields with marcfield_mode = "get"' => sub {
     my $biblio = $builder->build_sample_biblio();
     my $record = $biblio->record;
     $record->append_fields(
-        MARC::Field->new('998', '', '', 'Z' => 'some value'),
+        MARC::Field->new( '998', '', '', 'Z' => 'some value' ),
     );
-    $biblio->metadata->metadata($record->as_xml_record(C4::Context->preference('marcflavour')));
+    $biblio->metadata->metadata( $record->as_xml_record( C4::Context->preference('marcflavour') ) );
     $biblio->metadata->store()->discard_changes();
     my $subscription = Koha::Subscription->new(
         {
@@ -35,9 +35,9 @@ subtest 'set_additional_fields with marcfield_mode = "get"' => sub {
 
     my $field = Koha::AdditionalField->new(
         {
-            tablename => 'subscription',
-            name => random_string('c' x 100),
-            marcfield => '998$Z',
+            tablename      => 'subscription',
+            name           => random_string( 'c' x 100 ),
+            marcfield      => '998$Z',
             marcfield_mode => 'get',
         }
     );
@@ -50,7 +50,7 @@ subtest 'set_additional_fields with marcfield_mode = "get"' => sub {
 
     my $values = $subscription->additional_field_values()->as_list();
 
-    is($values->[0]->value, 'some value', 'value was copied from the biblio record to the field');
+    is( $values->[0]->value, 'some value', 'value was copied from the biblio record to the field' );
 
     $schema->txn_rollback;
 };
@@ -60,7 +60,7 @@ subtest 'set_additional_fields with marcfield_mode = "set"' => sub {
 
     $schema->txn_begin;
 
-    my $biblio = $builder->build_sample_biblio();
+    my $biblio       = $builder->build_sample_biblio();
     my $subscription = Koha::Subscription->new(
         {
             biblionumber => $biblio->biblionumber,
@@ -70,9 +70,9 @@ subtest 'set_additional_fields with marcfield_mode = "set"' => sub {
 
     my $field = Koha::AdditionalField->new(
         {
-            tablename => 'subscription',
-            name => random_string('c' x 100),
-            marcfield => '999$Z',
+            tablename      => 'subscription',
+            name           => random_string( 'c' x 100 ),
+            marcfield      => '999$Z',
             marcfield_mode => 'set',
         }
     );
@@ -80,14 +80,14 @@ subtest 'set_additional_fields with marcfield_mode = "set"' => sub {
     $subscription->set_additional_fields(
         [
             {
-                id => $field->id,
+                id    => $field->id,
                 value => 'some value',
             },
         ]
     );
 
     my $record = $biblio->record;
-    is($record->subfield('999', 'Z'), 'some value', 'value was copied from the field to the biblio record');
+    is( $record->subfield( '999', 'Z' ), 'some value', 'value was copied from the field to the biblio record' );
 
     $schema->txn_rollback;
 };
@@ -107,16 +107,16 @@ subtest 'get_additional_field_values_for_template' => sub {
 
     my $field = Koha::AdditionalField->new(
         {
-            tablename  => 'subscription',
-            name       => random_string( 'c' x 100 )
+            tablename => 'subscription',
+            name      => random_string( 'c' x 100 )
         }
     );
     $field->store()->discard_changes();
 
     my $field2 = Koha::AdditionalField->new(
         {
-            tablename  => 'subscription',
-            name       => random_string( 'c' x 100 )
+            tablename => 'subscription',
+            name      => random_string( 'c' x 100 )
         }
     );
     $field2->store()->discard_changes();
@@ -201,16 +201,12 @@ subtest 'add_additional_fields' => sub {
 
     $subscription->add_additional_fields(
         {
-            $field2->id => [
-                'second field'
-            ],
+            $field2->id => ['second field'],
         },
         'subscription'
     );
 
     my $template_additional_field_values = $subscription->get_additional_field_values_for_template;
-
-
 
     is_deeply(
         $template_additional_field_values,
@@ -274,13 +270,12 @@ subtest 'strings_map() tests' => sub {
         'erm_licenses'
     );
 
-
-    my $av_category      = Koha::AuthorisedValueCategory->new( { category_name => "AV_CAT_NAME" } );
+    my $av_category = Koha::AuthorisedValueCategory->new( { category_name => "AV_CAT_NAME" } );
     $av_category->store()->discard_changes();
 
     my $av_value = Koha::AuthorisedValue->new(
         {
-            category => $av_category->category_name,
+            category         => $av_category->category_name,
             authorised_value => 'BOB',
             lib              => "Robert"
         }
@@ -295,11 +290,9 @@ subtest 'strings_map() tests' => sub {
     );
     $av_field->store()->discard_changes();
 
-
-
     $license->add_additional_fields(
         {
-            $av_field->id => [$av_value->authorised_value],
+            $av_field->id => [ $av_value->authorised_value ],
         },
         'erm_licenses'
     );
