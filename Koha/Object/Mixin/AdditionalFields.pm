@@ -43,51 +43,53 @@ Koha::Object::Mixin::AdditionalFields
 =cut
 
 sub set_additional_fields {
-    my ($self, $additional_fields) = @_;
+    my ( $self, $additional_fields ) = @_;
 
     $self->additional_field_values->delete;
 
     my $biblionumber;
     my $record;
     my $record_updated;
-    if ($self->_result->has_column('biblionumber')) {
+    if ( $self->_result->has_column('biblionumber') ) {
         $biblionumber = $self->biblionumber;
     }
 
     foreach my $additional_field (@$additional_fields) {
-        my $field = Koha::AdditionalFields->find($additional_field->{id});
+        my $field = Koha::AdditionalFields->find( $additional_field->{id} );
         my $value = $additional_field->{value};
 
-        if ($biblionumber and $field->marcfield) {
+        if ( $biblionumber and $field->marcfield ) {
             require Koha::Biblios;
             $record //= Koha::Biblios->find($biblionumber)->metadata->record;
 
-            my ($tag, $subfield) = split /\$/, $field->marcfield;
+            my ( $tag, $subfield ) = split /\$/, $field->marcfield;
             my $marc_field = $record->field($tag);
-            if ($field->marcfield_mode eq 'get') {
+            if ( $field->marcfield_mode eq 'get' ) {
                 $value = $marc_field ? $marc_field->subfield($subfield) : '';
-            } elsif ($field->marcfield_mode eq 'set') {
+            } elsif ( $field->marcfield_mode eq 'set' ) {
                 if ($marc_field) {
-                    $marc_field->update($subfield => $value);
+                    $marc_field->update( $subfield => $value );
                 } else {
-                    $marc_field = MARC::Field->new($tag, '', '', $subfield => $value);
+                    $marc_field = MARC::Field->new( $tag, '', '', $subfield => $value );
                     $record->append_fields($marc_field);
                 }
                 $record_updated = 1;
             }
         }
 
-        if (defined $value) {
-            my $field_value = Koha::AdditionalFieldValue->new({
-                field_id => $additional_field->{id},
-                record_id => $self->id,
-                value => $value,
-            })->store;
+        if ( defined $value ) {
+            my $field_value = Koha::AdditionalFieldValue->new(
+                {
+                    field_id  => $additional_field->{id},
+                    record_id => $self->id,
+                    value     => $value,
+                }
+            )->store;
         }
     }
 
     if ($record_updated) {
-        C4::Biblio::ModBiblio($record, $biblionumber);
+        C4::Biblio::ModBiblio( $record, $biblionumber );
     }
 }
 
@@ -193,7 +195,7 @@ sub additional_field_values {
     my ($self) = @_;
 
     my $afv_rs = $self->_result->additional_field_values;
-    return Koha::AdditionalFieldValues->_new_from_dbic( $afv_rs );
+    return Koha::AdditionalFieldValues->_new_from_dbic($afv_rs);
 }
 
 =head3 extended_attributes
@@ -203,7 +205,7 @@ REST API embed of additional_field_values
 =cut
 
 sub extended_attributes {
-    my ($self, $extended_attributes) = @_;
+    my ( $self, $extended_attributes ) = @_;
 
     if ($extended_attributes) {
         $self->set_additional_fields($extended_attributes);
@@ -268,7 +270,7 @@ sub strings_map {
         );
     }
 
-    my @sorted = sort { $a->{field_id} <=> $b->{field_id} } @{ $strings->{additional_field_values} };
+    my @sorted    = sort { $a->{field_id} <=> $b->{field_id} } @{ $strings->{additional_field_values} };
     my @non_empty = grep { $_->{value_str} ne "" } @sorted;
     $strings->{additional_field_values} = \@non_empty;
 
