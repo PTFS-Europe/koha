@@ -1,4 +1,4 @@
-package Koha::Edifact::Files;
+package Koha::REST::V1::Acquisitions::Vendor::Edifact::Files;
 
 # This file is part of Koha.
 #
@@ -17,41 +17,47 @@ package Koha::Edifact::Files;
 
 use Modern::Perl;
 
-use Koha::Database;
-use Koha::Edifact::File;
+use Mojo::Base 'Mojolicious::Controller';
 
-use base qw(Koha::Objects);
+use Koha::Edifact::Files;
+
+use Try::Tiny qw( catch try );
 
 =head1 NAME
 
-Koha::Edifact::Files - Koha Edifact File Object set class
+Koha::REST::V1::Acquisitions::Edifact::Files
 
 =head1 API
 
-=head2 Class Methods
+=head2 Class methods
 
-=head2 Internal methods
+=head3 list
 
-=head3 _type
-
-Returns name of corresponding DBIC resultset
+Controller function that handles edifact files
 
 =cut
 
-sub _type {
-    return 'EdifactMessage';
-}
+=head3 list
 
-sub object_class {
-    return 'Koha::Edifact::File';
-}
-
-=head1 AUTHOR
-
-Martin Renvoize <martin.renvoize@ptfs-europe.com>
-
-Koha Development Team
+Return the list of edifact files
 
 =cut
+
+sub list {
+    my $c = shift->openapi->valid_input or return;
+
+    return try {
+
+        my $files_rs = Koha::Edifact::Files->new;
+        my $files    = $c->objects->search($files_rs);
+
+        return $c->render(
+            status  => 200,
+            openapi => $files,
+        );
+    } catch {
+        $c->unhandled_exception($_);
+    };
+}
 
 1;
