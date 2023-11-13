@@ -64,7 +64,7 @@ for my $train_item_id (@train_item_ids) {
 $template->param(
     slips      => \@slips,
     caller     => 'preservation',
-    stylesheet => C4::Context->preference("SlipCSS"),
+    stylesheet => C4::Context->preference("PrintSlipStylesheet"),
 );
 
 $template->param( IntranetSlipPrinterJS => C4::Context->preference('IntranetSlipPrinterJS') );

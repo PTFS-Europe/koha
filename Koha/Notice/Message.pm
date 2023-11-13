@@ -60,6 +60,7 @@ sub html_content {
 
     my $title   = $self->subject;
     my $content = $self->content;
+    my $stylesheets = $self->stylesheets;
 
     my $wrapped;
     if ( $self->is_html ) {
@@ -74,7 +75,7 @@ sub html_content {
   <head>
     <title>$title</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    $css
+    $stylesheets
   </head>
   <body>
   $content
@@ -122,6 +123,37 @@ sub restrict_patron_when_notice_fails {
     );
 
     return $self;
+}
+
+=head3 stylesheets
+
+  my $stylesheets = $message->stylesheets;
+
+Returns a string of all the stylesheet links for the message
+
+=cut
+
+sub stylesheets {
+    my ($self) = @_;
+
+    my $all_stylesheets = C4::Context->preference("AllNoticeStylesheet") || '';
+    $all_stylesheets .= qq{<link rel="stylesheet" type="text/css" href="$all_stylesheets">\n} if $all_stylesheets;
+    my $all_style_pref = C4::Context->preference("AllNoticeCSS");
+    $all_stylesheets .= qq{<style type="text/css">$all_style_pref</style>} if $all_style_pref;
+    if ( $self->message_transport_type eq 'email' ) {
+        my $email_stylesheet = C4::Context->preference("EmailNoticeStylesheet") || '';
+        $all_stylesheets .= qq{<link rel="stylesheet" type="text/css" href="$email_stylesheet">\n} if $email_stylesheet;
+        my $email_style_pref = C4::Context->preference("EmailNoticeCSS");
+        $all_stylesheets .= qq{<style type="text/css">$email_style_pref</style>} if $email_style_pref;
+    }
+    if ( $self->message_transport_type eq 'print' ) {
+        my $print_stylesheet = C4::Context->preference("PrintNoticeStylesheet") || '';
+        $all_stylesheets .= qq{<link rel="stylesheet" type="text/css" href="$print_stylesheet">\n} if $print_stylesheet;
+        my $print_style_pref = C4::Context->preference("PrintNoticeCSS");
+        $all_stylesheets .= qq{<style type="text/css">$print_style_pref</style>\n} if $print_style_pref;
+    }
+
+    return $all_stylesheets;
 }
 
 =head3 type

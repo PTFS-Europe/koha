@@ -55,10 +55,9 @@ else {
     $slip = "Item not found";
 }
 $template->param(
-    slip => $slip,
-    plain => !$is_html,
+    slip   => $slip,
+    plain  => !$is_html,
     caller => 'cud-transfer',
-    stylesheet => C4::Context->preference("SlipCSS"),
     style      => $style,
     id         => 'transfer_slip',
 );

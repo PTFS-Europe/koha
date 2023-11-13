@@ -117,10 +117,11 @@ $template->param(
     plain          => !$is_html,
     borrowernumber => $borrowernumber,
     caller         => 'members',
-    stylesheet     => C4::Context->preference("SlipCSS"),
     error          => $error,
     style          => $letter->{style},
     id             => $print,
+    stylesheet     => C4::Context->preference("PrintSlipStylesheet"),
+    error          => $error,
 );
 
 $template->param( IntranetSlipPrinterJS => C4::Context->preference('IntranetSlipPrinterJS' ) );

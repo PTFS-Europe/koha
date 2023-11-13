@@ -340,7 +340,7 @@ sub SendAlerts {
             );
 
             if ( $letter->{is_html} ) {
-                $mail->html_body( _wrap_html( $letter->{content}, "" . $letter->{title} ) );
+                $mail->html_body( _wrap_html( $letter->{content}, "" . $letter->{title}, 'email' ) );
             }
             else {
                 $mail->text_body( $letter->{content} );
@@ -516,7 +516,7 @@ sub SendAlerts {
         );
 
         if ( $letter->{is_html} ) {
-            $mail->html_body( _wrap_html( $letter->{content}, "" . $letter->{title} ) );
+            $mail->html_body( _wrap_html( $letter->{content}, "" . $letter->{title}, 'email' ) );
         }
         else {
             $mail->text_body( "" . $letter->{content} );
@@ -1283,7 +1283,7 @@ sub _add_attachments {
     my $message = Koha::Email->new;
 
     if ( $letter->{is_html} ) {
-        $message->html_body( _wrap_html( $letter->{content}, $letter->{title} ) );
+        $message->html_body( _wrap_html( $letter->{content}, $letter->{title}, 'email' ) );
     }
     else {
         $message->text_body( $letter->{content} );
@@ -1505,7 +1505,7 @@ sub _send_message_by_email {
         } else {
             $email = Koha::Email->create($params);
             if ($is_html) {
-                $email->html_body( _wrap_html( $content, $subject ) );
+                $email->html_body( _wrap_html( $content, $subject, 'email' ) );
             } else {
                 $email->text_body($content);
             }
@@ -1590,10 +1590,24 @@ sub _send_message_by_email {
 }
 
 sub _wrap_html {
-    my ($content, $title) = @_;
+    my ( $content, $title, $type ) = @_;
 
-    my $css = C4::Context->preference("NoticeCSS") || '';
-    $css = qq{<link rel="stylesheet" type="text/css" href="$css">} if $css;
+    my $all_stylesheets = C4::Context->preference("AllNoticeStylesheet") || '';
+    $all_stylesheets .= qq{<link rel="stylesheet" type="text/css" href="$all_stylesheets">} if $all_stylesheets;
+    my $all_style_pref = C4::Context->preference("AllNoticeCSS");
+    $all_stylesheets .= qq{<style type="text/css">$all_style_pref</style>} if $all_style_pref;
+    if ( $type eq 'email' ) {
+        my $email_stylesheet = C4::Context->preference("EmailNoticeStylesheet") || '';
+        $all_stylesheets .= qq{<link rel="stylesheet" type="text/css" href="$email_stylesheet">} if $email_stylesheet;
+        my $email_style_pref = C4::Context->preference("EmailNoticeCSS");
+        $all_stylesheets .= qq{<style type="text/css">$email_style_pref</style>} if $email_style_pref;
+    }
+    if ( $type eq 'print' ) {
+        my $print_stylesheet = C4::Context->preference("PrintNoticeStylesheet") || '';
+        $all_stylesheets .= qq{<link rel="stylesheet" type="text/css" href="$print_stylesheet">} if $print_stylesheet;
+        my $print_style_pref = C4::Context->preference("PrintNoticeCSS");
+        $all_stylesheets .= qq{<style type="text/css">$print_style_pref</style>} if $print_style_pref;
+    }
     return <<EOS;
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
     "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -1601,7 +1615,7 @@ sub _wrap_html {
 <head>
 <title>$title</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-$css
+$all_stylesheets
 </head>
 <body>
 $content

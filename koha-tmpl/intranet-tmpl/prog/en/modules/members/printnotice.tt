@@ -15,9 +15,6 @@
 <link rel="shortcut icon" href="[% IF ( IntranetFavicon ) %][% IntranetFavicon | url %][% ELSE %][% interface | html %]/[% theme | html %]/img/favicon.ico[% END %]" type="image/x-icon" />
 
 [% Asset.css("css/print.css") | $raw %]
-[% IF ( Koha.Preference('SlipCSS') ) %]
-<link rel="stylesheet" type="text/css" href="[% Koha.Preference('SlipCSS') | $raw %]" />
-[% END %]
 [% IF style %]<style>[% style | $raw %]</style>[% END %]
 </head>
 
