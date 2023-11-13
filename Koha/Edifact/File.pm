@@ -38,6 +38,7 @@ Returns the I<Koha::Acquisition::Bookseller> associated with this edifact file
 sub vendor {
     my ($self) = @_;
     my $vendor_rs = $self->_result->vendor;
+    return unless $vendor_rs;
     return Koha::Acquisition::Bookseller->_new_from_dbic( $vendor_rs );
 }
 
@@ -52,6 +53,7 @@ Returns the I<Koha::Acquisition::Basket> associated with this edifact file.
 sub basket {
     my ( $self )  = @_;
     my $basket_rs = $self->_result->basketno;
+    return unless $basket_rs;
     return Koha::Acquisition::Basket->_new_from_dbic( $basket_rs );
 }
 
