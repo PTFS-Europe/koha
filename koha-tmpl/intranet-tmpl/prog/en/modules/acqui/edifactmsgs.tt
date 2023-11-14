@@ -158,7 +158,7 @@
                         }
                     }
                 ]
-            }, {}, 0);
+            }, 0, 0);
 
             var EDIModal = $("#EDI_modal");
             var EDIModalBody = $("#EDI_modal .modal-body");
