@@ -369,6 +369,17 @@ sub after_recall_action {
         "after_recall_action called with action: $action, ref: " . ref($recall) );
 }
 
+sub ill_table_actions {
+    my ( $self ) = @_;
+
+    return {
+        button_link_text           => 'Test text',
+        append_column_data_to_link => 1,
+        button_class               => 'test class',
+        button_link                => 'test link'
+    };
+}
+
 sub _private_sub {
     return "";
 }
