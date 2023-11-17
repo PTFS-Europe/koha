@@ -69,12 +69,6 @@
                         [% END %]
 
                     </form>
-
-                    [% IF Koha.Preference('CookieConsent') %]
-                        <h2>Cookies policy</h2>
-                        <button id="viewCookieConsents" type="button" class="btn btn-success">View your cookie consents</button>
-                    [% END %]
-
                 </div> <!-- / #userpasswd -->
             </div> <!-- / .col-lg-10 -->
         </div> <!-- / .row -->
