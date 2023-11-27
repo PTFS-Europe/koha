@@ -160,6 +160,7 @@
             </div> <!-- /.modal-content -->
         </div> <!-- /.modal-dialog -->
     </div> <!-- /#new-patron-list -->
+    [% INCLUDE 'modals/quick_add_patron.inc' %]
 
 [% MACRO jsinclude BLOCK %]
     [% INCLUDE 'datatables.inc' %]
@@ -167,6 +168,11 @@
     [% INCLUDE 'str/members-menu.inc' %]
     [% Asset.js("js/members-menu.js") | $raw %]
     [% INCLUDE 'select2.inc' %]
+    <script>
+        /* Set a variable needed by add_catalog_concern.js */
+        var logged_in_user_borrowernumber = "[% logged_in_user.borrowernumber | html %]";
+    </script>
+    [% Asset.js("js/modals/quick_add_patron.js") | $raw %]
     <script>
         function showPatronSelections( number ){
             $("#table_search_selections").show().find("span").text(_("Patrons selected: " + number ) );
