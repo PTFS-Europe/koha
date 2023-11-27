@@ -1,7 +1,7 @@
 use Modern::Perl;
 
 return {
-    bug_number  => "xxx",
+    bug_number  => "35044",
     description => "Add repeatable option to additional_fields",
     up          => sub {
         my ($args) = @_;
@@ -17,7 +17,7 @@ return {
             say $out "Added repeatable column to additional_fields table";
         }
 
-        if ( unique_key_exists ('additional_field_values', 'afv_fk') ) {
+        if ( unique_key_exists ('additional_field_values', 'field_record') ) {
             # Need to drop foreign key so that we can then drop the unique key
             $dbh->do(
                 q{
