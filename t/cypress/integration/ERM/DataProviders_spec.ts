@@ -618,6 +618,29 @@ describe("Data provider tab options", () => {
         cy.get("#import_file").click();
         cy.get("#import_file").selectFile("t/cypress/fixtures/file.json");
         cy.get("#files .file_information span").contains("file.json");
+
+        cy.intercept(
+            "POST",
+            "/api/v1/erm/usage_data_providers/1/process_COUNTER_file*",
+            {
+                statusCode: 200,
+                body: {
+                    jobs: [
+                        {
+                            job_id: 1,
+                        },
+                    ],
+                },
+            }
+        );
+
+        cy.get("#files > form > fieldset > input[type=submit]").click();
+
+        cy.get(
+            "#erm > div > div.main.container-fluid > div > div.col-sm-10.col-sm-push-2 > main > div.dialog.message > li"
+        ).contains(
+            "Job for uploaded file has been queued, click here to check its progress."
+        );
     });
 
     it("Should display import logs", () => {
