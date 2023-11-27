@@ -145,5 +145,18 @@ export const useReportsStore = defineStore("reports", {
             if (!this.report_type_map.hasOwnProperty(report_type)) return false;
             return this.report_type_map[report_type].includes(column);
         },
+        getDialogJobEnqueueMessage(message, job) {
+            return (
+                "<li>" +
+                message.format(job.report_type) +
+                ', <a href="/cgi-bin/koha/admin/background_jobs.pl?op=view&id=' +
+                job.job_id +
+                '" target="_blank">' +
+                __("click here") +
+                "</a> " +
+                __("to check its progress.") +
+                "</li>"
+            );
+        },
     },
 });

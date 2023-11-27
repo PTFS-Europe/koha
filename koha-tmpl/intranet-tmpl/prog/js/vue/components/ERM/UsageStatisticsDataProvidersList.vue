@@ -48,6 +48,8 @@ export default {
         const { setConfirmationDialog, setMessage, setWarning } =
             inject("mainStore")
 
+        const { getDialogJobEnqueueMessage } = inject("reportsStore")
+
         const table = ref()
 
         return {
@@ -56,6 +58,7 @@ export default {
             setConfirmationDialog,
             setMessage,
             setWarning,
+            getDialogJobEnqueueMessage,
             table,
         }
     },
@@ -245,9 +248,13 @@ export default {
                                 success => {
                                     let message = ""
                                     success.jobs.forEach((job, i) => {
-                                        message += this.$__(
-                                            '<li>Job for report type <strong>%s</strong> has been queued, <a href="/cgi-bin/koha/admin/background_jobs.pl?op=view&id=%s" target="_blank">click here</a> to check its progress.</li>'
-                                        ).format(job.report_type, job.job_id)
+                                        message +=
+                                            this.getDialogJobEnqueueMessage(
+                                                this.$__(
+                                                    "Job for report type <strong>%s</strong> has been queued"
+                                                ),
+                                                job
+                                            )
                                     })
                                     this.setMessage(message, true)
                                 },
