@@ -24,7 +24,7 @@ import { useVendorStore } from "../stores/vendors";
 import { useAVStore } from "../stores/authorised-values";
 import { useERMStore } from "../stores/erm";
 import { useNavigationStore } from "../stores/navigation";
-import { useReportsStore } from "../stores/usage-reports";
+import { useReportsStore } from "../stores/erm";
 import i18n from "../i18n";
 
 const pinia = createPinia();
