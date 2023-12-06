@@ -21,7 +21,7 @@
 
 use Modern::Perl;
 use CGI;
-use POSIX     qw( strftime );
+use POSIX     qw(strftime);
 use Try::Tiny qw(catch try);
 
 use C4::Output qw( output_html_with_http_headers );
@@ -703,45 +703,54 @@ if ( $op eq "cud-addbiblio" ) {
     # it is not a duplicate (determined either by Koha itself or by user checking it's not a duplicate)
     if ( !$duplicatebiblionumber or $confirm_not_duplicate ) {
         my $oldbibitemnum;
-        if ( $is_a_modif ) {
-            ModBiblio(
-                $record,
-                $biblionumber,
-                $frameworkcode,
-                {
-                    overlay_context => {
-                        source       => $z3950 ? 'z3950' : 'intranet',
-                        categorycode => $logged_in_patron->categorycode,
-                        userid       => $logged_in_patron->userid,
+        my $encode_error = try {
+            if ( $is_a_modif ) {
+                ModBiblio(
+                    $record,
+                    $biblionumber,
+                    $frameworkcode,
+                    {
+                        overlay_context => {
+                            source       => $z3950 ? 'z3950' : 'intranet',
+                            categorycode => $logged_in_patron->categorycode,
+                            userid       => $logged_in_patron->userid,
+                        }
                     }
-                }
+                );
+            } else {
+                ( $biblionumber, $oldbibitemnum ) = AddBiblio( $record, $frameworkcode );
+            }
+            return 0;
+        } catch {
+            my $exception = $_;
+            if ( ref($exception) eq 'Koha::Exceptions::Metadata::Invalid' ) {
+                $template->param( INVALID_METADATA => $exception );
+            } else {
+                $exception->rethrow;
+            }
+            return 1;
+        };
+        if (!$encode_error && ($redirect eq "items" || ($mode ne "popup" && !$is_a_modif && $redirect ne "view" && $redirect ne "just_save"))){
+            if ($frameworkcode eq 'FA'){
+            print $input->redirect(
+                '/cgi-bin/koha/cataloguing/additem.pl?'
+                .'biblionumber='.$biblionumber
+                .'&frameworkcode='.$frameworkcode
+                .'&circborrowernumber='.$fa_circborrowernumber
+                .'&branch='.$fa_branch
+                .'&barcode='.uri_escape_utf8($fa_barcode)
+                .'&stickyduedate='.$fa_stickyduedate
+                .'&duedatespec='.$fa_duedatespec
             );
-        }
-        else {
-            ( $biblionumber, $oldbibitemnum ) = AddBiblio( $record, $frameworkcode );
-        }
-        if ($redirect eq "items" || ($mode ne "popup" && !$is_a_modif && $redirect ne "view" && $redirect ne "just_save")){
-	    if ($frameworkcode eq 'FA'){
-		print $input->redirect(
-            '/cgi-bin/koha/cataloguing/additem.pl?'
-            .'biblionumber='.$biblionumber
-            .'&frameworkcode='.$frameworkcode
-            .'&circborrowernumber='.$fa_circborrowernumber
-            .'&branch='.$fa_branch
-            .'&barcode='.uri_escape_utf8($fa_barcode)
-            .'&stickyduedate='.$fa_stickyduedate
-            .'&duedatespec='.$fa_duedatespec
-		);
-		exit;
-	    }
-	    else {
-		print $input->redirect(
-                "/cgi-bin/koha/cataloguing/additem.pl?biblionumber=$biblionumber&frameworkcode=$frameworkcode&searchid=$searchid"
-		);
-		exit;
-	    }
-        }
-    elsif(($is_a_modif || $redirect eq "view") && $redirect ne "just_save"){
+            exit;
+            }
+            else {
+            print $input->redirect(
+                    "/cgi-bin/koha/cataloguing/additem.pl?biblionumber=$biblionumber&frameworkcode=$frameworkcode&searchid=$searchid"
+            );
+            exit;
+            }
+        } elsif(!$encode_error && (($is_a_modif || $redirect eq "view") && $redirect ne "just_save")){
             my $defaultview = C4::Context->preference('IntranetBiblioDefaultView');
             my $views = { C4::Search::enabled_staff_search_views };
             if ($defaultview eq 'isbd' && $views->{can_view_ISBD}) {
@@ -754,28 +763,43 @@ if ( $op eq "cud-addbiblio" ) {
                 print $input->redirect("/cgi-bin/koha/catalogue/detail.pl?biblionumber=$biblionumber&searchid=$searchid");
             }
             exit;
-
-    }
-    elsif ($redirect eq "just_save"){
-        my $tab = $input->param('current_tab');
-        print $input->redirect("/cgi-bin/koha/cataloguing/addbiblio.pl?biblionumber=$biblionumber&framework=$frameworkcode&tab=$tab&searchid=$searchid");
-    }
-    else {
-          $template->param(
-            biblionumber => $biblionumber,
-            done         =>1,
-            popup        =>1
-          );
-          if ( $record ne '-1' ) {
-              my $title = C4::Context->preference('marcflavour') eq "UNIMARC" ? $record->subfield('200', 'a') : $record->title;
-              $template->param( title => $title );
-          }
-          $template->param(
-            popup => $mode,
-            itemtype => $frameworkcode,
-          );
-          output_html_with_http_headers $input, $cookie, $template->output;
-          exit;     
+        }
+        elsif ( !$encode_error && ( $redirect eq "just_save" ) ) {
+            my $tab = $input->param('current_tab');
+            print $input->redirect(
+                "/cgi-bin/koha/cataloguing/addbiblio.pl?biblionumber=$biblionumber&framework=$frameworkcode&tab=$tab&searchid=$searchid"
+            );
+        } elsif ($encode_error) {
+            build_tabs( $template, $record, $dbh, $encoding, $input );
+            $template->param(
+                biblionumber   => $biblionumber,
+                popup          => $mode,
+                frameworkcode  => $frameworkcode,
+                itemtype       => $frameworkcode,
+                borrowernumber => $loggedinuser,
+                tab            => scalar $input->param('tab')
+            );
+            output_html_with_http_headers $input, $cookie, $template->output;
+            exit;
+        } else {
+            $template->param(
+                biblionumber => $biblionumber,
+                done         => 1,
+                popup        => 1
+            );
+            if ( $record ne '-1' ) {
+                my $title =
+                    C4::Context->preference('marcflavour') eq "UNIMARC"
+                    ? $record->subfield( '200', 'a' )
+                    : $record->title;
+                $template->param( title => $title );
+            }
+            $template->param(
+                popup    => $mode,
+                itemtype => $frameworkcode,
+            );
+            output_html_with_http_headers $input, $cookie, $template->output;
+            exit;
         }
     } else {
     # it may be a duplicate, warn the user and do nothing
