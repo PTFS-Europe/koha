@@ -40,6 +40,42 @@ Koha::Metadata - Koha Metadata Object class
 
 =cut
 
+=head3 store
+
+Metadata specific store method to catch errant characters prior
+to committing to the database.
+
+=cut
+
+sub store {
+    my $self = shift;
+
+    # Check marcxml will roundtrip
+    if ( $self->format eq 'marcxml' ) {
+
+        my $marcxml = eval {
+            MARC::Record::new_from_xml(
+                $self->metadata, 'UTF-8',
+                $self->schema
+            );
+        };
+        my $marcxml_error = $@;
+        chomp $marcxml_error;
+        unless ($marcxml) {
+            warn $marcxml_error;
+            Koha::Exceptions::Metadata::Invalid->throw(
+                id             => $self->id,
+                biblionumber   => $self->biblionumber,
+                format         => $self->format,
+                schema         => $self->schema,
+                decoding_error => $marcxml_error,
+            );
+        }
+    }
+
+    return $self->SUPER::store;
+}
+
 =head3 record
 
 my $record = $metadata->record;
