@@ -322,8 +322,14 @@ sub AddBiblio {
             $indexer->index_records( $biblionumber, "specialUpdate", "biblioserver" );
         }
     } catch {
-        warn $_;
-        ( $biblionumber, $biblioitemnumber ) = ( undef, undef );
+        my $error = $_;
+        if ( ref($error) eq 'Koha::Exceptions::Metadata::Invalid' ) {
+            ( $biblionumber, $biblioitemnumber ) = ( undef, undef );
+            $error->rethrow;
+        } else {
+            warn $error;
+            ( $biblionumber, $biblioitemnumber ) = ( undef, undef );
+        }
     };
     return ( $biblionumber, $biblioitemnumber );
 }
