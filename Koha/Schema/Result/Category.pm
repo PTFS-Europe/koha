@@ -403,6 +403,7 @@ __PACKAGE__->add_columns(
     '+can_place_ill_in_opac'             => { is_boolean => 1 },
     '+exclude_from_local_holds_priority' => { is_boolean => 1 },
     '+require_strong_password'           => { is_boolean => 1 },
+    '+dateofbirthrequired'               => { is_boolean => 1 },
 );
 
 1;
