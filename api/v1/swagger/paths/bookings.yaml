@@ -119,7 +119,7 @@
       - bookings
     x-koha-authorization:
       permissions:
-        parameters: manage_bookings
+        circulate: manage_bookings
     x-mojo-to: Bookings#add
 '/bookings/{booking_id}':
   delete:
@@ -156,7 +156,7 @@
       - bookings
     x-koha-authorization:
       permissions:
-        parameters: manage_bookings
+        circulate: manage_bookings
     x-mojo-to: Bookings#delete
   get:
     operationId: getBooking
@@ -234,5 +234,5 @@
       - bookings
     x-koha-authorization:
       permissions:
-        parameters: manage_bookings
+        circulate: manage_bookings
     x-mojo-to: Bookings#update
