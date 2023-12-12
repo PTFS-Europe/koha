@@ -555,8 +555,6 @@ sub find_booking {
     }
 
     while ( my $booking = $bookings->next ) {
-        use Data::Printer;
-        warn np( $booking->unblessed, colored => 1 );
 
         # Booking for this item
         if ( defined( $booking->item_id )
