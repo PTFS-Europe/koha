@@ -3,7 +3,8 @@
 [% IF Koha.Preference('ILLModule') && CAN_user_ill %]
     <div id="toolbar" class="btn-toolbar ill-toolbar">
         [% IF backends_available %]
-          [% IF backends.size > 1 %]
+          [% # IF backends.size > 1 %]
+            <!--
             <div class="dropdown btn-group">
                 <button class="btn btn-default dropdown-toggle" type="button" id="ill-backend-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                     <i class="fa fa-plus"></i> New ILL request <span class="caret"></span>
@@ -14,11 +15,12 @@
                     [% END %]
                 </ul>
             </div>
-          [% ELSE %]
-            <a id="ill-new" class="btn btn-default" href="/cgi-bin/koha/ill/ill-requests.pl?method=create&amp;backend=[% backends.0 | html %]">
+            -->
+          [% # ELSE %]
+            <a id="ill-new" class="btn btn-default" href="/cgi-bin/koha/ill/ill-requests.pl?method=create&amp;backend=FreeForm">
                 <i class="fa fa-plus"></i> New ILL request
             </a>
-          [% END %]
+          [% # END %]
         [% ELSE %]
             <a id="ill-new" class="btn btn-default disabled" href="">
                 <i class="fa fa-plus"></i> New ILL request

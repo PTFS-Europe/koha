@@ -129,6 +129,19 @@ if ( $backends_available ) {
         # Load the ILL backend
         my $request = Koha::Illrequest->new->load_backend( $params->{backend} );
 
+        # WIP: Come back to this later
+        foreach my $backend_id (@{$backends}){
+            my $backend = Koha::Illrequest->new->load_backend($backend_id);
+
+            # TODO: Sort backends by order of availability check priority
+            # For now, just return the first.
+            # Not great, but we are now essentially creating a ReprintsDesk request off of a FreeForm creation form
+            if ( $backend->_backend->can('availability_check') ){
+                $params->{backend} = $backend_id;
+                last;
+            }
+        }
+
         # Before request creation operations - Preparation
         my $availability =
           Koha::Illrequest::Workflow::Availability->new( $params, 'staff' );
