@@ -16,7 +16,10 @@ return {
 
         if ($count) {
             $dbh->do(q{
-                UPDATE systempreferences SET variable = 'CookieConsentedJS' WHERE variable = 'ConsentJS';
+                UPDATE IGNORE systempreferences SET variable = 'CookieConsentedJS' WHERE variable = 'ConsentJS';
+            });
+            $dbh->do(q{
+                DELETE IGNORE FROM systempreferences WHERE variable = 'ConsentJS';
             });
             say $out "Updated ConsentJS system preference to 'CookieConsentedJS'";
         } else {
