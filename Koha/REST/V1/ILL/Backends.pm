@@ -1,4 +1,4 @@
-package Koha::REST::V1::Illbackends;
+package Koha::REST::V1::ILL::Backends;
 
 # This file is part of Koha.
 #
@@ -21,11 +21,11 @@ use Mojo::Base 'Mojolicious::Controller';
 
 use Koha::Illrequest::Config;
 use Koha::Illrequests;
-use Koha::Illbackend;
+use Koha::ILL::Backend;
 
 =head1 NAME
 
-Koha::REST::V1::Illbackends
+Koha::REST::V1::ILL::Backends
 
 =head2 Operations
 
@@ -66,18 +66,18 @@ sub get {
 
     return try {
 
-        #FIXME: Should we move load_backend into Koha::Illbackend...
+        #FIXME: Should we move load_backend into Koha::ILL::Backend...
         #       or maybe make Koha::Ill::Backend a base class for all
         #       backends?
         my $backend = Koha::Illrequest->new->load_backend($backend_id);
 
-        my $backend_module = Koha::Illbackend->new;
+        my $backend_module = Koha::ILL::Backend->new;
 
         my $embed =
           $backend_module->embed( $backend_id,
             $c->req->headers->header('x-koha-embed') );
 
-        #TODO: We need a to_api method in Koha::Illbackend
+        #TODO: We need a to_api method in Koha::ILL::Backend
         my $return = {
             ill_backend_id => $backend_id,
             capabilities   => $backend->capabilities,

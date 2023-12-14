@@ -1,4 +1,4 @@
-package Koha::Illbackend;
+package Koha::ILL::Backend;
 
 # Copyright PTFS Europe 2023
 #
@@ -23,13 +23,13 @@ use base qw(Koha::Object);
 
 =head1 NAME
 
-Koha::Illbackend - Koha Illbackend Object class
+Koha::ILL::Backend - Koha Illbackend Object class
 
 =head2 Class methods
 
 =head3 new
 
-New illbackend
+New ILL Backend
 
 =cut
 
@@ -127,7 +127,7 @@ sub embed {
 
 =head3 _type
 
-    my $type = Koha::Illbackend->_type;
+    my $type = Koha::ILL::Backend->_type;
 
 Return this object's type
 
