@@ -19,7 +19,7 @@ use Modern::Perl;
 
 use Mojo::Base 'Mojolicious::Controller';
 
-use Koha::Illrequest::Config;
+use Koha::ILL::Request::Config;
 use Koha::Illrequests;
 use Koha::ILL::Backend;
 
@@ -38,7 +38,7 @@ Return a list of available ILL backends and its capabilities
 sub list {
     my $c = shift->openapi->valid_input;
 
-    my $config   = Koha::Illrequest::Config->new;
+    my $config   = Koha::ILL::Request::Config->new;
     my $backends = $config->available_backends;
 
     my @data;
