@@ -25,7 +25,7 @@ use C4::Auth qw( get_template_and_user );
 use C4::Output qw( output_and_exit output_html_with_http_headers );
 use Koha::Notice::Templates;
 use Koha::AuthorisedValues;
-use Koha::Illcomment;
+use Koha::ILL::Comment;
 use Koha::Illrequests;
 use Koha::Illrequest;
 use Koha::ILL::Batches;
@@ -411,7 +411,7 @@ if ( $backends_available ) {
 
         $template->param( table_actions => encode_json( Koha::Illrequest->get_staff_table_actions ) );
     } elsif ( $op eq "save_comment" ) {
-        my $comment = Koha::Illcomment->new({
+        my $comment = Koha::ILL::Comment->new({
             illrequest_id  => scalar $params->{illrequest_id},
             borrowernumber => $patronnumber,
             comment        => scalar $params->{comment},
