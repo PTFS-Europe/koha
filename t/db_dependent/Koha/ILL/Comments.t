@@ -32,8 +32,8 @@ use Test::More tests => 9;
 
 my $schema = Koha::Database->new->schema;
 my $builder = t::lib::TestBuilder->new;
-use_ok('Koha::Illcomment');
-use_ok('Koha::Illcomments');
+use_ok('Koha::ILL::Comment');
+use_ok('Koha::ILL::Comments');
 
 $schema->storage->txn_begin;
 
@@ -66,13 +66,13 @@ my $illcomment = $builder->build({
 
 # Get all the comments
 my $comments = $illrq_obj->illcomments;
-isa_ok( $comments, 'Koha::Illcomments', "Illcomments" );
+isa_ok( $comments, 'Koha::ILL::Comments', "Illcomments" );
 my @comments_list = $comments->as_list();
 is( scalar @comments_list, 1, "We have 1 comment" );
 
 # Get the first (and only) comment
 my $comment = $comments->next();
-isa_ok( $comment, 'Koha::Illcomment', "Illcomment" );
+isa_ok( $comment, 'Koha::ILL::Comment', "Illcomment" );
 
 # Check the different data in the comment
 is( $comment->illrequest_id,  $illrq_obj->illrequest_id,    'illrequest_id getter works' );
