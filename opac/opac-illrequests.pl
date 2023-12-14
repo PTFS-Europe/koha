@@ -31,8 +31,8 @@ use Koha::Illrequest::Config;
 use Koha::Illrequests;
 use Koha::Libraries;
 use Koha::Patrons;
-use Koha::Illrequest::Workflow::Availability;
-use Koha::Illrequest::Workflow::TypeDisclaimer;
+use Koha::ILL::Request::Workflow::Availability;
+use Koha::ILL::Request::Workflow::TypeDisclaimer;
 
 my $query = CGI->new;
 
@@ -120,9 +120,9 @@ if ( $op eq 'list' ) {
 
         # Before request creation operations - Preparation
         my $availability =
-          Koha::Illrequest::Workflow::Availability->new( $params, 'opac' );
+          Koha::ILL::Request::Workflow::Availability->new( $params, 'opac' );
         my $type_disclaimer =
-          Koha::Illrequest::Workflow::TypeDisclaimer->new( $params, 'opac' );
+          Koha::ILL::Request::Workflow::TypeDisclaimer->new( $params, 'opac' );
 
         # ILLCheckAvailability operation
         if ($availability->show_availability($request)) {

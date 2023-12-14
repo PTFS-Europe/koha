@@ -1,4 +1,4 @@
-package Koha::Illrequest::Workflow::TypeDisclaimer;
+package Koha::ILL::Request::Workflow::TypeDisclaimer;
 
 # Copyright 2023 PTFS Europe Ltd
 #
@@ -21,7 +21,7 @@ use Modern::Perl;
 
 use POSIX qw( strftime );
 
-use base qw(Koha::Illrequest::Workflow);
+use base qw(Koha::ILL::Request::Workflow);
 
 =head1 NAME
 
@@ -129,7 +129,7 @@ sub after_request_created {
         value         => strftime( "%Y-%m-%dT%H:%M:%S", localtime( time() ) ),
         readonly      => 0
     };
-    Koha::Illrequestattribute->new($type_disclaimer_date)->store;
+    Koha::ILL::Request::Attribute->new($type_disclaimer_date)->store;
 
     my $type_disclaimer_value = {
         illrequest_id => $request->illrequest_id,
@@ -137,7 +137,7 @@ sub after_request_created {
         value         => $params->{type_disclaimer_value},
         readonly      => 0
     };
-    Koha::Illrequestattribute->new($type_disclaimer_value)->store;
+    Koha::ILL::Request::Attribute->new($type_disclaimer_value)->store;
 }
 
 =head3 _get_type_disclaimer_info
