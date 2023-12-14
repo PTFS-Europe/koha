@@ -28,8 +28,8 @@ use Koha::AuthorisedValues;
 use Koha::ILL::Comment;
 use Koha::Illrequests;
 use Koha::ILL::Batches;
-use Koha::Illrequest::Workflow::Availability;
-use Koha::Illrequest::Workflow::TypeDisclaimer;
+use Koha::ILL::Request::Workflow::Availability;
+use Koha::ILL::Request::Workflow::TypeDisclaimer;
 use Koha::Libraries;
 use Koha::Token;
 use Koha::Plugins;
@@ -131,9 +131,9 @@ if ( $backends_available ) {
 
         # Before request creation operations - Preparation
         my $availability =
-          Koha::Illrequest::Workflow::Availability->new( $params, 'staff' );
+          Koha::ILL::Request::Workflow::Availability->new( $params, 'staff' );
         my $type_disclaimer =
-          Koha::Illrequest::Workflow::TypeDisclaimer->new( $params, 'staff' );
+        Koha::ILL::Request::Workflow::TypeDisclaimer->new( $params, 'staff' );
 
         # ILLCheckAvailability operation
         if ($availability->show_availability($request)) {
@@ -325,7 +325,7 @@ if ( $backends_available ) {
             # Prepare availability searching, if required
             # Get the definition for the z39.50 plugin
             if ( C4::Context->preference('ILLCheckAvailability') ) {
-                my $availability = Koha::Illrequest::Workflow::Availability->new(
+                my $availability = Koha::ILL::Request::Workflow::Availability->new(
                     {
                         name => 'ILL availability - z39.50',
                         %{$request->metadata}
@@ -556,7 +556,7 @@ sub get_ill_availability {
         }
     }
 
-    my $availability = Koha::Illrequest::Workflow::Availability->new($id_types);
+    my $availability = Koha::ILL::Request::Workflow::Availability->new($id_types);
     return $availability->get_services({
         ui_context => 'staff'
     });
