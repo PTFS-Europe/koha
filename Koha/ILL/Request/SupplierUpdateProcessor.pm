@@ -1,4 +1,4 @@
-package Koha::Illrequest::SupplierUpdateProcessor;
+package Koha::ILL::Request::SupplierUpdateProcessor;
 
 # Copyright 2022 PTFS Europe Ltd
 #
