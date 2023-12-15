@@ -61,10 +61,9 @@ return {
                 "Bug 35570: **ACTION REQUIRED**: Saved SQL reports containing occurrences of 'FreeForm' were found.\nThe following reports MUST be updated accordingly ('FreeForm' -> 'Standard'):";
             say $out BRIGHT_YELLOW,
                 $reports;
-        }else{
+        } else {
             say $out "Bug 35570: Finished database update.";
         }
-
 
     },
 };

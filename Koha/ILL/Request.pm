@@ -441,11 +441,11 @@ sub load_backend {
         config => $self->_config,
         logger => Koha::ILL::Request::Logger->new
     };
-    
+
     my $backend_plugin = $self->get_backend_plugin($backend_name);
 
     if ( $backend_name eq 'Standard' ) {
-        
+
         # Load the Standard core backend
         $self->{_my_backend} = Koha::ILL::Backend::Standard->new($backend_params);
         return $self;
