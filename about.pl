@@ -322,7 +322,7 @@ if ( C4::Context->preference('ILLModule') ) {
 
     # Check if deprecated 'FreeForm' backend is installed
     my $available_backends = Koha::ILL::Request::Config->new->available_backends;
-    if(grep(/FreeForm/, @{$available_backends} )){
+    if ( grep( /FreeForm/, @{$available_backends} ) ) {
         $template->param( ill_deprecated_backend_freeform_is_installed => 1 );
         $warnILLConfiguration = 1;
     }
