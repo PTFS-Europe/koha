@@ -193,10 +193,10 @@ my $status5 = Koha::ILL::Batch::Status->new(
 $status5->create_and_log;
 my $batch = Koha::ILL::Batch->new(
     {
-        name       => "My test batch",
-        patron_id  => $patron->borrowernumber,
-        library_id => $library->branchcode,
-        backend    => "TEST",
+        name        => "My test batch",
+        patron_id   => $patron->borrowernumber,
+        library_id  => $library->branchcode,
+        backend     => "TEST",
         status_code => $status5->code
     }
 );
