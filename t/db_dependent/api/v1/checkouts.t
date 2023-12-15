@@ -91,7 +91,6 @@ my $bookings_userid = $bookings_librarian->userid;
 
 $t->get_ok("//$bookings_userid:$password@/api/v1/checkouts?patron_id=$patron_id")
     ->status_is( 200, 'manage_bookings allows checkouts access' )->json_is( [] );
-
 Koha::CirculationRules->set_rules(
     {
         categorycode => undef,
