@@ -151,7 +151,7 @@ sub available_backends {
 
     # Return unique list of backend names in the event that the same backend is
     # installed as a plugin AND as the old way through backend_dir
-    my @all_backends = ( @backends, @backend_plugins_names );
+    my @all_backends = ( @backends, @backend_plugins_names, 'Standard' );
     my @all_uniq_backends = uniq(@all_backends);
 
     return \@all_uniq_backends;
