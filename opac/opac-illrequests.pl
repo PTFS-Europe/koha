@@ -28,7 +28,7 @@ use C4::Output qw( output_html_with_http_headers );
 use POSIX qw( strftime );
 
 use Koha::ILL::Request::Config;
-use Koha::Illrequests;
+use Koha::ILL::Requests;
 use Koha::Libraries;
 use Koha::Patrons;
 use Koha::ILL::Request::Workflow::Availability;
@@ -64,7 +64,7 @@ my $op = $params->{'method'} || 'list';
 
 my ( $illrequest_id, $request );
 if ( $illrequest_id = $params->{illrequest_id} ) {
-    $request = Koha::Illrequests->find($illrequest_id);
+    $request = Koha::ILL::Requests->find($illrequest_id);
     # Make sure the request belongs to the logged in user
     if( !$request || $request->borrowernumber != $loggedinuser ) {
         print $query->redirect("/cgi-bin/koha/errors/404.pl");
@@ -79,7 +79,7 @@ if ( ( $op eq 'create' || $op eq 'cancreq' || $op eq 'update' ) && !$patron->_re
 
 if ( $op eq 'list' ) {
 
-    my $requests = Koha::Illrequests->search(
+    my $requests = Koha::ILL::Requests->search(
         { borrowernumber => $loggedinuser }
     );
     $template->param(
@@ -110,12 +110,12 @@ if ( $op eq 'list' ) {
     exit;
 } elsif ( $op eq 'create' ) {
     if (!$params->{backend}) {
-        my $req = Koha::Illrequest->new;
+        my $req = Koha::ILL::Request->new;
         $template->param(
             backends    => $req->available_backends
         );
     } else {
-        my $request = Koha::Illrequest->new
+        my $request = Koha::ILL::Request->new
             ->load_backend($params->{backend});
 
         # Before request creation operations - Preparation
