@@ -54,7 +54,7 @@ my $branch = $builder->build( { source => 'Branch' } );
 my $illbatch = $builder->build_object(
     {
         class => 'Koha::ILL::Batches',
-        value  => {
+        value => {
             name       => "My test batch",
             backend    => "Mock",
             patron_id  => $librarian->{borrowernumber},

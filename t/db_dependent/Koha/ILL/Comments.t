@@ -30,7 +30,7 @@ use Test::MockModule;
 
 use Test::More tests => 9;
 
-my $schema = Koha::Database->new->schema;
+my $schema  = Koha::Database->new->schema;
 my $builder = t::lib::TestBuilder->new;
 use_ok('Koha::ILL::Comment');
 use_ok('Koha::ILL::Comments');
@@ -40,29 +40,33 @@ $schema->storage->txn_begin;
 Koha::ILL::Requests->search->delete;
 
 # Create a patron
-my $patron = $builder->build({ source => 'Borrower' });
+my $patron = $builder->build( { source => 'Borrower' } );
 
 # Create an ILL request
-my $illrq = $builder->build({
-    source => 'Illrequest',
-    value => { borrowernumber => $patron->{borrowernumber} }
-});
-my $illrq_obj = Koha::ILL::Requests->find($illrq->{illrequest_id});
+my $illrq = $builder->build(
+    {
+        source => 'Illrequest',
+        value  => { borrowernumber => $patron->{borrowernumber} }
+    }
+);
+my $illrq_obj = Koha::ILL::Requests->find( $illrq->{illrequest_id} );
 isa_ok( $illrq_obj, 'Koha::ILL::Request' );
 
 # Create a librarian
-my $librarian = $builder->build({ source => 'Borrower' });
+my $librarian = $builder->build( { source => 'Borrower' } );
 
 # Create a comment and tie it to the request and the librarian
 my $comment_text = 'xyz';
-my $illcomment = $builder->build({
-    source => 'Illcomment',
-    value => {
-        illrequest_id  => $illrq_obj->illrequest_id,
-        borrowernumber => $librarian->{borrowernumber},
-        comment        => $comment_text,
+my $illcomment   = $builder->build(
+    {
+        source => 'Illcomment',
+        value  => {
+            illrequest_id  => $illrq_obj->illrequest_id,
+            borrowernumber => $librarian->{borrowernumber},
+            comment        => $comment_text,
+        }
     }
-});
+);
 
 # Get all the comments
 my $comments = $illrq_obj->illcomments;
@@ -76,8 +80,8 @@ isa_ok( $comment, 'Koha::ILL::Comment', "Illcomment" );
 
 # Check the different data in the comment
 is( $comment->illrequest_id,  $illrq_obj->illrequest_id,    'illrequest_id getter works' );
-is( $comment->borrowernumber, $librarian->{borrowernumber}, 'borrowernumber getter works');
-is( $comment->comment,        $comment_text,                'comment getter works');
+is( $comment->borrowernumber, $librarian->{borrowernumber}, 'borrowernumber getter works' );
+is( $comment->comment,        $comment_text,                'comment getter works' );
 
 $illrq_obj->delete;
 
