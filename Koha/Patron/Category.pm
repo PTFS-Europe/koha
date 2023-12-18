@@ -244,7 +244,7 @@ sub to_api_mapping {
         enrolmentperioddate               => 'enrolment_period_date',
         password_expiry_days              => 'password_expiry_days',
         upperagelimit                     => 'upper_age_limit',
-        dateofbirthrequired               => 'date_of_birth_required',
+        dateofbirthrequired               => 'lower_age_limit',
         finetype                          => undef,                                 # Unused
         bulk                              => undef,                                 # Unused
         enrolmentfee                      => 'enrolment_fee',
