@@ -1,3 +1,4 @@
+/* keep tidy */
 /* global KOHA CodeMirror to_highlight search_jumped humanMsg dataTablesDefaults themelang */
 // We can assume 'KOHA' exists, as we depend on KOHA.AJAX
 
@@ -244,6 +245,14 @@ $(".sortable").each((i, e) => {
     Sortable.create(e, {
         animation: 150,
         onUpdate: function (e) {
+            $(e.target)
+                .find("li label")
+                .each(function (i) {
+                    let newText = $(this)
+                        .text()
+                        .replace(/\d+\./, i + 1 + ".");
+                    $(this).text(newText);
+                });
             $(e.target).find("input:first").change();
         },
     });
