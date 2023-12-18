@@ -114,7 +114,11 @@
 
                             [% IF can_place_ill_in_opac %]
                                 <div id="illrequests-create-button" class="dropdown btn-group">
-                                    [% IF backends.size > 1 %]
+                                    [% IF Koha.Preference('AutoILLBackend') %]
+                                        <a id="ill-new" class="btn btn-primary" href="/cgi-bin/koha/opac-illrequests.pl?method=create&amp;backend=Standard">
+                                            <i class="fa fa-plus" aria-hidden="true"></i> Create a new request
+                                        </a>
+                                    [% ELSIF backends.size > 1 %]
                                         <button class="btn btn-primary dropdown-toggle" type="button" id="ill-backend-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                                             <i class="fa fa-plus" aria-hidden="true"></i> Create a new request <span class="caret"></span>
                                         </button>

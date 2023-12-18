@@ -1,3 +1,4 @@
+[% USE Koha %]
 [% IF whole.error %]
 [% IF whole.status == 'missing_identifier' %]
 <p><em>Please Note:</em> Mandatory field Identifier is missing.</p>
@@ -15,7 +16,11 @@
 [% END %]
 
 [% IF whole.stage == "form" %]
-<h2>Create a manual ILL request</h2>
+[% IF Koha.Preference('AutoILLBackend') %]
+  <h2>Create an automatic ILL request</h2>
+[% ELSE %]
+  <h2>Create a manual ILL request</h2>
+[% END %]
 <form id="create_form" method="POST" action="">
   <fieldset class="rows">
     <legend>General details</legend>
