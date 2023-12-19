@@ -68,6 +68,99 @@ Koha::MarcOrder - Koha Marc Order Object class
 
 =cut
 
+=head3 create_order_lines_from_file
+
+    my $result = Koha::MarcOrder->create_order_lines_from_file($args);
+
+    Controller for file staging, basket creation and order line creation when using the cronjob in marc_ordering_process.pl
+=cut
+
+sub create_order_lines_from_file {
+    my ( $self, $args ) = @_;
+
+    my $filename = $args->{filename};
+    my $filepath = $args->{filepath};
+    my $profile  = $args->{profile};
+    my $agent    = $args->{agent};
+
+    my $success;
+    my $error;
+
+    my $vendor_id = $profile->vendor_id;
+    my $budget_id = $profile->budget_id;
+
+    my $vendor_record = Koha::Acquisition::Booksellers->find( { id => $vendor_id } );
+
+    my $basket_id = _create_basket_for_file(
+        {
+            filename  => $filename,
+            vendor_id => $vendor_id
+        }
+    );
+
+    my $format = index( $filename, '.mrc' ) != -1 ? 'ISO2709' : 'MARCXML';
+    my $params = {
+        record_type    => $profile->record_type,
+        encoding       => $profile->encoding,
+        format         => $format,
+        filepath       => $filepath,
+        filename       => $filename,
+        comments       => undef,
+        parse_items    => $profile->parse_items,
+        matcher_id     => $profile->matcher_id,
+        overlay_action => $profile->overlay_action,
+        nomatch_action => $profile->nomatch_action,
+        item_action    => $profile->item_action,
+    };
+
+    try {
+        my $import_batch_id = _stage_file($params);
+
+        my $import_records = Koha::Import::Records->search(
+            {
+                import_batch_id => $import_batch_id,
+            }
+        );
+
+        while ( my $import_record = $import_records->next ) {
+            my $result = add_biblio_from_import_record(
+                {
+                    import_batch_id => $import_batch_id,
+                    import_record   => $import_record,
+                    matcher_id      => $params->{matcher_id},
+                    overlay_action  => $params->{overlay_action},
+                    agent           => $agent,
+                }
+            );
+            warn "Duplicates found in $result->{duplicates_in_batch}, record was skipped."
+                if $result->{duplicates_in_batch};
+            next if $result->{skip};
+
+            my $order_line_details = add_items_from_import_record(
+                {
+                    record_result => $result->{record_result},
+                    basket_id     => $basket_id,
+                    vendor        => $vendor_record,
+                    budget_id     => $budget_id,
+                    agent         => $agent,
+                }
+            );
+
+            my $order_lines = create_order_lines( { order_line_details => $order_line_details } );
+        }
+        SetImportBatchStatus( $import_batch_id, 'imported' )
+            if Koha::Import::Records->search( { import_batch_id => $import_batch_id, status => 'imported' } )->count ==
+            Koha::Import::Records->search( { import_batch_id => $import_batch_id } )->count;
+
+        $success = 1;
+    } catch {
+        $success = 0;
+        $error   = $_;
+    };
+
+    return $success ? { success => 1, error => '' } : { success => 0, error => $error };
+}
+
 =head3 import_record_and_create_order_lines
 
     my $result = Koha::MarcOrder->import_record_and_create_order_lines($args);
@@ -124,6 +217,123 @@ sub import_record_and_create_order_lines {
         skip                => 0
     };
 }
+
+
+=head3 _create_basket_for_file
+
+    my $basket_id = _create_basket_for_file({
+        filename  => $filename,
+        vendor_id => $vendor_id
+    });
+
+    Creates a basket ready to receive order lines based on the imported file
+=cut
+
+sub _create_basket_for_file {
+    my ($args) = @_;
+
+    my $filename  = $args->{filename};
+    my $vendor_id = $args->{vendor_id};
+
+    # aqbasketname.basketname has a max length of 50 characters so long file names will need to be truncated
+    my $basketname = length($filename) > 50 ? substr( $filename, 0, 50 ) : $filename;
+
+    my $basketno = NewBasket(
+        $vendor_id, 0, $basketname, q{},
+        q{} . q{}
+    );
+
+    return $basketno;
+}
+
+=head3 _stage_file
+
+    $file->_stage_file($params)
+    Stages a file directly using parameters from a marc ordering account and without using the background job
+    This function is a mirror of Koha::BackgroundJob::StageMARCForImport->process but with the background job functionality removed
+
+=cut
+
+sub _stage_file {
+    my ($args) = @_;
+
+    my $record_type                = $args->{record_type};
+    my $encoding                   = $args->{encoding};
+    my $format                     = $args->{format};
+    my $filepath                   = $args->{filepath};
+    my $filename                   = $args->{filename};
+    my $marc_modification_template = $args->{marc_modification_template};
+    my $comments                   = $args->{comments};
+    my $parse_items                = $args->{parse_items};
+    my $matcher_id                 = $args->{matcher_id};
+    my $overlay_action             = $args->{overlay_action};
+    my $nomatch_action             = $args->{nomatch_action};
+    my $item_action                = $args->{item_action};
+
+    my @messages;
+    my ( $batch_id, $num_valid, $num_items, @import_errors );
+    my $num_with_matches = 0;
+    my $checked_matches  = 0;
+    my $matcher_failed   = 0;
+    my $matcher_code     = "";
+
+    my $schema = Koha::Database->new->schema;
+    try {
+        $schema->storage->txn_begin;
+
+        my ( $errors, $marcrecords );
+        if ( $format eq 'MARCXML' ) {
+            ( $errors, $marcrecords ) = C4::ImportBatch::RecordsFromMARCXMLFile( $filepath, $encoding );
+        } elsif ( $format eq 'ISO2709' ) {
+            ( $errors, $marcrecords ) = C4::ImportBatch::RecordsFromISO2709File(
+                $filepath, $record_type,
+                $encoding
+            );
+        } else {    # plugin based
+            $errors      = [];
+            $marcrecords = C4::ImportBatch::RecordsFromMarcPlugin(
+                $filepath, $format,
+                $encoding
+            );
+        }
+
+        ( $batch_id, $num_valid, $num_items, @import_errors ) = BatchStageMarcRecords(
+            $record_type,                $encoding,
+            $marcrecords,                $filename,
+            $marc_modification_template, $comments,
+            '',                          $parse_items,
+            0
+        );
+
+        if ($matcher_id) {
+            my $matcher = C4::Matcher->fetch($matcher_id);
+            if ( defined $matcher ) {
+                $checked_matches  = 1;
+                $matcher_code     = $matcher->code();
+                $num_with_matches = BatchFindDuplicates( $batch_id, $matcher, 10 );
+                SetImportBatchMatcher( $batch_id, $matcher_id );
+                SetImportBatchOverlayAction( $batch_id, $overlay_action );
+                SetImportBatchNoMatchAction( $batch_id, $nomatch_action );
+                SetImportBatchItemAction( $batch_id, $item_action );
+                $schema->storage->txn_commit;
+            } else {
+                $matcher_failed = 1;
+                $schema->storage->txn_rollback;
+            }
+        } else {
+            $schema->storage->txn_commit;
+        }
+
+        return $batch_id;
+    }
+    catch {
+        warn $_;
+        $schema->storage->txn_rollback;
+        die "Something terrible has happened!"
+            if ( $_ =~ /Rollback failed/ );    # TODO Check test: Rollback failed
+    };
+}
+
 
 =head3 _get_MarcFieldsToOrder_syspref_data
 
