@@ -310,6 +310,8 @@ INSERT INTO systempreferences ( `variable`, `value`, `options`, `explanation`, `
 ('ILLModule','0','If ON, enables the interlibrary loans module.','','YesNo'),
 ('ILLModuleCopyrightClearance','','70|10','Enter text to enable the copyright clearance stage of request creation. Text will be displayed','Textarea'),
 ('ILLModuleDisclaimerByType','','','YAML defining disclaimer settings for each ILL request type','Textarea'),
+('AutoILLBackend','',NULL,'Enable automatic backend selection','YesNo'),
+('AutoILLBackendPriority','',NULL,'Set the automatic backend selection priority','ILLBackends'),
 ('ILLModuleUnmediated','0','','If enabled, try to immediately progress newly placed ILL requests.','YesNo'),
 ('ILLOpacbackends',NULL,NULL,'ILL backends to enabled for OPAC initiated requests','multiple'),
 ('ILLPartnerCode','IL','','Patrons from this patron category will be used as partners to place ILL requests with','free'),
