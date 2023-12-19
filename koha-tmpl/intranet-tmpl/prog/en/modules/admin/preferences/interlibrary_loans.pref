@@ -82,3 +82,14 @@ Interlibrary loans:
               type: textarea
               syntax: text/x-yaml
               class: code
+        -
+            - pref: AutoILLBackend
+              default: 0
+              choices:
+                  1: Enable
+                  0: Disable
+            - automatic backend selection. Utilizes <a href='/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=AutoILLBackendPriority'>AutoILLBackendPriority</a>.
+        -
+            - "Select which backends will be queried for availability and in what order of priority. The request will be submitted to the first available backend (requires <a href='/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=AutoILLBackend'>AutoILLBackend</a> enabled)."
+            - pref: AutoILLBackendPriority
+              type: ill-backends
