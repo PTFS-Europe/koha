@@ -57,6 +57,7 @@ use Koha::Import::Records;
 use Koha::Acquisition::Currencies;
 use Koha::Acquisition::Booksellers;
 use Koha::Acquisition::Baskets;
+use Koha::Plugins;
 
 =head1 NAME
 
@@ -629,6 +630,8 @@ sub add_items_from_import_record {
                 vendor          => $vendor,
                 agent           => $agent,
                 active_currency => $active_currency,
+                marcfields      => $marc_fields_to_order,
+                marcrecord      => $marcrecord,
             }
         );
 
@@ -1114,6 +1117,8 @@ sub create_items_and_generate_order_hash {
     my $basket_id       = $fields->{basket_id};
     my $budget_id       = $fields->{budget_id};
     my $vendor          = $args->{vendor};
+    my $marcfields      = $args->{marcfields};
+    my $marcrecord      = $args->{marcrecord};
     my $active_currency = $args->{active_currency};
     my @order_line_details;
     my $itemcreation = 0;
@@ -1167,6 +1172,15 @@ sub create_items_and_generate_order_hash {
         }
         $order_detail_hash{replacementprice} = @{ $fields->{replacementprice} }[$i] || 0;
         $order_detail_hash{uncertainprice}   = 0 if $order_detail_hash{listprice};
+
+        Koha::Plugins->call(
+            'before_orderline_create',
+            {
+                marcrecord => $marcrecord,
+                orderline  => \%order_detail_hash,
+                marcfields => $marcfields
+            }
+        );
 
         push @order_line_details, \%order_detail_hash;
 
