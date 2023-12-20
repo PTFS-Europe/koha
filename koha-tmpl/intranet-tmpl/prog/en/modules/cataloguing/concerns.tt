@@ -89,7 +89,8 @@
                     } else {
                         return;
                     }
-                }
+                },
+                source: 'catalog'
             };
 
             var tickets_url = '/api/v1/tickets';
