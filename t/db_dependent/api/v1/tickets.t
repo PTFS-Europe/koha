@@ -247,6 +247,15 @@ subtest 'add() tests' => sub {
         ]
     );
 
+    subtest 'extended_attributes tests' => sub {
+
+        plan tests => 1;
+
+
+
+
+    };
+
     $schema->storage->txn_rollback;
 };
 
