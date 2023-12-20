@@ -86,8 +86,18 @@ sub add {
         # FIXME: We should allow impersonation at a later date to
         # allow an API user to submit on behalf of a user
 
+        # Capture additional_fields
+        my $extended_attributes = delete $body->{extended_attributes} // [];
+
+        # Create ticket
         my $ticket = Koha::Ticket->new_from_api($body)->store;
         $ticket->discard_changes;
+
+        # Set additional_fields
+        my @extended_attributes = map { {'id' => $_->{field_id}, 'value' => $_->{value}} } @{$extended_attributes};
+        $ticket->extended_attributes(\@extended_attributes);
+
+        # Respond
         $c->res->headers->location(
             $c->req->url->to_string . '/' . $ticket->id );
         return $c->render(

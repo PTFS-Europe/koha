@@ -17,7 +17,7 @@ package Koha::Ticket;
 
 use Modern::Perl;
 
-use base qw(Koha::Object);
+use base qw(Koha::Object Koha::Object::Mixin::AdditionalFields);
 
 use C4::Letters;
 

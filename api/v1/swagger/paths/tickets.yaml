@@ -28,6 +28,7 @@
             - resolver
             - biblio
             - updates+count
+            - extended_attributes
         collectionFormat: csv
     responses:
       "200":

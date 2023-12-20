@@ -9,6 +9,7 @@ properties:
     type: string
     enum:
       - catalog
+      - opac_problem
   reported_date:
     type:
       - string
@@ -62,6 +63,12 @@ properties:
       - integer
       - "null"
     description: Number of updates
+  extended_attributes:
+    type:
+      - array
+    items:
+      $ref: additional_field_value.yaml
+    description: Related additional field values
 additionalProperties: false
 required:
   - source
