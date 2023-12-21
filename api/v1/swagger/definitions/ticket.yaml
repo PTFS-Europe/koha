@@ -27,6 +27,12 @@ properties:
   body:
     type: string
     description: Ticket details
+  status:
+    type:
+      - string
+      - "null"
+    description: Current status of the ticket
+    readOnly: true
   reporter:
     type:
       - object
