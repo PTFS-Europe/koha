@@ -28,6 +28,14 @@ $(document).ready(function() {
         let problem_body = $('#problem_body').val();
         let reporter_id = $('#problem_reporter').val();
 
+        /*
+        let url_field = $.ajax({
+            url: "/api/v1/additional_fields"
+            dataType: "json",
+            type: "GET"
+        });
+        */
+
         params = {
             source: 'opac_problem',
             title: problem_title,
