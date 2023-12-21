@@ -51,6 +51,9 @@ $(document).ready(function() {
                     display_cardnumber: false,
                     url: true
                 }) + ' (' + $datetime(item.date) + ')</span>';
+                if ( item.status ) {
+                    updates += '<span class="pull-right">' + item.status + '</span>'
+                }
                 updates += '</div>';
             });
             updates_display.html(updates);
@@ -63,12 +66,14 @@ $(document).ready(function() {
         $('#public').prop( "checked", false );
     });
 
-    $('#ticketDetailsModal').on('click', '#updateTicket', function(e) {
+    $('#ticketDetailsModal').on('click', '.updateSubmit', function(e) {
+        let clicked = $(this);
         let ticket_id = $('#ticket_id').val();
         let params = {
             'public': $('#public').is(":checked"),
-            message: $('#update_message').val(),
-            user_id: logged_in_user_borrowernumber
+            'message': $('#update_message').val(),
+            'user_id': logged_in_user_borrowernumber,
+            'status': clicked.data('status')
         };
 
         $('#comment-spinner').show();
@@ -96,7 +101,7 @@ $(document).ready(function() {
             'public': $('#public').is(":checked"),
             message: $('#update_message').val(),
             user_id: logged_in_user_borrowernumber,
-            state: 'resolved'
+            state: 'resolved',
         };
 
         $('#resolve-spinner').show();
