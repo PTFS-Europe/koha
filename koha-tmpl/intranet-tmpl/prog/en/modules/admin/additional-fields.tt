@@ -156,6 +156,7 @@
                                 <th>Searchable</th>
                             [% END %]
                             <th>Repeatable</th>
+                            <th>System</th>
                             <th class="noExport">Actions</th>
                         </tr>
                     </thead>
@@ -181,9 +182,14 @@
                                     <td>
                                         [% IF field.repeatable %]Yes[% ELSE %]No[% END %]
                                     </td>
+                                    <td>
+                                        [% IF field.is_system %]Yes[% ELSE %]No[% END %]
+                                    </td>
                                 <td class="actions">
+                                    [% IF !field.is_system %]
                                     <a class="btn btn-default btn-xs" href="?op=add_form&amp;field_id=[% field.id | html %]"><i class="fa-solid fa-pencil" aria-hidden="true"></i> Edit</a>
                                     <a class="confirmdelete btn btn-default btn-xs" href="?op=delete&amp;field_id=[% field.id | uri %]&amp;tablename=[% tablename | uri %]"><i class="fa fa-trash-can"></i> Delete</a>
+                                    [% END %]
                                 </td>
                             </tr>
                         [% END %]
