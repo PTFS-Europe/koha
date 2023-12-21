@@ -31,7 +31,10 @@ properties:
   repeatable:
     description: is the additional field repetable
     type: boolean
-
+  is_system:
+    description: Is this field system or not
+    type: boolean
+    readOnly: true
 additionalProperties: false
 required:
   - additional_field_id
