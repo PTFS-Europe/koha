@@ -13,5 +13,10 @@ return {
             );
             say $out "Added column 'tickets.source'";
         }
+
+        $dbh->do(q{
+            INSERT IGNORE INTO additional_fields ( tablename, is_system, name )
+            VALUES ('tickets', 1, 'page_url');
+        });
     },
 };
