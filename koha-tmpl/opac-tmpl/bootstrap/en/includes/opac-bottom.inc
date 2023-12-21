@@ -30,6 +30,7 @@
                                 [% IF Koha.Preference('OPACReportProblem') && Koha.Preference('KohaAdminEmailAddress') %]
                                     <div class="col">
                                         <div id="report_a_problem" class="noprint">
+                                            <a class="report_a_problem koha-url" href="#" data-toggle="modal" data-target="#reportProblemModal">Report a problem</a>
                                             <a class="koha-url" href="/cgi-bin/koha/opac-reportproblem.pl">Report a problem</a>
                                         </div>
                                     </div>
@@ -123,6 +124,10 @@
 
 [% IF Koha.Preference( 'OpacTrustedCheckout' ) %]
     [% INCLUDE 'modals/checkout.inc' %]
+[% END %]
+
+[% IF ( Koha.Preference('OPACReportProblem') && Koha.Preference('KohaAdminEmailAddress') ) %]
+    [% INCLUDE 'modals/problem_report.inc' %]
 [% END %]
 
 <!-- CookieConsentedJS code that may run -->
@@ -260,6 +265,9 @@ $(document).ready(function() {
 [% END %]
 [% IF Koha.Preference( 'CookieConsent' ) %]
     [% Asset.js("js/cookieconsent.js") | $raw %]
+[% END %]
+[% IF ( Koha.Preference('OPACReportProblem') && Koha.Preference('KohaAdminEmailAddress') ) %]
+    [% Asset.js("js/modals/problem_report.js") | $raw %]
 [% END %]
 [% KohaPlugins.get_plugins_opac_js | $raw %]
 </body>
