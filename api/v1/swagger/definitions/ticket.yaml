@@ -24,7 +24,9 @@ properties:
     description: The object representing the biblio the ticket is related to
     readOnly: true
   biblio_id:
-    type: integer
+    type:
+      - integer
+      - "null"
     description: Internal identifier for the biblio the ticket is related to
   title:
     type: string
