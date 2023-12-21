@@ -67,8 +67,10 @@ if ( $op eq 'add' ) {
 
         eval {
             my $af = Koha::AdditionalFields->find($field_id);
-            $af->set($set_fields);
-            $updated = $af->store ? 1 : 0;
+            if ( !$af->is_system ) {
+                $af->set($set_fields);
+                $updated = $af->store ? 1 : 0;
+            }
         };
         push @messages, {
             code => 'update',
@@ -107,7 +109,9 @@ if ( $op eq 'delete' ) {
     my $deleted = 0;
     eval {
         my $af = Koha::AdditionalFields->find($field_id);
-        $deleted = $af->delete;
+        if ( !$af->is_system ) {
+            $deleted = $af->delete;
+        }
     };
     push @messages, {
         code => 'delete',
