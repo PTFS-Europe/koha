@@ -28,6 +28,7 @@
             - resolver
             - biblio
             - updates+count
+            - +strings
         collectionFormat: csv
     responses:
       "200":
