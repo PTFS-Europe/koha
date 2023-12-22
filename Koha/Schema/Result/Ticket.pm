@@ -63,6 +63,14 @@ ticket title
 
 ticket details
 
+=head2 status
+
+  data_type: 'varchar'
+  is_nullable: 1
+  size: 80
+
+current status of the ticket
+
 =head2 resolver_id
 
   data_type: 'integer'
@@ -110,6 +118,8 @@ __PACKAGE__->add_columns(
   { data_type => "text", is_nullable => 0 },
   "body",
   { data_type => "text", is_nullable => 0 },
+  "status",
+  { data_type => "varchar", is_nullable => 1, size => 80 },
   "resolver_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
   "resolved_date",
@@ -207,8 +217,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-10-24 21:15:34
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:0Nm+y1BHJicrpeq3kuU1VA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2023-12-22 14:51:40
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:lcKWaA+k/0lw5/6JrFhB1A
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
