@@ -102,6 +102,7 @@
                     "url": tickets_url
                 },
                 "embed": [
+                    "assignee",
                     "reporter",
                     "resolver",
                     "biblio",
@@ -160,7 +161,7 @@
                         "orderable": true
                     },
                     {
-                        "data": "resolver.firstname:resolver.surname:resolved_date:status",
+                        "data": "assignee.firstname:assignee.surname:resolver.firstname:resolver.surname:resolved_date:status",
                         "render": function(data, type, row, meta) {
                             let result = '';
                             if (row.resolved_date) {
