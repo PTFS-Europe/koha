@@ -243,6 +243,7 @@
             [% END %]
         });
     </script>
+    [% INCLUDE 'select2.inc' %]
     [% Asset.js("js/modals/display_ticket.js") | $raw %]
 [% END %]
 [% INCLUDE 'intranet-bottom.inc' %]

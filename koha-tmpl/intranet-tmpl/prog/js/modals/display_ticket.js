@@ -67,16 +67,100 @@ $(document).ready(function() {
         // Clear any previously entered update message
         $('#update_message').val('');
         $('#public').prop( "checked", false );
+
+        // Patron select2
+        $("#assignee_id").kohaSelect({
+           dropdownParent: $(".modal-content", "#ticketDetailsModal"),
+           width: '50%',
+           dropdownAutoWidth: true,
+           allowClear: true,
+           minimumInputLength: 3,
+           ajax: {
+               url: '/api/v1/patrons',
+               delay: 250,
+               dataType: 'json',
+               headers: {
+                   "x-koha-embed": "library"
+               },
+               data: function(params) {
+                   let q = buildPatronSearchQuery(params.term);
+                   let query = {
+                       'q': JSON.stringify(q),
+                       '_page': params.page,
+                       '_order_by': '+me.surname,+me.firstname',
+                   };
+                   return query;
+               },
+               processResults: function(data, params) {
+                   let results = [];
+                   data.results.forEach(function(patron) {
+                       patron.id = patron.patron_id;
+                       results.push(patron);
+                   });
+                   return {
+                       "results": results, "pagination": { "more": data.pagination.more }
+                   };
+               },
+           },
+           templateResult: function (patron) {
+               if (patron.library_id == loggedInLibrary) {
+                   loggedInClass = "ac-currentlibrary";
+               } else {
+                   loggedInClass = "";
+               }
+   
+               let $patron = $("<span></span>")
+                   .append(
+                       "" +
+                           (patron.surname
+                               ? escape_str(patron.surname) + ", "
+                               : "") +
+                           (patron.firstname
+                               ? escape_str(patron.firstname) + " "
+                               : "") +
+                           (patron.cardnumber
+                               ? " (" + escape_str(patron.cardnumber) + ")"
+                               : "") +
+                           "<small>" +
+                           (patron.date_of_birth
+                               ? ' <span class="age_years">' +
+                                 $get_age(patron.date_of_birth) +
+                                 " " +
+                                 __("years") +
+                                 "</span>"
+                               : "") +
+                           (patron.library ?
+                                   " <span class=\"ac-library\">" +
+                                   escape_str(patron.library.name) +
+                                   "</span>"
+                               : "") +
+                           "</small>"
+                   )
+                   .addClass(loggedInClass);
+               return $patron;
+           },
+           templateSelection: function (patron) {
+               if (!patron.surname) {
+                   return patron.text;
+               }
+               return (
+                   escape_str(patron.surname) + ", " + escape_str(patron.firstname)
+               );
+           },
+           placeholder: "Search for a patron"
+       });
     });
 
     $('#ticketDetailsModal').on('click', '.updateSubmit', function(e) {
         let clicked = $(this);
         let ticket_id = $('#ticket_id').val();
+        let assignee_id = $('#assignee_id').val();
         let params = {
             'public': $('#public').is(":checked"),
             'message': $('#update_message').val(),
             'user_id': logged_in_user_borrowernumber,
-            'status': clicked.data('status')
+            'status': clicked.data('status'),
+            'assignee_id': assignee_id
         };
 
         $('#comment-spinner').show();
