@@ -180,6 +180,12 @@
                                 } else {
                                     result += _("Open");
                                 }
+                                if (row.assignee) {
+                                    result += '<span class="clearfix">' + _("Assigned to: ") + $patron_to_html(row.assignee, {
+                                        display_cardnumber: false,
+                                        url: true
+                                    }) + '</span>';
+                                }
                             }
                             return result;
                         },
