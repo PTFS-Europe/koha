@@ -33,7 +33,7 @@ properties:
     description: Age limit for the patron
   lower_age_limit:
     type:
-      - boolean
+      - number
       - "null"
     description: The minimum age required for the patron category
   enrolment_fee:
