@@ -75,19 +75,6 @@ age limit for the patron
 
 the minimum age required for the patron category
 
-=head2 finetype
-
-  data_type: 'varchar'
-  is_nullable: 1
-  size: 30
-
-unused in Koha
-
-=head2 bulk
-
-  data_type: 'tinyint'
-  is_nullable: 1
-
 =head2 enrolmentfee
 
   data_type: 'decimal'
@@ -102,13 +89,6 @@ enrollment fee for the patron
   is_nullable: 1
 
 are overdue notices sent to this patron category (1 for yes, 0 for no)
-
-=head2 issuelimit
-
-  data_type: 'smallint'
-  is_nullable: 1
-
-unused in Koha
 
 =head2 reservefee
 
@@ -230,16 +210,10 @@ __PACKAGE__->add_columns(
   { data_type => "smallint", is_nullable => 1 },
   "dateofbirthrequired",
   { data_type => "tinyint", is_nullable => 1 },
-  "finetype",
-  { data_type => "varchar", is_nullable => 1, size => 30 },
-  "bulk",
-  { data_type => "tinyint", is_nullable => 1 },
   "enrolmentfee",
   { data_type => "decimal", is_nullable => 1, size => [28, 6] },
   "overduenoticerequired",
   { data_type => "tinyint", is_nullable => 1 },
-  "issuelimit",
-  { data_type => "smallint", is_nullable => 1 },
   "reservefee",
   { data_type => "decimal", is_nullable => 1, size => [28, 6] },
   "hidelostitems",
@@ -388,8 +362,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2023-11-01 20:49:52
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:r0Mftlw4TU7x+Ze2pAlwYQ
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2024-01-02 12:30:56
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:CVu9trGfAspa6mrbjPNKzw
 
 sub koha_object_class {
     'Koha::Patron::Category';
