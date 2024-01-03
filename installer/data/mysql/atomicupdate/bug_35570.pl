@@ -2,7 +2,7 @@ use Modern::Perl;
 
 use C4::Context;
 use Koha::Reports;
-use Term::ANSIColor qw(:constants);
+use Term::ANSIColor;
 
 return {
     bug_number  => "35570",
@@ -19,7 +19,7 @@ return {
 
         if ($illbatches) {
             $dbh->do("UPDATE illbatches SET backend = 'Standard' where backend = 'FreeForm'");
-            say $out GREEN, "Bug 35570: Updated ILL batches from 'FreeForm' to 'Standard";
+            say $out colored( "Bug 35570: Updated ILL batches from 'FreeForm' to 'Standard'", 'green' );
         }
 
         my ($illrequestattributes) = $dbh->selectrow_array(
@@ -30,7 +30,7 @@ return {
 
         if ($illrequestattributes) {
             $dbh->do("UPDATE illrequestattributes SET backend = 'Standard' where backend = 'FreeForm'");
-            say $out GREEN, "Bug 35570: Updated ILL request attributes from 'FreeForm' to 'Standard";
+            say $out colored( "Bug 35570: Updated ILL request attributes from 'FreeForm' to 'Standard'", 'green' );
         }
 
         my ($illrequests) = $dbh->selectrow_array(
@@ -41,7 +41,7 @@ return {
 
         if ($illrequests) {
             $dbh->do("UPDATE illrequests SET backend = 'Standard' where backend = 'FreeForm'");
-            say $out GREEN, "Bug 35570: Updated ILL requests from 'FreeForm' to 'Standard";
+            say $out colored( "Bug 35570: Updated ILL requests from 'FreeForm' to 'Standard'", 'green' );
         }
 
         my $reports = join(
@@ -57,10 +57,11 @@ return {
         );
 
         if ($reports) {
-            say $out YELLOW,
-                "Bug 35570: **ACTION REQUIRED**: Saved SQL reports containing occurrences of 'FreeForm' were found.\nThe following reports MUST be updated accordingly ('FreeForm' -> 'Standard'):";
-            say $out BRIGHT_YELLOW,
-                $reports;
+            say $out colored(
+                "Bug 35570: **ACTION REQUIRED**: Saved SQL reports containing occurrences of 'FreeForm' were found. The following reports MUST be updated accordingly ('FreeForm' -> 'Standard'):",
+                'yellow'
+            );
+            say $out colored( $reports, 'blue');
         } else {
             say $out "Bug 35570: Finished database update.";
         }
