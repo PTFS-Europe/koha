@@ -44,6 +44,10 @@
                 [% WRAPPER breadcrumb_item bc_active= 1 %]
                     <span>Ill request disclaimer</span>
                 [% END %]
+            [% ELSIF method == 'confirmautoill' %]
+                [% WRAPPER breadcrumb_item bc_active= 1 %]
+                    <span>Confirm automatic request</span>
+                [% END %]
             [% END %]
         [% ELSE %]
             [% WRAPPER breadcrumb_item bc_active= 1 %]
@@ -116,7 +120,7 @@
                                 <div id="illrequests-create-button" class="dropdown btn-group">
                                     [% IF Koha.Preference('AutoILLBackend') %]
                                         <a id="ill-new" class="btn btn-primary" href="/cgi-bin/koha/opac-illrequests.pl?method=create&amp;backend=Standard">
-                                            <i class="fa fa-plus" aria-hidden="true"></i> Create a new request
+                                            <i class="fa fa-plus" aria-hidden="true"></i> Create a new auto request
                                         </a>
                                     [% ELSIF backends.size > 1 %]
                                         <button class="btn btn-primary dropdown-toggle" type="button" id="ill-backend-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
@@ -321,6 +325,46 @@
                                     </fieldset>
                                 </form>
                             </div>
+                        [% ELSIF method == 'confirmautoill' %]
+                            <h1>Confirm automatic request</h1>
+                            <div id="results" class="page-section">
+                                <form method="post" id="confirmautoill-form">
+                                    <fieldset class="rows">
+                                        <div id="autoillbackend"></div>
+                                        <p>Please confirm the details below:</p>
+                                        <p>
+                                        [% FOREACH key IN whole.keys.sort %]
+                                            [% IF key != 'method' && key != 'backend' && whole.$key %]
+                                                [% IF core_fields.$key %]
+                                                    <strong>[% core_fields.$key | html %]</strong> : [% whole.$key | html %] <br>
+                                                [% ELSE %]
+                                                    <strong>[% key | html %]</strong> : [% whole.$key | html %] <br>
+                                                [% END %]
+                                            [% END %]
+                                        [% END %]
+                                        </p>
+                                    </fieldset>
+                                    <fieldset class="action">
+                                        [% FOREACH key IN whole.keys %]
+                                            [% value = whole.$key %]
+                                            [% IF key != 'custom_key' && key != 'custom_value' %]
+                                                <input type="hidden" name="[% key | html %]" value="[% value | html %]">
+                                            [% END %]
+                                        [% END %]
+                                        [% custom_keys = whole.custom_key.split('\0') %]
+                                        [% custom_values = whole.custom_value.split('\0') %]
+                                        [% i = 0 %]
+                                        [% FOREACH custom_key IN custom_keys %]
+                                            <input type="hidden" name="custom_key" value="[% custom_key | html %]">
+                                            <input type="hidden" name="custom_value" value="[% custom_values.$i | html %]">
+                                            [% i = i + 1 %]
+                                        [% END %]
+                                        <input type="hidden" name="confirm_auto_submitted" value="1">
+                                        <input type="submit" class="btn btn-primary" value="Submit" />
+                                        <a class="action" href="/cgi-bin/koha/opac-illrequests.pl">Cancel</a>
+                                    </fieldset>
+                                </form>
+                            </div>
                         [% END # / IF method == 'create' %]
                     </div> <!-- / #illrequests -->
                 [% END # /IF !backends_available %]
@@ -347,6 +391,11 @@
         [% ELSE %]
             var services = [];
         [% END %]
+        [% IF auto_backends_json.length > 0 %]
+        var auto_backends = [% auto_backends_json | $raw %];
+        [% ELSE %]
+        var auto_backends = [];
+        [% END %]
         [% IF metadata.length > 0 %]
             var metadata = "[% metadata | $raw %]";
         [% END %]
@@ -358,6 +407,9 @@
                 window.doSearch();
             });
         </script>
+    [% END %]
+    [% IF method == 'confirmautoill' %]
+        [% Asset.js("js/ill-autobackend.js") | $raw %]
     [% END %]
     [% TRY %]
         [% PROCESS backend_jsinclude %]
