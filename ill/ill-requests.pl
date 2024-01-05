@@ -31,6 +31,7 @@ use Koha::ILL::Request;
 use Koha::ILL::Batches;
 use Koha::ILL::Request::Workflow::Availability;
 use Koha::ILL::Request::Workflow::TypeDisclaimer;
+use Koha::ILL::Request::Workflow::ConfirmAuto;
 use Koha::Libraries;
 use Koha::Plugins;
 
@@ -137,6 +138,8 @@ if ( $backends_available ) {
           Koha::ILL::Request::Workflow::Availability->new( $params, 'staff' );
         my $type_disclaimer =
         Koha::ILL::Request::Workflow::TypeDisclaimer->new( $params, 'staff' );
+        my $confirm_auto =
+        Koha::ILL::Request::Workflow::ConfirmAuto->new( $params, 'staff' );
 
         # ILLCheckAvailability operation
         if ($availability->show_availability($request)) {
@@ -149,6 +152,12 @@ if ( $backends_available ) {
             $op = 'typedisclaimer';
             $template->param(
                 $type_disclaimer->type_disclaimer_template_params($params)
+            );
+        # ConfirmAuto operation
+        } elsif ( $confirm_auto->show_confirm_auto($request)) {
+            $op = 'confirmautoill';
+            $template->param(
+                $confirm_auto->confirm_auto_template_params($params)
             );
         # Ready to create ILL request
         } else {
