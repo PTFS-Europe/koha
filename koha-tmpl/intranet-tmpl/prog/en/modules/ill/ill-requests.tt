@@ -44,6 +44,13 @@
             [% WRAPPER breadcrumb_item bc_active= 1 %]
                 <span>Request type disclaimer</span>
             [% END %]
+        [% ELSIF query_type == 'confirmautoill' %]
+            [% WRAPPER breadcrumb_item %]
+                <a href="/cgi-bin/koha/ill/ill-requests.pl">ILL requests</a>
+            [% END %]
+            [% WRAPPER breadcrumb_item bc_active= 1 %]
+                <span>Confirm automatic request</span>
+            [% END %]
         [% ELSE %]
             [% WRAPPER breadcrumb_item bc_active= 1 %]
                 <span>ILL requests</span>
@@ -895,6 +902,49 @@
                             </fieldset>
                         </form>
                     </div>
+                    [% ELSIF query_type == 'confirmautoill' %]
+                    <!-- confirmautoill -->
+                    <h1>Confirm automatic request</h1>
+                    <div id="results" class="page-section">
+                        <form method="post" id="confirmautoill-form">
+                            <fieldset class="rows">
+                                <div id="autoillbackend"></div>
+                                <p>Please confirm the details below:</p>
+                                <p>
+                                [% FOREACH key IN whole.keys.sort %]
+                                    [% IF key != 'method' && key != 'backend' && whole.$key %]
+                                        [% IF core_fields.$key %]
+                                            <strong>[% core_fields.$key | html %]</strong> : [% whole.$key | html %] <br>
+                                        [% ELSE %]
+                                            <strong>[% key | html %]</strong> : [% whole.$key | html %] <br>
+                                        [% END %]
+                                    [% END %]
+                                [% END %]
+                                </p>
+                            </fieldset>
+                            <fieldset class="action">
+                                [% FOREACH key IN whole.keys %]
+                                    [% value = whole.$key %]
+                                    [% IF key != 'method' && key != 'custom_key' && key != 'custom_value' %]
+                                        <input type="hidden" name="[% key | html %]" value="[% value | html %]">
+                                    [% END %]
+                                [% END %]
+                                [% custom_keys = whole.custom_key.split('\0') %]
+                                [% custom_values = whole.custom_value.split('\0') %]
+                                [% i = 0 %]
+                                [% FOREACH custom_key IN custom_keys %]
+                                    <input type="hidden" name="custom_key" value="[% custom_key | html %]">
+                                    <input type="hidden" name="custom_value" value="[% custom_values.$i | html %]">
+                                    [% i = i + 1 %]
+                                [% END %]
+                                <input type="hidden" name="method" value="create" />
+                                <input type="hidden" name="stage" value="form">
+                                <input type="hidden" name="confirm_auto_submitted" value="1">
+                                <input type="submit" value="Confirm" />
+                                <a class="cancel" href="ill-requests.pl">Cancel</a>
+                            </fieldset>
+                        </form>
+                    </div>
                 [% ELSIF query_type == 'batch_list' || query_type == 'batch_create' %]
                     [% INCLUDE 'ill-batch.inc' %]
                 [% ELSE %]
@@ -939,6 +989,11 @@
         [% ELSE %]
         var services = [];
         [% END %]
+        [% IF auto_backends_json.length > 0 %]
+        var auto_backends = [% auto_backends_json | $raw %];
+        [% ELSE %]
+        var auto_backends = [];
+        [% END %]
         [% IF metadata.length > 0 %]
         var metadata = "[% metadata | $raw %]";
         [% END %]
@@ -961,6 +1016,9 @@
     [% Asset.js("js/ill-batch-modal.js") | $raw %]
     [% IF (query_type == 'availability' || query_type == 'generic_confirm') && Koha.Preference('ILLCheckAvailability') %]
         [% Asset.js("js/ill-availability.js") | $raw %]
+    [% END %]
+    [% IF (query_type == 'confirmautoill' && Koha.Preference('AutoILLBackend')) %]
+        [% Asset.js("js/ill-autobackend.js") | $raw %]
     [% END %]
     [% IF query_type == 'availability' && Koha.Preference('ILLCheckAvailability') %]
         <script>
