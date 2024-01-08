@@ -410,7 +410,7 @@ if ( $backends_available ) {
             }
         }
 
-        $template->param( table_actions => encode_json( Koha::Illrequest->get_staff_table_actions ) );
+        $template->param( table_actions => encode_json( Koha::ILL::Request->get_staff_table_actions ) );
     } elsif ( $op eq "save_comment" ) {
         die "Wrong CSRF token" unless Koha::Token->new->check_csrf({
            session_id => scalar $cgi->cookie('CGISESSID'),
