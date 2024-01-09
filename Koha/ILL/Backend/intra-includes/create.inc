@@ -193,7 +193,7 @@
   </fieldset>
   <fieldset class="action">
     <input type="submit" value="Select"/>
-    <a class="cancel" href=[% parent | uri %]>Cancel</a>
+    <a class="cancel" href=[% parent | url %]>Cancel</a>
   </fieldset>
 </form>
 
