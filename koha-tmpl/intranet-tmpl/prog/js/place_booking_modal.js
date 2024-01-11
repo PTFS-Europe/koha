@@ -100,7 +100,7 @@ $('#placeBookingModal').on('show.bs.modal', function(e) {
                 return patron.text;
             }
             return (
-                escape_str(patron.surname) + ", " + escape_str(patron.firstname)
+                patron.surname + ", " + patron.firstname
             );
         },
         placeholder: "Search for a patron"
