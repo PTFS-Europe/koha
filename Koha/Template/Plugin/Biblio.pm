@@ -29,8 +29,6 @@ use Koha::Patrons;
 use Koha::ArticleRequests;
 use Koha::Recalls;
 
-use Koha::DateUtils qw(dt_from_string);
-
 sub HoldsCount {
     my ( $self, $biblionumber ) = @_;
 
@@ -66,16 +64,6 @@ sub RecallsCount {
     my $recalls = Koha::Recalls->search({ biblio_id => $biblionumber, completed => 0 });
 
     return $recalls->count;
-}
-
-sub BookingsCount {
-    my ( $self, $biblionumber ) = @_;
-
-    my $biblio = Koha::Biblios->find($biblionumber);
-
-    my $now = dt_from_string;
-    my $dtf = Koha::Database->new->schema->storage->datetime_parser;
-    return $biblio->bookings->search( { start_date => { '>' => $dtf->format_datetime($now) } } )->count;
 }
 
 1;
