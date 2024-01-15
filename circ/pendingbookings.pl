@@ -32,7 +32,7 @@ my ( $template, $borrowernumber, $cookie, $flags ) = get_template_and_user(
         template_name => "circ/pendingbookings.tt",
         query         => $input,
         type          => "intranet",
-        flagsrequired => { circulation => 1 },
+        flagsrequired => { circulate => 'manage_bookings' },
     }
 );
 
