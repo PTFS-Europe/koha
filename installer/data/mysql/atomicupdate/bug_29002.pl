@@ -52,6 +52,11 @@ return {
 
                 say "Migrated room reservations plugin to it's own namespace";
                 say "You MUST upgrade to the latest room reservation plugin to continue using it";
+                $dbh->do(
+                    "UPDATE plugin_data SET plugin_value = 0 WHERE plugin_class = 'Koha::Plugin::Com::MarywoodUniversity::RoomReservations' AND plugin_key = '__ENABLED__'"
+                );
+
+                say "Plugin disabled, please re-enable once you have upgraded it";
             }
         }
 
