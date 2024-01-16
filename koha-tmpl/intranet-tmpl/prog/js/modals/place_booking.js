@@ -163,7 +163,7 @@ $("#placeBookingModal").on("show.bs.modal", function (e) {
                     };
                     bookings.unshift(booking);
                 }
-    
+
                 // Item select2
                 $("#booking_item_id").select2({
                     dropdownParent: $(".modal-content", "#placeBookingModal"),
@@ -178,7 +178,7 @@ $("#placeBookingModal").on("show.bs.modal", function (e) {
 
                 // Total bookable items
                 let bookable = 0;
-    
+
                 for (item of bookable_items) {
                     bookable++;
                     // Populate item select (NOTE: Do we still need this check for pre-existing select option here?)
@@ -212,10 +212,10 @@ $("#placeBookingModal").on("show.bs.modal", function (e) {
 
                         // set booked counter
                         let booked = 0;
-        
+
                         // reset the unavailable items array
                         let unavailable_items = [];
-        
+
                         // reset the biblio level bookings array
                         let biblio_bookings = [];
 
@@ -330,7 +330,7 @@ $("#placeBookingModal").on("show.bs.modal", function (e) {
                                         }
                                     }
                                 }
-        
+
                                 // new booking would not conflict
                                 else {
                                     continue;
@@ -362,7 +362,7 @@ $("#placeBookingModal").on("show.bs.modal", function (e) {
                                 if (booked == bookable) {
                                     return true;
                                 }
-        
+
                                 // FIXME: The above is not intelligent enough to spot
                                 // cases where an item must be used for a biblio level booking
                                 // due to all other items being booking within the biblio level
@@ -616,7 +616,11 @@ $("#placeBookingForm").on("submit", function (e) {
             );
 
             // Set feedback
-            $('#transient_result').replaceWith('<div id="transient_result" class="dialog success">'+_("Booking successfully placed")+'</div>');
+            $("#transient_result").replaceWith(
+                '<div id="transient_result" class="dialog message">' +
+                    _("Booking successfully placed") +
+                    "</div>"
+            );
 
             // Close modal
             $("#placeBookingModal").modal("hide");
@@ -678,12 +682,13 @@ $("#placeBookingForm").on("submit", function (e) {
                 timeline.focus(data.booking_id);
             }
 
-<<<<<<< HEAD
-=======
             // Set feedback
-            $('#transient_result').replaceWith('<div id="transient_result" class="dialog success">'+_("Booking successfully updated")+'</div>');
+            $("#transient_result").replaceWith(
+                '<div id="transient_result" class="dialog message">' +
+                    _("Booking successfully updated") +
+                    "</div>"
+            );
 
->>>>>>> 9195757e2f1 (Bug 35813: Add success feedback after placing/editing bookings)
             // Close modal
             $("#placeBookingModal").modal("hide");
         });
