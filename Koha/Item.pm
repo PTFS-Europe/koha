@@ -535,7 +535,7 @@ Find the first booking that would conflict with the passed checkout dates for th
 FIXME: This can be simplified, it was originally intended to iterate all biblio level bookings
 to catch cases where this item may be the last available to satisfy a biblio level only booking.
 However, we dropped the biblio level functionality prior to push as bugs were found in it's
-implementation.
+implimentation.
 
 =cut
 
