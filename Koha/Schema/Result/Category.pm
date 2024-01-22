@@ -213,6 +213,27 @@ set required password strength for patrons in this category
 
 Exclude patrons of this category from local holds priority
 
+=head2 noissuescharge
+
+  data_type: 'integer'
+  is_nullable: 1
+
+define maximum amount withstanding before checkouts are blocked
+
+=head2 noissueschargeguarantees
+
+  data_type: 'integer'
+  is_nullable: 1
+
+define maximum amount withstanding before checkouts are blocked
+
+=head2 noissueschargeguarantorswithguarantees
+
+  data_type: 'integer'
+  is_nullable: 1
+
+define maximum amount withstanding before checkouts are blocked
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -281,6 +302,12 @@ __PACKAGE__->add_columns(
   { data_type => "tinyint", is_nullable => 1 },
   "exclude_from_local_holds_priority",
   { data_type => "tinyint", is_nullable => 1 },
+  "noissuescharge",
+  { data_type => "integer", is_nullable => 1 },
+  "noissueschargeguarantees",
+  { data_type => "integer", is_nullable => 1 },
+  "noissueschargeguarantorswithguarantees",
+  { data_type => "integer", is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -388,8 +415,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2023-11-01 20:49:52
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:r0Mftlw4TU7x+Ze2pAlwYQ
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2024-01-22 10:25:59
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:T7D8IaPgpSAit0VkrCQnrw
 
 sub koha_object_class {
     'Koha::Patron::Category';
