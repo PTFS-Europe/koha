@@ -1,7 +1,8 @@
 $(document).ready(function () {
-    let auto_ill_el = "#confirmautoill-form #autoillbackend";
-    let found_backend = false;
+    let auto_ill_el = "#confirmautoill-form #autoillbackends";
+    let auto_ill_message_el = "#confirmautoill-form #autoillbackend-message";
 
+    confirmAutoInit();
     getBackendsAvailability(auto_backends, metadata);
 
     /**
@@ -12,17 +13,19 @@ $(document).ready(function () {
      * @return {Promise} A Promise that resolves to the JSON response.
      */
     async function getBackendAvailability(auto_backend, metadata) {
-        var response = await $.ajax({
+        return $.ajax({
             url: auto_backend.endpoint + metadata,
             type: "GET",
             dataType: "json",
             beforeSend: function () {
                 _addBackendPlaceholderEl(auto_backend.name);
+                _addBackendOption(auto_backend.name);
                 _addVerifyingMessage(auto_backend.name);
+                auto_backend.available = 0;
             },
             success: function (data) {
                 _addSuccessMessage(auto_backend.name);
-                found_backend = true;
+                auto_backend.available = 1;
             },
             error: function (request, textstatus) {
                 if (textstatus === "timeout") {
@@ -31,18 +34,21 @@ $(document).ready(function () {
                         __("Verification timed out.")
                     );
                 } else {
-                    _addErrorMessage(
-                        auto_backend.name,
-                        request.hasOwnProperty("responseJSON")
-                            ? request.responseJSON.error
-                            : JSON.stringify(request.responseJSON)
-                    );
+                    let message = "Error";
+                    if (request.hasOwnProperty("responseJSON")) {
+                        if (request.responseJSON.error) {
+                            message = request.responseJSON.error;
+                        } else if (request.responseJSON.errors) {
+                            message = request.responseJSON.errors
+                                .map((error) => error.message)
+                                .join(", ");
+                        }
+                    }
+                    _addErrorMessage(auto_backend.name, message);
                 }
             },
             timeout: 10000,
         });
-
-        return response.json();
     }
 
     /**
@@ -52,53 +58,109 @@ $(document).ready(function () {
      * @param {Object} metadata - Additional metadata for the availability check.
      * @return {void}
      */
-    async function getBackendsAvailability(auto_backends, metadata) {
+    function getBackendsAvailability(auto_backends, metadata) {
+        let promises = [];
         for (const auto_backend of auto_backends) {
-            if (found_backend) break;
             try {
-                await getBackendAvailability(auto_backend, metadata);
-            } catch {}
+                const prom = getBackendAvailability(auto_backend, metadata);
+                promises.push(prom);
+            } catch (e) {
+                console.log("catch");
+                console.log(e);
+            }
         }
-        if (!found_backend) {
-            _addBackendPlaceholderEl("Standard");
-            _addSuccessMessage("Standard");
-        }
+        Promise.allSettled(promises).then(() => {
+            let auto_backend = auto_backends.find(
+                (backend) => backend.available
+            );
+            if (typeof auto_backend === "undefined") {
+                _setAutoBackend("Standard");
+            } else {
+                _setAutoBackend(auto_backend.name);
+            }
+            $('#confirmautoill-form .action input[type="submit"]').prop(
+                "disabled",
+                false
+            );
+        });
+        _addBackendPlaceholderEl("Standard");
+        _addBackendOption("Standard");
     }
 
     function _addSuccessMessage(auto_backend_name) {
-        $(auto_ill_el + " #" + auto_backend_name).append(
-            '<span class="text-success">' +
-                __(
-                    "Your request will be placed as a <strong>%s</strong> request."
-                ).format(auto_backend_name) +
+        _removeVerifyingMessage(auto_backend_name);
+        $(auto_ill_el + " > #backend-" + auto_backend_name).append(
+            '<span class="text-success"><i class="fa-solid fa-check"></i> ' +
+                __("Available.").format(auto_backend_name) +
                 "</span>"
-        );
-        $('#confirmautoill-form .action input[name="backend"]').val(
-            auto_backend_name
         );
     }
 
     function _addErrorMessage(auto_backend_name, message) {
-        $(auto_ill_el + " #" + auto_backend_name).append(
-            '<span class="text-danger">' +
-                __("Unable to place request with <strong>%s</strong>:").format(
-                    auto_backend_name
-                ) +
+        _removeVerifyingMessage(auto_backend_name);
+        $(auto_ill_el + " > #backend-" + auto_backend_name).append(
+            '<span class="text-danger"> <i class="fa-solid fa-xmark"></i> ' +
+                __("Not readily available:").format(auto_backend_name) +
                 " " +
                 message +
                 "</span>"
         );
     }
 
+    function _addBackendOption(auto_backend_name) {
+        $(auto_ill_el + " > #backend-" + auto_backend_name).append(
+            ' <input type="radio" id="' +
+                auto_backend_name +
+                '" name="backend" value="' +
+                auto_backend_name +
+                '">' +
+                ' <label for="' +
+                auto_backend_name +
+                '" class="radio">' +
+                auto_backend_name +
+                "</label> "
+        );
+    }
+
     function _addVerifyingMessage(auto_backend_name) {
-        $(auto_ill_el + " #" + auto_backend_name).append(
+        $(auto_ill_el + " > #backend-" + auto_backend_name).append(
+            '<span id="verifying-availabilty" class="text-info"><i id="issues-table-load-delay-spinner" class="fa fa-spinner fa-pulse fa-fw"></i> ' +
+                __("Verifying availability...").format(auto_backend_name) +
+                "</span>"
+        );
+    }
+    function _removeVerifyingMessage(auto_backend_name) {
+        $(
+            auto_ill_el +
+                " #backend-" +
+                auto_backend_name +
+                " #verifying-availabilty"
+        ).remove();
+    }
+
+    function _setAutoBackend(auto_backend_name) {
+        $(
+            '#confirmautoill-form #autoillbackends input[id="' +
+                auto_backend_name +
+                '"]'
+        ).prop("checked", true);
+        $(auto_ill_message_el).html(
             __(
-                "Verifying if your request can be placed with <strong>%s</strong>..."
-            ).format(auto_backend_name) + "<br>"
+                "The recommended backend for your request is <strong>%s</strong>."
+            ).format(auto_backend_name)
         );
     }
 
     function _addBackendPlaceholderEl(auto_backend_name) {
-        $(auto_ill_el).append('<div id="' + auto_backend_name + '">');
+        $(auto_ill_el).append('<div id="backend-' + auto_backend_name + '">');
+    }
+
+    function confirmAutoInit() {
+        $('#confirmautoill-form .action input[name="backend"]').remove();
+        $('#confirmautoill-form .action input[type="submit"]').prop(
+            "disabled",
+            true
+        );
+        $(auto_ill_message_el).html(__("Fetching backends availability..."));
     }
 });
