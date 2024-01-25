@@ -32,7 +32,7 @@ my $q    = CGI->new;
 my $lang = $q->param('lang');
 $lang ||= 'en';
 
-my $concept = retrieve_concept( $q->param('termcode'), $lang );
+my $concept = retrieve_concept(scalar $q->param('termcode'), $lang );
 my $label = shift  @{ $concept->{labels} };
 
 #$template->param(
@@ -87,7 +87,7 @@ sub retrieve_concept {
         while (@l_arr) {
             my $term   = shift @l_arr;
             my $l_lang = shift @l_arr;
-            if ( $l_lang !~ m/^\p{PosixUpper}{2}$/ ) {
+            if ( $l_lang !~ m/^(?:\p{PosixUpper}{2}|\p{PosixUpper}{2}-\p{PosixUpper}{2})$/ ) {
                 $term .= ", $l_lang";
                 $l_lang = shift @l_arr;
             }
