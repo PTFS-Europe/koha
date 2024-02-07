@@ -35,6 +35,7 @@ use C4::Overdues;
 use Koha::AuthorisedValues;
 use Koha::Biblios;
 use Koha::CirculationRules;
+use Koha::DateUtils qw( dt_from_string );
 use Koha::Items;
 use Koha::ItemTypes;
 use Koha::Checkouts;
@@ -623,6 +624,7 @@ if (
     ) {
     $template->param(
 	    reserve_in_future         => 1,
+        today                     => dt_from_string,
     );
 }
 
