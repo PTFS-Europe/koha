@@ -241,6 +241,7 @@ SKIP: {
             # 1 - "Yes"
             # 2 - "If all unavailable"
 
+            #TODO: This test is failing, it shouldn't. It should match with its detail page counterpart
             # 'Place hold' button doesn't exist because all are available
             set_onshelfholds(0);
             search_page_hold_button_absent('Authenticated - onshelfholds If any unavailable');
@@ -250,6 +251,7 @@ SKIP: {
             search_page_hold_button_present('Authenticated - onshelfholds Yes');
             reset_data();
 
+            #TODO: This test is failing, it shouldn't. It should match with its detail page counterpart
             # 'Place hold' button doesn't exist because all are available
             set_onshelfholds(2);
             search_page_hold_button_absent('Authenticated - onshelfholds If all unavailable');
