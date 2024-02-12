@@ -13,7 +13,9 @@ properties:
     type: string
   description:
     description: The staff interface description for this authorised value
-    type: string
+    type:
+      - string
+      - "null"
   opac_description:
     description: The public interface description of this authorised value, if set"
     type:
