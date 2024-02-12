@@ -22,6 +22,15 @@ export class AVAPIClient extends HttpClient {
                     headers: {
                         "x-koha-embed": "authorised_values",
                     },
+                }).then(av_categories => {
+                    av_categories.forEach(av_category => {
+                        av_category.authorised_values =
+                            av_category.authorised_values.map(av => ({
+                                ...av,
+                                description: av.description || av.value,
+                            }));
+                    });
+                    return av_categories;
                 }),
         };
     }
