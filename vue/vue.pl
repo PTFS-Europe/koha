@@ -17,21 +17,47 @@
 
 use Modern::Perl;
 
-use CGI        qw ( -utf8 );
+use CGI qw ( -utf8 );
+use C4::Context;
 use C4::Auth   qw( get_template_and_user );
 use C4::Output qw( output_html_with_http_headers );
 
+use Koha::DateUtils qw( dt_from_string );
+use Koha::Acquisition::Booksellers;
 use Koha::Database::Columns;
 use Koha::Notice::Templates;
 
-my $query = CGI->new;
-my ( $template, $loggedinuser, $cookie, $userflags ) = get_template_and_user(
+my $input = CGI->new;
+my $url   = $input->param('url');
+my $module;
+my $submodule;
+
+my @split_url = split( /\//, $url );
+$module    = $split_url[0];
+$submodule = $split_url[1] || undef;
+
+# Add flags here
+my $flagsrequired = {};
+$flagsrequired->{erm}          = 1                       if $module eq 'erm';
+$flagsrequired->{preservation} = '*'                     if $module eq 'preservation';
+$flagsrequired->{parameters}   = 'manage_record_sources' if $module eq 'admin' && $submodule eq 'record_sources';
+
+my ( $template, $loggedinuser, $cookie ) = get_template_and_user(
     {
-        template_name => 'preservation/home.tt',
-        query         => $query,
-        type          => 'intranet',
-        flagsrequired => { preservation => '*' },
+        template_name => "vue/vue.tt",
+        query         => $input,
+        type          => "intranet",
+        flagsrequired => $flagsrequired
     }
+);
+
+$template->param( module => $module, submodule => $submodule );
+
+my $max_allowed_packet = C4::Context->dbh->selectrow_array(q{SELECT @@max_allowed_packet});
+
+$template->param(
+    vendors            => Koha::Acquisition::Booksellers->search,
+    max_allowed_packet => $max_allowed_packet,
 );
 
 my $columns = Koha::Database::Columns::columns;
@@ -54,4 +80,5 @@ $template->param(
     ],
 );
 
-output_html_with_http_headers $query, $cookie, $template->output;
+
+output_html_with_http_headers $input, $cookie, $template->output;

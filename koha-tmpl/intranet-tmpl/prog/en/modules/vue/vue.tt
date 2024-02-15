@@ -3,22 +3,36 @@
 [% USE Asset %]
 [% USE KohaDates %]
 [% USE TablesSettings %]
+[% USE AuthorisedValues %]
 [% PROCESS 'i18n.inc' %]
 [% SET footerjs = 1 %]
 [% INCLUDE 'doc-head-open.inc' %]
+    [% IF ( module == 'erm' ) %]
+        [% SET page_title = 'E-resource management' %]
+    [% ELSIF ( module == 'preservation' ) %]
+        [% SET page_title = 'Preservation' %]
+    [% ELSIF ( module == 'admin' ) %]
+        [% SET page_title = 'Record sources' %]
+    [% END %]
 <title>[% FILTER collapse %]
-    [% t("E-resource management") | html %] &rsaquo;
+    [% t( page_title ) | html %] &rsaquo;
     [% t("Koha") | html %]
 [% END %]</title>
 [% INCLUDE 'doc-head-close.inc' %]
 </head>
 
-<body id="erm_agreements" class="erm">
+<body id="vue-spa-container" class="vue-spa">
 [% WRAPPER 'header.inc' %]
-    [% INCLUDE 'erm-search.inc' %]
+    [% IF ( module == 'erm' ) %]
+        [% INCLUDE 'erm-search.inc' %]
+    [% ELSIF ( module == 'preservation' ) %]
+        [% INCLUDE 'preservation-search.inc' %]
+    [% ELSIF ( module == 'admin' ) %]
+        [% INCLUDE 'prefs-admin-search.inc' %]
+    [% END %]
 [% END %]
 
-<div id="erm"> <!-- this is closed in intranet-bottom.inc -->
+<div id="vue-spa"> <!-- this is closed in intranet-bottom.inc -->
 
 [% MACRO jsinclude BLOCK %]
     [% INCLUDE 'calendar.inc' %]
@@ -28,7 +42,7 @@
     [% INCLUDE 'js-date-format.inc' %]
 
     <script>
-
+        // ERM
         const agreement_table_settings = [% TablesSettings.GetTableSettings( 'erm', 'agreements', 'agreements', 'json' ) | $raw %];
         const license_table_settings = [% TablesSettings.GetTableSettings( 'erm', 'licenses', 'licenses', 'json' ) | $raw %];
         const eholdings_packages_table_settings = [% TablesSettings.GetTableSettings( 'erm', 'eholdings', 'packages', 'json' ) | $raw %];
@@ -38,16 +52,20 @@
         const counter_log_table_settings = [% TablesSettings.GetTableSettings( 'erm', 'counter_logs', 'counter_logs', 'json' ) | $raw %];
         const monthly_usage_table_settings = [% TablesSettings.GetTableSettings( 'erm', 'monthly_usages', 'monthly_usages', 'json' ) | $raw %];
         const yearly_usage_table_settings = [% TablesSettings.GetTableSettings( 'erm', 'yearly_usages', 'yearly_usages', 'json' ) | $raw %];
-
         const max_allowed_packet = [% To.json(max_allowed_packet) | $raw %];
-
         const logged_in_user_lists = [% To.json(logged_in_user.virtualshelves.unblessed) | $raw %];
-
         const logged_in_user = [% To.json(logged_in_user.unblessed) | $raw %];
+
+        // Preservation
+        const authorised_value_categories = [% To.json(AuthorisedValues.GetCategories()) | $raw %].map(c => c.category);
+        const db_columns = [% To.json(db_columns) | $raw %];
+        const api_mappings = [% To.json(api_mappings) | $raw %];
+        const notice_templates = [% To.json(notice_templates || []) | $raw %];
+        const csrf_token = "[% Koha.GenerateCSRF | $raw %]";
 
     </script>
 
-    [% Asset.js("js/vue/dist/erm.js") | $raw %]
+    [% Asset.js("js/vue/dist/vue.js") | $raw %]
 
 [% END %]
 [% INCLUDE 'intranet-bottom.inc' %]

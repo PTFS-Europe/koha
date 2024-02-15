@@ -112,7 +112,7 @@
 
                             [% IF Koha.Preference('ERMModule') && CAN_user_erm %]
                             <li>
-                                <a class="icon_general icon_erm" href="/cgi-bin/koha/erm/erm.pl"><i class="fa fa-fw fa-external-link-square"></i>E-resource management</a>
+                                <a class="icon_general icon_erm" href="/cgi-bin/koha/erm/"><i class="fa fa-fw fa-external-link-square"></i>E-resource management</a>
                             </li>
                             [% END %]
 
@@ -155,7 +155,7 @@
 
                             [% IF Koha.Preference('PreservationModule') && CAN_user_preservation%]
                             <li>
-                                <a class="icon_general icon_preservation" href="/cgi-bin/koha/preservation/home.pl"><i class="fa fa-fw fa-book"></i>Preservation</a>
+                                <a class="icon_general icon_preservation" href="/cgi-bin/koha/preservation/"><i class="fa fa-fw fa-book"></i>Preservation</a>
                             </li>
                             [% END %]
 
