@@ -13,6 +13,9 @@ import Admin from "./Admin/Admin.vue"
 export default {
     setup() {
         const navigationStore = inject("navigationStore")
+        if (!navigationStore.current[0]) {
+            window.location.href = "/cgi-bin/koha/errors/404.pl"
+        }
         return {
             currentModule: navigationStore.current[0].meta.self.module,
         }
