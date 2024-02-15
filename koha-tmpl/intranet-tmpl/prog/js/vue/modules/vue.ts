@@ -9,15 +9,36 @@ import {
     faPencil,
     faTrash,
     faSpinner,
+    faClose,
+    faPaperPlane,
+    faInbox,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import vSelect from "vue-select";
 
-library.add(faPlus, faMinus, faPencil, faTrash, faSpinner);
+library.add(
+    faPlus,
+    faMinus,
+    faPencil,
+    faTrash,
+    faSpinner,
+    faClose,
+    faPaperPlane,
+    faInbox
+);
 
-import App from "../components/ERM/Main.vue";
+import App from "../components/Main.vue";
 
-import { routes as routesDef } from "../routes/erm";
+// Import new routes here
+import { routes as erm } from "../routes/erm";
+import { routes as preservation } from "../routes/preservation";
+import { routes as admin } from "../routes/admin";
+// Add them to the definition
+const routesDef = {
+    erm,
+    preservation,
+    admin,
+};
 
 import { useMainStore } from "../stores/main";
 import { useVendorStore } from "../stores/vendors";
@@ -25,6 +46,7 @@ import { useAVStore } from "../stores/authorised-values";
 import { useERMStore } from "../stores/erm";
 import { useNavigationStore } from "../stores/navigation";
 import { useReportsStore } from "../stores/usage-reports";
+import { usePreservationStore } from "../stores/preservation";
 import i18n from "../i18n";
 
 const pinia = createPinia();
@@ -58,8 +80,15 @@ const ERMStore = useERMStore(pinia);
 app.provide("ERMStore", ERMStore);
 const reportsStore = useReportsStore(pinia);
 app.provide("reportsStore", reportsStore);
+const PreservationStore = usePreservationStore(pinia);
+app.provide("PreservationStore", PreservationStore);
 
-app.mount("#erm");
+const setModuleAndMount = async () => {
+    await router.isReady();
+    navigationStore.$patch({ current: router.currentRoute.value.matched });
+    app.mount("#vue-spa");
+};
+setModuleAndMount();
 
 const { removeMessages } = mainStore;
 router.beforeEach((to, from) => {
