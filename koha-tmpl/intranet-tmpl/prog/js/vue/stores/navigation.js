@@ -11,18 +11,45 @@ export const useNavigationStore = defineStore("navigation", {
         },
         current: null,
         params: {},
+        module: null,
     }),
     actions: {
-        setRoutes(routesDef) {
-            if (!Array.isArray(routesDef)) {
-                routesDef = [routesDef];
-            }
+        setRoutes(routesObject) {
+            let routesDef = _setModuleAndParentRoute(routesObject);
+
             this.routeState.children = routesDef;
             _traverseChildren(this.routeState);
 
             return this.navigationRoutes;
 
             // Function declarations
+
+            function _assignModuleToChildren(children, module) {
+                children.forEach(child => {
+                    child.module = module;
+                    if (child.children && child.children.length) {
+                        _assignModuleToChildren(child.children, module);
+                    }
+                });
+            }
+
+            function _setModuleAndParentRoute(routesDef) {
+                const keys = Object.keys(routesDef);
+                const routesByModule = keys.map(key => {
+                    const routes = routesDef[key];
+                    routes.forEach(routeObject => {
+                        routeObject.module = key;
+                        if (
+                            routeObject.children &&
+                            routeObject.children.length
+                        ) {
+                            _assignModuleToChildren(routeObject.children, key);
+                        }
+                    });
+                    return routes;
+                });
+                return routesByModule.flat(Infinity);
+            }
 
             function _traverseChildren(parent) {
                 if (isParent(parent)) {
@@ -152,20 +179,28 @@ export const useNavigationStore = defineStore("navigation", {
             }
         },
         leftNavigation() {
-            return _getNavigationElements(this.routeState);
+            return _getNavigationElements(this.routeState, this.current);
 
             // Function declarations
 
-            function _getNavigationElements(parent, prevPath = "") {
+            function _getNavigationElements(parent, current, prevPath = "") {
                 if (_isBaseAndNoChildren(parent)) return [];
                 if (parent.is_base)
-                    return _buildChildNavigationElements(parent).flat(Infinity);
+                    return _buildChildNavigationElements(
+                        parent,
+                        null,
+                        current
+                    ).flat(Infinity);
 
                 const builtPath = _buildPath(prevPath, parent);
 
                 let children = [];
                 if (!parent.is_end_node && isParent(parent)) {
-                    children = _buildChildNavigationElements(parent, builtPath);
+                    children = _buildChildNavigationElements(
+                        parent,
+                        builtPath,
+                        current
+                    );
                 }
 
                 return {
@@ -191,10 +226,17 @@ export const useNavigationStore = defineStore("navigation", {
                 return builtPath;
             }
 
-            function _buildChildNavigationElements(parent, builtPath) {
+            function _buildChildNavigationElements(parent, builtPath, current) {
                 return parent.children
+                    .filter(child =>
+                        child.is_base
+                            ? current[0].meta.self.module === child.module
+                            : true
+                    )
                     .filter(child => child.is_base || child.is_navigation_item)
-                    .map(child => _getNavigationElements(child, builtPath));
+                    .map(child =>
+                        _getNavigationElements(child, current, builtPath)
+                    );
             }
 
             function _isBaseAndNoChildren(parent) {

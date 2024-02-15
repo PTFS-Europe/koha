@@ -22,7 +22,7 @@ export const routes = [
         },
     },
     {
-        path: "/cgi-bin/koha/preservation/home.pl",
+        path: "/cgi-bin/koha/preservation",
         is_default: true,
         is_base: true,
         title: $__("Preservation"),

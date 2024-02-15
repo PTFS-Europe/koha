@@ -31,7 +31,7 @@ import { $__ } from "../i18n";
 
 export const routes = [
     {
-        path: "/cgi-bin/koha/erm/erm.pl",
+        path: "/cgi-bin/koha/erm",
         is_default: true,
         is_base: true,
         title: $__("E-resource management"),
