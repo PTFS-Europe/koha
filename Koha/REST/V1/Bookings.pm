@@ -99,6 +99,13 @@ sub add {
                 status  => 400,
                 openapi => { error => "Booking would conflict" }
             );
+        } elsif ( blessed $_ and $_->isa('Koha::Exceptions::Object::DuplicateID') ) {
+            return $c->render(
+                status  => 400,
+                openapi => {
+                    error => "Duplicate booking_id",
+                }
+            );
         }
 
         return $c->unhandled_exception($_);
