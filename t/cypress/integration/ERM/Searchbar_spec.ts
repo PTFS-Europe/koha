@@ -12,7 +12,7 @@ describe("Searchbar header changes", () => {
     });
 
     it("Default option is agreements", () => {
-        cy.visit("/cgi-bin/koha/erm/erm.pl");
+        cy.visit("/cgi-bin/koha/erm/");
         cy.get("#agreement_search_tab").parent().should("have.class", "active");
 
         cy.visit("/cgi-bin/koha/erm/agreements");

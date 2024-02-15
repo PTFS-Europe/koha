@@ -39,7 +39,7 @@ describe("Package CRUD operations", () => {
         cy.intercept("GET", "/api/v1/erm/eholdings/local/packages*", {
             statusCode: 500,
         });
-        cy.visit("/cgi-bin/koha/erm/erm.pl");
+        cy.visit("/cgi-bin/koha/erm/");
         cy.get("#navmenulist").contains("Packages").click();
         cy.get("main div[class='dialog alert']").contains(
             "Something went wrong: Error: Internal Server Error"

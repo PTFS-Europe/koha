@@ -77,7 +77,7 @@ describe("Title CRUD operations", () => {
             statusCode: 500,
             error: "Something went wrong",
         });
-        cy.visit("/cgi-bin/koha/erm/erm.pl");
+        cy.visit("/cgi-bin/koha/erm/");
         cy.get("#navmenulist").contains("Titles").click();
         cy.get("main div[class='dialog alert']").contains(
             /Something went wrong/

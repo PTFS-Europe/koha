@@ -47,7 +47,7 @@ describe("WaitingList", () => {
             "/api/v1/preservation/config",
             JSON.stringify(config)
         );
-        cy.visit("/cgi-bin/koha/preservation/home.pl");
+        cy.visit("/cgi-bin/koha/preservation/");
         cy.intercept("GET", "/api/v1/preservation/waiting-list/items*", []);
         cy.get("#navmenulist").contains("Waiting list").click();
         cy.get("#waiting-list").contains(
@@ -60,7 +60,7 @@ describe("WaitingList", () => {
             "/api/v1/preservation/config",
             JSON.stringify(config)
         );
-        cy.visit("/cgi-bin/koha/preservation/home.pl");
+        cy.visit("/cgi-bin/koha/preservation/");
         cy.intercept("GET", "/api/v1/preservation/waiting-list/items*", []);
         cy.get("#navmenulist").contains("Waiting list").click();
         cy.get("#waiting-list").contains(

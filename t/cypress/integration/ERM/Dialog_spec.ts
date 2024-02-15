@@ -54,7 +54,7 @@ describe("Dialog operations", () => {
                 error: "This is a specific error message",
             },
         });
-        cy.visit("/cgi-bin/koha/erm/erm.pl");
+        cy.visit("/cgi-bin/koha/erm/");
         cy.get("#navmenulist").contains("Packages").click();
         cy.get("main div[class='dialog alert']").contains(
             "Something went wrong: Error: This is a specific error message"
@@ -63,7 +63,7 @@ describe("Dialog operations", () => {
         cy.intercept("GET", "/api/v1/erm/eholdings/local/packages*", {
             statusCode: 500, // No body, in case of Internal Server Error, we get statusText
         });
-        cy.visit("/cgi-bin/koha/erm/erm.pl");
+        cy.visit("/cgi-bin/koha/erm/");
         cy.get("#navmenulist").contains("Packages").click();
         cy.get("main div[class='dialog alert']").contains(
             "Something went wrong: Error: Internal Server Error"

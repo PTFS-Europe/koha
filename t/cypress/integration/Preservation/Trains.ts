@@ -261,7 +261,7 @@ describe("Trains", () => {
             statusCode: 500,
             error: "Something went wrong",
         });
-        cy.visit("/cgi-bin/koha/preservation/home.pl");
+        cy.visit("/cgi-bin/koha/preservation/");
         cy.get("#navmenulist").contains("Trains").click();
         cy.get("main div[class='dialog alert']").contains(
             /Something went wrong/

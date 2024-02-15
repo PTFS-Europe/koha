@@ -27,7 +27,7 @@ describe("Data provider CRUD operations", () => {
             statusCode: 500,
             error: "Something went wrong",
         });
-        cy.visit("/cgi-bin/koha/erm/erm.pl");
+        cy.visit("/cgi-bin/koha/erm/");
         cy.get("#navmenulist").contains("Data providers").click();
         cy.get("main div[class='dialog alert']").contains(
             /Something went wrong/
@@ -710,7 +710,7 @@ describe("Data providers action buttons", () => {
                     "X-Total-Count": "1",
                 },
             }
-        );
+        ).as("sushiRequest");
         cy.get("#confirmation_input_begin_date+input").click();
         cy.get(".flatpickr-current-month select")
             .invoke("val")
@@ -719,8 +719,9 @@ describe("Data providers action buttons", () => {
                 cy.get(".dayContainer").contains(new RegExp("^1$")).click();
             });
         cy.get("#accept_modal").click();
+        cy.wait("@sushiRequest");
         cy.get(
-            "#erm > div > div.main.container-fluid > div > div.col-sm-10.col-sm-push-2 > main > div.dialog.message > li"
+            "#vue-spa > div > div.main.container-fluid > div > div.col-sm-10.col-sm-push-2 > main > div.dialog.message > li"
         ).contains(
             "Job for report type TR_J1 has been queued, click here to check its progress."
         );
@@ -758,7 +759,7 @@ describe("Data providers action buttons", () => {
             .click();
         cy.wait("@test-connection");
         cy.get(
-            "#erm > div > div.main.container-fluid > div > div.col-sm-10.col-sm-push-2 > main > div.dialog.message"
+            "#vue-spa > div > div.main.container-fluid > div > div.col-sm-10.col-sm-push-2 > main > div.dialog.message"
         ).contains(
             "Harvester connection was successful for usage data provider " +
                 dataProvider.name
