@@ -285,4 +285,11 @@ service memcached restart
 update-rc.d koha-common disable
 update-rc.d koha-common enable
 
+#
+# LOCAL: PTFS Europe custom steps
+systemctl disable --now rabbitmq-server
+systemctl stop koha-common
+sleep 1s
+systemctl start koha-common
+
 exit 0
