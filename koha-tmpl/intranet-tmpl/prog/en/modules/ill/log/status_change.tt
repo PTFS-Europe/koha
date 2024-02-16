@@ -1,6 +1,8 @@
 [% USE KohaDates %]
 <p>
-[% log.timestamp | $KohaDates with_hours => 1 %] : <strong>Status changed</strong>
+[% log.timestamp | $KohaDates with_hours => 1 %] :
+[%- INCLUDE 'patron-title.inc' patron => log.patron hide_patron_infos_if_needed => 1 -%]
+- <strong>Status changed</strong>
 [% IF log.info.status_before %]
 [% before = log.info.status_before %]
 [% display_before = log.aliases.$before ? log.aliases.$before.lib : request.capabilities.$before.name %]

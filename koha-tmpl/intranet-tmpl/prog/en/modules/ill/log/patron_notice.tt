@@ -1,6 +1,8 @@
 [% USE KohaDates %]
 <p>
-[% log.timestamp | $KohaDates with_hours => 1 %] : <b>Patron notice sent: </b>
+[% log.timestamp | $KohaDates with_hours => 1 %] : 
+[%- INCLUDE 'patron-title.inc' patron => log.patron hide_patron_infos_if_needed => 1 -%]
+- <b>Patron notice sent: </b>
 [% notice_code = log.info.notice_code %]
 &quot;[% log.notice_types.$notice_code.name | html %]&quot;
 </p>
