@@ -52,6 +52,7 @@ if ( $op eq 'cud-add' ) {
     my $ft_search_groups_staff = $cgi->param('ft_search_groups_staff') || 0;
     my $ft_local_hold_group    = $cgi->param('ft_local_hold_group')    || 0;
     my $ft_local_float_group   = $cgi->param('ft_local_float_group')   || 0;
+    my $ft_acquisitions        = $cgi->param('ft_acquisitions')   || 0;
 
     if ( !$branchcode && Koha::Library::Groups->search( { title => $title } )->count() ) {
         $template->param( error_duplicate_title => $title );
@@ -69,6 +70,7 @@ if ( $op eq 'cud-add' ) {
                     ft_local_hold_group    => $ft_local_hold_group,
                     ft_limit_item_editing  => $ft_limit_item_editing,
                     ft_local_float_group   => $ft_local_float_group,
+                    ft_acquisitions        => $ft_acquisitions,
                     branchcode             => $branchcode,
                 }
             )->store();
@@ -91,6 +93,7 @@ elsif ( $op eq 'cud-edit' ) {
     my $ft_search_groups_staff = $cgi->param('ft_search_groups_staff') || 0;
     my $ft_local_hold_group    = $cgi->param('ft_local_hold_group')    || 0;
     my $ft_local_float_group   = $cgi->param('ft_local_float_group')   || 0;
+    my $ft_acquisitions        = $cgi->param('ft_acquisitions')   || 0;
 
     if ($id) {
         my $group = Koha::Library::Groups->find($id);
@@ -105,6 +108,7 @@ elsif ( $op eq 'cud-edit' ) {
                 ft_search_groups_staff => $ft_search_groups_staff,
                 ft_local_hold_group    => $ft_local_hold_group,
                 ft_local_float_group   => $ft_local_float_group,
+                ft_acquisitions        => $ft_acquisitions,
             }
         )->store();
 
