@@ -4305,6 +4305,7 @@ CREATE TABLE `library_groups` (
   `ft_search_groups_staff` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'Use this group for opac side search groups',
   `ft_local_hold_group` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'Use this group to identify libraries as pick up location for holds',
   `ft_local_float_group` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'Use this group to identify libraries as part of float group',
+  `ft_acquisitions` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'Use this group in the acquisitions module',
   `created_on` timestamp NULL DEFAULT NULL COMMENT 'Date and time of creation',
   `updated_on` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT 'Date and time of last',
   PRIMARY KEY (`id`),
