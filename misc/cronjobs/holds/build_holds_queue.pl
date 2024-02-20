@@ -18,7 +18,7 @@ use Koha::Script -cron;
 
 =head1 NAME
 
-build_holds_queue.pl - Rebuild the holds queue
+build_holds_queue.pl - Build the holds queue based on RealTimeHoldsQueue sys pref
 
 =head1 SYNOPSIS
 
@@ -27,7 +27,7 @@ build_holds_queue.pl [-f]
  Options:
    -h --help        Brief help message
    -m --man         Full documentation
-   -f --force    Run holds queue builder even if RealTimeHoldsQueue is enabled
+   -f --force       Fully rebuilds the holds queue even if RealTimeHoldsQueue is enabled
 
 =head1 OPTIONS
 
@@ -45,24 +45,21 @@ Prints the manual page and exits.
 
 allows this script to rebuild the entire holds queue even if the realtimeholdsqueue system preference is enabled.
 
-=item b<--unallocated>
-
-prevents deletion of current queue and allows the script to only deal with holds not currently in the queue.
-This is useful when using the realtimeholdsqueue and skipping closed libraries, or allowing holds in the future
-This allows the script to catch holds that may have become active without triggering a real time update.
-
 =back
 
 =head1 DESCRIPTION
 
-This script builds or rebuilds the entire holds queue.
+This script rebuilds the entire holds queue if RealTimeHoldsQueue is disabled.
+
+If RealTimeHoldsQueue is enabled, this script will only consider unallocated holds to add to the queue.
+This is useful when a real-time-hold fails to allocate due to closed libraries.
+This allows the script to catch holds that may have become active but failed to trigger a real time update.
 
 =cut
 
 my $help  = 0;
 my $man   = 0;
 my $force = 0;
-my $unallocated = 0;
 
 my $command_line_options = join( " ", @ARGV );
 
@@ -70,17 +67,17 @@ GetOptions(
     'h|help'  => \$help,
     'm|man'   => \$man,
     'f|force' => \$force,
-    'u|unallocated' => \$unallocated
 );
 pod2usage(1)                              if $help;
 pod2usage( -exitval => 0, -verbose => 2 ) if $man;
 
 my $rthq = C4::Context->preference('RealTimeHoldsQueue');
+my $unallocated = 0;
 
 if ( $rthq && !$force ) {
-    say "RealTimeHoldsQueue system preference is enabled, holds queue not built.";
+    say "RealTimeHoldsQueue system preference is enabled, holds queue not rebuilt. Checking unallocated holds only.";
     say "Use --force to force building the holds queue.";
-    exit(1);
+    $unallocated = 1;
 }
 
 cronlogaction( { info => $command_line_options } );
