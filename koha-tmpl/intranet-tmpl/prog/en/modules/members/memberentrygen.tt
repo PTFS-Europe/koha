@@ -235,6 +235,7 @@ legend:hover {
                                 [% END %]
                                     <i class="fa fa-times"></i> Cancel
                                 </a>
+                                <a id="quick_add_user_button"  href="#">+ Add new user</a>
                             </div>
                         [% END %]
 
@@ -1680,7 +1681,9 @@ legend:hover {
     [% Asset.js("lib/hc-sticky.js") | $raw %]
     [% INCLUDE 'calendar.inc' %]
     [% INCLUDE 'str/members-menu.inc' %]
+    [% INCLUDE modals/quick_add_patron.inc %]
     [% Asset.js("js/members-menu.js") | $raw %]
+    [% Asset.js("js/modals/quick_add_patron.js") | $raw %]
     <script>
         function update_cardnumber_warning(size){
             var max_len = [% maxlength_cardnumber | html %];
