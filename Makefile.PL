@@ -318,7 +318,6 @@ my $target_map = {
   './docs/contributors.yaml'    => { target => 'DOC_DIR', trimdir => -1 },
   './docs/teams.yaml'           => { target => 'DOC_DIR', trimdir => -1 },
   './offline_circ'              => 'INTRANET_CGI_DIR',
-  './erm'                       => 'INTRANET_CGI_DIR',
   './etc'                       => { target => 'KOHA_CONF_DIR', trimdir => -1 },
   './etc/zebradb'               => { target => 'ZEBRA_CONF_DIR', trimdir => -1 },
   './etc/z3950'                 => { target => 'Z3950_CONF_DIR', trimdir => -1 },
@@ -390,6 +389,7 @@ my $target_map = {
                                            # that should go in /var/tmp/koha
   './tools'                     => 'INTRANET_CGI_DIR',
   './virtualshelves'            => 'INTRANET_CGI_DIR',
+  './vue'                       => 'INTRANET_CGI_DIR',
   # ignore files and directories created by the install itself
   './pm_to_blib'                => 'NONE',
   './blib'                      => 'NONE',
