@@ -64,6 +64,11 @@
                         [% INCLUDE 'navigation.inc' IsPatronPage=1 %]
                     </div>
                 </div>
+            [% ELSIF (unauthenticated_ill && !logged_in_user) %]
+                <div class="col-lg-2">
+                    <div id="navigation">
+                    </div>
+                </div>
             [% END %]
 
             [% IF ( OpacNav||loggedinusername ) %]
