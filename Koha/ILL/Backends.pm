@@ -19,6 +19,8 @@ package Koha::ILL::Backends;
 
 use Modern::Perl;
 
+use Koha::ILL::Request::Config;
+
 use base qw(Koha::Objects);
 
 =head1 NAME
@@ -49,6 +51,27 @@ sub installed_backends {
     my $backends  = Koha::ILL::Request::Config->new->available_backends;
     my @installed = grep { !/Standard/ } @{$backends};
     return \@installed;
+}
+
+=head3 opac_available_backends
+
+Return a list of backends available in the OPAC
+
+=cut
+
+sub opac_available_backends {
+    my ( $self, $loggedinuser ) = @_;
+    my $reduced  = C4::Context->preference('ILLOpacbackends');
+    my $backends = Koha::ILL::Request::Config->new->available_backends($reduced);
+
+    if ( !$loggedinuser && C4::Context->preference('ILLOpacUnauthenticatedRequest') ) {
+        foreach my $backend ( @{$backends} ) {
+            my $loaded_b = Koha::ILL::Request->new->load_backend($backend);
+            @$backends = grep { !/$backend/ } @$backends
+                if ( $loaded_b->_backend_capability('opac_unauthenticated_ill_requests') == 0 );
+        }
+    }
+    return $backends;
 }
 
 =head2 Internal methods
