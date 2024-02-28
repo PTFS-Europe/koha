@@ -49,10 +49,14 @@ if ( ! C4::Context->preference('ILLModule') ) {
     exit;
 }
 
+my $op = $params->{'method'} || 'list';
+
 my ( $template, $loggedinuser, $cookie ) = get_template_and_user({
     template_name   => "opac-illrequests.tt",
     query           => $query,
     type            => "opac",
+    # authnotrequired => ( $op eq 'create' && C4::Context->preference("OpacUnauthencatedILLRequest") ? 1 : 0 )
+    authnotrequired => ( ($op eq 'create' || $op eq 'list') ? 1 : 0 )
 });
 
 # Are we able to actually work?
@@ -60,8 +64,6 @@ my $patron = Koha::Patrons->find($loggedinuser);
 my $backends = Koha::ILL::Backends->opac_available_backends($patron);
 my $backends_available = ( scalar @{$backends} > 0 );
 $template->param( backends_available => $backends_available );
-
-my $op = $params->{'method'} || 'list';
 
 my ( $illrequest_id, $request );
 if ( $illrequest_id = $params->{illrequest_id} ) {
@@ -73,7 +75,7 @@ if ( $illrequest_id = $params->{illrequest_id} ) {
     }
 }
 
-if ( ( $op eq 'create' || $op eq 'cancreq' || $op eq 'update' ) && !$patron->_result->categorycode->can_place_ill_in_opac ) {
+if ( ( $op eq 'create' || $op eq 'cancreq' || $op eq 'update' ) && ($patron && !$patron->_result->categorycode->can_place_ill_in_opac) ) {
     print $query->redirect('/cgi-bin/koha/errors/403.pl');
     exit;
 }
@@ -159,7 +161,11 @@ if ( $op eq 'list' ) {
             exit;
         }
 
-        $params->{cardnumber} = $patron->cardnumber;
+        if($patron){
+            $params->{cardnumber} = $patron->cardnumber;
+        } else{
+            # TODO: Create a quick user here and grab the cardnumber
+        }
         $params->{opac} = 1;
         my $backend_result = $request->backend_create($params);
 
@@ -192,7 +198,9 @@ if ( $op eq 'list' ) {
 }
 
 $template->param(
-    can_place_ill_in_opac => $patron->_result->categorycode->can_place_ill_in_opac,
+    # unauthenticated_ill => C4::Context->preference('OpacUnauthencatedILLRequest'),
+    unauthenticated_ill => 1,
+    can_place_ill_in_opac => ($patron && $patron->_result->categorycode->can_place_ill_in_opac),
     message         => $params->{message},
     illrequestsview => 1,
     method          => $op
