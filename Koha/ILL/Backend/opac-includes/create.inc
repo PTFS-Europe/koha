@@ -90,6 +90,11 @@
     <legend>Patron options</legend>
     <ol>
       <li>
+        [% IF unauthenticated_ill && !logged_in_user%]
+        [% PROCESS ill_text_input_field id = 'unauthenticated_first_name' label = t('First name') %]
+        [% PROCESS ill_text_input_field id = 'unauthenticated_last_name' label = t('Label name') %]
+        [% PROCESS ill_text_input_field id = 'unauthenticated_email' label = t('E-mail address') %]
+        [% END %]
         [% WRAPPER ill_select_field id = 'branchcode' label = t('Destination library') %]
           <option value="" />
           [% FOREACH branch IN branches %]
