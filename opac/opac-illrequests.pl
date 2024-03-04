@@ -161,11 +161,7 @@ if ( $op eq 'list' ) {
             exit;
         }
 
-        if($patron){
-            $params->{cardnumber} = $patron->cardnumber;
-        } else{
-            # TODO: Create a quick user here and grab the cardnumber
-        }
+        $params->{cardnumber} = $patron->cardnumber if $patron;
         $params->{opac} = 1;
         my $backend_result = $request->backend_create($params);
 

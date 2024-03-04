@@ -21,10 +21,13 @@ use Modern::Perl;
 use DateTime;
 use File::Basename qw( dirname );
 use C4::Installer;
+use Try::Tiny qw( catch try );
 
+use Koha::AuthUtils;
 use Koha::DateUtils qw/ dt_from_string /;
 use Koha::ILL::Requests;
 use Koha::ILL::Request::Attribute;
+use Koha::Patron::Categories;
 use C4::Biblio qw( AddBiblio );
 use C4::Charset qw( MarcToUTF8Record );
 
@@ -266,10 +269,6 @@ sub create {
             };
         }
 
-        # Received completed details of form.  Validate and create request.
-        ## Validate
-        my ( $brw_count, $brw ) =
-            _validate_borrower( $other->{'cardnumber'} );
         my $result = {
             cwd     => dirname(__FILE__),
             status  => "",
@@ -280,9 +279,29 @@ sub create {
             stage   => "form",
             core    => $core_fields
         };
+
+        if ( !_unauth_request_email_check($other->{unauthenticated_email}) ) {
+            $result->{status} = "unauth_patron_email_exists";
+            $result->{value}  = $params;
+            return $result;
+        }
+
+        #TODO: NEED TO RETHINK  THIS
+        #USER GETS CREATED EVEN IF ERROR HAPPENS (E.G. TYPE)
+        $other->{cardnumber} = _generate_unauth_cardnumber($other) if !$other->{cardnumber};
+
+        # Received completed details of form.  Validate and create request.
+        ## Validate
+        my ( $brw_count, $brw ) =
+            _validate_borrower( $other->{'cardnumber'} );
+
         my $failed = 0;
         if ( !$other->{'type'} ) {
             $result->{status} = "missing_type";
+            $result->{value}  = $params;
+            $failed           = 1;
+        } elsif ( !_unauth_request_data_check($other) ) {
+            $result->{status} = "missing_unauth_data";
             $result->{value}  = $params;
             $failed           = 1;
         } elsif ( !$other->{'branchcode'} ) {
@@ -1205,6 +1224,84 @@ sub _set_suppression {
     $record->append_fields($new942);
 
     return 1;
+}
+
+=head3 _unauth_request_data_check
+
+    _unauth_request_data_check($other);
+
+Returns if can proceed with unauthenticated request or not
+
+=cut
+
+sub _unauth_request_data_check {
+    my ($other) = @_;
+
+    # TODO: Remove this comment when sys pref exists
+    # return 1 unless C4::Context->preference("OpacUnauthencatedILLRequest");
+
+    return
+        $other->{unauthenticated_first_name}
+        && $other->{unauthenticated_last_name}
+        && $other->{unauthenticated_email};
+}
+
+
+=head3 _unauth_request_email_check
+
+    _unauth_request_email_check($other);
+
+Returns if can proceed with unauthenticated request or not
+
+=cut
+
+sub _unauth_request_email_check {
+    my ($email) = @_;
+
+    return 1
+        unless Koha::Patrons->search( { email => $email } )->count;
+        # TODO: Remove this comment when sys pref exists
+        # && C4::Context->preference("OpacUnauthencatedILLRequest");
+    return 0;
+}
+
+=head3 _generate_unauth_cardnumber
+
+    _generate_unauth_cardnumber($);
+
+Add a patron and return a new cardnumber if OpacUnauthencatedILLRequest
+
+=cut
+
+sub _generate_unauth_cardnumber {
+    my ($other) = @_;
+
+    # TODO: Uncomment this when sys pref exists
+    # if(!$other->{cardnumber} && C4::Context->preference("OpacUnauthencatedILLRequest")){
+    if ( !$other->{cardnumber} && 1 ) {
+        my $new_pass ||= Koha::AuthUtils::generate_password(
+            Koha::Patron::Categories->find( C4::Context->preference('PatronSelfRegistrationDefaultCategory') ) );
+        my $patron;
+        try {
+            $patron = Koha::Patron->new(
+                {
+                    branchcode   => $other->{branchcode},
+                    categorycode => C4::Context->preference('PatronSelfRegistrationDefaultCategory'),
+                    firstname    => $other->{unauthenticated_first_name},
+                    surname      => $other->{unauthenticated_last_name},
+                    email        => $other->{unauthenticated_email},
+                    password     => $new_pass
+                }
+            );
+            $patron->fixup_cardnumber;
+            $patron->store;
+        } catch {
+            my $type = ref($_);
+            my $info = "$_";
+            warn $info;
+        };
+        return $patron->cardnumber;
+    }
 }
 
 =head1 AUTHORS

@@ -7,6 +7,10 @@
 <p><em>Please Note:</em> Mandatory field Identifier is missing.</p>
 [% ELSIF whole.status == 'missing_type' %]
 <p><em>Please Note:</em> Type is a mandatory field.</p>
+[% ELSIF whole.status == 'missing_unauth_data' %]
+<p><em>Please Note:</em> Patron data (first name, last name and e-mail) are mandatory fields.</p>
+[% ELSIF whole.status == 'unauth_patron_email_exists' %]
+<p><em>Please Note:</em> E-mail address already exists.</p>
 [% ELSIF whole.status == 'missing_branch' %]
 <p><em>Please Note:</em> Branch is a mandatory field.</p>
 [% ELSIF whole.status == 'invalid_borrower' %]
