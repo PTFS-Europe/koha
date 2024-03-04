@@ -1,3 +1,6 @@
+[% PROCESS 'i18n.inc' %]
+[% cwd = whole.cwd %]
+[% PROCESS "${cwd}/shared-includes/form_input_helpers.inc" %]
 [% IF whole.error %]
 [% IF whole.status == 'missing_identifier' %]
 <p><em>Please Note:</em> Mandatory field Identifier is missing.</p>
@@ -20,9 +23,8 @@
   <fieldset class="rows">
     <legend>General details</legend>
     <ol id="general-standard-fields">
+    [% WRAPPER ill_select_field id = 'type' label = t('Type') %]
       <li>
-        <label class="required" for="type">Type:</label>
-        <select name="type" id="type">
           <option value=""/>
           [% IF whole.value.other.type.lower == "book" %]
           <option value="book" selected="selected">Book</option>
@@ -69,11 +71,10 @@
           [% ELSE %]
           <option value="resource">Generic resource</option>
           [% END %]
-        </select>
-      </li>
+        </li>
+    [% END #ill_select_field %]
     </ol>
   </fieldset>
-  [% cwd = whole.cwd %]
   [% type = whole.value.other.type %]
   [% IF type %]
       [% INCLUDE "${cwd}/shared-includes/forms/${type}.inc" %]
@@ -83,8 +84,7 @@
     <legend>Patron options</legend>
     <ol>
       <li>
-        <label class="required" for="branchcode">Destination library:</label>
-        <select id="branchcode" name="branchcode">
+        [% WRAPPER ill_select_field id = 'branchcode' label = t('Destination library') %]
           <option value="" />
           [% FOREACH branch IN branches %]
             [% IF whole.value.other.branchcode && branch.branchcode == whole.value.other.branchcode %]
@@ -97,7 +97,7 @@
             </option>
             [% END %]
           [% END %]
-        </select>
+        [% END #ill_select_field %]
       </li>
     </ol>
   </fieldset>
