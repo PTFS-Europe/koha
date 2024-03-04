@@ -1,13 +1,21 @@
 [% BLOCK ill_text_input_field %]
     <li>
       <label for="[% id | html %]">[% label | html %]:</label>
-      <input type="[% type | html %]" name="[% id | html %]" id="[% id | html%]" value="[% value | html %]" />
+      [% IF opac %]
+        <input class="form-control input-fluid" type="[% type | html %]" name="[% id | html %]" id="[% id | html%]" value="[% value | html %]" />
+      [% ELSE %]
+        <input type="[% type | html %]" name="[% id | html %]" id="[% id | html%]" value="[% value | html %]" />
+      [% END %]
     </li>
 [% END %]
 
 [% BLOCK ill_select_field %]
       <label class="required" for="[% id | html %]">[% label | html %]:</label>
-      <select name="[% id | html %]" id="[% id | html %]">
+      [% IF opac %]
+        <select class="form-control input-fluid" name="[% id | html %]" id="[% id | html %]">
+      [% ELSE %]
+        <select name="[% id | html %]" id="[% id | html %]">
+      [% END %]
         [% content | $raw %]
       </select>
 [% END %]
