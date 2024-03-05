@@ -216,6 +216,9 @@ our $RULE_KINDS = {
     holds_pickup_period => {
         scope => [ 'branchcode', 'categorycode', 'itemtype' ],
     },
+    bookings_allowed => {
+        scope => [ 'branchcode', 'itemtype' ],
+    },
     bookings_lead_period => {
         scope => [ 'branchcode', 'itemtype' ],
     },
