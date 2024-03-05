@@ -183,8 +183,16 @@ if ( $op eq 'list' ) {
                 request     => $request
             );
             if ($backend_result->{stage} eq 'commit') {
-                print $query->redirect('/cgi-bin/koha/opac-illrequests.pl?message=2');
-                exit;
+                #TODO: Uncomment this line when sys pref exists
+                # if ( C4::Context->preference('OpacUnauthencatedILLRequest')  && !$patron ) {
+                if ( 1 && !$patron ) {
+                    $op = 'unauth_view';
+                    # print $query->redirect(
+                    #     '/cgi-bin/koha/opac-illrequests.pl?method=view&illrequest_id=' . $request->illrequest_id );
+                }else{
+                    print $query->redirect('/cgi-bin/koha/opac-illrequests.pl?message=2');
+                    exit;
+                }
             }
         }
 
