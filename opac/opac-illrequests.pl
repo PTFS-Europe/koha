@@ -166,9 +166,15 @@ if ( $op eq 'list' ) {
 
         # After creation actions
         if ( $params->{type_disclaimer_submitted} ) {
+            #TODO: Uncomment this line when sys pref exists
+            # if ( C4::Context->preference('OpacUnauthencatedILLRequest')  && !$patron ) {
             $type_disclaimer->after_request_created( $params, $request );
-            print $query->redirect('/cgi-bin/koha/opac-illrequests.pl?message=2');
-            exit;
+            if ( 1 && !$patron ) {
+                $op = 'unauth_view';
+            } else {
+                print $query->redirect('/cgi-bin/koha/opac-illrequests.pl?message=2');
+                exit;
+            }
         }
 
         if ($backend_result->{stage} eq 'copyrightclearance') {
@@ -184,8 +190,14 @@ if ( $op eq 'list' ) {
                 request     => $request
             );
             if ($backend_result->{stage} eq 'commit') {
-                print $query->redirect('/cgi-bin/koha/opac-illrequests.pl?message=2');
-                exit;
+                #TODO: Uncomment this line when sys pref exists
+                # if ( C4::Context->preference('OpacUnauthencatedILLRequest')  && !$patron ) {
+                if ( 1 && !$patron ) {
+                    $op = 'unauth_view';
+                }else{
+                    print $query->redirect('/cgi-bin/koha/opac-illrequests.pl?message=2');
+                    exit;
+                }
             }
         }
 
