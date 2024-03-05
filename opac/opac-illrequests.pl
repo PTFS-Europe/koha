@@ -79,7 +79,7 @@ if ( $illrequest_id = $params->{illrequest_id} ) {
     }
 }
 
-if ( ( $op eq 'cud-create' || $op eq 'cancreq' || $op eq 'cud-update' ) && !$patron->_result->categorycode->can_place_ill_in_opac ) {
+if ( ( $op eq 'cud-create' || $op eq 'cancreq' || $op eq 'cud-update' ) && ($patron && !$patron->_result->categorycode->can_place_ill_in_opac) ) {
     print $query->redirect('/cgi-bin/koha/errors/403.pl');
     exit;
 }
@@ -204,7 +204,7 @@ if ( $op eq 'list' ) {
 
 $template->param(
     unauthenticated_ill => C4::Context->preference('ILLOpacUnauthenticatedRequest'),
-    can_place_ill_in_opac => $patron->_result->categorycode->can_place_ill_in_opac,
+    can_place_ill_in_opac => ( $patron && $patron->_result->categorycode->can_place_ill_in_opac ),
     message               => $params->{message},
     illrequestsview       => 1,
     op                    => $op
