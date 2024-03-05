@@ -162,7 +162,7 @@ if ( $op eq 'list' ) {
             exit;
         }
 
-        $params->{cardnumber} = $patron->cardnumber;
+        $params->{cardnumber} = $patron->cardnumber if $patron;
         $params->{opac} = 1;
         my $backend_result = $request->backend_create($params);
 
