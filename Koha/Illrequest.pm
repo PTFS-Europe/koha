@@ -2117,6 +2117,7 @@ sub get_op_param_deprecation {
     } elsif ( $interface eq 'intranet' ) {
         $op = $params->{op} // $params->{method} // 'illlist';
         $op = 'cud-create' if $op eq 'create';
+        $op = 'cud-edit_action' if $op eq 'edit_action';
         $op = 'cud-cancel' if $op eq 'cancel';
         $op = 'cud-delete' if $op eq 'delete';
     }
