@@ -380,6 +380,21 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 bookings
+
+Type: has_many
+
+Related object: L<Koha::Schema::Result::Booking>
+
+=cut
+
+__PACKAGE__->has_many(
+  "bookings",
+  "Koha::Schema::Result::Booking",
+  { "foreign.pickup_library_id" => "self.branchcode" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 borrower_attribute_types_branches
 
 Type: has_many
@@ -951,8 +966,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2023-10-19 18:12:48
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ZN7YtRwqkiYZYU1U+Yi+SA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2024-03-07 17:07:54
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Tmo9KwezFcO4782RG2M+Hw
 
 __PACKAGE__->add_columns(
     '+pickup_location' => { is_boolean => 1 },
