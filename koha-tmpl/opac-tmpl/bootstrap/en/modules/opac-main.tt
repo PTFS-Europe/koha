@@ -39,7 +39,8 @@
     [% ELSE %]
         <div id="notloggedin" class="container-fluid">
     [% END %]
-
+    <p>[% t('Translated string') %]:</p>
+    <p>Non-translated string:</p>
     <div class="row">
         [% IF ( OpacNav ||  OpacNavBottom ) %]
             <div class="col-12 col-lg-2 order-3 order-lg-1">
