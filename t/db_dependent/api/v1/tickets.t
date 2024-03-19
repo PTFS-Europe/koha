@@ -304,8 +304,8 @@ subtest 'update() tests' => sub {
 
     # Attempt partial update on a PUT
     my $ticket_with_missing_field = {
-        source    => 'catalog',
-        body      => "Test ticket details",
+        source => 'catalog',
+        body   => "Test ticket details",
     };
 
     $t->put_ok( "//$userid:$password@/api/v1/tickets/$ticket_id" => json =>
@@ -315,9 +315,9 @@ subtest 'update() tests' => sub {
 
     # Full object update on PUT
     my $ticket_with_updated_field = {
-        source    => 'catalog',
-        title     => "Test ticket update",
-        body      => "Test ticket update details",
+        source => 'catalog',
+        title  => "Test ticket update",
+        body   => "Test ticket update details",
     };
 
     $t->put_ok( "//$userid:$password@/api/v1/tickets/$ticket_id" => json =>
@@ -326,10 +326,10 @@ subtest 'update() tests' => sub {
 
     # Authorized attempt to write invalid data
     my $ticket_with_invalid_field = {
-        blah        => "Ticket Blah",
-        source    => 'catalog',
-        title     => "Test ticket update",
-        body      => "Test ticket update details",
+        blah   => "Ticket Blah",
+        source => 'catalog',
+        title  => "Test ticket update",
+        body   => "Test ticket update details",
     };
 
     $t->put_ok( "//$userid:$password@/api/v1/tickets/$ticket_id" => json =>
