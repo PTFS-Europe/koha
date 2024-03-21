@@ -22,8 +22,8 @@ use FindBin();
 use Data::Dumper qw( Dumper );
 use Test::More tests => 1;
 
-my @js_files;
-push @js_files, `git ls-files 'koha-tmpl/intranet-tmpl/prog/js/modals/place_booking.js'`;
+my $cmd = q{git grep -l '/\* keep tidy \*/'  -- '*.js'};
+my @js_files = qx{$cmd};
 
 my @not_tidy;
 foreach my $filepath (@js_files) {
@@ -35,4 +35,4 @@ foreach my $filepath (@js_files) {
     }
 }
 
-is(scalar(@not_tidy), 0, 'No .js file should be messy') or diag Dumper \@not_tidy;
+is(scalar(@not_tidy), 0, sprintf('No .js file should be messy %s/%s', scalar(@not_tidy), scalar(@js_files))) or diag Dumper \@not_tidy;
