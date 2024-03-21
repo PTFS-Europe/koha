@@ -61,7 +61,7 @@ foreign key from the items table defining the specific item the patron has place
 
   data_type: 'varchar'
   is_foreign_key: 1
-  is_nullable: 1
+  is_nullable: 0
   size: 10
 
 Identifier for booking pickup library
@@ -104,7 +104,7 @@ __PACKAGE__->add_columns(
   "item_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
   "pickup_library_id",
-  { data_type => "varchar", is_foreign_key => 1, is_nullable => 1, size => 10 },
+  { data_type => "varchar", is_foreign_key => 1, is_nullable => 0, size => 10 },
   "start_date",
   {
     data_type => "datetime",
@@ -195,17 +195,12 @@ __PACKAGE__->belongs_to(
   "pickup_library",
   "Koha::Schema::Result::Branch",
   { branchcode => "pickup_library_id" },
-  {
-    is_deferrable => 1,
-    join_type     => "LEFT",
-    on_delete     => "CASCADE",
-    on_update     => "CASCADE",
-  },
+  { is_deferrable => 1, on_delete => "CASCADE", on_update => "CASCADE" },
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2024-03-07 17:07:54
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:IEYMaWaOX+bQpm36pdTfyg
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2024-03-21 10:19:45
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Huc+T/8gRHH4XQzueRAfTw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
