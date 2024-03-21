@@ -459,9 +459,13 @@ $("#placeBookingModal").on("show.bs.modal", function (e) {
                         let option = $(this);
                         let item_id = option.val();
                         if (valid_items.includes(parseInt(item_id))) {
-                            option.prop("disabled", false);
+                            option.attr("data-pickup", true);
+                            if (option.data("available")) {
+                                option.prop("disabled", false);
+                            }
                         } else {
                             option.prop("disabled", true);
+                            option.attr("data-pickup", false);
                         }
                     });
                     $("#booking_item_id").trigger("change.select2");
@@ -526,9 +530,13 @@ $("#placeBookingModal").on("show.bs.modal", function (e) {
                                         );
                                     })
                                 ) {
+                                    option.attr("data-available", false);
                                     option.prop("disabled", true);
                                 } else {
-                                    option.prop("disabled", false);
+                                    option.attr("data-available", true);
+                                    if (option.data("pickup")) {
+                                        option.prop("disabled", false);
+                                    }
                                 }
                             });
                             $("#booking_item_id").trigger("change.select2");
@@ -536,7 +544,10 @@ $("#placeBookingModal").on("show.bs.modal", function (e) {
                         // Range not set, reset field options
                         else {
                             $("#booking_item_id > option").each(function () {
-                                $(this).prop("disabled", false);
+                                let option = $(this);
+                                if (option.data("pickup")) {
+                                    option.prop("disabled", false);
+                                }
                             });
                             $("#booking_item_id").trigger("change.select2");
                         }
@@ -774,9 +785,11 @@ $("#placeBookingForm").on("submit", function (e) {
 $("#placeBookingModal").on("hidden.bs.modal", function (e) {
     $("#booking_patron_id").val(null).trigger("change");
     $("#booking_patron_id").empty();
+    booking_patron = undefined;
     $("#booking_item_id").val(0).trigger("change");
     $("#pickup_library_id").val(null).trigger("change");
     $("#pickup_library_id").empty();
+    $("#pickup_library_id").prop("disabled", true);
     $("#period").get(0)._flatpickr.clear();
     $("#booking_start_date").val("");
     $("#booking_end_date").val("");
