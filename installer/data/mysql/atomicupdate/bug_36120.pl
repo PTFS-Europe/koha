@@ -19,6 +19,15 @@ return {
           $dbh->do(
               q{UPDATE bookings JOIN items ON bookings.item_id = items.itemnumber SET bookings.pickup_library_id = items.homebranch }
           );
+
+          say $out "Set existing bookings pickup location to item homebranch";
+
+          $dbh->do(q{
+              ALTER TABLE bookings
+              MODIFY pickup_library_id varchar(10) NOT NULL COMMENT 'Identifier for booking pickup library'
+          });
+
+          say $out "Set pickup_library_id to NOT NULL";
         }
     },
 };
