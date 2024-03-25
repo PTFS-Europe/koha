@@ -1159,7 +1159,7 @@ Return a string representing the material type of this request or undef
 
 sub get_type {
     my ($self) = @_;
-    my $attr = $self->illrequestattributes->find({ type => 'type'});
+    my $attr = $self->extended_attributes->find({ type => 'type'});
     return if !$attr;
     return $attr->value;
 };
@@ -1795,10 +1795,10 @@ and transport type
 sub get_notice {
     my ( $self, $params ) = @_;
 
-    my $title = $self->illrequestattributes->find(
+    my $title = $self->extended_attributes->find(
         { type => 'title' }
     );
-    my $author = $self->illrequestattributes->find(
+    my $author = $self->extended_attributes->find(
         { type => 'author' }
     );
     my $metahash = $self->metadata;
@@ -1810,7 +1810,7 @@ sub get_notice {
     my $metastring = join("\n", @metaarray);
 
     my $illrequestattributes = {
-        map { $_->type => $_->value } $self->illrequestattributes->as_list
+        map { $_->type => $_->value } $self->extended_attributes->as_list
     };
 
     my $letter = C4::Letters::GetPreparedLetter(
