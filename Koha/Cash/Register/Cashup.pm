@@ -158,14 +158,14 @@ sub summary {
 
     my @income = map {
         {
-            total           => $_->get_column('total') * -1,
+            total           => sprintf("%.2f", $_->get_column('total') * -1),
             debit_type_code => $_->get_column('debit_type_code'),
             debit_type => { description => $_->get_column('debit_description') }
         }
     } $income_summary->as_list;
     my @payout = map {
         {
-            total            => $_->get_column('total') * -1,
+            total            => sprintf("%.2f", $_->get_column('total') * -1),
             credit_type_code => $_->get_column('credit_type_code'),
             credit_type =>
               { description => $_->get_column('credit_description') },
