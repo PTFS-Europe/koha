@@ -104,6 +104,11 @@
     [% INCLUDE 'calendar.inc' %]
     [% INCLUDE 'select2.inc' %]
     [% Asset.js("js/catalog.js") | $raw %]
+    [% Asset.js("lib/dayjs/dayjs.min.js") | $raw %]
+    [% Asset.js("lib/dayjs/plugin/isSameOrAfter.js") | $raw %]
+    [% Asset.js("lib/dayjs/plugin/isSameOrBefore.js") | $raw %]
+    <script>dayjs.extend(window.dayjs_plugin_isSameOrAfter)</script>
+    <script>dayjs.extend(window.dayjs_plugin_isSameOrBefore)</script>
     [% Asset.js("js/modals/place_booking.js") | $raw %]
     [% Asset.js("js/browser.js") | $raw %]
     [% IF ( Koha.Preference('CatalogConcerns') ) %]

@@ -66,6 +66,11 @@
     [% INCLUDE 'select2.inc' %]
     [% INCLUDE 'js-patron-format.inc' %]
     [% INCLUDE 'js-date-format.inc' %]
+    [% Asset.js("lib/dayjs/dayjs.min.js") | $raw %]
+    [% Asset.js("lib/dayjs/plugin/isSameOrAfter.js") | $raw %]
+    [% Asset.js("lib/dayjs/plugin/isSameOrBefore.js") | $raw %]
+    <script>dayjs.extend(window.dayjs_plugin_isSameOrAfter)</script>
+    <script>dayjs.extend(window.dayjs_plugin_isSameOrBefore)</script>
     [% Asset.js("js/modals/place_booking.js") | $raw %]
     [% Asset.js("js/cancel_booking_modal.js") | $raw %]
 <script>
