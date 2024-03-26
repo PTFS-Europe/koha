@@ -285,4 +285,9 @@ service memcached restart
 update-rc.d koha-common disable
 update-rc.d koha-common enable
 
+# ---- ptfs-e customisations below this line ----
+## do not use rabbitmq-server
+systemctl disable --now rabbitmq-server
+systemctl stop rabbitmq-server
+
 exit 0
