@@ -174,6 +174,16 @@ $("#placeBookingModal").on("show.bs.modal", function (e) {
         },
     });
 
+    // Itemtype select2
+    $("#booking_itemtype").select2({
+        dropdownParent: $(".modal-content", "#placeBookingModal"),
+        width: "50%",
+        allowClear: true,
+        dropdownAutoWidth: true,
+        minimumResultsForSearch: 20,
+        placeholder: __("Select item type"),
+    });
+
     // Adopt periodPicker
     let periodPicker = $("#period").get(0)._flatpickr;
 
@@ -230,7 +240,7 @@ $("#placeBookingModal").on("show.bs.modal", function (e) {
                     width: "50%",
                     dropdownAutoWidth: true,
                     minimumResultsForSearch: 20,
-                    placeholder: __("Select item"),
+                    allowClear: false,
                 });
 
                 // Update flatpickr mode
@@ -239,8 +249,10 @@ $("#placeBookingModal").on("show.bs.modal", function (e) {
                 // Total bookable items
                 let bookable = 0;
 
+                let itemtypes = new Set();
                 for (item of bookable_items) {
                     bookable++;
+
                     // Populate item select (NOTE: Do we still need this check for pre-existing select option here?)
                     if (
                         !$("#booking_item_id").find(
@@ -254,10 +266,28 @@ $("#placeBookingModal").on("show.bs.modal", function (e) {
                             false,
                             false
                         );
+                        newOption.setAttribute(
+                            "data-itemtype",
+                            item.effective_item_type_id
+                        );
+
                         // Append it to the select
                         $("#booking_item_id").append(newOption);
                     }
+
+                    // Build list of itemtypes
+                    itemtypes.add(item.effective_item_type_id);
                 }
+
+                // Filter itemtypes and enable select2
+                $("#booking_itemtype option").each(function () {
+                    const optionValue = $(this).val();
+                    if (!itemtypes.has(optionValue)) {
+                        $(this).remove();
+                    }
+                });
+                $("#booking_itemtype").trigger("change");
+                $("#booking_itemtype").prop("disabled", false);
 
                 // Set disable function for periodPicker
                 let disableExists = periodPicker.config.disable.filter(
@@ -439,11 +469,48 @@ $("#placeBookingModal").on("show.bs.modal", function (e) {
                     });
                 }
 
+                // Setup listener for itemtype select2
+                $("#booking_itemtype").on("select2:select", function (e) {
+                    effective_itemtype = e.params.data.id
+                        ? e.params.data.id
+                        : null;
+
+                    // Disable items not of this itemtype
+                    $("#booking_item_id > option").each(function () {
+                        let option = $(this);
+                        if (option.val() != 0) {
+                            let item_itemtype = option.data("itemtype");
+                            if (item_itemtype == effective_itemtype) {
+                                if (
+                                    option.data("available") &&
+                                    option.data("pickup")
+                                ) {
+                                    option.prop("disabled", false);
+                                }
+                            } else {
+                                option.prop("disabled", true);
+                            }
+                        }
+                    });
+                    $("#booking_item_id").trigger("change.select2");
+                });
+
                 // Setup listener for item select2
                 $("#booking_item_id").on("select2:select", function (e) {
                     booking_item_id = e.params.data.id
                         ? e.params.data.id
                         : null;
+
+                    // handle itemtype picker
+                    if (booking_item_id != 0) {
+                        let itemtype = e.params.data.element.dataset.itemtype;
+
+                        $("#booking_itemtype").val(itemtype);
+                        $("#booking_itemtype").trigger("change.select2");
+                        $("#booking_itemtype").prop("disabled", true);
+                    } else {
+                        $("#booking_itemtype").prop("disabled", false);
+                    }
 
                     // redraw pariodPicker taking selected item into account
                     periodPicker.redraw();
@@ -468,7 +535,7 @@ $("#placeBookingModal").on("show.bs.modal", function (e) {
                             option.attr("data-pickup", false);
                         }
                     });
-                    $("#booking_item_id").trigger("change.select2");
+                    $("#booking_item_id").trigger("change");
                 });
 
                 // Set onChange for flatpickr
