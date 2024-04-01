@@ -1640,13 +1640,13 @@ sub send_patron_notice {
             push @fail, $transport;
         }
     }
-    if (scalar @success > 0) {
+    #if (scalar @success > 0) {
         my $logger = Koha::Illrequest::Logger->new;
         $logger->log_patron_notice({
             request => $self,
             notice_code => $notice_code
         });
-    }
+    #}
     return {
         result => {
             success => \@success,
