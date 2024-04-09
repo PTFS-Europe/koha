@@ -514,3 +514,7 @@
         </div> <!-- /.panel-body -->
     </div> <!-- /.panel-collapse -->
 [% END %]
+
+[% BLOCK form_input %]
+    <input type="[% type %]" id="[% id %]" name="[% name %]" class="[% class %]" maxlength="[% maxlength %]" value="[% value %]" />
+[% END %]

@@ -5,11 +5,14 @@ fieldset {
     select,
     textarea,
     input{
+        &.tiny {
+            width: 4ch !important;
+        }
         &:not([type="submit"]):not([type="search"]):not([type="button"]):not([type="checkbox"]):not([type="radio"]) {
             border-color: rgba(60, 60, 60, 0.26);
             border-width: 1px;
             border-radius: 4px;
-            min-width: 30%;
+            width: 30%;
             line-height: 1.5;
         }
     }

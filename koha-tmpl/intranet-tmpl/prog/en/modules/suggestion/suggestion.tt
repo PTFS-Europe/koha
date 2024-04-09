@@ -9,6 +9,7 @@
 [% PROCESS 'patron-search.inc' %]
 [% SET footerjs = 1 %]
 [% INCLUDE 'doc-head-open.inc' %]
+[% PROCESS 'html_helpers.inc' %]
 <title>[% FILTER collapse %]
     [% IF op == 'save' %]
         [% IF ( suggestionid ) %]
@@ -371,7 +372,8 @@
                         </li>
                         <li>
                             <label for="copyrightdate">Copyright date:</label>
-                            <input type="text" id="copyrightdate" name="copyrightdate" size="4" maxlength="4" value="[% copyrightdate | html %]" />
+                            [% WRAPPER form_input type="text" id="copyrightdate" name="copyrightdate" class="tiny" maxlength="4" value=copyrightdate %]
+                            [% END %]
                         </li>
                         <li>
                             <label for="isbn">ISBN or ISSN or other standard number:</label>
