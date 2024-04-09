@@ -437,7 +437,7 @@
             $ref: "../swagger.yaml#/definitions/patron"
       "400":
         description: |
-          Bad request. Possible `error_code` attribute values:
+          Bad parameter. Possible `error_code` attribute values:
 
             * `invalid_attribute_type`
             * `attribute_not_unique`
