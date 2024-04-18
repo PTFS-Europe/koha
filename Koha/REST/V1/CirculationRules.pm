@@ -41,4 +41,34 @@ sub get_kinds {
     );
 }
 
+
+=head3 list_effective_rules
+
+List all effective rules for the requested patron/item/branch combination
+
+=cut
+
+sub list_effective_rules {
+    my $c = shift->openapi->valid_input or return;
+
+    my $item_type       = $c->param('itemtype');
+    my $library         = $c->param('library');
+    my $patron_category = $c->param('category');
+    my $rules           = $c->param('rules') // [ keys %{Koha::CirculationRules->rule_kinds} ];
+
+    my $effective_rules = Koha::CirculationRules->get_effective_rules(
+        {
+            categorycode => $patron_category,
+            itemtype     => $item_type,
+            branchcode   => $library,
+            rules => $rules
+        }
+    );
+
+    return $c->render(
+        status  => 200,
+        openapi => $effective_rules
+    );
+}
+
 1;
