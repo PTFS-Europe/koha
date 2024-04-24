@@ -89,7 +89,8 @@ export default {
                             return row._strings.additional_field_values
                                 .filter(
                                     field =>
-                                        field.field_id == searchable_field.id
+                                        field.field_id ==
+                                        searchable_field.additional_field_id
                                 )
                                 .map(el => el.value_str)
                         }
@@ -102,21 +103,21 @@ export default {
                         datatype: "related-object",
                         related: "extended_attributes",
                         relatedKey: "field_id",
-                        relatedValue: searchable_field.id,
+                        relatedValue: searchable_field.additional_field_id,
                         relatedSearchOn: "value",
                         className:
                             "searchable-additional-column-" +
-                            searchable_field.id,
+                            searchable_field.additional_field_id,
                         title: searchable_field.name,
                         searchable: true,
                         sortable: false,
                         render: _customRender,
                     })
 
-                    if (searchable_field.authorised_value_category) {
+                    if (searchable_field.authorised_value_category_name) {
                         let options =
                             this.searchable_av_options[
-                                searchable_field.authorised_value_category
+                                searchable_field.authorised_value_category_name
                             ]
 
                         options.map(e => {
