@@ -9,25 +9,33 @@
             <template v-for="available_field in available_fields">
                 <template
                     v-if="
-                        available_field.authorised_value_category &&
+                        available_field.authorised_value_category_name &&
                         !available_field.repeatable
                     "
                 >
                     <li>
-                        <label :for="`additional_field_` + available_field.id"
+                        <label
+                            :for="
+                                `additional_field_` +
+                                available_field.additional_field_id
+                            "
                             >{{ available_field.name }}:
                         </label>
                         <v-select
-                            :id="`additional_field_` + available_field.id"
+                            :id="
+                                `additional_field_` +
+                                available_field.additional_field_id
+                            "
                             :name="available_field.name"
                             v-model="
                                 current_additional_fields_values[
-                                    available_field.id
+                                    available_field.additional_field_id
                                 ]
                             "
                             :options="
                                 av_options[
-                                    available_field.authorised_value_category
+                                    available_field
+                                        .authorised_value_category_name
                                 ]
                             "
                         />
@@ -35,39 +43,53 @@
                 </template>
                 <template
                     v-if="
-                        available_field.authorised_value_category &&
+                        available_field.authorised_value_category_name &&
                         available_field.repeatable
                     "
                 >
                     <li>
-                        <label :for="`additional_field_` + available_field.id"
+                        <label
+                            :for="
+                                `additional_field_` +
+                                available_field.additional_field_id
+                            "
                             >{{ available_field.name }}:
                         </label>
                         <v-select
-                            :id="`additional_field_` + available_field.id"
+                            :id="
+                                `additional_field_` +
+                                available_field.additional_field_id
+                            "
                             :name="available_field.name"
                             :multiple="available_field.repeatable"
                             v-model="
                                 current_additional_fields_values[
-                                    available_field.id
+                                    available_field.additional_field_id
                                 ]
                             "
                             :options="
                                 av_options[
-                                    available_field.authorised_value_category
+                                    available_field
+                                        .authorised_value_category_name
                                 ]
                             "
                         />
                     </li>
                 </template>
 
-                <template v-if="!available_field.authorised_value_category">
+                <template
+                    v-if="!available_field.authorised_value_category_name"
+                >
                     <li
                         v-for="current in current_additional_fields_values[
-                            available_field.id
+                            available_field.additional_field_id
                         ]"
                     >
-                        <label :for="`additional_field_` + available_field.id"
+                        <label
+                            :for="
+                                `additional_field_` +
+                                available_field.additional_field_id
+                            "
                             >{{ available_field.name }}:
                         </label>
                         <input type="text" v-model="current.value" />
@@ -133,7 +155,7 @@ export default {
             if (available_fields) {
                 const client_av = APIClient.authorised_values
                 let av_cat_array = available_fields
-                    .map(field => field.authorised_value_category)
+                    .map(field => field.authorised_value_category_name)
                     .filter(field => field)
 
                 client_av.values
@@ -158,14 +180,15 @@ export default {
                         available_fields.forEach(available_field => {
                             // Initialize current field as empty array
                             this.current_additional_fields_values[
-                                available_field.id
+                                available_field.additional_field_id
                             ] = []
 
                             // Grab all existing field values of this field
                             let existing_field_values =
                                 this.additional_field_values.filter(
                                     afv =>
-                                        afv.field_id == available_field.id &&
+                                        afv.field_id ==
+                                            available_field.additional_field_id &&
                                         afv.value
                                 )
 
@@ -175,11 +198,11 @@ export default {
                                     existing_field_value => {
                                         let label = ""
                                         if (
-                                            available_field.authorised_value_category
+                                            available_field.authorised_value_category_name
                                         ) {
                                             let av_value = this.av_options[
                                                 available_field
-                                                    .authorised_value_category
+                                                    .authorised_value_category_name
                                             ].filter(
                                                 av_option =>
                                                     av_option.value ==
@@ -201,10 +224,10 @@ export default {
                                 // Otherwise add them as empty if not AV field
                             } else {
                                 if (
-                                    !available_field.authorised_value_category
+                                    !available_field.authorised_value_category_name
                                 ) {
                                     this.current_additional_fields_values[
-                                        available_field.id
+                                        available_field.additional_field_id
                                     ] = [
                                         {
                                             label: "",
@@ -225,7 +248,9 @@ export default {
         },
         cloneField: function (available_field, current, event) {
             event.preventDefault()
-            this.current_additional_fields_values[available_field.id].push({
+            this.current_additional_fields_values[
+                available_field.additional_field_id
+            ].push({
                 value: current.value,
                 label: available_field.name,
             })
