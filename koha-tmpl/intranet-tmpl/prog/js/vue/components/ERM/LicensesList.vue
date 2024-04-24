@@ -129,8 +129,8 @@ export default {
         async getSearchableAVOptions() {
             const client_av = APIClient.authorised_values
             let av_cat_array = this.searchable_additional_fields
-                .filter(field => field.authorised_value_category)
-                .map(field => field.authorised_value_category)
+                .filter(field => field.authorised_value_category_name)
+                .map(field => field.authorised_value_category_name)
 
             await client_av.values
                 .getCategoriesWithValues([
