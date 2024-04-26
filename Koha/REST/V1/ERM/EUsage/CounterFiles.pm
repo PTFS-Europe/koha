@@ -59,7 +59,7 @@ sub get {
     return try {
         my $counter_file = Koha::ERM::EUsage::CounterFiles->find( $c->param('erm_counter_files_id') );
 
-        return $c->render_resource_not_found("Counter file")
+        return $c->render_resource_not_found("COUNTER file")
             unless $counter_file;
 
         $c->render_file(
