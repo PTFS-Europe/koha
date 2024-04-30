@@ -1,6 +1,12 @@
 [% USE Koha %]
+[% USE raw %]
+[% USE Asset %]
 
-<div id="navmenu">
+<admin-left-menu 
+    CAN-user-parameters-manage-sysprefs="[% CAN_user_parameters_manage_sysprefs | $raw %]"
+></admin-left-menu>
+
+<!-- <div id="navmenu">
 <div id="navmenulist">
 
     [% IF ( CAN_user_parameters_manage_sysprefs ) %]
@@ -186,4 +192,6 @@
         </ul>
     [% END %]
 </div>
-</div>
+</div> -->
+
+[% Asset.js("js/vue/dist/webComponents.js") | $raw %]
