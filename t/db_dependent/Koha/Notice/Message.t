@@ -219,4 +219,24 @@ WRAPPED
     $schema->storage->txn_rollback;
 };
 
+subtest 'patron() tests' => sub {
+
+    plan tests => 2;
+
+    $schema->storage->txn_begin;
+
+    my $patron  = $builder->build_object( { class => 'Koha::Patrons' } );
+    my $message = $builder->build_object(
+        {
+            class => 'Koha::Notice::Messages',
+            value => { borrowernumber => $patron->borrowernumber }
+        }
+    );
+
+    is( ref( $message->patron ),          'Koha::Patron',          'Object type is correct' );
+    is( $message->patron->borrowernumber, $patron->borrowernumber, 'Right patron linked' );
+
+    $schema->storage->txn_rollback;
+};
+
 1;
