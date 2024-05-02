@@ -274,6 +274,10 @@ __PACKAGE__->add_columns(
     '+is_date' => { is_boolean => 1 },
 );
 
+__PACKAGE__->add_columns(
+    '+is_boolean' => { is_boolean => 1 },
+);
+
 sub koha_object_class {
     'Koha::Patron::Attribute::Type';
 }
