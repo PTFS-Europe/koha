@@ -55,6 +55,14 @@ defines whether one patron/borrower can have multiple values for this custom fie
 
 defines if this value needs to be unique (1 for yes, 0 for no)
 
+=head2 is_boolean
+
+  data_type: 'tinyint'
+  default_value: 0
+  is_nullable: 0
+
+defines if this field is displayed as a checkbox
+
 =head2 is_date
 
   data_type: 'tinyint'
@@ -155,6 +163,8 @@ __PACKAGE__->add_columns(
   "repeatable",
   { data_type => "tinyint", default_value => 0, is_nullable => 0 },
   "unique_id",
+  { data_type => "tinyint", default_value => 0, is_nullable => 0 },
+  "is_boolean",
   { data_type => "tinyint", default_value => 0, is_nullable => 0 },
   "is_date",
   { data_type => "tinyint", default_value => 0, is_nullable => 0 },
