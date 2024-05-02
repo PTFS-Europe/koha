@@ -156,6 +156,14 @@
             [% END %]
             <span class="hint">If checked, attribute will be a date. Date attributes cannot be repeatable or linked to an authorised value category.</span>
         </li>
+        <li><label for="is_boolean">Is a boolean (true or false): </label>
+            [% IF attribute_type AND attribute_type.is_boolean %]
+                <input type="checkbox" id="is_boolean" name="is_boolean" checked="checked" />
+            [% ELSE %]
+                <input type="checkbox" id="is_boolean" name="is_boolean" />
+            [% END %]
+            <span class="hint">If checked, attribute will be a "Yes/No" input. Boolean attributes cannot be repeatable, linked to an authorised value category or be a date.</span>
+        </li>
        <li><label for="opac_display">Display in OPAC: </label>
           [% IF attribute_type AND attribute_type.opac_display %]
             <input type="checkbox" id="opac_display" name="opac_display" checked="checked" />
@@ -438,19 +446,35 @@
                 }
             } ).change();
 
+            $("#is_boolean").change( function() {
+                if ( this.checked ) {
+                    $("#authorised_value_category").attr('disabled', true).parent().attr('aria-disabled', 'true');
+                    $("#is_date").attr('disabled', true).parent().attr('aria-disabled', 'true');
+                    $("#repeatable").attr('disabled', true).parent().attr('aria-disabled', 'true');
+                } else {
+                    $("#authorised_value_category").removeAttr('disabled').parent().removeAttr('aria-disabled');
+                    $("#is_date").removeAttr('disabled').parent().removeAttr('aria-disabled');
+                    $("#repeatable").removeAttr('disabled').parent().removeAttr('aria-disabled');
+                }
+            } ).change();
+
             $("#is_date").change( function() {
                 if ( this.checked ) {
                     $("#authorised_value_category").attr('disabled', true).parent().attr('aria-disabled', 'true');
+                    $("#is_boolean").attr('disabled', true).parent().attr('aria-disabled', 'true');
                 } else {
                     $("#authorised_value_category").removeAttr('disabled').parent().removeAttr('aria-disabled');
+                    $("#is_boolean").removeAttr('disabled').parent().removeAttr('aria-disabled');
                 }
             } ).change();
 
             $("#authorised_value_category").change( function() {
                 if ( $(this).val() != "" ) {
                     $("#is_date").attr('disabled', true).parent().attr('aria-disabled', 'true');
+                    $("#is_boolean").attr('disabled', true).parent().attr('aria-disabled', 'true');
                 } else {
                     $("#is_date").removeAttr('disabled').parent().removeAttr('aria-disabled');
+                    $("#is_boolean").removeAttr('disabled').parent().removeAttr('aria-disabled');
                 }
             } ).change();
 
