@@ -1663,6 +1663,22 @@ legend.collapsed i.fa.fa-caret-down::before {
                                                                 [% ELSE %]
                                                                     <input type="text" id="[% patron_attribute.form_id | html %]" name="[% patron_attribute.form_id | html %]"  maxlength="10" size="10" value="[% patron_attribute.value | html %]" class="flatpickr" />
                                                                 [% END %]
+                                                            [% ELSIF patron_attribute.is_boolean %]
+                                                                    <select name="[% patron_attribute.form_id | html %]" id="[% patron_attribute.form_id | html %]">
+                                                                        [% IF !patron_attribute.mandatory %]
+                                                                            <option value=""></option>
+                                                                        [% END %]
+                                                                        [% IF patron_attribute.value == 1 %]
+                                                                            <option value="1" selected="selected">Yes</option>
+                                                                        [% ELSE %]
+                                                                            <option value="1">Yes</option>
+                                                                        [% END %]
+                                                                        [% IF patron_attribute.value == 0 %]
+                                                                            <option value="0" selected="selected">No</option>
+                                                                        [% ELSE %]
+                                                                            <option value="0">No</option>
+                                                                        [% END %]
+                                                                    </select>
                                                             [% ELSE %]
                                                                 [% IF patron_attribute.mandatory %]
                                                                     <textarea rows="2" cols="30" id="[% patron_attribute.form_id | html %]" name="[% patron_attribute.form_id | html %]" required="required">[% patron_attribute.value | html %]</textarea>
@@ -1671,7 +1687,7 @@ legend.collapsed i.fa.fa-caret-down::before {
                                                                 [% END %]
                                                             [% END # /IF ( patron_attribute.use_dropdown ) %]
                                                             <input type="hidden" id="[% patron_attribute.form_id | html %]_code" name="[% patron_attribute.form_id | html %]_code" value="[% patron_attribute.code | html %]" />
-                                                            [% IF ( !patron_attribute.is_date ) %]
+                                                            [% IF ( !patron_attribute.is_date && !patron_attribute.is_boolean ) %]
                                                                 <a href="#" class="clear_attribute"><i class="fa fa-fw fa-trash-can"></i> Clear</a>
                                                             [% END %]
                                                             [% IF ( patron_attribute.repeatable ) %]
