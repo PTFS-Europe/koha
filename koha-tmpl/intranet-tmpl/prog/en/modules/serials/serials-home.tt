@@ -56,6 +56,10 @@
     [% Asset.js("js/serials-toolbar.js") | $raw %]
     <script>
         var subscriptionid = "[% subscriptionid | html %]";
+
+        $('.rows').append('<a href="#" id="36774">TEST</a>');
+        $("#36774").on( "click", function() { $("#to").flatpickr().clear(); } );
+
     </script>
 [% END %]
 [% INCLUDE 'intranet-bottom.inc' %]
