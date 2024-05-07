@@ -62,13 +62,13 @@
         onReady: function( selectedDates, dateStr, instance ){
             /* When flatpickr instance is created, automatically append a "clear date" link */
 
-            if( $(instance.input).parent().find('.flatpickr_wrapper').length ){
+            if( $(instance.input).parent().find('.flatpickr_wrapper_'+instance.input.id).length ){
                 return;
             }
 
             $(instance.input).find('~input.flatpickr:first')
                 /* Add a wrapper element so that we can prevent the clear button from wrapping */
-                .wrap("<span class='flatpickr_wrapper'></span>")
+                .wrap("<span class='flatpickr_wrapper_"+instance.input.id+"'></span>")
                 .attr("autocomplete", "off")
                 .after( $("<a/>")
                     .attr("href","#")
