@@ -19,7 +19,7 @@
 
 use Modern::Perl;
 
-use Test::More tests => 4;
+use Test::More tests => 5;
 
 use C4::Letters qw( GetPreparedLetter EnqueueLetter );
 
@@ -235,6 +235,25 @@ subtest 'patron() tests' => sub {
 
     is( ref( $message->patron ),          'Koha::Patron',          'Object type is correct' );
     is( $message->patron->borrowernumber, $patron->borrowernumber, 'Right patron linked' );
+
+    $schema->storage->txn_rollback;
+};
+
+subtest 'template() tests' => sub {
+    plan tests => 2;
+
+    $schema->storage->txn_begin;
+
+    my $template = $builder->build_object( { class => 'Koha::Notice::Templates' } );
+    my $message  = $builder->build_object(
+        {
+            class => 'Koha::Notice::Messages',
+            value => { letter_id => $template->id }
+        }
+    );
+
+    is( ref( $message->template ), 'Koha::Notice::Template', 'Object type is correct' );
+    is( $message->template->id,    $template->id,            'Right template linked' );
 
     $schema->storage->txn_rollback;
 };

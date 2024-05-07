@@ -205,9 +205,9 @@ sub scoped_style {
 
 =head3 patron
 
-    my $patron = $checkout->patron
+    my $patron = $message->patron
 
-Return the patron by whom the checkout was done
+Return the patron by whom this message is for
 
 =cut
 
@@ -216,6 +216,21 @@ sub patron {
     my $patron_rs = $self->_result->borrowernumber;
     return unless $patron_rs;
     return Koha::Patron->_new_from_dbic($patron_rs);
+}
+
+=head3 template
+
+    my $template = $message->template
+
+Return the template from which this message may have been generated
+
+=cut
+
+sub template {
+    my ($self) = @_;
+    my $template_rs = $self->_result->letter;
+    return unless $template_rs;
+    return Koha::Notice::Template->_new_from_dbic($template_rs);
 }
 
 =head3 type
