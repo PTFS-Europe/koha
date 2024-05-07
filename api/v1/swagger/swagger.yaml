@@ -487,6 +487,8 @@ paths:
     $ref: "./paths/items.yaml#/~1public~1items"
   "/public/biblios/{biblio_id}/items":
     $ref: "./paths/biblios.yaml#/~1public~1biblios~1{biblio_id}~1items"
+  "/public/biblios/{biblio_id}/items/filter_by_for_hold":
+    $ref: "./paths/biblios.yaml#/~1public~1biblios~1{biblio_id}~1items~1filter_by_for_hold"
   "/public/biblios/{biblio_id}/ratings":
     $ref: "./paths/biblios.yaml#/~1public~1biblios~1{biblio_id}~1ratings"
   /public/libraries:

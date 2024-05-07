@@ -551,6 +551,39 @@ sub pickup_locations {
     };
 }
 
+=head3 get_items_public_filter_by_for_hold
+
+Controller function that handles retrieving biblio's items, for unprivileged
+access, filtered by for hold
+
+=cut
+
+sub get_items_public_filter_by_for_hold {
+    my $c = shift->openapi->valid_input or return;
+
+    my $biblio = Koha::Biblios->find(
+        $c->param('biblio_id'),
+        { prefetch => ['items'] }
+    );
+
+    return $c->render_resource_not_found("Bibliographic record")
+        unless $biblio;
+
+    return try {
+
+        my $patron = $c->stash('koha.user');
+
+        my $items_rs = $biblio->items->filter_by_visible_in_opac( { patron => $patron } )->filter_by_for_hold();
+        my $items    = $c->objects->search($items_rs);
+        return $c->render(
+            status  => 200,
+            openapi => $items
+        );
+    } catch {
+        $c->unhandled_exception($_);
+    };
+}
+
 =head3 get_items_public
 
 Controller function that handles retrieving biblio's items, for unprivileged
