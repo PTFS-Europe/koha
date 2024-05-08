@@ -1011,11 +1011,25 @@
                                                                 [% ELSE %]
                                                                     <input type="text" id="[% form_id | html %]" name="patron_attribute_value" value="[% pa_value | html %]" size="10" class="flatpickr" />
                                                                 [% END %]
+                                                            [% ELSIF ( pa.type.is_boolean ) %]
+                                                                [% IF ( pa.type.mandatory ) %]
+                                                                    [% IF pa_value == 'on' %]
+                                                                        <input type="checkbox" id="[% form_id | html %]" name="patron_attribute_value" checked required="required" />
+                                                                    [% ELSE %]
+                                                                        <input type="checkbox" id="[% form_id | html %]" name="patron_attribute_value" required="required" />
+                                                                    [% END %]
+                                                                [% ELSE %]
+                                                                    [% IF pa_value == 'on' %]
+                                                                        <input type="checkbox" id="[% form_id | html %]" name="patron_attribute_value" checked />
+                                                                    [% ELSE %]
+                                                                        <input type="checkbox" id="[% form_id | html %]" name="patron_attribute_value" />
+                                                                    [% END %]
+                                                                [% END %]
                                                             [% ELSE %]
                                                                 <textarea rows="2" cols="30" id="[% form_id | html %]" name="patron_attribute_value">[% pa_value | html %]</textarea>
                                                             [% END %]
                                                             <div class="attr-control">
-                                                                [% IF ( !pa.type.is_date ) %]
+                                                                [% IF ( !pa.type.is_date && !pa.type.is_boolean ) %]
                                                                     <a href="#" class="btn btn-sm btn-link clear-attribute"><i class="fa fa-remove" aria-hidden="true"></i> Clear</a>
                                                                 [% END %]
                                                                 [% IF ( pa.type.repeatable ) %]
