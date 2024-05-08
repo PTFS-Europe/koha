@@ -1005,14 +1005,14 @@
                                                                         [% END %]
                                                                     [% END %]
                                                                 </select>
-                                                            [% ELSE %]
-                                                                [% IF ( pa.type.is_date && pa.type.mandatory ) %]
+                                                            [% ELSIF ( pa.type.is_date ) %]
+                                                                [% IF ( pa.type.mandatory ) %]
                                                                     <input type="text" id="[% form_id | html %]" name="patron_attribute_value" value="[% pa_value | html %]" size="10" required="required" class="flatpickr" />
-                                                                [% ELSIF ( pa.type.is_date && !pa.type.mandatory ) %]
-                                                                    <input type="text" id="[% form_id | html %]" name="patron_attribute_value" value="[% pa_value | html %]" size="10" class="flatpickr" />
                                                                 [% ELSE %]
-                                                                    <textarea rows="2" cols="30" id="[% form_id | html %]" name="patron_attribute_value">[% pa_value | html %]</textarea>
+                                                                    <input type="text" id="[% form_id | html %]" name="patron_attribute_value" value="[% pa_value | html %]" size="10" class="flatpickr" />
                                                                 [% END %]
+                                                            [% ELSE %]
+                                                                <textarea rows="2" cols="30" id="[% form_id | html %]" name="patron_attribute_value">[% pa_value | html %]</textarea>
                                                             [% END %]
                                                             <div class="attr-control">
                                                                 [% IF ( !pa.type.is_date ) %]
