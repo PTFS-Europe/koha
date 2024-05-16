@@ -226,6 +226,12 @@
                 </select>
             [% ELSIF ( patron_attr_filter_loo.is_date ) %]
                 <input type="text" name="patron_attr_filter_[% patron_attr_filter_loo.code | html %]" value="[% patron_attr_filter_loo.cgivalue | html %]" class="flatpickr"/>
+            [% ELSIF ( patron_attr_filter_loo.is_boolean ) %]
+                [% IF( patron_attr_filter_loo.cgivalue ) %]
+                    <input type="checkbox" name="patron_attr_filter_[% patron_attr_filter_loo.code | html %]" checked />
+                [% ELSE %]
+                    <input type="checkbox" name="patron_attr_filter_[% patron_attr_filter_loo.code | html %]" />
+                [% END %]
             [% ELSE %]
                 <input type="text" name="patron_attr_filter_[% patron_attr_filter_loo.code | html %]" value="[% patron_attr_filter_loo.cgivalue | html %]"/>
             [% END %]
