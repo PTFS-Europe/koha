@@ -28,12 +28,10 @@ use Koha::DateUtils qw( dt_from_string );
 use Koha::Hold::HoldsQueueItems;
 use Koha::Items;
 use Koha::Libraries;
-use Koha::Logger;
 use Koha::Patrons;
 
 use List::Util qw( shuffle );
 use List::MoreUtils qw( any );
-use Algorithm::Munkres qw();
 
 our (@ISA, @EXPORT_OK);
 BEGIN {
@@ -378,285 +376,36 @@ sub _checkHoldPolicy {
     return 0 unless $item->{holdallowed} ne 'not_allowed';
 
     return 0
-        if $item->{holdallowed} eq 'from_home_library'
-        && $item->{homebranch} ne $request->{borrowerbranch};
+      if $item->{holdallowed} eq 'from_home_library'
+      && $item->{homebranch} ne $request->{borrowerbranch};
 
     return 0
-        if $item->{'holdallowed'} eq 'from_local_hold_group'
-        && !Koha::Libraries->find( $item->{homebranch} )
-        ->validate_hold_sibling( { branchcode => $request->{borrowerbranch} } );
+      if $item->{'holdallowed'} eq 'from_local_hold_group'
+      && !Koha::Libraries->find( $item->{homebranch} )
+              ->validate_hold_sibling( { branchcode => $request->{borrowerbranch} } );
 
     my $hold_fulfillment_policy = $item->{hold_fulfillment_policy};
 
     return 0
-        if $hold_fulfillment_policy eq 'holdgroup'
-        && !Koha::Libraries->find( $item->{homebranch} )
-        ->validate_hold_sibling( { branchcode => $request->{branchcode} } );
+      if $hold_fulfillment_policy eq 'holdgroup'
+      && !Koha::Libraries->find( $item->{homebranch} )
+            ->validate_hold_sibling( { branchcode => $request->{branchcode} } );
 
     return 0
-        if $hold_fulfillment_policy eq 'homebranch'
-        && $request->{branchcode} ne $item->{$hold_fulfillment_policy};
+      if $hold_fulfillment_policy eq 'homebranch'
+      && $request->{branchcode} ne $item->{$hold_fulfillment_policy};
 
     return 0
-        if $hold_fulfillment_policy eq 'holdingbranch'
-        && $request->{branchcode} ne $item->{$hold_fulfillment_policy};
+      if $hold_fulfillment_policy eq 'holdingbranch'
+      && $request->{branchcode} ne $item->{$hold_fulfillment_policy};
 
     return 0
-        if $hold_fulfillment_policy eq 'patrongroup'
-        && !Koha::Libraries->find( $request->{borrowerbranch} )
-        ->validate_hold_sibling( { branchcode => $request->{branchcode} } );
+      if $hold_fulfillment_policy eq 'patrongroup'
+      && !Koha::Libraries->find( $request->{borrowerbranch} )
+              ->validate_hold_sibling( { branchcode => $request->{branchcode} } );
 
     return 1;
 
-}
-
-sub _allocateWithTransportCostMatrix {
-    my (
-        $hold_requests, $available_items, $branches_to_use, $libraries, $transport_cost_matrix, $allocated_items,
-        $items_by_itemnumber
-    ) = @_;
-
-    my @allocated;
-
-    my @remaining_items = grep { !exists $allocated_items->{ $_->{itemnumber} } && $_->{holdallowed} ne 'not_allowed'; }
-        @$available_items;
-
-    my @requests  = grep { !defined $_->{itemnumber} } @$hold_requests;
-    my @remaining = ();
-
-    my $num_agents = scalar(@remaining_items);
-    my $num_tasks  = scalar(@requests);
-
-    return [] if $num_agents == 0 || $num_tasks == 0;
-
-    if ( $num_tasks > $num_agents ) {
-        @remaining = @requests[ $num_agents .. $num_tasks - 1 ];
-        @requests  = @requests[ 0 .. $num_agents - 1 ];
-        $num_tasks = $num_agents;
-    }
-
-    my @m = map { [ (undef) x $num_tasks ] } ( 1 .. $num_agents );
-
-    my $inf = -1;    # Initially represent infinity with a negative value.
-    my $max = 0;
-
-    # If some candidate holds requests cannot be filled and there are
-    # hold requests remaining, we will try again a limited number of
-    # times.
-    #
-    # The limit is chosen arbitrarily and only servers to keep the
-    # asymptotic worst case to O(num_tasks³).
-    my $RETRIES          = 8;
-    my $retries          = $RETRIES;
-    my $r                = 0;
-    my @candidate_tasks  = ( (0) x $num_tasks );
-    my @candidate_agents = ( (0) x $num_agents );
-
-RETRY:
-    while (1) {
-        return [] if $num_agents == 0 || $num_tasks == 0;
-
-        if ( $num_tasks < $num_agents && @remaining ) {
-
-            # On retry, move tasks from @remaining to @requests up to
-            # the number of agents.
-            my $nr = scalar(@remaining);
-            my $na = $num_agents - $num_tasks;
-            my $nm = $nr < $na ? $nr : $na;
-            push @requests, ( splice @remaining, 0, $nm );
-            $num_tasks += $nm;
-            for ( my $t = scalar(@candidate_tasks) ; $t < $num_tasks ; $t++ ) {
-                push @candidate_tasks, 0;
-            }
-        }
-
-        for ( my $i = 0 ; $i < $num_agents ; $i++ ) {
-            for ( my $j = $r ; $j < $num_tasks ; $j++ ) {
-                my $item    = $remaining_items[$i];
-                my $request = $requests[$j];
-
-                my $pickup_branch = $request->{branchcode} || $request->{borrowerbranch};
-                my $srcbranch     = $item->{holdingbranch};
-
-                $m[$i][$j] = $inf
-                    and next
-                    unless _checkHoldPolicy( $item, $request );
-                $m[$i][$j] = $inf
-                    and next
-                    unless $items_by_itemnumber->{ $item->{itemnumber} }->{_object}
-                    ->can_be_transferred( { to => $libraries->{ $request->{branchcode} } } );
-
-                # If hold itemtype is set, item's itemtype must match
-                $m[$i][$j] = $inf
-                    and next
-                    unless ( !$request->{itemtype}
-                    || $item->{itype} eq $request->{itemtype} );
-
-                # If hold item_group is set, item's item_group must match
-                $m[$i][$j] = $inf
-                    and next
-                    unless (
-                    !$request->{item_group_id}
-                    || (   $item->{_object}->item_group
-                        && $item->{_object}->item_group->id eq $request->{item_group_id} )
-                    );
-
-                my $cell = $transport_cost_matrix->{$pickup_branch}{$srcbranch};
-                my $cost;
-
-                if ( !defined $cell && $pickup_branch eq $srcbranch ) {
-                    $cost = 0;
-                } elsif ( !defined $cell || $cell->{disable_transfer} ) {
-                    $cost = $inf;
-                } else {
-                    if ( defined $cell->{cost} ) {
-                        $cost = $cell->{cost};
-                    } else {
-                        $cost = $inf;
-                    }
-                }
-
-                $m[$i][$j] = $cost;
-
-                if ( $cost != $inf ) {
-
-                    # There is at least one possible item in row $i and column $j
-                    $candidate_tasks[$j]  = 1;
-                    $candidate_agents[$i] = 1;
-                }
-
-                if ( $cost > $max ) {
-                    $max = $cost;
-                }
-            }
-        }
-
-        # Remove any hold request for which there is no finite transport cost item available.
-        my $removed_something = 0;
-
-        for ( my $j = 0, my $j0 = 0 ; $j < $num_tasks ; $j++ ) {
-            if ( !$candidate_tasks[$j] ) {
-                for ( my $i = 0 ; $i < $num_agents ; $i++ ) {
-                    splice @{ $m[$i] }, $j - $j0, 1;
-                }
-                splice @requests, $j - $j0, 1;
-                $j0++;
-                $removed_something = 1;
-            }
-        }
-
-        $num_tasks = scalar(@requests);
-
-        if ( $num_agents > $num_tasks && @remaining ) {
-
-            $r                = $num_tasks;
-            @candidate_tasks  = ( (1) x $num_tasks );
-            @candidate_agents = ( (1) x $num_agents );
-            next RETRY;
-        }
-
-        if ( $num_tasks > $num_agents ) {
-
-            return [] if $num_agents == 0;
-            unshift @remaining, ( splice @requests, $num_agents );
-            $num_tasks = $num_agents;
-        }
-
-        return [] if $num_agents == 0 || $num_tasks == 0;
-
-        # Substitute infinity with a cost that is higher than the total of
-        # any possible assignment.  This ensures that any possible
-        # assignment will be selected before any assignment of infinite
-        # cost.  Infinite cost assignments can be be filtered out at the
-        # end.
-        $inf = $max * $num_tasks + 1;
-
-        my @m0 = map {[(undef) x  $num_tasks]} (1..$num_agents);
-        for ( my $i = 0 ; $i < $num_agents ; $i++ ) {
-            for ( my $j = 0 ; $j < $num_tasks ; $j++ ) {
-                if ( $m[$i][$j] < 0 ) {
-                    # Bias towards not allocating items to holds closer to
-                    # the end of the queue in the queue if not all holds
-                    # can be filled by representing infinity with
-                    # different values.
-                    $m0[$i][$j] = $inf + ( $num_tasks - $j );
-                } else {
-                    $m0[$i][$j] = $m[$i][$j];
-                }
-            }
-        }
-
-        my $res = [ (undef) x $num_agents ];
-
-        Algorithm::Munkres::assign( \@m0, $res );
-
-        my @unallocated = ();
-        @allocated = ();
-        for ( my $i = 0 ; $i < $num_agents ; $i++ ) {
-            my $j = $res->[$i];
-            if ( !defined $j || $j >= $num_tasks ) {
-
-                # If the algorithm zero-pads the matrix
-                # (Algorithm::Munkres version 0.08) holds may be
-                # allocated to nonexisting items ($j >= 0).  We just ignore these.
-                next;
-            }
-            if ( $m0[$i][$j] > $max ) {
-
-                # No finite cost item was assigned to this hold.
-                push @unallocated, $j;
-            } else {
-
-                my $request = $requests[$j];
-                my $item    = $remaining_items[$i];
-                push @allocated, [
-                    $item->{itemnumber},
-                    {
-                        borrowernumber => $request->{borrowernumber},
-                        biblionumber   => $request->{biblionumber},
-                        holdingbranch  => $item->{holdingbranch},
-                        pickup_branch  => $request->{branchcode}
-                            || $request->{borrowerbranch},
-                        reserve_id   => $request->{reserve_id},
-                        item_level   => $request->{item_level_hold},
-                        reservedate  => $request->{reservedate},
-                        reservenotes => $request->{reservenotes},
-                    }
-                ];
-            }
-        }
-
-        if ( $retries-- > 0 && @unallocated && @remaining ) {
-
-            # Remove the transport cost of unfilled holds and compact the matrix.
-            # Also remove the hold request from the array.
-            for ( my $i = 0 ; $i < $num_agents ; $i++ ) {
-                my $u = 0;
-                for ( my $j = 0 ; $j < $num_tasks ; $j++ ) {
-                    if ( $u < scalar(@unallocated) && $unallocated[$u] == $j ) {
-                        $u++;
-                    } elsif ( $u > 0 ) {
-                        $m[$i][ $j - $u ] = $m[$i][$j];
-                    }
-                }
-            }
-            for ( my $u = 0 ; $u < scalar(@unallocated) ; $u++ ) {
-                splice @requests, $unallocated[$u], 1;
-            }
-            $num_tasks = scalar(@requests);
-
-            $r = $num_tasks;
-        } else {
-            if ( $retries == 0 && @unallocated && @remaining ) {
-                Koha::Logger->get->warn(
-                    "There are available items that have not been allocated and remaining holds, but we abort trying to fill these after $RETRIES retries."
-                );
-            }
-            last RETRY;
-        }
-    }
-
-    return \@allocated;
 }
 
 =head2 MapItemsToHoldRequests
@@ -800,18 +549,6 @@ sub MapItemsToHoldRequests {
         }
     }
 
-    if ( defined $transport_cost_matrix ) {
-        my $allocations = _allocateWithTransportCostMatrix(
-            $hold_requests,         $available_items,  $branches_to_use, $libraries,
-            $transport_cost_matrix, \%allocated_items, \%items_by_itemnumber
-        );
-        for my $allocation (@$allocations) {
-            $item_map{ $allocation->[0] } = $allocation->[1];
-            $num_items_remaining--;
-        }
-        return \%item_map;
-    }
-
     # group available items by branch
     my %items_by_branch = ();
     foreach my $item (@$available_items) {
@@ -842,6 +579,14 @@ sub MapItemsToHoldRequests {
         my $holding_branch_items = $items_by_branch{$pickup_branch};
         if ($holding_branch_items) {
             $holdingbranch = $pickup_branch;
+        } elsif ($transport_cost_matrix) {
+            # If there are items available at the pickup branch they will always be the least cost (no transfer needed) so we only check here in the case where there are none
+            $pull_branches = [ keys %items_by_branch ];
+            $holdingbranch = least_cost_branch( $pickup_branch, $pull_branches, $transport_cost_matrix );
+            next
+                unless $holdingbranch
+                ; # If using the matrix, and nothing is least cost, it means we cannot transfer to the pickup branch for this request
+            $holding_branch_items = $items_by_branch{$holdingbranch};
         }
 
         my $priority_branch = C4::Context->preference('HoldsQueuePrioritizeBranch') // 'homebranch';
