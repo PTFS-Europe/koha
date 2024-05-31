@@ -531,7 +531,15 @@ if ( $op eq "cud-additem" ) {
     # check that there is no issue on this item before deletion.
     my $item = Koha::Items->find($itemnumber);
     my $deleted;
-    if ($item) {
+    if( $item ) {
+        if ( $input->param('delete-serial-issues') ) {
+            my $serial_item = $item->serial_item;
+            my $serial      = Koha::Serials->find( $serial_item->serialid );
+
+            $serial->delete;
+            $serial_item->delete;
+        }
+
         $deleted = $item->safe_delete;
     } else {
         $deleted = Koha::Result::Boolean->new(0)->add_message( { message => 'item_not_found' } );
