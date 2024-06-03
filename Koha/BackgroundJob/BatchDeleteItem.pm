@@ -81,8 +81,9 @@ sub process {
 
     $self->start;
 
-    my @record_ids     = @{ $args->{record_ids} };
-    my $delete_biblios = $args->{delete_biblios};
+    my @record_ids           = @{ $args->{record_ids} };
+    my $delete_biblios       = $args->{delete_biblios};
+    my $delete_serial_issues = $args->{delete_serial_issues};
 
     my $report = {
         total_records => scalar @record_ids,
@@ -121,6 +122,15 @@ sub process {
                           };
 
                         next;
+                    }
+
+                    if ( $return && $delete_serial_issues ) {
+                        my $serial_item = $item->serial_item;
+                        if ($serial_item) {
+                            my $serial = Koha::Serials->find( $serial_item->serialid );
+                            $serial->delete;
+                            $serial_item->delete;
+                        }
                     }
 
                     push @deleted_itemnumbers, $item->itemnumber;
@@ -221,15 +231,17 @@ sub enqueue {
     # TODO Raise exception instead
     return unless exists $args->{record_ids};
 
-    my @record_ids = @{ $args->{record_ids} };
-    my $delete_biblios = $args->{delete_biblios} || 0;
+    my @record_ids           = @{ $args->{record_ids} };
+    my $delete_biblios       = $args->{delete_biblios}       || 0;
+    my $delete_serial_issues = $args->{delete_serial_issues} || 0;
 
     $self->SUPER::enqueue(
         {
             job_size => scalar @record_ids,
             job_args => {
-                record_ids     => \@record_ids,
-                delete_biblios => $delete_biblios,
+                record_ids           => \@record_ids,
+                delete_biblios       => $delete_biblios,
+                delete_serial_issues => $delete_serial_issues,
             },
             job_queue => 'long_tasks',
         }
