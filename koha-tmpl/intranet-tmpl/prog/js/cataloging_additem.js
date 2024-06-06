@@ -155,6 +155,18 @@ $(document).ready(function(){
         }
         return $("#" + $(this).data("item") + "-delete-item-form").submit();
     });
+
+    $(document).on('click', '#edit-serial-issues-modal-btn-submit', function(e) {
+        e.preventDefault();
+        $('#edit-serial-issues-modal').modal('hide');
+        $('#edit-serial-issue').val('1');
+        return $("#f").submit();
+    });
+    $(document).on('click', '#no-edit-serial-issues-modal-btn-submit', function(e) {
+        e.preventDefault();
+        $('#edit-serial-issues-modal').modal('hide');
+        return $("#f").submit();
+    });
 });
 
 function CheckTemplateForm(f) {
@@ -219,4 +231,9 @@ function CheckMultipleAdd(f) {
 function Dopop(link,i) {
     var defaultvalue=document.forms[0].field_value[i].value;
     var newin=window.open(link+"&result=" + defaultvalue,"valuebuilder",'width=500,height=400,toolbar=false,scrollbars=yes');
+}
+
+function ShowSerialEditingConfirmation(form) {
+    $('#edit-serial-issues-modal').modal('show');
+    return false;
 }
