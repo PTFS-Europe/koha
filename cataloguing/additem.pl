@@ -655,6 +655,18 @@ if ( $op eq "cud-additem" ) {
         $item->store;
     }
 
+    if ( $input->param('edit-serial-issue') ) {
+        my $serialid = $item->serial_item->serialid;
+        print $input->redirect("/cgi-bin/koha/serials/serials-edit.pl?serialid=$serialid");
+        exit;
+    }
+
+    if ( $input->param('edit-serial-issue') ) {
+        my $serialid = $item->serial_item->serialid;
+        print $input->redirect("/cgi-bin/koha/serials/serials-edit.pl?serialid=$serialid");
+        exit;
+    }
+
     $nextop = "cud-additem";
 } elsif ( $op eq "delinkitem" ) {
 
