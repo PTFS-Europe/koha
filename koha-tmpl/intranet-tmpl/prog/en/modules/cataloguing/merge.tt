@@ -46,7 +46,10 @@ div#result { margin-top: 1em; }
        [% FOREACH error IN errors %]
            <div class="alert alert-warning">
                 [% IF error.code == 'CANNOT_MOVE' %]
-                    The following items could not be moved from the old record to the new one: [% error.value | html %]
+                    <p>The following items could not be moved from the old record to the new one: [% error.value | html %]</p>
+                [% ELSIF error.code == 'INVALID_METADATA' %]
+                    <p>This record had encoding issues, non-xml characters have been stripped in order to allow editing. Please be cautious when saving that some data may have been removed from the record.</p>
+                    <pre class="problem">[% error.value | html %]</pre>
                 [% ELSE %]
                     [% error | html %]
                 [% END %]
