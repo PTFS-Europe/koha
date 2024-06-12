@@ -474,18 +474,30 @@ if (@$barcodes && $op eq 'cud-checkout') {
             $template_params->{ADDITIONAL_MATERIALS} = $materials;
             $template_params->{itemhomebranch} = $item->homebranch;
 
+            my $patron_session_confirmation = $query->cookie('patronSessionConfirmation') || undef;
+            my ( $patron_for_session, $session_confirmations ) = split( /:/, $patron_session_confirmation, 2 );
+            my $patron_match = $borrowernumber == $patron_for_session;
+            my @conf_keys    = split( /\|/, $session_confirmations );
+            $template_params->{sessionConfirmationKeys} = ();
+
             # pass needsconfirmation to template if issuing is possible and user hasn't yet confirmed.
             foreach my $needsconfirmation_key ( keys %$needsconfirmation ) {
-                $template_params->{$needsconfirmation_key} = $needsconfirmation->{$needsconfirmation_key};
-                $template_params->{getTitleMessageIteminfo} = $biblio->title;
-                $template_params->{getBarcodeMessageIteminfo} = $item->barcode;
-                $template_params->{NEEDSCONFIRMATION} = 1;
-                $confirm_required = 1;
                 if ( $needsconfirmation_key eq 'BOOKED_TO_ANOTHER' ) {
                     my $reduceddue =
                         dt_from_string( $$needsconfirmation{$needsconfirmation_key}->start_date )->subtract( days => 1 );
                     $template_params->{reduceddue} = $reduceddue;
                 }
+                next
+                    if $patron_match
+                    && scalar(@conf_keys) > 0
+                    && grep( { $needsconfirmation_key eq $_ } @conf_keys );
+
+                $template_params->{$needsconfirmation_key}    = $needsconfirmation->{$needsconfirmation_key};
+                $template_params->{getTitleMessageIteminfo}   = $biblio->title;
+                $template_params->{getBarcodeMessageIteminfo} = $item->barcode;
+                $template_params->{NEEDSCONFIRMATION}         = 1;
+                $confirm_required                             = 1;
+                push( @{ $template_params->{sessionConfirmationKeys} }, $needsconfirmation_key );
             }
         }
         unless ($confirm_required) {
