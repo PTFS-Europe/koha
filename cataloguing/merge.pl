@@ -89,7 +89,18 @@ if ($op eq 'cud-merge') {
     my $frameworkcode = $input->param('frameworkcode');
 
     # Modifying the reference record
-    ModBiblio($record, $ref_biblionumber, $frameworkcode);
+    my $modded = try {
+        ModBiblio($record, $ref_biblionumber, $frameworkcode);
+        return 1;
+    } catch {
+        my $exception = $_;
+        if ( ref($exception) eq 'Koha::Exceptions::Metadata::Invalid' ) {
+            $template->param( INVALID_METADATA => $exception );
+        } else {
+            $exception->rethrow;
+        }
+        return 0;
+    };
 
     my $report_header = {};
     foreach my $biblionumber ($ref_biblionumber, @biblionumbers) {
