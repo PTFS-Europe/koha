@@ -132,7 +132,8 @@ $template->param(
 );
 
 my @additional_fields = Koha::AdditionalFields->search({ tablename => 'subscription' })->as_list;
-my @additional_field_values = Koha::Subscriptions->find($subscriptionid)->get_additional_field_values_for_template if $subscriptionid;
+my @additional_field_values;
+@additional_field_values = Koha::Subscriptions->find($subscriptionid)->get_additional_field_values_for_template if $subscriptionid;
 
 $template->param(
     additional_fields       => \@additional_fields,
