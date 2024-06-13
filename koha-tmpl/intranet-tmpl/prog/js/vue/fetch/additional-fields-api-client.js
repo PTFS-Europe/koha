@@ -11,7 +11,7 @@ export class AdditionalFieldsAPIClient extends HttpClient {
         return {
             getAll: tablename =>
                 this.get({
-                    endpoint: "?tablename=" + tablename,
+                    endpoint: "?table_name=" + tablename,
                 }),
         };
     }
