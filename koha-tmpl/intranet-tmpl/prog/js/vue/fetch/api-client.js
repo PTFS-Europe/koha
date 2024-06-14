@@ -7,6 +7,7 @@ import ItemAPIClient from "./item-api-client";
 import RecordSourcesAPIClient from "./record-sources-api-client";
 import SysprefAPIClient from "./system-preferences-api-client";
 import PreservationAPIClient from "./preservation-api-client";
+import PluginStoreAPIClient from "./plugin-store-api-client";
 
 export const APIClient = {
     erm: new ERMAPIClient(),
@@ -16,6 +17,7 @@ export const APIClient = {
     authorised_values: new AVAPIClient(),
     item: new ItemAPIClient(),
     sysprefs: new SysprefAPIClient(),
+    plugin_store: new PluginStoreAPIClient(),
     preservation: new PreservationAPIClient(),
     record_sources: new RecordSourcesAPIClient(),
 };
