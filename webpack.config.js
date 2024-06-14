@@ -6,6 +6,7 @@ const webpack = require('webpack');
 module.exports = {
   entry: {
     erm: "./koha-tmpl/intranet-tmpl/prog/js/vue/modules/erm.ts",
+    "plugin-store": "./koha-tmpl/intranet-tmpl/prog/js/vue/modules/plugin-store.ts",
     preservation: "./koha-tmpl/intranet-tmpl/prog/js/vue/modules/preservation.ts",
     "admin/record_sources": "./koha-tmpl/intranet-tmpl/prog/js/vue/modules/admin/record_sources.ts",
   },

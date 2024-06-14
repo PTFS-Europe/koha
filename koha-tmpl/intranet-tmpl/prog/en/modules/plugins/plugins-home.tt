@@ -64,7 +64,7 @@
                                     <li><a class="dropdown-item" href="/cgi-bin/koha/plugins/plugins-home.pl?method=ill_backend">View ILL backend plugins</a></li>
                                 </ul>
                             </div>
-
+                            <a href="/cgi-bin/koha/plugin-store/store-plugins" class="btn btn-default"><i class="fa fa-store"></i> Plugin store</a>
                             [% IF can_search %]
                             <div class="btn-group">
                                 <form method="get" class="form-inline" id="plugin-search-form">

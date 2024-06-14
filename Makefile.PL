@@ -351,6 +351,7 @@ my $target_map = {
     './patron_lists'                                   => 'INTRANET_CGI_DIR',
     './perltidyrc'                                     => 'NONE',
     './plugins'                                        => 'INTRANET_CGI_DIR',
+    './plugin-store'                                   => 'INTRANET_CGI_DIR',
     './pos'                                            => 'INTRANET_CGI_DIR',
     './preservation'                                   => 'INTRANET_CGI_DIR',
     './recalls'                                        => 'INTRANET_CGI_DIR',
@@ -674,6 +675,7 @@ $file_map->{'koha-tmpl/intranet-tmpl/prog/css/installer.css'} = 'blib/INTRANET_T
 $file_map->{'koha-tmpl/intranet-tmpl/prog/css/mainpage.css'} = 'blib/INTRANET_TMPL_DIR/prog/css/mainpage.css';
 $file_map->{'koha-tmpl/intranet-tmpl/prog/css/staff-global.css'} = 'blib/INTRANET_TMPL_DIR/prog/css/staff-global.css';
 $file_map->{'koha-tmpl/intranet-tmpl/prog/js/vue/dist/erm.js'} = 'blib/INTRANET_TMPL_DIR/prog/js/vue/dist/erm.js';
+$file_map->{'koha-tmpl/intranet-tmpl/prog/js/vue/dist/plugin-store.js'} = 'blib/INTRANET_TMPL_DIR/prog/js/vue/dist/plugin-store.js';
 $file_map->{'koha-tmpl/intranet-tmpl/prog/js/vue/dist/preservation.js'} = 'blib/INTRANET_TMPL_DIR/prog/js/vue/dist/preservation.js';
 #OPAC_TMPL_DIR
 $file_map->{'koha-tmpl/opac-tmpl/bootstrap/css/opac.css'} = 'blib/OPAC_TMPL_DIR/bootstrap/css/opac.css';
