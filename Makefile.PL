@@ -351,6 +351,7 @@ my $target_map = {
     './patron_lists'                                   => 'INTRANET_CGI_DIR',
     './perltidyrc'                                     => 'NONE',
     './plugins'                                        => 'INTRANET_CGI_DIR',
+    './plugin-store'                                   => 'INTRANET_CGI_DIR',
     './pos'                                            => 'INTRANET_CGI_DIR',
     './preservation'                                   => 'INTRANET_CGI_DIR',
     './recalls'                                        => 'INTRANET_CGI_DIR',
@@ -674,6 +675,8 @@ $file_map->{'koha-tmpl/intranet-tmpl/prog/css/mainpage.css'} = 'blib/INTRANET_TM
 $file_map->{'koha-tmpl/intranet-tmpl/prog/css/staff-global.css'} = 'blib/INTRANET_TMPL_DIR/prog/css/staff-global.css';
 $file_map->{'koha-tmpl/intranet-tmpl/prog/js/vue/dist/erm.js'} = 'blib/INTRANET_TMPL_DIR/prog/js/vue/dist/erm.js';
 $file_map->{'koha-tmpl/intranet-tmpl/prog/js/vue/dist/erm.js.LICENSE.txt'} = 'blib/INTRANET_TMPL_DIR/prog/js/vue/dist/erm.js.LICENSE.txt';
+$file_map->{'koha-tmpl/intranet-tmpl/prog/js/vue/dist/plugin-store.js'} = 'blib/INTRANET_TMPL_DIR/prog/js/vue/dist/plugin-store.js';
+$file_map->{'koha-tmpl/intranet-tmpl/prog/js/vue/dist/plugin-store.js.LICENSE.txt'} = 'blib/INTRANET_TMPL_DIR/prog/js/vue/dist/plugin-store.js.LICENSE.txt';
 $file_map->{'koha-tmpl/intranet-tmpl/prog/js/vue/dist/preservation.js'} = 'blib/INTRANET_TMPL_DIR/prog/js/vue/dist/preservation.js';
 $file_map->{'koha-tmpl/intranet-tmpl/prog/js/vue/dist/preservation.js.LICENSE.txt'} = 'blib/INTRANET_TMPL_DIR/prog/js/vue/dist/preservation.js.LICENSE.txt';
 #OPAC_TMPL_DIR
