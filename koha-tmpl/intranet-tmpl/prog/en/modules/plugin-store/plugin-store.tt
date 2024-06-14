@@ -1,0 +1,23 @@
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>
+    Plugins store &rsaquo; Koha
+</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+
+<body id="plugin_store_home" class="plugin-store">
+[% WRAPPER 'header.inc' %]
+    [% INCLUDE 'prefs-admin-search.inc' %]
+[% END %]
+
+<div id="plugin-store"> <!-- this is closed in intranet-bottom.inc -->
+
+[% MACRO jsinclude BLOCK %]
+    [% INCLUDE 'calendar.inc' %]
+    [% INCLUDE 'datatables.inc' %]
+
+    [% Asset.js("js/vue/dist/plugin-store.js") | $raw %]
+
+[% END %]
+[% INCLUDE 'intranet-bottom.inc' %]
