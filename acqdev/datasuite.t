@@ -30,9 +30,9 @@ BEGIN {
     my $path = '/kohadevbox/plugins/koha-plugin-acq2/Koha/Plugin/Acquire/lib';
     unshift @INC, $path;
 
-    require Koha::Acquire::Funds::FiscalYears;
-    require Koha::Schema::Result::KohaPluginAcquireFiscalYear;
-    Koha::Schema->register_class( KohaPluginAcquireFiscalYear => 'Koha::Schema::Result::KohaPluginAcquireFiscalYear' );
+    require Koha::Acquire::Funds::FiscalPeriods;
+    require Koha::Schema::Result::KohaPluginAcquireFiscalPeriod;
+    Koha::Schema->register_class( KohaPluginAcquireFiscalPeriod => 'Koha::Schema::Result::KohaPluginAcquireFiscalPeriod' );
 
     require Koha::Acquire::Funds::Ledgers;
     require Koha::Schema::Result::KohaPluginAcquireLedger;
@@ -64,8 +64,8 @@ BEGIN {
 
 use Koha::Patrons;
 use Koha::Library::Groups;
-use Koha::Acquire::Funds::FiscalYear;
-use Koha::Acquire::Funds::FiscalYears;
+use Koha::Acquire::Funds::FiscalPeriod;
+use Koha::Acquire::Funds::FiscalPeriods;
 use Koha::Acquire::Funds::Ledger;
 use Koha::Acquire::Funds::Ledgers;
 use Koha::Acquire::Funds::Fund;
@@ -84,7 +84,7 @@ create_patrons( { branchcode => 'FPL' } );
 create_patrons( { branchcode => 'MPL' } );
 create_patrons( { branchcode => 'TPL' } );
 create_patrons( { branchcode => 'FFL' } );
-create_fiscal_years();
+create_fiscal_periods();
 create_ledgers();
 create_funds();
 create_fund_allocations();
@@ -233,10 +233,10 @@ sub create_patrons {
     warn "Patrons loaded for branch $branchcode";
 }
 
-sub create_fiscal_years {
+sub create_fiscal_periods {
 
-    warn "Creating fiscal year 1";
-    my $fy1 = Koha::Acquire::Funds::FiscalYear->new(
+    warn "Creating fiscal period 1";
+    my $fy1 = Koha::Acquire::Funds::FiscalPeriod->new(
         {
             code        => 'FY 23/24',
             description => 'Financial year 2023/2024',
@@ -248,8 +248,8 @@ sub create_fiscal_years {
         }
     )->store();
 
-    warn "Creating fiscal year 2";
-    my $fy2 = Koha::Acquire::Funds::FiscalYear->new(
+    warn "Creating fiscal period 2";
+    my $fy2 = Koha::Acquire::Funds::FiscalPeriod->new(
         {
             code        => 'FY 24/25',
             description => 'Financial year 2024/2025',
@@ -261,8 +261,8 @@ sub create_fiscal_years {
         }
     )->store();
 
-    warn "Creating fiscal year 3";
-    my $fy3 = Koha::Acquire::Funds::FiscalYear->new(
+    warn "Creating fiscal period 3";
+    my $fy3 = Koha::Acquire::Funds::FiscalPeriod->new(
         {
             code        => 'CY 23/24',
             description => 'Calendar year 2023/2024',
@@ -274,7 +274,7 @@ sub create_fiscal_years {
         }
     )->store();
 
-    warn "Creating task for fiscal year 2";
+    warn "Creating task for fiscal period 2";
     my $task = Koha::Acquire::TaskManagement::Task->new(
         {
             short_name  => 'Activate FY 24/25',
@@ -288,7 +288,7 @@ sub create_fiscal_years {
         }
     )->store();
 
-    warn "Creating task for fiscal year 1";
+    warn "Creating task for fiscal period 1";
     my $task2 = Koha::Acquire::TaskManagement::Task->new(
         {
             short_name  => 'Activate FY 23/24',
@@ -302,7 +302,7 @@ sub create_fiscal_years {
         }
     )->store();
 
-    warn "All fiscal years added";
+    warn "All fiscal periods added";
 }
 
 sub create_ledgers {
@@ -310,7 +310,7 @@ sub create_ledgers {
     warn "Creating ledger 1";
     my $ledger = Koha::Acquire::Funds::Ledger->new(
         {
-            fiscal_yr_id             => 1,
+            fiscal_period_id             => 1,
             name                     => 'Print journal ledger',
             code                     => 'P1',
             description              => 'Print journal ledger for financial year 2023/2024',
@@ -330,7 +330,7 @@ sub create_ledgers {
     warn "Creating ledger 2";
     my $ledger2 = Koha::Acquire::Funds::Ledger->new(
         {
-            fiscal_yr_id             => 1,
+            fiscal_period_id             => 1,
             name                     => 'Electronic journal ledger',
             code                     => 'E1',
             description              => 'Electronic journal for financial year 2023/2024',
@@ -350,7 +350,7 @@ sub create_ledgers {
     warn "Creating ledger 3";
     my $ledger3 = Koha::Acquire::Funds::Ledger->new(
         {
-            fiscal_yr_id             => 1,
+            fiscal_period_id             => 1,
             name                     => 'Academic materials',
             code                     => 'AC1',
             description              => 'Academic materials for financial year 2023/2024',
@@ -370,7 +370,7 @@ sub create_ledgers {
     warn "Creating ledger 4";
     my $ledger4 = Koha::Acquire::Funds::Ledger->new(
         {
-            fiscal_yr_id             => 3,
+            fiscal_period_id             => 3,
             name                     => 'Misc funds',
             code                     => 'MISC1',
             description              => 'Miscellaneous funds for 2024',
@@ -391,7 +391,7 @@ sub create_ledgers {
     warn "Creating ledger 5";
     my $ledger5 = Koha::Acquire::Funds::Ledger->new(
         {
-            fiscal_yr_id             => 2,
+            fiscal_period_id             => 2,
             name                     => 'History journals',
             code                     => 'HIST1',
             description              => 'Historical journals for FY 2024/25',
@@ -431,7 +431,7 @@ sub create_funds {
     warn "Creating fund 1";
     my $fund1 = Koha::Acquire::Funds::Fund->new(
         {
-            fiscal_yr_id => 1,
+            fiscal_period_id => 1,
             ledger_id    => 3,
             name         => 'Text books',
             code         => 'TB1',
@@ -448,7 +448,7 @@ sub create_funds {
     warn "Creating fund 2";
     my $fund2 = Koha::Acquire::Funds::Fund->new(
         {
-            fiscal_yr_id => 1,
+            fiscal_period_id => 1,
             ledger_id    => 1,
             name         => 'Nature journals',
             code         => 'NAT',
@@ -465,7 +465,7 @@ sub create_funds {
     warn "Creating fund 3";
     my $fund3 = Koha::Acquire::Funds::Fund->new(
         {
-            fiscal_yr_id => 3,
+            fiscal_period_id => 3,
             ledger_id    => 4,
             name         => 'Stationery',
             code         => 'ST1',
@@ -482,7 +482,7 @@ sub create_funds {
     warn "Creating fund 4";
     my $fund4 = Koha::Acquire::Funds::Fund->new(
         {
-            fiscal_yr_id => 1,
+            fiscal_period_id => 1,
             ledger_id    => 2,
             name         => 'Nature e-journals',
             code         => 'NAT-E',
@@ -499,7 +499,7 @@ sub create_funds {
     warn "Creating fund 5";
     my $fund5 = Koha::Acquire::Funds::Fund->new(
         {
-            fiscal_yr_id => 2,
+            fiscal_period_id => 2,
             ledger_id    => 5,
             name         => 'Science journals',
             code         => 'SCI',
@@ -516,7 +516,7 @@ sub create_funds {
     warn "Creating fund 6";
     my $fund6 = Koha::Acquire::Funds::Fund->new(
         {
-            fiscal_yr_id => 1,
+            fiscal_period_id => 1,
             ledger_id    => 1,
             name         => 'Print resources',
             code         => 'BKS',
@@ -533,7 +533,7 @@ sub create_funds {
     warn "Creating fund 7";
     my $fund7 = Koha::Acquire::Funds::Fund->new(
         {
-            fiscal_yr_id => 1,
+            fiscal_period_id => 1,
             ledger_id    => 3,
             name         => 'Fund for stuff',
             code         => 'STUFF',
@@ -557,7 +557,7 @@ sub create_fund_allocations {
             fund_id => 1,
             sub_fund_id => undef,
             ledger_id => 3,
-            fiscal_yr_id => 1,
+            fiscal_period_id => 1,
             allocation_amount => 1000,
             reference => 'Ref1',
             note => 'Setup allocation',
@@ -572,7 +572,7 @@ sub create_fund_allocations {
             fund_id => 1,
             sub_fund_id => undef,
             ledger_id => 3,
-            fiscal_yr_id => 1,
+            fiscal_period_id => 1,
             allocation_amount => 200,
             reference => 'Ref2',
             note => 'Extra funds',
@@ -587,7 +587,7 @@ sub create_fund_allocations {
             fund_id => 2,
             sub_fund_id => undef,
             ledger_id => 1,
-            fiscal_yr_id => 1,
+            fiscal_period_id => 1,
             allocation_amount => 2500,
             reference => 'Ref1',
             note => 'Journal funds',
@@ -602,7 +602,7 @@ sub create_fund_allocations {
             fund_id => 2,
             sub_fund_id => undef,
             ledger_id => 1,
-            fiscal_yr_id => 1,
+            fiscal_period_id => 1,
             allocation_amount => 200,
             reference => 'Ref2',
             note => '',
@@ -617,7 +617,7 @@ sub create_fund_allocations {
             fund_id => 2,
             sub_fund_id => undef,
             ledger_id => 1,
-            fiscal_yr_id => 1,
+            fiscal_period_id => 1,
             allocation_amount => -200,
             reference => 'Ref3',
             note => 'Re-balancing',
@@ -632,7 +632,7 @@ sub create_fund_allocations {
             fund_id => 3,
             sub_fund_id => undef,
             ledger_id => 4,
-            fiscal_yr_id => 3,
+            fiscal_period_id => 3,
             allocation_amount => 1200,
             reference => 'Ref1',
             note => 'Note text',
@@ -647,7 +647,7 @@ sub create_fund_allocations {
             fund_id => 3,
             sub_fund_id => undef,
             ledger_id => 4,
-            fiscal_yr_id => 3,
+            fiscal_period_id => 3,
             allocation_amount => 50,
             reference => 'Ref2',
             note => 'Note text',
@@ -662,7 +662,7 @@ sub create_fund_allocations {
             fund_id => 4,
             sub_fund_id => undef,
             ledger_id => 2,
-            fiscal_yr_id => 1,
+            fiscal_period_id => 1,
             allocation_amount => 500,
             reference => 'Ref1',
             note => 'Set up',
@@ -677,7 +677,7 @@ sub create_fund_allocations {
             fund_id => 5,
             sub_fund_id => undef,
             ledger_id => 5,
-            fiscal_yr_id => 2,
+            fiscal_period_id => 2,
             allocation_amount => 5000,
             reference => 'Ref1',
             note => 'Lots of money',
@@ -692,7 +692,7 @@ sub create_fund_allocations {
             fund_id => 5,
             sub_fund_id => undef,
             ledger_id => 5,
-            fiscal_yr_id => 2,
+            fiscal_period_id => 2,
             allocation_amount => 1000,
             reference => 'Ref2',
             note => 'Even more money',
@@ -707,7 +707,7 @@ sub create_fund_allocations {
             fund_id => 6,
             sub_fund_id => undef,
             ledger_id => 1,
-            fiscal_yr_id => 1,
+            fiscal_period_id => 1,
             allocation_amount => 1000,
             reference => 'Ref1',
             note => 'Funds',
@@ -722,7 +722,7 @@ sub create_fund_allocations {
             fund_id => 6,
             sub_fund_id => undef,
             ledger_id => 1,
-            fiscal_yr_id => 1,
+            fiscal_period_id => 1,
             allocation_amount => 250,
             reference => 'Ref2',
             note => 'More funds',
@@ -737,7 +737,7 @@ sub create_fund_allocations {
             fund_id => 7,
             sub_fund_id => undef,
             ledger_id => 3,
-            fiscal_yr_id => 1,
+            fiscal_period_id => 1,
             allocation_amount => 250,
             reference => 'Ref1',
             note => 'Adding money',
@@ -752,7 +752,7 @@ sub create_fund_allocations {
             fund_id => 7,
             sub_fund_id => undef,
             ledger_id => 3,
-            fiscal_yr_id => 1,
+            fiscal_period_id => 1,
             allocation_amount => 25,
             reference => 'Ref2',
             note => 'Adding more money',
