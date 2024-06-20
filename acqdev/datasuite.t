@@ -30,9 +30,9 @@ BEGIN {
     my $path = '/kohadevbox/plugins/koha-plugin-acq2/Koha/Plugin/Acquire/lib';
     unshift @INC, $path;
 
-    require Koha::Acquire::Funds::FiscalYears;
-    require Koha::Schema::Result::KohaPluginAcquireFiscalYear;
-    Koha::Schema->register_class( KohaPluginAcquireFiscalYear => 'Koha::Schema::Result::KohaPluginAcquireFiscalYear' );
+    require Koha::Acquire::Funds::FiscalPeriods;
+    require Koha::Schema::Result::KohaPluginAcquireFiscalPeriod;
+    Koha::Schema->register_class( KohaPluginAcquireFiscalPeriod => 'Koha::Schema::Result::KohaPluginAcquireFiscalPeriod' );
 
     require Koha::Acquire::Funds::Ledgers;
     require Koha::Schema::Result::KohaPluginAcquireLedger;
@@ -64,8 +64,8 @@ BEGIN {
 
 use Koha::Patrons;
 use Koha::Library::Groups;
-use Koha::Acquire::Funds::FiscalYear;
-use Koha::Acquire::Funds::FiscalYears;
+use Koha::Acquire::Funds::FiscalPeriod;
+use Koha::Acquire::Funds::FiscalPeriods;
 use Koha::Acquire::Funds::Ledger;
 use Koha::Acquire::Funds::Ledgers;
 use Koha::Acquire::Funds::Fund;
@@ -84,7 +84,7 @@ create_patrons( { branchcode => 'FPL' } );
 create_patrons( { branchcode => 'MPL' } );
 create_patrons( { branchcode => 'TPL' } );
 create_patrons( { branchcode => 'FFL' } );
-create_fiscal_years();
+create_fiscal_periods();
 create_ledgers();
 create_funds();
 create_fund_allocations();
@@ -233,10 +233,10 @@ sub create_patrons {
     warn "Patrons loaded for branch $branchcode";
 }
 
-sub create_fiscal_years {
+sub create_fiscal_periods {
 
-    warn "Creating fiscal year 1";
-    my $fy1 = Koha::Acquire::Funds::FiscalYear->new(
+    warn "Creating fiscal period 1";
+    my $fy1 = Koha::Acquire::Funds::FiscalPeriod->new(
         {
             code        => 'FY 23/24',
             description => 'Financial year 2023/2024',
@@ -248,8 +248,8 @@ sub create_fiscal_years {
         }
     )->store();
 
-    warn "Creating fiscal year 2";
-    my $fy2 = Koha::Acquire::Funds::FiscalYear->new(
+    warn "Creating fiscal period 2";
+    my $fy2 = Koha::Acquire::Funds::FiscalPeriod->new(
         {
             code        => 'FY 24/25',
             description => 'Financial year 2024/2025',
@@ -261,8 +261,8 @@ sub create_fiscal_years {
         }
     )->store();
 
-    warn "Creating fiscal year 3";
-    my $fy3 = Koha::Acquire::Funds::FiscalYear->new(
+    warn "Creating fiscal period 3";
+    my $fy3 = Koha::Acquire::Funds::FiscalPeriod->new(
         {
             code        => 'CY 23/24',
             description => 'Calendar year 2023/2024',
@@ -274,7 +274,7 @@ sub create_fiscal_years {
         }
     )->store();
 
-    warn "Creating task for fiscal year 2";
+    warn "Creating task for fiscal period 2";
     my $task = Koha::Acquire::TaskManagement::Task->new(
         {
             short_name  => 'Activate FY 24/25',
@@ -288,7 +288,7 @@ sub create_fiscal_years {
         }
     )->store();
 
-    warn "Creating task for fiscal year 1";
+    warn "Creating task for fiscal period 1";
     my $task2 = Koha::Acquire::TaskManagement::Task->new(
         {
             short_name  => 'Activate FY 23/24',
@@ -302,7 +302,7 @@ sub create_fiscal_years {
         }
     )->store();
 
-    warn "All fiscal years added";
+    warn "All fiscal periods added";
 }
 
 sub create_ledgers {
