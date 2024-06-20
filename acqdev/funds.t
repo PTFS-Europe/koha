@@ -47,7 +47,7 @@ use Koha::Acquire::TaskManagement::Tasks;
 
 warn "Creating fund 1";
 my $fund1 = Koha::Acquire::Funds::Fund->new({
-    fiscal_yr_id => 1,
+    fiscal_period_id => 1,
     ledger_id    => 3,
     name         => 'Text books',
     code         => 'TB1',
@@ -62,7 +62,7 @@ my $fund1 = Koha::Acquire::Funds::Fund->new({
 
 warn "Creating fund 2";
 my $fund2 = Koha::Acquire::Funds::Fund->new({
-    fiscal_yr_id => 1,
+    fiscal_period_id => 1,
     ledger_id    => 1,
     name         => 'Nature journals',
     code         => 'NAT',
@@ -77,7 +77,7 @@ my $fund2 = Koha::Acquire::Funds::Fund->new({
 
 warn "Creating fund 3";
 my $fund3 = Koha::Acquire::Funds::Fund->new({
-    fiscal_yr_id => 3,
+    fiscal_period_id => 3,
     ledger_id    => 4,
     name         => 'Stationary',
     code         => 'ST1',
@@ -92,7 +92,7 @@ my $fund3 = Koha::Acquire::Funds::Fund->new({
 
 warn "Creating fund 4";
 my $fund4 = Koha::Acquire::Funds::Fund->new({
-    fiscal_yr_id => 1,
+    fiscal_period_id => 1,
     ledger_id    => 2,
     name         => 'Nature e-journals',
     code         => 'NATE',
@@ -107,7 +107,7 @@ my $fund4 = Koha::Acquire::Funds::Fund->new({
 
 warn "Creating fund 5";
 my $fund5 = Koha::Acquire::Funds::Fund->new({
-    fiscal_yr_id => 2,
+    fiscal_period_id => 2,
     ledger_id    => 5,
     name         => 'WW2 papers',
     code         => 'WW2',

@@ -51,7 +51,7 @@ sub create_ledgers {
     warn "Creating ledger 1";
     my $ledger = Koha::Acquire::Funds::Ledger->new(
         {
-            fiscal_yr_id             => 1,
+            fiscal_period_id             => 1,
             name                     => 'Print journal ledger',
             code                     => 'P1',
             description              => 'Print journal ledger for financial year 2023/2024',
@@ -71,7 +71,7 @@ sub create_ledgers {
     warn "Creating ledger 2";
     my $ledger2 = Koha::Acquire::Funds::Ledger->new(
         {
-            fiscal_yr_id             => 1,
+            fiscal_period_id             => 1,
             name                     => 'Electronic journal ledger',
             code                     => 'E1',
             description              => 'Electronic journal for financial year 2023/2024',
@@ -91,7 +91,7 @@ sub create_ledgers {
     warn "Creating ledger 3";
     my $ledger3 = Koha::Acquire::Funds::Ledger->new(
         {
-            fiscal_yr_id             => 1,
+            fiscal_period_id             => 1,
             name                     => 'Academic materials',
             code                     => 'AC1',
             description              => 'Academic materials for financial year 2023/2024',
@@ -111,7 +111,7 @@ sub create_ledgers {
     warn "Creating ledger 4";
     my $ledger4 = Koha::Acquire::Funds::Ledger->new(
         {
-            fiscal_yr_id             => 3,
+            fiscal_period_id             => 3,
             name                     => 'Misc funds',
             code                     => 'MISC1',
             description              => 'Miscellaneous funds for 2024',
@@ -132,7 +132,7 @@ sub create_ledgers {
     warn "Creating ledger 5";
     my $ledger5 = Koha::Acquire::Funds::Ledger->new(
         {
-            fiscal_yr_id             => 2,
+            fiscal_period_id             => 2,
             name                     => 'History journals',
             code                     => 'HIST1',
             description              => 'Historical journals for FY 2024/25',
