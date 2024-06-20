@@ -21,7 +21,6 @@ use Mojo::Base 'Mojolicious::Controller';
 
 use Koha::CirculationRules;
 
-
 =head1 API
 
 =head2 Methods
@@ -36,11 +35,10 @@ sub get_kinds {
     my $c = shift->openapi->valid_input or return;
 
     return $c->render(
-        status => 200,
+        status  => 200,
         openapi => Koha::CirculationRules->rule_kinds,
     );
 }
-
 
 =head3 list_effective_rules
 
@@ -52,16 +50,31 @@ sub list_effective_rules {
     my $c = shift->openapi->valid_input or return;
 
     my $item_type       = $c->param('itemtype');
-    my $library         = $c->param('library');
+    my $branchcode      = $c->param('library');
     my $patron_category = $c->param('category');
-    my $rules           = $c->param('rules') // [ keys %{Koha::CirculationRules->rule_kinds} ];
+    my $rules           = $c->param('rules') // [ keys %{ Koha::CirculationRules->rule_kinds } ];
+
+    if ($item_type) {
+        my $type = Koha::ItemTypes->find($item_type);
+        return $c->render_invalid_parameter_value('/query/itemtype') unless $type;
+    }
+
+    if ($branchcode) {
+        my $library = Koha::Libraries->find($branchcode);
+        return $c->render_invalid_parameter_value('/query/library') unless $library;
+    }
+
+    if ($patron_category) {
+        my $category = Koha::Patron::Categories->find($patron_category);
+        return $c->render_invalid_parameter_value('/query/category') unless $category;
+    }
 
     my $effective_rules = Koha::CirculationRules->get_effective_rules(
         {
             categorycode => $patron_category,
             itemtype     => $item_type,
-            branchcode   => $library,
-            rules => $rules
+            branchcode   => $branchcode,
+            rules        => $rules
         }
     );
 
