@@ -143,7 +143,7 @@ $("#placeBookingModal").on("show.bs.modal", function (e) {
                 category: booking_patron.category_id,
                 itemtype: booking_itemtype_id,
                 branchcode: pickup_library_id,
-                rules: [ 'bookings_lead_period', 'bookings_trail_period' ]
+                //rules: [ 'bookings_lead_period', 'bookings_trail_period' ]
             },
             success: function (response) {
                 leadDays = response.bookings_lead_period;
