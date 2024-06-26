@@ -117,6 +117,11 @@ function hideAllColumns() {
     Cookies.set("showColumns", cookieString, { expires: date, path: '/', sameSite: 'Lax'  });
 }
 
+function ShowSerialEditingConfirmation(form) {
+    $('#edit-serial-issues-modal').modal('show');
+    return false;
+}
+
 $(document).ready(function () {
     var items_table = KohaTable("itemst", {
         "columnDefs":  [
@@ -165,5 +170,16 @@ $(document).ready(function () {
                 hideColumn(num);
             }
         }
+    });
+    $(document).on('click', '#edit-serial-issues-modal-btn-submit', function (e) {
+        e.preventDefault();
+        $('#edit-serial-issues-modal').modal('hide');
+        $('#edit-serial-issues').val('1');
+        return $("form[name='f'").submit();
+    });
+    $(document).on('click', '#no-edit-serial-issues-modal-btn-submit', function (e) {
+        e.preventDefault();
+        $('#edit-serial-issues-modal').modal('hide');
+        return $("form[name='f'").submit();
     });
 });
