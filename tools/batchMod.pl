@@ -41,18 +41,19 @@ use Koha::BackgroundJob::BatchUpdateItem;
 use Koha::UI::Form::Builder::Item;
 use Koha::UI::Table::Builder::Items;
 
-my $input = CGI->new;
-my $dbh = C4::Context->dbh;
-my $error        = $input->param('error');
-my @itemnumbers  = $input->multi_param('itemnumber');
-my $biblionumber = $input->param('biblionumber');
-my $op           = $input->param('op');
-my $del          = $input->param('del');
-my $del_records  = $input->param('del_records');
-my $src          = $input->param('src');
-my $use_default_values = $input->param('use_default_values');
+my $input                             = CGI->new;
+my $dbh                               = C4::Context->dbh;
+my $error                             = $input->param('error');
+my @itemnumbers                       = $input->multi_param('itemnumber');
+my $biblionumber                      = $input->param('biblionumber');
+my $op                                = $input->param('op');
+my $del                               = $input->param('del');
+my $del_records                       = $input->param('del_records');
+my $del_serial_issues                 = $input->param('del_serial_issues');
+my $src                               = $input->param('src');
+my $use_default_values                = $input->param('use_default_values');
 my $exclude_from_local_holds_priority = $input->param('exclude_from_local_holds_priority');
-my $mark_items_returned = $input->param('mark_items_returned');
+my $mark_items_returned               = $input->param('mark_items_returned');
 
 my $template_name;
 my $template_flag;
@@ -91,8 +92,9 @@ if ( $op eq "cud-action" ) {
     if ($del) {
         try {
             my $params = {
-                record_ids     => \@itemnumbers,
-                delete_biblios => $del_records,
+                record_ids           => \@itemnumbers,
+                delete_biblios       => $del_records,
+                delete_serial_issues => $del_serial_issues,
             };
             my $job_id =
               Koha::BackgroundJob::BatchDeleteItem->new->enqueue($params);
