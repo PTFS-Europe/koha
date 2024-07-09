@@ -3,21 +3,13 @@
     <div v-else id="agreements_show">
         <Toolbar>
             <ToolbarButton
-                :to="{
-                    name: 'AgreementsFormAddEdit',
-                    params: { agreement_id: agreement.agreement_id },
-                }"
-                class="btn btn-default"
-                icon="pencil"
-                :title="$__('Edit')"
+                action="edit"
+                @go-to-edit-resource="goToResourceEdit"
             />
-            <a
-                @click="
-                    delete_agreement(agreement.agreement_id, agreement.name)
-                "
-                class="btn btn-default"
-                ><font-awesome-icon icon="trash" /> {{ $__("Delete") }}</a
-            >
+            <ToolbarButton
+                action="delete"
+                @delete-resource="doResourceDelete"
+            />
         </Toolbar>
 
         <h2>
@@ -339,23 +331,22 @@ import { inject } from "vue"
 import { APIClient } from "../../fetch/api-client.js"
 import Toolbar from "../Toolbar.vue"
 import ToolbarButton from "../ToolbarButton.vue"
+import AgreementResource from "./AgreementResource.vue"
 
 export default {
+    extends: AgreementResource,
     setup() {
         const format_date = $date
         const patron_to_html = $patron_to_html
-
-        const { setConfirmationDialog, setMessage } = inject("mainStore")
 
         const AVStore = inject("AVStore")
         const { get_lib_from_av } = AVStore
 
         return {
+            ...AgreementResource.setup(),
             format_date,
             patron_to_html,
             get_lib_from_av,
-            setConfirmationDialog,
-            setMessage,
         }
     },
     data() {
@@ -395,33 +386,6 @@ export default {
                     this.initialized = true
                 },
                 error => {}
-            )
-        },
-        delete_agreement: function (agreement_id, agreement_name) {
-            this.setConfirmationDialog(
-                {
-                    title: this.$__(
-                        "Are you sure you want to remove this agreement?"
-                    ),
-                    message: agreement_name,
-                    accept_label: this.$__("Yes, delete"),
-                    cancel_label: this.$__("No, do not delete"),
-                },
-                () => {
-                    const client = APIClient.erm
-                    client.agreements.delete(agreement_id).then(
-                        success => {
-                            this.setMessage(
-                                this.$__("Agreement %s deleted").format(
-                                    agreement_name
-                                ),
-                                true
-                            )
-                            this.$router.push({ name: "AgreementsList" })
-                        },
-                        error => {}
-                    )
-                }
             )
         },
     },

@@ -3,8 +3,8 @@
     <div v-else id="agreements_list">
         <Toolbar v-if="!embedded">
             <ToolbarButton
-                :to="{ name: 'AgreementsFormAdd' }"
-                icon="plus"
+                action="add"
+                @go-to-add-resource="goToResourceAdd"
                 :title="$__('New agreement')"
             />
         </Toolbar>
@@ -43,9 +43,9 @@
             <KohaTable
                 ref="table"
                 v-bind="tableOptions"
-                @show="doShow"
-                @edit="doEdit"
-                @delete="doDelete"
+                @show="goToResourceShow"
+                @edit="goToResourceEdit"
+                @delete="doResourceDelete"
                 @select="doSelect"
             ></KohaTable>
         </div>
@@ -64,16 +64,16 @@ import { APIClient } from "../../fetch/api-client.js"
 import { storeToRefs } from "pinia"
 import { build_url } from "../../composables/datatables"
 import KohaTable from "../KohaTable.vue"
+import AgreementResource from "./AgreementResource.vue"
 
 export default {
+    extends: AgreementResource,
     setup() {
         const vendorStore = inject("vendorStore")
         const { vendors } = storeToRefs(vendorStore)
 
         const AVStore = inject("AVStore")
         const { get_lib_from_av, map_av_dt_filter } = AVStore
-
-        const { setConfirmationDialog, setMessage } = inject("mainStore")
 
         const table = ref()
 
@@ -83,13 +83,12 @@ export default {
             by_mine: false,
         })
         return {
+            ...AgreementResource.setup(),
             vendors,
             get_lib_from_av,
             map_av_dt_filter,
             logged_in_user,
             table,
-            setConfirmationDialog,
-            setMessage,
             escape_str,
             agreement_table_settings,
             filters,
@@ -174,46 +173,6 @@ export default {
                 error => {}
             )
         },
-        doShow: function ({ agreement_id }, dt, event) {
-            event.preventDefault()
-            this.$router.push({
-                name: "AgreementsShow",
-                params: { agreement_id },
-            })
-        },
-        doEdit: function ({ agreement_id }, dt, event) {
-            this.$router.push({
-                name: "AgreementsFormAddEdit",
-                params: { agreement_id },
-            })
-        },
-        doDelete: function (agreement, dt, event) {
-            this.setConfirmationDialog(
-                {
-                    title: this.$__(
-                        "Are you sure you want to remove this agreement?"
-                    ),
-                    message: agreement.name,
-                    accept_label: this.$__("Yes, delete"),
-                    cancel_label: this.$__("No, do not delete"),
-                },
-                () => {
-                    const client = APIClient.erm
-                    client.agreements.delete(agreement.agreement_id).then(
-                        success => {
-                            this.setMessage(
-                                this.$__("Agreement %s deleted").format(
-                                    agreement.name
-                                ),
-                                true
-                            )
-                            dt.draw()
-                        },
-                        error => {}
-                    )
-                }
-            )
-        },
         doSelect: function (agreement, dt, event) {
             this.$emit("select-agreement", agreement.agreement_id)
             this.$emit("close")
@@ -222,7 +181,7 @@ export default {
             return new Date().toISOString().substring(0, 10)
         },
         table_url: function () {
-            let url = "/api/v1/erm/agreements"
+            let url = this.getResourceTableUrl()
             if (this.filters.by_expired)
                 url +=
                     "?max_expiration_date=" + this.filters.max_expiration_date
@@ -257,9 +216,7 @@ export default {
                     orderable: true,
                     render: function (data, type, row, meta) {
                         return (
-                            '<a href="/cgi-bin/koha/erm/agreements/' +
-                            row.agreement_id +
-                            '" class="show">' +
+                            '<a role="button" class="show">' +
                             escape_str(`${row.name} (#${row.agreement_id})`) +
                             "</a>"
                         )
