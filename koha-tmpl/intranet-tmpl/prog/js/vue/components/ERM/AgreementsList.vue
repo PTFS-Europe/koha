@@ -292,9 +292,7 @@ export default {
                     orderable: true,
                     render: function (data, type, row, meta) {
                         return (
-                            '<a href="/cgi-bin/koha/erm/agreements/' +
-                            row.agreement_id +
-                            '" class="show">' +
+                            '<a role="button" class="show">' +
                             escape_str(`${row.name} (#${row.agreement_id})`) +
                             "</a>"
                         );
