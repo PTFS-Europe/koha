@@ -340,8 +340,6 @@ export default {
         const format_date = $date
         const patron_to_html = $patron_to_html
 
-        const { setConfirmationDialog, setMessage } = inject("mainStore")
-
         const AVStore = inject("AVStore")
         const { get_lib_from_av } = AVStore
 
@@ -350,8 +348,6 @@ export default {
             format_date,
             patron_to_html,
             get_lib_from_av,
-            setConfirmationDialog,
-            setMessage,
         }
     },
     data() {
