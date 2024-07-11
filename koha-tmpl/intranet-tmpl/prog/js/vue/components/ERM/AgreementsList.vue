@@ -43,7 +43,7 @@
             <KohaTable
                 ref="table"
                 v-bind="tableOptions"
-                @show="doShow"
+                @show="goToResourceShow"
                 @edit="goToResourceEdit"
                 @delete="doDelete"
                 @select="doSelect"
@@ -172,13 +172,6 @@ export default {
                 },
                 error => {}
             )
-        },
-        doShow: function ({ agreement_id }, dt, event) {
-            event.preventDefault()
-            this.$router.push({
-                name: "AgreementsShow",
-                params: { agreement_id },
-            })
         },
         doDelete: function (agreement, dt, event) {
             this.setConfirmationDialog(
