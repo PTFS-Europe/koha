@@ -1,16 +1,19 @@
 <template>
-    <a v-if="action === 'add'" @click="$emit('addResource')" :class="class"
+    <a
+        v-if="action === 'add'"
+        @click="$emit('go-to-add-resource')"
+        :class="class"
         ><font-awesome-icon icon="plus" /> {{ title }}</a
     >
     <a
         v-else-if="action === 'delete'"
-        @click="$emit('deleteResource')"
+        @click="$emit('delete-resource')"
         :class="class"
         ><font-awesome-icon icon="trash" /> {{ $__("Delete") }}</a
     >
     <a
         v-else-if="action === 'edit'"
-        @click="$emit('editResource')"
+        @click="$emit('go-to-edit-resource')"
         :class="class"
         ><font-awesome-icon icon="pencil" /> {{ $__("Edit") }}</a
     >
@@ -39,7 +42,7 @@ export default {
             type: String,
         },
     },
-    emits: ["addResource", "deleteResource", "editResource"],
+    emits: ["go-to-add-resource", "go-to-edit-resource", "delete-resource"],
     name: "Toolbar",
 }
 </script>
