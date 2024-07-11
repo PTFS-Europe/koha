@@ -77,8 +77,6 @@ export default {
         const AVStore = inject("AVStore");
         const { get_lib_from_av, map_av_dt_filter } = AVStore;
 
-        const { setConfirmationDialog, setMessage } = inject("mainStore");
-
         const table = ref();
 
         const filters = reactive({
@@ -93,8 +91,6 @@ export default {
             map_av_dt_filter,
             logged_in_user,
             table,
-            setConfirmationDialog,
-            setMessage,
             escape_str,
             agreement_table_settings,
             filters,
