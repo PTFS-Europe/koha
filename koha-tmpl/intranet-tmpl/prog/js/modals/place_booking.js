@@ -133,7 +133,9 @@ $("#placeBookingModal").on("show.bs.modal", function (e) {
     // Lead and Trail days syncing
     let leadDays = 0;
     let trailDays = 0;
-    let lengthDays;
+    let issueLength;
+    let renewalLength;
+    let renewalsAllowed;
     function setBufferDays() {
         let rules_url = "/api/v1/circulation_rules";
         $.ajax({
@@ -148,8 +150,9 @@ $("#placeBookingModal").on("show.bs.modal", function (e) {
             },
             success: function (response) {
                 let rules = response[0];
-                let renewalLength = rules.renewalsallowed * rules.renewalperiod;
-                lengthDays = rules.issuelength + renewalLength;
+                issueLength = rules.issuelength;
+                renewalsAllowed = rules.renewalsallowed;
+                renewalLength = rules.renewalperiod;
                 leadDays = rules.bookings_lead_period;
                 trailDays = rules.bookings_trail_period;
             },
@@ -673,9 +676,45 @@ $("#placeBookingModal").on("show.bs.modal", function (e) {
                     ) {
                         // Start date selected
                         if (selectedDates[0] && !selectedDates[1]) {
+
+                            const startDate = new Date(selectedDates[0]);
+
+                            // Custom format function to make specific dates bold
+                            const dateArray = [new Date(startDate)];
+                            // Add issueLength days after the startDate
+                            const nextDate = new Date(startDate);
+                            nextDate.setDate(nextDate.getDate() + parseInt(issueLength));
+                            dateArray.push(new Date(nextDate));
+
+                            // Add subsequent dates based on renewalsAllowed and renewalLength
+                            for (let i = 0; i < renewalsAllowed; i++) {
+                                nextDate.setDate(nextDate.getDate() + parseInt(renewalLength));
+                                dateArray.push(new Date(nextDate));
+                            }
+
+                            instance.calendarContainer.querySelectorAll(".flatpickr-day").forEach(day => {
+                                const date = day.dateObj;
+                                const isBold = dateArray.some(thisDate => thisDate.getTime() === date.getTime());
+                                if (isBold) {
+                                    console.log("Adding bold "+date);
+                                    day.classList.add('bold-date');
+                                } else {
+                                    console.log("Removing bold "+date)
+                                    day.classList.remove('bold-date');
+                                }
+                                console.log(day);
+                            });
+                            instance.redraw();
+                            // FIXME: This isn't working yet.
+                        
                             // Calculate the maximum date based on the selected start date
-                            const maxDate = new Date(selectedDates[0]);
-                            maxDate.setDate(maxDate.getDate() + lengthDays );
+                            let totalRenewalLength = parseInt(renewalsAllowed) * parseInt(renewalLength);
+                            let totalIssueLength = parseInt(issueLength) + parseInt(totalRenewalLength);
+
+                            const maxDate = new Date(startDate.getTime());
+                            maxDate.setDate(maxDate.getDate() + totalIssueLength );
+
+                            console.log("Found first date selected, adding "+totalIssueLength+" days to set maxDate to "+maxDate);
 
                             // Update the maxDate option of the flatpickr instance
                             instance.set('maxDate', maxDate);
