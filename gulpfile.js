@@ -167,7 +167,6 @@ function getPoTasks () {
 
     return tasks;
 }
-const poTypes = getPoTasks();
 
 function po_extract_marc (type) {
     return src(`koha-tmpl/*-tmpl/*/en/**/*${type}*`, { read: false, nocase: true })
@@ -358,6 +357,171 @@ function po_update_installer ()         { return po_update_type('installer') }
 function po_update_installer_marc21 ()  { return po_update_type('installer-MARC21') }
 function po_update_installer_unimarc () { return po_update_type('installer-UNIMARC') }
 
+const PLUGINS_BASE = "/kohadevbox/plugins";
+const PLUGINS = []
+
+if (args.plugins) {
+    const identifyPluginFile = (file) => {
+        const pluginFile = fs.readFileSync(file, 'utf8')
+        const fileByLine = pluginFile.split(/\r?\n/)
+
+        let pluginIdentified = false
+        fileByLine.forEach(line => {
+            if (line.includes("Koha::Plugins::Base")) {
+                pluginIdentified = true
+            }
+        })
+        return pluginIdentified
+    }
+
+    const collectPluginFiles = (fullPath) => {
+        let files = []
+        fs.readdirSync(fullPath).forEach(file => {
+            const absolutePath = path.join(fullPath, file)
+            if (fs.statSync(absolutePath).isDirectory()) {
+                const filesFromNestedFolder = collectPluginFiles(absolutePath)
+                filesFromNestedFolder && filesFromNestedFolder.forEach(file => {
+                    files.push(file)
+                })
+            } else {
+                return files.push(absolutePath)
+            }
+        })
+        return files
+    }
+
+    function po_create_plugins(pluginData, type) {
+        const access = util.promisify(fs.access);
+        const exec = util.promisify(child_process.exec);
+
+        const translatorDirCheck = fs.readdirSync(pluginData.bundlePath).includes('translator')
+        if (!translatorDirCheck) {
+            fs.mkdirSync(`${pluginData.bundlePath}/translator`)
+        }
+        const poDirCheck = fs.readdirSync(pluginData.bundlePath + '/translator').includes('po')
+        if (!poDirCheck) {
+            fs.mkdirSync(`${pluginData.bundlePath}/translator/po`)
+        }
+
+        const pot = `${pluginData.bundlePath}/translator/${pluginData.name}-${type}.pot`;
+
+        // Generate .pot only if it doesn't exist or --force-extract is given
+        const extract = () => stream.finished(poTasks[`${pluginData.name}-${type}`].extract());
+
+        const p =
+            args['generate-pot'] === 'always' ? extract() :
+                args['generate-pot'] === 'auto' ? access(pot).catch(extract) :
+                    args['generate-pot'] === 'never' ? Promise.resolve(0) :
+                        Promise.reject(new Error('Invalid value for option --generate-pot: ' + args['generate-pot']))
+
+        return p.then(function () {
+            const languages = getLanguages();
+            const promises = [];
+            languages.forEach(language => {
+                const locale = language.split('-').filter(s => s.length !== 4).join('_');
+                const po = `${pluginData.bundlePath}/translator/po/${language}-${pluginData.name}-${type}.po`;
+
+                const promise = access(po)
+                    .catch(() => exec(`msginit -o ${po} -i ${pot} -l ${locale} --no-translator`))
+                promises.push(promise);
+            })
+            return Promise.all(promises);
+        })
+    }
+
+    function po_extract_plugins_js(pluginData) {
+        const globs = [
+            `${pluginData.directory}/**/*.js`,
+            `${pluginData.directory}/**/*.vue`,
+            `!${pluginData.directory}/**/node_modules/**/*`,
+        ];
+
+        return src(globs, { read: false, nocase: true })
+            .pipe(xgettext(`xgettext -L JavaScript ${xgettext_options}`, `${pluginData.name}-js.pot`))
+            .pipe(dest(`${pluginData.bundlePath}/translator`))
+    }
+
+    function po_extract_plugins_template(pluginData) {
+        const globs = [
+            `${pluginData.directory}/**/*.tt`,
+            `${pluginData.directory}/**/*.inc`,
+            `!${pluginData.directory}/**/node_modules/**/*`,
+        ];
+
+        return src(globs, { read: false, nocase: true })
+            .pipe(xgettext('misc/translator/xgettext.pl --charset=UTF-8 -F', `${pluginData.name}-template.pot`))
+            .pipe(dest(`${pluginData.bundlePath}/translator`))
+    }
+
+    function po_update_plugins(pluginData, type) {
+        const access = util.promisify(fs.access);
+        const exec = util.promisify(child_process.exec);
+
+        const pot = `${pluginData.bundlePath}/translator/${pluginData.name}-${type}.pot`;
+
+        // Generate .pot only if it doesn't exist or --force-extract is given
+        const extract = () => stream.finished(poTasks[`${pluginData.name}-${type}`].extract());
+        const p =
+            args['generate-pot'] === 'always' ? extract() :
+                args['generate-pot'] === 'auto' ? access(pot).catch(extract) :
+                    args['generate-pot'] === 'never' ? Promise.resolve(0) :
+                        Promise.reject(new Error('Invalid value for option --generate-pot: ' + args['generate-pot']))
+
+        return p.then(function () {
+            const languages = getLanguages();
+            const promises = [];
+            languages.forEach(language => {
+                const po = `${pluginData.bundlePath}/translator/po/${language}-${pluginData.name}-${type}.po`;
+                promises.push(exec(`msgmerge --backup=off --no-wrap --quiet -F --update ${po} ${pot}`));
+            })
+
+            return Promise.all(promises);
+        });
+    }
+
+    // Remove all tasks except for plugins
+    Object.keys(poTasks).forEach(task => {
+        delete poTasks[task]
+    })
+
+    const pluginNames = fs.readdirSync(PLUGINS_BASE);
+    pluginNames.forEach(plugin => {
+        const pluginFiles = collectPluginFiles(`${PLUGINS_BASE}/${plugin}/Koha`)
+        let pluginFilePath
+        pluginFiles.forEach(file => {
+            const pluginFile = identifyPluginFile(file)
+            if (pluginFile) {
+                pluginFilePath = file.split('.')[0]
+            }
+        })
+        const name = pluginFilePath.split('/').pop()
+        const pluginData = {
+            name,
+            bundlePath: pluginFilePath,
+            directory: `${PLUGINS_BASE}/${plugin}`,
+        }
+        PLUGINS.push(pluginData)
+
+        function po_extract_js () { return po_extract_plugins_js(pluginData) }
+        function po_create_js () { return po_create_plugins(pluginData, 'js') }
+        function po_update_js () { return po_update_plugins(pluginData, 'js') }
+        function po_extract_template () { return po_extract_plugins_template(pluginData) }
+        function po_create_template () { return po_create_plugins(pluginData, 'template') }
+        function po_update_template () { return po_update_plugins(pluginData, 'template') }
+        
+        poTasks[`${name}-js`] = {
+            extract: po_extract_js,
+            create: po_create_js,
+            update: po_update_js,
+        }
+        poTasks[`${name}-template`] = {
+            extract: po_extract_template,
+            create: po_create_template,
+            update: po_update_template,
+        }
+    })
+}
+
 /**
  * Gulp plugin that executes xgettext-like command `cmd` on all files given as
  * input, and then outputs the result as a POT file named `filename`.
@@ -437,6 +601,8 @@ if (args['_'][0].match("po:") && !fs.existsSync('misc/translator/po')) {
     console.log("misc/translator/po does not exist. You should clone koha-l10n there. See https://wiki.koha-community.org/wiki/Translation_files for more details.");
     process.exit(1);
 }
+
+const poTypes = getPoTasks();
 
 exports['po:create'] = parallel(...poTypes.map(type => poTasks[type].create));
 exports['po:update'] = parallel(...poTypes.map(type => poTasks[type].update));
