@@ -57,21 +57,16 @@ export default {
                 )
         },
         table_url() {
-            let url = "/api/v1/erm/usage_%ss?usage_data_provider_id=%s".format(
-                this.data_type,
-                this.$route.params.usage_data_provider_id
-            )
-            return url
+            return `/api/v1/erm/usage_${this.data_type}s?usage_data_provider_id=${this.$route.params.usage_data_provider_id}`
         },
         getTableColumns() {
             const column_options = [
                 {
                     used_by: ["title", "platform", "item", "database"],
                     column: {
-                        title: __(
+                        title:
                             this.data_type.charAt(0).toUpperCase() +
-                                this.data_type.slice(1)
-                        ),
+                            this.data_type.slice(1),
                         data: this.data_type,
                         searchable: true,
                         orderable: true,
