@@ -291,7 +291,8 @@ controller, and thus shouldn't be called twice in it.
             $c->dbic_extended_attributes_join(
                 {
                     attributes      => $attributes,
-                    filtered_params => $filtered_params
+                    filtered_params => $filtered_params,
+                    result_set      => $result_set
                 }
             );
 

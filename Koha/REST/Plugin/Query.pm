@@ -173,16 +173,18 @@ Generates the DBIC join attribute based on extended_attributes query entries, an
 
             my $attributes      = $args->{attributes};
             my $filtered_params = $args->{filtered_params};
+            my $result_set      = $args->{result_set};
 
             if (   reftype( $attributes->{prefetch} )
                 && reftype( $attributes->{prefetch} ) eq 'ARRAY'
                 && grep ( /extended_attributes/, @{ $attributes->{prefetch} } ) )
             {
-                my $ea_entries = $self->_get_extended_attributes_entries( $filtered_params, 0 );
-                while ( $ea_entries > 0 ) {
-                    push( @{ $attributes->{join} }, 'extended_attributes' );
-                    $ea_entries--;
-                }
+                my @array = $self->_get_extended_attributes_entries( $filtered_params, 0 );
+
+                # Calling our private method to build the extended attributes relations
+                my @joins = $result_set->_build_extended_attributes_relations(\@array);
+                push @{ $attributes->{join} }, @joins;
+
             }
         }
     );
@@ -557,36 +559,35 @@ Example: Returns 2 if given a $filtered_params containing the below:
 =cut
 
 sub _get_extended_attributes_entries {
-    my ( $self, $params, $extended_attributes_entries ) = @_;
+    my ( $self, $params, $extended_attributes_entries, @array ) = @_;
 
     if ( reftype($params) && reftype($params) eq 'HASH' ) {
 
         # rewrite additional_field_values table query params
-        $extended_attributes_entries =
-            _rewrite_related_metadata_query( $params, $extended_attributes_entries, 'field_id', 'value' )
+        @array =
+            _rewrite_related_metadata_query( $params, 'field_id', 'value', @array )
             if $params->{'extended_attributes.field_id'};
 
         # rewrite borrower_attributes table query params
-        $extended_attributes_entries =
-            _rewrite_related_metadata_query( $params, $extended_attributes_entries, 'code', 'attribute' )
+        @array =
+            _rewrite_related_metadata_query( $params, 'code', 'attribute', @array )
             if $params->{'extended_attributes.code'};
 
         # rewrite illrequestattributes table query params
-        $extended_attributes_entries =
-            _rewrite_related_metadata_query( $params, $extended_attributes_entries, 'type', 'value' )
+        @array =
+            _rewrite_related_metadata_query( $params, 'type', 'value', @array )
             if $params->{'extended_attributes.type'};
 
         foreach my $key ( keys %{$params} ) {
-            return $self->_get_extended_attributes_entries( $params->{$key}, $extended_attributes_entries );
+            return $self->_get_extended_attributes_entries( $params->{$key}, $extended_attributes_entries, @array );
         }
     } elsif ( reftype($params) && reftype($params) eq 'ARRAY' ) {
         foreach my $ea_instance (@$params) {
-            $extended_attributes_entries =
-                +$self->_get_extended_attributes_entries( $ea_instance, $extended_attributes_entries );
+             @array = $self->_get_extended_attributes_entries( $ea_instance, $extended_attributes_entries, @array );
         }
-        return $extended_attributes_entries;
+        return @array;
     } else {
-        return $extended_attributes_entries;
+        return @array;
     }
 }
 
@@ -625,20 +626,19 @@ It'll be rewritten as:
 =cut
 
 sub _rewrite_related_metadata_query {
-    my ( $params, $extended_attributes_entries, $key, $value ) = @_;
+    my ( $params, $key, $value, @array ) = @_;
 
-    $extended_attributes_entries++;
-    if ( $extended_attributes_entries > 1 ) {
-        my $old_key_value = delete $params->{ 'extended_attributes.' . $key };
-        my $new_key_value = "extended_attributes_$extended_attributes_entries" . "." . $key;
-        $params->{$new_key_value} = $old_key_value;
+    my $old_key_value = delete $params->{ 'extended_attributes.' . $key };
+    my $new_key_value = "extended_attributes_$old_key_value" . "." . $key;
+    $params->{$new_key_value} = $old_key_value;
 
-        my $old_value_value = delete $params->{ 'extended_attributes.' . $value };
-        my $new_value_value = "extended_attributes_$extended_attributes_entries" . "." . $value;
-        $params->{$new_value_value} = $old_value_value;
-    }
+    my $old_value_value = delete $params->{ 'extended_attributes.' . $value };
+    my $new_value_value = "extended_attributes_$old_key_value" . "." . $value;
+    $params->{$new_value_value} = $old_value_value;
 
-    return $extended_attributes_entries;
+    push @array, $old_key_value;
+
+    return @array;
 }
 
 1;

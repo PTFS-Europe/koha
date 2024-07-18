@@ -2220,6 +2220,42 @@ sub get_staff_table_actions {
     return $ill_table_actions;
 }
 
+=head3 AUTOLOAD
+
+=cut
+
+our $AUTOLOAD;
+
+sub AUTOLOAD {
+    my ($self) = @_;
+
+    my $name = $AUTOLOAD;
+    $name =~ s/.*:://;    # Remove package name
+
+    if ( $name =~ /^extended_attributes_(\w+)$/ ) {
+        my $type = $1;
+
+        # Define the method dynamically
+        no strict 'refs';
+        *{$AUTOLOAD} = sub {
+            my ($self)   = @_;
+            my $relation = 'extended_attributes_' . $type;
+            my $rs       = $self->_result->$relation;
+            return Koha::ILL::Request::Attributes->_new_from_dbic($rs)->search;
+        };
+
+        # Call the newly defined method
+        return $self->$name();
+    }
+    my $wt = 'SUPER::'.$name;
+    return $self->$wt;
+}
+
+sub get_column(){
+    my ($self, $column_name) = @_;
+    return $self->_result->get_column($column_name);
+}
+
 =head3 _type
 
 =cut
