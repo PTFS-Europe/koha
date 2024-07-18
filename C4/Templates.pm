@@ -179,6 +179,9 @@ sub _get_template_file {
     $tmplbase = "$htdocs/$theme/$lang/modules/$tmplbase" if $tmplbase !~ /^\//;
         # do not prefix an absolute path
 
+    if ( $tmplbase =~ /plugin/ && $tmplbase =~ /^\// ) {
+        $tmplbase =~ s/\/en\//\/$lang\//;
+    }
     return ( $htdocs, $theme, $lang, $tmplbase );
 }
 

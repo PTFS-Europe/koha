@@ -29,6 +29,9 @@ use FindBin qw( $Bin );
 use File::Path qw( make_path );
 use File::Copy;
 use File::Slurp qw( read_file );
+use JSON qw( decode_json encode_json );
+
+use Koha::Plugins;
 
 sub set_lang {
     my ($self, $lang) = @_;
@@ -38,8 +41,37 @@ sub set_lang {
                             "/prog/$lang/modules/admin/preferences";
 }
 
+sub _identify_translatable_plugins {
+    my ($args) = @_;
+
+    my @plugins = Koha::Plugins::GetPlugins(
+        {
+            metadata => { has_translations => 1 },
+        }
+    );
+
+    return () if scalar( @plugins == 0 );
+
+    my @plugin_dirs;
+    foreach my $plugin (@plugins) {
+        my @path_params = split( /\//,$plugin->{_bundle_path});
+        my $translation_data = {
+            bundle_path => $plugin->{_bundle_path},
+            name        => $path_params[-1],
+        };
+
+        push @plugin_dirs, $translation_data;
+    }
+    return \@plugin_dirs;
+}
+
 sub new {
-    my ($class, $lang, $pref_only, $verbose) = @_;
+    my ($class, $args) = @_;
+
+    my $lang        = $args->{lang};
+    my $pref_only   = $args->{pref_only};
+    my $verbose     = $args->{verbose};
+    my $plugin_dirs = $args->{plugin_dirs} || _identify_translatable_plugins();
 
     my $self                 = { };
 
@@ -56,6 +88,7 @@ sub new {
     $self->{po2json}         = "yarn run po2json";
     $self->{gzip}            = `which gzip`;
     $self->{gunzip}          = `which gunzip`;
+    $self->{plugin_dirs}     = $plugin_dirs;
     chomp $self->{msgfmt};
     chomp $self->{gzip};
     chomp $self->{gunzip};
@@ -131,6 +164,7 @@ sub new {
                     'installer/data/mysql/en/marcflavour/unimarc/optional'],
         suffix => "-installer-UNIMARC.po",
     };
+
 
     bless $self, $class;
 }
@@ -317,6 +351,21 @@ sub install_tmpl {
                 ( @nomarc  ? ' -n ' . join ' -n ', @nomarc : '');
         }
     }
+
+    for my $plugin ( @{$self->{plugin_dirs}} ) {
+        print
+            "  Install templates from plugin: '$plugin->{name}'\n",
+            if $self->{verbose};
+        
+        my $trans_dir = $plugin->{bundle_path} . "/views/en/";
+        my $lang_dir = $plugin->{bundle_path} . "/views/$self->{lang}";
+        mkdir $lang_dir unless -d $lang_dir;
+
+        system "$self->{process} install "
+            . "-i $trans_dir "
+            . "-o $lang_dir  "
+            . "-s $plugin->{bundle_path}/translator/po/$self->{lang}-$plugin->{name}-template.po -r "
+    }
 }
 
 sub translate_yaml {
@@ -460,7 +509,24 @@ sub install_messages {
     `$po2json_cmd`;
     my $json = read_file($tmp_po);
 
-    my $js_locale_data = sprintf 'var json_locale_data = {"Koha":%s};', $json;
+    # Add plugin javascript to the same file to avoid needing multiple imports in doc-head template files
+    my $js_po_data = decode_json($json);
+    foreach my $plugin ( @{$self->{plugin_dirs}} ) {
+        my $tmp_pluginpo = sprintf '/tmp/%s-%s.po', $plugin->{name}, $self->{lang};
+        my $plugin_po2json_cmd = sprintf '%s %s %s', $self->{po2json}, $plugin->{bundle_path} . '/translator/po/' . $self->{lang} . '-' . $plugin->{name} . '-js.po', $tmp_pluginpo;
+        `$plugin_po2json_cmd`;
+        my $plugin_json = read_file($tmp_pluginpo);
+
+        my $plugin_js_po_data = decode_json($plugin_json);
+        delete $plugin_js_po_data->{''};
+
+        foreach my $key (keys %$plugin_js_po_data) {
+            $js_po_data->{$key} = $plugin_js_po_data->{$key} unless exists $js_po_data->{$key};
+        }
+    }
+    my $combined_json = encode_json($js_po_data);
+
+    my $js_locale_data = sprintf 'var json_locale_data = {"Koha":%s};', $combined_json;
     my $progdir = C4::Context->config('intrahtdocs') . '/prog';
     mkdir "$progdir/$self->{lang}/js";
     open my $fh, '>', "$progdir/$self->{lang}/js/locale_data.js";
@@ -538,7 +604,7 @@ LangInstaller.pm - Handle templates and preferences translation
 
 =head1 SYNOPSYS
 
-  my $installer = LangInstaller->new( 'fr-FR' );
+  my $installer = LangInstaller->new( { lang => 'fr-FR' } );
   $installer->create();
   $installer->update();
   $installer->install();
