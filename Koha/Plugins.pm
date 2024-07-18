@@ -278,6 +278,7 @@ sub InstallPlugins {
 
     my @plugin_classes = $self->plugins();
     my @plugins;
+    my @plugins_to_translate;
 
     foreach my $plugin_class (@plugin_classes) {
         if ( can_load( modules => { $plugin_class => undef }, verbose => $verbose, nocache => 1 ) ) {
@@ -308,8 +309,16 @@ sub InstallPlugins {
             }
 
             push @plugins, $plugin;
+
+            my @path_params = split( /\//, $plugin->{_bundle_path} );
+            my $translation_data = {
+                bundle_path => $plugin->{_bundle_path},
+                name => $path_params[-1],
+            };
         }
     }
+
+    # Add translator stuff here
 
     Koha::Cache::Memory::Lite->clear_from_cache(ENABLED_PLUGINS_CACHE_KEY);
 

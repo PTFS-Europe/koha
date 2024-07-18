@@ -55,7 +55,13 @@ usage() if $#ARGV != 1 && $#ARGV != 0;
 my ($cmd, $lang) = @ARGV;
 $cmd = lc $cmd;
 if ( $cmd =~ /^(install|compress|uncompress)$/ ) {
-    my $installer = LangInstaller->new( $lang, $pref, $verbose );
+    my $installer = LangInstaller->new(
+        {
+            lang      => $lang,
+            pref_only => $pref,
+            verbose   => $verbose
+        }
+    );
     if ( $lang and not grep( {$_ eq $lang} @{ $installer->{langs} } ) ) {
         print "Unsupported language: $lang\n";
         exit;
