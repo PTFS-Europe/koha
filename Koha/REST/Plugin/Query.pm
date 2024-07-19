@@ -179,7 +179,7 @@ Generates the DBIC join attribute based on extended_attributes query entries, an
                 && reftype( $attributes->{prefetch} ) eq 'ARRAY'
                 && grep ( /extended_attributes/, @{ $attributes->{prefetch} } ) )
             {
-                my @array = $self->_get_extended_attributes_entries( $filtered_params, 0 );
+                my @array = $self->_get_extended_attributes_entries( $filtered_params );
 
                 # Calling our private method to build the extended attributes relations
                 my @joins = $result_set->_build_extended_attributes_relations(\@array);
@@ -559,7 +559,7 @@ Example: Returns 2 if given a $filtered_params containing the below:
 =cut
 
 sub _get_extended_attributes_entries {
-    my ( $self, $params, $extended_attributes_entries, @array ) = @_;
+    my ( $self, $params, @array ) = @_;
 
     if ( reftype($params) && reftype($params) eq 'HASH' ) {
 
@@ -579,11 +579,11 @@ sub _get_extended_attributes_entries {
             if $params->{'extended_attributes.type'};
 
         foreach my $key ( keys %{$params} ) {
-            return $self->_get_extended_attributes_entries( $params->{$key}, $extended_attributes_entries, @array );
+            return $self->_get_extended_attributes_entries( $params->{$key}, @array );
         }
     } elsif ( reftype($params) && reftype($params) eq 'ARRAY' ) {
         foreach my $ea_instance (@$params) {
-             @array = $self->_get_extended_attributes_entries( $ea_instance, $extended_attributes_entries, @array );
+             @array = $self->_get_extended_attributes_entries( $ea_instance, @array );
         }
         return @array;
     } else {
@@ -628,15 +628,16 @@ It'll be rewritten as:
 sub _rewrite_related_metadata_query {
     my ( $params, $key, $value, @array ) = @_;
 
-    my $old_key_value = delete $params->{ 'extended_attributes.' . $key };
-    my $new_key_value = "extended_attributes_$old_key_value" . "." . $key;
-    $params->{$new_key_value} = $old_key_value;
+    if(ref \$params->{ 'extended_attributes.' . $key } eq 'SCALAR' ){
+        my $old_key_value = delete $params->{ 'extended_attributes.' . $key };
+        my $new_key_value = "extended_attributes_$old_key_value" . "." . $key;
+        $params->{$new_key_value} = $old_key_value;
 
-    my $old_value_value = delete $params->{ 'extended_attributes.' . $value };
-    my $new_value_value = "extended_attributes_$old_key_value" . "." . $value;
-    $params->{$new_value_value} = $old_value_value;
-
-    push @array, $old_key_value;
+        my $old_value_value = delete $params->{ 'extended_attributes.' . $value };
+        my $new_value_value = "extended_attributes_$old_key_value" . "." . $value;
+        $params->{$new_value_value} = $old_value_value;
+        push @array, $old_key_value;
+    }
 
     return @array;
 }
