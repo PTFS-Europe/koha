@@ -392,6 +392,29 @@ sub disable {
     return $self;
 }
 
+=head2 get_translated_languages
+
+Identifies whether a plugin has any translated languages
+
+=cut
+
+sub get_translated_languages {
+    my ($self) = @_;
+
+    my @path_params = split( /\//, $self->{_bundle_path} );
+    my $name        = $path_params[-1];
+    my $po_path     = $self->{_bundle_path} . "/translator/po";
+
+    if ( -e $po_path ) {
+        opendir my $fh, $po_path or die $!;
+        my @langs = map { ($_) =~ /(.*)-$name-js/ }
+            grep { $_ =~ /.*-$name-js/ } readdir($fh);
+        closedir $fh;
+        return \@langs;
+    }
+    return ();
+}
+
 1;
 __END__
 

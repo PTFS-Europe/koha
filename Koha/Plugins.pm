@@ -278,7 +278,6 @@ sub InstallPlugins {
 
     my @plugin_classes = $self->plugins();
     my @plugins;
-    my @plugins_to_translate;
 
     foreach my $plugin_class (@plugin_classes) {
         if ( can_load( modules => { $plugin_class => undef }, verbose => $verbose, nocache => 1 ) ) {
@@ -309,16 +308,32 @@ sub InstallPlugins {
             }
 
             push @plugins, $plugin;
-
-            my @path_params = split( /\//, $plugin->{_bundle_path} );
-            my $translation_data = {
-                bundle_path => $plugin->{_bundle_path},
-                name => $path_params[-1],
-            };
         }
     }
 
-    # Add translator stuff here
+    my @plugin_languages;
+    my $dev_detected;
+    foreach my $plugin (@plugins) {
+        my $plugin_langs = $plugin->get_translated_languages();
+
+        foreach my $lang (@$plugin_langs) {
+            push( @plugin_languages, $lang ) unless grep( $_ eq $lang, @plugin_languages );
+        }
+
+        $dev_detected = 1 if ( $plugin->{_bundle_path} =~ /kohadev/i );
+    }
+
+    # Install translations if a language is already installed on the system
+    if ( scalar(@plugin_languages) > 0 ) {
+        my @translated_languages = map { $_->{rfc4646_subtag} }
+            @{ C4::Languages::getTranslatedLanguages( "both", C4::Context->preference('template') ) };
+        foreach my $lang (@plugin_languages) {
+            next unless grep( $_ eq $lang, @translated_languages );
+            my $translate_cmd = "koha-translate --update $lang";
+            $translate_cmd .= " --dev kohadev" if $dev_detected;
+            system $translate_cmd;
+        }
+    }
 
     Koha::Cache::Memory::Lite->clear_from_cache(ENABLED_PLUGINS_CACHE_KEY);
 
