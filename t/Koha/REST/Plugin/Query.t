@@ -318,10 +318,13 @@ get '/dbic_extended_attributes_join' => sub {
     ];
     my $attributes = { 'prefetch' => ['extended_attributes'] };
 
+    my $result_set = Koha::Patrons->new;
+
     $c->dbic_extended_attributes_join(
         {
             'filtered_params' => $filtered_params,
-            'attributes'      => $attributes
+            'attributes'      => $attributes,
+            'result_set'      => $result_set
         }
     );
 
