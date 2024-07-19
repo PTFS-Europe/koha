@@ -38,17 +38,20 @@ Returns a list of relation accessor names.
 sub _build_extended_attributes_relations {
     my ( $self, $types ) = @_;
 
+    my $ea_config = $self->extended_attributes_config;
+
     my $result_source = $self->_resultset->result_source;
     for my $type ( @{$types} ) {
         $result_source->add_relationship(
             "extended_attributes_$type",
-            "Koha::Schema::Result::Illrequestattribute",
+            "$ea_config->{schema_class}",
             sub {
                 my $args = shift;
 
                 return {
-                    "$args->{foreign_alias}.illrequest_id" => { -ident => "$args->{self_alias}.illrequest_id" },
-                    "$args->{foreign_alias}.type"          => { '=', $type },
+                    "$args->{foreign_alias}.$ea_config->{id_field}" =>
+                        { -ident => "$args->{self_alias}.$ea_config->{id_field}" },
+                    "$args->{foreign_alias}.$ea_config->{key_field}" => { '=', $type },
                 };
             },
             {
