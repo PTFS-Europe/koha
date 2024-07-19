@@ -108,46 +108,6 @@ sub search_incomplete {
 
 =head2 Internal methods
 
-
-=head3 _build_extended_attributes_relations
-
-Method to dynamically add has_many relations for each ILLRequestAttribute type stored in the ILLRequestAttributes table.
-
-Used in the API to allow for advanced joins.
-
-Returns a list of relation accessor names.
-
-=cut
-
-sub _build_extended_attributes_relations {
-    my ( $self, $types ) = @_;
-
-    my $result_source = $self->_resultset->result_source;
-    for my $type ( @{$types} ) {
-        $result_source->add_relationship(
-            "extended_attributes_$type",
-            "Koha::Schema::Result::Illrequestattribute",
-            sub {
-                my $args = shift;
-
-                return {
-                    "$args->{foreign_alias}.illrequest_id" => { -ident => "$args->{self_alias}.illrequest_id" },
-                    "$args->{foreign_alias}.type"          => { '=', $type },
-                };
-            },
-            {
-                accessor       => 'multi',
-                join_type      => 'LEFT',
-                cascade_copy   => 0,
-                cascade_delete => 0,
-                is_depends_on  => 0
-            },
-        );
-
-    }
-    return map { 'extended_attributes_' . $_ } @{$types};
-}
-
 =head3 _type
 
 =cut
