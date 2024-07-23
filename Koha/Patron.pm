@@ -1796,6 +1796,7 @@ sub can_see_patrons_from {
             branchcode => $branchcode,
             permission => 'borrowers',
             subpermission => 'view_borrower_infos_from_any_libraries',
+            group_feature => 'ft_hide_patron_info',
         }
     );
 }
@@ -1823,6 +1824,7 @@ sub can_edit_items_from {
             branchcode    => $branchcode,
             permission    => 'editcatalogue',
             subpermission => 'edit_any_item',
+            group_feature => 'ft_limit_item_editing',
         }
     );
 }
@@ -1897,7 +1899,7 @@ sub can_see_things_from {
         $can = 1;
     } elsif ( $self->has_permission( { $permission => $subpermission } ) ) {
         $can = 1;
-    } elsif ( my @branches = $self->libraries_where_can_see_patrons ) {
+    } elsif ( my @branches = $self->libraries_where_can_see_things($params) ) {
         $can = ( any { $_ eq $branchcode } @branches ) ? 1 : 0;
     }
     return $can;
