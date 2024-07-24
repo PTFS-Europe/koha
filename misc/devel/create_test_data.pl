@@ -44,12 +44,19 @@ GetOptions(
 pod2usage(1) if $help || !$number || !$source;
 
 for ( 1 .. $number ) {
-    $builder->build(
-        {
-            source => $source,
-            value  => $values,
-        }
-    );
+
+    if ( $source eq 'Biblio' ) {
+        $builder->build_sample_biblio($values);
+    } elsif ( $source eq 'Item' ) {
+        $builder->build_sample_item($values);
+    } else {
+        $builder->build(
+            {
+                source => $source,
+                value  => $values,
+            }
+        );
+    }
 }
 
 =head1 NAME
