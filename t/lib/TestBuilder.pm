@@ -210,6 +210,21 @@ sub build_sample_item {
     )->store->get_from_storage;
 }
 
+sub build_sample_ill_request {
+    my ( $self, $args ) = @_;
+
+    $args->{biblio_id}  = $args->{biblio_id}  || $self->build_sample_biblio->biblionumber;
+    $args->{backend}    = $args->{backend}    || 'FreeForm';
+    $args->{branchcode} = $args->{branchcode} || $self->build_object( { class => 'Koha::Libraries' } )->branchcode;
+
+    return $self->build(
+        {
+            source => 'Illrequest',
+            value  => $args,
+        }
+    );
+}
+
 # ------------------------------------------------------------------------------
 # Internal helper routines
 
