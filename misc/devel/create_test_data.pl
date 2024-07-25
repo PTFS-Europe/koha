@@ -45,13 +45,13 @@ pod2usage(1) if $help || !$number || !$source;
 
 for ( 1 .. $number ) {
 
-    if($source eq 'Biblio'){
-        $builder->build_sample_biblio( $values )
-    }elsif($source eq 'Item'){
-        $builder->build_sample_item( $values )
-    }elsif($source eq 'Illrequest'){
-        $builder->build_sample_ill_request( $values )
-    }else{
+    if ( $source eq 'Biblio' ) {
+        $builder->build_sample_biblio($values);
+    } elsif ( $source eq 'Item' ) {
+        $builder->build_sample_item($values);
+    } elsif ( $source eq 'Illrequest' ) {
+        $builder->build_sample_ill_request($values);
+    } else {
         $builder->build(
             {
                 source => $source,
