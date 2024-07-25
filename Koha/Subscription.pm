@@ -194,7 +194,6 @@ sub get_sharable_info {
     return $sub_mana_info;
 }
 
-
 =head3 _type
 
 =cut

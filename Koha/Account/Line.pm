@@ -1129,6 +1129,13 @@ sub store {
     return $self->SUPER::store();
 }
 
+sub extended_attributes_tablename_query {
+    return {
+        'tablename' => 'accountlines:%',
+        'operator'  => 'LIKE'
+    }
+}
+
 =head2 Internal methods
 
 =cut
