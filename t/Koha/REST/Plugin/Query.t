@@ -318,10 +318,59 @@ get '/dbic_extended_attributes_join' => sub {
     ];
     my $attributes = { 'prefetch' => ['extended_attributes'] };
 
+    my $result_set = Koha::Patrons->new;
+
     $c->dbic_extended_attributes_join(
         {
             'filtered_params' => $filtered_params,
-            'attributes'      => $attributes
+            'attributes'      => $attributes,
+            'result_set'      => $result_set
+        }
+    );
+
+    $c->render( json => { 'attributes' => $attributes, 'filtered_params' => $filtered_params }, status => 200 );
+};
+
+get '/dbic_extended_attributes_join_additional_fields' => sub {
+    my ( $c, $args ) = @_;
+
+    my $filtered_params = [
+        {
+            '-and' => [
+                [
+                    {
+                        'extended_attributes.attribute' => { 'like' => 'abc%' },
+                        'extended_attributes.code'      => [
+                            [
+                                'test1',
+                                'test2'
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        'extended_attributes.code' => [
+                            [
+                                'test1',
+                                'test2'
+                            ]
+                        ],
+                        'extended_attributes.attribute' => { 'like' => '123%' }
+                    }
+                ]
+            ]
+        }
+    ];
+    my $attributes = { 'prefetch' => ['extended_attributes'] };
+
+    my $result_set = Koha::Object::Mixin::AdditionalFields->new;
+
+    $c->dbic_extended_attributes_join(
+        {
+            'filtered_params' => $filtered_params,
+            'attributes'      => $attributes,
+            'result_set'      => $result_set
         }
     );
 
@@ -594,6 +643,54 @@ subtest 'dbic_extended_attributes_join() tests' => sub {
     my $t = Test::Mojo->new;
 
     $t->get_ok( '/dbic_extended_attributes_join' => { 'x-koha-embed' => 'extended_attributes' } )->json_has(
+        '/attributes' => {
+            'join' => [
+                'extended_attributes',
+                'extended_attributes'
+            ],
+            'prefetch' => ['extended_attributes']
+        }
+    );
+
+    $t->get_ok( '/dbic_extended_attributes_join' => { 'x-koha-embed' => 'extended_attributes' } )->json_has(
+        '/filtered_params' => [
+            {
+                '-and' => [
+                    [
+                        {
+                            'extended_attributes.code' => [
+                                [
+                                    'test1',
+                                    'test2'
+                                ]
+                            ],
+                            'extended_attributes.attribute' => { 'like' => 'abc%' }
+                        }
+                    ],
+                    [
+                        {
+                            'extended_attributes_2.attribute' => { 'like' => '123%' },
+                            'extended_attributes_2.code'      => [
+                                [
+                                    'test1',
+                                    'test2'
+                                ]
+                            ]
+                        }
+                    ]
+                ]
+            }
+        ]
+    );
+};
+
+subtest 'dbic_extended_attributes_join_additional_fields() tests' => sub {
+
+    plan tests => 4;
+
+    my $t = Test::Mojo->new;
+
+    $t->get_ok( '/dbic_extended_attributes_join_additional_fields' => { 'x-koha-embed' => 'extended_attributes' } )->json_has(
         '/attributes' => {
             'join' => [
                 'extended_attributes',
