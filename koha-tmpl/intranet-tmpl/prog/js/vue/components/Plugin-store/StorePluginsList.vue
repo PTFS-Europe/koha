@@ -11,6 +11,7 @@
 </template>
 
 <script>
+import { APIClient } from "../../fetch/api-client.js"
 import Toolbar from "../Toolbar.vue"
 import ToolbarButton from "../ToolbarButton.vue"
 import KohaTable from "../KohaTable.vue"
@@ -91,7 +92,7 @@ export default {
                 actions: {
                     "-1": [
                         {
-                            doInstall: {
+                            install: {
                                 text: this.$__("Install"),
                                 icon: "fa fa-download",
                             },
@@ -105,12 +106,19 @@ export default {
         }
     },
     methods: {
-        doInstall: function ({ agreement_id }, dt, event) {
-            event.preventDefault()
-            this.$router.push({
-                name: "InstallPlugin",
-                params: {},
-            })
+        doInstall: function (plugin, dt, event) {
+            //FIXME: This is installing the first release, not checking any koha version or anything
+            const client = APIClient.plugin_store
+            client.plugins
+                .create({
+                    kpz_url: plugin.releases[0].kpz_url,
+                })
+                .then(
+                    res => {
+                        console.log(res)
+                    },
+                    error => {}
+                )
         },
         table_url: function () {
             // FIXME: This is hardcoded
