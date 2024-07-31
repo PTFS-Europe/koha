@@ -1,0 +1,43 @@
+---
+/plugins:
+  post:
+    x-mojo-to: Plugins#add
+    operationId: addPlugin
+    tags:
+      - plugins
+    summary: Add and install a plugin
+    produces:
+      - application/json
+    responses:
+      "200":
+        description: Successful plugin install
+        schema:
+          type: object
+          properties:
+            success:
+              type: string
+          additionalProperties: false
+      "201":
+        description: Plugin added
+      "401":
+        description: Authentication required
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "403":
+        description: Access forbidden
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "500":
+        description: |
+          Internal server error. Possible `error_code` attribute values:
+
+          * `internal_server_error`
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "503":
+        description: Under maintenance
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+    x-koha-authorization:
+      permissions:
+        plugins: 1
