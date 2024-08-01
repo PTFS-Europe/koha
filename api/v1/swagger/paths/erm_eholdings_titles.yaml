@@ -468,7 +468,10 @@
               type: string
           additionalProperties: false
       400:
-        description: Bad request
+        description: |
+          Bad request. Possible `error_code` attribute values:
+
+            * `invalid_query`
         schema:
           $ref: "../swagger.yaml#/definitions/error"
       401:
@@ -544,7 +547,10 @@
               type: object
           additionalProperties: false
       400:
-        description: Bad parameter
+        description: |
+          Bad request. Possible `error_code` attribute values:
+
+            * `invalid_query`
         schema:
           $ref: "../swagger.yaml#/definitions/error"
       401:
