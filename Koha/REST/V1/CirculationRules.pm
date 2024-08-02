@@ -50,7 +50,7 @@ sub list_rules {
     my $c = shift->openapi->valid_input or return;
 
     return try {
-        my $effective       = $c->param('effective') // 1;
+        my $effective = $c->param('effective') // 1;
         my $kinds =
             defined( $c->param('rules') )
             ? [ split /\s*,\s*/, $c->param('rules') ]
@@ -156,6 +156,18 @@ sub list_rules {
             )->unblessed;
 
         }
+
+        # Map context into rules
+        @{$rules} = map {
+            my %new_rule = %$_;
+            my %context  = (
+                "library_id"         => delete $new_rule{"branchcode"}   // "*",
+                "patron_category_id" => delete $new_rule{"categorycode"} // "*",
+                "item_type_id"       => delete $new_rule{"itemtype"}     // "*",
+            );
+            $new_rule{"context"} = \%context;
+            \%new_rule;
+        } @{$rules};
 
         return $c->render(
             status  => 200,
