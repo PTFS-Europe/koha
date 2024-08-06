@@ -129,6 +129,10 @@
                     <dt><a href="/cgi-bin/koha/admin/restrictions.pl">Patron restriction types</a></dt>
                     <dd>Define manual patron restriction types</dd>
                 [% END %]
+                <!-- [% IF ( CAN_user_parameters_manage_patron_restrictions ) %] -->
+                    <dt><a href="/cgi-bin/koha/admin/circulation_triggers">Circulation triggers</a></dt>
+                    <dd>Define triggers for circulation notices</dd>
+                <!-- [% END %] -->
                 </dl>
             [% END %]
 
