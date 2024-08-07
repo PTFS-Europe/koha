@@ -169,6 +169,22 @@ our $RULE_KINDS = {
         is_monetary  => 1,
         can_be_blank => 1,
     },
+    overdue_X_delay => {
+        scope        => [ 'branchcode', 'categorycode', 'itemtype' ],
+        can_be_blank => 0,
+    },
+        overdue_X_mtt => {
+        scope        => [ 'branchcode', 'categorycode', 'itemtype' ],
+        can_be_blank => 1,
+    },
+        overdue_X_notice => {
+        scope        => [ 'branchcode', 'categorycode', 'itemtype' ],
+        can_be_blank => 1,
+    },
+        overdue_X_restrict => {
+        scope        => [ 'branchcode', 'categorycode', 'itemtype' ],
+        can_be_blank => 0,
+    },
     renewalperiod => {
         scope => [ 'branchcode', 'categorycode', 'itemtype' ],
     },
@@ -365,7 +381,8 @@ sub set_rule {
           unless exists $params->{$mandatory_parameter};
     }
 
-    my $kind_info = $RULE_KINDS->{ $params->{rule_name} };
+    ( my $rule_key = $params->{rule_name} ) =~ s/_\d_/_X_/;
+    my $kind_info = $RULE_KINDS->{$rule_key};
     Koha::Exceptions::MissingParameter->throw(
         "set_rule given unknown rule '$params->{rule_name}'!")
         unless defined $kind_info;
