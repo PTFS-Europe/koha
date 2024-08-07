@@ -50,11 +50,7 @@ sub list_rules {
     my $c = shift->openapi->valid_input or return;
 
     return try {
-        my $effective = $c->param('effective') // 1;
-        my $kinds =
-            defined( $c->param('rules') )
-            ? [ split /\s*,\s*/, $c->param('rules') ]
-            : [ keys %{ Koha::CirculationRules->rule_kinds } ];
+        my $effective       = $c->param('effective') // 1;
         my $item_type       = $c->param('item_type_id');
         my $branchcode      = $c->param('library_id');
         my $patron_category = $c->param('patron_category_id');
@@ -114,6 +110,26 @@ sub list_rules {
             }
         }
 
+        my $kinds;
+        if ( defined( $c->param('rules') ) ) {
+            $kinds = [ split /\s*,\s*/, $c->param('rules') ];
+            my $valid_kinds = Koha::CirculationRules->rule_kinds;
+            for my $rule ( @{$kinds} ) {
+                ( my $rule_key = $rule ) =~ s/_\d_/_X_/;
+                return $c->render_invalid_parameter_value(
+                    {
+                        path   => '/query/rules',
+                        values => {
+                            uri   => '/api/v1/kinds',
+                            field => 'rule_name'
+                        }
+                    }
+                ) unless $valid_kinds->{$rule_key};
+            }
+        } else {
+            $kinds = _all_kinds();
+        }
+
         my $rules;
         if ($effective) {
 
@@ -125,7 +141,7 @@ sub list_rules {
                     rules        => $kinds
                 }
             ) // {};
-            my $return;
+            my $return = {};
             for my $kind ( @{$kinds} ) {
                 $return->{$kind} = $effective_rules->{$kind};
             }
@@ -154,7 +170,6 @@ sub list_rules {
                     group_by => [ 'branchcode', 'categorycode', 'itemtype' ]
                 }
             )->unblessed;
-
         }
 
         # Map context into rules
@@ -262,6 +277,42 @@ sub set_rules {
             openapi => $return
         );
     }
+}
+
+=head3 _all_kinds
+
+Utility function to get a list of all valid rule kinds including those that are repeatable
+
+=cut
+
+sub _all_kinds {
+    my @all_valid_kinds;
+    my @distinct_kinds = Koha::CirculationRules->search(
+        {},
+        {
+            columns  => ['rule_name'],
+            distinct => 1,
+        }
+    )->get_column('rule_name');
+
+    my %seen;
+    my $valid_kinds = Koha::CirculationRules->rule_kinds;
+    for my $kind (@distinct_kinds) {
+        ( my $kind_key = $kind ) =~ s/_\d_/_X_/;
+        if ( exists $valid_kinds->{$kind_key} && !$seen{$kind} ) {
+            push @all_valid_kinds, $kind;
+            $seen{$kind} = 1;
+        }
+    }
+
+    # Add in any unset but valid rules
+    for my $valid_kind ( keys %{$valid_kinds} ) {
+        if ( $valid_kind !~ /_X_/ && !$seen{$valid_kind} ) {
+            push @all_valid_kinds, $valid_kind;
+            $seen{$valid_kind} = 1;
+        }
+    }
+    return \@all_valid_kinds;
 }
 
 1;
