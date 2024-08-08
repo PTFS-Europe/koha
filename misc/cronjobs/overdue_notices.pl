@@ -108,7 +108,7 @@ any CSV files. Defaults to 90 to match F<longoverdues.pl>.
 =item B<--library>
 
 select overdues for one specific library. Use the value in the
-branches.branchcode table. This option can be repeated in order 
+branches.branchcode table. This option can be repeated in order
 to select overdues for a group of libraries.
 
 =item B<--csv>
@@ -142,6 +142,14 @@ defaults to due date,title,barcode,author
 Other possible values come from fields in the biblios, items and
 issues tables.
 
+=item B<--itemtypes>
+
+Repeatable field, that permits to select only some item types.
+
+=item B<--itemtypesout>
+
+Repeatable field, that permits to exclude some item types.
+
 =item B<--borcat>
 
 Repeatable field, that permits to select only some patron categories.
@@ -152,13 +160,13 @@ Repeatable field, that permits to exclude some patron categories.
 
 =item B<-t> | B<--triggered>
 
-This option causes a notice to be generated if and only if 
+This option causes a notice to be generated if and only if
 an item is overdue by the number of days defined in a notice trigger.
 
-By default, a notice is sent each time the script runs, which is suitable for 
-less frequent run cron script, but requires syncing notice triggers with 
+By default, a notice is sent each time the script runs, which is suitable for
+less frequent run cron script, but requires syncing notice triggers with
 the  cron schedule to ensure proper behavior.
-Add the --triggered option for daily cron, at the risk of no notice 
+Add the --triggered option for daily cron, at the risk of no notice
 being generated if the cron fails to run on time.
 
 =item B<--test>
@@ -170,7 +178,7 @@ for debugging configuration.
 
 =item B<--list-all>
 
-Default items.content lists only those items that fall in the 
+Default items.content lists only those items that fall in the
 range of the currently processing notice.
 Choose --list-all to include all overdue items in the list (limited by B<--max> setting).
 
@@ -307,6 +315,8 @@ my $text_filename;
 my $triggered    = 0;
 my $listall      = 0;
 my $itemscontent = join( ',', qw( date_due title barcode author itemnumber ) );
+my @myitemtypes;
+my @myitemtypesout;
 my @myborcat;
 my @myborcatout;
 my ( $date_input, $today );
@@ -325,6 +335,8 @@ GetOptions(
     'html:s'         => \$htmlfilename,     # this optional argument gets '' if not supplied.
     'text:s'         => \$text_filename,    # this optional argument gets '' if not supplied.
     'itemscontent=s' => \$itemscontent,
+    'itemtypes=s'    => \@myitemtypes,
+    'itemtypeouts=s' => \@myitemtypesout,
     'list-all'       => \$listall,
     't|triggered'    => \$triggered,
     'test'           => \$test_mode,
@@ -499,52 +511,65 @@ END_SQL
         @categories = Koha::Patron::Categories->search()->get_column('categorycode');
     }
 
+    my @itemtypes;
+    if (@myitemtypes) {
+        @itemtypes = @myitemtypes;
+    } elsif (@myitemtypesout) {
+        @itemtypes =
+            Koha::ItemTypes->search( { itemtype => { 'not_in' => \@myitemtypesout } } )->get_column('itemtype');
+    } else {
+        @itemtypes = Koha::ItemTypes->search()->get_column('itemtype');
+    }
+
     for my $category (@categories) {
-        my $i = 0;
-    PERIOD: while (1) {
-            $i++;
-            my $j             = $i + 1;
-            my $overdue_rules = Koha::CirculationRules->get_effective_rules(
-                {
-                    rules => [
-                        "overdue_$i" . '_delay',    "overdue_$i" . '_notice', "overdue_$i" . '_mtt',
-                        "overdue_$i" . '_restrict', "overdue_$j" . '_delay'
-                    ],
-                    categorycode => $category,
-                    branchcode   => $branchcode
+        for my $itemtype (@itemtypes) {
+            my $i = 0;
+        PERIOD: while (1) {
+                $i++;
+                my $j             = $i + 1;
+                my $overdue_rules = Koha::CirculationRules->get_effective_rules(
+                    {
+                        rules => [
+                            "overdue_$i" . '_delay',    "overdue_$i" . '_notice', "overdue_$i" . '_mtt',
+                            "overdue_$i" . '_restrict', "overdue_$j" . '_delay'
+                        ],
+                        categorycode => $category,
+                        branchcode   => $branchcode,
+                        itemtype     => $itemtype,
+                    }
+                );
+                $verbose and warn "branch '$branchcode', categorycode = $category, itemtype = $itemtype, pass $i\n";
+
+                if ( !defined( $overdue_rules->{ "overdue_$i" . '_delay' } ) ) {
+                    last PERIOD;
                 }
-            );
-            $verbose and warn "branch '$branchcode', categorycode = $category pass $i\n";
 
-            if ( !$overdue_rules->{ "overdue_$i" . '_delay' } ) {
-                last PERIOD;
-            }
+                my $mindays =
+                    $overdue_rules->{ "overdue_$i" . '_delay' }
+                    ;    # the notice will be sent after mindays days (grace period)
+                my $maxdays = (
+                      $overdue_rules->{ "overdue_$j" . '_delay' }
+                    ? $overdue_rules->{ "overdue_$j" . '_delay' } - 1
+                    : ($MAX)
+                );       # issues being more than maxdays late are managed somewhere else. (borrower probably suspended)
 
-            my $mindays =
-                $overdue_rules->{ "overdue_$i" . '_delay' }; # the notice will be sent after mindays days (grace period)
-            my $maxdays = (
-                  $overdue_rules->{ "overdue_$j" . '_delay' }
-                ? $overdue_rules->{ "overdue_$j" . '_delay' } - 1
-                : ($MAX)
-            );    # issues being more than maxdays late are managed somewhere else. (borrower probably suspended)
+                next unless defined $mindays;
 
-            next unless defined $mindays;
+                if ( !$overdue_rules->{ "overdue_$i" . '_notice' } ) {
+                    $verbose and warn sprintf "No letter code found for pass %s\n", $i;
+                    next PERIOD;
+                }
+                $verbose
+                    and warn sprintf "Using letter code '%s' for pass %s\n",
+                    $overdue_rules->{ "overdue_$i" . '_notice' }, $i;
 
-            if ( !$overdue_rules->{ "overdue_$i" . '_notice' } ) {
-                $verbose and warn sprintf "No letter code found for pass %s\n", $i;
-                next PERIOD;
-            }
-            $verbose
-                and warn sprintf "Using letter code '%s' for pass %s\n", $overdue_rules->{ "overdue_$i" . '_notice' },
-                $i;
+                # $letter->{'content'} is the text of the mail that is sent.
+                # this text contains fields that are replaced by their value. Those fields must be written between brackets
+                # The following fields are available :
+                # itemcount is interpreted here as the number of items in the overdue range defined by the current notice or all overdues < max if(-list-all).
+                # <date> <itemcount> <firstname> <lastname> <address1> <address2> <address3> <city> <postcode> <country>
 
-            # $letter->{'content'} is the text of the mail that is sent.
-            # this text contains fields that are replaced by their value. Those fields must be written between brackets
-            # The following fields are available :
-            # itemcount is interpreted here as the number of items in the overdue range defined by the current notice or all overdues < max if(-list-all).
-            # <date> <itemcount> <firstname> <lastname> <address1> <address2> <address3> <city> <postcode> <country>
-
-            my $borrower_sql = <<"END_SQL";
+                my $borrower_sql = <<"END_SQL";
 SELECT issues.borrowernumber, firstname, surname, address, address2, city, zipcode, country, email, emailpro, B_email, smsalertnumber, phone, cardnumber, date_due
 FROM   issues,borrowers,categories,items
 WHERE  issues.borrowernumber=borrowers.borrowernumber
@@ -553,271 +578,247 @@ AND    issues.itemnumber = items.itemnumber
 AND    items.itemlost = 0
 AND    TO_DAYS($date)-TO_DAYS(issues.date_due) >= 0
 END_SQL
-            my @borrower_parameters;
-            if ($branchcode) {
-                if ($owning_library) {
-                    $borrower_sql .= ' AND items.homebranch=? ';
-                } else {
-                    $borrower_sql .= ' AND issues.branchcode=? ';
-                }
-                push @borrower_parameters, $branchcode;
-            }
-            if ($category) {
-                $borrower_sql .= ' AND borrowers.categorycode=? ';
-                push @borrower_parameters, $category;
-            }
-            $borrower_sql .= '  AND categories.overduenoticerequired=1 ORDER BY issues.borrowernumber';
-
-            # $sth gets borrower info iff at least one overdue item has triggered the overdue action.
-            my $sth = $dbh->prepare($borrower_sql);
-            $sth->execute(@borrower_parameters);
-
-            if ( $verbose > 1 ) {
-                warn sprintf "--------Borrower SQL------\n";
-                warn $borrower_sql
-                    . "\n $branchcode | "
-                    . $category
-                    . "\n ($mindays, $maxdays, "
-                    . $date_to_run->datetime() . ")\n";
-                warn sprintf "--------------------------\n";
-            }
-            $verbose and warn sprintf "Found %s borrowers with overdues\n", $sth->rows;
-            my $borrowernumber;
-            while ( my $data = $sth->fetchrow_hashref ) {
-
-                # check the borrower has at least one item that matches
-                my $days_between;
-                if ( C4::Context->preference('OverdueNoticeCalendar') ) {
-                    $days_between = $calendar->days_between(
-                        dt_from_string( $data->{date_due} ),
-                        $date_to_run
-                    );
-                } else {
-                    $days_between =
-                        $date_to_run->delta_days( dt_from_string( $data->{date_due} ) );
-                }
-                $days_between = $days_between->in_units('days');
-                if ($triggered) {
-                    if ( $mindays != $days_between ) {
-                        next;
-                    }
-                } else {
-                    unless ( $days_between >= $mindays
-                        && $days_between <= $maxdays )
-                    {
-                        next;
-                    }
-                }
-                if ( defined $borrowernumber && $borrowernumber eq $data->{'borrowernumber'} ) {
-
-                    # we have already dealt with this borrower
-                    $verbose and warn "already dealt with this borrower $borrowernumber";
-                    next;
-                }
-                $borrowernumber = $data->{'borrowernumber'};
-                next if ( $patron_homelibrary && $already_queued{"$borrowernumber$i"} );
-                my $borr = sprintf(
-                    "%s%s%s (%s)",
-                    $data->{'surname'} || '',
-                    $data->{'firstname'} && $data->{'surname'} ? ', ' : '',
-                    $data->{'firstname'} || '',
-                    $borrowernumber
-                );
-                $verbose and warn "borrower $borr has items triggering level $i.\n";
-
-                my $patron = Koha::Patrons->find($borrowernumber);
-                if ($patron_homelibrary) {
-                    $branchcode           = $patron->branchcode;
-                    $library              = Koha::Libraries->find($branchcode);
-                    $admin_email_address  = $library->from_email_address;
-                    $branch_email_address = C4::Context->preference('AddressForFailedOverdueNotices')
-                        || $library->inbound_email_address;
-                }
-                @emails_to_use = ();
-                my $notice_email = $patron->notice_email_address;
-                unless ($nomail) {
-                    if (@emails) {
-                        foreach (@emails) {
-                            push @emails_to_use, $data->{$_} if ( $data->{$_} );
-                        }
+                my @borrower_parameters;
+                if ($branchcode) {
+                    if ($owning_library) {
+                        $borrower_sql .= ' AND items.homebranch=? ';
                     } else {
-                        push @emails_to_use, $notice_email if ($notice_email);
+                        $borrower_sql .= ' AND issues.branchcode=? ';
                     }
+                    push @borrower_parameters, $branchcode;
                 }
-
-                my $letter = Koha::Notice::Templates->find_effective_template(
-                    {
-                        module     => 'circulation',
-                        code       => $overdue_rules->{ "overdue_$i" . '_notice' },
-                        branchcode => $branchcode,
-                        lang       => $patron->lang
-                    }
-                );
-
-                unless ($letter) {
-                    $verbose and warn qq|Message '$overdue_rules->{"overdue_$i"."_notice"}' content not found|;
-
-                    # might as well skip while PERIOD, no other borrowers are going to work.
-                    # FIXME : Does this mean a letter must be defined in order to trigger a debar ?
-                    next PERIOD;
+                if ($category) {
+                    $borrower_sql .= ' AND borrowers.categorycode=? ';
+                    push @borrower_parameters, $category;
                 }
+                $borrower_sql .= '  AND categories.overduenoticerequired=1 ORDER BY issues.borrowernumber';
 
-                if ( $overdue_rules->{ "overdue_$i" . '_restrict' } ) {
+                # $sth gets borrower info iff at least one overdue item has triggered the overdue action.
+                my $sth = $dbh->prepare($borrower_sql);
+                $sth->execute(@borrower_parameters);
 
-                    #action taken is debarring
-                    AddUniqueDebarment(
-                        {
-                            borrowernumber => $borrowernumber,
-                            type           => 'OVERDUES',
-                            comment        => "OVERDUES_PROCESS " . output_pref( dt_from_string() ),
-                        }
-                    ) unless $test_mode;
-                    $verbose and warn "debarring $borr\n";
+                if ( $verbose > 1 ) {
+                    warn sprintf "--------Borrower SQL------\n";
+                    warn $borrower_sql
+                        . "\n $branchcode | "
+                        . $category
+                        . "\n ($mindays, $maxdays, "
+                        . $date_to_run->datetime() . ")\n";
+                    warn sprintf "--------------------------\n";
                 }
-                my @params = $patron_homelibrary ? ($borrowernumber) : ( $borrowernumber, $branchcode );
+                $verbose and warn sprintf "Found %s borrowers with overdues\n", $sth->rows;
+                my $borrowernumber;
+                while ( my $data = $sth->fetchrow_hashref ) {
 
-                $sth2->execute(@params);
-                my $itemcount = 0;
-                my $titles    = "";
-                my @items     = ();
-
-                my $j                            = 0;
-                my $exceededPrintNoticesMaxLines = 0;
-                while ( my $item_info = $sth2->fetchrow_hashref() ) {
+                    # check the borrower has at least one item that matches
+                    my $days_between;
                     if ( C4::Context->preference('OverdueNoticeCalendar') ) {
-                        $days_between =
-                            $calendar->days_between( dt_from_string( $item_info->{date_due} ), $date_to_run );
+                        $days_between = $calendar->days_between(
+                            dt_from_string( $data->{date_due} ),
+                            $date_to_run
+                        );
                     } else {
-                        $days_between = $date_to_run->delta_days( dt_from_string( $item_info->{date_due} ) );
+                        $days_between =
+                            $date_to_run->delta_days( dt_from_string( $data->{date_due} ) );
                     }
                     $days_between = $days_between->in_units('days');
-                    if ($listall) {
-                        unless ( $days_between >= 1 and $days_between <= $MAX ) {
+                    if ($triggered) {
+                        if ( $mindays != $days_between ) {
                             next;
                         }
                     } else {
-                        if ($triggered) {
-                            if ( $mindays != $days_between ) {
+                        unless ( $days_between >= $mindays
+                            && $days_between <= $maxdays )
+                        {
+                            next;
+                        }
+                    }
+                    if ( defined $borrowernumber && $borrowernumber eq $data->{'borrowernumber'} ) {
+
+                        # we have already dealt with this borrower
+                        $verbose and warn "already dealt with this borrower $borrowernumber";
+                        next;
+                    }
+                    $borrowernumber = $data->{'borrowernumber'};
+                    next if ( $patron_homelibrary && $already_queued{"$borrowernumber$i"} );
+                    my $borr = sprintf(
+                        "%s%s%s (%s)",
+                        $data->{'surname'} || '',
+                        $data->{'firstname'} && $data->{'surname'} ? ', ' : '',
+                        $data->{'firstname'} || '',
+                        $borrowernumber
+                    );
+                    $verbose and warn "borrower $borr has items triggering level $i.\n";
+
+                    my $patron = Koha::Patrons->find($borrowernumber);
+                    if ($patron_homelibrary) {
+                        $branchcode           = $patron->branchcode;
+                        $library              = Koha::Libraries->find($branchcode);
+                        $admin_email_address  = $library->from_email_address;
+                        $branch_email_address = C4::Context->preference('AddressForFailedOverdueNotices')
+                            || $library->inbound_email_address;
+                    }
+                    @emails_to_use = ();
+                    my $notice_email = $patron->notice_email_address;
+                    unless ($nomail) {
+                        if (@emails) {
+                            foreach (@emails) {
+                                push @emails_to_use, $data->{$_} if ( $data->{$_} );
+                            }
+                        } else {
+                            push @emails_to_use, $notice_email if ($notice_email);
+                        }
+                    }
+
+                    my $letter = Koha::Notice::Templates->find_effective_template(
+                        {
+                            module     => 'circulation',
+                            code       => $overdue_rules->{ "overdue_$i" . '_notice' },
+                            branchcode => $branchcode,
+                            lang       => $patron->lang
+                        }
+                    );
+
+                    unless ($letter) {
+                        $verbose and warn qq|Message '$overdue_rules->{"overdue_$i"."_notice"}' content not found|;
+
+                        # might as well skip while PERIOD, no other borrowers are going to work.
+                        # FIXME : Does this mean a letter must be defined in order to trigger a debar ?
+                        next PERIOD;
+                    }
+
+                    if ( $overdue_rules->{ "overdue_$i" . '_restrict' } ) {
+
+                        #action taken is debarring
+                        AddUniqueDebarment(
+                            {
+                                borrowernumber => $borrowernumber,
+                                type           => 'OVERDUES',
+                                comment        => "OVERDUES_PROCESS " . output_pref( dt_from_string() ),
+                            }
+                        ) unless $test_mode;
+                        $verbose and warn "debarring $borr\n";
+                    }
+                    my @params = $patron_homelibrary ? ($borrowernumber) : ( $borrowernumber, $branchcode );
+
+                    $sth2->execute(@params);
+                    my $itemcount = 0;
+                    my $titles    = "";
+                    my @items     = ();
+
+                    my $j                            = 0;
+                    my $exceededPrintNoticesMaxLines = 0;
+                    while ( my $item_info = $sth2->fetchrow_hashref() ) {
+                        if ( C4::Context->preference('OverdueNoticeCalendar') ) {
+                            $days_between =
+                                $calendar->days_between( dt_from_string( $item_info->{date_due} ), $date_to_run );
+                        } else {
+                            $days_between = $date_to_run->delta_days( dt_from_string( $item_info->{date_due} ) );
+                        }
+                        $days_between = $days_between->in_units('days');
+                        if ($listall) {
+                            unless ( $days_between >= 1 and $days_between <= $MAX ) {
                                 next;
                             }
                         } else {
-                            unless ( $days_between >= $mindays
-                                && $days_between <= $maxdays )
-                            {
-                                next;
+                            if ($triggered) {
+                                if ( $mindays != $days_between ) {
+                                    next;
+                                }
+                            } else {
+                                unless ( $days_between >= $mindays
+                                    && $days_between <= $maxdays )
+                                {
+                                    next;
+                                }
                             }
                         }
-                    }
 
-                    if (   ( scalar(@emails_to_use) == 0 || $nomail )
-                        && $PrintNoticesMaxLines
-                        && $j >= $PrintNoticesMaxLines )
-                    {
-                        $exceededPrintNoticesMaxLines = 1;
-                        last;
-                    }
-                    next if $patron_homelibrary and !grep { $seen{ $item_info->{branchcode} } } @branches;
-                    $j++;
-
-                    $titles .= C4::Letters::get_item_content(
-                        { item => $item_info, item_content_fields => \@item_content_fields, dateonly => 1 } );
-                    $itemcount++;
-                    push @items, $item_info;
-                }
-                $sth2->finish;
-
-                my @message_transport_types = split( /,/, $overdue_rules->{ "overdue_$i" . '_mtt' } );
-
-                my $print_sent = 0;    # A print notice is not yet sent for this patron
-                for my $mtt (@message_transport_types) {
-                    next if $mtt eq 'itiva';
-                    my $effective_mtt = $mtt;
-                    if (   ( $mtt eq 'email' and not scalar @emails_to_use )
-                        or ( $mtt eq 'sms' and not $data->{smsalertnumber} ) )
-                    {
-                        # email or sms is requested but not exist, do a print.
-                        $effective_mtt = 'print';
-                    }
-                    splice @items, $PrintNoticesMaxLines
-                        if $effective_mtt eq 'print' && $PrintNoticesMaxLines && scalar @items > $PrintNoticesMaxLines;
-
-                    #catch the case where we are sending a print to someone with an email
-
-                    my $letter_exists = Koha::Notice::Templates->find_effective_template(
+                        if (   ( scalar(@emails_to_use) == 0 || $nomail )
+                            && $PrintNoticesMaxLines
+                            && $j >= $PrintNoticesMaxLines )
                         {
-                            module                 => 'circulation',
-                            code                   => $overdue_rules->{ "overdue_$i" . '_notice' },
-                            message_transport_type => $effective_mtt,
-                            branchcode             => $branchcode,
-                            lang                   => $patron->lang
+                            $exceededPrintNoticesMaxLines = 1;
+                            last;
                         }
-                    );
+                        next if $patron_homelibrary and !grep { $seen{ $item_info->{branchcode} } } @branches;
+                        $j++;
 
-                    my $letter = parse_overdues_letter(
-                        {
-                            letter_code    => $overdue_rules->{ "overdue_$i" . '_notice' },
-                            borrowernumber => $borrowernumber,
-                            branchcode     => $branchcode,
-                            items          => \@items,
-                            substitute => {    # this appears to be a hack to overcome incomplete features in this code.
-                                bib             => $library->branchname,    # maybe 'bib' is a typo for 'lib<rary>'?
-                                'items.content' => $titles,
-                                'count'         => $itemcount,
-                            },
-
-                            # If there is no template defined for the requested letter
-                            # Fallback on the original type
-                            message_transport_type => $letter_exists ? $effective_mtt : $mtt,
-                        }
-                    );
-                    unless ( $letter && $letter->{content} ) {
-                        $verbose and warn qq|Message '$overdue_rules->{"overdue_$i"."_notice"}' content not found|;
-
-                        # this transport doesn't have a configured notice, so try another
-                        next;
+                        $titles .= C4::Letters::get_item_content(
+                            { item => $item_info, item_content_fields => \@item_content_fields, dateonly => 1 } );
+                        $itemcount++;
+                        push @items, $item_info;
                     }
+                    $sth2->finish;
 
-                    if ($exceededPrintNoticesMaxLines) {
-                        $letter->{'content'} .=
-                            "List too long for form; please check your account online for a complete list of your overdue items.";
-                    }
+                    my @message_transport_types = split( /,/, $overdue_rules->{ "overdue_$i" . '_mtt' } );
 
-                    my @misses = grep { /./ } map { /^([^>]*)[>]+/; ( $1 || '' ); } split /\</, $letter->{'content'};
-                    if (@misses) {
-                        $verbose
-                            and warn "The following terms were not matched and replaced: \n\t" . join "\n\t", @misses;
-                    }
-
-                    if ($nomail) {
-                        push @output_chunks,
-                            prepare_letter_for_printing(
-                            {
-                                letter         => $letter,
-                                borrowernumber => $borrowernumber,
-                                firstname      => $data->{'firstname'},
-                                lastname       => $data->{'surname'},
-                                address1       => $data->{'address'},
-                                address2       => $data->{'address2'},
-                                city           => $data->{'city'},
-                                phone          => $data->{'phone'},
-                                cardnumber     => $data->{'cardnumber'},
-                                branchname     => $library->branchname,
-                                letternumber   => $i,
-                                postcode       => $data->{'zipcode'},
-                                country        => $data->{'country'},
-                                email          => $notice_email,
-                                itemcount      => $itemcount,
-                                titles         => $titles,
-                                outputformat   => defined $csvfilename ? 'csv'
-                                : defined $htmlfilename  ? 'html'
-                                : defined $text_filename ? 'text'
-                                : '',
-                            }
-                            );
-                    } else {
+                    my $print_sent = 0;    # A print notice is not yet sent for this patron
+                    for my $mtt (@message_transport_types) {
+                        next if $mtt eq 'itiva';
+                        my $effective_mtt = $mtt;
                         if (   ( $mtt eq 'email' and not scalar @emails_to_use )
                             or ( $mtt eq 'sms' and not $data->{smsalertnumber} ) )
                         {
+                            # email or sms is requested but not exist, do a print.
+                            $effective_mtt = 'print';
+                        }
+                        splice @items, $PrintNoticesMaxLines
+                            if $effective_mtt eq 'print'
+                            && $PrintNoticesMaxLines
+                            && scalar @items > $PrintNoticesMaxLines;
+
+                        #catch the case where we are sending a print to someone with an email
+
+                        my $letter_exists = Koha::Notice::Templates->find_effective_template(
+                            {
+                                module                 => 'circulation',
+                                code                   => $overdue_rules->{ "overdue_$i" . '_notice' },
+                                message_transport_type => $effective_mtt,
+                                branchcode             => $branchcode,
+                                lang                   => $patron->lang
+                            }
+                        );
+
+                        my $letter = parse_overdues_letter(
+                            {
+                                letter_code    => $overdue_rules->{ "overdue_$i" . '_notice' },
+                                borrowernumber => $borrowernumber,
+                                branchcode     => $branchcode,
+                                items          => \@items,
+                                substitute     =>
+                                    {    # this appears to be a hack to overcome incomplete features in this code.
+                                    bib             => $library->branchname,    # maybe 'bib' is a typo for 'lib<rary>'?
+                                    'items.content' => $titles,
+                                    'count'         => $itemcount,
+                                    },
+
+                                # If there is no template defined for the requested letter
+                                # Fallback on the original type
+                                message_transport_type => $letter_exists ? $effective_mtt : $mtt,
+                            }
+                        );
+                        unless ( $letter && $letter->{content} ) {
+                            $verbose and warn qq|Message '$overdue_rules->{"overdue_$i"."_notice"}' content not found|;
+
+                            # this transport doesn't have a configured notice, so try another
+                            next;
+                        }
+
+                        if ($exceededPrintNoticesMaxLines) {
+                            $letter->{'content'} .=
+                                "List too long for form; please check your account online for a complete list of your overdue items.";
+                        }
+
+                        my @misses = grep { /./ } map { /^([^>]*)[>]+/; ( $1 || '' ); } split /\</,
+                            $letter->{'content'};
+                        if (@misses) {
+                            $verbose
+                                and warn "The following terms were not matched and replaced: \n\t" . join "\n\t",
+                                @misses;
+                        }
+
+                        if ($nomail) {
                             push @output_chunks,
                                 prepare_letter_for_printing(
                                 {
@@ -828,6 +829,10 @@ END_SQL
                                     address1       => $data->{'address'},
                                     address2       => $data->{'address2'},
                                     city           => $data->{'city'},
+                                    phone          => $data->{'phone'},
+                                    cardnumber     => $data->{'cardnumber'},
+                                    branchname     => $library->branchname,
+                                    letternumber   => $i,
                                     postcode       => $data->{'zipcode'},
                                     country        => $data->{'country'},
                                     email          => $notice_email,
@@ -839,30 +844,56 @@ END_SQL
                                     : '',
                                 }
                                 );
-                        }
-                        unless ( $effective_mtt eq 'print' and $print_sent == 1 ) {
+                        } else {
+                            if (   ( $mtt eq 'email' and not scalar @emails_to_use )
+                                or ( $mtt eq 'sms' and not $data->{smsalertnumber} ) )
+                            {
+                                push @output_chunks,
+                                    prepare_letter_for_printing(
+                                    {
+                                        letter         => $letter,
+                                        borrowernumber => $borrowernumber,
+                                        firstname      => $data->{'firstname'},
+                                        lastname       => $data->{'surname'},
+                                        address1       => $data->{'address'},
+                                        address2       => $data->{'address2'},
+                                        city           => $data->{'city'},
+                                        postcode       => $data->{'zipcode'},
+                                        country        => $data->{'country'},
+                                        email          => $notice_email,
+                                        itemcount      => $itemcount,
+                                        titles         => $titles,
+                                        outputformat   => defined $csvfilename ? 'csv'
+                                        : defined $htmlfilename  ? 'html'
+                                        : defined $text_filename ? 'text'
+                                        : '',
+                                    }
+                                    );
+                            }
+                            unless ( $effective_mtt eq 'print' and $print_sent == 1 ) {
 
-                            # Just sent a print if not already done.
-                            C4::Letters::EnqueueLetter(
-                                {
-                                    letter                 => $letter,
-                                    borrowernumber         => $borrowernumber,
-                                    message_transport_type => $effective_mtt,
-                                    from_address           => $admin_email_address,
-                                    to_address             => join( ',', @emails_to_use ),
-                                    reply_address          => $library->inbound_email_address,
-                                }
-                            ) unless $test_mode;
+                                # Just sent a print if not already done.
+                                C4::Letters::EnqueueLetter(
+                                    {
+                                        letter                 => $letter,
+                                        borrowernumber         => $borrowernumber,
+                                        message_transport_type => $effective_mtt,
+                                        from_address           => $admin_email_address,
+                                        to_address             => join( ',', @emails_to_use ),
+                                        reply_address          => $library->inbound_email_address,
+                                    }
+                                ) unless $test_mode;
 
-                            # A print notice should be sent only once per overdue level.
-                            # Without this check, a print could be sent twice or more if the library checks sms and email and print and the patron has no email or sms number.
-                            $print_sent = 1 if $effective_mtt eq 'print';
+                                # A print notice should be sent only once per overdue level.
+                                # Without this check, a print could be sent twice or more if the library checks sms and email and print and the patron has no email or sms number.
+                                $print_sent = 1 if $effective_mtt eq 'print';
+                            }
                         }
                     }
+                    $already_queued{"$borrowernumber$i"} = 1;
                 }
-                $already_queued{"$borrowernumber$i"} = 1;
+                $sth->finish;
             }
-            $sth->finish;
         }
     }
 
