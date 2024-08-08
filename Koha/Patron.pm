@@ -46,7 +46,6 @@ use Koha::Exceptions;
 use Koha::Exceptions::Password;
 use Koha::Holds;
 use Koha::Old::Checkouts;
-use Koha::OverdueRules;
 use Koha::Patron::Attributes;
 use Koha::Patron::Categories;
 use Koha::Patron::Consents;
@@ -1171,23 +1170,23 @@ sub has_overdues {
 
 =head3 has_restricting_overdues
 
-my $has_restricting_overdues = $patron->has_restricting_overdues({ issue_branchcode => $branchcode });
+  my $has_restricting_overdues = $patron->has_restricting_overdues();
 
 Returns true if patron has overdues that would result in debarment.
 
 =cut
 
 sub has_restricting_overdues {
-    my ( $self, $params ) = @_;
-    $params //= {};
-    my $date = dt_from_string()->truncate( to => 'day' );
+    my ($self) = @_;
 
-    # If ignoring unrestricted overdues, calculate which delay value for
-    # overdue messages is set with restrictions. Then only include overdue
-    # issues older than that date when counting.
-    #TODO: bail out/throw exception if $params->{issue_branchcode} not set?
-    my $debarred_delay = _get_overdue_debarred_delay( $params->{issue_branchcode}, $self->categorycode() );
-    return 0 unless defined $debarred_delay;
+    # Fetch overdues
+    my $overdues = $self->overdues;
+
+    # Short circuit if no overdues
+    return 0 unless $overdues->count;
+
+    my $categorycode = $self->categorycode();
+    my $calendar;
 
     # Emulate the conditions in overdue_notices.pl.
     # The overdue_notices-script effectively truncates both issues.date_due and current date
@@ -1199,54 +1198,53 @@ sub has_restricting_overdues {
     # the current date or later. We can emulate this query by instead of truncating both to days in the SQL-query,
     # using the condition that date_due must be less then the current date truncated to days (time set to 00:00:00)
     # offset by one day in the future.
+    my $date = dt_from_string()->truncate( to => 'day' )->add( days => 1 );
 
-    $date->add( days => 1 );
+    # Work from oldest overdue to newest
+    $overdues = $overdues->search( {}, { order_by => { '-desc' => 'me.date_due' } } );
+    my $now = dt_from_string();
 
-    my $calendar;
-    if ( C4::Context->preference('OverdueNoticeCalendar') ) {
-        $calendar = Koha::Calendar->new( branchcode => $params->{issue_branchcode} );
-    }
+    my ( $itemtype, $branchcode ) = ( "", "" );
+    while ( my $overdue = $overdues->next ) {
 
-    my $dtf    = Koha::Database->new->schema->storage->datetime_parser;
-    my $issues = $self->_result->issues->search( { date_due => { '<' => $dtf->format_datetime($date) } } );
-    my $now    = dt_from_string();
+        # Short circuit if we're looking at the same branch and itemtype combination as last time as we've
+        # checked the oldest for this combination already
+        next if ( ( $overdue->branchcode eq $branchcode ) && ( $overdue->item->itemtype eq $itemtype ) );
 
-    while ( my $issue = $issues->next ) {
-        my $days_between =
-            C4::Context->preference('OverdueNoticeCalendar')
-            ? $calendar->days_between( dt_from_string( $issue->date_due ), $now )->in_units('days')
-            : $now->delta_days( dt_from_string( $issue->date_due ) )->in_units('days');
-        if ( $days_between >= $debarred_delay ) {
-            return 1;
+        # Capture the current branchcode and itemtype
+        $branchcode = $overdue->branchcode;
+        $itemtype   = $overdue->item->itemtype;
+
+        my $i = 0;
+    DELAY: while (1) {
+            $i++;
+            my $overdue_rules = Koha::CirculationRules->get_effective_rules(
+                {
+                    rules        => [ "overdue_$i" . '_delay', "overdue_$i" . '_restrict' ],
+                    categorycode => $categorycode,
+                    branchcode   => $branchcode,
+                    itemtype     => $itemtype,
+                }
+            );
+
+            last DELAY if ( !defined( $overdue_rules->{ "overdue_$i" . '_delay' } ) );
+
+            next DELAY unless $overdue_rules->{ "overdue_$i" . '_restrict' };
+
+            if ( C4::Context->preference('OverdueNoticeCalendar') ) {
+                $calendar = Koha::Calendar->new( branchcode => $branchcode );
+            }
+
+            my $days_between =
+                C4::Context->preference('OverdueNoticeCalendar')
+                ? $calendar->days_between( dt_from_string( $overdue->date_due ), $now )->in_units('days')
+                : $now->delta_days( dt_from_string( $overdue->date_due ) )->in_units('days');
+            if ( $days_between >= $overdue_rules->{ "overdue_$i" . '_delay' } ) {
+                return 1;
+            }
         }
     }
     return 0;
-}
-
-# Fetch first delayX value from overduerules where debarredX is set, or 0 for no delay
-sub _get_overdue_debarred_delay {
-    my ( $branchcode, $categorycode ) = @_;
-    my $dbh = C4::Context->dbh();
-
-    # We get default rules if there is no rule for this branch
-    my $rule = Koha::OverdueRules->find(
-        {
-            branchcode   => $branchcode,
-            categorycode => $categorycode
-        }
-        )
-        || Koha::OverdueRules->find(
-        {
-            branchcode   => q{},
-            categorycode => $categorycode
-        }
-        );
-
-    if ($rule) {
-        return $rule->delay1 if $rule->debarred1;
-        return $rule->delay2 if $rule->debarred2;
-        return $rule->delay3 if $rule->debarred3;
-    }
 }
 
 =head3 update_lastseen
