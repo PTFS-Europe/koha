@@ -167,18 +167,18 @@ sub list_rules {
             );
             $new_rule{"context"} = \%context;
 
-            $new_rule{"overdue_delay_1"}      = 2;
-            $new_rule{"overdue_template_1"}   = 'ODUE';
-            $new_rule{"overdue_transports_1"} = 'email';
-            $new_rule{"overdue_restricts_1"}  = 0;
-            $new_rule{"overdue_delay_2"}      = 5;
-            $new_rule{"overdue_template_2"}   = 'ODUE';
-            $new_rule{"overdue_transports_2"} = 'email,print';
-            $new_rule{"overdue_restricts_2"}  = 1;
-            $new_rule{"overdue_delay_3"}      = 5;
-            $new_rule{"overdue_template_3"}   = 'ODUE';
-            $new_rule{"overdue_transports_3"} = 'email,print';
-            $new_rule{"overdue_restricts_3"}  = 1;
+            $new_rule{"overdue_1_delay"}      = 2;
+            $new_rule{"overdue_1_template"}   = 'ODUE';
+            $new_rule{"overdue_1_transports"} = 'email';
+            $new_rule{"overdue_1_restricts"}  = 0;
+            $new_rule{"overdue_2_delay"}      = 5;
+            $new_rule{"overdue_2_template"}   = 'ODUE';
+            $new_rule{"overdue_2_transports"} = 'email,print';
+            $new_rule{"overdue_2_restricts"}  = 1;
+            $new_rule{"overdue_3_delay"}      = 5;
+            $new_rule{"overdue_3_template"}   = 'ODUE';
+            $new_rule{"overdue_3_transports"} = 'email,print';
+            $new_rule{"overdue_3_restricts"}  = 1;
 
             \%new_rule;
         } @{$rules};

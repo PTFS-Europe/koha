@@ -138,7 +138,7 @@ export default {
          * Splits the given array of circulation rules into an array of rules, where each rule contains only the
          * necessary fields for a specific trigger number. The trigger number is determined by the presence of the
          * "overdue_delay" key in the rule object. The resulting array contains a separate rule object for each
-         * trigger number e.g. overdue_delay_1, overdue_delay_2, etc.
+         * trigger number e.g. overdue_1_delay, overdue_2_delay, etc.
          *
          * It will also set the number of tabs required based on the number of trigger numbers.
          *
@@ -147,15 +147,16 @@ export default {
          * specific trigger number.
          */
         splitCircRulesByTriggerNumber(rules) {
-            const rulePrefixes = [
-                "overdue_delay",
-                "overdue_template",
-                "overdue_transports",
-                "overdue_restricts",
+            const ruleSuffixes = [
+                "delay",
+                "template",
+                "transports",
+                "restricts",
             ]
             const rulesPerTrigger = rules.reduce((acc, rule) => {
+                const regex = /overdue_(\d+)_delay/g
                 const numberOfTriggers = Object.keys(rule).filter(key =>
-                    key.includes("overdue_delay")
+                    regex.test(key)
                 ).length
                 this.setNumberOfTabs(numberOfTriggers)
                 const triggerNumbers = Array.from(
@@ -167,9 +168,9 @@ export default {
                     const rulesToDelete = triggerNumbers.filter(
                         num => num !== i
                     )
-                    rulePrefixes.forEach(prefix => {
+                    ruleSuffixes.forEach(suffix => {
                         rulesToDelete.forEach(number => {
-                            delete ruleCopy[`${prefix}_${number}`]
+                            delete ruleCopy[`overdue_${number}_${suffix}`]
                         })
                     })
                     ruleCopy.triggerNumber = i

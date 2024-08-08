@@ -43,18 +43,20 @@
                     </td>
                     <td>
                         {{
-                            rule["overdue_delay_" + triggerNumber] +
+                            rule["overdue_" + triggerNumber + "_delay"] +
                             " " +
                             $__("days")
                         }}
                     </td>
                     <td>
-                        {{ rule["overdue_template_" + triggerNumber] }}
+                        {{ rule["overdue_" + triggerNumber + "_template"] }}
                     </td>
                     <td>
                         {{
                             handleTransport(
-                                rule["overdue_transports_" + triggerNumber],
+                                rule[
+                                    "overdue_" + triggerNumber + "_transports"
+                                ],
                                 "email"
                             )
                         }}
@@ -62,7 +64,9 @@
                     <td>
                         {{
                             handleTransport(
-                                rule["overdue_transports_" + triggerNumber],
+                                rule[
+                                    "overdue_" + triggerNumber + "_transports"
+                                ],
                                 "print"
                             )
                         }}
@@ -70,7 +74,9 @@
                     <td>
                         {{
                             handleTransport(
-                                rule["overdue_transports_" + triggerNumber],
+                                rule[
+                                    "overdue_" + triggerNumber + "_transports"
+                                ],
                                 "sms"
                             )
                         }}
@@ -78,7 +84,7 @@
                     <td>
                         {{
                             handleRestrictions(
-                                rule["overdue_restricts_" + triggerNumber]
+                                rule["overdue_" + triggerNumber + "_restricts"]
                             )
                         }}
                     </td>
