@@ -687,21 +687,19 @@ returns a list of branch codes for branches with overdue rules defined.
 =cut
 
 sub GetBranchcodesWithOverdueRules {
-    my $dbh         = C4::Context->dbh;
-    my $branchcodes = $dbh->selectcol_arrayref(
-        q|
-        SELECT DISTINCT(branchcode)
-        FROM overduerules
-        WHERE delay1 IS NOT NULL
-        ORDER BY branchcode
-    |
-    );
-    if ( defined $branchcodes->[0] && $branchcodes->[0] eq '' ) {
-
-        # If a default rule exists, all branches should be returned
-        return Koha::Libraries->search( {}, { order_by => 'branchname' } )->get_column('branchcode');
+    my @branchcodes = Koha::CirculationRules->search(
+        { rule_name => 'overdue_1_delay' },
+        {
+            order_by => 'branchcode',
+            columns  => ['branchcode'],
+            distinct => 1,
+        }
+    )->get_column('branchcode');
+    if ( !$branchcodes[0] ) {
+        @branchcodes = Koha::Libraries->search( {}, { order_by => 'branchname' } )->get_column('branchcode');
     }
-    return @$branchcodes;
+
+    return @branchcodes;
 }
 
 =head2 GetOverduesForBranch
