@@ -55,7 +55,7 @@
                     :key="`noticeTabContent${i}`"
                 >
                     <TriggersTable
-                        :circRules="filterCircRulesByTabNumber(number)"
+                        :circRules="circRules"
                         :triggerNumber="number"
                     />
                 </div>
@@ -74,8 +74,16 @@ import Toolbar from "../../Toolbar.vue"
 import ToolbarButton from "../../ToolbarButton.vue"
 import { APIClient } from "../../../fetch/api-client.js"
 import TriggersTable from "./TriggersTable.vue"
+import { inject } from "vue"
 
 export default {
+    setup() {
+        const { splitCircRulesByTriggerNumber } = inject("circRulesStore")
+
+        return {
+            splitCircRulesByTriggerNumber,
+        }
+    },
     data() {
         return {
             initialized: false,
@@ -113,7 +121,10 @@ export default {
             const client = APIClient.circRule
             await client.circRules.getAll({}, params).then(
                 rules => {
-                    this.circRules = this.splitCircRulesByTriggerNumber(rules)
+                    const { numberOfTabs, rulesPerTrigger: circRules } =
+                        this.splitCircRulesByTriggerNumber(rules)
+                    this.numberOfTabs = numberOfTabs
+                    this.circRules = circRules
                 },
                 error => {}
             )
@@ -122,66 +133,8 @@ export default {
             if (!e) e = ""
             await this.getCircRules({ library_id: e })
         },
-        /**
-         * Sets the number of tabs based on the given trigger count.
-         *
-         * @param {number} triggerCount - The count of triggers.
-         * @return {void}
-         */
-        setNumberOfTabs(triggerCount) {
-            if (triggerCount > this.numberOfTabs) {
-                this.numberOfTabs = Array.from(
-                    { length: triggerCount },
-                    (_, i) => i + 1
-                )
-            }
-        },
-        /**
-         * Splits the given array of circulation rules into an array of rules, where each rule contains only the
-         * necessary fields for a specific trigger number. The trigger number is determined by the presence of the
-         * "overdue_delay" key in the rule object. The resulting array contains a separate rule object for each
-         * trigger number e.g. overdue_1_delay, overdue_2_delay, etc.
-         *
-         * It will also set the number of tabs required based on the number of trigger numbers.
-         *
-         * @param {Array} rules - The array of circulation rules to be split.
-         * @return {Array} An array of circulation rules, where each rule contains only the necessary fields for a
-         * specific trigger number.
-         */
-        splitCircRulesByTriggerNumber(rules) {
-            const ruleSuffixes = ["delay", "notice", "mtt", "restrict"]
-            const rulesPerTrigger = rules.reduce((acc, rule) => {
-                const regex = /overdue_(\d+)_delay/g
-                const numberOfTriggers = Object.keys(rule).filter(key =>
-                    regex.test(key)
-                ).length
-                this.setNumberOfTabs(numberOfTriggers)
-                const triggerNumbers = Array.from(
-                    { length: numberOfTriggers },
-                    (_, i) => i + 1
-                )
-                triggerNumbers.forEach(i => {
-                    const ruleCopy = JSON.parse(JSON.stringify(rule))
-                    const rulesToDelete = triggerNumbers.filter(
-                        num => num !== i
-                    )
-                    ruleSuffixes.forEach(suffix => {
-                        rulesToDelete.forEach(number => {
-                            delete ruleCopy[`overdue_${number}_${suffix}`]
-                        })
-                    })
-                    ruleCopy.triggerNumber = i
-                    acc.push(ruleCopy)
-                })
-                return acc
-            }, [])
-            return rulesPerTrigger
-        },
         changeTabContent(e) {
             this.tabSelected = e.target.getAttribute("data-content")
-        },
-        filterCircRulesByTabNumber(number) {
-            return this.circRules.filter(rule => rule.triggerNumber === number)
         },
     },
     watch: {
@@ -232,5 +185,6 @@ export default {
     align-items: center;
     justify-content: center;
     transform: translate(-50%, -50%);
+    overflow: auto;
 }
 </style>

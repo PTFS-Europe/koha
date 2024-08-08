@@ -31,7 +31,12 @@
                 </th>
             </thead>
             <tbody>
-                <tr v-for="(rule, i) in circRules" v-bind:key="'rule' + i">
+                <tr
+                    v-for="(rule, i) in filterCircRulesByTabNumber(
+                        triggerNumber
+                    )"
+                    v-bind:key="'rule' + i"
+                >
                     <td>
                         {{ handleContext(rule.context.library_id) }}
                     </td>
@@ -103,6 +108,9 @@ export default {
         },
         handleRestrictions(value) {
             return value === "1" ? this.$__("Yes") : this.$__("No")
+        },
+        filterCircRulesByTabNumber(number) {
+            return this.circRules.filter(rule => rule.triggerNumber === number)
         },
     },
 }

@@ -4,6 +4,14 @@
     </router-link>
     <h1>{{ $__("Add circulation trigger") }}</h1>
     <div v-if="initialized">
+        <div class="page-section" v-if="circRules.length">
+            <h2>{{ $__("Existing rules for this context") }}</h2>
+            <p>{{ $__("Notice") }} {{ " " + triggerNumber - 1 }}</p>
+            <TriggersTable
+                :circRules="circRules"
+                :triggerNumber="triggerNumber - 1"
+            />
+        </div>
         <form @submit="addCircRule($event)">
             <fieldset class="rows">
                 <ol>
@@ -17,6 +25,7 @@
                             label="name"
                             :reduce="lib => lib.library_id"
                             :options="libraries"
+                            @update:modelValue="handleContextChange($event)"
                         >
                             <template #search="{ attributes, events }">
                                 <input
@@ -39,6 +48,7 @@
                             label="name"
                             :reduce="cat => cat.patron_category_id"
                             :options="categories"
+                            @update:modelValue="handleContextChange($event)"
                         >
                             <template #search="{ attributes, events }">
                                 <input
@@ -63,6 +73,7 @@
                             label="description"
                             :reduce="type => type.item_type_id"
                             :options="itemTypes"
+                            @update:modelValue="handleContextChange($event)"
                         >
                             <template #search="{ attributes, events }">
                                 <input
@@ -83,8 +94,17 @@
 
 <script>
 import { APIClient } from "../../../fetch/api-client.js"
+import TriggersTable from "./TriggersTable.vue"
+import { inject } from "vue"
 
 export default {
+    setup() {
+        const { splitCircRulesByTriggerNumber } = inject("circRulesStore")
+
+        return {
+            splitCircRulesByTriggerNumber,
+        }
+    },
     data() {
         return {
             initialized: false,
@@ -92,7 +112,16 @@ export default {
             categories: null,
             itemTypes: null,
             circRules: null,
-            circRuleTrigger: {},
+            circRuleTrigger: {
+                item_type_id: "*",
+                library_id: "*",
+                patron_category_id: "*",
+                delay: null,
+                notice: null,
+                mtt: null,
+                restrict: null,
+            },
+            triggerNumber: 1,
         }
     },
     beforeRouteEnter(to, from, next) {
@@ -105,7 +134,7 @@ export default {
                             .getItemTypes()
                             .then(() =>
                                 vm
-                                    .getCircRules()
+                                    .checkForExistingRules()
                                     .then(() => (vm.initialized = true))
                             )
                     )
@@ -115,7 +144,7 @@ export default {
     methods: {
         async addCircRule(e) {
             e.preventDefault()
-            console.log("Adding rule")
+            console.log(this.circRuleTrigger)
         },
         async getLibraries() {
             const client = APIClient.library
@@ -126,16 +155,6 @@ export default {
                         name: "All libraries",
                     })
                     this.libraries = libraries
-                },
-                error => {}
-            )
-        },
-        async getCircRules(params = {}) {
-            params.effective = false
-            const client = APIClient.circRule
-            await client.circRules.getAll({}, params).then(
-                rules => {
-                    console.log(rules)
                 },
                 error => {}
             )
@@ -166,7 +185,39 @@ export default {
                 error => {}
             )
         },
+        async handleContextChange() {
+            await this.checkForExistingRules()
+        },
+        async checkForExistingRules() {
+            const params = {
+                library_id: this.circRuleTrigger.library_id || "*",
+                item_type_id: this.circRuleTrigger.item_type_id || "*",
+                patron_category_id:
+                    this.circRuleTrigger.patron_category_id || "*",
+                effective: false,
+            }
+            const client = APIClient.circRule
+            await client.circRules.getAll({}, params).then(
+                rules => {
+                    if (rules.length === 0) {
+                        this.triggerNumber = 1
+                    } else {
+                        const regex = /overdue_(\d+)_delay/g
+                        // TODO: Can there definitely only be one rule per context?
+                        const numberOfTriggers = Object.keys(rules[0]).filter(
+                            key => regex.test(key) && rules[0][key]
+                        ).length
+                        this.triggerNumber = numberOfTriggers + 1
+                        const { rulesPerTrigger } =
+                            this.splitCircRulesByTriggerNumber(rules)
+                        this.circRules = rulesPerTrigger
+                    }
+                },
+                error => {}
+            )
+        },
     },
+    components: { TriggersTable },
 }
 </script>
 
@@ -186,5 +237,6 @@ form li {
 .dialog.error
     fieldset:not(.bg-danger):not(.bg-warning):not(.bg-info):not(.bg-success):not(.bg-primary):not(.action) {
     margin: 0;
+    background-color: rgba(255, 255, 255, 1);
 }
 </style>
