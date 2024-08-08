@@ -29,7 +29,7 @@ use DateTime::Duration;
 use Koha::Script -cron;
 use C4::Context;
 use C4::Letters;
-use C4::Overdues qw( GetOverdueMessageTransportTypes parse_overdues_letter );
+use C4::Overdues qw( parse_overdues_letter );
 use C4::Log qw( cronlogaction );
 use Koha::Patron::Debarments qw( AddUniqueDebarment );
 use Koha::DateUtils qw( dt_from_string output_pref );
@@ -488,43 +488,52 @@ END_SQL
     }
     my $sth2 = $dbh->prepare($sql2);
 
-    my $query = "SELECT * FROM overduerules WHERE delay1 IS NOT NULL AND branchcode = ? ";
-    $query .= " AND categorycode IN (".join( ',' , ('?') x @myborcat ).") " if (@myborcat);
-    $query .= " AND categorycode NOT IN (".join( ',' , ('?') x @myborcatout ).") " if (@myborcatout);
-    
-    my $rqoverduerules =  $dbh->prepare($query);
-    $rqoverduerules->execute($branchcode, @myborcat, @myborcatout);
-
-    # We get default rules if there is no rule for this branch
-    if($rqoverduerules->rows == 0){
-        $query = "SELECT * FROM overduerules WHERE delay1 IS NOT NULL AND branchcode = '' ";
-        $query .= " AND categorycode IN (".join( ',' , ('?') x @myborcat ).") " if (@myborcat);
-        $query .= " AND categorycode NOT IN (".join( ',' , ('?') x @myborcatout ).") " if (@myborcatout);
-        
-        $rqoverduerules = $dbh->prepare($query);
-        $rqoverduerules->execute(@myborcat, @myborcatout);
+    my @categories;
+    if (@myborcat) {
+        @categories = @myborcat;
+    } elsif (@myborcatout) {
+        @categories = Koha::Patron::Categories->search( { catagorycode => { 'not_in' => \@myborcatout } } )
+            ->get_column('categorycode');
+    } else {
+        @categories = Koha::Patron::Categories->search()->get_column('categorycode');
     }
 
-    # my $outfile = 'overdues_' . ( $mybranch || $branchcode || 'default' );
-    while ( my $overdue_rules = $rqoverduerules->fetchrow_hashref ) {
-      PERIOD: foreach my $i ( 1 .. 3 ) {
+    for my $category (@categories) {
+        my $i = 0;
+        PERIOD: while (1) {
+            $i++;
+            my $j = $i + 1;
+            my $overdue_rules = Koha::CirculationRules->get_effective_rules(
+                {
+                    rules => [
+                        "overdue_$i" . '_delay',    "overdue_$i" . '_notice', "overdue_$i" . '_mtt',
+                        "overdue_$i" . '_restrict', "overdue_$j" . '_delay'
+                    ],
+                    categorycode => $category,
+                    branchcode   => $branchcode
+                }
+            );
+            $verbose and warn "branch '$branchcode', categorycode = $category pass $i\n";
 
-            $verbose and warn "branch '$branchcode', categorycode = $overdue_rules->{categorycode} pass $i\n";
+            if (!$overdue_rules->{"overdue_$i".'_delay'}) {
+                last PERIOD;
+            }
 
-            my $mindays = $overdue_rules->{"delay$i"};    # the notice will be sent after mindays days (grace period)
+            my $mindays =
+                $overdue_rules->{ "overdue_$i" . '_delay' }; # the notice will be sent after mindays days (grace period)
             my $maxdays = (
-                  $overdue_rules->{ "delay" . ( $i + 1 ) }
-                ? $overdue_rules->{ "delay" . ( $i + 1 ) } - 1
+                  $overdue_rules->{ "overdue_$j" . '_delay' }
+                ? $overdue_rules->{ "overdue_$j" . '_delay' } - 1
                 : ($MAX)
-            );                                            # issues being more than maxdays late are managed somewhere else. (borrower probably suspended)
+            );    # issues being more than maxdays late are managed somewhere else. (borrower probably suspended)
 
             next unless defined $mindays;
 
-            if ( !$overdue_rules->{"letter$i"} ) {
+            if ( !$overdue_rules->{"overdue_$i".'_notice'} ) {
                 $verbose and warn sprintf "No letter code found for pass %s\n", $i;
                 next PERIOD;
             }
-            $verbose and warn sprintf "Using letter code '%s' for pass %s\n", $overdue_rules->{"letter$i"}, $i;
+            $verbose and warn sprintf "Using letter code '%s' for pass %s\n", $overdue_rules->{"overdue_$i".'_notice'}, $i;
 
             # $letter->{'content'} is the text of the mail that is sent.
             # this text contains fields that are replaced by their value. Those fields must be written between brackets
@@ -550,9 +559,9 @@ END_SQL
         }
                 push @borrower_parameters, $branchcode;
             }
-            if ( $overdue_rules->{categorycode} ) {
+            if ( $category ) {
                 $borrower_sql .= ' AND borrowers.categorycode=? ';
-                push @borrower_parameters, $overdue_rules->{categorycode};
+                push @borrower_parameters, $category;
             }
             $borrower_sql .= '  AND categories.overduenoticerequired=1 ORDER BY issues.borrowernumber';
 
@@ -562,7 +571,7 @@ END_SQL
 
             if ( $verbose > 1 ){
                 warn sprintf "--------Borrower SQL------\n";
-                warn $borrower_sql . "\n $branchcode | " . $overdue_rules->{'categorycode'} . "\n ($mindays, $maxdays, ".  $date_to_run->datetime() .")\n";
+                warn $borrower_sql . "\n $branchcode | " . $category . "\n ($mindays, $maxdays, ".  $date_to_run->datetime() .")\n";
                 warn sprintf "--------------------------\n";
             }
             $verbose and warn sprintf "Found %s borrowers with overdues\n", $sth->rows;
@@ -632,21 +641,21 @@ END_SQL
                 my $letter = Koha::Notice::Templates->find_effective_template(
                     {
                         module     => 'circulation',
-                        code       => $overdue_rules->{"letter$i"},
+                        code       => $overdue_rules->{"overdue_$i".'_notice'},
                         branchcode => $branchcode,
                         lang       => $patron->lang
                     }
                 );
 
                 unless ($letter) {
-                    $verbose and warn qq|Message '$overdue_rules->{"letter$i"}' content not found|;
+                    $verbose and warn qq|Message '$overdue_rules->{"overdue_$i"."_notice"}' content not found|;
 
                     # might as well skip while PERIOD, no other borrowers are going to work.
                     # FIXME : Does this mean a letter must be defined in order to trigger a debar ?
                     next PERIOD;
                 }
     
-                if ( $overdue_rules->{"debarred$i"} ) {
+                if ( $overdue_rules->{"overdue_$i".'_restrict'} ) {
     
                     #action taken is debarring
                     AddUniqueDebarment(
@@ -712,10 +721,7 @@ END_SQL
                 }
                 $sth2->finish;
 
-                my @message_transport_types = @{ GetOverdueMessageTransportTypes( $branchcode, $overdue_rules->{categorycode}, $i) };
-                @message_transport_types = @{ GetOverdueMessageTransportTypes( q{}, $overdue_rules->{categorycode}, $i) }
-                    unless @message_transport_types;
-
+                my @message_transport_types = split( /,/, $overdue_rules->{ "overdue_$i" . '_mtt' } );
 
                 my $print_sent = 0; # A print notice is not yet sent for this patron
                 for my $mtt ( @message_transport_types ) {
@@ -730,31 +736,34 @@ END_SQL
 
                     my $letter_exists = Koha::Notice::Templates->find_effective_template(
                         {
-                            module     => 'circulation',
-                            code       => $overdue_rules->{"letter$i"},
+                            module                 => 'circulation',
+                            code                   => $overdue_rules->{ "overdue_$i" . '_notice' },
                             message_transport_type => $effective_mtt,
-                            branchcode => $branchcode,
-                            lang       => $patron->lang
+                            branchcode             => $branchcode,
+                            lang                   => $patron->lang
                         }
                     );
 
                     my $letter = parse_overdues_letter(
-                        {   letter_code     => $overdue_rules->{"letter$i"},
-                            borrowernumber  => $borrowernumber,
-                            branchcode      => $branchcode,
-                            items           => \@items,
-                            substitute      => {    # this appears to be a hack to overcome incomplete features in this code.
-                                                bib             => $library->branchname, # maybe 'bib' is a typo for 'lib<rary>'?
-                                                'items.content' => $titles,
-                                                'count'         => $itemcount,
-                                               },
+                        {
+                            letter_code    => $overdue_rules->{ "overdue_$i" . '_notice' },
+                            borrowernumber => $borrowernumber,
+                            branchcode     => $branchcode,
+                            items          => \@items,
+                            substitute => {    # this appears to be a hack to overcome incomplete features in this code.
+                                bib             => $library->branchname,    # maybe 'bib' is a typo for 'lib<rary>'?
+                                'items.content' => $titles,
+                                'count'         => $itemcount,
+                            },
+
                             # If there is no template defined for the requested letter
                             # Fallback on the original type
                             message_transport_type => $letter_exists ? $effective_mtt : $mtt,
                         }
                     );
-                    unless ($letter && $letter->{content}) {
-                        $verbose and warn qq|Message '$overdue_rules->{"letter$i"}' content not found|;
+                    unless ( $letter && $letter->{content} ) {
+                        $verbose and warn qq|Message '$overdue_rules->{"overdue_$i"."_notice"}' content not found|;
+
                         # this transport doesn't have a configured notice, so try another
                         next;
                     }
