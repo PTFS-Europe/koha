@@ -182,24 +182,9 @@ sub list_rules {
                 "item_type_id"       => delete $new_rule{"itemtype"}     // "*",
             );
             $new_rule{"context"} = \%context;
-
-            $new_rule{"overdue_1_delay"}      = 2;
-            $new_rule{"overdue_1_template"}   = 'ODUE';
-            $new_rule{"overdue_1_transports"} = 'email';
-            $new_rule{"overdue_1_restricts"}  = 0;
-            $new_rule{"overdue_2_delay"}      = 5;
-            $new_rule{"overdue_2_template"}   = 'ODUE';
-            $new_rule{"overdue_2_transports"} = 'email,print';
-            $new_rule{"overdue_2_restricts"}  = 1;
-            $new_rule{"overdue_3_delay"}      = 5;
-            $new_rule{"overdue_3_template"}   = 'ODUE';
-            $new_rule{"overdue_3_transports"} = 'email,print';
-            $new_rule{"overdue_3_restricts"}  = 1;
-
             \%new_rule;
         } @{$rules};
-use Data::Dumper;
-warn Dumper($rules);
+
         return $c->render(
             status  => 200,
             openapi => $rules

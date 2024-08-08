@@ -1,4 +1,11 @@
 <template>
+    <Toolbar>
+        <ToolbarButton
+            :to="{ name: 'CirculationTriggersFormAdd' }"
+            icon="plus"
+            :title="$__('Add new trigger')"
+        />
+    </Toolbar>
     <div class="page-section" v-if="initialized">
         <h1>Circulation triggers</h1>
         <label for="library_select">{{ $__("Select a library") }}:</label>
@@ -55,26 +62,20 @@
             </template>
         </div>
     </div>
+    <div v-if="showModal" class="modal_centered">
+        <div class="dialog alert confirmation">
+            <router-view></router-view>
+        </div>
+    </div>
 </template>
 
 <script>
 import Toolbar from "../../Toolbar.vue"
 import ToolbarButton from "../../ToolbarButton.vue"
 import { APIClient } from "../../../fetch/api-client.js"
-import { inject } from "vue"
 import TriggersTable from "./TriggersTable.vue"
 
 export default {
-    setup() {
-        const { setWarning, setMessage, setError, setConfirmationDialog } =
-            inject("mainStore")
-        return {
-            setWarning,
-            setMessage,
-            setError,
-            setConfirmationDialog,
-        }
-    },
     data() {
         return {
             initialized: false,
@@ -83,6 +84,7 @@ export default {
             circRules: null,
             numberOfTabs: [1],
             tabSelected: "Notice 1",
+            showModal: false,
         }
     },
     beforeRouteEnter(to, from, next) {
@@ -187,7 +189,15 @@ export default {
             return this.circRules.filter(rule => rule.triggerNumber === number)
         },
     },
-    components: { TriggersTable },
+    watch: {
+        $route: {
+            immediate: true,
+            handler: function (newVal, oldVal) {
+                this.showModal = newVal.meta && newVal.meta.showModal
+            },
+        },
+    },
+    components: { TriggersTable, Toolbar, ToolbarButton },
 }
 </script>
 
@@ -203,5 +213,29 @@ export default {
 }
 .toptabs {
     margin-bottom: 0;
+}
+
+.modal_centered {
+    position: fixed;
+    z-index: 9998;
+    display: table;
+    transition: opacity 0.3s ease;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
+}
+.confirmation {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 80%;
+    max-width: 100%;
+    min-height: 80%;
+    margin: auto;
+    align-items: center;
+    justify-content: center;
+    transform: translate(-50%, -50%);
 }
 </style>
