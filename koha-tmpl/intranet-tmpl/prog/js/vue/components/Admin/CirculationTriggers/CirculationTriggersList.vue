@@ -149,12 +149,7 @@ export default {
          * specific trigger number.
          */
         splitCircRulesByTriggerNumber(rules) {
-            const ruleSuffixes = [
-                "delay",
-                "template",
-                "transports",
-                "restricts",
-            ]
+            const ruleSuffixes = ["delay", "notice", "mtt", "restrict"]
             const rulesPerTrigger = rules.reduce((acc, rule) => {
                 const regex = /overdue_(\d+)_delay/g
                 const numberOfTriggers = Object.keys(rule).filter(key =>

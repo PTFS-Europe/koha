@@ -49,14 +49,12 @@
                         }}
                     </td>
                     <td>
-                        {{ rule["overdue_" + triggerNumber + "_template"] }}
+                        {{ rule["overdue_" + triggerNumber + "_notice"] }}
                     </td>
                     <td>
                         {{
                             handleTransport(
-                                rule[
-                                    "overdue_" + triggerNumber + "_transports"
-                                ],
+                                rule["overdue_" + triggerNumber + "_mtt"],
                                 "email"
                             )
                         }}
@@ -64,9 +62,7 @@
                     <td>
                         {{
                             handleTransport(
-                                rule[
-                                    "overdue_" + triggerNumber + "_transports"
-                                ],
+                                rule["overdue_" + triggerNumber + "_mtt"],
                                 "print"
                             )
                         }}
@@ -74,9 +70,7 @@
                     <td>
                         {{
                             handleTransport(
-                                rule[
-                                    "overdue_" + triggerNumber + "_transports"
-                                ],
+                                rule["overdue_" + triggerNumber + "_mtt"],
                                 "sms"
                             )
                         }}
@@ -84,7 +78,7 @@
                     <td>
                         {{
                             handleRestrictions(
-                                rule["overdue_" + triggerNumber + "_restricts"]
+                                rule["overdue_" + triggerNumber + "_restrict"]
                             )
                         }}
                     </td>
@@ -108,7 +102,7 @@ export default {
             return value.includes(type) ? this.$__("Yes") : this.$__("No")
         },
         handleRestrictions(value) {
-            return value ? this.$__("Yes") : this.$__("No")
+            return value === "1" ? this.$__("Yes") : this.$__("No")
         },
     },
 }
