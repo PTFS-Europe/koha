@@ -24,8 +24,17 @@ import Breadcrumbs from "../../Breadcrumbs.vue"
 import Help from "../../Help.vue"
 import Dialog from "../../Dialog.vue"
 import "vue-select/dist/vue-select.css"
+import { inject } from "vue"
 
 export default {
+    setup() {
+        const circRulesStore = inject("circRulesStore")
+        circRulesStore.letters = letters
+
+        return {
+            letters,
+        }
+    },
     components: {
         Breadcrumbs,
         Dialog,

@@ -29,6 +29,12 @@
     [% INCLUDE 'js-patron-format.inc' %]
     [% INCLUDE 'js-date-format.inc' %]
 
+    <script>
+
+        const letters = [% To.json(letters) | $raw %];
+
+    </script>
+
     [% Asset.js("js/vue/dist/admin/circulation_triggers.js") | $raw %]
 
 [% END %]

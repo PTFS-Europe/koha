@@ -1,6 +1,9 @@
 import { defineStore } from "pinia";
 
 export const useCircRulesStore = defineStore("circRules", {
+    state: () => ({
+        letters: [],
+    }),
     actions: {
         splitCircRulesByTriggerNumber(rules) {
             const ruleSuffixes = ["delay", "notice", "mtt", "restrict"];

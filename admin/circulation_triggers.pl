@@ -33,4 +33,13 @@ my ( $template, $loggedinuser, $cookie ) = get_template_and_user(
     }
 );
 
+my $letters = C4::Letters::GetLettersAvailableForALibrary(
+    {
+        branchcode => undef,
+        module     => "circulation",
+    }
+);
+
+$template->param(letters => $letters);
+
 output_html_with_http_headers $query, $cookie, $template->output;

@@ -16,6 +16,11 @@ export class CircRuleAPIClient extends HttpClient {
                     params,
                     headers,
                 }),
+            update: rule =>
+                this.put({
+                    endpoint: "circulation_rules",
+                    body: rule,
+                }),
             count: (query = {}) =>
                 this.count({
                     endpoint:

@@ -86,9 +86,89 @@
                         </v-select>
                         <span class="required">{{ $__("Required") }}</span>
                     </li>
+                    <li>
+                        <label for="overdue_delay" class="required"
+                            >{{ $__("Delay") }}:
+                        </label>
+                        <input
+                            id="overdue_delay"
+                            v-model="circRuleTrigger.delay"
+                            :required="!circRuleTrigger.delay"
+                            type="number"
+                        />
+                        <span class="required">{{ $__("Required") }}</span>
+                    </li>
+                    <li>
+                        <label for="letter_code" class="required"
+                            >{{ $__("Letter template") }}:</label
+                        >
+                        <v-select
+                            id="letter_code"
+                            v-model="circRuleTrigger.notice"
+                            label="name"
+                            :reduce="type => type.code"
+                            :options="letters"
+                        >
+                            <template #search="{ attributes, events }">
+                                <input
+                                    :required="!circRuleTrigger.notice"
+                                    class="vs__search"
+                                    v-bind="attributes"
+                                    v-on="events"
+                                />
+                            </template>
+                        </v-select>
+                        <span class="required">{{ $__("Required") }}</span>
+                    </li>
+                    <li>
+                        <label for="mtt" class="required"
+                            >{{ $__("Transport type") }}:</label
+                        >
+                        <v-select
+                            id="mtt"
+                            v-model="circRuleTrigger.mtt"
+                            label="name"
+                            :reduce="type => type.code"
+                            :options="mtts"
+                            multiple
+                        >
+                            <template #search="{ attributes, events }">
+                                <input
+                                    :required="!circRuleTrigger.mtt"
+                                    class="vs__search"
+                                    v-bind="attributes"
+                                    v-on="events"
+                                />
+                            </template>
+                        </v-select>
+                        <span class="required">{{ $__("Required") }}</span>
+                    </li>
+                    <li>
+                        <label for="restricts" class="required"
+                            >{{ $__("Restricts checkouts") }}:</label
+                        >
+                        <input
+                            type="checkbox"
+                            id="restricts"
+                            :checked="false"
+                            true-value="1"
+                            false-value="0"
+                            v-model="circRuleTrigger.restrict"
+                        />
+                        <span class="required">{{ $__("Required") }}</span>
+                    </li>
                 </ol>
             </fieldset>
+            <fieldset class="action">
+                <ButtonSubmit />
+                <button @click="clearForm($event)" class="button_format">
+                    {{ $__("Clear") }}
+                </button>
+            </fieldset>
         </form>
+    </div>
+    <div v-else>
+        <p>{{ $__("Loading...") }}</p>
     </div>
 </template>
 
@@ -96,13 +176,18 @@
 import { APIClient } from "../../../fetch/api-client.js"
 import TriggersTable from "./TriggersTable.vue"
 import { inject } from "vue"
+import { storeToRefs } from "pinia"
+import ButtonSubmit from "../../ButtonSubmit.vue"
 
 export default {
     setup() {
-        const { splitCircRulesByTriggerNumber } = inject("circRulesStore")
+        const circRulesStore = inject("circRulesStore")
+        const { splitCircRulesByTriggerNumber } = circRulesStore
+        const { letters } = storeToRefs(circRulesStore)
 
         return {
             splitCircRulesByTriggerNumber,
+            letters,
         }
     },
     data() {
@@ -119,9 +204,14 @@ export default {
                 delay: null,
                 notice: null,
                 mtt: null,
-                restrict: null,
+                restrict: "0",
             },
             triggerNumber: 1,
+            mtts: [
+                { code: "email", name: "Email" },
+                { code: "sms", name: "SMS" },
+                { code: "print", name: "Print" },
+            ],
         }
     },
     beforeRouteEnter(to, from, next) {
@@ -144,7 +234,46 @@ export default {
     methods: {
         async addCircRule(e) {
             e.preventDefault()
-            console.log(this.circRuleTrigger)
+
+            const context = {
+                library_id: this.circRuleTrigger.library_id || "*",
+                item_type_id: this.circRuleTrigger.item_type_id || "*",
+                patron_category_id:
+                    this.circRuleTrigger.patron_category_id || "*",
+            }
+
+            const circRule = {
+                context,
+            }
+            circRule[`overdue_${this.triggerNumber}_delay`] =
+                this.circRuleTrigger.delay
+            circRule[`overdue_${this.triggerNumber}_notice`] =
+                this.circRuleTrigger.notice
+            circRule[`overdue_${this.triggerNumber}_restrict`] =
+                this.circRuleTrigger.restrict
+            circRule[`overdue_${this.triggerNumber}_mtt`] =
+                this.circRuleTrigger.mtt.join(",")
+
+            const client = APIClient.circRule
+            await client.circRules.update(circRule).then(
+                () => {
+                    this.$router.push({ name: "CirculationTriggersList" })
+                },
+                error => {}
+            )
+        },
+        clearForm(e) {
+            e.preventDefault()
+
+            this.circRuleTrigger = {
+                item_type_id: "*",
+                library_id: "*",
+                patron_category_id: "*",
+                delay: null,
+                notice: null,
+                mtt: null,
+                restrict: null,
+            }
         },
         async getLibraries() {
             const client = APIClient.library
@@ -217,7 +346,7 @@ export default {
             )
         },
     },
-    components: { TriggersTable },
+    components: { TriggersTable, ButtonSubmit },
 }
 </script>
 
