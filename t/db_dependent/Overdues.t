@@ -83,53 +83,59 @@ $mtts = C4::Overdues::GetOverdueMessageTransportTypes('', 'PT', 3);
 is_deeply( $mtts, ['print', 'sms', 'email'], 'GetOverdueMessageTransportTypes: third overdue is by print, sms and email for PT (default). With print in first.' );
 
 # Test GetBranchcodesWithOverdueRules
-$dbh->do(q|DELETE FROM overduerules|);
+$dbh->do(q|DELETE FROM circulation_rules WHERE rule_name LIKE 'overdue_%' |);
 
 my @overdue_branches;
 warnings_are { @overdue_branches = C4::Overdues::GetBranchcodesWithOverdueRules(); } [],
     "No warnings thrown when no overdue rules exist";
 
-$dbh->do(q|
-    INSERT INTO overduerules
-        ( branchcode,categorycode, delay1,letter1,debarred1, delay2,letter2,debarred2, delay3,letter3,debarred3 )
+$dbh->do(
+    q|
+    INSERT INTO circulation_rules
+        ( branchcode, categorycode, itemtype, rule_name, rule_value )
         VALUES
-        ( '', '', 1, 'LETTER_CODE1', 1, 5, 'LETTER_CODE2', 1, 10, 'LETTER_CODE3', 1 )
-|);
+        ( NULL, NULL, NULL, 'overdue_1_delay', 1 )
+|
+);
 
 my @branchcodes = map { $_->branchcode } Koha::Libraries->search->as_list;
 
 @overdue_branches = C4::Overdues::GetBranchcodesWithOverdueRules();
 is_deeply( [ sort @overdue_branches ], [ sort @branchcodes ], 'If a default rule exists, all branches should be returned' );
 
-$dbh->do(q|
-    INSERT INTO overduerules
-        ( branchcode,categorycode, delay1,letter1,debarred1, delay2,letter2,debarred2, delay3,letter3,debarred3 )
+$dbh->do(
+    q|
+    INSERT INTO circulation_rules
+        ( branchcode, categorycode, itemtype, rule_name, rule_value )
         VALUES
-        ( 'CPL', '', 1, 'LETTER_CODE1', 1, 5, 'LETTER_CODE2', 1, 10, 'LETTER_CODE3', 1 )
-|);
+        ( 'CPL', NULL, NULL, 'overdue_1_delay', 1 )
+|
+);
 
 @overdue_branches = C4::Overdues::GetBranchcodesWithOverdueRules();
 is_deeply( [ sort @overdue_branches ], [ sort @branchcodes ], 'If a default rule exists and a specific rule exists, all branches should be returned' );
 
-$dbh->do(q|DELETE FROM overduerules|);
+$dbh->do(q|DELETE FROM circulation_rules WHERE rule_name LIKE 'overdue_%' |);
 $dbh->do(q|
-    INSERT INTO overduerules
-        ( branchcode,categorycode, delay1,letter1,debarred1, delay2,letter2,debarred2, delay3,letter3,debarred3 )
+    INSERT INTO circulation_rules
+        ( branchcode, categorycode, itemtype, rule_name, rule_value )
         VALUES
-        ( 'CPL', '', 1, 'LETTER_CODE1', 1, 5, 'LETTER_CODE2', 1, 10, 'LETTER_CODE3', 1 )
+        ( 'CPL', NULL, NULL, 'overdue_1_delay', 1 )
 |);
 
 @overdue_branches = C4::Overdues::GetBranchcodesWithOverdueRules();
 is_deeply( \@overdue_branches, ['CPL'] , 'If only a specific rule exist, only 1 branch should be returned' );
 
-$dbh->do(q|DELETE FROM overduerules|);
-$dbh->do(q|
-    INSERT INTO overduerules
-        ( branchcode,categorycode, delay1,letter1,debarred1, delay2,letter2,debarred2, delay3,letter3,debarred3 )
+$dbh->do(q|DELETE FROM circulation_rules WHERE rule_name LIKE 'overdue_%' |);
+$dbh->do(
+    q|
+    INSERT INTO circulation_rules
+        ( branchcode, categorycode, itemtype, rule_name, rule_value )
         VALUES
-        ( 'CPL', '', 1, 'LETTER_CODE1_CPL', 1, 5, 'LETTER_CODE2_CPL', 1, 10, 'LETTER_CODE3_CPL', 1 ),
-        ( 'MPL', '', 1, 'LETTER_CODE1_MPL', 1, 5, 'LETTER_CODE2_MPL', 1, 10, 'LETTER_CODE3_MPL', 1 )
-|);
+        ( 'CPL', NULL, NULL, 'overdue_1_delay', 1 ),
+        ( 'MPL', NULL, NULL, 'overdue_1_delay', 1 )
+|
+);
 
 @overdue_branches = C4::Overdues::GetBranchcodesWithOverdueRules();
 is_deeply( \@overdue_branches, ['CPL', 'MPL'] , 'If only 2 specific rules exist, 2 branches should be returned' );
