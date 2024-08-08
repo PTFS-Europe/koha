@@ -539,7 +539,7 @@ END_SQL
                 );
                 $verbose and warn "branch '$branchcode', categorycode = $category, itemtype = $itemtype, pass $i\n";
 
-                if (!$overdue_rules->{"overdue_$i".'_delay'}) {
+                if ( !defined( $overdue_rules->{ "overdue_$i" . '_delay' } ) ) {
                     last PERIOD;
                 }
 
