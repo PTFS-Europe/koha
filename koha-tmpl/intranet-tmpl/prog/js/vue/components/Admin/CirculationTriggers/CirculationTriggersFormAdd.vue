@@ -31,6 +31,7 @@
                             :reduce="lib => lib.library_id"
                             :options="libraries"
                             @update:modelValue="handleContextChange($event)"
+                            :disabled="editMode"
                         >
                             <template #search="{ attributes, events }">
                                 <input
@@ -54,6 +55,7 @@
                             :reduce="cat => cat.patron_category_id"
                             :options="categories"
                             @update:modelValue="handleContextChange($event)"
+                            :disabled="editMode"
                         >
                             <template #search="{ attributes, events }">
                                 <input
@@ -79,6 +81,7 @@
                             :reduce="type => type.item_type_id"
                             :options="itemTypes"
                             @update:modelValue="handleContextChange($event)"
+                            :disabled="editMode"
                         >
                             <template #search="{ attributes, events }">
                                 <input
@@ -286,6 +289,7 @@ export default {
                 mtt: null,
                 restrict: null,
             }
+            this.editForm = false
         },
         async getLibraries() {
             const client = APIClient.library
@@ -333,8 +337,12 @@ export default {
             // We always pass library_id so we need to check for the existence of either item type or patron category
             const editMode = routeParams && Object.keys(routeParams).length > 1
             this.editMode = editMode
+            const library_id =
+                routeParams && routeParams.library_id
+                    ? routeParams.library_id
+                    : this.circRuleTrigger.library_id || "*"
             const params = {
-                library_id: routeParams.library_id || "*",
+                library_id,
                 item_type_id: this.circRuleTrigger.item_type_id || "*",
                 patron_category_id:
                     this.circRuleTrigger.patron_category_id || "*",
