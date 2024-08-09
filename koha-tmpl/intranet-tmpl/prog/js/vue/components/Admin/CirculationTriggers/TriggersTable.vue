@@ -8,6 +8,9 @@
                 <th v-if="!modal">
                     {{ $__("Item type") }}
                 </th>
+                <th v-if="modal">
+                    {{ $__("Notice") }}
+                </th>
                 <th>
                     {{ $__("Delay") }}
                 </th>
@@ -37,50 +40,136 @@
                     )"
                     v-bind:key="'rule' + i"
                 >
-                    <td v-if="!modal">
+                    <td
+                        v-if="!modal"
+                        :class="
+                            modal && i + 1 === parseInt(ruleBeingEdited)
+                                ? 'selected_rule'
+                                : ''
+                        "
+                    >
                         {{ handleContext(rule.context.patron_category_id) }}
                     </td>
-                    <td v-if="!modal">
+                    <td
+                        v-if="!modal"
+                        :class="
+                            modal && i + 1 === parseInt(ruleBeingEdited)
+                                ? 'selected_rule'
+                                : ''
+                        "
+                    >
                         {{ handleContext(rule.context.item_type_id) }}
                     </td>
-                    <td>
+                    <td
+                        v-if="modal"
+                        :class="
+                            modal && i + 1 === parseInt(ruleBeingEdited)
+                                ? 'selected_rule'
+                                : ''
+                        "
+                    >
+                        {{ i + 1 }}
+                    </td>
+                    <td
+                        :class="
+                            modal && i + 1 === parseInt(ruleBeingEdited)
+                                ? 'selected_rule'
+                                : ''
+                        "
+                    >
                         {{
-                            rule["overdue_" + triggerNumber + "_delay"] +
+                            rule[
+                                "overdue_" +
+                                    (modal ? i + 1 : triggerNumber) +
+                                    "_delay"
+                            ] +
                             " " +
                             $__("days")
                         }}
                     </td>
-                    <td>
-                        {{ rule["overdue_" + triggerNumber + "_notice"] }}
+                    <td
+                        :class="
+                            modal && i + 1 === parseInt(ruleBeingEdited)
+                                ? 'selected_rule'
+                                : ''
+                        "
+                    >
+                        {{
+                            rule[
+                                "overdue_" +
+                                    (modal ? i + 1 : triggerNumber) +
+                                    "_notice"
+                            ]
+                        }}
                     </td>
-                    <td>
+                    <td
+                        :class="
+                            modal && i + 1 === parseInt(ruleBeingEdited)
+                                ? 'selected_rule'
+                                : ''
+                        "
+                    >
                         {{
                             handleTransport(
-                                rule["overdue_" + triggerNumber + "_mtt"],
+                                rule[
+                                    "overdue_" +
+                                        (modal ? i + 1 : triggerNumber) +
+                                        "_mtt"
+                                ],
                                 "email"
                             )
                         }}
                     </td>
-                    <td>
+                    <td
+                        :class="
+                            modal && i + 1 === parseInt(ruleBeingEdited)
+                                ? 'selected_rule'
+                                : ''
+                        "
+                    >
                         {{
                             handleTransport(
-                                rule["overdue_" + triggerNumber + "_mtt"],
+                                rule[
+                                    "overdue_" +
+                                        (modal ? i + 1 : triggerNumber) +
+                                        "_mtt"
+                                ],
                                 "print"
                             )
                         }}
                     </td>
-                    <td>
+                    <td
+                        :class="
+                            modal && i + 1 === parseInt(ruleBeingEdited)
+                                ? 'selected_rule'
+                                : ''
+                        "
+                    >
                         {{
                             handleTransport(
-                                rule["overdue_" + triggerNumber + "_mtt"],
+                                rule[
+                                    "overdue_" +
+                                        (modal ? i + 1 : triggerNumber) +
+                                        "_mtt"
+                                ],
                                 "sms"
                             )
                         }}
                     </td>
-                    <td>
+                    <td
+                        :class="
+                            modal && i + 1 === parseInt(ruleBeingEdited)
+                                ? 'selected_rule'
+                                : ''
+                        "
+                    >
                         {{
                             handleRestrictions(
-                                rule["overdue_" + triggerNumber + "_restrict"]
+                                rule[
+                                    "overdue_" +
+                                        (modal ? i + 1 : triggerNumber) +
+                                        "_restrict"
+                                ]
                             )
                         }}
                     </td>
@@ -93,6 +182,7 @@
                                     item_type_id: rule.context.item_type_id,
                                     patron_category_id:
                                         rule.context.patron_category_id,
+                                    triggerNumber: i + 1,
                                 },
                             }"
                             >Edit</router-link
@@ -106,7 +196,7 @@
 
 <script>
 export default {
-    props: ["circRules", "triggerNumber", "modal"],
+    props: ["circRules", "triggerNumber", "modal", "ruleBeingEdited"],
     methods: {
         handleContext(value) {
             if (value === "*") {
@@ -121,10 +211,15 @@ export default {
             return value === "1" ? this.$__("Yes") : this.$__("No")
         },
         filterCircRulesByTabNumber(number) {
+            if (this.modal) return this.circRules
             return this.circRules.filter(rule => rule.triggerNumber === number)
         },
     },
 }
 </script>
 
-<style></style>
+<style scoped>
+.selected_rule {
+    background-color: yellow !important;
+}
+</style>

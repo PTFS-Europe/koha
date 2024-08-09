@@ -8,15 +8,14 @@
         <div class="page-section" v-if="circRules.length">
             <h2>{{ $__("Trigger context") }}</h2>
             <TriggerContext :ruleInfo="ruleInfo" />
-            <template v-if="!editMode">
-                <h2>{{ $__("Existing rules") }}</h2>
-                <p>{{ $__("Notice") }} {{ " " + triggerNumber - 1 }}</p>
-                <TriggersTable
-                    :circRules="circRules"
-                    :triggerNumber="triggerNumber - 1"
-                    :modal="true"
-                />
-            </template>
+            <h2>{{ $__("Existing rules") }}</h2>
+            <p>{{ $__("Notice") }} {{ " " + newTriggerNumber - 1 }}</p>
+            <TriggersTable
+                :circRules="circRules"
+                :triggerNumber="newTriggerNumber - 1"
+                :modal="true"
+                :ruleBeingEdited="ruleBeingEdited"
+            />
         </div>
         <form @submit="addCircRule($event)">
             <fieldset class="rows">
@@ -32,7 +31,7 @@
                             :reduce="lib => lib.library_id"
                             :options="libraries"
                             @update:modelValue="handleContextChange($event)"
-                            :disabled="editMode"
+                            :disabled="editMode ? true : false"
                         >
                             <template #search="{ attributes, events }">
                                 <input
@@ -56,7 +55,7 @@
                             :reduce="cat => cat.patron_category_id"
                             :options="categories"
                             @update:modelValue="handleContextChange($event)"
-                            :disabled="editMode"
+                            :disabled="editMode ? true : false"
                         >
                             <template #search="{ attributes, events }">
                                 <input
@@ -82,7 +81,7 @@
                             :reduce="type => type.item_type_id"
                             :options="itemTypes"
                             @update:modelValue="handleContextChange($event)"
-                            :disabled="editMode"
+                            :disabled="editMode ? true : false"
                         >
                             <template #search="{ attributes, events }">
                                 <input
@@ -215,7 +214,7 @@ export default {
                 mtt: null,
                 restrict: "0",
             },
-            triggerNumber: 1,
+            newTriggerNumber: 1,
             mtts: [
                 { code: "email", name: "Email" },
                 { code: "sms", name: "SMS" },
@@ -259,13 +258,13 @@ export default {
             const circRule = {
                 context,
             }
-            circRule[`overdue_${this.triggerNumber}_delay`] =
+            circRule[`overdue_${this.newTriggerNumber}_delay`] =
                 this.circRuleTrigger.delay
-            circRule[`overdue_${this.triggerNumber}_notice`] =
+            circRule[`overdue_${this.newTriggerNumber}_notice`] =
                 this.circRuleTrigger.notice
-            circRule[`overdue_${this.triggerNumber}_restrict`] =
+            circRule[`overdue_${this.newTriggerNumber}_restrict`] =
                 this.circRuleTrigger.restrict
-            circRule[`overdue_${this.triggerNumber}_mtt`] =
+            circRule[`overdue_${this.newTriggerNumber}_mtt`] =
                 this.circRuleTrigger.mtt.join(",")
 
             const client = APIClient.circRule
@@ -336,8 +335,9 @@ export default {
         },
         async checkForExistingRules(routeParams) {
             // We always pass library_id so we need to check for the existence of either item type or patron category
-            const editMode = routeParams && Object.keys(routeParams).length > 1
+            const editMode = routeParams && routeParams.triggerNumber
             this.editMode = editMode
+            this.ruleBeingEdited = routeParams.triggerNumber
             const library_id =
                 routeParams && routeParams.library_id
                     ? routeParams.library_id
@@ -353,14 +353,14 @@ export default {
             await client.circRules.getAll({}, params).then(
                 rules => {
                     if (rules.length === 0) {
-                        this.triggerNumber = 1
+                        this.newTriggerNumber = 1
                     } else {
                         const regex = /overdue_(\d+)_delay/g
                         // TODO: Can there definitely only be one rule per context?
                         const numberOfTriggers = Object.keys(rules[0]).filter(
                             key => regex.test(key) && rules[0][key]
                         ).length
-                        this.triggerNumber = numberOfTriggers + 1
+                        this.newTriggerNumber = numberOfTriggers + 1
                         const { rulesPerTrigger } =
                             this.splitCircRulesByTriggerNumber(rules)
                         this.circRules = rulesPerTrigger
@@ -371,29 +371,51 @@ export default {
                             chargeperiod: rules[0].chargeperiod,
                             lengthunit: rules[0].lengthunit,
                         }
+                        const triggerToDisplay = editMode
+                            ? routeParams.triggerNumber
+                            : numberOfTriggers
                         this.circRuleTrigger = {
-                            item_type_id: rules[0].item_type_id || "*",
-                            library_id: rules[0].library_id || "*",
+                            item_type_id:
+                                rulesPerTrigger[triggerToDisplay - 1]
+                                    .item_type_id || "*",
+                            library_id:
+                                rulesPerTrigger[triggerToDisplay - 1]
+                                    .library_id || "*",
                             patron_category_id:
-                                rules[0].patron_category_id || "*",
-                            delay: rules[0][
-                                `overdue_${numberOfTriggers}_delay`
+                                rulesPerTrigger[triggerToDisplay - 1]
+                                    .patron_category_id || "*",
+                            delay: rulesPerTrigger[triggerToDisplay - 1][
+                                `overdue_${triggerToDisplay}_delay`
                             ],
-                            notice: rules[0][
-                                `overdue_${numberOfTriggers}_notice`
+                            notice: rulesPerTrigger[triggerToDisplay - 1][
+                                `overdue_${triggerToDisplay}_notice`
                             ],
-                            mtt: rules[0][
-                                `overdue_${numberOfTriggers}_mtt`
+                            mtt: rulesPerTrigger[triggerToDisplay - 1][
+                                `overdue_${triggerToDisplay}_mtt`
                             ].split(","),
                             restrict:
-                                rules[0][
-                                    `overdue_${numberOfTriggers}_restrict`
+                                rulesPerTrigger[triggerToDisplay - 1][
+                                    `overdue_${triggerToDisplay}_restrict`
                                 ],
                         }
                     }
                 },
                 error => {}
             )
+        },
+    },
+    watch: {
+        $route: {
+            immediate: true,
+            handler: function (newVal, oldVal) {
+                if (
+                    oldVal &&
+                    oldVal.query.triggerNumber &&
+                    newVal.query.triggerNumber !== oldVal.query.triggerNumber
+                ) {
+                    this.$router.go(0)
+                }
+            },
         },
     },
     components: { TriggersTable, ButtonSubmit, TriggerContext },
