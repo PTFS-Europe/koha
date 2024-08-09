@@ -103,7 +103,7 @@
                     </li>
                     <li>
                         <label for="letter_code" class="required"
-                            >{{ $__("Letter template") }}:</label
+                            >{{ $__("Letter") }}:</label
                         >
                         <v-select
                             id="letter_code"
@@ -125,7 +125,7 @@
                     </li>
                     <li>
                         <label for="mtt" class="required"
-                            >{{ $__("Transport type") }}:</label
+                            >{{ $__("Transport type(s)") }}:</label
                         >
                         <v-select
                             id="mtt"
@@ -147,7 +147,7 @@
                         <span class="required">{{ $__("Required") }}</span>
                     </li>
                     <li>
-                        <label for="restricts" class="required"
+                        <label for="restricts"
                             >{{ $__("Restricts checkouts") }}:</label
                         >
                         <input
@@ -158,7 +158,6 @@
                             false-value="0"
                             v-model="circRuleTrigger.restrict"
                         />
-                        <span class="required">{{ $__("Required") }}</span>
                     </li>
                 </ol>
             </fieldset>
