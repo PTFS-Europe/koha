@@ -141,7 +141,7 @@ sub list_rules {
                     rules        => $kinds
                 }
             ) // {};
-            my $return;
+            my $return = {};
             for my $kind ( @{$kinds} ) {
                 $return->{$kind} = $effective_rules->{$kind};
             }
@@ -170,7 +170,6 @@ sub list_rules {
                     group_by => [ 'branchcode', 'categorycode', 'itemtype' ]
                 }
             )->unblessed;
-
         }
 
         # Map context into rules
@@ -303,6 +302,14 @@ sub _all_kinds {
         if ( exists $valid_kinds->{$kind_key} && !$seen{$kind} ) {
             push @all_valid_kinds, $kind;
             $seen{$kind} = 1;
+        }
+    }
+
+    # Add in any unset but valid rules
+    for my $valid_kind ( keys %{$valid_kinds} ) {
+        if ( $valid_kind !~ /_\d_/ && !$seen{$valid_kind} ) {
+            push @all_valid_kinds, $valid_kind;
+            $seen{$valid_kind} = 1;
         }
     }
     return \@all_valid_kinds;
