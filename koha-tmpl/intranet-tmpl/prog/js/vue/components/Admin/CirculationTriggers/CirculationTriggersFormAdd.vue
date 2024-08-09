@@ -2,7 +2,8 @@
     <router-link :to="{ name: 'CirculationTriggersList' }" class="close_modal">
         <i class="fa fa-fw fa-close"></i>
     </router-link>
-    <h1>{{ $__("Add circulation trigger") }}</h1>
+    <h1 v-if="!editMode">{{ $__("Add circulation trigger") }}</h1>
+    <h1 v-else>{{ $__("Edit circulation trigger") }}</h1>
     <div v-if="initialized">
         <div class="page-section" v-if="circRules.length">
             <h2>{{ $__("Trigger context") }}</h2>
@@ -370,26 +371,24 @@ export default {
                             chargeperiod: rules[0].chargeperiod,
                             lengthunit: rules[0].lengthunit,
                         }
-                        if (editMode) {
-                            this.circRuleTrigger = {
-                                item_type_id: rules[0].item_type_id || "*",
-                                library_id: rules[0].library_id || "*",
-                                patron_category_id:
-                                    rules[0].patron_category_id || "*",
-                                delay: rules[0][
-                                    `overdue_${numberOfTriggers}_delay`
+                        this.circRuleTrigger = {
+                            item_type_id: rules[0].item_type_id || "*",
+                            library_id: rules[0].library_id || "*",
+                            patron_category_id:
+                                rules[0].patron_category_id || "*",
+                            delay: rules[0][
+                                `overdue_${numberOfTriggers}_delay`
+                            ],
+                            notice: rules[0][
+                                `overdue_${numberOfTriggers}_notice`
+                            ],
+                            mtt: rules[0][
+                                `overdue_${numberOfTriggers}_mtt`
+                            ].split(","),
+                            restrict:
+                                rules[0][
+                                    `overdue_${numberOfTriggers}_restrict`
                                 ],
-                                notice: rules[0][
-                                    `overdue_${numberOfTriggers}_notice`
-                                ],
-                                mtt: rules[0][
-                                    `overdue_${numberOfTriggers}_mtt`
-                                ].split(","),
-                                restrict:
-                                    rules[0][
-                                        `overdue_${numberOfTriggers}_restrict`
-                                    ],
-                            }
                         }
                     }
                 },

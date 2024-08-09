@@ -29,6 +29,10 @@ import { inject } from "vue"
 export default {
     setup() {
         const circRulesStore = inject("circRulesStore")
+        letters.unshift({
+            name: "No letter",
+            code: "",
+        })
         circRulesStore.letters = letters
 
         return {
