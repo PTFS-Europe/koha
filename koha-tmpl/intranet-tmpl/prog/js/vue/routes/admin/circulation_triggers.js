@@ -30,6 +30,15 @@ export default {
                                 showModal: true,
                             },
                         },
+                        {
+                            path: "edit",
+                            name: "CirculationTriggersFormEdit",
+                            component: markRaw(CirculationTriggersFormAdd),
+                            title: $__("Edit trigger"),
+                            meta: {
+                                showModal: true,
+                            },
+                        },
                     ],
                 },
             ],

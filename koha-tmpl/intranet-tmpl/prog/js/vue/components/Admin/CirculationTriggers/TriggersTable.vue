@@ -20,6 +20,9 @@
                 <th>
                     {{ $__("Restricts checkouts") }}
                 </th>
+                <th>
+                    {{ $__("Actions") }}
+                </th>
             </thead>
             <tbody>
                 <tr
@@ -68,6 +71,20 @@
                                 rule["overdue_" + triggerNumber + "_restrict"]
                             )
                         }}
+                    </td>
+                    <td>
+                        <router-link
+                            :to="{
+                                name: 'CirculationTriggersFormEdit',
+                                query: {
+                                    library_id: rule.context.library_id,
+                                    item_type_id: rule.context.item_type_id,
+                                    patron_category_id:
+                                        rule.context.patron_category_id,
+                                },
+                            }"
+                            >Edit</router-link
+                        >
                     </td>
                 </tr>
             </tbody>

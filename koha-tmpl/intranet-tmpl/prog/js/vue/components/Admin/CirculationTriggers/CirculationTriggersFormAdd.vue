@@ -227,17 +227,14 @@ export default {
     beforeRouteEnter(to, from, next) {
         next(vm => {
             vm.getLibraries().then(() =>
-                vm
-                    .getCategories()
-                    .then(() =>
-                        vm
-                            .getItemTypes()
-                            .then(() =>
-                                vm
-                                    .checkForExistingRules()
-                                    .then(() => (vm.initialized = true))
-                            )
-                    )
+                vm.getCategories().then(() =>
+                    vm.getItemTypes().then(() => {
+                        const { query } = to
+                        vm.checkForExistingRules(query).then(
+                            () => (vm.initialized = true)
+                        )
+                    })
+                )
             )
         })
     },
@@ -329,14 +326,18 @@ export default {
         async handleContextChange() {
             await this.checkForExistingRules()
         },
-        async checkForExistingRules() {
-            const params = {
-                library_id: this.circRuleTrigger.library_id || "*",
-                item_type_id: this.circRuleTrigger.item_type_id || "*",
-                patron_category_id:
-                    this.circRuleTrigger.patron_category_id || "*",
-                effective: true,
-            }
+        async checkForExistingRules(routeParams) {
+            const params =
+                Object.keys(routeParams).length > 0
+                    ? routeParams
+                    : {
+                          library_id: this.circRuleTrigger.library_id || "*",
+                          item_type_id:
+                              this.circRuleTrigger.item_type_id || "*",
+                          patron_category_id:
+                              this.circRuleTrigger.patron_category_id || "*",
+                      }
+            params.effective = true
             const client = APIClient.circRule
             await client.circRules.getAll({}, params).then(
                 rules => {
