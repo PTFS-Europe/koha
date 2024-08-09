@@ -171,15 +171,19 @@ our $RULE_KINDS = {
     },
     overdue_X_delay => {
         scope => [ 'branchcode', 'categorycode', 'itemtype' ],
+        can_be_blank => 0,
     },
     overdue_X_mtt => {
         scope => [ 'branchcode', 'categorycode', 'itemtype' ],
+        can_be_blank => 1,
     },
     overdue_X_notice => {
         scope => [ 'branchcode', 'categorycode', 'itemtype' ],
+        can_be_blank => 1,
     },
     overdue_X_restrict => {
         scope => [ 'branchcode', 'categorycode', 'itemtype' ],
+        can_be_blank => 0,
     },
     renewalperiod => {
         scope => [ 'branchcode', 'categorycode', 'itemtype' ],
