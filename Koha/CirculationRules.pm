@@ -416,6 +416,7 @@ sub set_rule {
             $rule->update();
         }
         else {
+            $rule->rule_value(undef);
             $rule->delete();
         }
     }
@@ -438,6 +439,10 @@ sub set_rule {
     for my $k ( $memory_cache->all_keys ) {
         $memory_cache->clear_from_cache($k) if $k =~ m{^CircRules:};
     }
+
+    $rule = Koha::CirculationRule->new(
+        { rule_name => $rule_name, branchcode => $branchcode, categorycode => $categorycode, itemtype => $itemtype } )
+        unless $rule;
 
     return $rule;
 }
