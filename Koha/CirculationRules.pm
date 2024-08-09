@@ -183,7 +183,7 @@ our $RULE_KINDS = {
     },
     overdue_X_restrict => {
         scope => [ 'branchcode', 'categorycode', 'itemtype' ],
-        can_be_blank => 0,
+        can_be_blank => 1,
     },
     renewalperiod => {
         scope => [ 'branchcode', 'categorycode', 'itemtype' ],
@@ -427,6 +427,7 @@ sub set_rule {
             $rule->update();
         }
         else {
+            $rule->rule_value(undef);
             $rule->delete();
         }
     }
