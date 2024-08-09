@@ -7,13 +7,15 @@
         <div class="page-section" v-if="circRules.length">
             <h2>{{ $__("Trigger context") }}</h2>
             <TriggerContext :ruleInfo="ruleInfo" />
-            <h2>{{ $__("Existing rules") }}</h2>
-            <p>{{ $__("Notice") }} {{ " " + triggerNumber - 1 }}</p>
-            <TriggersTable
-                :circRules="circRules"
-                :triggerNumber="triggerNumber - 1"
-                :modal="true"
-            />
+            <template v-if="!editMode">
+                <h2>{{ $__("Existing rules") }}</h2>
+                <p>{{ $__("Notice") }} {{ " " + triggerNumber - 1 }}</p>
+                <TriggersTable
+                    :circRules="circRules"
+                    :triggerNumber="triggerNumber - 1"
+                    :modal="true"
+                />
+            </template>
         </div>
         <form @submit="addCircRule($event)">
             <fieldset class="rows">
@@ -222,6 +224,7 @@ export default {
                 chargeperiod: null,
                 lengthunit: null,
             },
+            editMode: false,
         }
     },
     beforeRouteEnter(to, from, next) {
@@ -327,16 +330,15 @@ export default {
             await this.checkForExistingRules()
         },
         async checkForExistingRules(routeParams) {
-            const params =
-                Object.keys(routeParams).length > 0
-                    ? routeParams
-                    : {
-                          library_id: this.circRuleTrigger.library_id || "*",
-                          item_type_id:
-                              this.circRuleTrigger.item_type_id || "*",
-                          patron_category_id:
-                              this.circRuleTrigger.patron_category_id || "*",
-                      }
+            // We always pass library_id so we need to check for the existence of either item type or patron category
+            const editMode = routeParams && Object.keys(routeParams).length > 1
+            this.editMode = editMode
+            const params = {
+                library_id: routeParams.library_id || "*",
+                item_type_id: this.circRuleTrigger.item_type_id || "*",
+                patron_category_id:
+                    this.circRuleTrigger.patron_category_id || "*",
+            }
             params.effective = true
             const client = APIClient.circRule
             await client.circRules.getAll({}, params).then(
@@ -359,6 +361,27 @@ export default {
                             fine: rules[0].fine,
                             chargeperiod: rules[0].chargeperiod,
                             lengthunit: rules[0].lengthunit,
+                        }
+                        if (editMode) {
+                            this.circRuleTrigger = {
+                                item_type_id: rules[0].item_type_id || "*",
+                                library_id: rules[0].library_id || "*",
+                                patron_category_id:
+                                    rules[0].patron_category_id || "*",
+                                delay: rules[0][
+                                    `overdue_${numberOfTriggers}_delay`
+                                ],
+                                notice: rules[0][
+                                    `overdue_${numberOfTriggers}_notice`
+                                ],
+                                mtt: rules[0][
+                                    `overdue_${numberOfTriggers}_mtt`
+                                ].split(","),
+                                restrict:
+                                    rules[0][
+                                        `overdue_${numberOfTriggers}_restrict`
+                                    ],
+                            }
                         }
                     }
                 },

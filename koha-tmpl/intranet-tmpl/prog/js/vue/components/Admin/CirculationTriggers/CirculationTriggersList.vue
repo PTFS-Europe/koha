@@ -1,7 +1,10 @@
 <template>
     <Toolbar>
         <ToolbarButton
-            :to="{ name: 'CirculationTriggersFormAdd' }"
+            :to="{
+                name: 'CirculationTriggersFormAdd',
+                query: { library_id: selectedLibrary },
+            }"
             icon="plus"
             :title="$__('Add new trigger')"
         />
