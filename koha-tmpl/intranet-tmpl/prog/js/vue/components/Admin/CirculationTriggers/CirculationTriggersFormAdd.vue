@@ -5,7 +5,9 @@
     <h1>{{ $__("Add circulation trigger") }}</h1>
     <div v-if="initialized">
         <div class="page-section" v-if="circRules.length">
-            <h2>{{ $__("Existing rules for this context") }}</h2>
+            <h2>{{ $__("Trigger context") }}</h2>
+            <TriggerContext :ruleInfo="ruleInfo" />
+            <h2>{{ $__("Existing rules") }}</h2>
             <p>{{ $__("Notice") }} {{ " " + triggerNumber - 1 }}</p>
             <TriggersTable
                 :circRules="circRules"
@@ -178,6 +180,7 @@ import TriggersTable from "./TriggersTable.vue"
 import { inject } from "vue"
 import { storeToRefs } from "pinia"
 import ButtonSubmit from "../../ButtonSubmit.vue"
+import TriggerContext from "./TriggerContext.vue"
 
 export default {
     setup() {
@@ -196,7 +199,7 @@ export default {
             libraries: null,
             categories: null,
             itemTypes: null,
-            circRules: null,
+            circRules: [],
             circRuleTrigger: {
                 item_type_id: "*",
                 library_id: "*",
@@ -212,6 +215,13 @@ export default {
                 { code: "sms", name: "SMS" },
                 { code: "print", name: "Print" },
             ],
+            ruleInfo: {
+                issuelength: null,
+                decreaseloanholds: null,
+                fine: null,
+                chargeperiod: null,
+                lengthunit: null,
+            },
         }
     },
     beforeRouteEnter(to, from, next) {
@@ -257,7 +267,9 @@ export default {
             const client = APIClient.circRule
             await client.circRules.update(circRule).then(
                 () => {
-                    this.$router.push({ name: "CirculationTriggersList" })
+                    this.$router
+                        .push({ name: "CirculationTriggersList" })
+                        .then(() => this.$router.go(0))
                 },
                 error => {}
             )
@@ -323,7 +335,7 @@ export default {
                 item_type_id: this.circRuleTrigger.item_type_id || "*",
                 patron_category_id:
                     this.circRuleTrigger.patron_category_id || "*",
-                effective: false,
+                effective: true,
             }
             const client = APIClient.circRule
             await client.circRules.getAll({}, params).then(
@@ -340,13 +352,20 @@ export default {
                         const { rulesPerTrigger } =
                             this.splitCircRulesByTriggerNumber(rules)
                         this.circRules = rulesPerTrigger
+                        this.ruleInfo = {
+                            issuelength: rules[0].issuelength,
+                            decreaseloanholds: rules[0].decreaseloanholds,
+                            fine: rules[0].fine,
+                            chargeperiod: rules[0].chargeperiod,
+                            lengthunit: rules[0].lengthunit,
+                        }
                     }
                 },
                 error => {}
             )
         },
     },
-    components: { TriggersTable, ButtonSubmit },
+    components: { TriggersTable, ButtonSubmit, TriggerContext },
 }
 </script>
 

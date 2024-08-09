@@ -98,7 +98,7 @@ export default {
     beforeRouteEnter(to, from, next) {
         next(vm => {
             vm.getLibraries().then(() =>
-                vm.getCircRules().then(() => (vm.initialized = true))
+                vm.getCircRules({}, true).then(() => (vm.initialized = true))
             )
         })
     },
@@ -116,8 +116,11 @@ export default {
                 error => {}
             )
         },
-        async getCircRules(params = {}) {
+        async getCircRules(params = {}, pageLoad) {
             params.effective = false
+            if (pageLoad) {
+                params.library_id = "*"
+            }
             const client = APIClient.circRule
             await client.circRules.getAll({}, params).then(
                 rules => {
@@ -179,6 +182,7 @@ export default {
     top: 50%;
     left: 50%;
     width: 80%;
+    height: 80%;
     max-width: 100%;
     min-height: 80%;
     margin: auto;
