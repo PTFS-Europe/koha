@@ -2,6 +2,12 @@
     <div class="page-section">
         <table>
             <thead>
+                <th v-if="!modal">
+                    {{ $__("Patron category") }}
+                </th>
+                <th v-if="!modal">
+                    {{ $__("Item type") }}
+                </th>
                 <th>
                     {{ $__("Delay") }}
                 </th>
@@ -31,6 +37,12 @@
                     )"
                     v-bind:key="'rule' + i"
                 >
+                    <td v-if="!modal">
+                        {{ handleContext(rule.context.patron_category_id) }}
+                    </td>
+                    <td v-if="!modal">
+                        {{ handleContext(rule.context.item_type_id) }}
+                    </td>
                     <td>
                         {{
                             rule["overdue_" + triggerNumber + "_delay"] +
@@ -94,8 +106,14 @@
 
 <script>
 export default {
-    props: ["circRules", "triggerNumber"],
+    props: ["circRules", "triggerNumber", "modal"],
     methods: {
+        handleContext(value) {
+            if (value === "*") {
+                return this.$__("All")
+            }
+            return value
+        },
         handleTransport(value, type) {
             return value.includes(type) ? this.$__("Yes") : this.$__("No")
         },

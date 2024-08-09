@@ -12,6 +12,7 @@
             <TriggersTable
                 :circRules="circRules"
                 :triggerNumber="triggerNumber - 1"
+                :modal="true"
             />
         </div>
         <form @submit="addCircRule($event)">
