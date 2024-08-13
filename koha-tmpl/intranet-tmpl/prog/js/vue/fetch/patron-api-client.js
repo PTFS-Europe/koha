@@ -15,6 +15,17 @@ export class PatronAPIClient extends HttpClient {
                 }),
         };
     }
+    get patronCategories() {
+        return {
+            getAll: (query, params, headers) =>
+                this.getAll({
+                    endpoint: "patron_categories",
+                    query,
+                    params,
+                    headers,
+                }),
+        };
+    }
 }
 
 export default PatronAPIClient;
