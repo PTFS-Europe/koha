@@ -9,6 +9,13 @@
     produces:
       - application/json
     parameters:
+      - $ref: "../swagger.yaml#/parameters/match"
+      - $ref: "../swagger.yaml#/parameters/order_by"
+      - $ref: "../swagger.yaml#/parameters/page"
+      - $ref: "../swagger.yaml#/parameters/per_page"
+      - $ref: "../swagger.yaml#/parameters/q_param"
+      - $ref: "../swagger.yaml#/parameters/q_body"
+      - $ref: "../swagger.yaml#/parameters/request_id_header"
       - name: effective
         in: query
         description: Boolean indicating whether to return effective rules or all rules. Defaults to true.
@@ -42,7 +49,10 @@
           items:
             $ref: "../swagger.yaml#/definitions/circulation_rules"
       "400":
-        description: Bad request
+        description: |
+          Bad request. Possible `error_code` attribute values:
+
+            * `invalid_query`
         schema:
           $ref: "../swagger.yaml#/definitions/error"
       "401":
