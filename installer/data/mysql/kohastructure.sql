@@ -1216,6 +1216,7 @@ CREATE TABLE `bookings` (
   `pickup_library_id` varchar(10) NOT NULL COMMENT 'Identifier for booking pickup library',
   `start_date` datetime DEFAULT NULL COMMENT 'the start date of the booking',
   `end_date` datetime DEFAULT NULL COMMENT 'the end date of the booking',
+  `status` enum('created', 'cancelled') NOT NULL DEFAULT 'created' COMMENT 'current status of the booking',
   PRIMARY KEY (`booking_id`),
   KEY `patron_id` (`patron_id`),
   KEY `biblio_id` (`biblio_id`),
