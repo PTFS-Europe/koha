@@ -1,0 +1,41 @@
+[% USE raw %]
+[% USE To %]
+[% USE Asset %]
+[% USE KohaDates %]
+[% USE TablesSettings %]
+[% USE AuthorisedValues %]
+[% SET footerjs = 1 %]
+[% PROCESS 'i18n.inc' %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title
+    >[% FILTER collapse %]
+        [% t("Circulation triggers") | html %]
+        &rsaquo; [% t("Administration") | html %] &rsaquo; [% t("Koha") | html %]
+    [% END %]</title
+>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+
+<body id="circulation_triggers" class="circulation_triggers">
+[% WRAPPER 'header.inc' %]
+    [% INCLUDE 'prefs-admin-search.inc' %]
+[% END %]
+
+<div id="__app">
+    <!-- this is closed in intranet-bottom.inc -->
+
+    [% MACRO jsinclude BLOCK %]
+        [% INCLUDE 'calendar.inc' %]
+        <!-- FIXME: this shouldn't be needed -->
+        [% INCLUDE 'datatables.inc' %]
+        [% INCLUDE 'columns_settings.inc' %]
+        [% INCLUDE 'js-patron-format.inc' %]
+        [% INCLUDE 'js-date-format.inc' %]
+        <script>
+            const letters = [% To.json(letters) | $raw %];
+        </script>
+        [% Asset.js("js/vue/dist/admin/circulation_triggers.js") | $raw %]
+    [% END %]
+
+    [% INCLUDE 'intranet-bottom.inc' %]</div
+>
