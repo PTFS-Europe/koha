@@ -306,7 +306,10 @@ export default {
             await client.circRules.update(circRule).then(
                 () => {
                     this.$router
-                        .push({ name: "CirculationTriggersList" })
+                        .push({
+                            name: "CirculationTriggersList",
+                            query: { trigger: this.newTriggerNumber },
+                        })
                         .then(() => this.$router.go(0))
                 },
                 error => {}
