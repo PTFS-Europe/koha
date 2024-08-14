@@ -34,7 +34,7 @@ t::lib::Mocks::mock_preference( 'RESTBasicAuth', 1 );
 
 subtest 'list_rules() tests' => sub {
 
-    my $expected_rules = [ keys %{ Koha::CirculationRules->rule_kinds } ];
+    my $expected_rules = [ grep { $_ !~ /_X_/ } keys %{ Koha::CirculationRules->rule_kinds } ];
 
     plan tests => ( scalar( @{$expected_rules} ) * 2 ) + 39;
 
