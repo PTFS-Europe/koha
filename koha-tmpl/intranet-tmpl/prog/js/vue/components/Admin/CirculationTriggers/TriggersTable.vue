@@ -256,7 +256,11 @@ export default {
         },
         handleNotice(notice) {
             const letter = this.letters.find(letter => letter.code === notice)
-            return letter ? letter.name : notice
+            return letter
+                ? letter.name
+                    ? letter.name
+                    : notice
+                : this.$__("Default")
         },
     },
 }
