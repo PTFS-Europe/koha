@@ -19,6 +19,7 @@
                         :triggerNumber="newTriggerNumber - 1"
                         :modal="true"
                         :ruleBeingEdited="ruleBeingEdited"
+                        :letters="letters"
                     />
                 </div>
                 <fieldset class="rows">
