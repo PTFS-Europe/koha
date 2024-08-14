@@ -9,7 +9,7 @@
                     {{ $__("Item type") }}
                 </th>
                 <th v-if="modal">
-                    {{ $__("Notice") }}
+                    {{ $__("Rule") }}
                 </th>
                 <th>
                     {{ $__("Delay") }}
@@ -114,11 +114,13 @@
                         "
                     >
                         {{
-                            rule[
-                                "overdue_" +
-                                    (modal ? i + 1 : triggerNumber) +
-                                    "_notice"
-                            ]
+                            handleNotice(
+                                rule[
+                                    "overdue_" +
+                                        (modal ? i + 1 : triggerNumber) +
+                                        "_notice"
+                                ]
+                            )
                         }}
                     </td>
                     <td
@@ -224,6 +226,7 @@ export default {
         "ruleBeingEdited",
         "categories",
         "itemTypes",
+        "letters",
     ],
     methods: {
         handleContext(value, data, type, displayProperty = "name") {
@@ -250,6 +253,10 @@ export default {
                         rule[`overdue_${number}_mtt`] ||
                         rule[`overdue_${number}_restrict`])
             )
+        },
+        handleNotice(notice) {
+            const letter = this.letters.find(letter => letter.code === notice)
+            return letter ? letter.name : notice
         },
     },
 }

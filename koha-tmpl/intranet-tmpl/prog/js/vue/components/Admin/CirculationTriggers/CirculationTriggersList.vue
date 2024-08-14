@@ -92,6 +92,7 @@
                         :triggerNumber="number"
                         :categories="categories"
                         :itemTypes="itemTypes"
+                        :letters="letters"
                     />
                 </div>
             </template>
@@ -113,13 +114,17 @@ import ToolbarButton from "../../ToolbarButton.vue"
 import { APIClient } from "../../../fetch/api-client.js"
 import TriggersTable from "./TriggersTable.vue"
 import { inject } from "vue"
+import { storeToRefs } from "pinia"
 
 export default {
     setup() {
-        const { splitCircRulesByTriggerNumber } = inject("circRulesStore")
+        const circRulesStore = inject("circRulesStore")
+        const { splitCircRulesByTriggerNumber } = circRulesStore
+        const { letters } = storeToRefs(circRulesStore)
 
         return {
             splitCircRulesByTriggerNumber,
+            letters,
         }
     },
     data() {
