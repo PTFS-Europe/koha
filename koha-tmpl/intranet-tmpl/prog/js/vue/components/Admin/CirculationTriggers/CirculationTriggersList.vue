@@ -141,17 +141,16 @@ export default {
     beforeRouteEnter(to, from, next) {
         next(vm => {
             vm.getLibraries().then(() =>
-                vm
-                    .getCategories()
-                    .then(() =>
-                        vm
-                            .getItemTypes()
-                            .then(() =>
-                                vm
-                                    .getCircRules({}, true)
-                                    .then(() => (vm.initialized = true))
-                            )
+                vm.getCategories().then(() =>
+                    vm.getItemTypes().then(() =>
+                        vm.getCircRules({}, true).then(() => {
+                            vm.tabSelected = to.query.trigger
+                                ? `Notice ${to.query.trigger}`
+                                : "Notice 1"
+                            vm.initialized = true
+                        })
                     )
+                )
             )
         })
     },
