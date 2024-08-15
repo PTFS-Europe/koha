@@ -7,6 +7,9 @@ return {
         my ($args) = @_;
         my ( $dbh, $out ) = @$args{qw(dbh out)};
 
+        my $do_it = 0;
+        if ($do_it) { 
+
         # Populate empty overduerules table for missing categories
         $dbh->do(
             q|
@@ -254,6 +257,9 @@ return {
                 );
 
             }
+        }
+        } else {
+            say "Nothing to do this time";
         }
     }
 };
