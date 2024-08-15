@@ -256,5 +256,8 @@ return {
 
             }
         }
+
+        $dbh->do(q|DROP TABLE overduerules|);
+        $dbh->do(q|DROP TABLE overduerules_transport_types|);
     }
 };
