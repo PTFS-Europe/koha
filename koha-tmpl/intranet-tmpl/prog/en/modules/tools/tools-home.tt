@@ -65,7 +65,7 @@
                         [% END %]
 
                         [% IF ( CAN_user_tools_edit_notice_status_triggers ) %]
-                            <dt><a href="/cgi-bin/koha/tools/overduerules.pl">Overdue notice/status triggers</a></dt>
+                            <dt><a href="/cgi-bin/koha/admin/circulation_triggers">Overdue notice/status triggers</a></dt>
                             <dd>Set notice/status triggers for overdue items</dd>
                         [% END %]
 
