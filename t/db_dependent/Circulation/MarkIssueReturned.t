@@ -190,21 +190,26 @@ subtest 'AutoRemoveOverduesRestrictions' => sub {
     my $categorycode = $patron->categorycode;
     my $branchcode   = $patron->branchcode;
 
-    $dbh->do(
-        qq{
-        INSERT INTO `overduerules` (
-            `categorycode`,
-            `delay1`,
-            `letter1`,
-            `debarred1`,
-            `delay2`,
-            `letter2`,
-            `debarred2`
-        )
-        VALUES ('$categorycode', 6, 'ODUE', 0, 10, 'ODUE2', 1)
-    }
+    Koha::CirculationRules->search->delete;
+    Koha::CirculationRules->set_rules(
+        {
+            categorycode => $categorycode,
+            itemtype     => undef,
+            branchcode   => undef,
+            rules        => {
+                overdue_1_delay    => 6,
+                overdue_1_notice   => 'ODUE',
+                overdue_1_mtt      => 'email',
+                overdue_1_restrict => 0,
+                overdue_2_delay    => 10,
+                overdue_2_notice   => 'ODUE2',
+                overdue_2_mtt      => 'email',
+                overdue_2_restrict => 1
+            }
+        }
     );
 
+    note("Testing when_no_overdue");
     t::lib::Mocks::mock_preference( 'AutoRemoveOverduesRestrictions', 'when_no_overdue' );
 
     t::lib::Mocks::mock_userenv( { branchcode => $branchcode } );
@@ -235,6 +240,7 @@ subtest 'AutoRemoveOverduesRestrictions' => sub {
     $restrictions = $patron->restrictions;
     is( $restrictions->count, 0, 'OVERDUES debarment is removed if patron does not have overdues' );
 
+    note("Testing when_no_overdue_causing_debarment");
     t::lib::Mocks::mock_preference( 'AutoRemoveOverduesRestrictions', 'when_no_overdue_causing_debarment' );
 
     my $ten_days_ago = dt_from_string->subtract( days => 10 );
@@ -282,20 +288,22 @@ subtest 'AutoRemoveOverduesRestrictions' => sub {
     $checkout_2 = AddIssue( $patron, $item_2->barcode, $eleven_days_ago );
 
     # $checkout_1 should now not trigger debarment with this new rule for specific branchcode
-    $dbh->do(
-        qq{
-        INSERT INTO `overduerules` (
-            `branchcode`,
-            `categorycode`,
-            `delay1`,
-            `letter1`,
-            `debarred1`,
-            `delay2`,
-            `letter2`,
-            `debarred2`
-        )
-        VALUES ('$branchcode', '$categorycode', 6, 'ODUE', 0, 11, 'ODUE2', 1)
-    }
+    Koha::CirculationRules->set_rules(
+        {
+            categorycode => $categorycode,
+            itemtype     => undef,
+            branchcode   => $branchcode,
+            rules        => {
+                overdue_1_delay    => 6,
+                overdue_1_notice   => 'ODUE',
+                overdue_1_mtt      => 'email',
+                overdue_1_restrict => 0,
+                overdue_2_delay    => 11,
+                overdue_2_notice   => 'ODUE2',
+                overdue_2_mtt      => 'email',
+                overdue_2_restrict => 1
+            }
+        }
     );
 
     C4::Circulation::MarkIssueReturned( $patron->borrowernumber, $item_2->itemnumber );
