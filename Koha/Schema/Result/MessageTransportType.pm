@@ -118,23 +118,6 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 overduerules_transport_types
-
-Type: has_many
-
-Related object: L<Koha::Schema::Result::OverduerulesTransportType>
-
-=cut
-
-__PACKAGE__->has_many(
-  "overduerules_transport_types",
-  "Koha::Schema::Result::OverduerulesTransportType",
-  {
-    "foreign.message_transport_type" => "self.message_transport_type",
-  },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
 =head2 borrower_message_preferences
 
 Type: many_to_many
@@ -150,8 +133,8 @@ __PACKAGE__->many_to_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07025 @ 2014-05-02 18:04:32
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:YpzL/dxDWq//5vqXfvHoVQ
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-08-15 11:53:13
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Bx96QiqHxZ9SNbgK8dSwMg
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration
