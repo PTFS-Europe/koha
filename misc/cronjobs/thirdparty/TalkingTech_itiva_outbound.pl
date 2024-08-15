@@ -262,37 +262,52 @@ sub GetOverdueIssues {
     my $query =
         "SELECT borrowers.borrowernumber, borrowers.cardnumber, borrowers.title as patron_title, borrowers.firstname, borrowers.surname,
                 borrowers.phone, borrowers.email, borrowers.branchcode, biblio.biblionumber, biblio.title, items.barcode, issues.date_due,
-                max(overduerules.branchcode) as rulebranch, TO_DAYS(NOW())-TO_DAYS(date_due) as daysoverdue, delay1, delay2, delay3,
+                TO_DAYS(NOW())-TO_DAYS(date_due) as daysoverdue, borrowers.categorycode as categorycode, items.itemtype as itemtype,
                 issues.branchcode as site, branches.branchname as site_name
                 FROM borrowers JOIN issues USING (borrowernumber)
                 JOIN items USING (itemnumber)
                 JOIN biblio USING (biblionumber)
                 JOIN branches ON (issues.branchcode = branches.branchcode)
-                JOIN overduerules USING (categorycode)
-                JOIN overduerules_transport_types USING ( overduerules_id )
-                WHERE ( overduerules.branchcode = borrowers.branchcode or overduerules.branchcode = '')
-                AND overduerules_transport_types.message_transport_type = 'itiva'
-                AND ( (TO_DAYS(NOW())-TO_DAYS(date_due) ) = delay1
-                  OR  (TO_DAYS(NOW())-TO_DAYS(date_due) ) = delay2
-                  OR  (TO_DAYS(NOW())-TO_DAYS(date_due) ) = delay3 )
+                WHERE ( overduerules.branchcode = borrowers.branchcode )
                 $patron_branchcode_filter
                 GROUP BY items.itemnumber
+                ORDER BY items.itemtype, borrowers.categorycode, branches.branchcode
                 ";
     my $sth = $dbh->prepare($query);
     $sth->execute();
+
+    my @trigger_numbers;
+    my $triggers = Koha::CirculationRules->search(
+        { rule_name => { 'like' => 'overdue_%_mtt' }, rule_value => { like => '%itiva%' } } );
+    for my $trigger ( $triggers->all ) {
+        my $trigger_number = $trigger->rule_name;
+        $trigger_number =~ s/(.*)(\d+)(.*)/$2/;
+        push @trigger_numbers, $trigger_number unless grep { $_ == $trigger_number } @trigger_numbers;
+    }
+    my @rules = map { ( "overdue_$_" . "_delay", "overdue_$_" . "_notice", "overdue_$_" . "_mtt" ) } @trigger_numbers;
+
     my @results;
     while ( my $issue = $sth->fetchrow_hashref() ) {
-        if ( $issue->{'daysoverdue'} == $issue->{'delay1'} ) {
-            $issue->{'level'} = 1;
-        } elsif ( $issue->{'daysoverdue'} == $issue->{'delay2'} ) {
-            $issue->{'level'} = 2;
-        } elsif ( $issue->{'daysoverdue'} == $issue->{'delay3'} ) {
-            $issue->{'level'} = 3;
-        } else {
+        my $effective_rules = Koha::CirculationRules->get_effective_rules(
+            {
+                categorycode => $issue->{'categorycode'},
+                branchcode   => $issue->{'branchcode'},
+                itemtype     => $issue->{'itemtype'},
+                rules        => \@rules
+            }
+        );
 
-            # this shouldn't ever happen, based our SQL criteria
+        my $i = 1;
+    PERIOD: while (1) {
+            last PERIOD if ( !defined( $effective_rules->{ "overdue_$i" . '_delay' } ) );
+            if (   $effective_rules->{ "overdue_$i" . '_mtt' } =~ /itiva/
+                && $issue->{'daysoverdue'} == $effective_rules->{ "overdue_$i" . '_delay' } )
+            {
+                $issue->{'level'} = $i;
+                push @results, $issue;
+            }
+            $i++;
         }
-        push @results, $issue;
     }
     return @results;
 }
