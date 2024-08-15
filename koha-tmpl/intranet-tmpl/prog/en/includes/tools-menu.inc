@@ -25,7 +25,7 @@
                 <li><a href="/cgi-bin/koha/tools/letter.pl">Notices and slips</a></li>
             [% END %]
             [% IF ( CAN_user_tools_edit_notice_status_triggers ) %]
-                <li><a href="/cgi-bin/koha/tools/overduerules.pl">Overdue notice/status triggers</a></li>
+                <li><a href="/cgi-bin/koha/admin/circulation_triggers">Overdue notice/status triggers</a></li>
             [% END %]
             [% IF ( CAN_user_tools_label_creator ) %]
                 <li><a href="/cgi-bin/koha/patroncards/home.pl">Patron card creator</a></li>

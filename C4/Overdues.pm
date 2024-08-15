@@ -52,7 +52,6 @@ BEGIN {
         GetBranchcodesWithOverdueRules
         get_chargeable_units
         GetOverduesForBranch
-        GetOverdueMessageTransportTypes
         parse_overdues_letter
         GetIssuesIteminfo
     );
@@ -764,39 +763,6 @@ sub GetOverduesForBranch {
         my $q = "$select ORDER BY borrowers.surname, borrowers.firstname";
         return @{ $dbh->selectall_arrayref( $q, { Slice => {} }, $branch ) };
     }
-}
-
-=head2 GetOverdueMessageTransportTypes
-
-    my $message_transport_types = GetOverdueMessageTransportTypes( $branchcode, $categorycode, $letternumber);
-
-    return a arrayref with all message_transport_type for given branchcode, categorycode and letternumber(1,2 or 3)
-
-=cut
-
-sub GetOverdueMessageTransportTypes {
-    my ( $branchcode, $categorycode, $letternumber ) = @_;
-    return unless $categorycode and $letternumber;
-    my $dbh = C4::Context->dbh;
-    my $sth = $dbh->prepare( "
-        SELECT message_transport_type
-        FROM overduerules odr LEFT JOIN overduerules_transport_types ott USING (overduerules_id)
-        WHERE branchcode = ?
-          AND categorycode = ?
-          AND letternumber = ?
-    " );
-    $sth->execute( $branchcode, $categorycode, $letternumber );
-    my @mtts;
-    while ( my $mtt = $sth->fetchrow ) {
-        push @mtts, $mtt;
-    }
-
-    # Put 'print' in first if exists
-    # It avoid to sent a print notice with an email or sms template is no email or sms is defined
-    @mtts = uniq( 'print', @mtts )
-        if grep { $_ eq 'print' } @mtts;
-
-    return \@mtts;
 }
 
 =head2 parse_overdues_letter
