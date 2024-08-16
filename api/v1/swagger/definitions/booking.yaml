@@ -44,6 +44,9 @@ properties:
     description: Start date and time of this booking
     format: date-time
     type: string
+  status:
+    description: Booking status
+    type: string
 required:
   - biblio_id
   - item_id
