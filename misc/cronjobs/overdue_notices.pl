@@ -463,6 +463,8 @@ elsif ( defined $text_filename ) {
 
 my %already_queued;
 my %seen = map { $_ => 1 } @branches;
+
+# Work through branches
 foreach my $branchcode (@branches) {
     my $calendar;
     if ( C4::Context->preference('OverdueNoticeCalendar') ) {
@@ -520,17 +522,19 @@ END_SQL
         @itemtypes = Koha::ItemTypes->search()->get_column('itemtype');
     }
 
+    # Work through category and itemtype combinations to catch overdue rules for each
     for my $category (@categories) {
         for my $itemtype (@itemtypes) {
             my $i = 0;
+            # Work through triggers until we run out of rules
             PERIOD: while (1) {
                 $i++;
-                my $j = $i + 1;
+                my $ii = $i + 1;
                 my $overdue_rules = Koha::CirculationRules->get_effective_rules(
                     {
                         rules => [
                             "overdue_$i" . '_delay',    "overdue_$i" . '_notice', "overdue_$i" . '_mtt',
-                            "overdue_$i" . '_restrict', "overdue_$j" . '_delay'
+                            "overdue_$i" . '_restrict', "overdue_$ii" . '_delay'
                         ],
                         categorycode => $category,
                         branchcode   => $branchcode,
@@ -546,8 +550,8 @@ END_SQL
                 my $mindays =
                     $overdue_rules->{ "overdue_$i" . '_delay' }; # the notice will be sent after mindays days (grace period)
                 my $maxdays = (
-                      $overdue_rules->{ "overdue_$j" . '_delay' }
-                    ? $overdue_rules->{ "overdue_$j" . '_delay' } - 1
+                      $overdue_rules->{ "overdue_$ii" . '_delay' }
+                    ? $overdue_rules->{ "overdue_$ii" . '_delay' } - 1
                     : ($MAX)
                 );    # issues being more than maxdays late are managed somewhere else. (borrower probably suspended)
 
@@ -565,6 +569,7 @@ END_SQL
             # itemcount is interpreted here as the number of items in the overdue range defined by the current notice or all overdues < max if(-list-all).
                 # <date> <itemcount> <firstname> <lastname> <address1> <address2> <address3> <city> <postcode> <country>
 
+                # Fetch all overdue issues where the item is not lost and the borrower category wants overdue notices grouping by borrower
                 my $borrower_sql = <<"END_SQL";
 SELECT issues.borrowernumber, firstname, surname, address, address2, city, zipcode, country, email, emailpro, B_email, smsalertnumber, phone, cardnumber, date_due
 FROM   issues,borrowers,categories,items
@@ -589,7 +594,7 @@ END_SQL
                 }
                 $borrower_sql .= '  AND categories.overduenoticerequired=1 ORDER BY issues.borrowernumber';
 
-                # $sth gets borrower info iff at least one overdue item has triggered the overdue action.
+                # $sth gets borrower info if at least one overdue item has triggered the overdue action.
                 my $sth = $dbh->prepare($borrower_sql);
                 $sth->execute(@borrower_parameters);
 
@@ -600,6 +605,7 @@ END_SQL
                 }
                 $verbose and warn sprintf "Found %s borrowers with overdues\n", $sth->rows;
                 my $borrowernumber;
+                # Iterate over all overdue issues
                 while ( my $data = $sth->fetchrow_hashref ) {
 
                     # check the borrower has at least one item that matches
@@ -633,7 +639,10 @@ END_SQL
                         next;
                     }
                     $borrowernumber = $data->{'borrowernumber'};
+
+                    # Skip duplicate borrowers as we'll have already handled them
                     next if ( $patron_homelibrary && $already_queued{"$borrowernumber$i"} );
+
                     my $borr = sprintf( "%s%s%s (%s)",
                         $data->{'surname'} || '',
                         $data->{'firstname'} && $data->{'surname'} ? ', ' : '',
@@ -700,6 +709,7 @@ END_SQL
 
                     my $j = 0;
                     my $exceededPrintNoticesMaxLines = 0;
+                    # Get each overdue item for this patron
                     while ( my $item_info = $sth2->fetchrow_hashref() ) {
                         if ( C4::Context->preference('OverdueNoticeCalendar') ) {
                             $days_between =
