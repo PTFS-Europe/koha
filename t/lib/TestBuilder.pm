@@ -18,6 +18,8 @@ use constant {
     SIZE_BARCODE => 20, # Not perfect but avoid to fetch the value when creating a new item
 };
 
+Koha::Plugins::GetPlugins();
+
 sub new {
     my ($class) = @_;
     my $self = {};
