@@ -142,7 +142,7 @@ sub new {
         address         => $adr,
         home_phone      => $kp->{phone},
         email_addr      => $kp->{email},
-        charge_ok       => ( !$debarred && !$expired && !$fine_blocked && !$circ_blocked),
+        charge_ok       => ( !$debarred && !$expired && !$fine_blocked),
         renew_ok        => ( !$debarred && !$expired && !$fine_blocked),
         recall_ok       => ( !$debarred && !$expired && !$fine_blocked),
         hold_ok         => ( !$debarred && !$expired && !$fine_blocked),
