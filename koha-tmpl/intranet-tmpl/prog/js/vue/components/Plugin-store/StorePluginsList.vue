@@ -127,7 +127,11 @@ export default {
                 })
                 .then(
                     res => {
-                        this.setMessage(this.$__("Plugin has been installed"))
+                        this.setMessage(
+                            this.$__(
+                                'Plugin has been installed. <a href="/cgi-bin/koha/plugins/plugins-home.pl">Manage plugins</a>'
+                            )
+                        )
                     },
                     error => {}
                 )
