@@ -12,13 +12,25 @@
 
 <script>
 import { APIClient } from "../../fetch/api-client.js"
+import { inject, ref } from "vue"
 import Toolbar from "../Toolbar.vue"
 import ToolbarButton from "../ToolbarButton.vue"
 import KohaTable from "../KohaTable.vue"
 
 export default {
+    setup() {
+        const { setConfirmationDialog, setMessage, setWarning } =
+            inject("mainStore")
+
+        return {
+            setConfirmationDialog,
+            setMessage,
+            setWarning,
+        }
+    },
     data: function () {
         return {
+            initialized: false,
             tableOptions: {
                 columns: [
                     {
@@ -115,7 +127,7 @@ export default {
                 })
                 .then(
                     res => {
-                        console.log(res)
+                        this.setMessage(this.$__("Plugin has been installed"))
                     },
                     error => {}
                 )
@@ -123,6 +135,7 @@ export default {
         table_url: function () {
             // FIXME: This is hardcoded
             return "http://localhost:3000/api/plugins"
+            this.initialized = true
         },
     },
     components: { Toolbar, ToolbarButton, KohaTable },
