@@ -3,7 +3,7 @@ import HttpClient from "./http-client";
 export class PluginStoreAPIClient extends HttpClient {
     constructor() {
         super({
-            baseURL: "/api/v1/",
+            baseURL: "",
         });
     }
 
@@ -11,11 +11,11 @@ export class PluginStoreAPIClient extends HttpClient {
         return {
             getAll: params =>
                 this.getAll({
-                    endpoint: "plugins",
+                    endpoint: "http://localhost:3000/api/plugins",
                 }),
             create: plugin =>
                 this.post({
-                    endpoint: "plugins",
+                    endpoint: "/api/v1/plugins",
                     body: plugin,
                 }),
         };
