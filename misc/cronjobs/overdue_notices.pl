@@ -298,15 +298,15 @@ alert them of items that have just become due.
 
 # These variables are set by command line options.
 # They are initially set to default values.
-my $dbh        = C4::Context->dbh();
-my $help       = 0;
-my $man        = 0;
-my $verbose    = 0;
-my $nomail     = 0;
-my $MAX        = 90;
-my $test_mode  = 0;
-my $frombranch = 'item-issuebranch';
-my $itype_level = C4::Context->preference('item-level_itypes') ? 'item' : 'biblioitem' ;
+my $dbh         = C4::Context->dbh();
+my $help        = 0;
+my $man         = 0;
+my $verbose     = 0;
+my $nomail      = 0;
+my $MAX         = 90;
+my $test_mode   = 0;
+my $frombranch  = 'item-issuebranch';
+my $itype_level = C4::Context->preference('item-level_itypes') ? 'item' : 'biblioitem';
 my @branchcodes;      # Branch(es) passed as parameter
 my @emails_to_use;    # Emails to use for messaging
 my @emails;           # Emails given in command-line parameters
@@ -586,12 +586,12 @@ END_SQL
             warn sprintf "--------Borrower SQL------\n";
             warn $borrower_sql
                 . "\n $branchcode | "
-                . "$category | "
-                . @itemtypes . " | "
+                . "'$category' | "
+                . join( "','", @itemtypes ) . " | "
                 . $date_to_run->datetime() . ")\n";
             warn sprintf "--------------------------\n";
         }
-        $verbose and warn sprintf "Found %s borrowers with overdues\n", $sth->rows;
+        $verbose and warn sprintf "Found %s overdues for $category on $date_to_run\n", $sth->rows;
 
         my $borrowernumber;
         my $borrower_overdues = {};
@@ -599,6 +599,28 @@ END_SQL
         # Iterate over all overdues
     OVERDUE: while ( my $data = $sth->fetchrow_hashref ) {
             my $itemtype = $data->{itype} // $data->{b_itemtype};
+
+            # Collect triggers or act on them if we're switching borrower
+            if ( !defined $borrower_overdues->{borrowernumber} ) {
+                if ($verbose) {
+                    warn "\n-----------------------------------------\n";
+                    warn "Collecting overdue triggers for borrower " . $data->{borrowernumber} . "\n";
+                }
+                $borrower_overdues = { borrowernumber => $data->{borrowernumber}, branchcode => $branchcode };
+            } elsif ( $borrower_overdues->{borrowernumber} ne $data->{borrowernumber} ) {
+                $verbose and warn "Collected overdue triggers for " . $borrower_overdues->{borrowernumber} . "\n";
+                _enact_trigger($borrower_overdues);
+                if ($verbose) {
+                    warn "\n-----------------------------------------\n";
+                    warn "Collecting overdue triggers for borrower " . $data->{borrowernumber} . "\n";
+                }
+                $borrower_overdues = { borrowernumber => $data->{borrowernumber}, branchcode => $branchcode };
+            }
+
+            $verbose
+                and warn "\nProcessing overdue "
+                . $data->{issue_id}
+                . " with branch = '$branchcode', categorycode = '$category' and itemtype = '$itemtype'\n";
 
             # Work through triggers until we run out of rules or find a match
             my $i = 0;
@@ -616,7 +638,6 @@ END_SQL
                         itemtype     => $itemtype,
                     }
                 );
-                $verbose and warn "branch '$branchcode', categorycode = $category, itemtype = $itemtype, pass $i\n";
 
                 if ( !defined( $overdue_rules->{ "overdue_$i" . '_delay' } ) ) {
                     last PERIOD;
@@ -632,12 +653,9 @@ END_SQL
                 );       # issues being more than maxdays late are managed somewhere else. (borrower probably suspended)
 
                 if ( !$overdue_rules->{ "overdue_$i" . '_notice' } ) {
-                    $verbose and warn sprintf "No letter code found for pass %s\n", $i;
+                    $verbose and warn sprintf "Trigger %s skipped, No letter code found\n", $i;
                     next PERIOD;
                 }
-                $verbose
-                    and warn sprintf "Using letter code '%s' for pass %s\n",
-                    $overdue_rules->{ "overdue_$i" . '_notice' }, $i;
 
                 # $letter->{'content'} is the text of the mail that is sent.
                 # this text contains fields that are replaced by their value. Those fields must be written between brackets
@@ -664,40 +682,38 @@ END_SQL
                 } else {
                     if ($triggered) {
                         if ( $mindays != $days_between ) {
+                            $verbose and warn "Overdue skipped for trigger $i\n";
                             next;
                         }
                     } else {
                         unless ( $days_between >= $mindays
                             && $days_between <= $maxdays )
                         {
+                            $verbose and warn "Overdue skipped for trigger $i\n";
                             next;
                         }
                     }
                 }
 
-                # Collect triggers or act on them if we're switching borrower
-                if ( defined $borrower_overdues->{borrowernumber}
-                    && $borrower_overdues->{borrowernumber} ne $data->{borrowernumber} )
-                {
-                    _enact_trigger($borrower_overdues);
-                    $borrower_overdues = {};
+                if ($verbose) {
+                    my $borr = sprintf(
+                        "%s%s%s (%s)",
+                        $data->{'surname'} || '',
+                        $data->{'firstname'} && $data->{'surname'} ? ', ' : '',
+                        $data->{'firstname'} || '',
+                        $data->{borrowernumber}
+                    );
+                    warn sprintf "Overdue matched trigger %s with delay of %s days and overdue due date of %s\n",
+                        $i,
+                        $triggered, $overdue_rules->{ "overdue_$i" . '_delay' }, $data->{date_due};
+                    warn sprintf "Using letter code '%s'\n",
+                        $overdue_rules->{ "overdue_$i" . '_notice' };
                 }
-                $borrower_overdues->{borrowernumber} = $data->{borrowernumber};
-                $borrower_overdues->{branchcode}     = $branchcode;
-
-                my $borr = sprintf(
-                    "%s%s%s (%s)",
-                    $data->{'surname'} || '',
-                    $data->{'firstname'} && $data->{'surname'} ? ', ' : '',
-                    $data->{'firstname'} || '',
-                    $data->{borrowernumber}
-                );
-                $verbose and warn "borrower $borr has overdue triggering level $i.\n";
 
                 my @message_transport_types = split( /,/, $overdue_rules->{ "overdue_$i" . '_mtt' } );
                 for my $mtt (@message_transport_types) {
-                    push @{ $borrower_overdues->{triggers}->{$i}
-                            ->{ $data->{ $overdue_rules->{ "overdue_$i" . '_notice' } } }->{$mtt} }, \$data;
+                    push @{ $borrower_overdues->{triggers}->{$i}->{ $overdue_rules->{ "overdue_$i" . '_notice' } }
+                            ->{$mtt} }, $data;
                 }
                 if ( $overdue_rules->{ "overdue_$i" . '_restrict' } ) {
                     $borrower_overdues->{restrict} = 1;
@@ -710,8 +726,13 @@ END_SQL
             }
         }
         $sth->finish;
-        _enact_trigger($borrower_overdues);
-        $borrower_overdues = {};
+
+        # Catch final trigger
+        if ( $borrower_overdues->{borrowernumber} ) {
+            $verbose and warn "Collected overdue triggers for " . $borrower_overdues->{borrowernumber} . "\n";
+            _enact_trigger($borrower_overdues);
+            $borrower_overdues = {};
+        }
     }
 
     if (@output_chunks) {
@@ -791,12 +812,13 @@ These methods are internal to the operation of overdue_notices.pl.
 =cut
 
 sub _enact_trigger {
-    my $borrower_overdues = $_;
+    my ($borrower_overdues) = @_;
 
     my $borrowernumber = $borrower_overdues->{borrowernumber};
     my $branchcode     = $borrower_overdues->{branchcode};
     my $patron         = Koha::Patrons->find($borrowernumber);
     my ( $library, $admin_email_address, $branch_email_address );
+    $library = Koha::Libraries->find($branchcode);
 
     if ($patron_homelibrary) {
         $branchcode           = $patron->branchcode;
@@ -822,31 +844,12 @@ sub _enact_trigger {
 
             my $itemcount = 0;
             my $titles    = "";
-            my @items     = ();
 
             my $j                            = 0;
             my $exceededPrintNoticesMaxLines = 0;
 
-            # Get each overdue item for this trigger
-            for my $item_info ( @{ $borrower_overdues->{triggers}->{$trigger}->{$notice} } ) {
-                if (   ( scalar(@emails_to_use) == 0 || $nomail )
-                    && $PrintNoticesMaxLines
-                    && $j >= $PrintNoticesMaxLines )
-                {
-                    $exceededPrintNoticesMaxLines = 1;
-                    last;
-                }
-                next if $patron_homelibrary and !grep { $seen{ $item_info->{branchcode} } } @branches;
-                $j++;
-
-                $titles .= C4::Letters::get_item_content(
-                    { item => $item_info, item_content_fields => \@item_content_fields, dateonly => 1 } );
-                $itemcount++;
-                push @items, $item_info;
-            }
-
             my $print_sent = 0;    # A print notice is not yet sent for this patron
-            for my $mtt ( keys %{ $borrower_overdues->{$trigger}->{$notice} } ) {
+            for my $mtt ( keys %{ $borrower_overdues->{triggers}->{$trigger}->{$notice} } ) {
 
                 next if $mtt eq 'itiva';
                 my $effective_mtt = $mtt;
@@ -856,6 +859,26 @@ sub _enact_trigger {
                     # email or sms is requested but not exist, do a print.
                     $effective_mtt = 'print';
                 }
+
+                # Get each overdue item for this trigger
+                my @items = ();
+                for my $item_info ( @{ $borrower_overdues->{triggers}->{$trigger}->{$notice}->{$effective_mtt} } ) {
+                    if (   ( scalar(@emails_to_use) == 0 || $nomail )
+                        && $PrintNoticesMaxLines
+                        && $j >= $PrintNoticesMaxLines )
+                    {
+                        $exceededPrintNoticesMaxLines = 1;
+                        last;
+                    }
+                    next if $patron_homelibrary and !grep { $seen{ $item_info->{branchcode} } } @branches;
+                    $j++;
+
+                    $titles .= C4::Letters::get_item_content(
+                        { item => $item_info, item_content_fields => \@item_content_fields, dateonly => 1 } );
+                    $itemcount++;
+                    push @items, $item_info;
+                }
+
                 splice @items, $PrintNoticesMaxLines
                     if $effective_mtt eq 'print'
                     && $PrintNoticesMaxLines
