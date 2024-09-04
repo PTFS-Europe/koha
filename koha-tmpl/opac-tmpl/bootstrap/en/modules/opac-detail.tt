@@ -524,6 +524,7 @@
                         [% END # / IF serialcollection %]
 
                         [% WRAPPER tab_panel tabname="holdings" %]
+                            <input style="margin-bottom:10px; "type="text" placeholder="Filter holdings" id="holdings_search_input">
                             [% IF too_many_items %]
                                 <p>This record has many physical items ([% items_count | html %]). <a href="/cgi-bin/koha/opac-detail.pl?biblionumber=[% biblio.biblionumber | uri %]&amp;viewallitems=1">View all the physical items.</a></p>
                             [% ELSIF ( itemloop.size ) %]
@@ -2031,6 +2032,36 @@
             $("#libraryInfoModal").on("hide.bs.modal", function(){
                 $("#libraryInfoModalLabel, #libraryInfo").html("");
                 $("#libraryInfoLink").attr("href", "");
+            });
+
+            // Filter holdings rows:
+            const elsTr = $("#holdingst tbody tr");
+            const elSearch = $("#holdings_search_input");
+            const regEsc = (v) => v.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+
+            const filterRows = (evt) => {
+                const val = evt.currentTarget.value.trim(); // Trim from whitespaces
+                const reg = new RegExp(regEsc(val), "i"); // "i" = case insensitive
+
+                $('#holdings_noresultsfound').remove();
+
+                $.each(elsTr, function(index, elTr) {
+                    if(!reg.test(elTr.textContent)){
+                        $(elTr).addClass('d-none');
+                    }else{
+                        $(elTr).removeClass('d-none');
+                    }
+                });
+
+                if (val) {
+                    const visibleCount = $(elsTr).filter(':visible').length;
+                    const totalCount = $(elsTr).length;
+                    $(elSearch).after(`<span class="m-1" id="holdings_noresultsfound">Showing ${visibleCount} out of ${totalCount} holdings</span>`);
+                }
+            };
+
+            $(elSearch).on('input',function(e){
+                filterRows(e);
             });
         });
 
