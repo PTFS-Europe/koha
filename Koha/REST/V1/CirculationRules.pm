@@ -167,7 +167,8 @@ sub list_rules {
                 {
                     select   => $select,
                     as       => $as,
-                    group_by => [ 'branchcode', 'categorycode', 'itemtype' ]
+                    group_by => [ 'branchcode', 'categorycode', 'itemtype' ],
+                    order_by => [ 'branchcode', 'categorycode', 'itemtype' ],
                 }
             )->unblessed;
         }
