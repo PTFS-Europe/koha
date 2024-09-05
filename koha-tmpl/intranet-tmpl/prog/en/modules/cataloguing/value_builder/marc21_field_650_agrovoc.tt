@@ -1,0 +1,79 @@
+[% USE raw %]
+[% USE Asset %]
+[% USE AuthorisedValues %]
+[% USE ItemTypes %]
+[% USE Koha %]
+[% PROCESS 'i18n.inc' %]
+[% SET footerjs = 1 %]
+
+<title>[% FILTER collapse %]
+    [% t("Agrovoc") | html %] &rsaquo;
+    [% t("Cataloging") | html %] &rsaquo;
+    [% t("Koha") | html %]
+[% END %]</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+
+<h1>THIS IS A TEST</h1>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Marc21 Field 650 Agrovoc</title>
+    <script>
+        function importText() {
+            var text = document.getElementById('inputText').value;
+            var fields = text.split(',');
+            var opener = window.opener;
+
+            if (opener) {
+                fields.forEach(function(field) {
+                    // Assuming there's a function in the parent window to add new 500 fields
+                    opener.addNewField500(field.trim());
+                });
+                window.close();
+            } else {
+                alert('No parent window found.');
+            }
+        }
+
+
+    </script>
+</head>
+<body>
+    <h1>Enter Text for 650 Fields</h1>
+    <textarea id="inputText" rows="10" cols="50"></textarea><br>
+    <button onclick="importText()">Import Text</button>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[% INCLUDE 'intranet-bottom.inc' popup_window=1 %]
