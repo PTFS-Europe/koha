@@ -42,13 +42,13 @@
             </thead>
             <tbody>
                 <tr
-                    v-for="(rule, i) in filterCircRulesByTabNumber(
-                        triggerNumber
-                    )"
+                    v-for="(rule, i) in modal
+                        ? filterCircRulesByContext(ruleBeingEdited)
+                        : filterCircRulesByTabNumber(triggerNumber)"
                     v-bind:key="'rule' + i"
                     :class="{
                         selected_rule:
-                            modal && i + 1 === parseInt(ruleBeingEdited),
+                            modal && i + 1 === parseInt(triggerBeingEdited),
                     }"
                 >
                     <td v-if="!modal">
@@ -125,13 +125,18 @@
                             }"
                         >
                             {{
-                                handleTransport(
-                                    findEffectiveRule(
-                                        rule,
-                                        `overdue_${modal ? i + 1 : triggerNumber}_mtt`
-                                    ).value,
-                                    "email"
-                                )
+                                findEffectiveRule(
+                                    rule,
+                                    `overdue_${modal ? i + 1 : triggerNumber}_notice`
+                                ).value !== ""
+                                    ? handleTransport(
+                                          findEffectiveRule(
+                                              rule,
+                                              `overdue_${modal ? i + 1 : triggerNumber}_mtt`
+                                          ).value,
+                                          "email"
+                                      )
+                                    : ""
                             }}
                         </span>
                     </td>
@@ -147,13 +152,18 @@
                             }"
                         >
                             {{
-                                handleTransport(
-                                    findEffectiveRule(
-                                        rule,
-                                        `overdue_${modal ? i + 1 : triggerNumber}_mtt`
-                                    ).value,
-                                    "print"
-                                )
+                                findEffectiveRule(
+                                    rule,
+                                    `overdue_${modal ? i + 1 : triggerNumber}_notice`
+                                ).value !== ""
+                                    ? handleTransport(
+                                          findEffectiveRule(
+                                              rule,
+                                              `overdue_${modal ? i + 1 : triggerNumber}_mtt`
+                                          ).value,
+                                          "print"
+                                      )
+                                    : ""
                             }}
                         </span>
                     </td>
@@ -169,13 +179,18 @@
                             }"
                         >
                             {{
-                                handleTransport(
-                                    findEffectiveRule(
-                                        rule,
-                                        `overdue_${modal ? i + 1 : triggerNumber}_mtt`
-                                    ).value,
-                                    "sms"
-                                )
+                                findEffectiveRule(
+                                    rule,
+                                    `overdue_${modal ? i + 1 : triggerNumber}_notice`
+                                ).value !== ""
+                                    ? handleTransport(
+                                          findEffectiveRule(
+                                              rule,
+                                              `overdue_${modal ? i + 1 : triggerNumber}_mtt`
+                                          ).value,
+                                          "sms"
+                                      )
+                                    : ""
                             }}
                         </span>
                     </td>
@@ -233,6 +248,7 @@ export default {
         "triggerNumber",
         "modal",
         "ruleBeingEdited",
+        "triggerBeingEdited",
         "categories",
         "itemTypes",
         "letters",
@@ -252,8 +268,59 @@ export default {
         handleRestrictions(value) {
             return value === "1" ? this.$__("Yes") : this.$__("No");
         },
+        filterCircRulesByContext(effectiveRule) {
+            const context = effectiveRule.context;
+
+            // Filter rules that match the context
+            let contextRules = this.circRules.filter(rule => {
+                return Object.keys(context).every(key => {
+                    return context[key] === rule.context[key];
+                });
+            });
+
+            // Calculate the number of 'overdue_X_' triggers in the effectiveRule
+            const regex = /overdue_(\d+)_delay/g;
+            const numberOfTriggers = Object.keys(effectiveRule).filter(
+                key => regex.test(key) && effectiveRule[key] !== null
+            ).length;
+
+            // Ensure there is one contextRule per 'X' from 1 to numberOfTriggers
+            for (let i = 1; i <= numberOfTriggers; i++) {
+                // Check if there's already a rule for overdue_X_ in contextRules
+                const matchingRule = contextRules.find(
+                    rule => rule[`overdue_${i}_delay`] !== undefined
+                );
+
+                if (!matchingRule) {
+                    // Create a new rule with the same context and null overdue_X_* keys
+                    const newRule = {
+                        context: { ...context }, // Clone the context
+                        [`overdue_${i}_delay`]: null,
+                        [`overdue_${i}_notice`]: null,
+                        [`overdue_${i}_mtt`]: null,
+                        [`overdue_${i}_restrict`]: null,
+                    };
+
+                    // Add the new rule to contextRules
+                    contextRules.push(newRule);
+                }
+            }
+
+            // Sort contextRules by the 'X' value in 'overdue_X_delay'
+            contextRules.sort((a, b) => {
+                const getX = rule => {
+                    const match = Object.keys(rule).find(key =>
+                        regex.test(key)
+                    );
+                    return match ? parseInt(match.match(/\d+/)[0], 10) : 0;
+                };
+
+                return getX(a) - getX(b);
+            });
+
+            return contextRules;
+        },
         filterCircRulesByTabNumber(number) {
-            if (this.modal) return this.circRules;
             return this.circRules.filter(
                 rule =>
                     rule.triggerNumber === number &&
@@ -272,7 +339,7 @@ export default {
             if (ruleSet[key] === null) {
                 // Filter rules to only those with non-null values for the specified key
                 const relevantRules = this.circRules.filter(
-                    rule => rule[key] !== null
+                    rule => rule[key] !== null && rule[key] !== undefined
                 );
 
                 // Function to calculate specificity score
