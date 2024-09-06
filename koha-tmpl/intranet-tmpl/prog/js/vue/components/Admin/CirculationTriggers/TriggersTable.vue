@@ -29,7 +29,7 @@
                 <th>
                     {{ $__("Restricts checkouts") }}
                 </th>
-                <th v-if="!modal">
+                <th>
                     {{ $__("Actions") }}
                 </th>
             </thead>
@@ -154,7 +154,7 @@
                         </span>
                     </td>
 
-                    <td v-if="!modal" class="actions">
+                    <td class="actions">
                         <router-link
                             :to="{
                                 name: 'CirculationTriggersFormEdit',
@@ -163,7 +163,7 @@
                                     item_type_id: rule.context.item_type_id,
                                     patron_category_id:
                                         rule.context.patron_category_id,
-                                    triggerNumber,
+                                    triggerNumber: modal ? i + 1 : triggerNumber,
                                 },
                             }"
                             class="btn btn-default btn-xs"
