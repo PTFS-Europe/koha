@@ -157,7 +157,7 @@ return {
                     $delay ||= '';
                     unless ( $delay eq $most_frequent_delay{$branchcode_key}{$i} ) {
                         $delay ||= undef;
-                        say $out "Inserting overdue_$i" . '_delay: ' . $delay;
+                        say $out "Inserting $branchcode:$categorycode:$itemtype overdue_$i" . '_delay: ' . $delay;
                         $insert->execute(
                             $branchcode,
                             $categorycode,
@@ -171,7 +171,7 @@ return {
                 # Insert the notice rule for group $i, skipping if it matches the most frequent notice
                 if ( my $notice = $rule->{"letter$i"} ) {
                     unless ( $notice eq $most_frequent_notice{$branchcode_key}{$i} ) {
-                        say $out "Inserting overdue_$i" . '_notice: ' . $notice;
+                        say $out "Inserting $branchcode:$categorycode:$itemtype overdue_$i" . '_notice: ' . $notice;
                         $insert->execute(
                             $branchcode,
                             $categorycode,
@@ -185,7 +185,7 @@ return {
                 # Insert the message transport type rule for group $i, skipping if it matches the most frequent mtt
                 if ( my $mtt = $rule->{"message_transport_type_$i"} ) {
                     unless ( $mtt eq $most_frequent_mtt{$branchcode_key}{$i} ) {
-                        say $out "Inserting overdue_$i" . '_mtt: ' . $mtt;
+                        say $out "Inserting $branchcode:$categorycode:$itemtype overdue_$i" . '_mtt: ' . $mtt;
                         $insert->execute(
                             $branchcode,
                             $categorycode,
@@ -199,7 +199,7 @@ return {
                 # Insert the restrict rule for group $i
                 if ( my $restrict = $rule->{"debarred$i"} ) {
                     unless ( $restrict eq $most_frequent_restrict{$branchcode_key}{$i} ) {
-                        say $out "Inserting overdue_$i" . '_restrict: ' . $restrict;
+                        say $out "Inserting $branchcode:$categorycode:$itemtype overdue_$i" . '_restrict: ' . $restrict;
                         $insert->execute(
                             $branchcode,
                             $categorycode,
@@ -217,7 +217,7 @@ return {
             my $branchcode_value = $branchcode || undef;
             foreach my $i ( 1 .. 3 ) {
                 my $most_frequent_delay = $most_frequent_delay{$branchcode}{$i};
-                say $out "Inserting default most frequent delay for overdue_$i";
+                say $out "Inserting $branchcode_value:undef:$itemtype default most frequent delay for overdue_$i: " . $most_frequent_delay;
                 $insert->execute(
                     $branchcode_value,
                     undef,
@@ -227,7 +227,7 @@ return {
                 );
 
                 my $most_frequent_notice = $most_frequent_notice{$branchcode}{$i};
-                say $out "Inserting default most frequent notice for overdue_$i";
+                say $out "Inserting $branchcode_value:undef:undef default most frequent notice for overdue_$i: " . $most_frequent_notice;
                 $insert->execute(
                     $branchcode_value,
                     undef,
@@ -237,7 +237,7 @@ return {
                 );
 
                 my $most_frequent_mtt = $most_frequent_mtt{$branchcode}{$i};
-                say $out "Inserting default most frequent mtt for overdue_$i";
+                say $out "Inserting $branchcode_value:undef:undef default most frequent mtt for overdue_$i: " . $most_frequent_mtt;
                 $insert->execute(
                     $branchcode_value,
                     undef,
@@ -247,7 +247,7 @@ return {
                 );
 
                 my $most_frequent_restrict = $most_frequent_restrict{$branchcode}{$i};
-                say $out "Inserting default most frequent restrict for overdue_$i";
+                say $out "Inserting $branchcode_value:undef:undef default most frequent restrict for overdue_$i: " . $most_frequent_restrict;
                 $insert->execute(
                     $branchcode_value,
                     undef,
