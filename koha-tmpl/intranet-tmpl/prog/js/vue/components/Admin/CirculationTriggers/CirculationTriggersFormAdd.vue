@@ -147,7 +147,7 @@
                                 </template>
                             </v-select>
                         </li>
-                        <li>
+                        <li v-if="newRule.notice !== '' || (( newRule.notice === null || newRule.notice === undefined ) && fallbackRule.notice !== '' )">
                             <label for="mtt"
                                 >{{ $__("Transport type(s)") }}:</label
                             >
