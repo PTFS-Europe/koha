@@ -103,6 +103,8 @@
           enum:
             - cancellation_requested
             - biblio
+            - item
+            - patron
             - pickup_library
         collectionFormat: csv
     produces:
