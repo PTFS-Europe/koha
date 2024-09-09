@@ -106,13 +106,54 @@
                             <label for="overdue_delay"
                                 >{{ $__("Delay") }}:
                             </label>
-                            <input
-                                id="overdue_delay"
-                                v-model="newRule.delay"
-                                type="number"
-                                :placeholder="fallbackRule.delay"
-                                :min="minDelay"
-                            />
+                            <div class="numeric-input-wrapper">
+                                <div class="input-with-clear">
+                                    <input
+                                        id="overdue_delay"
+                                        v-model="newRule.delay"
+                                        type="number"
+                                        :placeholder="fallbackRule.delay"
+                                        :min="minDelay"
+                                        :max="maxDelay"
+                                        class="numeric-input"
+                                    />
+                                    <button
+                                        v-if="
+                                            newRule.delay !== null &&
+                                            newRule.delay !== undefined
+                                        "
+                                        type="button"
+                                        class="clear-btn"
+                                        @click="newRule.delay = null"
+                                    >
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            width="10"
+                                            height="10"
+                                        >
+                                            <path
+                                                d="M6.895455 5l2.842897-2.842898c.348864-.348863.348864-.914488 0-1.263636L9.106534.261648c-.348864-.348864-.914489-.348864-1.263636 0L5 3.104545 2.157102.261648c-.348863-.348864-.914488-.348864-1.263636 0L.261648.893466c-.348864.348864-.348864.914489 0 1.263636L3.104545 5 .261648 7.842898c-.348864.348863-.348864.914488 0 1.263636l.631818.631818c.348864.348864.914773.348864 1.263636 0L5 6.895455l2.842898 2.842897c.348863.348864.914772.348864 1.263636 0l.631818-.631818c.348864-.348864.348864-.914489 0-1.263636L6.895455 5z"
+                                            ></path>
+                                        </svg>
+                                    </button>
+                                    <div class="chevron-buttons">
+                                        <button
+                                            type="button"
+                                            class="increment-btn"
+                                            @click="incrementDelay"
+                                        >
+                                            ▴
+                                        </button>
+                                        <button
+                                            type="button"
+                                            class="decrement-btn"
+                                            @click="decrementDelay"
+                                        >
+                                            ▾
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </li>
                         <li>
                             <label for="letter_code"
@@ -131,11 +172,14 @@
                                         v-bind="attributes"
                                         v-on="events"
                                         :placeholder="
-                                            letters.find(
-                                                letter =>
-                                                    letter.code ===
-                                                    fallbackRule.notice
-                                            )?.name || fallbackRule.notice
+                                            newRule.notice === null ||
+                                            newRule.notice === undefined
+                                                ? letters.find(
+                                                      letter =>
+                                                          letter.code ===
+                                                          fallbackRule.notice
+                                                  )?.name || fallbackRule.notice
+                                                : ''
                                         "
                                     />
                                 </template>
@@ -293,6 +337,8 @@ export default {
             editMode: false,
             ruleBeingEdited: null,
             triggerBeingEdited: null,
+            minDelay: 0,
+            maxDelay: Infinity,
         };
     },
     beforeRouteEnter(to, from, next) {
@@ -310,16 +356,6 @@ export default {
                 )
             );
         });
-    },
-    computed: {
-        minDelay() {
-            const lastRule = this.circRules[this.newTriggerNumber - 2];
-            return lastRule
-                ? parseInt(
-                      lastRule[`overdue_${this.newTriggerNumber - 1}_delay`]
-                  ) + 1
-                : 0;
-        },
     },
     methods: {
         async addCircRule(e) {
@@ -468,6 +504,9 @@ export default {
                         lengthunit: rules[0].lengthunit,
                         numberOfTriggers: numberOfTriggers,
                     };
+
+                    this.setMinDelay();
+                    this.setMaxDelay();
                 },
                 error => {}
             );
@@ -627,6 +666,55 @@ export default {
                 ),
             };
         },
+        setMinDelay() {
+            const priorTriggerNumber = parseInt(this.newTriggerNumber) - 1;
+            this.minDelay = this.ruleBeingEdited[
+                `overdue_${priorTriggerNumber}_delay`
+            ]
+                ? parseInt(
+                      this.ruleBeingEdited[
+                          `overdue_${priorTriggerNumber}_delay`
+                      ]
+                  ) + 1
+                : 0;
+        },
+        setMaxDelay() {
+            const nextTriggerNumber = parseInt(this.newTriggerNumber) + 1;
+            this.maxDelay = this.ruleBeingEdited[
+                `overdue_${nextTriggerNumber}_delay`
+            ]
+                ? parseInt(
+                      this.ruleBeingEdited[`overdue_${nextTriggerNumber}_delay`]
+                  ) - 1
+                : Infinity;
+        },
+        incrementDelay() {
+            // Check for minDelay and maxDelay
+            const min = this.minDelay !== undefined ? this.minDelay : 1;
+            const max = this.maxDelay !== undefined ? this.maxDelay : Infinity;
+
+            // Set to minDelay if it's null or undefined
+            if (
+                this.newRule.delay === undefined ||
+                this.newRule.delay === null
+            ) {
+                this.newRule.delay = min;
+            }
+
+            // Increment within the valid range
+            else {
+                this.newRule["delay"] = Math.min(this.newRule.delay + 1, max);
+            }
+        },
+        decrementDelay() {
+            // Check for minDelay
+            const min = this.minDelay !== undefined ? this.minDelay : 1;
+
+            // Decrement only if greater than minDelay
+            if (this.newRule.delay > min) {
+                this.newRule.delay--;
+            }
+        },
     },
     watch: {
         $route: {
@@ -657,6 +745,98 @@ export default {
 form li {
     display: flex;
     align-items: center;
+}
+
+.numeric-input-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 30%;
+}
+
+.input-with-clear {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.numeric-input {
+    padding-right: 40px; /* Adjust to leave space for clear button */
+    padding-left: 0.25em;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    width: 100%;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease;
+}
+
+.clear-btn {
+    position: absolute;
+    right: 22px; /* Adjust positioning */
+    fill: var(--vs-controls-color);
+    background-color: transparent;
+    border: 0;
+    font-size: 1.2em;
+    color: #333;
+    cursor: pointer;
+    z-index: 2; /* Ensure it is above the input */
+}
+
+.button:active:hover,
+.clear-btn:active:hover {
+    background-color: #d4d4d4;
+    border-color: #8c8c8c;
+}
+
+/* Chevron buttons container */
+.chevron-buttons {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    right: 0px;
+    top: 0;
+    bottom: 0;
+    width: 16px;
+    padding: 0px 5px 0px 2px;
+    justify-content: center;
+    z-index: 2;
+}
+
+/* Chevron button styles */
+.increment-btn,
+.decrement-btn {
+    background-color: transparent;
+    border: 0px solid #ccc;
+    font-size: 10px;
+    padding: 0px;
+    cursor: pointer;
+    color: rgba(60, 60, 60, 0.5);
+    border-radius: 2px;
+}
+
+.increment-btn:hover,
+.decrement-btn:hover {
+    background-color: #ddd;
+}
+
+/* Hide the native increment/decrement buttons */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield; /* For Firefox */
+}
+
+.numeric-input:focus,
+.numeric-input:hover {
+    border-color: #007bff; /* Match focus color of v-select */
+    outline: none;
 }
 
 .dialog.alert

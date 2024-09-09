@@ -78,14 +78,18 @@
                             :class="{
                                 fallback: findEffectiveRule(
                                     rule,
-                                    `overdue_${modal ? i + 1 : triggerNumber}_delay`
+                                    `overdue_${
+                                        modal ? i + 1 : triggerNumber
+                                    }_delay`
                                 ).isFallback,
                             }"
                         >
                             {{
                                 findEffectiveRule(
                                     rule,
-                                    `overdue_${modal ? i + 1 : triggerNumber}_delay`
+                                    `overdue_${
+                                        modal ? i + 1 : triggerNumber
+                                    }_delay`
                                 ).value +
                                 " " +
                                 $__("days")
@@ -99,7 +103,9 @@
                             :class="{
                                 fallback: findEffectiveRule(
                                     rule,
-                                    `overdue_${modal ? i + 1 : triggerNumber}_notice`
+                                    `overdue_${
+                                        modal ? i + 1 : triggerNumber
+                                    }_notice`
                                 ).isFallback,
                             }"
                         >
@@ -107,7 +113,9 @@
                                 handleNotice(
                                     findEffectiveRule(
                                         rule,
-                                        `overdue_${modal ? i + 1 : triggerNumber}_notice`
+                                        `overdue_${
+                                            modal ? i + 1 : triggerNumber
+                                        }_notice`
                                     ).value
                                 )
                             }}
@@ -120,19 +128,25 @@
                             :class="{
                                 fallback: findEffectiveRule(
                                     rule,
-                                    `overdue_${modal ? i + 1 : triggerNumber}_mtt`
+                                    `overdue_${
+                                        modal ? i + 1 : triggerNumber
+                                    }_mtt`
                                 ).isFallback,
                             }"
                         >
                             {{
                                 findEffectiveRule(
                                     rule,
-                                    `overdue_${modal ? i + 1 : triggerNumber}_notice`
+                                    `overdue_${
+                                        modal ? i + 1 : triggerNumber
+                                    }_notice`
                                 ).value !== ""
                                     ? handleTransport(
                                           findEffectiveRule(
                                               rule,
-                                              `overdue_${modal ? i + 1 : triggerNumber}_mtt`
+                                              `overdue_${
+                                                  modal ? i + 1 : triggerNumber
+                                              }_mtt`
                                           ).value,
                                           "email"
                                       )
@@ -147,19 +161,25 @@
                             :class="{
                                 fallback: findEffectiveRule(
                                     rule,
-                                    `overdue_${modal ? i + 1 : triggerNumber}_mtt`
+                                    `overdue_${
+                                        modal ? i + 1 : triggerNumber
+                                    }_mtt`
                                 ).isFallback,
                             }"
                         >
                             {{
                                 findEffectiveRule(
                                     rule,
-                                    `overdue_${modal ? i + 1 : triggerNumber}_notice`
+                                    `overdue_${
+                                        modal ? i + 1 : triggerNumber
+                                    }_notice`
                                 ).value !== ""
                                     ? handleTransport(
                                           findEffectiveRule(
                                               rule,
-                                              `overdue_${modal ? i + 1 : triggerNumber}_mtt`
+                                              `overdue_${
+                                                  modal ? i + 1 : triggerNumber
+                                              }_mtt`
                                           ).value,
                                           "print"
                                       )
@@ -174,19 +194,25 @@
                             :class="{
                                 fallback: findEffectiveRule(
                                     rule,
-                                    `overdue_${modal ? i + 1 : triggerNumber}_mtt`
+                                    `overdue_${
+                                        modal ? i + 1 : triggerNumber
+                                    }_mtt`
                                 ).isFallback,
                             }"
                         >
                             {{
                                 findEffectiveRule(
                                     rule,
-                                    `overdue_${modal ? i + 1 : triggerNumber}_notice`
+                                    `overdue_${
+                                        modal ? i + 1 : triggerNumber
+                                    }_notice`
                                 ).value !== ""
                                     ? handleTransport(
                                           findEffectiveRule(
                                               rule,
-                                              `overdue_${modal ? i + 1 : triggerNumber}_mtt`
+                                              `overdue_${
+                                                  modal ? i + 1 : triggerNumber
+                                              }_mtt`
                                           ).value,
                                           "sms"
                                       )
@@ -201,7 +227,9 @@
                             :class="{
                                 fallback: findEffectiveRule(
                                     rule,
-                                    `overdue_${modal ? i + 1 : triggerNumber}_restrict`
+                                    `overdue_${
+                                        modal ? i + 1 : triggerNumber
+                                    }_restrict`
                                 ).isFallback,
                             }"
                         >
@@ -209,7 +237,9 @@
                                 handleRestrictions(
                                     findEffectiveRule(
                                         rule,
-                                        `overdue_${modal ? i + 1 : triggerNumber}_restrict`
+                                        `overdue_${
+                                            modal ? i + 1 : triggerNumber
+                                        }_restrict`
                                     ).value
                                 )
                             }}
