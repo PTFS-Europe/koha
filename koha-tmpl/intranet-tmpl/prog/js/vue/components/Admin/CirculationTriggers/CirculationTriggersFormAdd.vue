@@ -106,13 +106,25 @@
                             <label for="overdue_delay"
                                 >{{ $__("Delay") }}:
                             </label>
-                            <input
-                                id="overdue_delay"
-                                v-model="newRule.delay"
-                                type="number"
-                                :placeholder="fallbackRule.delay"
-                                :min="minDelay"
-                            />
+                            <div class="numeric-input-wrapper">
+                                <div class="input-with-clear">
+                                    <input
+                                        id="overdue_delay"
+                                        v-model="newRule.delay"
+                                        type="number"
+                                        :placeholder="fallbackRule.delay"
+                                        :min="newRule.delay !== null ? minDelay : null"
+                                        class="numeric-input"
+                                    />
+                                    <button
+                                        v-if="newRule.delay !== null && newRule.delay !== undefined"
+                                        type="button"
+                                        class="clear-btn"
+                                        @click="newRule.delay = null"
+                                    ><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"><path d="M6.895455 5l2.842897-2.842898c.348864-.348863.348864-.914488 0-1.263636L9.106534.261648c-.348864-.348864-.914489-.348864-1.263636 0L5 3.104545 2.157102.261648c-.348863-.348864-.914488-.348864-1.263636 0L.261648.893466c-.348864.348864-.348864.914489 0 1.263636L3.104545 5 .261648 7.842898c-.348864.348863-.348864.914488 0 1.263636l.631818.631818c.348864.348864.914773.348864 1.263636 0L5 6.895455l2.842898 2.842897c.348863.348864.914772.348864 1.263636 0l.631818-.631818c.348864-.348864.348864-.914489 0-1.263636L6.895455 5z"></path></svg>
+                                    </button>
+                                </div>
+                            </div>
                         </li>
                         <li>
                             <label for="letter_code"
@@ -130,7 +142,7 @@
                                         class="vs__search"
                                         v-bind="attributes"
                                         v-on="events"
-                                        :placeholder="letters.find(letter => letter.code === fallbackRule.notice)?.name || fallbackRule.notice"
+                                        :placeholder="newRule.notice === null || newRule.notice === undefined ? letters.find(letter => letter.code === fallbackRule.notice)?.name || fallbackRule.notice : ''"
                                     />
                                 </template>
                             </v-select>
@@ -577,6 +589,67 @@ export default {
 form li {
     display: flex;
     align-items: center;
+}
+
+.numeric-input-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 30%;
+}
+
+.input-with-clear {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.numeric-input {
+    padding-right: 40px; /* Adjust to leave space for clear button */
+    padding-left: 0.25em;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    width: 100%;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease;
+}
+
+/* Always show increment/decrement buttons */
+input[type="number"]::-webkit-inner-spin-button, 
+input[type="number"]::-webkit-outer-spin-button {
+    position: absolute;
+    right: 0;
+    width: 16px;
+    height: 100%;
+    margin: 0;
+    opacity: 1;
+}
+
+/* Add styles for the clear button (cross) */
+.clear-btn {
+    position: absolute;
+    right: 22px; /* Adjust positioning */
+    fill: var(--vs-controls-color);
+    background-color: transparent;
+    border: 0;
+    font-size: 1.2em;
+    color: #333;
+    cursor: pointer;
+    z-index: 2; /* Ensure it is above the input */
+}
+
+.button:active:hover, .clear-btn:active:hover {
+    background-color: #d4d4d4;
+    border-color: #8c8c8c;
+}
+
+.numeric-input:focus,
+.numeric-input:hover {
+    border-color: #007bff; /* Match focus color of v-select */
+    outline: none;
 }
 
 .dialog.alert
