@@ -118,6 +118,11 @@ properties:
       - object
       - "null"
     description: The item
+  patron:
+    type:
+      - object
+      - "null"
+    description: Patron record
   pickup_library:
     type:
       - object

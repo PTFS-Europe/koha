@@ -1403,6 +1403,10 @@
 
                                         [% IF ( biblioloo.reserveloop.size ) %]
                                             [% INCLUDE holds_table.inc holds=biblioloo.reserveloop %]
+
+                                            <h2>DEV New table</h2>
+
+                                            [% INCLUDE holds_table_dev.inc %]
                                         [% ELSE %]
                                             <div class="note">
                                                 There are no holds on this title.
@@ -1494,11 +1498,220 @@
 
     <script>
         $(document).ready(function () {
-            hold_table_settings = [% TablesSettings.GetTableSettings( 'circ', 'holds', 'patron_holds_table', 'json' ) | $raw %];
-            KohaTable("patron_holds_table", {
-                "bPaginate":false,
-                "bKohaColumnsUseNames": true,
-           }, hold_table_settings);
+
+
+        let first_priority = 0;
+        let found_holds = 0;
+        let last_priority = "[% biblioloo.reserveloop.last.priority %]";
+        let all_priorities = [];
+        let hold_found;
+        let this_priority;
+        let loop_count;
+        [% FOREACH hold IN biblioloo.reserveloop %] //FIXME: Address HoldsSplitQueue
+            all_priorities.push( [% hold.priority %] );
+        [% END %]
+
+        let bib_numbers = [[% biblionumbers.join(', ') | $raw %]];
+
+        let table_id = "#patron_holds_table_dev";
+        hold_table_settings = [% TablesSettings.GetTableSettings( 'circ', 'holds', 'patron_holds_table', 'json' ) | $raw %];
+
+        var hold_table = $(table_id).kohaTable({
+        "ajax": {
+            "url": '/api/v1/holds?q={"me.biblio_id":'+bib_numbers[0]+'}' //FIXME: Consider multiple biblio_ids
+        },
+        "embed": [
+            'biblio',
+            'pickup_library',
+            'patron',
+        ],
+        "order": [[5, 'asc']],
+        "stateSave": true, // remember state on page reload
+        "columns": [
+            {
+                "data": "",
+                "orderable": false,
+                "render": function( data, type, row, meta ) {
+                    return '<input type="checkbox" class="select_hold_all"/>';
+                }
+            },
+            {
+                "data": "priority",
+                "orderable": false,
+                "render": function( data, type, row, meta ) {
+                    let returnHTML = '';
+                    let CAN_user_reserveforothers_modify_holds_priority = "[% CAN_user_reserveforothers_modify_holds_priority | $raw %]";
+                    let HoldsSplitQueue = "[% Koha.Preference('HoldsSplitQueue') | $raw %]";
+                    hold_found = row.status;
+                    if( !hold_found && first_priority == 0 ){
+                        first_priority = row.priority;
+                        found_holds = meta.row;
+                    }
+                    [%- IF Koha.Preference('HoldsSplitQueueNumbering') == 'actual' -%]
+                        this_priority = row.priority;
+                    [%- ELSE -%]
+                        loop_count = meta.row+1;
+                        this_priority = loop_count - found_holds;
+                    [%- END -%]
+
+                    if(CAN_user_reserveforothers_modify_holds_priority){
+                        if(HoldsSplitQueue == 'nothing' && !row.status){
+                         returnHTML += '<select name="rank-request" class="rank-request" data-hold-id="'+row.hold_id+'">';
+                            if(CAN_user_reserveforothers_modify_holds_priority ){
+                                all_priorities.forEach(async (priority) => {
+                                    if(priority == this_priority){
+                                       returnHTML += '<option value="'+priority+'" selected="selected">'+this_priority+'</option>';
+                                    }
+                                    else{
+                                       returnHTML += '<option value="'+priority+'">'+priority+'</option>';
+                                    }
+                                });
+                            }else{
+                                returnHTML += '<option value="'+row.priority+'" selected="selected">this_priority</option>';
+                            }
+                            returnHTML += '<option value="del">del</option>';
+                        returnHTML += '</select>';
+                    }
+                    returnHTML += '<input type="hidden" name="reserve_id" value="'+row.hold_id+'" />'+
+                        '<input type="hidden" name="borrowernumber" value="'+row.patron_id+'" />'+
+                        '<input type="hidden" name="biblionumber" value="'+row.biblio_id+'" />';
+                    }
+                    
+                    return returnHTML;
+                }
+            },
+            [% IF ( CAN_user_reserveforothers_modify_holds_priority ) %]
+            {
+                "data": "",
+                "orderable": false,
+                "render": function( data, type, row, meta ) {
+                    if(row.status){
+                        return '';
+                    }
+                    return 'TODO';
+                }
+            },
+            [% END %]
+            {
+                "data": "patron",
+                "orderable": false,
+                "render": function( data, type, row, meta ) {
+                    return (row.patron) ? $patron_to_html( row.patron, { display_cardnumber: true, url: true } ) : '';  
+                }
+            },
+            {
+                "data": "notes",
+                "orderable": false,
+                "render": function( data, type, row, meta ) {
+                    return data;
+                }
+            },
+
+            {
+                "data": "hold_date",
+                "orderable": false,
+                "render": function( data, type, row, meta ) {
+                    [% IF Koha.Preference('AllowHoldDateInFuture') %]
+                        return '<input type="text" class="flatpickr" value="'+row.hold_date+'" required="required" size="10" name="reservedate" />';
+                    [% END %]
+                    return $date(row.hold_date);
+                }
+            },
+            {
+                "data": "",
+                "orderable": false,
+                "render": function( data, type, row, meta ) {
+                    const expiration_date = row.expiration_date || '';
+                    return '<input type="text" class="flatpickr" data-flatpickr-futuredate="true" value="'+expiration_date+'" size="10" name="expirationdate" />';
+
+                }
+            },
+            {
+                "data": "",
+                "orderable": false,
+                "render": function( data, type, row, meta ) {
+                    let returnHTML = '';
+                    if(row.status){
+                        // returnHTML = '<input type="hidden" name="pickup" value="'+pickup_library_id+'" />';
+                        // return $self->is_waiting() && ( $self->branchcode() eq $self->item()->holdingbranch() );
+                        // if(row.status && row.status == 'W' && (row.pickup_library_id))
+                    //     [%- IF ( hold.atdestination ) -%]
+                    //             Item waiting at <strong> [% hold.wbrname | html %]</strong>[% IF hold.desk_name %], [% hold.desk_name | html %],[% END %] since [% hold.waiting_date | $KohaDates %]
+                    //     [%- ELSIF (hold.intransit) -%]
+                    //         Item being transferred to <strong> [% hold.wbrname | html %]</strong>
+                    //     [%- ELSIF (hold.inprocessing) -%]
+                    //         Item being processed at <strong> [% hold.wbrname | html %]</strong>
+                    //     [%- ELSE -%]
+                    //         Hold expected at <strong>[% hold.wbrname | html %]</strong>, please checkin to verify status
+                    //     [%- END -%]
+                    // }else{
+                    //     [%- IF Koha.Preference('IndependentBranches') && Branches.all().size == 1 -%]
+                    //         [% Branches.GetName(hold.branchcode) | html %] <input type="hidden" name="pickup" value="[% hold.branchcode | html %]" />
+                    //     [%- ELSE -%]
+                    //         <select class="pickup_location_dropdown"
+                    //                 data-selected="[% hold.branchcode | html %]"
+                    //                 data-hold-id="[% hold.reserve_id | html %]"
+                    //                 data-pickup-location-source="hold"
+                    //                 name="pickup">
+                    //             <option selected="selected" value="[% hold.branchcode | html %]">[% Branches.GetName(hold.branchcode) | html %]</option>
+                    //             <option value="" disabled="disabled" class="loading">Loading...</option>
+                    //         </select>
+                    //         <img class="loading_[% hold.reserve_id | html %]" src="[% interface | html %]/[% theme | html %]/img/spinner-small.gif" alt="" style="display:none;"/>
+                    //     [%- END -%]
+                    // }
+                    return '';
+                    }
+                }
+            },
+            {
+                "data": "",
+                "orderable": false,
+                "render": function( data, type, row, meta ) {
+                    return '';
+                }
+            },
+            {
+                "data": "",
+                "orderable": false,
+                "render": function( data, type, row, meta ) {
+                    return '';
+                }
+            },
+            {
+                "data": "",
+                "orderable": false,
+                "render": function( data, type, row, meta ) {
+                    return '';
+                }
+            },
+            {
+                "data": "",
+                "orderable": false,
+                "render": function( data, type, row, meta ) {
+                    return '';
+                }
+            },
+            {
+                "data": "",
+                "orderable": false,
+                "render": function( data, type, row, meta ) {
+                    return '';
+                }
+            },
+        ],
+        initComplete: function() {
+                $( '#patron_holds_table_dev .flatpickr' ).each(function( index, element ) {
+                    console.log(element);
+                    apply_flatpickr(element);
+                });
+            },
+    }, hold_table_settings, null, null);
+
+
+        //     KohaTable("patron_holds_table", {
+        //         "bPaginate":false,
+        //         "bKohaColumnsUseNames": true,
+        //    }, hold_table_settings);
         });
         var Sticky;
         var biblionumbers = [[% biblionumbers.join(', ') | $raw %]];
