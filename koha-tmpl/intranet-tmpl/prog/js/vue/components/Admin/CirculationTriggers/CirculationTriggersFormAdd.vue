@@ -152,6 +152,7 @@
                                         class="vs__search"
                                         v-bind="attributes"
                                         v-on="events"
+                                        :placeholder="newRule.mtt === null || newRule.mtt === undefined || newRule.mtt.length === 0 ? fallbackRule.mtt : ''"
                                     />
                                 </template>
                             </v-select>
