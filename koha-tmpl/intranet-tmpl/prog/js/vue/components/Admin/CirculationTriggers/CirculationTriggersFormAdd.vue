@@ -12,8 +12,12 @@
                 <div class="page-section bg-info" v-if="circRules.length">
                     <h2>{{ $__("Trigger context") }}</h2>
                     <TriggerContext :ruleInfo="ruleInfo" />
-                    <h2 v-if="ruleInfo.numberOfTriggers > 0">{{ $__("Existing rules") }}</h2>
-                    <p v-if="ruleInfo.numberOfTriggers > 0">{{ $__("Notice") }} {{ " " + newTriggerNumber - 1 }}</p>
+                    <h2 v-if="ruleInfo.numberOfTriggers > 0">
+                        {{ $__("Existing rules") }}
+                    </h2>
+                    <p v-if="ruleInfo.numberOfTriggers > 0">
+                        {{ $__("Notice") }} {{ " " + newTriggerNumber - 1 }}
+                    </p>
                     <TriggersTable
                         v-if="ruleInfo.numberOfTriggers > 0"
                         :circRules="circRules"
@@ -65,9 +69,7 @@
                             >
                                 <template #search="{ attributes, events }">
                                     <input
-                                        :required="
-                                            !newRule.patron_category_id
-                                        "
+                                        :required="!newRule.patron_category_id"
                                         class="vs__search"
                                         v-bind="attributes"
                                         v-on="events"
@@ -91,9 +93,7 @@
                             >
                                 <template #search="{ attributes, events }">
                                     <input
-                                        :required="
-                                            !newRule.item_type_id
-                                        "
+                                        :required="!newRule.item_type_id"
                                         class="vs__search"
                                         v-bind="attributes"
                                         v-on="events"
@@ -118,17 +118,37 @@
                                         class="numeric-input"
                                     />
                                     <button
-                                        v-if="newRule.delay !== null && newRule.delay !== undefined"
+                                        v-if="
+                                            newRule.delay !== null &&
+                                            newRule.delay !== undefined
+                                        "
                                         type="button"
                                         class="clear-btn"
                                         @click="newRule.delay = null"
-                                    ><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"><path d="M6.895455 5l2.842897-2.842898c.348864-.348863.348864-.914488 0-1.263636L9.106534.261648c-.348864-.348864-.914489-.348864-1.263636 0L5 3.104545 2.157102.261648c-.348863-.348864-.914488-.348864-1.263636 0L.261648.893466c-.348864.348864-.348864.914489 0 1.263636L3.104545 5 .261648 7.842898c-.348864.348863-.348864.914488 0 1.263636l.631818.631818c.348864.348864.914773.348864 1.263636 0L5 6.895455l2.842898 2.842897c.348863.348864.914772.348864 1.263636 0l.631818-.631818c.348864-.348864.348864-.914489 0-1.263636L6.895455 5z"></path></svg>
+                                    >
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            width="10"
+                                            height="10"
+                                        >
+                                            <path
+                                                d="M6.895455 5l2.842897-2.842898c.348864-.348863.348864-.914488 0-1.263636L9.106534.261648c-.348864-.348864-.914489-.348864-1.263636 0L5 3.104545 2.157102.261648c-.348863-.348864-.914488-.348864-1.263636 0L.261648.893466c-.348864.348864-.348864.914489 0 1.263636L3.104545 5 .261648 7.842898c-.348864.348863-.348864.914488 0 1.263636l.631818.631818c.348864.348864.914773.348864 1.263636 0L5 6.895455l2.842898 2.842897c.348863.348864.914772.348864 1.263636 0l.631818-.631818c.348864-.348864.348864-.914489 0-1.263636L6.895455 5z"
+                                            ></path>
+                                        </svg>
                                     </button>
                                     <div class="chevron-buttons">
-                                        <button type="button" class="increment-btn" @click="incrementValue">
-                                            ▴ 
+                                        <button
+                                            type="button"
+                                            class="increment-btn"
+                                            @click="incrementValue"
+                                        >
+                                            ▴
                                         </button>
-                                        <button type="button" class="decrement-btn" @click="decrementValue">
+                                        <button
+                                            type="button"
+                                            class="decrement-btn"
+                                            @click="decrementValue"
+                                        >
                                             ▾
                                         </button>
                                     </div>
@@ -151,12 +171,28 @@
                                         class="vs__search"
                                         v-bind="attributes"
                                         v-on="events"
-                                        :placeholder="newRule.notice === null || newRule.notice === undefined ? letters.find(letter => letter.code === fallbackRule.notice)?.name || fallbackRule.notice : ''"
+                                        :placeholder="
+                                            newRule.notice === null ||
+                                            newRule.notice === undefined
+                                                ? letters.find(
+                                                      letter =>
+                                                          letter.code ===
+                                                          fallbackRule.notice
+                                                  )?.name || fallbackRule.notice
+                                                : ''
+                                        "
                                     />
                                 </template>
                             </v-select>
                         </li>
-                        <li v-if="newRule.notice !== '' || (( newRule.notice === null || newRule.notice === undefined ) && fallbackRule.notice !== '' )">
+                        <li
+                            v-if="
+                                newRule.notice !== '' ||
+                                ((newRule.notice === null ||
+                                    newRule.notice === undefined) &&
+                                    fallbackRule.notice !== '')
+                            "
+                        >
                             <label for="mtt"
                                 >{{ $__("Transport type(s)") }}:</label
                             >
@@ -173,13 +209,21 @@
                                         class="vs__search"
                                         v-bind="attributes"
                                         v-on="events"
-                                        :placeholder="newRule.mtt === null || newRule.mtt === undefined || newRule.mtt.length === 0 ? fallbackRule.mtt : ''"
+                                        :placeholder="
+                                            newRule.mtt === null ||
+                                            newRule.mtt === undefined ||
+                                            newRule.mtt.length === 0
+                                                ? fallbackRule.mtt
+                                                : ''
+                                        "
                                     />
                                 </template>
                             </v-select>
                         </li>
                         <li>
-                            <label for="restricts">{{ $__("Restricts checkouts") }}:</label>
+                            <label for="restricts"
+                                >{{ $__("Restricts checkouts") }}:</label
+                            >
                             <div>
                                 <input
                                     type="radio"
@@ -188,7 +232,7 @@
                                     :value="1"
                                 />
                                 {{ $__("Yes") }}
-                    
+
                                 <input
                                     type="radio"
                                     id="restricts-no"
@@ -196,7 +240,7 @@
                                     :value="0"
                                 />
                                 {{ $__("No") }}
-                    
+
                                 <input
                                     type="radio"
                                     id="restricts-fallback"
@@ -205,7 +249,11 @@
                                 />
                                 {{ $__("Fallback to default") }}
                                 <span v-if="fallbackRule.restricts !== null">
-                                    ({{ fallbackRule.restricts === 1 ? $__("Yes") : $__("No") }})
+                                    ({{
+                                        fallbackRule.restricts === 1
+                                            ? $__("Yes")
+                                            : $__("No")
+                                    }})
                                 </span>
                             </div>
                         </li>
@@ -309,14 +357,20 @@ export default {
     },
     computed: {
         minDelay() {
-            const lastRule = this.circRules[this.newTriggerNumber - 2];
-            return lastRule ? parseInt(lastRule[`overdue_${this.newTriggerNumber - 1}_delay`]) + 1 : 0;
+            const lastRule = this.circRules[this.newTriggerNumber - 2]
+            return lastRule
+                ? parseInt(
+                      lastRule[`overdue_${this.newTriggerNumber - 1}_delay`]
+                  ) + 1
+                : 0
         },
         maxDelay() {
-            const nextRule = this.circRules[this.newTriggerNumber];
-            const triggerNumber = parseInt(this.newTriggerNumber) + 1;
-            return nextRule ? parseInt(nextRule[`overdue_${triggerNumber}_delay`]) - 1 : null;
-        }
+            const nextRule = this.circRules[this.newTriggerNumber]
+            const triggerNumber = parseInt(this.newTriggerNumber) + 1
+            return nextRule
+                ? parseInt(nextRule[`overdue_${triggerNumber}_delay`]) - 1
+                : null
+        },
     },
     methods: {
         async addCircRule(e) {
@@ -325,17 +379,22 @@ export default {
             const context = {
                 library_id: this.newRule.library_id || "*",
                 item_type_id: this.newRule.item_type_id || "*",
-                patron_category_id:
-                    this.newRule.patron_category_id || "*",
+                patron_category_id: this.newRule.patron_category_id || "*",
             }
 
             const circRule = {
                 context,
             }
-            circRule[`overdue_${this.newTriggerNumber}_delay`] = this.newRule.delay
-            circRule[`overdue_${this.newTriggerNumber}_notice`] = this.newRule.notice
-            circRule[`overdue_${this.newTriggerNumber}_restrict`] = this.newRule.restrict
-            circRule[`overdue_${this.newTriggerNumber}_mtt`] = this.newRule.mtt && this.newRule.mtt.length ? this.newRule.mtt.join(",") : null
+            circRule[`overdue_${this.newTriggerNumber}_delay`] =
+                this.newRule.delay
+            circRule[`overdue_${this.newTriggerNumber}_notice`] =
+                this.newRule.notice
+            circRule[`overdue_${this.newTriggerNumber}_restrict`] =
+                this.newRule.restrict
+            circRule[`overdue_${this.newTriggerNumber}_mtt`] =
+                this.newRule.mtt && this.newRule.mtt.length
+                    ? this.newRule.mtt.join(",")
+                    : null
 
             const client = APIClient.circRule
             await client.circRules.update(circRule).then(
@@ -393,11 +452,14 @@ export default {
             const client = APIClient.circRule
             await client.circRules.getAll({}, { effective: false }).then(
                 rules => {
-                    const { rulesPerTrigger } = this.splitCircRulesByTriggerNumber(rules)
-                    this.circRules = rulesPerTrigger.length ? rulesPerTrigger : rules
+                    const { rulesPerTrigger } =
+                        this.splitCircRulesByTriggerNumber(rules)
+                    this.circRules = rulesPerTrigger.length
+                        ? rulesPerTrigger
+                        : rules
                 },
                 error => {}
-            )               
+            )
         },
         async handleContextChange() {
             await this.checkForExistingRules()
@@ -437,7 +499,9 @@ export default {
                     const numberOfTriggers = Object.keys(rules[0]).filter(
                         key => regex.test(key) && rules[0][key] !== null
                     ).length
-                    const splitRules = this.filterCircRulesByContext(this.ruleBeingEdited)
+                    const splitRules = this.filterCircRulesByContext(
+                        this.ruleBeingEdited
+                    )
                     this.newTriggerNumber = editMode
                         ? routeParams.triggerNumber
                         : numberOfTriggers + 1
@@ -456,30 +520,32 @@ export default {
                         numberOfTriggers: numberOfTriggers,
                     }
                 },
-                error => { }
+                error => {}
             )
         },
         filterCircRulesByContext(effectiveRule) {
-            const context = effectiveRule.context;
-        
+            const context = effectiveRule.context
+
             // Filter rules that match the context
             let contextRules = this.circRules.filter(rule => {
                 return Object.keys(context).every(key => {
-                    return context[key] === rule.context[key];
-                });
-            });
-        
+                    return context[key] === rule.context[key]
+                })
+            })
+
             // Calculate the number of 'overdue_X_' triggers in the effectiveRule
-            const regex = /overdue_(\d+)_delay/g;
+            const regex = /overdue_(\d+)_delay/g
             const numberOfTriggers = Object.keys(effectiveRule).filter(
                 key => regex.test(key) && effectiveRule[key] !== null
-            ).length;
-        
+            ).length
+
             // Ensure there is one contextRule per 'X' from 1 to numberOfTriggers
             for (let i = 1; i <= numberOfTriggers; i++) {
                 // Check if there's already a rule for overdue_X_ in contextRules
-                const matchingRule = contextRules.find(rule => rule[`overdue_${i}_delay`] !== undefined);
-        
+                const matchingRule = contextRules.find(
+                    rule => rule[`overdue_${i}_delay`] !== undefined
+                )
+
                 if (!matchingRule) {
                     // Create a new rule with the same context and null overdue_X_* keys
                     const placeholderRule = {
@@ -487,36 +553,37 @@ export default {
                         [`overdue_${i}_delay`]: null,
                         [`overdue_${i}_notice`]: null,
                         [`overdue_${i}_mtt`]: null,
-                        [`overdue_${i}_restrict`]: null
-                    };
-        
+                        [`overdue_${i}_restrict`]: null,
+                    }
+
                     // Add the new rule to contextRules
-                    contextRules.push(placeholderRule);
+                    contextRules.push(placeholderRule)
                 }
             }
 
             // Sort contextRules by the 'X' value in 'overdue_X_delay'
             contextRules.sort((a, b) => {
                 const getX = rule => {
-                    const match = Object.keys(rule).find(key => regex.test(key));
-                    return match ? parseInt(match.match(/\d+/)[0], 10) : 0;
-                };
-        
-                return getX(a) - getX(b);
-            });
+                    const match = Object.keys(rule).find(key => regex.test(key))
+                    return match ? parseInt(match.match(/\d+/)[0], 10) : 0
+                }
 
-            return contextRules;
+                return getX(a) - getX(b)
+            })
+
+            return contextRules
         },
         findFallbackRule(currentContext, key) {
-
             // Filter rules to only those with non-null values for the specified key and not the current context
-            const relevantRules = this.circRules.filter(
-                rule => {
-                    return Object.keys(currentContext).some(key => currentContext[key] !== rule.context[key]) 
-                        && rule[key] !== null
-                        && rule[key] !== undefined;
-                }
-            );
+            const relevantRules = this.circRules.filter(rule => {
+                return (
+                    Object.keys(currentContext).some(
+                        key => currentContext[key] !== rule.context[key]
+                    ) &&
+                    rule[key] !== null &&
+                    rule[key] !== undefined
+                )
+            })
 
             // Function to calculate specificity score
             const getSpecificityScore = ruleContext => {
@@ -529,7 +596,7 @@ export default {
                 if (
                     ruleContext.patron_category_id !== "*" &&
                     ruleContext.patron_category_id ===
-                    currentContext.patron_category_id
+                        currentContext.patron_category_id
                 )
                     score += 2
                 if (
@@ -550,7 +617,7 @@ export default {
 
             // If no rule found, return null
             if (sortedRules.length === 0) {
-                return null 
+                return null
             }
 
             // Get the value from the most specific rule
@@ -569,45 +636,70 @@ export default {
                     ? context.patron_category_id
                     : rules[triggerNumber - 1].context.patron_category_id ||
                       "*",
-                delay: rules[triggerNumber - 1] ? rules[triggerNumber - 1][
-                    `overdue_${triggerNumber}_delay`
-                ] : null,
-                notice: rules[triggerNumber - 1] ? rules[triggerNumber - 1][
-                    `overdue_${triggerNumber}_notice`
-                ] : null,
-                mtt: rules[triggerNumber - 1] ? rules[triggerNumber - 1][`overdue_${triggerNumber}_mtt`]
+                delay: rules[triggerNumber - 1]
+                    ? rules[triggerNumber - 1][`overdue_${triggerNumber}_delay`]
+                    : null,
+                notice: rules[triggerNumber - 1]
                     ? rules[triggerNumber - 1][
-                          `overdue_${triggerNumber}_mtt`
-                      ].split(",")
-                    : [] : null,
-                restrict: rules[triggerNumber - 1] ?
-                    rules[triggerNumber - 1][
-                        `overdue_${triggerNumber}_restrict`
-                    ] : null,
+                          `overdue_${triggerNumber}_notice`
+                      ]
+                    : null,
+                mtt: rules[triggerNumber - 1]
+                    ? rules[triggerNumber - 1][`overdue_${triggerNumber}_mtt`]
+                        ? rules[triggerNumber - 1][
+                              `overdue_${triggerNumber}_mtt`
+                          ].split(",")
+                        : []
+                    : null,
+                restrict: rules[triggerNumber - 1]
+                    ? rules[triggerNumber - 1][
+                          `overdue_${triggerNumber}_restrict`
+                      ]
+                    : null,
             }
             this.fallbackRule = {
-                delay: this.findFallbackRule(context, `overdue_${triggerNumber}_delay`),
-                notice: this.findFallbackRule(context, `overdue_${triggerNumber}_notice`),
-                mtt: this.findFallbackRule(context, `overdue_${triggerNumber}_mtt`),
-                restrict: this.findFallbackRule(context, `overdue_${triggerNumber}_restrict`)
+                delay: this.findFallbackRule(
+                    context,
+                    `overdue_${triggerNumber}_delay`
+                ),
+                notice: this.findFallbackRule(
+                    context,
+                    `overdue_${triggerNumber}_notice`
+                ),
+                mtt: this.findFallbackRule(
+                    context,
+                    `overdue_${triggerNumber}_mtt`
+                ),
+                restrict: this.findFallbackRule(
+                    context,
+                    `overdue_${triggerNumber}_restrict`
+                ),
             }
         },
         incrementValue() {
             if (this.newRule.delay === null) {
                 // Set to minDelay or 1 when incrementing from null
-                this.newRule.delay = this.minDelay !== undefined ? this.minDelay : 1;
-            } else if (this.maxDelay === undefined || this.newRule.delay < this.maxDelay) {
+                this.newRule.delay =
+                    this.minDelay !== undefined ? this.minDelay : 1
+            } else if (
+                this.maxDelay === undefined ||
+                this.newRule.delay < this.maxDelay
+            ) {
                 // Increment only if less than maxDelay (if maxDelay is defined)
-                this.newRule.delay++;
+                this.newRule.delay++
             }
         },
         decrementValue() {
             if (this.newRule.delay === null) {
                 // Set to minDelay or 1 when decrementing from null
-                this.newRule.delay = this.minDelay !== undefined ? this.minDelay : 1;
-            } else if (this.newRule.delay > (this.minDelay !== undefined ? this.minDelay : 1)) {
+                this.newRule.delay =
+                    this.minDelay !== undefined ? this.minDelay : 1
+            } else if (
+                this.newRule.delay >
+                (this.minDelay !== undefined ? this.minDelay : 1)
+            ) {
                 // Decrement only if greater than minDelay (if minDelay is defined)
-                this.newRule.delay--;
+                this.newRule.delay--
             }
         },
     },
@@ -680,7 +772,8 @@ form li {
     z-index: 2; /* Ensure it is above the input */
 }
 
-.button:active:hover, .clear-btn:active:hover {
+.button:active:hover,
+.clear-btn:active:hover {
     background-color: #d4d4d4;
     border-color: #8c8c8c;
 }
@@ -700,7 +793,8 @@ form li {
 }
 
 /* Chevron button styles */
-.increment-btn, .decrement-btn {
+.increment-btn,
+.decrement-btn {
     background-color: transparent;
     border: 0px solid #ccc;
     font-size: 10px;
@@ -710,15 +804,16 @@ form li {
     border-radius: 2px;
 }
 
-.increment-btn:hover, .decrement-btn:hover {
+.increment-btn:hover,
+.decrement-btn:hover {
     background-color: #ddd;
 }
 
 /* Hide the native increment/decrement buttons */
-input[type="number"]::-webkit-inner-spin-button, 
-input[type="number"]::-webkit-outer-spin-button { 
-    -webkit-appearance: none; 
-    margin: 0; 
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
 
 input[type="number"] {
