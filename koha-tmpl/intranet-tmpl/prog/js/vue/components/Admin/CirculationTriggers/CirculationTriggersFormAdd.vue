@@ -170,17 +170,35 @@
                             </v-select>
                         </li>
                         <li>
-                            <label for="restricts"
-                                >{{ $__("Restricts checkouts") }}:</label
-                            >
-                            <input
-                                type="checkbox"
-                                id="restricts"
-                                :checked="false"
-                                true-value="1"
-                                false-value="0"
-                                v-model="newRule.restrict"
-                            />
+                            <label for="restricts">{{ $__("Restricts checkouts") }}:</label>
+                            <div>
+                                <input
+                                    type="radio"
+                                    id="restricts-yes"
+                                    v-model="newRule.restrict"
+                                    :value="1"
+                                />
+                                {{ $__("Yes") }}
+                    
+                                <input
+                                    type="radio"
+                                    id="restricts-no"
+                                    v-model="newRule.restrict"
+                                    :value="0"
+                                />
+                                {{ $__("No") }}
+                    
+                                <input
+                                    type="radio"
+                                    id="restricts-fallback"
+                                    v-model="newRule.restrict"
+                                    :value="null"
+                                />
+                                {{ $__("Fallback to default") }}
+                                <span v-if="fallbackRule.restricts !== null">
+                                    ({{ fallbackRule.restricts === 1 ? $__("Yes") : $__("No") }})
+                                </span>
+                            </div>
                         </li>
                     </ol>
                 </fieldset>
