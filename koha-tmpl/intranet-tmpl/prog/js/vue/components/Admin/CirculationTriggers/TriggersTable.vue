@@ -234,7 +234,8 @@ export default {
                         context: { ...context }, // Clone the context
                         [`overdue_${i}_delay`]: null,
                         [`overdue_${i}_notice`]: null,
-                        [`overdue_${i}_mtt`]: null
+                        [`overdue_${i}_mtt`]: null,
+                        [`overdue_${i}_restrict`]: null
                     };
         
                     // Add the new rule to contextRules
