@@ -321,7 +321,7 @@ export default {
             circRule[`overdue_${this.newTriggerNumber}_delay`] = this.newRule.delay
             circRule[`overdue_${this.newTriggerNumber}_notice`] = this.newRule.notice
             circRule[`overdue_${this.newTriggerNumber}_restrict`] = this.newRule.restrict
-            circRule[`overdue_${this.newTriggerNumber}_mtt`] = this.newRule.mtt ? this.newRule.mtt.join(",") : null
+            circRule[`overdue_${this.newTriggerNumber}_mtt`] = this.newRule.mtt && this.newRule.mtt.length ? this.newRule.mtt.join(",") : null
 
             const client = APIClient.circRule
             await client.circRules.update(circRule).then(
