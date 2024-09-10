@@ -113,7 +113,8 @@
                                         v-model="newRule.delay"
                                         type="number"
                                         :placeholder="fallbackRule.delay"
-                                        :min="newRule.delay !== null ? minDelay : null"
+                                        :min="minDelay"
+                                        :max="maxDelay"
                                         class="numeric-input"
                                     />
                                     <button
@@ -123,6 +124,14 @@
                                         @click="newRule.delay = null"
                                     ><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"><path d="M6.895455 5l2.842897-2.842898c.348864-.348863.348864-.914488 0-1.263636L9.106534.261648c-.348864-.348864-.914489-.348864-1.263636 0L5 3.104545 2.157102.261648c-.348863-.348864-.914488-.348864-1.263636 0L.261648.893466c-.348864.348864-.348864.914489 0 1.263636L3.104545 5 .261648 7.842898c-.348864.348863-.348864.914488 0 1.263636l.631818.631818c.348864.348864.914773.348864 1.263636 0L5 6.895455l2.842898 2.842897c.348863.348864.914772.348864 1.263636 0l.631818-.631818c.348864-.348864.348864-.914489 0-1.263636L6.895455 5z"></path></svg>
                                     </button>
+                                    <div class="chevron-buttons">
+                                        <button type="button" class="increment-btn" @click="incrementValue">
+                                            ▴ 
+                                        </button>
+                                        <button type="button" class="decrement-btn" @click="decrementValue">
+                                            ▾
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </li>
@@ -302,6 +311,11 @@ export default {
         minDelay() {
             const lastRule = this.circRules[this.newTriggerNumber - 2];
             return lastRule ? parseInt(lastRule[`overdue_${this.newTriggerNumber - 1}_delay`]) + 1 : 0;
+        },
+        maxDelay() {
+            const nextRule = this.circRules[this.newTriggerNumber];
+            const triggerNumber = parseInt(this.newTriggerNumber) + 1;
+            return nextRule ? parseInt(nextRule[`overdue_${triggerNumber}_delay`]) - 1 : null;
         }
     },
     methods: {
@@ -578,6 +592,24 @@ export default {
                 restrict: this.findFallbackRule(context, `overdue_${triggerNumber}_restrict`)
             }
         },
+        incrementValue() {
+            if (this.newRule.delay === null) {
+                // Set to minDelay or 1 when incrementing from null
+                this.newRule.delay = this.minDelay !== undefined ? this.minDelay : 1;
+            } else if (this.maxDelay === undefined || this.newRule.delay < this.maxDelay) {
+                // Increment only if less than maxDelay (if maxDelay is defined)
+                this.newRule.delay++;
+            }
+        },
+        decrementValue() {
+            if (this.newRule.delay === null) {
+                // Set to minDelay or 1 when decrementing from null
+                this.newRule.delay = this.minDelay !== undefined ? this.minDelay : 1;
+            } else if (this.newRule.delay > (this.minDelay !== undefined ? this.minDelay : 1)) {
+                // Decrement only if greater than minDelay (if minDelay is defined)
+                this.newRule.delay--;
+            }
+        },
     },
     watch: {
         $route: {
@@ -636,18 +668,6 @@ form li {
     transition: border-color 0.2s ease;
 }
 
-/* Always show increment/decrement buttons */
-input[type="number"]::-webkit-inner-spin-button, 
-input[type="number"]::-webkit-outer-spin-button {
-    position: absolute;
-    right: 0;
-    width: 16px;
-    height: 100%;
-    margin: 0;
-    opacity: 1;
-}
-
-/* Add styles for the clear button (cross) */
 .clear-btn {
     position: absolute;
     right: 22px; /* Adjust positioning */
@@ -663,6 +683,46 @@ input[type="number"]::-webkit-outer-spin-button {
 .button:active:hover, .clear-btn:active:hover {
     background-color: #d4d4d4;
     border-color: #8c8c8c;
+}
+
+/* Chevron buttons container */
+.chevron-buttons {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    right: 0px;
+    top: 0;
+    bottom: 0;
+    width: 16px;
+    padding: 0px 5px 0px 2px;
+    justify-content: center;
+    z-index: 2;
+}
+
+/* Chevron button styles */
+.increment-btn, .decrement-btn {
+    background-color: transparent;
+    border: 0px solid #ccc;
+    font-size: 10px;
+    padding: 0px;
+    cursor: pointer;
+    color: rgba(60, 60, 60, 0.5);
+    border-radius: 2px;
+}
+
+.increment-btn:hover, .decrement-btn:hover {
+    background-color: #ddd;
+}
+
+/* Hide the native increment/decrement buttons */
+input[type="number"]::-webkit-inner-spin-button, 
+input[type="number"]::-webkit-outer-spin-button { 
+    -webkit-appearance: none; 
+    margin: 0; 
+}
+
+input[type="number"] {
+    -moz-appearance: textfield; /* For Firefox */
 }
 
 .numeric-input:focus,
