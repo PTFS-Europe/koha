@@ -99,10 +99,11 @@
                             }"
                         >
                             {{
+                                findEffectiveRule(rule, `overdue_${modal ? i + 1 : triggerNumber}_notice`).value !== '' ? 
                                 handleTransport(
                                     findEffectiveRule(rule, `overdue_${modal ? i + 1 : triggerNumber}_mtt`).value,
                                     "email"
-                                )
+                                ) : ''
                             }}
                         </span>
                     </td>
@@ -115,10 +116,11 @@
                             }"
                         >
                             {{
+                                findEffectiveRule(rule, `overdue_${modal ? i + 1 : triggerNumber}_notice`).value !== '' ? 
                                 handleTransport(
                                     findEffectiveRule(rule, `overdue_${modal ? i + 1 : triggerNumber}_mtt`).value,
                                     "print"
-                                )
+                                ) : ''
                             }}
                         </span>
                     </td>
@@ -131,10 +133,11 @@
                             }"
                         >
                             {{
+                                findEffectiveRule(rule, `overdue_${modal ? i + 1 : triggerNumber}_notice`).value !== '' ? 
                                 handleTransport(
                                     findEffectiveRule(rule, `overdue_${modal ? i + 1 : triggerNumber}_mtt`).value,
                                     "sms"
-                                )
+                                ) : ''
                             }}
                         </span>
                     </td>
