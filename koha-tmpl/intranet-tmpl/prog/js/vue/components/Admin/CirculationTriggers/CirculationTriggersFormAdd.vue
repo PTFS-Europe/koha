@@ -252,7 +252,7 @@ export default {
                 delay: null,
                 notice: null,
                 mtt: null,
-                restrict: "0",
+                restrict: null,
             },
             fallbackRule: {
                 item_type_id: "*",
@@ -261,7 +261,7 @@ export default {
                 delay: null,
                 notice: null,
                 mtt: null,
-                restrict: "0",
+                restrict: null,
             },
             newTriggerNumber: 1,
             mtts: [
@@ -472,7 +472,8 @@ export default {
                         context: { ...context }, // Clone the context
                         [`overdue_${i}_delay`]: null,
                         [`overdue_${i}_notice`]: null,
-                        [`overdue_${i}_mtt`]: null
+                        [`overdue_${i}_mtt`]: null,
+                        [`overdue_${i}_restrict`]: null
                     };
         
                     // Add the new rule to contextRules
