@@ -841,13 +841,6 @@ sub _enact_trigger {
 
     for my $trigger ( sort keys %{ $borrower_overdues->{triggers} } ) {
         for my $notice ( keys %{ $borrower_overdues->{triggers}->{$trigger} } ) {
-
-            my $itemcount = 0;
-            my $titles    = "";
-
-            my $j                            = 0;
-            my $exceededPrintNoticesMaxLines = 0;
-
             my $print_sent = 0;    # A print notice is not yet sent for this patron
             for my $mtt ( keys %{ $borrower_overdues->{triggers}->{$trigger}->{$notice} } ) {
 
@@ -860,8 +853,13 @@ sub _enact_trigger {
                     $effective_mtt = 'print';
                 }
 
+                my $j                            = 0;
+                my $exceededPrintNoticesMaxLines = 0;
+
                 # Get each overdue item for this trigger
-                my @items = ();
+                my $itemcount = 0;
+                my $titles    = "";
+                my @items     = ();
                 for my $item_info ( @{ $borrower_overdues->{triggers}->{$trigger}->{$notice}->{$effective_mtt} } ) {
                     if (   ( scalar(@emails_to_use) == 0 || $nomail )
                         && $PrintNoticesMaxLines
