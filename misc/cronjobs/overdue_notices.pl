@@ -515,41 +515,41 @@ foreach my $branchcode (@branches) {
 
         # Fetch all overdues for patron categories that want overdues and where the item is not lost and group by borrower
         my $borrower_sql = <<"END_SQL";
-SELECT 
-    issues.borrowernumber, 
-    borrowers.firstname, 
-    borrowers.surname, 
-    borrowers.address, 
-    borrowers.address2, 
-    borrowers.city, 
-    borrowers.zipcode, 
-    borrowers.country, 
-    borrowers.email, 
-    borrowers.emailpro, 
-    borrowers.B_email, 
-    borrowers.smsalertnumber, 
-    borrowers.phone, 
-    borrowers.cardnumber, 
+SELECT
+    issues.borrowernumber,
+    borrowers.firstname,
+    borrowers.surname,
+    borrowers.address,
+    borrowers.address2,
+    borrowers.city,
+    borrowers.zipcode,
+    borrowers.country,
+    borrowers.email,
+    borrowers.emailpro,
+    borrowers.B_email,
+    borrowers.smsalertnumber,
+    borrowers.phone,
+    borrowers.cardnumber,
     biblio.*,
     biblioitems.itemtype AS b_itemtype,
     items.*,
     issues.*,
     branches.branchname
-FROM 
+FROM
     issues
-JOIN 
+JOIN
     borrowers ON issues.borrowernumber = borrowers.borrowernumber
-JOIN 
+JOIN
     categories ON borrowers.categorycode = categories.categorycode
-JOIN 
+JOIN
     items ON issues.itemnumber = items.itemnumber
-JOIN 
+JOIN
     biblio ON biblio.biblionumber = items.biblionumber
-JOIN 
+JOIN
     biblioitems ON biblio.biblionumber = biblioitems.biblionumber
-JOIN 
+JOIN
     branches ON branches.branchcode = items.homebranch
-WHERE 
+WHERE
     items.itemlost = 0
     AND TO_DAYS($date)-TO_DAYS(issues.date_due) >= 0
 END_SQL
