@@ -1,5 +1,6 @@
 <template>
     <div class="page-section">
+        <div class="page-section bg-info">{{ $__("Bolid italic values denote fallback values where an override has not been set for the context.") }}</div>
         <table>
             <thead>
                 <th v-if="!modal">
