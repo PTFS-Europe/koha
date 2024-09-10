@@ -277,10 +277,10 @@ sub GetOverdueIssues {
         { rule_name => { 'like' => 'overdue_%_mtt' }, rule_value => { like => '%itiva%' } } );
     for my $trigger ( $triggers->all ) {
         my $trigger_number = $trigger->rule_name;
-        $trigger_number =~ s/(.*)(\d+)(.*)/\2/;
+        $trigger_number =~ s/(.*)(\d+)(.*)/$2/;
         push @trigger_numbers, $trigger_number unless grep { $_ == $trigger_number } @trigger_numbers;
     }
-    my @rules = map { "overdue_$_" . "delay", "overdue_$_" . "notice", "overdue_$_" . "mtt" } @trigger_numbers;
+    my @rules = map { ( "overdue_$_" . "_delay", "overdue_$_" . "_notice", "overdue_$_" . "_mtt" ) } @trigger_numbers;
 
     my @results;
     while ( my $issue = $sth->fetchrow_hashref() ) {
@@ -294,10 +294,10 @@ sub GetOverdueIssues {
         );
 
         my $i = 1;
-        PERIOD while (1) {
-            last PERIOD if ( !defined( $effective_rules->{ "overdue_$i" . 'delay' } ) );
-            if (   $effective_rules->{ "overdue_$i" . 'mtt' } =~ /itiva/
-                && $issue->{'daysoverdue'} == $effective_rules->{ "overdue_$i" . 'delay' } )
+        PERIOD: while (1) {
+            last PERIOD if ( !defined( $effective_rules->{ "overdue_$i" . '_delay' } ) );
+            if (   $effective_rules->{ "overdue_$i" . '_mtt' } =~ /itiva/
+                && $issue->{'daysoverdue'} == $effective_rules->{ "overdue_$i" . '_delay' } )
             {
                 $issue->{'level'} = $i;
                 push @results, $issue;
