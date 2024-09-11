@@ -42,6 +42,8 @@ export const useAVStore = defineStore("authorised_values", {
         av_database_reports_metrics: [],
         av_title_reports_metrics: [],
         av_item_reports_metrics: [],
+        av_vendor_types: [],
+        av_vendor_interface_types: [],
     }),
     actions: {
         get_lib_from_av(arr_name, av) {

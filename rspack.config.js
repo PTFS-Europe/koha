@@ -15,7 +15,8 @@ module.exports = [
             "admin/record_sources":
                 "./koha-tmpl/intranet-tmpl/prog/js/vue/modules/admin/record_sources.ts",
             islands: "./koha-tmpl/intranet-tmpl/prog/js/vue/modules/islands.ts",
-        },
+            vendors: "./koha-tmpl/intranet-tmpl/prog/js/vue/modules/vendors.ts",
+    },
         output: {
             filename: "[name].js",
             path: path.resolve(
