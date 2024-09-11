@@ -13,7 +13,8 @@ export class AcquisitionAPIClient extends HttpClient {
                 this.get({
                     endpoint: "vendors/" + id,
                     headers: {
-                        "x-koha-embed": "aliases",
+                        "x-koha-embed":
+                            "baskets,aliases,subscriptions,interfaces,contacts,contracts",
                     },
                 }),
             getAll: (query, params) =>
@@ -21,9 +22,6 @@ export class AcquisitionAPIClient extends HttpClient {
                     endpoint: "vendors",
                     query,
                     params,
-                    headers: {
-                        "x-koha-embed": "aliases,baskets",
-                    },
                 }),
             delete: id =>
                 this.delete({
