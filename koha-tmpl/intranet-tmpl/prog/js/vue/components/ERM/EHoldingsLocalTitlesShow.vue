@@ -2,7 +2,7 @@
     <div v-if="!initialized">{{ $__("Loading") }}</div>
     <div v-else-if="title" id="eholdings_title_show">
         <Toolbar>
-            <ToolbarButton
+            <ButtonLink
                 :to="{
                     name: 'EHoldingsLocalTitlesFormAddEdit',
                     params: { title_id: title.title_id },
@@ -266,7 +266,7 @@ import { inject } from "vue"
 import EHoldingsTitlePackagesList from "./EHoldingsLocalTitlePackagesList.vue"
 import { APIClient } from "../../fetch/api-client.js"
 import Toolbar from "../Toolbar.vue"
-import ToolbarButton from "../ToolbarButton.vue"
+import ButtonLink from "../ButtonLink.vue"
 
 export default {
     setup() {
@@ -366,7 +366,7 @@ export default {
     components: {
         EHoldingsTitlePackagesList,
         Toolbar,
-        ToolbarButton,
+        ButtonLink,
     },
     name: "EHoldingsLocalTitlesShow",
 }

@@ -73,7 +73,7 @@
     <div v-if="!initialized">{{ $__("Loading") }}</div>
     <div v-else id="trains_show">
         <Toolbar>
-            <ToolbarButton
+            <ButtonLink
                 v-if="train.closed_on == null"
                 :to="{
                     name: 'TrainsFormAddItem',
@@ -91,7 +91,7 @@
             >
                 <font-awesome-icon icon="plus" /> {{ $__("Add items") }}
             </span>
-            <ToolbarButton
+            <ButtonLink
                 :to="{
                     name: 'TrainsFormEdit',
                     params: { train_id: train.train_id },
@@ -287,7 +287,7 @@ import { inject, createVNode, render } from "vue"
 import { APIClient } from "../../fetch/api-client"
 import { useDataTable } from "../../composables/datatables"
 import Toolbar from "../Toolbar.vue"
-import ToolbarButton from "../ToolbarButton.vue"
+import ButtonLink from "../ButtonLink.vue"
 
 export default {
     setup() {
@@ -729,7 +729,7 @@ export default {
             })
         },
     },
-    components: { Toolbar, ToolbarButton },
+    components: { Toolbar, ButtonLink },
     name: "TrainsShow",
 }
 </script>

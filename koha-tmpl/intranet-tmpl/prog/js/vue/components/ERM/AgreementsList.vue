@@ -2,7 +2,7 @@
     <div v-if="!initialized">{{ $__("Loading") }}</div>
     <div v-else id="agreements_list">
         <Toolbar v-if="!embedded">
-            <ToolbarButton
+            <ButtonLink
                 :to="{ name: 'AgreementsFormAdd' }"
                 icon="plus"
                 :title="$__('New agreement')"
@@ -58,7 +58,7 @@
 <script>
 import flatPickr from "vue-flatpickr-component"
 import Toolbar from "../Toolbar.vue"
-import ToolbarButton from "../ToolbarButton.vue"
+import ButtonLink from "../ButtonLink.vue"
 import { inject, ref, reactive } from "vue"
 import { APIClient } from "../../fetch/api-client.js"
 import { storeToRefs } from "pinia"
@@ -353,7 +353,7 @@ export default {
             }
         },
     },
-    components: { flatPickr, Toolbar, ToolbarButton, KohaTable },
+    components: { flatPickr, Toolbar, ButtonLink, KohaTable },
     props: {
         embedded: {
             type: Boolean,

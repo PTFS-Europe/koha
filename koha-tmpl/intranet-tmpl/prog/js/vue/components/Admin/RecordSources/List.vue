@@ -2,7 +2,7 @@
     <div v-if="!initialized">{{ $__("Loading") }}</div>
     <div v-else id="record_sources_list">
         <Toolbar>
-            <ToolbarButton
+            <ButtonLink
                 :to="{ name: 'RecordSourcesFormAdd' }"
                 icon="plus"
                 :title="$__('New record source')"
@@ -25,7 +25,7 @@
 
 <script>
 import Toolbar from "../../Toolbar.vue"
-import ToolbarButton from "../../ToolbarButton.vue"
+import ButtonLink from "../../ButtonLink.vue"
 import { inject } from "vue"
 import { APIClient } from "../../../fetch/api-client.js"
 import KohaTable from "../../KohaTable.vue"
@@ -144,7 +144,7 @@ export default {
     components: {
         KohaTable,
         Toolbar,
-        ToolbarButton,
+        ButtonLink,
     },
 }
 </script>
