@@ -13,7 +13,7 @@
 [% INCLUDE 'doc-head-close.inc' %]
 <style>
 #vendors td{
-	vertical-align: top;
+    vertical-align: top;
 }
 </style>
 </head>
