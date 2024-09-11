@@ -125,6 +125,15 @@ properties:
   subscriptions:
     type: array
     description: List of subscriptions
+  interfaces:
+    type: array
+    description: List of interfaces
+  contacts:
+    type: array
+    description: List of contacts
+  contracts:
+    type: array
+    description: List of contracts
 additionalProperties: false
 required:
   - name
