@@ -176,4 +176,12 @@ $template->param(
 );
 $template->{VARS}->{'allbaskets'} = $allbaskets;
 
+$template->param(
+    loop_suppliers => $loop_suppliers,
+    supplier       => ( $booksellerid || $supplier ),
+    count          => $supplier_count,
+    has_budgets    => $has_budgets,
+);
+$template->{VARS}->{'allbaskets'} = $allbaskets;
+
 output_html_with_http_headers $query, $cookie, $template->output;
