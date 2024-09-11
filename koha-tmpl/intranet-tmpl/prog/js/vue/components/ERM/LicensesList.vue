@@ -2,7 +2,7 @@
     <div v-if="!initialized">{{ $__("Loading") }}</div>
     <div v-else id="licenses_list">
         <Toolbar>
-            <ToolbarButton
+            <ButtonLink
                 :to="{ name: 'LicensesFormAdd' }"
                 icon="plus"
                 :title="$__('New license')"
@@ -27,7 +27,7 @@
 
 <script>
 import Toolbar from "../Toolbar.vue"
-import ToolbarButton from "../ToolbarButton.vue"
+import ButtonLink from "../ButtonLink.vue"
 import { inject, ref } from "vue"
 import { storeToRefs } from "pinia"
 import { APIClient } from "../../fetch/api-client.js"
@@ -274,7 +274,7 @@ export default {
         av_license_types: Array,
         av_license_statuses: Array,
     },
-    components: { Toolbar, ToolbarButton, KohaTable },
+    components: { Toolbar, ButtonLink, KohaTable },
     name: "LicensesList",
 }
 </script>
