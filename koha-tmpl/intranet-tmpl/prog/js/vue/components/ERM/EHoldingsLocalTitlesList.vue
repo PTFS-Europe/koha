@@ -3,17 +3,17 @@
         <div v-if="!initialized">{{ $__("Loading") }}</div>
         <div v-else id="titles_list">
             <Toolbar>
-                <ToolbarButton
+                <ButtonLink
                     :to="{ name: 'EHoldingsLocalTitlesFormAdd' }"
                     icon="plus"
                     :title="$__('New title')"
                 />
-                <ToolbarButton
+                <ButtonLink
                     :to="{ name: 'EHoldingsLocalTitlesFormImport' }"
                     icon="plus"
                     :title="$__('Import from list')"
                 />
-                <ToolbarButton
+                <ButtonLink
                     :to="{ name: 'EHoldingsLocalTitlesKBARTImport' }"
                     icon="plus"
                     :title="$__('Import from KBART file')"
@@ -41,7 +41,7 @@
 
 <script>
 import Toolbar from "../Toolbar.vue"
-import ToolbarButton from "../ToolbarButton.vue"
+import ButtonLink from "../ButtonLink.vue"
 import { inject, ref, reactive } from "vue"
 import { storeToRefs } from "pinia"
 import { APIClient } from "../../fetch/api-client.js"
@@ -244,7 +244,7 @@ export default {
             ]
         },
     },
-    components: { Toolbar, ToolbarButton, KohaTable },
+    components: { Toolbar, ButtonLink, KohaTable },
     name: "EHoldingsLocalTitlesList",
 }
 </script>

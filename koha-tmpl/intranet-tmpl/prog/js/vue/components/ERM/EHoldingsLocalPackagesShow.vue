@@ -2,7 +2,7 @@
     <div v-if="!initialized">{{ $__("Loading") }}</div>
     <div v-else-if="erm_package" id="packages_show">
         <Toolbar>
-            <ToolbarButton
+            <ButtonLink
                 :to="{
                     name: 'EHoldingsLocalPackagesFormAddEdit',
                     params: { package_id: erm_package.package_id },
@@ -119,7 +119,7 @@ import { inject } from "vue"
 import EHoldingsPackageTitlesList from "./EHoldingsLocalPackageTitlesList.vue"
 import { APIClient } from "../../fetch/api-client.js"
 import Toolbar from "../Toolbar.vue"
-import ToolbarButton from "../ToolbarButton.vue"
+import ButtonLink from "../ButtonLink.vue"
 
 export default {
     setup() {
@@ -205,7 +205,7 @@ export default {
     components: {
         EHoldingsPackageTitlesList,
         Toolbar,
-        ToolbarButton,
+        ButtonLink,
     },
     name: "EHoldingsLocalPackagesShow",
 }

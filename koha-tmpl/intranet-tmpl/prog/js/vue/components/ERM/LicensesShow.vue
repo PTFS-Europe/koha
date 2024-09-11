@@ -2,7 +2,7 @@
     <div v-if="!initialized">{{ $__("Loading") }}</div>
     <div v-else id="licenses_show">
         <Toolbar>
-            <ToolbarButton
+            <ButtonLink
                 :to="{
                     name: 'LicensesFormAddEdit',
                     params: { license_id: license.license_id },
@@ -152,7 +152,7 @@
 import { inject } from "vue"
 import { APIClient } from "../../fetch/api-client.js"
 import Toolbar from "../Toolbar.vue"
-import ToolbarButton from "../ToolbarButton.vue"
+import ButtonLink from "../ButtonLink.vue"
 
 export default {
     setup() {
@@ -233,7 +233,7 @@ export default {
             )
         },
     },
-    components: { Toolbar, ToolbarButton },
+    components: { Toolbar, ButtonLink },
     name: "LicensesShow",
 }
 </script>

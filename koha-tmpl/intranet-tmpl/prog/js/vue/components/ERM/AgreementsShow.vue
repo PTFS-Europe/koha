@@ -2,7 +2,7 @@
     <div v-if="!initialized">{{ $__("Loading") }}</div>
     <div v-else id="agreements_show">
         <Toolbar>
-            <ToolbarButton
+            <ButtonLink
                 :to="{
                     name: 'AgreementsFormAddEdit',
                     params: { agreement_id: agreement.agreement_id },
@@ -338,7 +338,7 @@
 import { inject } from "vue"
 import { APIClient } from "../../fetch/api-client.js"
 import Toolbar from "../Toolbar.vue"
-import ToolbarButton from "../ToolbarButton.vue"
+import ButtonLink from "../ButtonLink.vue"
 
 export default {
     setup() {
@@ -425,7 +425,7 @@ export default {
             )
         },
     },
-    components: { Toolbar, ToolbarButton },
+    components: { Toolbar, ButtonLink },
     name: "AgreementsShow",
 }
 </script>
