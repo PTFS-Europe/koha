@@ -2,7 +2,7 @@
     <div v-if="!initialized">{{ $__("Loading") }}</div>
     <div v-else id="trains_list">
         <Toolbar>
-            <ToolbarButton
+            <ButtonLink
                 :to="{ name: 'TrainsFormAdd' }"
                 icon="plus"
                 :title="$__('New train')"
@@ -61,7 +61,7 @@
 <script>
 import flatPickr from "vue-flatpickr-component"
 import Toolbar from "../Toolbar.vue"
-import ToolbarButton from "../ToolbarButton.vue"
+import ButtonLink from "../ButtonLink.vue"
 import { inject, ref, reactive } from "vue"
 import { APIClient } from "../../fetch/api-client"
 import { build_url } from "../../composables/datatables"
@@ -273,7 +273,7 @@ export default {
             ]
         },
     },
-    components: { flatPickr, Toolbar, ToolbarButton, KohaTable },
+    components: { flatPickr, Toolbar, ButtonLink, KohaTable },
     name: "trainsList",
     emits: ["select-train", "close"],
 }

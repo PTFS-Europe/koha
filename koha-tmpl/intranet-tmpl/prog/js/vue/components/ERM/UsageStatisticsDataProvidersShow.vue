@@ -2,7 +2,7 @@
     <div v-if="!initialized">{{ $__("Loading") }}</div>
     <div v-else id="usage_data_providers_show">
         <Toolbar>
-            <ToolbarButton
+            <ButtonLink
                 :to="{
                     name: 'UsageStatisticsDataProvidersFormAddEdit',
                     params: {
@@ -121,7 +121,7 @@
 import { inject } from "vue"
 import { APIClient } from "../../fetch/api-client.js"
 import Toolbar from "../Toolbar.vue"
-import ToolbarButton from "../ToolbarButton.vue"
+import ButtonLink from "../ButtonLink.vue"
 import UsageStatisticsDataProvidersFileImport from "./UsageStatisticsDataProvidersFileImport.vue"
 import UsageStatisticsDataProvidersCounterLogs from "./UsageStatisticsDataProvidersCounterLogs.vue"
 import UsageStatisticsDataProviderDetails from "./UsageStatisticsDataProviderDetails.vue"
@@ -230,7 +230,7 @@ export default {
         UsageStatisticsDataProviderDetails,
         UsageStatisticsProviderDataList,
         Toolbar,
-        ToolbarButton,
+        ButtonLink,
     },
 }
 </script>
