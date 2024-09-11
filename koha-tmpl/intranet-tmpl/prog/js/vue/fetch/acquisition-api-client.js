@@ -9,14 +9,45 @@ export class AcquisitionAPIClient extends HttpClient {
 
     get vendors() {
         return {
+            get: id =>
+                this.get({
+                    endpoint: "vendors/" + id,
+                    headers: {
+                        "x-koha-embed": "aliases",
+                    },
+                }),
             getAll: (query, params) =>
                 this.getAll({
                     endpoint: "vendors",
                     query,
                     params: { _order_by: "name", ...params },
                     headers: {
-                        "x-koha-embed": "aliases",
+                        "x-koha-embed": "aliases,baskets",
                     },
+                }),
+            delete: id =>
+                this.delete({
+                    endpoint: "vendors/" + id,
+                }),
+            create: vendor =>
+                this.post({
+                    endpoint: "vendors",
+                    body: vendor,
+                }),
+            update: (vendor, id) =>
+                this.put({
+                    endpoint: "vendors/" + id,
+                    body: vendor,
+                }),
+            count: (query = {}) =>
+                this.count({
+                    endpoint:
+                        "vendors?" +
+                        new URLSearchParams({
+                            _page: 1,
+                            _per_page: 1,
+                            ...(query && { q: JSON.stringify(query) }),
+                        }),
                 }),
         };
     }
