@@ -14,7 +14,7 @@
                 </div>
 
                 <div class="col-md-2 order-sm-2 order-md-1">
-                    <LeftMenu :title="$__('Vendors')"></LeftMenu>
+                    <LeftMenu :title="$__('Vendor management')"></LeftMenu>
                 </div>
             </div>
         </div>
@@ -43,15 +43,20 @@ export default {
 
         const { loading, loaded, setError } = mainStore
 
+        const permissionsStore = inject("permissionsStore")
+        const { userPermissions } = storeToRefs(permissionsStore)
+
         return {
             vendorStore,
             AVStore,
             setError,
             loading,
             loaded,
+            userPermissions,
         }
     },
     data() {
+        this.userPermissions = userPermissions
         return {
             initialized: true,
         }
