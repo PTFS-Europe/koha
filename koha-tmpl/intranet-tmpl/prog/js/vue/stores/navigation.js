@@ -11,6 +11,7 @@ export const useNavigationStore = defineStore("navigation", {
         },
         current: null,
         params: {},
+        anotherStoreString: "Hello from nav store",
     }),
     actions: {
         setRoutes(routesDef) {
