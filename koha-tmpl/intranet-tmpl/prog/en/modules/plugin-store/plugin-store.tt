@@ -1,3 +1,5 @@
+[% USE raw %]
+[% USE To %]
 [% SET footerjs = 1 %]
 [% INCLUDE 'doc-head-open.inc' %]
 <title>
@@ -16,6 +18,14 @@
 [% MACRO jsinclude BLOCK %]
     [% INCLUDE 'calendar.inc' %]
     [% INCLUDE 'datatables.inc' %]
+
+    <script>
+        [% IF ( installed_plugins ) %]
+            const installed_plugins = [% To.json(installed_plugins) | $raw %] || [];
+        [% ELSE %]
+            const installed_plugins = [];
+        [% END %]
+    </script>
 
     [% Asset.js("js/vue/dist/plugin-store.js") | $raw %]
 
