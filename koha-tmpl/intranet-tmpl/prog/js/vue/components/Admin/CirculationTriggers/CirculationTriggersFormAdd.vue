@@ -140,14 +140,14 @@
                                         <button
                                             type="button"
                                             class="increment-btn"
-                                            @click="incrementValue"
+                                            @click="incrementDelay"
                                         >
                                             ▴
                                         </button>
                                         <button
                                             type="button"
                                             class="decrement-btn"
-                                            @click="decrementValue"
+                                            @click="decrementDelay"
                                         >
                                             ▾
                                         </button>
@@ -337,6 +337,8 @@ export default {
             editMode: false,
             ruleBeingEdited: null,
             triggerBeingEdited: null,
+            minDelay: 0,
+            maxDelay: Infinity,
         }
     },
     beforeRouteEnter(to, from, next) {
@@ -354,23 +356,6 @@ export default {
                 )
             )
         })
-    },
-    computed: {
-        minDelay() {
-            const lastRule = this.circRules[this.newTriggerNumber - 2]
-            return lastRule
-                ? parseInt(
-                      lastRule[`overdue_${this.newTriggerNumber - 1}_delay`]
-                  ) + 1
-                : 0
-        },
-        maxDelay() {
-            const nextRule = this.circRules[this.newTriggerNumber]
-            const triggerNumber = parseInt(this.newTriggerNumber) + 1
-            return nextRule
-                ? parseInt(nextRule[`overdue_${triggerNumber}_delay`]) - 1
-                : null
-        },
     },
     methods: {
         async addCircRule(e) {
@@ -519,6 +504,9 @@ export default {
                         lengthunit: rules[0].lengthunit,
                         numberOfTriggers: numberOfTriggers,
                     }
+
+                    this.setMinDelay()
+                    this.setMaxDelay()
                 },
                 error => {}
             )
@@ -676,29 +664,52 @@ export default {
                 ),
             }
         },
-        incrementValue() {
-            if (this.newRule.delay === null) {
-                // Set to minDelay or 1 when incrementing from null
-                this.newRule.delay =
-                    this.minDelay !== undefined ? this.minDelay : 1
-            } else if (
-                this.maxDelay === undefined ||
-                this.newRule.delay < this.maxDelay
+        setMinDelay() {
+            const priorTriggerNumber = parseInt(this.newTriggerNumber) - 1
+            this.minDelay = this.ruleBeingEdited[
+                `overdue_${priorTriggerNumber}_delay`
+            ]
+                ? parseInt(
+                      this.ruleBeingEdited[
+                          `overdue_${priorTriggerNumber}_delay`
+                      ]
+                  ) + 1
+                : 0
+        },
+        setMaxDelay() {
+            const nextTriggerNumber = parseInt(this.newTriggerNumber) + 1
+            this.maxDelay = this.ruleBeingEdited[
+                `overdue_${nextTriggerNumber}_delay`
+            ]
+                ? parseInt(
+                      this.ruleBeingEdited[`overdue_${nextTriggerNumber}_delay`]
+                  ) - 1
+                : Infinity
+        },
+        incrementDelay() {
+            // Check for minDelay and maxDelay
+            const min = this.minDelay !== undefined ? this.minDelay : 1
+            const max = this.maxDelay !== undefined ? this.maxDelay : Infinity
+
+            // Set to minDelay if it's null or undefined
+            if (
+                this.newRule.delay === undefined ||
+                this.newRule.delay === null
             ) {
-                // Increment only if less than maxDelay (if maxDelay is defined)
-                this.newRule.delay++
+                this.newRule.delay = min
+            }
+
+            // Increment within the valid range
+            else {
+                this.newRule["delay"] = Math.min(this.newRule.delay + 1, max)
             }
         },
-        decrementValue() {
-            if (this.newRule.delay === null) {
-                // Set to minDelay or 1 when decrementing from null
-                this.newRule.delay =
-                    this.minDelay !== undefined ? this.minDelay : 1
-            } else if (
-                this.newRule.delay >
-                (this.minDelay !== undefined ? this.minDelay : 1)
-            ) {
-                // Decrement only if greater than minDelay (if minDelay is defined)
+        decrementDelay() {
+            // Check for minDelay
+            const min = this.minDelay !== undefined ? this.minDelay : 1
+
+            // Decrement only if greater than minDelay
+            if (this.newRule.delay > min) {
                 this.newRule.delay--
             }
         },
