@@ -21,6 +21,7 @@ use CGI qw ( -utf8 );
 use C4::Context;
 use C4::Auth   qw( get_template_and_user );
 use C4::Output qw( output_html_with_http_headers );
+use Koha::Plugins;
 
 my $input = CGI->new;
 
@@ -32,5 +33,15 @@ my ( $template, $loggedinuser, $cookie ) = get_template_and_user(
         flagsrequired => { 'plugins' => '*' },
     }
 );
+
+my ( $plugins, $failures ) = Koha::Plugins->new()->GetPlugins(
+    {
+        all    => 1,
+        errors => 1
+    }
+);
+
+my @installed_plugins = map { {'metadata'=>$_->{metadata}, 'class'=>$_->{class}}; } @$plugins;
+$template->param( installed_plugins            => \@installed_plugins );
 
 output_html_with_http_headers $input, $cookie, $template->output;
