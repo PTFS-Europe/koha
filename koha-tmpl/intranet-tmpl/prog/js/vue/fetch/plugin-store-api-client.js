@@ -9,9 +9,14 @@ export class PluginStoreAPIClient extends HttpClient {
 
     get plugins() {
         return {
-            getAll: params =>
+            getStoreAll: koha_version_release =>
                 this.getAll({
                     endpoint: "http://localhost:3000/api/plugins",
+                    params: {
+                        koha_version_release: koha_version_release
+                            ? koha_version_release
+                            : "",
+                    },
                 }),
             create: plugin =>
                 this.post({
