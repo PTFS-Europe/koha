@@ -26,12 +26,21 @@
 
 <script>
 import { APIClient } from "../../fetch/api-client.js"
+import { inject } from "vue"
 import Breadcrumbs from "../Breadcrumbs.vue"
 import Help from "../Help.vue"
 import LeftMenu from "../LeftMenu.vue"
 import Dialog from "../Dialog.vue"
 
 export default {
+    setup() {
+        const { setError } = inject("mainStore")
+
+        return {
+            koha_version,
+            setError,
+        }
+    },
     data() {
         return {
             initialized: false,
@@ -44,12 +53,20 @@ export default {
         LeftMenu,
     },
     beforeCreate() {
+        //TODO Check if plugin store is reachable instead of fetching plugins
         const client = APIClient.plugin_store
-        client.plugins.getAll().then(
+        client.plugins.getStoreAll(this.koha_version.release).then(
             res => {
                 this.initialized = true
             },
-            error => {}
+            error => {
+                return this.setError(
+                    this.$__(
+                        "The plugin store could not be reached. Please check your internet connection and try again."
+                    ),
+                    false
+                )
+            }
         )
     },
 }
