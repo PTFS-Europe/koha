@@ -65,15 +65,17 @@
             <ul class="nav nav-tabs" role="tablist">
                 <li
                     v-for="(number, i) in numberOfTabs"
+                    class="nav-item"
                     role="presentation"
-                    v-bind:class="
-                        tabSelected === `Notice ${number}` ? 'active' : ''
-                    "
                     :key="`noticeTab${i}`"
                 >
                     <a
                         href="#"
+                        class="nav-link"
                         role="tab"
+                        v-bind:class="
+                            tabSelected === `Notice ${number}` ? 'active' : ''
+                        "
                         @click="changeTabContent"
                         :data-content="`Notice ${number}`"
                         >{{ $__("Trigger") + " " + number }}</a
@@ -81,9 +83,14 @@
                 </li>
             </ul>
         </div>
-        <div class="tab_content">
+        <div class="tab-content">
             <template v-for="(number, i) in numberOfTabs">
                 <div
+                    class="tab-pane"
+                    role="tabpanel"
+                    v-bind:class="
+                        tabSelected === `Notice ${number}` ? 'show active' : ''
+                    "
                     v-if="tabSelected === `Notice ${number}`"
                     :key="`noticeTabContent${i}`"
                 >
@@ -98,7 +105,7 @@
             </template>
         </div>
     </div>
-    <div v-if="showModal" class="modal_centered">
+    <div v-if="showModal" class="modal" role="dialog">
         <div
             class="modal-dialog modal-dialog-centered modal-lg"
             role="document"
@@ -244,7 +251,7 @@ export default {
     margin-bottom: 0;
 }
 
-.modal_centered {
+.modal {
     position: fixed;
     z-index: 9998;
     display: table;

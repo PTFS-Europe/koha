@@ -1,7 +1,4 @@
 <template>
-    <router-link :to="{ name: 'CirculationTriggersList' }" class="close_modal">
-        <i class="fa fa-fw fa-close"></i>
-    </router-link>
     <div v-if="initialized" class="modal-content">
         <form @submit="addCircRule($event)">
             <div class="modal-header">
@@ -11,6 +8,13 @@
                 <h1 class="modal-title" v-else>
                     {{ $__("Edit circulation trigger") }}
                 </h1>
+                <router-link
+                    class="btn-close"
+                    type="button"
+                    :to="{
+                        name: 'CirculationTriggersList',
+                    }"
+                ></router-link>
             </div>
             <div class="modal-body">
                 <div class="page-section bg-info" v-if="circRules.length">
@@ -752,13 +756,6 @@ export default {
 </script>
 
 <style scoped>
-.close_modal {
-    position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
-    font-size: 2rem;
-}
-
 form li {
     display: flex;
     align-items: center;
