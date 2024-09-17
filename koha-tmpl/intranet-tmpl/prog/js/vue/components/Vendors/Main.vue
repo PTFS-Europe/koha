@@ -36,29 +36,36 @@ import { storeToRefs } from "pinia"
 export default {
     setup() {
         const vendorStore = inject("vendorStore")
-
-        const AVStore = inject("AVStore")
+        const { config, authorisedValues } = storeToRefs(vendorStore)
 
         const mainStore = inject("mainStore")
 
-        const { loading, loaded, setError } = mainStore
+        const { loading, loaded, setError, loadAuthorisedValues } = mainStore
 
         const permissionsStore = inject("permissionsStore")
         const { userPermissions } = storeToRefs(permissionsStore)
 
         return {
             vendorStore,
-            AVStore,
             setError,
             loading,
             loaded,
             userPermissions,
+            loadAuthorisedValues,
+            authorisedValues,
         }
+    },
+    beforeCreate() {
+        this.loading()
+        this.loadAuthorisedValues(this.authorisedValues).then(() => {
+            this.loaded()
+            this.initialized = true
+        })
     },
     data() {
         this.userPermissions = userPermissions
         return {
-            initialized: true,
+            initialized: false,
         }
     },
     methods: {},
