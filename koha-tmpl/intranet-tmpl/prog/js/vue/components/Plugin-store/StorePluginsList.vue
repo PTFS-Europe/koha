@@ -50,9 +50,9 @@ export default {
                         orderable: false,
                         render: function (data, type, row, meta) {
                             return (
-                                '<img src = "http://localhost:3000/img/' +
+                                '<img style="display:block; margin: 0 auto;" src = "http://localhost:3000/img/' +
                                 row.thumbnail +
-                                '" width="180"/>'
+                                '" width="250px"/>'
                             )
                         },
                     },
@@ -300,3 +300,8 @@ export default {
     name: "StorePluginsList",
 }
 </script>
+<style>
+td {
+    vertical-align: middle;
+}
+</style>
