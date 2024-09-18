@@ -52,8 +52,6 @@ definitions:
     $ref: ./definitions/erm_config.yaml
   erm_agreement:
     $ref: ./definitions/erm_agreement.yaml
-  erm_config:
-    $ref: ./definitions/erm_config.yaml
   erm_counter_file:
     $ref: ./definitions/erm_counter_file.yaml
   erm_counter_registry:
