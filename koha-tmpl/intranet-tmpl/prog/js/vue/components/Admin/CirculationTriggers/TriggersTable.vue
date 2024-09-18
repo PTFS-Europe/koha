@@ -1,6 +1,6 @@
 <template>
     <div class="page-section">
-        <div class="page-section bg-info">
+        <div class="page-section bg-info" v-if="!modal">
             {{
                 $__(
                     "Bolid italic values denote fallback values where an override has not been set for the context."
@@ -16,7 +16,7 @@
                     {{ $__("Item type") }}
                 </th>
                 <th v-if="modal">
-                    {{ $__("Rule") }}
+                    {{ $__("Trigger") }}
                 </th>
                 <th>
                     {{ $__("Delay") }}
@@ -266,6 +266,28 @@
                         >
                     </td>
                 </tr>
+                <tr v-if="modal">
+                    <td colspan="7"></td>
+                    <td class="actions">
+                        <router-link
+                            :to="{
+                                name: 'CirculationTriggersFormEdit',
+                                query: {
+                                    library_id:
+                                        ruleBeingEdited.context.library_id,
+                                    item_type_id:
+                                        ruleBeingEdited.context.item_type_id,
+                                    patron_category_id:
+                                        ruleBeingEdited.context
+                                            .patron_category_id,
+                                    triggerNumber: numberOfTriggers + 1,
+                                },
+                            }"
+                            class="btn btn-default btn-xs"
+                            ><i class="fa-solid fa-pencil"></i> Add</router-link
+                        >
+                    </td>
+                </tr>
             </tbody>
         </table>
     </div>
@@ -283,6 +305,11 @@ export default {
         "itemTypes",
         "letters",
     ],
+    data() {
+        return {
+            numberOfTriggers: 0,
+        };
+    },
     methods: {
         handleContext(value, data, type, displayProperty = "name") {
             const item = data.find(item => item[type] === value);
@@ -310,12 +337,17 @@ export default {
 
             // Calculate the number of 'overdue_X_' triggers in the effectiveRule
             const regex = /overdue_(\d+)_delay/g;
-            const numberOfTriggers = Object.keys(effectiveRule).filter(
+            this.numberOfTriggers = Object.keys(effectiveRule).filter(
                 key => regex.test(key) && effectiveRule[key] !== null
             ).length;
 
+            // Shortcut for the case where no triggers exist yet
+            if (this.numberOfTriggers === 0) {
+                return undefined;
+            }
+
             // Ensure there is one contextRule per 'X' from 1 to numberOfTriggers
-            for (let i = 1; i <= numberOfTriggers; i++) {
+            for (let i = 1; i <= this.numberOfTriggers; i++) {
                 // Check if there's already a rule for overdue_X_ in contextRules
                 const matchingRule = contextRules.find(
                     rule => rule[`overdue_${i}_delay`] !== undefined
