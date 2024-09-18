@@ -1,6 +1,6 @@
 <template>
     <div class="page-section">
-        <div class="page-section bg-info">
+        <div class="page-section bg-info" v-if="!modal">
             {{
                 $__(
                     "Bolid italic values denote fallback values where an override has not been set for the context."
@@ -16,7 +16,7 @@
                     {{ $__("Item type") }}
                 </th>
                 <th v-if="modal">
-                    {{ $__("Rule") }}
+                    {{ $__("Trigger") }}
                 </th>
                 <th>
                     {{ $__("Delay") }}
@@ -266,6 +266,28 @@
                         >
                     </td>
                 </tr>
+                <tr v-if="modal">
+                    <td colspan="7"></td>
+                    <td class="actions">
+                        <router-link
+                            :to="{
+                                name: 'CirculationTriggersFormEdit',
+                                query: {
+                                    library_id:
+                                        ruleBeingEdited.context.library_id,
+                                    item_type_id:
+                                        ruleBeingEdited.context.item_type_id,
+                                    patron_category_id:
+                                        ruleBeingEdited.context
+                                            .patron_category_id,
+                                    triggerNumber: triggerNumber + 1,
+                                },
+                            }"
+                            class="btn btn-default btn-xs"
+                            ><i class="fa-solid fa-pencil"></i> Add</router-link
+                        >
+                    </td>
+                </tr>
             </tbody>
         </table>
     </div>
@@ -313,6 +335,11 @@ export default {
             const numberOfTriggers = Object.keys(effectiveRule).filter(
                 key => regex.test(key) && effectiveRule[key] !== null
             ).length
+
+            // Shortcut for the case where no triggers exist yet
+            if (numberOfTriggers === 0) {
+                return undefined
+            }
 
             // Ensure there is one contextRule per 'X' from 1 to numberOfTriggers
             for (let i = 1; i <= numberOfTriggers; i++) {
