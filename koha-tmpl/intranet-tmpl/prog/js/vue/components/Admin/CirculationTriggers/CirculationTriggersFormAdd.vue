@@ -5,30 +5,21 @@
     <div v-if="initialized" class="modal-content">
         <form @submit="addCircRule($event)">
             <div class="modal-header">
-                <h1 v-if="!editMode">{{ $__("Add circulation trigger") }}</h1>
-                <h1 v-else>{{ $__("Edit circulation trigger") }}</h1>
+                <h1 class="modal-title" v-if="!editMode">
+                    {{ $__("Circulation triggers") }}
+                </h1>
+                <h1 class="modal-title" v-else>
+                    {{ $__("Edit circulation trigger") }}
+                </h1>
             </div>
             <div class="modal-body">
                 <div class="page-section bg-info" v-if="circRules.length">
-                    <h2>{{ $__("Trigger context") }}</h2>
+                    <h2>{{ $__("Circulation context") }}</h2>
                     <TriggerContext :ruleInfo="ruleInfo" />
-                    <h2 v-if="ruleInfo.numberOfTriggers > 0">
-                        {{ $__("Existing rules") }}
-                    </h2>
-                    <p v-if="ruleInfo.numberOfTriggers > 0">
-                        {{ $__("Notice") }} {{ " " + newTriggerNumber - 1 }}
-                    </p>
-                    <TriggersTable
-                        v-if="ruleInfo.numberOfTriggers > 0"
-                        :circRules="circRules"
-                        :triggerNumber="newTriggerNumber - 1"
-                        :modal="true"
-                        :ruleBeingEdited="ruleBeingEdited"
-                        :triggerBeingEdited="triggerBeingEdited"
-                        :letters="letters"
-                    />
                 </div>
+
                 <fieldset class="rows">
+                    <legend>{{ $__("Select trigger context") }}</legend>
                     <ol>
                         <li>
                             <label for="library_id" class="required"
@@ -102,6 +93,32 @@
                             </v-select>
                             <span class="required">{{ $__("Required") }}</span>
                         </li>
+                    </ol>
+
+                    <div
+                        class="page-section bg-warning-subtle"
+                        v-if="circRules.length"
+                    >
+                        <TriggersTable
+                            :circRules="circRules"
+                            :triggerNumber="newTriggerNumber - 1"
+                            :modal="true"
+                            :ruleBeingEdited="ruleBeingEdited"
+                            :triggerBeingEdited="triggerBeingEdited"
+                            :letters="letters"
+                        />
+                    </div>
+                </fieldset>
+
+                <fieldset class="rows" v-if="editMode">
+                    <legend v-if="ruleInfo.numberOfTriggers < newTriggerNumber">
+                        {{ $__("Add new trigger") }}
+                        {{ " " + newTriggerNumber }}
+                    </legend>
+                    <legend v-else>
+                        {{ $__("Edit trigger") }} {{ " " + newTriggerNumber }}
+                    </legend>
+                    <ol>
                         <li>
                             <label for="overdue_delay"
                                 >{{ $__("Delay") }}:
