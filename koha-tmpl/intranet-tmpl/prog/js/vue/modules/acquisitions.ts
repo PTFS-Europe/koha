@@ -17,11 +17,10 @@ library.add(faPlus, faMinus, faPencil, faTrash, faSpinner);
 
 import App from "../components/Vendors/Main.vue";
 
-import { routes as routesDef } from "../routes/vendors";
+import { routes as routesDef } from "../routes/acquisitions";
 
 import { useMainStore } from "../stores/main";
 import { useVendorStore } from "../stores/vendors";
-import { useAVStore } from "../stores/authorisedValues/authorised-values";
 import { useNavigationStore } from "../stores/navigation";
 import { usePermissionsStore } from "../stores/permissions";
 import i18n from "../i18n";
@@ -29,7 +28,6 @@ import i18n from "../i18n";
 const pinia = createPinia();
 
 const mainStore = useMainStore(pinia);
-const AVStore = useAVStore(pinia);
 const navigationStore = useNavigationStore(pinia);
 const permissionsStore = usePermissionsStore(pinia);
 const routes = navigationStore.setRoutes(routesDef);
@@ -52,7 +50,6 @@ const rootComponent = app
 app.config.unwrapInjectedRef = true;
 app.provide("vendorStore", useVendorStore(pinia));
 app.provide("mainStore", mainStore);
-app.provide("AVStore", AVStore);
 app.provide("navigationStore", navigationStore);
 app.provide("permissionsStore", permissionsStore);
 
