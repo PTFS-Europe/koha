@@ -177,8 +177,11 @@ sub harvest_sushi {
     my $url      = $self->_build_url_query;
     my $response = _handle_sushi_request($url);
 
+    my $result   = decode_json( $response->decoded_content );
+
     if ( $response->code >= 400 ) {
-        my $result = decode_json( $response->decoded_content );
+
+        return if $self->_sushi_errors($result);
 
         my $message;
         if ( ref($result) eq 'ARRAY' ) {
@@ -196,7 +199,6 @@ sub harvest_sushi {
             }
         }
 
-        #TODO: May want to add a job error message here?
         warn sprintf "ERROR - SUSHI service %s returned %s - %s\n", $url,
             $response->code, $message;
         if ( $response->code == 404 ) {
@@ -205,7 +207,6 @@ sub harvest_sushi {
             Koha::Exceptions::Authorization::Unauthorized->throw($message);
         } else {
 
-            #TODO: May want to add a job error message here?
             die sprintf "ERROR requesting SUSHI service\n%s\ncode %s: %s\n",
                 $url, $response->code,
                 $message;
@@ -214,12 +215,10 @@ sub harvest_sushi {
         return;
     }
 
-    my $decoded_response = decode_json( $response->decoded_content );
-
-    return if $self->_sushi_errors($decoded_response);
+    return if $self->_sushi_errors($result);
 
     # Parse the SUSHI response
-    my $sushi_counter = Koha::ERM::EUsage::SushiCounter->new( { response => $decoded_response } );
+    my $sushi_counter = Koha::ERM::EUsage::SushiCounter->new( { response => $result } );
     my $counter_file  = $sushi_counter->get_COUNTER_from_SUSHI;
 
     return if $self->_counter_file_size_too_large($counter_file);
