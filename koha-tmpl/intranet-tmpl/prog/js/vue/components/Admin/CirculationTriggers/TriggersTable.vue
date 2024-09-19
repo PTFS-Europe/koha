@@ -280,7 +280,7 @@
                                     patron_category_id:
                                         ruleBeingEdited.context
                                             .patron_category_id,
-                                    triggerNumber: triggerNumber + 1,
+                                    triggerNumber: numberOfTriggers + 1,
                                 },
                             }"
                             class="btn btn-default btn-xs"
@@ -305,6 +305,11 @@ export default {
         "itemTypes",
         "letters",
     ],
+    data() {
+        return {
+            numberOfTriggers: 0,
+        }
+    },
     methods: {
         handleContext(value, data, type, displayProperty = "name") {
             const item = data.find(item => item[type] === value)
@@ -332,17 +337,17 @@ export default {
 
             // Calculate the number of 'overdue_X_' triggers in the effectiveRule
             const regex = /overdue_(\d+)_delay/g
-            const numberOfTriggers = Object.keys(effectiveRule).filter(
+            this.numberOfTriggers = Object.keys(effectiveRule).filter(
                 key => regex.test(key) && effectiveRule[key] !== null
             ).length
 
             // Shortcut for the case where no triggers exist yet
-            if (numberOfTriggers === 0) {
+            if (this.numberOfTriggers === 0) {
                 return undefined
             }
 
             // Ensure there is one contextRule per 'X' from 1 to numberOfTriggers
-            for (let i = 1; i <= numberOfTriggers; i++) {
+            for (let i = 1; i <= this.numberOfTriggers; i++) {
                 // Check if there's already a rule for overdue_X_ in contextRules
                 const matchingRule = contextRules.find(
                     rule => rule[`overdue_${i}_delay`] !== undefined
