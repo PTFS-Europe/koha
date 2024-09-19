@@ -176,8 +176,7 @@ sub harvest_sushi {
     $self->{end_date}    = $args->{end_date};
     my $url      = $self->_build_url_query;
     my $response = _handle_sushi_request($url);
-
-    my $result = decode_json( $response->decoded_content );
+    my $result   = decode_json( $response->decoded_content );
 
     if ( $response->code >= 400 ) {
 
