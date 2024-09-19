@@ -22,6 +22,9 @@ export class AcquisitionAPIClient extends HttpClient {
                     endpoint: "vendors",
                     query,
                     params,
+                    headers: {
+                        "x-koha-embed": "aliases",
+                    },
                 }),
             delete: id =>
                 this.delete({
