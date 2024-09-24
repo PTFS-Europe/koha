@@ -30,7 +30,7 @@
                 <div class="btn-group"><a class="btn btn-default" id="receive" href="/cgi-bin/koha/acqui/parcels.pl?booksellerid=[% booksellerid | html %]"><i class="fa fa-inbox"></i> Receive shipments</a></div>
             [% END %]
         [% ELSE %]
-            <div class="btn-group"><a class="btn btn-default" href="/cgi-bin/koha/vendors"><i class="fa fa-plus"></i> New vendor</a></div>
+            <div class="btn-group"><a class="btn btn-default" href="/cgi-bin/koha/vendors/add"><i class="fa fa-plus"></i> New vendor</a></div>
         [% END %]
 </div>
 <!-- / acquisitions-toolbar.inc -->
