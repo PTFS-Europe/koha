@@ -177,7 +177,7 @@ sub harvest_sushi {
     my $url      = $self->_build_url_query;
     my $response = _handle_sushi_request($url);
 
-    my $result   = decode_json( $response->decoded_content );
+    my $result = decode_json( $response->decoded_content );
 
     if ( $response->code >= 400 ) {
 
@@ -453,10 +453,10 @@ sub _sushi_errors {
     my ( $self, $decoded_response ) = @_;
 
     my $severity = $decoded_response->{Severity} // $decoded_response->{severity};
-    my $message = $decoded_response->{Message} // $decoded_response->{message};
-    my $code = $decoded_response->{Code} // $decoded_response->{code};
+    my $message  = $decoded_response->{Message}  // $decoded_response->{message};
+    my $code     = $decoded_response->{Code}     // $decoded_response->{code};
 
-    if ( $severity ) {
+    if ($severity) {
         $self->{job_callbacks}->{add_message_callback}->(
             {
                 type    => 'error',
