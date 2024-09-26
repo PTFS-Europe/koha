@@ -119,6 +119,9 @@ properties:
     description: List of aliases
     items:
       $ref: "vendor_alias.yaml"
+  subscriptions:
+    type: array
+    description: List of subscriptions
 additionalProperties: false
 required:
   - name
