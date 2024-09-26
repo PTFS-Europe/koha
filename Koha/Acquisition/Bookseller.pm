@@ -74,9 +74,8 @@ Returns the list of subscriptions for the vendor
 
 sub subscriptions {
     my ($self) = @_;
-
-    # FIXME FK missing at DB level
-    return Koha::Subscriptions->search( { aqbooksellerid => $self->id } );
+    my $booksellers_rs = $self->_result->subscriptions;
+    return Koha::Subscriptions->_new_from_dbic($booksellers_rs);
 }
 
 =head3 aliases
