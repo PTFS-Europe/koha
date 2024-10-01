@@ -45,9 +45,13 @@
             </li>
             <li v-if="vendor.url">
                 <label>{{ $__("Website") }}:</label>
-                <span>
-                    {{ vendor.url }}
-                </span>
+                <ToolbarButton
+                    :to="{
+                        path: vendor.url,
+                    }"
+                    class=""
+                    :title="vendor.url"
+                />
             </li>
             <li v-if="vendor.accountnumber">
                 <label>{{ $__("Account number") }}:</label>
@@ -162,7 +166,7 @@
 
 <script>
 import { inject } from "vue"
-import { storeToRefs } from "pinia"
+import ToolbarButton from "../ToolbarButton.vue"
 
 export default {
     props: {
@@ -170,7 +174,6 @@ export default {
         display: Boolean,
     },
     setup() {
-
         const AVStore = inject("AVStore")
         const { get_lib_from_av, av_vendor_types } = AVStore
         return {
@@ -194,6 +197,9 @@ export default {
         removeAlias(e) {
             this.vendor.aliases.splice(this.vendor.aliases.indexOf(e.alias), 1)
         },
+    },
+    components: {
+        ToolbarButton,
     },
 }
 </script>
