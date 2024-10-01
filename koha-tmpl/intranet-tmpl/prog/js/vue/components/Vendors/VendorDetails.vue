@@ -45,12 +45,13 @@
             </li>
             <li v-if="vendor.url" id="vendorWebsite">
                 <label>{{ $__("Website") }}:</label>
-                <ExternalLinkButton
+                <ButtonLink
                     :to="{
                         path: vendor.url,
                     }"
                     class=""
                     :title="vendor.url"
+                    callback="redirect"
                 />
             </li>
             <li v-if="vendor.accountnumber">
@@ -167,7 +168,7 @@
 <script>
 import { inject } from "vue"
 import { storeToRefs } from "pinia"
-import ExternalLinkButton from "../ExternalLinkButton.vue"
+import ButtonLink from "../ButtonLink.vue"
 
 export default {
     props: {
@@ -201,7 +202,7 @@ export default {
         },
     },
     components: {
-        ExternalLinkButton,
+        ButtonLink,
     },
 }
 </script>

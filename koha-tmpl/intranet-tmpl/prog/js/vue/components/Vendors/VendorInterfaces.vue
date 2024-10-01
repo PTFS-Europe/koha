@@ -13,12 +13,13 @@
             </li>
             <li v-if="vi.uri">
                 <label>{{ $__("URI") }}:</label>
-                <ExternalLinkButton
+                <ButtonLink
                     :to="{
                         path: vi.uri,
                     }"
                     class=""
                     :title="vi.uri"
+                    callback="redirect"
                 />
             </li>
             <li v-if="vi.login">
@@ -141,7 +142,7 @@
 <script>
 import { inject } from "vue"
 import { storeToRefs } from "pinia"
-import ExternalLinkButton from "../ExternalLinkButton.vue"
+import ButtonLink from "../ButtonLink.vue"
 
 export default {
     props: {
@@ -173,7 +174,7 @@ export default {
         },
     },
     components: {
-        ExternalLinkButton,
+        ButtonLink,
     },
 }
 </script>
