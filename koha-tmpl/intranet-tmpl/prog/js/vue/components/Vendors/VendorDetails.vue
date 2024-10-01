@@ -45,9 +45,13 @@
             </li>
             <li v-if="vendor.url">
                 <label>{{ $__("Website") }}:</label>
-                <span>
-                    {{ vendor.url }}
-                </span>
+                <ExternalLinkButton
+                    :to="{
+                        path: vendor.url,
+                    }"
+                    class=""
+                    :title="vendor.url"
+                />
             </li>
             <li v-if="vendor.accountnumber">
                 <label>{{ $__("Account number") }}:</label>
@@ -163,6 +167,7 @@
 <script>
 import { inject } from "vue"
 import { storeToRefs } from "pinia"
+import ExternalLinkButton from "../ExternalLinkButton.vue"
 
 export default {
     props: {
@@ -194,6 +199,9 @@ export default {
         removeAlias(e) {
             this.vendor.aliases.splice(this.vendor.aliases.indexOf(e.alias), 1)
         },
+    },
+    components: {
+        ExternalLinkButton,
     },
 }
 </script>

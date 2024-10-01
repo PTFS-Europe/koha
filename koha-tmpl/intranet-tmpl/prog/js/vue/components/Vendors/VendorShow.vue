@@ -3,12 +3,15 @@
     <div v-else id="vendors_show">
         <Toolbar>
             <ToolbarButton
-                :to="{ name: 'VendorList' }"
+                :to="{ name: 'VendorFormAdd' }"
                 icon="plus"
                 :title="$__('New vendor')"
             />
             <ToolbarButton
-                :to="{ name: 'VendorList' }"
+                :to="{
+                    name: 'VendorFormAddEdit',
+                    params: { vendor_id: vendor.id },
+                }"
                 icon="pencil"
                 :title="$__('Edit vendor')"
             />
