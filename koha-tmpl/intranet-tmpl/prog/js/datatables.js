@@ -994,7 +994,11 @@ function _dt_add_delay(table_dt, table_node, delay_ms) {
             }
         }
 
-        var table = $(this).dataTable(settings);
+        // var table = $(this).dataTable(settings);
+        var deep = $.fn.dataTable.ext.deepLink( [
+            'search.searchCols','search.search', 'order', 'displayStart', 'columns'
+        ] );
+        var table = $(this).dataTable( $.extend(settings, deep) );
 
         var table_dt = table.DataTable();
         if ( add_filters ) {
