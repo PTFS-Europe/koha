@@ -2,12 +2,12 @@
     <div v-if="!initialized">{{ $__("Loading") }}</div>
     <div v-else id="vendors_show">
         <Toolbar>
-            <ToolbarButton
+            <ButtonLink
                 :to="{ name: 'VendorFormAdd' }"
                 icon="plus"
                 :title="$__('New vendor')"
             />
-            <ToolbarButton
+            <ButtonLink
                 :to="{
                     name: 'VendorFormAddEdit',
                     params: { vendor_id: vendor.id },
@@ -15,13 +15,14 @@
                 icon="pencil"
                 :title="$__('Edit vendor')"
             />
-            <ExternalLinkButton
+            <ButtonLink
                 :to="{
                     path: '/cgi-bin/koha/acqui/parcels.pl',
                     query: { booksellerid: vendor.id },
                 }"
                 icon="plus"
                 :title="$__('Receive shipments')"
+                callback="redirect"
             />
         </Toolbar>
         <h1>
@@ -53,10 +54,10 @@
 
 <script>
 import Toolbar from "../Toolbar.vue"
-import ToolbarButton from "../ToolbarButton.vue"
+import Button from "../Button.vue"
 import { inject } from "vue"
 import { APIClient } from "../../fetch/api-client.js"
-import ExternalLinkButton from "../ExternalLinkButton.vue"
+import ButtonLink from "../ButtonLink.vue"
 import VendorDetails from "./VendorDetails.vue"
 import VendorOrderingInformation from "./VendorOrderingInformation.vue"
 import VendorInterfaces from "./VendorInterfaces.vue"
@@ -103,8 +104,7 @@ export default {
     },
     components: {
         Toolbar,
-        ToolbarButton,
-        ExternalLinkButton,
+        ButtonLink,
         VendorDetails,
         VendorOrderingInformation,
         VendorInterfaces,
