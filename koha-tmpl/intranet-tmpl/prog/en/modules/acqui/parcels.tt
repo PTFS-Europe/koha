@@ -24,7 +24,7 @@
             <a href="/cgi-bin/koha/acqui/acqui-home.pl">Acquisitions</a>
         [% END %]
         [% WRAPPER breadcrumb_item %]
-            <a href="/cgi-bin/koha/acqui/supplier.pl?booksellerid=[% booksellerid | uri %]">[% name | html %]</a>
+            <a href="/cgi-bin/koha/vendors/[% booksellerid | uri %]">[% name | html %]</a>
         [% END %]
         [% WRAPPER breadcrumb_item bc_active= 1 %]
             <span>Receive shipment from vendor [% name | html %]</span>
@@ -41,7 +41,7 @@
         [% END %]
             <main>
                 [% INCLUDE 'messages.inc' %]
-<h1>Receive shipment from vendor <a href="/cgi-bin/koha/acqui/supplier.pl?booksellerid=[% booksellerid | uri %]">[% name | html %]</a></h1>
+<h1>Receive shipment from vendor <a href="/cgi-bin/koha/vendors/[% booksellerid | uri %]">[% name | html %]</a></h1>
 
 [% IF ( error_failed_to_create_invoice ) %]
     <div id="error" class="alert alert-warning">
@@ -196,7 +196,7 @@
             [% IF available_additional_fields %]
                 [% INCLUDE 'additional-fields-entry.inc' available=available_additional_fields values=additional_field_values %]
             [% END %]
-            <fieldset class="action"><input type="submit" class="btn btn-default" value="Next" /> <a class="cancel" href="/cgi-bin/koha/acqui/supplier.pl?booksellerid=[% booksellerid | html %]">Cancel</a></fieldset>
+            <fieldset class="action"><input type="submit" class="btn btn-default" value="Next" /> <a class="cancel" href="/cgi-bin/koha/vendors/[% booksellerid | html %]">Cancel</a></fieldset>
         </form>
     </div>
 </main>
