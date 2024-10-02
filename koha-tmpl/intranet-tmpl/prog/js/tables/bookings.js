@@ -2,8 +2,15 @@
 // Bookings
 var bookings_table;
 $(document).ready(function () {
+    // Load bookings table on page load
+    if (window.location.hash === "#bookings_panel") {
+        loadBookingsTable();
+    }
     // Load bookings table on tab selection
     $("#bookings-tab").on("click", function () {
+        loadBookingsTable();
+    });
+    function loadBookingsTable() {
         if (!bookings_table) {
             var today = new Date();
             var bookings_table_url = "/api/v1/bookings";
@@ -95,5 +102,5 @@ $(document).ready(function () {
                 }
             );
         }
-    });
+    }
 });
