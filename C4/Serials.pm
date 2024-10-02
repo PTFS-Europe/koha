@@ -353,13 +353,13 @@ sub GetFullSubscription {
 
 =head2 PrepareSerialsData
 
-   $array_ref = PrepareSerialsData($serialinfomation)
-   where serialinformation is a hashref array
+   $array_ref = PrepareSerialsData($serialinfomation, $add_itemnumbers)
+   where serialinformation is a hashref array and add_itemnumbers is a boolean
 
 =cut
 
 sub PrepareSerialsData {
-    my ($lines) = @_;
+    my ($lines, $add_itemnumbers) = @_;
 
     return unless ($lines);
 
@@ -374,6 +374,10 @@ sub PrepareSerialsData {
         $subs->{ "status" . $subs->{'status'} } = 1;
         if ( grep { $_ == $subs->{status} } ( EXPECTED, LATE, MISSING_STATUSES, CLAIMED ) ) {
             $subs->{"checked"} = 1;
+        }
+        if ($add_itemnumbers) {
+            my $serialitem = Koha::Serial::Items->find( { serialid => $subs->{'serialid'} } );
+            $subs->{"itemnumber"} = $serialitem->itemnumber if $serialitem;
         }
 
         if ( $subs->{'year'} && $subs->{'year'} ne "" ) {

@@ -225,6 +225,7 @@
                                                     <th>Number</th>
                                                     <th>Status</th>
                                                     <th>Notes</th>
+                                                    <th>Linked item</th>
                                                     <th>Library</th>
                                                     [% IF ( routing ) %]
                                                         <th>Routing</th>
@@ -307,6 +308,9 @@
                                                         </td>
                                                         <td>
                                                             [% serial.notes | html %]
+                                                        </td>
+                                                        <td>
+                                                            <a href="/cgi-bin/koha/catalogue/moredetail.pl?itemnumber=[% serial.itemnumber | uri %]">[% serial.itemnumber | html %]</a>
                                                         </td>
                                                         <td>
                                                             [% Branches.GetName( serial.branchcode ) | html %]
