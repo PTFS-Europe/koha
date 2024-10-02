@@ -359,7 +359,7 @@ sub GetFullSubscription {
 =cut
 
 sub PrepareSerialsData {
-    my ($lines, $add_itemnumbers) = @_;
+    my ( $lines, $add_itemnumbers ) = @_;
 
     return unless ($lines);
 
@@ -372,9 +372,6 @@ sub PrepareSerialsData {
 
     foreach my $subs (@{$lines}) {
         $subs->{ "status" . $subs->{'status'} } = 1;
-        if ( grep { $_ == $subs->{status} } ( EXPECTED, LATE, MISSING_STATUSES, CLAIMED ) ) {
-            $subs->{"checked"} = 1;
-        }
         if ($add_itemnumbers) {
             my $serialitem = Koha::Serial::Items->find( { serialid => $subs->{'serialid'} } );
             $subs->{"itemnumber"} = $serialitem->itemnumber if $serialitem;
