@@ -20,6 +20,13 @@
 [% ELSIF ( caller == 'recall' ) %]
     [% t("Recall print receipt") | html %] &rsaquo;
     [% t("Circulation") | html %] &rsqaquo;
+[% ELSIF ( caller == 'notice_mgmt' ) %]
+    [% UNLESS slips && slips.size > 1 %]
+    [% t("Print notice") | html %] &rsaquo;
+    [% ELSE %]
+    [% t("Print notices") | html %] &rsaquo;
+    [% END %]
+    [% t("Tools") | html %] &rsqaquo;
 [% ELSIF ( title ) %][%# FIXME title is never defined %]
     [% title | html %] &rsaquo;
     [% t("Patrons") | html %] &rsaquo;
