@@ -41,8 +41,13 @@ $(document).ready(function() {
         `)
         win.document.write( title );
         win.document.write( contents );
+        win.document.close();
+        win.focus();
         win.print();
-        win.close();
+        win.onafterprint = function () {
+            win.close();
+        }
+        setTimeout('window.close()', 1000); //Hack from Chrome < 63
     }
 
     // Set focused on printable modals on open and autoprint if required
