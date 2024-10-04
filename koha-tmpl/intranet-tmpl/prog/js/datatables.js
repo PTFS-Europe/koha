@@ -721,6 +721,10 @@ function _dt_buttons(params){
             enabled: false,
             text: '<i class="fa fa-lg fa-remove"></i> <span class="dt-button-text">' + __("Clear filter") + '</span>',
             action: function ( e, dt, node, config ) {
+                $(".dt_filter_col input, .dt_filter_col select").val("");
+                dt.columns().every( function () {
+                    this.search( "" );
+                } );
                 dt.search( "" ).draw("page");
                 node.addClass("disabled");
             }
@@ -822,7 +826,7 @@ function _dt_add_filters(table_node, table_dt, filters_options = {}) {
 
     $(table_node).find('thead tr:eq(1) th').each( function (i) {
         var is_searchable = table_dt.settings()[0].aoColumns[i].bSearchable;
-        $(this).removeClass('sorting').removeClass("sorting_asc").removeClass("sorting_desc");
+        $(this).removeClass('sorting').removeClass("sorting_asc").removeClass("sorting_desc").addClass("dt_filter_col");
         $(this).data('th-id', i);
         if ( is_searchable ) {
             let input_type = 'input';
