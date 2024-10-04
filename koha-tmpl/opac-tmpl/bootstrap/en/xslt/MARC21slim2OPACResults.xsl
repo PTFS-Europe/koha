@@ -1254,16 +1254,12 @@
                                                 <xsl:with-param name="codes">y3z</xsl:with-param>
                                             </xsl:call-template>
                                         </xsl:when>
-                                        <xsl:when test="not(marc:subfield[@code='y']) and not(marc:subfield[@code='3']) and not(marc:subfield[@code='z'])">
-                                            <xsl:choose>
-                                                <xsl:when test="$URLLinkText!=''">
-                                                    <xsl:value-of select="$URLLinkText" />
-                                                </xsl:when>
-                                                <xsl:otherwise>
-                                                    <xsl:text>Click here to access online</xsl:text>
-                                                </xsl:otherwise>
-                                            </xsl:choose>
+                                        <xsl:when test="$URLLinkText!=''">
+                                            <xsl:value-of select="$URLLinkText" />
                                         </xsl:when>
+                                        <xsl:otherwise>
+                                            <xsl:text>Click here to access online</xsl:text>
+                                        </xsl:otherwise>
                                     </xsl:choose>
                                 </a></li>
                         </xsl:for-each>
