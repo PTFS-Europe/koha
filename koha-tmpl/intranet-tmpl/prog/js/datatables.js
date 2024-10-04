@@ -70,8 +70,8 @@ var dataTablesDefaults = {
     }
 };
 
-function toggledClearFilter(searchText, tableId){
-    if( searchText == "" ){
+function toggledClearFilter(searchText, tableId, searchFilters){
+    if( searchText == "" && searchFilters === false ){
         $("#" + tableId + "_wrapper").find(".dt_button_clear_filter").addClass("disabled");
     } else {
         $("#" + tableId + "_wrapper").find(".dt_button_clear_filter").removeClass("disabled");
@@ -1007,7 +1007,10 @@ function _dt_add_delay(table_dt, table_node, delay_ms) {
         // enable or disable the "Clear filter" button based on
         // the presence of a search string
         this.on( 'search.dt', function ( e, settings ) {
-            toggledClearFilter(settings.oPreviousSearch.sSearch, tableId);
+            let searchFilters = settings.aoPreSearchCols.some(function (value) {
+                return value.sSearch != "";
+            });
+            toggledClearFilter(settings.oPreviousSearch.sSearch, tableId, searchFilters);
         });
     }
 
