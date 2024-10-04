@@ -510,6 +510,45 @@
                             </ol>
                         </fieldset> <!-- /#add_notice -->
 
+                        <fieldset class="page-section">
+                            <h2>HTML styles</h2>
+                        [% WRAPPER accordion panelgroup_id="notice_styles" %]
+                            [% WRAPPER accordion_item %]
+                                [% WRAPPER accordion_heading panel_id="all_notice_css" %]
+                                    All Notice CSS
+                                [% END %]
+                                [% WRAPPER accordion_panel panel_id="all_notice_css" %]
+                                    <pre><code>[%-Koha.Preference('AllNoticeCSS') | html -%]</pre></code>
+                                    [% IF ( CAN_user_parameters_manage_sysprefs ) %]
+                                        <a class="syspref-link" href='/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=AllNoticeCSS'>Edit</a>
+                                    [% END %]
+                                [% END %]
+                            [% END %]
+                            [% WRAPPER accordion_item %]
+                                [% WRAPPER accordion_heading panel_id="email_notice_css" %]
+                                    Email Notice CSS
+                                [% END %]
+                                [% WRAPPER accordion_panel panel_id="email_notice_css" %]
+                                    <pre><code>[%- Koha.Preference('EmailNoticeCSS') | html -%]</code></pre>
+                                    [% IF ( CAN_user_parameters_manage_sysprefs ) %]
+                                        <a class="syspref-link" href='/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=EmailNoticeCSS'>Edit</a>
+                                    [% END %]
+                                [% END %]
+                            [% END %]
+                            [% WRAPPER accordion_item %]
+                                [% WRAPPER accordion_heading panel_id="print_notice_css" %]
+                                    Print Notice CSS
+                                [% END %]
+                                [% WRAPPER accordion_panel panel_id="print_notice_css" %]
+                                    <pre><code>[%- Koha.Preference('PrintNoticeCSS') | html -%]</code></pre>
+                                    [% IF ( CAN_user_parameters_manage_sysprefs ) %]
+                                        <a class="syspref-link" href='/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=PrintNoticeCSS'>Edit</a>
+                                    [% END %]
+                                [% END %]
+                            [% END %]
+                        [% END %]
+                        </fieldset>
+
                         [% IF Koha.Preference('TranslateNotices') %]
                             <div style="clear:both"></div>
                             [% WRAPPER tabs id= "tabs" %]
