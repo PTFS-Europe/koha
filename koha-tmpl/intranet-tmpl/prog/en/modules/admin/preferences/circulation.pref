@@ -137,11 +137,6 @@ Circulation:
                   slip: "open a print slip window"
             - .
         -
-            - Include the stylesheet at
-            - pref: NoticeCSS
-              class: url
-            - on notices. (This should be a complete URL, starting with <code>http://</code>)
-        -
             - pref: UpdateTotalIssuesOnCirc
               choices:
                   1: Do

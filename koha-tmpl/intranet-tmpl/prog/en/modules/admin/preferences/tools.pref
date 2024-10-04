@@ -27,6 +27,46 @@ Tools:
             - pref: ImageLimit
               class: Integer
             - images.
+    Notices and slips:
+        -
+            - Include the stylesheet at
+            - pref: AllNoticeStylesheet
+              class: url
+            - on notices regarless of message transport type. (This should be a complete URL, starting with <code>http://</code>.)
+        -
+            - "Include the following CSS on all notices regardless of message transport:"
+            - pref: AllNoticeCSS
+              type: textarea
+              syntax: css
+              class: code
+        -
+            - Include the stylesheet at
+            - pref: EmailNoticeStylesheet
+              class: url
+            - on email notices. (This should be a complete URL, starting with <code>http://</code>.)
+        -
+            - "Include the following CSS on all email notices:"
+            - pref: EmailNoticeCSS
+              type: textarea
+              syntax: css
+              class: code
+        -
+            - "Include the following CSS on all print notices:"
+            - pref: PrintNoticeCSS
+              type: textarea
+              syntax: css
+              class: code
+        -
+            - Include the stylesheet at
+            - pref: PrintSlipStylesheet
+              class: url
+            - on print slips. (This should be a complete URL, starting with <code>http://</code>.)
+        -
+            - "Include the following CSS on all print slips:"
+            - pref: PrintSlipCSS
+              type: textarea
+              syntax: css
+              class: code
     News:
         -
             - "Show the author for news items:"
