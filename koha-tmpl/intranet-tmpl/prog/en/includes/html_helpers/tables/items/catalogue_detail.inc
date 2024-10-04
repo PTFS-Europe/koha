@@ -784,6 +784,7 @@
                     }
                 });
                 itemSelectionBuildActionLinks(tab_id);
+                $(this).kohaTableToggleClearFilter(settings);
             },
             drawCallback: function(settings){
                 var api = new $.fn.dataTable.Api(settings)
