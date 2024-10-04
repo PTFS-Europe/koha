@@ -56,18 +56,10 @@ var dataTablesDefaults = {
     "pageLength": 20,
     "fixedHeader": true,
     initComplete: function( settings ) {
-        var tableId = settings.nTable.id
-        var state =  settings.oLoadedState;
-        state && toggledClearFilter(state.search.search, tableId);
-        // When the DataTables search function is triggered,
-        // enable or disable the "Clear filter" button based on
-        // the presence of a search string
-        $(this).on( 'search.dt', function ( e, settings ) {
-            toggledClearFilter(settings.oPreviousSearch.sSearch, tableId);
-        });
+        $(this).kohaTableToggleClearFilter(settings);
 
         if (settings.ajax) {
-            let table_node = $("#" + tableId);
+            let table_node = $("#" + settings.nTable.id);
             if ( typeof this.api === 'function' ) {
                 _dt_add_delay(this.api(), table_node);
             } else {
@@ -1006,5 +998,18 @@ function _dt_add_delay(table_dt, table_node, delay_ms) {
 
         return table;
     };
+
+    $.fn.kohaTableToggleClearFilter = function(settings) {
+        var tableId = settings.nTable.id
+        var state =  settings.oLoadedState;
+        state && toggledClearFilter(state.search.search, tableId);
+        // When the DataTables search function is triggered,
+        // enable or disable the "Clear filter" button based on
+        // the presence of a search string
+        this.on( 'search.dt', function ( e, settings ) {
+            toggledClearFilter(settings.oPreviousSearch.sSearch, tableId);
+        });
+    }
+
 
 })(jQuery);
