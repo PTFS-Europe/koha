@@ -1243,6 +1243,7 @@
                             <xsl:with-param name="MARCOnlineResourceField">857</xsl:with-param>
                             <xsl:with-param name="OPACTrackClicks" select="$OPACTrackClicks"></xsl:with-param>
                             <xsl:with-param name="OPACURLOpenInNewWindow" select="$OPACURLOpenInNewWindow"></xsl:with-param>
+                            <xsl:with-param name="screen" select="results"></xsl:with-param>
                         </xsl:call-template>
                     </ul>
                 </div>
