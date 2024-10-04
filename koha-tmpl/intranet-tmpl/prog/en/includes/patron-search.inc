@@ -716,16 +716,17 @@
                 'lengthMenu': [aLengthMenu, aLengthMenuLabel],
                 "pagingType": 'full_numbers',
                 "pageLength": [% Koha.Preference('PatronsPerPage') | html %],
-                [% IF sticky_header %]
                 "initComplete": function(settings, json) {
-                    $("#[% sticky_header | html %]").show();
-                    Sticky = $("#[% sticky_header | html %]");
-                    Sticky.hcSticky({
-                        stickTo: "#[% sticky_to | html %]",
-                        stickyClass: "floating"
-                    });
+                     $(this).kohaTableToggleClearFilter(settings);
+                    [% IF sticky_header %]
+                        $("#[% sticky_header | html %]").show();
+                        Sticky = $("#[% sticky_header | html %]");
+                        Sticky.hcSticky({
+                            stickTo: "#[% sticky_to | html %]",
+                            stickyClass: "floating"
+                        });
+                    [% END %]
                 },
-                [% END %]
                 fixedHeader: false,
             }, typeof table_settings !== 'undefined' ? table_settings : null, 1, additional_filters);
 
