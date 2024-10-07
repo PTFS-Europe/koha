@@ -1274,6 +1274,88 @@
                             </div>
                         </xsl:if>
 
+    <xsl:if test="marc:datafield[@tag=857]">
+         <div class="results_summary online_resources">
+			   <span class="label">Online archive access: </span>
+                    <ul class="resource_list">
+                            <xsl:for-each select="marc:datafield[@tag=857]">
+                            <xsl:variable name="SubqText"><xsl:value-of select="marc:subfield[@code='q']"/></xsl:variable>
+                            <xsl:if test="$OPACURLOpenInNewWindow='0'">
+			      <li><a>
+			      <xsl:choose>
+			        <xsl:when test="$OPACTrackClicks='track'">
+                      <xsl:attribute name="href">/cgi-bin/koha/tracklinks.pl?uri=<xsl:value-of select="str:encode-uri(marc:subfield[@code='u'], true())"/>&amp;biblionumber=<xsl:value-of select="$biblionumber"/></xsl:attribute>
+				</xsl:when>
+	                        <xsl:when test="$OPACTrackClicks='anonymous'">
+                      <xsl:attribute name="href">/cgi-bin/koha/tracklinks.pl?uri=<xsl:value-of select="str:encode-uri(marc:subfield[@code='u'], true())"/>&amp;biblionumber=<xsl:value-of select="$biblionumber"/></xsl:attribute>
+				</xsl:when>
+				<xsl:otherwise>
+                    <xsl:attribute name="href">
+                        <xsl:call-template name="AddMissingProtocol">
+                            <xsl:with-param name="resourceLocation" select="marc:subfield[@code='u']"/>
+                            <xsl:with-param name="indicator1" select="@ind1"/>
+                            <xsl:with-param name="accessMethod" select="marc:subfield[@code='2']"/>
+                        </xsl:call-template>
+                        <xsl:value-of select="marc:subfield[@code='u']"/>
+                    </xsl:attribute>
+				</xsl:otherwise>
+			      </xsl:choose>
+                                    <xsl:choose>
+                                    <xsl:when test="marc:subfield[@code='y' or @code='3' or @code='z']">
+                                        <xsl:call-template name="subfieldSelect">
+                                        <xsl:with-param name="codes">y3z</xsl:with-param>
+                                        </xsl:call-template>
+                                    </xsl:when>
+                                    <xsl:when test="not(marc:subfield[@code='y']) and not(marc:subfield[@code='3']) and not(marc:subfield[@code='z'])">
+					<xsl:choose>
+					<xsl:when test="$URLLinkText!=''">
+						<xsl:value-of select="$URLLinkText"/>
+					</xsl:when>
+					<xsl:otherwise>
+						<xsl:text>Click here to access online</xsl:text>
+					</xsl:otherwise>
+					</xsl:choose>
+                                    </xsl:when>
+                                    </xsl:choose>
+                                    </a></li>
+                              </xsl:if>
+                            <xsl:if test="$OPACURLOpenInNewWindow='1'">
+                                   <li><a target='_blank'>
+				   <xsl:choose>
+				     <xsl:when test="$OPACTrackClicks='track'">
+                      <xsl:attribute name="href">/cgi-bin/koha/tracklinks.pl?uri=<xsl:value-of select="str:encode-uri(marc:subfield[@code='u'], true())"/>&amp;biblionumber=<xsl:value-of select="$biblionumber"/></xsl:attribute>
+				     </xsl:when>
+				     <xsl:when test="$OPACTrackClicks='anonymous'">
+                      <xsl:attribute name="href">/cgi-bin/koha/tracklinks.pl?uri=<xsl:value-of select="str:encode-uri(marc:subfield[@code='u'], true())"/>&amp;biblionumber=<xsl:value-of select="$biblionumber"/></xsl:attribute>
+				     </xsl:when>
+				     <xsl:otherwise>
+		                       <xsl:attribute name="href"><xsl:value-of select="marc:subfield[@code='u']"/></xsl:attribute>
+				     </xsl:otherwise>
+				   </xsl:choose>
+                                    <xsl:choose>
+                                    <xsl:when test="marc:subfield[@code='y' or @code='3' or @code='z']">
+                                        <xsl:call-template name="subfieldSelect">
+                                        <xsl:with-param name="codes">y3z</xsl:with-param>
+                                        </xsl:call-template>
+                                    </xsl:when>
+                                    <xsl:when test="not(marc:subfield[@code='y']) and not(marc:subfield[@code='3']) and not(marc:subfield[@code='z'])">
+					<xsl:choose>
+					<xsl:when test="$URLLinkText!=''">
+						<xsl:value-of select="$URLLinkText"/>
+					</xsl:when>
+					<xsl:otherwise>
+						<xsl:text>Click here to access online</xsl:text>
+					</xsl:otherwise>
+					</xsl:choose>
+                                    </xsl:when>
+                                    </xsl:choose>
+                                    </a></li>
+                              </xsl:if>
+                            </xsl:for-each>
+                            </ul>
+                            </div>
+                        </xsl:if>
+
         <!-- Availability line -->
         <div class="results_summary availability">
 

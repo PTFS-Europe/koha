@@ -1089,6 +1089,55 @@
             </span>
         </xsl:if>
 
+    <xsl:if test="marc:datafield[@tag=857]">
+        <span class="results_summary online_resources">
+            <span class="label">Online archive resources: </span>
+                <ul class="resource_list">
+                    <xsl:for-each select="marc:datafield[@tag=857]">
+                        <xsl:variable name="SubqText"><xsl:value-of select="marc:subfield[@code='q']"/></xsl:variable>
+                        <li>
+                            <a property="url">
+                                <xsl:choose>
+                                    <xsl:when test="$OPACTrackClicks='track'">
+                                        <xsl:attribute name="href">/cgi-bin/koha/tracklinks.pl?uri=<xsl:value-of select="str:encode-uri(marc:subfield[@code='u'], true())"/>&amp;biblionumber=<xsl:value-of select="$biblionumber"/></xsl:attribute>
+                                    </xsl:when>
+                                    <xsl:when test="$OPACTrackClicks='anonymous'">
+                                        <xsl:attribute name="href">/cgi-bin/koha/tracklinks.pl?uri=<xsl:value-of select="str:encode-uri(marc:subfield[@code='u'], true())"/>&amp;biblionumber=<xsl:value-of select="$biblionumber"/></xsl:attribute>
+                                    </xsl:when>
+                                    <xsl:otherwise>
+                                        <xsl:attribute name="href">
+                                            <xsl:call-template name="AddMissingProtocol">
+                                                <xsl:with-param name="resourceLocation" select="marc:subfield[@code='u']"/>
+                                                <xsl:with-param name="indicator1" select="@ind1"/>
+                                                <xsl:with-param name="accessMethod" select="marc:subfield[@code='2']"/>
+                                            </xsl:call-template>
+                                            <xsl:value-of select="marc:subfield[@code='u']"/>
+                                        </xsl:attribute>
+                                    </xsl:otherwise>
+                                </xsl:choose>
+                                <xsl:if test="$OPACURLOpenInNewWindow='1'">
+                                    <xsl:attribute name="target">_blank</xsl:attribute>
+                                </xsl:if>
+                                <xsl:choose>
+                                    <xsl:when test="marc:subfield[@code='y' or @code='3' or @code='z']">
+                                        <xsl:call-template name="subfieldSelect">
+                                            <xsl:with-param name="codes">y3z</xsl:with-param>
+                                        </xsl:call-template>
+                                    </xsl:when>
+                                    <xsl:when test="$URLLinkText!=''">
+                                        <xsl:value-of select="$URLLinkText"/>
+                                    </xsl:when>
+                                    <xsl:otherwise>
+                                        <xsl:text>Click here to access online</xsl:text>
+                                    </xsl:otherwise>
+                                </xsl:choose>
+                            </a>
+                        </li>
+                    </xsl:for-each>
+                </ul>
+            </span>
+        </xsl:if>
+
         <!--  787 Other Relationship Entry  -->
         <xsl:if test="marc:datafield[@tag=787]">
         <span class="results_summary other_relationship_entry"><span class="label">Other related works: </span>
