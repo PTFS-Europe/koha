@@ -53,7 +53,7 @@
                     [% IF ( QUEUED_MESSAGES ) %]
                     <div class="page-section">
                         <span id="checkbox_actions"><a href="#" class="select_all"><i class="fa fa-check"></i> Select all</a> | <a href="#" class="clear_all"><i class="fa fa-remove"></i> Clear all</a></span>
-                        <form id="print_multiple" action="/cgi-bin/koha/tools/print_notice.pl" method="post" target="_blank">
+                        <form id="print_multiple" action="/cgi-bin/koha/members/print_notice.pl" method="post" target="_blank">
                             [% INCLUDE 'csrf-token.inc' %]
 
                             <table id="noticestable">
@@ -127,7 +127,7 @@
                                                     [% END %]
                                                 [% END %]
                                             </td>
-                                            <td class="actions">[% IF QUEUED_MESSAGE.status != 'pending' %]<a target="_blank" class="btn btn-default btn-xs" href="/cgi-bin/koha/tools/print_notice.pl?message_ids=[% QUEUED_MESSAGE.message_id | uri %]"><i class="fa fa-print"></i> Print</a>[% END %]</td>
+                                            <td class="actions">[% IF QUEUED_MESSAGE.status != 'pending' %]<a target="_blank" class="btn btn-default btn-xs" href="/cgi-bin/koha/members/print_notice.pl?message_ids=[% QUEUED_MESSAGE.message_id | uri %]"><i class="fa fa-print"></i> Print</a>[% END %]</td>
                                         </tr>
                                     [% END %]
                                 </tbody>
