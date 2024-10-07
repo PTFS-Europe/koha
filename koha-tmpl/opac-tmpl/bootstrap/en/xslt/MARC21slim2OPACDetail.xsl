@@ -1036,10 +1036,10 @@
     </xsl:if>
 
 
-    <!-- Image processing code added here, takes precedence over text links including y3z text   -->
+    <!-- 856 -->
     <xsl:if test="marc:datafield[@tag=856]">
         <xsl:if test="marc:datafield[@tag=856]/marc:subfield[@code='u']">
-            <span class="results_summary online_resources">
+            <div class="results_summary online_resources">
                 <span class="label">Online resources: </span>
                 <ul class="resource_list">
                     <xsl:call-template name="renderMARCOnlineResourceField">
@@ -1050,7 +1050,24 @@
                         <xsl:with-param name="screen" select="detail"></xsl:with-param>
                     </xsl:call-template>
                 </ul>
-            </span>
+            </div>
+        </xsl:if>
+    </xsl:if>
+
+    <!-- 857 -->
+    <xsl:if test="marc:datafield[@tag=857]">
+        <xsl:if test="marc:datafield[@tag=857]/marc:subfield[@code='u']">
+            <div class="results_summary online_resources">
+                <span class="label">Online archive resources: </span>
+                <ul class="resource_list">
+                    <xsl:call-template name="renderMARCOnlineResourceField">
+                        <xsl:with-param name="MARCOnlineResourceField">857</xsl:with-param>
+                        <xsl:with-param name="OPACTrackClicks" select="$OPACTrackClicks"></xsl:with-param>
+                        <xsl:with-param name="OPACURLOpenInNewWindow" select="$OPACURLOpenInNewWindow"></xsl:with-param>
+                        <xsl:with-param name="screen" select="detail"></xsl:with-param>
+                    </xsl:call-template>
+                </ul>
+            </div>
         </xsl:if>
     </xsl:if>
 
