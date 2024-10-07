@@ -93,6 +93,17 @@ if ( $print eq 'checkinslip' ) {
     $letter = IssueSlip( $session->param('branch') || $branch, $borrowernumber, 0 );
 } elsif ( $print eq 'issueqslip' ) {
     $letter = IssueSlip( $session->param('branch') || $branch, $borrowernumber, 1 );
+} elsif ( $print eq 'accounts_summary' ) {
+    $letter = C4::Letters::GetPreparedLetter(
+        module                 => 'members',
+        letter_code            => $print,
+        branchcode             => $branch,
+        lang                   => $patron->lang,
+        tables                 => {
+            borrowers => $patron->borrowernumber
+        },
+        message_transport_type => 'print',
+    );
 } else {
     $letter = C4::Letters::GetPreparedLetter(
         module      => 'patron_slip',

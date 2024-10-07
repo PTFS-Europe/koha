@@ -26,7 +26,7 @@
                 <li><a class="dropdown-item printslip" data-code="issueslip" href="#">Print slip</a></li>
                 <li><a class="dropdown-item printslip" data-code="issueqslip" href="#">Print quick slip</a></li>
                 [% IF patron.account_balance != 0 %]
-                <li><a class="dropdown-item" id="printfineslip" target="_blank" href="/cgi-bin/koha/members/printnotice.pl?notice=ACCOUNTS_SUMMARY&borrowernumber=[% patron.borrowernumber | uri %]">Print account balance</a></li>
+                <li><a class="dropdown-item printslip" data-code="accounts_summary" id="printfineslip" href="#">Print account balance</a></li>
                 [% END %]
                 [% IF patron.has_overdues %]
                     <li><a class="dropdown-item" id="print_overdues" href="#">Print overdues</a></li>
