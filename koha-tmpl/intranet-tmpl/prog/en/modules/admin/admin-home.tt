@@ -33,14 +33,14 @@
                         <h4>The Mana Knowledge Base feature is enabled but not configured.</h4>
                         <p>This feature allows you to retrieve and share data (subscription patterns and reports) with other Koha libraries.</p>
                         <p>
-                            Ask your system administrator to configure this feature, or remove this note by <a href=/cgi-bin/koha/admin/share_content.pl>disabling the 'Mana' system preference</a>.
+                            Ask your system administrator to configure this feature, or remove this note by <a href="/cgi-bin/koha/admin/share_content.pl">disabling the 'Mana' system preference</a>.
                         </p>
                     </div>
                 [% END %]
                 [% IF ( Koha.Preference('Mana') == 2 ) %]
                     <div class="alert alert-info">
                         <h4>Share content with Mana KB?</h4>
-                        <p> You haven't decided if you want to activate Mana Knowledge Base. <a href=/cgi-bin/koha/admin/share_content.pl>Change your Mana KB settings</a>.</p>
+                        <p> You haven't decided if you want to activate Mana Knowledge Base. <a href="/cgi-bin/koha/admin/share_content.pl">Change your Mana KB settings</a>.</p>
                     </div>
                 [% END %]
             [% END %]
@@ -48,7 +48,7 @@
                 [% IF ( Koha.Preference('UsageStats') == 2 ) %]
                     <div class="alert alert-info">
                         <h4>Share anonymous usage statistics with the Koha community?</h4>
-                        <p> You haven't decided if you want to activate usage statistic sharing in Koha yet. <a href=/cgi-bin/koha/admin/usage_statistics.pl>Change your Hea settings</a>.</p>
+                        <p> You haven't decided if you want to activate usage statistic sharing in Koha yet. <a href="/cgi-bin/koha/admin/usage_statistics.pl">Change your Hea settings</a>.</p>
                         <p> This feature gives the Koha developers valuable information regarding how Koha is being used and helps to drive decisions during the development cycle</p>
                     </div>
                 [% END %]
@@ -253,7 +253,7 @@
                 </dl>
             [% END %]
 
-            [% IF ( ( CAN_user_parameters_manage_identity_providers || CAN_user_parameters_manage_smtp_servers || CAN_user_parameters_manage_search_targets || CAN_user_parameters_manage_didyoumean || CAN_user_parameters_manage_column_config || CAN_user_parameters_manage_audio_alerts || CAN_user_parameters_manage_sms_providers && Koha.Preference('SMSSendDriver') == 'Email' ) || CAN_user_parameters_manage_usage_stats || CAN_user_parameters_manage_additional_fields || CAN_user_parameters_manage_mana || (Koha.Preference('EnableAdvancedCatalogingEditor') && CAN_user_parameters_manage_keyboard_shortcuts) ) %]
+            [% IF ( ( CAN_user_parameters_manage_identity_providers || CAN_user_parameters_manage_smtp_servers || CAN_user_parameters_manage_sftp_servers || CAN_user_parameters_manage_search_targets || CAN_user_parameters_manage_didyoumean || CAN_user_parameters_manage_column_config || CAN_user_parameters_manage_audio_alerts || CAN_user_parameters_manage_sms_providers && Koha.Preference('SMSSendDriver') == 'Email' ) || CAN_user_parameters_manage_usage_stats || CAN_user_parameters_manage_additional_fields || CAN_user_parameters_manage_mana || (Koha.Preference('EnableAdvancedCatalogingEditor') && CAN_user_parameters_manage_keyboard_shortcuts) ) %]
                 <h3>Additional parameters</h3>
                 <dl>
                         <!-- <dt><a href="/cgi-bin/koha/admin/printers.pl">Network Printers</a></dt>
@@ -271,6 +271,10 @@
                     [% IF ( CAN_user_parameters_manage_smtp_servers ) %]
                         <dt><a href="/cgi-bin/koha/admin/smtp_servers.pl">SMTP servers</a></dt>
                         <dd>Define which SMTP servers to use</dd>
+                    [% END %]
+                    [% IF ( CAN_user_parameters_manage_sftp_servers ) %]
+                        <dt><a href="/cgi-bin/koha/admin/sftp_servers.pl">FTP/SFTP servers</a></dt>
+                        <dd>Define available FTP/SFTP servers</dd>
                     [% END %]
                     [% IF ( CAN_user_parameters_manage_didyoumean ) %]
                         <dt><a href="/cgi-bin/koha/admin/didyoumean.pl">Did you mean?</a></dt>
