@@ -1,0 +1,54 @@
+---
+type: object
+properties:
+  sftp_server_id:
+    type: integer
+    description: Internal FTP/SFTP server identifier
+    readOnly: true
+  name:
+    type: string
+    description: Name of the FTP/SFTP server
+  host:
+    type: string
+    description: FTP/SFTP host name
+  port:
+    type: integer
+    description: TCP port number
+  transport:
+    type: string
+    enum:
+      - ftp
+      - sftp
+      - file
+    description: Transport of FTP/SFTP server
+  auth_mode:
+    type: string
+    enum:
+      - password
+      - key_file
+      - noauth
+    description: Authentication mode to use
+  passiv:
+    type: boolean
+    description: Whether or not to use passive mode
+  user_name:
+    type:
+      - string
+      - "null"
+    description: The user name to use for authentication (optional)
+  password:
+    type:
+      - string
+      - "null"
+    description: The password to use for authentication (optional)
+  key_file:
+    type:
+      - string
+      - "null"
+    description: The key file to use for authentication (optional)
+  debug:
+    type: boolean
+    description: If the SMTP connection is set to debug mode
+additionalProperties: false
+required:
+  - name

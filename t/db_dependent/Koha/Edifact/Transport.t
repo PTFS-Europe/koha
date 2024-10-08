@@ -16,11 +16,19 @@ my $builder = t::lib::TestBuilder->new;
 
 $schema->storage->txn_begin;
 
+my $sftp_server = $builder->build(
+    {
+        source => 'SftpServer',
+        value  => {
+            name => 'test sftp server', transport => 'file',
+        }
+    }
+);
 my $account = $builder->build(
     {
         source => 'VendorEdiAccount',
         value  => {
-            description => 'test vendor', transport => 'FILE',
+            description => 'test vendor', sftp_server_id => $sftp_server->{id},
         }
     }
 );

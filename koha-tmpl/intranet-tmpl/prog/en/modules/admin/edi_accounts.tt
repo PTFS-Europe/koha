@@ -135,40 +135,20 @@
      <input type="text" name="description" id="description" size="20" value="[% account.description | html %]" />
   </li>
   <li>
-     [% transport_types = [ 'FTP', 'SFTP', 'FILE' ] %]
-     <label for="transport">Transport: </label>
-     <select name="transport" title="valid types of transport are FTP and SFTP"
-      id="transport">
-      [% FOREACH transport_type IN transport_types %]
-           [% IF transport_type == account.transport %]
-              <option value="[% transport_type | html %]" selected="selected">[% transport_type | html %]</option>
-           [% ELSE %]
-              <option value="[% transport_type | html %]">[% transport_type | html %]</option>
-           [% END %]
-       [% END %]
+     <label for="sftp_server_id">FTP/SFTP server</label>
+     <select name="sftp_server_id" id="sftp_server_id">
+        [% IF ! account %]
+        <option value="" selected="selected"></option>
+        [% END %]
+        [% FOREACH sftp_server IN sftp_servers %]
+            [% IF account.sftp_server_id == sftp_server.id %]
+            <option value="[% sftp_server.id | html %]" selected="selected">[% sftp_server.name | html %]</option>
+            [% ELSE %]
+            <option value="[% sftp_server.id | html %]">[% sftp_server.name | html %]</option>
+            [% END %]
+        [% END %]
      </select>
-  </li>
-  <li>
-     <label for="host">Remote host: </label>
-     <input type="text" name="host" id="host" size="20" maxlength="40" value="[% account.host | html %]" />
-  </li>
-  <li>
-     <label for="username">Username: </label>
-     <input type="text" name="username" id="username" size="20" maxlength="40" value="[% account.username | html %]" />
-  </li>
-  <li>
-     <label for="password">Password: </label>
-     <input type="text" name="password" id="password" size="20" maxlength="40" value="[% account.password | html %]" />
-  </li>
-  <li>
-     <label for="upload_port">Upload port: </label>
-     <input type="text" name="upload_port" id="upload_port" size="20" maxlength="40" value="[% account.upload_port | html %]" />
-        <div class="hint">The upload port will default to 22 if not set.</div>
-  </li>
-  <li>
-     <label for="download_port">Download port: </label>
-     <input type="text" name="download_port" id="download_port" size="20" maxlength="40" value="[% account.download_port | html %]" />
-        <div class="hint">The download port will default to 22 if not set.</div>
+     <span class="hint"><a href="/cgi-bin/koha/admin/sftp_servers.pl">Create new FTP/SFTP servers here</a></span>
   </li>
   <li>
      <label for="download_directory">Download directory: </label>
@@ -313,12 +293,7 @@
        <th>ID</th>
        <th>Vendor</th>
        <th>Description</th>
-       <th>Transport</th>
-       <th>Remote host</th>
-       <th>Username</th>
-       <th>Password</th>
-       <th>Upload port</th>
-       <th>Download port</th>
+       <th>FTP/SFTP server</th>
        <th>Download directory</th>
        <th>Upload directory</th>
        <th>Qualifier</th>
@@ -336,12 +311,17 @@
       <td>[% account.id | html %]</td>
       <td><a href="/cgi-bin/koha/acqui/supplier.pl?booksellerid=[% account.vendor_id | uri %]">[% account.vendor.name | html %]</a></td>
       <td>[% account.description | html %]</td>
-      <td>[% account.transport | html %]</td>
-      <td>[% account.host | html %]</td>
-      <td>[% account.username | html %]</td>
-      <td>[% IF account.password %]*****[% END %]</td>
-      <td>[% account.upload_port | html %]</td>
-      <td>[% account.download_port | html %]</td>
+      <td>
+      [% IF ( sftpservers ) %]
+      [% FOREACH sftp_server IN sftpservers %]
+        [% IF sftp_server.id == account.sftp_server_id %]
+        <a href="/cgi-bin/koha/admin/sftp_servers.pl?op=edit_form&sftp_server_id=[% sftp_server.id | uri %]">[% sftp_server.name | html %]</a>
+        [% END %]
+      [% END %]
+      [% ELSE %]
+      None
+      [% END %]
+      </td>
       <td>[% account.download_directory | html %]</td>
       <td>[% account.upload_directory | html %]</td>
       <td>

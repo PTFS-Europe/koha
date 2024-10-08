@@ -5816,6 +5816,30 @@ CREATE TABLE `sessions` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `sftp_servers`
+--
+
+DROP TABLE IF EXISTS `sftp_servers`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `sftp_servers` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(80) NOT NULL,
+  `host` varchar(80) NOT NULL DEFAULT 'localhost',
+  `port` int(11) NOT NULL DEFAULT 22,
+  `transport` enum('ftp','sftp','file') NOT NULL DEFAULT 'sftp',
+  `passiv` tinyint(1) NOT NULL DEFAULT 1,
+  `user_name` varchar(80) DEFAULT NULL,
+  `password` varchar(80) DEFAULT NULL,
+  `key_file` varchar(4096) DEFAULT NULL,
+  `auth_mode` enum('password','key_file','noauth') NOT NULL DEFAULT 'password',
+  `debug` tinyint(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `host_idx` (`host`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `sms_providers`
 --
 
@@ -6490,11 +6514,7 @@ DROP TABLE IF EXISTS `vendor_edi_accounts`;
 CREATE TABLE `vendor_edi_accounts` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `description` mediumtext NOT NULL,
-  `host` varchar(40) DEFAULT NULL,
-  `username` varchar(40) DEFAULT NULL,
-  `password` mediumtext DEFAULT NULL,
-  `upload_port` int(11) DEFAULT NULL,
-  `download_port` int(11) DEFAULT NULL,
+  `sftp_server_id` int(11) DEFAULT NULL,
   `last_activity` date DEFAULT NULL,
   `vendor_id` int(11) DEFAULT NULL,
   `download_directory` mediumtext DEFAULT NULL,
@@ -6502,7 +6522,6 @@ CREATE TABLE `vendor_edi_accounts` (
   `san` varchar(20) DEFAULT NULL,
   `standard` varchar(3) DEFAULT 'EUR',
   `id_code_qualifier` varchar(3) DEFAULT '14',
-  `transport` varchar(6) DEFAULT 'FTP',
   `quotes_enabled` tinyint(1) NOT NULL DEFAULT 0,
   `invoices_enabled` tinyint(1) NOT NULL DEFAULT 0,
   `orders_enabled` tinyint(1) NOT NULL DEFAULT 0,
@@ -6513,6 +6532,7 @@ CREATE TABLE `vendor_edi_accounts` (
   PRIMARY KEY (`id`),
   KEY `vendorid` (`vendor_id`),
   KEY `shipmentbudget` (`shipment_budget`),
+  CONSTRAINT `vfk_sftp_server_id` FOREIGN KEY (`sftp_server_id`) REFERENCES `sftp_servers` (`id`),
   CONSTRAINT `vfk_shipment_budget` FOREIGN KEY (`shipment_budget`) REFERENCES `aqbudgets` (`budget_id`),
   CONSTRAINT `vfk_vendor_id` FOREIGN KEY (`vendor_id`) REFERENCES `aqbooksellers` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -34,31 +34,10 @@ __PACKAGE__->table("vendor_edi_accounts");
   data_type: 'mediumtext'
   is_nullable: 0
 
-=head2 host
-
-  data_type: 'varchar'
-  is_nullable: 1
-  size: 40
-
-=head2 username
-
-  data_type: 'varchar'
-  is_nullable: 1
-  size: 40
-
-=head2 password
-
-  data_type: 'mediumtext'
-  is_nullable: 1
-
-=head2 upload_port
+=head2 sftp_server_id
 
   data_type: 'integer'
-  is_nullable: 1
-
-=head2 download_port
-
-  data_type: 'integer'
+  is_foreign_key: 1
   is_nullable: 1
 
 =head2 last_activity
@@ -102,13 +81,6 @@ __PACKAGE__->table("vendor_edi_accounts");
   default_value: 14
   is_nullable: 1
   size: 3
-
-=head2 transport
-
-  data_type: 'varchar'
-  default_value: 'FTP'
-  is_nullable: 1
-  size: 6
 
 =head2 quotes_enabled
 
@@ -160,16 +132,8 @@ __PACKAGE__->add_columns(
   { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
   "description",
   { data_type => "mediumtext", is_nullable => 0 },
-  "host",
-  { data_type => "varchar", is_nullable => 1, size => 40 },
-  "username",
-  { data_type => "varchar", is_nullable => 1, size => 40 },
-  "password",
-  { data_type => "mediumtext", is_nullable => 1 },
-  "upload_port",
-  { data_type => "integer", is_nullable => 1 },
-  "download_port",
-  { data_type => "integer", is_nullable => 1 },
+  "sftp_server_id",
+  { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
   "last_activity",
   { data_type => "date", datetime_undef_if_invalid => 1, is_nullable => 1 },
   "vendor_id",
@@ -184,8 +148,6 @@ __PACKAGE__->add_columns(
   { data_type => "varchar", default_value => "EUR", is_nullable => 1, size => 3 },
   "id_code_qualifier",
   { data_type => "varchar", default_value => 14, is_nullable => 1, size => 3 },
-  "transport",
-  { data_type => "varchar", default_value => "FTP", is_nullable => 1, size => 6 },
   "quotes_enabled",
   { data_type => "tinyint", default_value => 0, is_nullable => 0 },
   "invoices_enabled",
@@ -231,6 +193,26 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 sftp_server
+
+Type: belongs_to
+
+Related object: L<Koha::Schema::Result::SftpServer>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "sftp_server",
+  "Koha::Schema::Result::SftpServer",
+  { id => "sftp_server_id" },
+  {
+    is_deferrable => 1,
+    join_type     => "LEFT",
+    on_delete     => "RESTRICT",
+    on_update     => "RESTRICT",
+  },
+);
+
 =head2 shipment_budget
 
 Type: belongs_to
@@ -272,8 +254,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2024-04-19 16:25:44
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:jenUF3Wx7J7F5270mLQMbw
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-10-09 13:46:04
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:7054JDHIqW7JE+kaD5lq/g
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

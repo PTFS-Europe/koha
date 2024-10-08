@@ -63,6 +63,8 @@ my @edi_accts = $schema->resultset('VendorEdiAccount')->all();
 my $logger = Log::Log4perl->get_logger();
 
 for my $acct (@edi_accts) {
+$logger->trace( Koha::Edifact::Transport->new( $acct->id ) );
+
     if ( $acct->quotes_enabled ) {
         my $downloader = Koha::Edifact::Transport->new( $acct->id );
         $downloader->download_messages('QUOTE');
