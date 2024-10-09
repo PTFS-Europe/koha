@@ -168,7 +168,7 @@ export default {
                 libraries => {
                     libraries.unshift({
                         library_id: "*",
-                        name: "All libraries",
+                        name: "Default rules for all libraries",
                     });
                     this.libraries = libraries;
                 },
@@ -181,7 +181,7 @@ export default {
                 categories => {
                     categories.unshift({
                         patron_category_id: "*",
-                        name: "All",
+                        name: "Default rule",
                     });
                     this.categories = categories;
                 },
@@ -194,7 +194,7 @@ export default {
                 types => {
                     types.unshift({
                         item_type_id: "*",
-                        description: "All",
+                        description: "Default rule",
                     });
                     this.itemTypes = types;
                 },
