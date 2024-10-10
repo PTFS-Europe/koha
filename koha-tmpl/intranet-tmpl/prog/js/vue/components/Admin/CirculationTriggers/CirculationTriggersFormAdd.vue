@@ -109,7 +109,7 @@
                             :modal="true"
                             :ruleBeingEdited="ruleBeingEdited"
                             :triggerBeingEdited="triggerBeingEdited"
-                            :letters="letters"
+                            :letters="filteredLetters"
                         />
                     </div>
                 </fieldset>
@@ -185,7 +185,7 @@
                                 v-model="newRule.notice"
                                 label="name"
                                 :reduce="type => type.code"
-                                :options="letters"
+                                :options="filteredLetters"
                             >
                                 <template #search="{ attributes, events }">
                                     <input
@@ -360,6 +360,7 @@ export default {
             triggerBeingEdited: null,
             minDelay: 0,
             maxDelay: Infinity,
+            filteredLetters: [],
         };
     },
     beforeRouteEnter(to, from, next) {
@@ -528,6 +529,7 @@ export default {
 
                     this.setMinDelay();
                     this.setMaxDelay();
+                    this.setFilteredLetters();
                 },
                 error => {}
             );
@@ -708,6 +710,29 @@ export default {
                       this.ruleBeingEdited[`overdue_${nextTriggerNumber}_delay`]
                   ) - 1
                 : Infinity;
+        },
+        setFilteredLetters() {
+            let library = this.newRule.library_id;
+            const branchcodeMatches = letters.filter(
+                letter => letter.branchcode === library
+            );
+            const emptyBranchcodeMatches = letters.filter(
+                letter => letter.branchcode === ""
+            );
+
+            const uniqueCodes = [
+                ...new Set(
+                    [...branchcodeMatches, ...emptyBranchcodeMatches].map(
+                        letter => letter.code
+                    )
+                ),
+            ];
+
+            this.filteredLetters = letters.filter(
+                letter =>
+                    uniqueCodes.includes(letter.code) &&
+                    (letter.branchcode === library || letter.branchcode === "")
+            );
         },
         incrementDelay() {
             // Check for minDelay and maxDelay
