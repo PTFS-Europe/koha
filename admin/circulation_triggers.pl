@@ -33,12 +33,10 @@ my ( $template, $loggedinuser, $cookie ) = get_template_and_user(
     }
 );
 
-my $letters = C4::Letters::GetLettersAvailableForALibrary(
-    {
-        branchcode => undef,
-        module     => "circulation",
-    }
-);
+my $letters = Koha::Notice::Templates->search(
+    { module  => "circulation", lang => 'default' },
+    { columns => [ 'module', 'code', 'branchcode', 'name' ] }
+)->unblessed;
 
 $template->param( letters => $letters );
 
