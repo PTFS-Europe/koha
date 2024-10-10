@@ -13,6 +13,7 @@ use List::MoreUtils qw(uniq);
 
 use C4::SIP::Sip qw(siplog);
 use Koha::Libraries;
+use Koha::SIP2::Institutions;
 
 my $parser = XML::Simple->new(
     KeyAttr => {
@@ -37,6 +38,8 @@ sub new {
     my ( $class, $config_file ) = @_;
     my $cfg = $parser->XMLin($config_file);
     my %listeners;
+
+    $cfg->{institutions} = Koha::SIP2::Institutions->get_for_config();
 
     # The key to the listeners hash is the 'port' component of the
     # configuration, which is of the form '[host]:[port]/proto[/IPv[46]]'
