@@ -362,6 +362,7 @@ my $target_map = {
     './rotating_collections'                           => 'INTRANET_CGI_DIR',
     './serials'                                        => 'INTRANET_CGI_DIR',
     './services'                                       => 'INTRANET_CGI_DIR',
+    './sip2'                                           => 'INTRANET_CGI_DIR',
     './skel'                                           => 'NONE',
     './skel/var/lock/koha'                             => { target => 'LOCK_DIR',       trimdir => -1 },
     './skel/var/log/koha'                              => { target => 'LOG_DIR',        trimdir => -1 },
@@ -676,6 +677,7 @@ $file_map->{'koha-tmpl/intranet-tmpl/prog/css/staff-global.css'} = 'blib/INTRANE
 $file_map->{'koha-tmpl/intranet-tmpl/prog/js/vue/dist/erm.js'} = 'blib/INTRANET_TMPL_DIR/prog/js/vue/dist/erm.js';
 $file_map->{'koha-tmpl/intranet-tmpl/prog/js/vue/dist/preservation.js'} = 'blib/INTRANET_TMPL_DIR/prog/js/vue/dist/preservation.js';
 $file_map->{'koha-tmpl/intranet-tmpl/prog/js/vue/dist/admin/record_sources.js'} = 'blib/INTRANET_TMPL_DIR/prog/js/vue/dist/admin/record_sources.js';
+$file_map->{'koha-tmpl/intranet-tmpl/prog/js/vue/dist/sip2.js'} = 'blib/INTRANET_TMPL_DIR/prog/js/vue/dist/sip2.js';
 #OPAC_TMPL_DIR
 $file_map->{'koha-tmpl/opac-tmpl/bootstrap/css/opac.css'} = 'blib/OPAC_TMPL_DIR/bootstrap/css/opac.css';
 $file_map->{'koha-tmpl/opac-tmpl/bootstrap/css/opac-rtl.css'} = 'blib/OPAC_TMPL_DIR/bootstrap/css/opac-rtl.css';
