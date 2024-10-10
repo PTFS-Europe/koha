@@ -1,6 +1,7 @@
 [% USE raw %]
 [% USE To %]
 [% USE Asset %]
+[% USE Branches %]
 [% USE KohaDates %]
 [% USE TablesSettings %]
 [% USE AuthorisedValues %]
@@ -33,6 +34,7 @@
         [% INCLUDE 'js-date-format.inc' %]
         <script>
             const letters = [% To.json(letters) | $raw %];
+            const default_view = "[%- IF Koha.Preference('DefaultToLoggedInLibraryOverdueTriggers') -%][% Branches.GetLoggedInBranchcode %][%- ELSE -%]*[%- END -%]";
         </script>
         [% Asset.js("js/vue/dist/admin/circulation_triggers.js") | $raw %]
     [% END %]

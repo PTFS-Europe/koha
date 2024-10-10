@@ -138,7 +138,7 @@ export default {
         return {
             initialized: false,
             libraries: null,
-            selectedLibrary: "*",
+            selectedLibrary: default_view,
             circRules: null,
             numberOfTabs: [1],
             tabSelected: "Notice 1",
@@ -201,11 +201,8 @@ export default {
                 error => {}
             );
         },
-        async getCircRules(params = {}, pageLoad) {
+        async getCircRules(params = {}) {
             params.effective = false;
-            if (pageLoad) {
-                params.library_id = "*";
-            }
             const client = APIClient.circRule;
             await client.circRules.getAll({}, params).then(
                 rules => {
