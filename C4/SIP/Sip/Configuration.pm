@@ -13,6 +13,9 @@ use List::MoreUtils qw(uniq);
 
 use C4::SIP::Sip qw(siplog);
 use Koha::Libraries;
+use Koha::SIP2::Institutions;
+use Koha::SIP2::Accounts;
+use Koha::SIP2::Listeners;
 
 my $parser = XML::Simple->new(
     KeyAttr => {
@@ -48,6 +51,21 @@ sub new {
         $listeners{ lc $service->{port} } = $service;
     }
     $cfg->{listeners} = \%listeners;
+
+# use Data::Dumper; $Data::Dumper::Maxdepth = 4;
+# warn Dumper('##### 1 #######################################################line: ' . __LINE__);
+# warn Dumper($cfg);
+# warn Dumper('##### end1 #######################################################');
+
+
+    # $cfg->{accounts}  = Koha::SIP2::Accounts->get_for_config()  if Koha::SIP2::Accounts->search()->count;
+    # $cfg->{institutions} = Koha::SIP2::Institutions->get_for_config() if Koha::SIP2::Institutions->search()->count;
+    # $cfg->{listeners}    = Koha::SIP2::Listeners->get_for_config()    if Koha::SIP2::Listeners->search()->count;
+
+# use Data::Dumper; $Data::Dumper::Maxdepth = 4;
+# warn Dumper('##### 1 #######################################################line: ' . __LINE__);
+# warn Dumper($cfg);
+# warn Dumper('##### end1 #######################################################');
 
     my @branchcodes = Koha::Libraries->search()->get_column('branchcode');
     my @institutions = uniq( keys %{ $cfg->{institutions} } );
