@@ -38,6 +38,10 @@
                     types
                 </li>
             </ul>
+            <p>
+                The system is currently set to match based on the
+                {{ from_branch }}.
+            </p>
         </div>
         <div class="page-section" v-if="initialized">
             <label for="library_select">{{ $__("Select a library") }}:</label>
@@ -132,6 +136,7 @@ export default {
         return {
             splitCircRulesByTriggerNumber,
             letters,
+            from_branch,
         };
     },
     data() {

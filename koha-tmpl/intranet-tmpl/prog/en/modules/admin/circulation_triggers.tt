@@ -35,6 +35,7 @@
         <script>
             const letters = [% To.json(letters) | $raw %];
             const default_view = "[%- IF Koha.Preference('DefaultToLoggedInLibraryOverdueTriggers') -%][% Branches.GetLoggedInBranchcode %][%- ELSE -%]*[%- END -%]";
+            const from_branch = "[% Koha.Preference('OverdueNoticeFrom') %]";
         </script>
         [% Asset.js("js/vue/dist/admin/circulation_triggers.js") | $raw %]
     [% END %]
