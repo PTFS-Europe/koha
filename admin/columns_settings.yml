@@ -2339,6 +2339,15 @@ modules:
             -
                 columnname: problems
 
+  sip2:
+    institutions:
+      institutions:
+        columns:
+            -
+              columnname: sip_institution_id
+            -
+              columnname: implementation
+
   pos:
     pay:
       invoices:
