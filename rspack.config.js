@@ -11,6 +11,7 @@ module.exports = {
         erm: "./koha-tmpl/intranet-tmpl/prog/js/vue/modules/erm.ts",
         preservation:
             "./koha-tmpl/intranet-tmpl/prog/js/vue/modules/preservation.ts",
+        sip2: "./koha-tmpl/intranet-tmpl/prog/js/vue/modules/sip2.ts",
         "admin/record_sources":
             "./koha-tmpl/intranet-tmpl/prog/js/vue/modules/admin/record_sources.ts",
     },
