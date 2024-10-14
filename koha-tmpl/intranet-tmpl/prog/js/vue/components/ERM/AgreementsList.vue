@@ -45,7 +45,7 @@
                 v-bind="tableOptions"
                 @show="goToResourceShow"
                 @edit="goToResourceEdit"
-                @delete="doDelete"
+                @delete="doResourceDelete"
                 @select="doSelect"
             ></KohaTable>
         </div>
@@ -171,33 +171,6 @@ export default {
                     this.agreement_count = count
                 },
                 error => {}
-            )
-        },
-        doDelete: function (agreement, dt, event) {
-            this.setConfirmationDialog(
-                {
-                    title: this.$__(
-                        "Are you sure you want to remove this agreement?"
-                    ),
-                    message: agreement.name,
-                    accept_label: this.$__("Yes, delete"),
-                    cancel_label: this.$__("No, do not delete"),
-                },
-                () => {
-                    const client = APIClient.erm
-                    client.agreements.delete(agreement.agreement_id).then(
-                        success => {
-                            this.setMessage(
-                                this.$__("Agreement %s deleted").format(
-                                    agreement.name
-                                ),
-                                true
-                            )
-                            dt.draw()
-                        },
-                        error => {}
-                    )
-                }
             )
         },
         doSelect: function (agreement, dt, event) {
