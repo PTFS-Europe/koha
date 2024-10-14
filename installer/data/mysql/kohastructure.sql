@@ -5923,6 +5923,54 @@ CREATE TABLE `sessions` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `sip_accounts`
+--
+
+DROP TABLE IF EXISTS `sip_accounts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `sip_accounts` (
+  `sip_account_id` int(11) NOT NULL AUTO_INCREMENT,
+  `sip_institution_id` int(11) NOT NULL COMMENT 'Foreign key to sip_institutions.sip_institution_id',
+  `ae_field_template` varchar(255) NULL,
+  `allow_additional_materials_checkout` tinyint(1) NOT NULL DEFAULT 0,
+  `allow_empty_passwords` tinyint(1) NOT NULL DEFAULT 0,
+  `av_field_template` varchar(255) NULL,
+  `blocked_item_types` varchar(255) NULL,
+  `checked_in_ok` tinyint(1) NOT NULL DEFAULT 0,
+  `cr_item_field` varchar(255) NULL,
+  `ct_always_send` tinyint(1) NOT NULL DEFAULT 0,
+  `cv_send_00_on_success` tinyint(1) NOT NULL DEFAULT 0,
+  `cv_triggers_alert` tinyint(1) NOT NULL DEFAULT 0,
+  `da_field_template` varchar(255) NULL,
+  `delimiter` varchar(10) NOT NULL DEFAULT '|',
+  `encoding` varchar(10) NULL,
+  `error_detect` tinyint(1) NOT NULL DEFAULT 1,
+  `format_due_date` tinyint(1) NOT NULL DEFAULT 0,
+  `hide_fields` varchar(255) NULL,
+  `holds_block_checkin` tinyint(1) NOT NULL DEFAULT 0,
+  `holds_get_captured` tinyint(1) NOT NULL DEFAULT 0,
+  `inhouse_item_types` varchar(255) NULL,
+  `inhouse_patron_categories` varchar(255) NULL,
+  `login_id` varchar(255) NOT NULL COMMENT 'PREVIOUSLY id in Sipconfig.xml',
+  `login_password` varchar(255) NULL,
+  `lost_status_for_missing` tinyint(1) NULL COMMENT 'actual tinyint, not boolean',
+  `overdues_block_checkout` tinyint(1) NOT NULL DEFAULT 0,
+  `prevcheckout_block_checkout` tinyint(1) NOT NULL DEFAULT 0,
+  `register_id` int(11) NULL COMMENT 'SHOULD THIS BE A FK TO cash_registers?',
+  `seen_on_item_information` varchar(255) NULL,
+  `send_patron_home_library_in_af` varchar(255) NULL,
+  `show_checkin_message` tinyint(1) NOT NULL DEFAULT 0,
+  `show_outstanding_amount` tinyint(1) NOT NULL DEFAULT 0,
+  `terminator` enum('CR','CRLF') NOT NULL DEFAULT 'CRLF',
+  PRIMARY KEY (`sip_account_id`),
+  UNIQUE KEY `sip_account` (`sip_account_id`,`sip_institution_id`),
+  KEY `sip_accounts_ibfk_1` (`sip_institution_id`),
+  CONSTRAINT `sip_accounts_ibfk_1` FOREIGN KEY (`sip_institution_id`) REFERENCES `sip_institutions` (`sip_institution_id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `sip_institutions`
 --
 
