@@ -156,9 +156,26 @@ __PACKAGE__->set_primary_key("sip_institution_id");
 
 __PACKAGE__->add_unique_constraint("institution_name", ["name"]);
 
+=head1 RELATIONS
 
-# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-10-10 15:04:08
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:5QP4sj2sL+LQ+uc8+WCG6A
+=head2 sip_accounts
+
+Type: has_many
+
+Related object: L<Koha::Schema::Result::SipAccount>
+
+=cut
+
+__PACKAGE__->has_many(
+  "sip_accounts",
+  "Koha::Schema::Result::SipAccount",
+  { "foreign.sip_institution_id" => "self.sip_institution_id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-10-14 15:40:32
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:/ZBJwfSjg/Nii1jwc6GkeQ
 
 __PACKAGE__->add_columns(
     '+checkin' => { is_boolean => 1 }
