@@ -14,7 +14,7 @@ export class AcquisitionAPIClient extends HttpClient {
                     endpoint: "vendors/" + id,
                     headers: {
                         "x-koha-embed":
-                            "baskets,aliases,subscriptions,interfaces,contacts,contracts",
+                            "aliases,subscriptions,interfaces,contacts,contracts",
                     },
                 }),
             getAll: (query, params) =>
@@ -44,6 +44,21 @@ export class AcquisitionAPIClient extends HttpClient {
                 this.count({
                     endpoint:
                         "vendors?" +
+                        new URLSearchParams({
+                            _page: 1,
+                            _per_page: 1,
+                            ...(query && { q: JSON.stringify(query) }),
+                        }),
+                }),
+        };
+    }
+
+    get baskets() {
+        return {
+            count: (query = {}) =>
+                this.count({
+                    endpoint:
+                        "baskets?" +
                         new URLSearchParams({
                             _page: 1,
                             _per_page: 1,
