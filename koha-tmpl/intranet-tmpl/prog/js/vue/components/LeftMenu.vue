@@ -3,9 +3,13 @@
         <div id="navmenu">
             <div id="navmenulist">
                 <h5>{{ $__(title) }}</h5>
-                <ul>
+                <VendorMenu v-if="leftNavigation === 'VendorMenu'" />
+                <AcquisitionsMenu
+                    v-else-if="leftNavigation === 'AcquisitionsMenu'"
+                />
+                <ul v-else>
                     <NavigationItem
-                        v-for="(item, key) in navigationTree"
+                        v-for="(item, key) in leftNavigation"
                         v-bind:key="key"
                         :item="item"
                     ></NavigationItem>
@@ -18,23 +22,21 @@
 <script>
 import { inject } from "vue"
 import NavigationItem from "./NavigationItem.vue"
+import VendorMenu from "./Islands/VendorMenu.vue"
+import { storeToRefs } from "pinia"
+import AcquisitionsMenu from "./Islands/AcquisitionsMenu.vue"
+
 export default {
     name: "LeftMenu",
-    data() {
-        return {
-            navigationTree: this.leftNavigation,
-        }
-    },
     setup: () => {
         const navigationStore = inject("navigationStore")
-        const { leftNavigation } = navigationStore
+        const { leftNavigation } = storeToRefs(navigationStore)
         return {
             leftNavigation,
         }
     },
     async beforeMount() {
-        if (this.condition)
-            this.navigationTree = await this.condition(this.navigationTree)
+        if (this.condition) this.condition(this.leftNavigation)
     },
     props: {
         title: String,
@@ -42,6 +44,8 @@ export default {
     },
     components: {
         NavigationItem,
+        VendorMenu,
+        AcquisitionsMenu,
     },
 }
 </script>

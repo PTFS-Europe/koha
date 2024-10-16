@@ -11,7 +11,6 @@ export const useNavigationStore = defineStore("navigation", {
         },
         current: null,
         params: {},
-        anotherStoreString: "Hello from nav store",
     }),
     actions: {
         setRoutes(routesDef) {
@@ -153,6 +152,10 @@ export const useNavigationStore = defineStore("navigation", {
             }
         },
         leftNavigation() {
+            const currentRoute = this.current[this.current.length - 1];
+            const alternateMenuRequired =
+                currentRoute.meta.self.alternateLeftMenu;
+            if (alternateMenuRequired) return alternateMenuRequired;
             return _getNavigationElements(this.routeState);
 
             // Function declarations

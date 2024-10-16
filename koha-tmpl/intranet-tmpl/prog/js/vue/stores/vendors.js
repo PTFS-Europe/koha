@@ -5,6 +5,11 @@ export const useVendorStore = defineStore("vendors", {
         vendors: [],
         currencies: [],
         gstValues: [],
+        config: {
+            settings: {
+                edifact: false,
+            },
+        },
         authorisedValues: {
             vendor_types: "VENDOR_TYPE",
             vendor_interface_types: "VENDOR_INTERFACE_TYPE",
