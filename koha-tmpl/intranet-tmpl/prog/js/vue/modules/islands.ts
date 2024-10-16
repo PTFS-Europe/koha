@@ -3,6 +3,8 @@ import { createPinia } from "pinia";
 import { $__ } from "../i18n";
 import { useMainStore } from "../stores/main";
 import { useNavigationStore } from "../stores/navigation";
+import { useVendorStore } from "../stores/vendors";
+import { usePermissionsStore } from "../stores/permissions";
 
 /**
  * Represents a web component with an import function and optional configuration.
@@ -64,6 +66,40 @@ export const componentRegistry: Map<string, WebComponentDynamicImport> =
                 },
             },
         ],
+        [
+            "vendor-menu",
+            {
+                importFn: async () => {
+                    const module = await import(
+                        /* webpackChunkName: "vendor-menu" */
+                        "../components/Islands/VendorMenu.vue"
+                    );
+                    return module.default;
+                },
+                config: {
+                    stores: ["navigationStore", "permissionsStore"],
+                },
+            },
+        ],
+        [
+            "acquisitions-menu",
+            {
+                importFn: async () => {
+                    const module = await import(
+                        /* webpackChunkName: "acquisitions-menu"," */
+                        "../components/Islands/AcquisitionsMenu.vue"
+                    );
+                    return module.default;
+                },
+                config: {
+                    stores: [
+                        "navigationStore",
+                        "permissionsStore",
+                        "vendorStore",
+                    ],
+                },
+            },
+        ],
     ]);
 
 /**
@@ -76,6 +112,8 @@ export function hydrate(): void {
         const storesMatrix = {
             mainStore: useMainStore(pinia),
             navigationStore: useNavigationStore(pinia),
+            permissionsStore: usePermissionsStore(pinia),
+            vendorStore: useVendorStore(pinia),
         };
 
         const islandTagNames = Array.from(componentRegistry.keys()).join(", ");
