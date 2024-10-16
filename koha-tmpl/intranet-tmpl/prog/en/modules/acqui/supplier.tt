@@ -535,6 +535,7 @@
     [% Asset.js("lib/hc-sticky/hc-sticky.js") | $raw %]
     [% Asset.js("js/acq.js") | $raw %]
     [% INCLUDE 'datatables.inc' %]
+    [% Asset.js("js/vue/dist/islands.js", "init" => "1") | $raw %]
     <script>
         function confirm_deletion() {
             if (confirm(_("Confirm deletion of this vendor ?"))) {
