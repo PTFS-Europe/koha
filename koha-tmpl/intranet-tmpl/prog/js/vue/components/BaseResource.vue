@@ -115,6 +115,13 @@ export default {
                 }
             )
         },
+        getResourceTableColumns: function () {
+            //This is where I left off
+            let table_attrs = this.resource_attrs.filter(
+                attr => attr.show_in_table
+            )
+            console.log(table_attrs)
+        },
     },
     name: "BaseResource",
     props: {
