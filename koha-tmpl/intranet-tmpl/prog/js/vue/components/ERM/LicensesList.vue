@@ -3,8 +3,8 @@
     <div v-else id="licenses_list">
         <Toolbar>
             <ToolbarButton
-                :to="{ name: 'LicensesFormAdd' }"
-                icon="plus"
+                action="add"
+                @go-to-add-resource="goToResourceAdd"
                 :title="$__('New license')"
             />
         </Toolbar>
@@ -12,9 +12,9 @@
             <KohaTable
                 ref="table"
                 v-bind="tableOptions"
-                @show="doShow"
-                @edit="doEdit"
-                @delete="doDelete"
+                @show="goToResourceShow"
+                @edit="goToResourceEdit"
+                @delete="doResourceDelete"
             ></KohaTable>
         </div>
         <div v-else class="alert alert-info">
@@ -30,8 +30,10 @@ import { inject, ref } from "vue"
 import { storeToRefs } from "pinia"
 import { APIClient } from "../../fetch/api-client.js"
 import KohaTable from "../KohaTable.vue"
+import LicenseResource from "./LicenseResource.vue"
 
 export default {
+    extends: LicenseResource,
     setup() {
         const vendorStore = inject("vendorStore")
         const { vendors } = storeToRefs(vendorStore)
@@ -39,17 +41,14 @@ export default {
         const AVStore = inject("AVStore")
         const { get_lib_from_av, map_av_dt_filter } = AVStore
 
-        const { setConfirmationDialog, setMessage } = inject("mainStore")
-
         const table = ref()
 
         return {
+            ...LicenseResource.setup(),
             vendors,
             get_lib_from_av,
             map_av_dt_filter,
             table,
-            setConfirmationDialog,
-            setMessage,
             license_table_settings,
         }
     },
@@ -66,7 +65,7 @@ export default {
             ],
             tableOptions: {
                 columns: this.getTableColumns(),
-                url: "/api/v1/erm/licenses",
+                url: this.getResourceTableUrl(),
                 options: { embed: "vendor" },
                 table_settings: this.license_table_settings,
                 add_filters: true,
@@ -102,43 +101,6 @@ export default {
                 error => {}
             )
         },
-        doShow: function ({ license_id }, dt, event) {
-            event.preventDefault()
-            this.$router.push({ name: "LicensesShow", params: { license_id } })
-        },
-        doEdit: function ({ license_id }, dt, event) {
-            this.$router.push({
-                name: "LicensesFormAddEdit",
-                params: { license_id },
-            })
-        },
-        doDelete: function (license, dt, event) {
-            this.setConfirmationDialog(
-                {
-                    title: this.$__(
-                        "Are you sure you want to remove this license?"
-                    ),
-                    message: license.name,
-                    accept_label: this.$__("Yes, delete"),
-                    cancel_label: this.$__("No, do not delete"),
-                },
-                () => {
-                    const client = APIClient.erm
-                    client.licenses.delete(license.license_id).then(
-                        success => {
-                            this.setMessage(
-                                this.$__("License %s deleted").format(
-                                    license.name
-                                ),
-                                true
-                            )
-                            dt.draw()
-                        },
-                        error => {}
-                    )
-                }
-            )
-        },
         getTableColumns: function () {
             let get_lib_from_av = this.get_lib_from_av
 
@@ -150,9 +112,7 @@ export default {
                     orderable: true,
                     render: function (data, type, row, meta) {
                         return (
-                            '<a href="/cgi-bin/koha/erm/licenses/' +
-                            row.license_id +
-                            '" class="show">' +
+                            '<a role="button" class="show">' +
                             escape_str(`${row.name} (#${row.license_id})`) +
                             "</a>"
                         )
