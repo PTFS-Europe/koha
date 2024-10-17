@@ -60,6 +60,7 @@ export default {
         this.loadAuthorisedValues(this.authorisedValues).then(() => {
             this.loaded()
             this.userPermissions = userPermissions
+            this.config.settings.edifact = edifact
             this.vendorStore.currencies = currencies
             this.vendorStore.gstValues = gstValues.map(gv => {
                 return {

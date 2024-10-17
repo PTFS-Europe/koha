@@ -32,8 +32,7 @@
         const userPermissions = [% To.json(user_permissions) | $raw %];
         const currencies = [% To.json(currencies) | $raw %];
         const gstValues = [% To.json(gst_values) | $raw %];
-        const edifact = [% To.json(edifact) | $raw %]
-        const viewBaskets = [% To.json(viewbaskets) | $raw %]
+        const edifact = [% To.json(edifact) | $raw %];
     </script>
 
 
