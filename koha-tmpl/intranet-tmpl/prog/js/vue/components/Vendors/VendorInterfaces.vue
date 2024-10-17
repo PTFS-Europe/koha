@@ -8,7 +8,7 @@
             <li>
                 <label>{{ $__("Type") }}:</label>
                 <span>
-                    {{ get_lib_from_av("vendor_interface_types", vi.type) }}
+                    {{ get_lib_from_av("authorisedValues", vi.type) }}
                 </span>
             </li>
             <li v-if="vi.uri">
@@ -80,7 +80,7 @@
                         v-model="vendorInterface.type"
                         label="description"
                         :reduce="av => av.value"
-                        :options="vendor_interface_types"
+                        :options="authorisedValues.vendor_interface_types"
                     />
                 </li>
                 <li>
@@ -156,7 +156,7 @@ export default {
 
         return {
             get_lib_from_av,
-            vendor_interface_types: authorisedValues.vendor_interface_types,
+            authorisedValues,
         }
     },
     methods: {

@@ -129,7 +129,7 @@
             <li>
                 <label for="vendor_type">{{ $__("Vendor type") }}:</label>
                 <v-select
-                    v-if="vendor_types.length"
+                    v-if="authorisedValues.vendor_types.length"
                     id="vendor_type"
                     v-model="vendor.type"
                     label="description"
@@ -179,10 +179,9 @@ export default {
         const mainStore = inject("mainStore")
         const { get_lib_from_av } = mainStore
         const { authorisedValues } = storeToRefs(mainStore)
-
         return {
             get_lib_from_av,
-            vendor_types: authorisedValues.vendor_types,
+            authorisedValues,
         }
     },
     data() {
