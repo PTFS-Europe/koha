@@ -218,7 +218,7 @@ export default {
                     title: __("Baskets"),
                     data: "baskets",
                     searchable: false,
-                    orderable: true,
+                    orderable: false,
                     render(data, type, row, meta) {
                         return row.baskets.length
                             ? '<a href="/cgi-bin/koha/vendors/' +
@@ -235,7 +235,7 @@ export default {
                     title: __("Subscriptions"),
                     data: "subscriptions",
                     searchable: false,
-                    orderable: true,
+                    orderable: false,
                     render(data, type, row, meta) {
                         return row.subscriptions.length
                             ? '<a href="/cgi-bin/koha/serials/serials-search.pl?bookseller_filter=' +
