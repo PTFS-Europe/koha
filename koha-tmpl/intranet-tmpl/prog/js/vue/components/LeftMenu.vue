@@ -2,18 +2,20 @@
     <aside>
         <div id="navmenu">
             <div id="navmenulist">
-                <h5>{{ $__(title) }}</h5>
                 <VendorMenu v-if="leftNavigation === 'VendorMenu'" />
                 <AcquisitionsMenu
                     v-else-if="leftNavigation === 'AcquisitionsMenu'"
                 />
-                <ul v-else>
-                    <NavigationItem
-                        v-for="(item, key) in leftNavigation"
-                        v-bind:key="key"
-                        :item="item"
-                    ></NavigationItem>
-                </ul>
+                <template v-else>
+                    <h5>{{ $__(title) }}</h5>
+                    <ul>
+                        <NavigationItem
+                            v-for="(item, key) in leftNavigation"
+                            v-bind:key="key"
+                            :item="item"
+                        ></NavigationItem>
+                    </ul>
+                </template>
             </div>
         </div>
     </aside>
