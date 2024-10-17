@@ -134,7 +134,7 @@
                     v-model="vendor.type"
                     label="description"
                     :reduce="av => av.value"
-                    :options="vendor_types"
+                    :options="authorisedValues.vendor_types"
                 />
                 <input v-else id="vendor_type" v-model="vendor.type" />
             </li>
