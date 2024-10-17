@@ -223,7 +223,7 @@ export default {
                         return row.baskets.length
                             ? '<a href="/cgi-bin/koha/vendors/' +
                                   row.id +
-                                  '" class="show">' +
+                                  '/baskets" class="show">' +
                                   escape_str(
                                       `${row.baskets.length} basket(s)`
                                   ) +
