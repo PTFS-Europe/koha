@@ -110,8 +110,8 @@ export default {
                 addressLines.forEach((line, i) => {
                     vendor[`address${i + 1}`] = line
                 })
-                delete vendor.physical
             }
+            delete vendor.physical
 
             vendor.contacts = vendor.contacts.map(
                 ({ id, booksellerid, ...requiredProperties }) =>
