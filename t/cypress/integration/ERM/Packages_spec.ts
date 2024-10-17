@@ -279,7 +279,7 @@ describe("Package CRUD operations", () => {
             .contains("Delete")
             .click();
         cy.get(".alert-warning.confirmation h1").contains(
-            "remove this package"
+            "remove this local package"
         );
         cy.contains(erm_package.name);
 
@@ -301,7 +301,7 @@ describe("Package CRUD operations", () => {
             .contains("Delete")
             .click();
         cy.get(".alert-warning.confirmation h1").contains(
-            "remove this package"
+            "remove this local package"
         );
         cy.contains("Yes, delete").click();
         cy.get("main div[class='alert alert-info']")
@@ -340,7 +340,7 @@ describe("Package CRUD operations", () => {
 
         cy.get("#packages_show #toolbar").contains("Delete").click();
         cy.get(".alert-warning.confirmation h1").contains(
-            "remove this package"
+            "remove this local package"
         );
         cy.contains("Yes, delete").click();
 
