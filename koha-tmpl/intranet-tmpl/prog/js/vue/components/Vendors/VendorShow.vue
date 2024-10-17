@@ -63,7 +63,6 @@
 
 <script>
 import Toolbar from "../Toolbar.vue";
-import Button from "../Button.vue";
 import { inject } from "vue";
 import { APIClient } from "../../fetch/api-client.js";
 import ToolbarButton from "../ToolbarButton.vue";
