@@ -60,6 +60,12 @@
                     {{ vendor.accountnumber }}
                 </span>
             </li>
+            <li v-if="vendor.language">
+                <label>{{ $__("Language") }}:</label>
+                <span>
+                    {{ get_lib_from_av("av_lang", vendor.language) }}
+                </span>
+            </li>
             <li v-if="vendor.aliases.length">
                 <label>{{ $__("Aliases") }}:</label>
                 <ul style="margin-left: 8rem">
@@ -132,14 +138,26 @@
             <li>
                 <label for="vendor_type">{{ $__("Vendor type") }}:</label>
                 <v-select
-                    v-if="authorisedValues.vendor_types.length"
+                    v-if="av_vendor_types.length"
                     id="vendor_type"
                     v-model="vendor.type"
                     label="description"
                     :reduce="av => av.value"
-                    :options="authorisedValues.vendor_types"
+                    :options="av_vendor_types"
                 />
                 <input v-else id="vendor_type" v-model="vendor.type" />
+            </li>
+            <li>
+                <label for="language">{{ $__("Language") }}:</label>
+                <v-select
+                    v-if="av_lang.length"
+                    id="language"
+                    v-model="vendor.language"
+                    label="description"
+                    :reduce="av => av.value"
+                    :options="av_lang"
+                />
+                <input v-else id="language" v-model="vendor.type" />
             </li>
             <li>
                 <label for="vendor_aliases">{{ $__("Aliases") }}:</label>
@@ -179,12 +197,12 @@ export default {
         display: Boolean,
     },
     setup() {
-
         const AVStore = inject("AVStore")
-        const { get_lib_from_av, av_vendor_types } = AVStore
+        const { get_lib_from_av, av_vendor_types, av_lang } = AVStore
         return {
             get_lib_from_av,
             av_vendor_types,
+            av_lang,
         }
     },
     data() {
