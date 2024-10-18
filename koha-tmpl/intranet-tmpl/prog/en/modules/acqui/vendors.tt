@@ -33,6 +33,7 @@
         const currencies = [% To.json(currencies) | $raw %];
         const gstValues = [% To.json(gst_values) | $raw %];
         const edifact = [% To.json(edifact) | $raw %];
+        const ermModule = [% To.json(erm_module) | $raw %];
     </script>
 
 
