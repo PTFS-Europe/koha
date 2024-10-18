@@ -202,6 +202,14 @@ external id of the vendor
 
 the payment method for the vendor
 
+=head2 language
+
+  data_type: 'varchar'
+  is_nullable: 1
+  size: 255
+
+the language for the vendor
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -252,6 +260,8 @@ __PACKAGE__->add_columns(
   "external_id",
   { data_type => "varchar", is_nullable => 1, size => 255 },
   "payment_method",
+  { data_type => "varchar", is_nullable => 1, size => 255 },
+  "language",
   { data_type => "varchar", is_nullable => 1, size => 255 },
 );
 
