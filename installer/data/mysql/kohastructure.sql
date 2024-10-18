@@ -502,6 +502,7 @@ CREATE TABLE `aqbooksellers` (
   `deliverytime` int(11) DEFAULT NULL COMMENT 'vendor delivery time',
   `external_id` varchar(255) DEFAULT NULL COMMENT 'external id of the vendor',
   `payment_method` varchar(255) DEFAULT NULL COMMENT 'the payment method for the vendor',
+  `language` varchar(255) DEFAULT NULL COMMENT 'the language for the vendor',
   PRIMARY KEY (`id`),
   KEY `listprice` (`listprice`),
   KEY `invoiceprice` (`invoiceprice`),
