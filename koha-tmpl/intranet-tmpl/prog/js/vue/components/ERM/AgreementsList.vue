@@ -234,6 +234,13 @@ export default {
             if (this.filters.by_expired)
                 url +=
                     "?max_expiration_date=" + this.filters.max_expiration_date
+
+            const vendorId = this.$route.query.vendor_id
+            if (vendorId) {
+                url = this.filters.by_expired
+                    ? url + "&vendor_id=" + vendorId
+                    : url + "?vendor_id=" + vendorId
+            }
             return url
         },
         filter_table: async function () {
