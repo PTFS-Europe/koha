@@ -61,6 +61,8 @@ export default {
                 deliverytime: null,
                 fax: "",
                 external_id: "",
+                payment_method: [],
+                language: "",
                 aliases: [],
                 contacts: [],
                 interfaces: [],
