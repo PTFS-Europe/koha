@@ -68,6 +68,17 @@
                     >{{ $__("Uncertain prices") }}</a
                 >
             </li>
+            <li v-if="ermModule && (erm || isUserPermitted('CAN_user_erm'))">
+                <a
+                    :href="`/cgi-bin/koha/erm/agreements?vendor_id=${vendorId}`"
+                    >{{ $__("ERM agreements") }}</a
+                >
+            </li>
+            <li v-if="ermModule && (erm || isUserPermitted('CAN_user_erm'))">
+                <a :href="`/cgi-bin/koha/erm/licenses?vendor_id=${vendorId}`">{{
+                    $__("ERM licenses")
+                }}</a>
+            </li>
         </ul>
     </div>
 </template>
@@ -96,22 +107,35 @@ export default {
         issuemanage: {
             type: String,
         },
+        ermmodule: {
+            type: String,
+        },
+        erm: {
+            type: String,
+        },
     },
     setup() {
         const permissionsStore = inject("permissionsStore")
         const { isUserPermitted } = permissionsStore
         const navigationStore = inject("navigationStore")
         const { params } = storeToRefs(navigationStore)
+        const vendorStore = inject("vendorStore")
+        const { config } = storeToRefs(vendorStore)
 
         return {
             isUserPermitted,
             params,
+            config,
         }
     },
     data() {
         const vendorId = this.vendorid ? this.vendorid : this.params.vendor_id
+        const ermModule = this.ermmodule
+            ? this.ermmodule
+            : this.config.settings.ermModule
         return {
             vendorId,
+            ermModule,
         }
     },
 }

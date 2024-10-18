@@ -69,7 +69,7 @@ export default {
             searchable_av_options: [],
             tableOptions: {
                 columns: this.getTableColumns(),
-                url: this.getResourceTableUrl(),
+                url: this.tableURL(),
                 options: { embed: "vendor,extended_attributes,+strings" },
                 table_settings: this.license_table_settings,
                 add_filters: true,
@@ -112,6 +112,15 @@ export default {
                 },
                 error => {}
             )
+        },
+        tableURL() {
+            let url = this.getResourceTableUrl()
+
+            const vendorId = this.$route.query.vendor_id
+            if (vendorId) {
+                url += "?vendor_id=" + vendorId
+            }
+            return url
         },
         async getSearchableAdditionalFields() {
             const client = APIClient.additional_fields
