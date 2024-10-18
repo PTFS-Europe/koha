@@ -194,6 +194,14 @@ vendor delivery time
 
 external id of the vendor
 
+=head2 payment_method
+
+  data_type: 'varchar'
+  is_nullable: 1
+  size: 255
+
+the payment method for the vendor
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -242,6 +250,8 @@ __PACKAGE__->add_columns(
   "deliverytime",
   { data_type => "integer", is_nullable => 1 },
   "external_id",
+  { data_type => "varchar", is_nullable => 1, size => 255 },
+  "payment_method",
   { data_type => "varchar", is_nullable => 1, size => 255 },
 );
 
