@@ -202,6 +202,14 @@ external id of the vendor
 
 the payment method for the vendor
 
+=head2 language
+
+  data_type: 'varchar'
+  is_nullable: 1
+  size: 255
+
+the language for the vendor
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -252,6 +260,8 @@ __PACKAGE__->add_columns(
   "external_id",
   { data_type => "varchar", is_nullable => 1, size => 255 },
   "payment_method",
+  { data_type => "varchar", is_nullable => 1, size => 255 },
+  "language",
   { data_type => "varchar", is_nullable => 1, size => 255 },
 );
 
@@ -535,8 +545,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-10-18 14:36:45
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:9vL5rG9ine9WdOG7cFTAGg
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-10-18 15:33:12
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:tE8HgaLCWD1I4u7PkZ7WBA
 
 __PACKAGE__->add_columns(
     '+active' => { is_boolean => 1 },
