@@ -4,6 +4,9 @@ import Home from "../components/SIP2/Home.vue";
 import SIP2InstitutionsList from "../components/SIP2/SIP2InstitutionsList.vue";
 import SIP2InstitutionsFormAdd from "../components/SIP2/SIP2InstitutionsFormAdd.vue";
 import SIP2InstitutionsShow from "../components/SIP2/SIP2InstitutionsShow.vue";
+import SIP2AccountsList from "../components/SIP2/SIP2AccountsList.vue";
+import SIP2AccountsFormAdd from "../components/SIP2/SIP2AccountsFormAdd.vue";
+import SIP2AccountsShow from "../components/SIP2/SIP2AccountsShow.vue";
 
 import { $__ } from "../i18n";
 
@@ -48,6 +51,37 @@ export const routes = [
                         name: "SIP2InstitutionsFormAddEdit",
                         component: markRaw(SIP2InstitutionsFormAdd),
                         title: $__("Edit institution"),
+                    },
+                ],
+            },
+            {
+                path: "/cgi-bin/koha/sip2/accounts",
+                title: $__("Accounts"),
+                icon: "fa fa-user",
+                is_end_node: true,
+                children: [
+                    {
+                        path: "",
+                        name: "SIP2AccountsList",
+                        component: markRaw(SIP2AccountsList),
+                    },
+                    {
+                        path: ":sip_account_id",
+                        name: "SIP2AccountsShow",
+                        component: markRaw(SIP2AccountsShow),
+                        title: $__("Show account"),
+                    },
+                    {
+                        path: "add",
+                        name: "SIP2AccountsFormAdd",
+                        component: markRaw(SIP2AccountsFormAdd),
+                        title: $__("Add account"),
+                    },
+                    {
+                        path: "edit/:sip_account_id",
+                        name: "SIP2AccountsFormAddEdit",
+                        component: markRaw(SIP2AccountsFormAdd),
+                        title: $__("Edit account"),
                     },
                 ],
             },
