@@ -194,6 +194,14 @@ vendor delivery time
 
 external id of the vendor
 
+=head2 payment_method
+
+  data_type: 'varchar'
+  is_nullable: 1
+  size: 255
+
+the payment method for the vendor
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -242,6 +250,8 @@ __PACKAGE__->add_columns(
   "deliverytime",
   { data_type => "integer", is_nullable => 1 },
   "external_id",
+  { data_type => "varchar", is_nullable => 1, size => 255 },
+  "payment_method",
   { data_type => "varchar", is_nullable => 1, size => 255 },
 );
 
@@ -525,8 +535,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-09-11 09:24:20
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:BAp8LQbC16KTLoV2ZDtRsQ
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-10-18 14:36:45
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:9vL5rG9ine9WdOG7cFTAGg
 
 __PACKAGE__->add_columns(
     '+active' => { is_boolean => 1 },
