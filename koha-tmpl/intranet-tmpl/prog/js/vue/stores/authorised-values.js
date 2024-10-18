@@ -33,6 +33,7 @@ export const useAVStore = defineStore("authorised_values", {
             { value: "has_frontfile_in", description: __("has frontfile in") },
             { value: "related_to", description: __("related to") },
         ],
+        av_lost: [],
         av_package_types: [],
         av_package_content_types: [],
         av_title_publication_types: [],
