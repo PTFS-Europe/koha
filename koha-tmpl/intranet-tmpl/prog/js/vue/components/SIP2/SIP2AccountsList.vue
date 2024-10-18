@@ -1,14 +1,14 @@
 <template>
     <div v-if="!initialized">{{ $__("Loading") }}</div>
-    <div v-else id="sip2_institutions_list">
+    <div v-else id="sip2_accounts_list">
         <Toolbar>
             <ToolbarButton
                 action="add"
                 @go-to-add-resource="goToResourceAdd"
-                :title="$__('New institution')"
+                :title="$__('New account')"
             />
         </Toolbar>
-        <div v-if="institutions_count > 0" class="page-section">
+        <div v-if="accounts_count > 0" class="page-section">
             <KohaTable
                 ref="table"
                 v-bind="tableOptions"
@@ -18,7 +18,7 @@
             ></KohaTable>
         </div>
         <div v-else class="alert alert-info">
-            {{ $__("There are no institutions defined") }}
+            {{ $__("There are no accounts defined") }}
         </div>
     </div>
 </template>
@@ -29,17 +29,17 @@ import ToolbarButton from "../ToolbarButton.vue"
 import { APIClient } from "../../fetch/api-client.js"
 import { ref } from "vue"
 import KohaTable from "../KohaTable.vue"
-import SIP2InstitutionResource from "./SIP2InstitutionResource.vue"
+import SIP2AccountResource from "./SIP2AccountResource.vue"
 
 export default {
-    extends: SIP2InstitutionResource,
+    extends: SIP2AccountResource,
     setup() {
         const table = ref()
 
         return {
-            ...SIP2InstitutionResource.setup(),
+            ...SIP2AccountResource.setup(),
             table,
-            institutions_table_settings,
+            accounts_table_settings,
         }
     },
     data: function () {
@@ -48,7 +48,8 @@ export default {
             tableOptions: {
                 columns: this.getTableColumns(),
                 url: () => this.table_url(),
-                table_settings: this.institutions_table_settings,
+                options: { embed: "institution" },
+                table_settings: this.accounts_table_settings,
                 actions: {
                     0: ["show"],
                     "-1": this.embedded
@@ -69,15 +70,15 @@ export default {
     },
     beforeRouteEnter(to, from, next) {
         next(vm => {
-            vm.getInstitutionsCount().then(() => (vm.initialized = true))
+            vm.getAccountsCount().then(() => (vm.initialized = true))
         })
     },
     methods: {
-        async getInstitutionsCount() {
+        async getAccountsCount() {
             const client = APIClient.sip2
-            await client.institutions.count().then(
+            await client.accounts.count().then(
                 count => {
-                    this.institutions_count = count
+                    this.accounts_count = count
                 },
                 error => {}
             )
@@ -85,83 +86,71 @@ export default {
         getTableColumns: function () {
             return [
                 {
-                    title: __("Name"),
-                    data: "name:sip_institution_id",
+                    title: __("Login"),
+                    data: "login_id:sip_account_id",
                     searchable: true,
                     orderable: true,
                     render: function (data, type, row, meta) {
                         return (
                             '<a role="button" class="show">' +
                             escape_str(
-                                `${row.name} (#${row.sip_institution_id})`
+                                `${row.login_id} (#${row.sip_account_id})`
                             ) +
                             "</a>"
                         )
                     },
                 },
                 {
-                    title: __("Implementation"),
-                    data: "implementation",
-                    searchable: true,
-                    orderable: true,
-                },
-                {
-                    title: __("Checkin"),
-                    data: "checkin",
+                    title: __("Institution ID"),
+                    data: "sip_institution_id",
                     searchable: true,
                     orderable: true,
                     render: function (data, type, row, meta) {
-                        return escape_str(row.checkin ? __("Yes") : __("No"))
+                        return row.sip_institution_id != undefined
+                            ? '<a href="/cgi-bin/koha/sip2/institutions/' +
+                                  row.sip_institution_id +
+                                  '">' +
+                                  escape_str(row.institution.name) +
+                                  "</a>"
+                            : ""
                     },
                 },
                 {
-                    title: __("Checkout"),
-                    data: "checkout",
-                    searchable: true,
-                    orderable: true,
-                    render: function (data, type, row, meta) {
-                        return escape_str(row.checkout ? __("Yes") : __("No"))
-                    },
-                },
-                {
-                    title: __("Renewal"),
-                    data: "renewal",
-                    searchable: true,
-                    orderable: true,
-                    render: function (data, type, row, meta) {
-                        return escape_str(row.renewal ? __("Yes") : __("No"))
-                    },
-                },
-                {
-                    title: __("Retries"),
-                    data: "retries",
+                    title: __("Delimiter"),
+                    data: "delimiter",
                     searchable: true,
                     orderable: true,
                 },
                 {
-                    title: __("Status update"),
-                    data: "status_update",
+                    title: __("Encoding"),
+                    data: "encoding",
+                    searchable: true,
+                    orderable: true,
+                },
+                {
+                    title: __("Error detect"),
+                    data: "error_detect",
                     searchable: true,
                     orderable: true,
                     render: function (data, type, row, meta) {
                         return escape_str(
-                            row.status_update ? __("Yes") : __("No")
+                            row.error_detect ? __("Yes") : __("No")
                         )
                     },
                 },
                 {
-                    title: __("Timeout"),
-                    data: "timeout",
+                    title: __("Terminator"),
+                    data: "terminator",
                     searchable: true,
                     orderable: true,
                 },
             ]
         },
         table_url: function () {
-            return "/api/v1/sip2/institutions"
+            return "/api/v1/sip2/accounts"
         },
     },
     components: { Toolbar, ToolbarButton, KohaTable },
-    name: "SIP2InstitutionsList",
+    name: "SIP2AccountsList",
 }
 </script>
