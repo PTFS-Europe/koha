@@ -10,5 +10,6 @@ export const useVendorStore = defineStore("vendors", {
                 edifact: false,
             },
         },
+
     }),
 });

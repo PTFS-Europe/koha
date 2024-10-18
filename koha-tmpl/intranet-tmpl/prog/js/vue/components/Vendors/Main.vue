@@ -66,6 +66,7 @@ export default {
             const authorised_values = {
                 av_vendor_types: "VENDOR_TYPE",
                 av_vendor_interface_types: "VENDOR_INTERFACE_TYPE",
+                av_vendor_payment_methods: "VENDOR_PAYMENT_METHOD",
             }
 
             let av_cat_array = Object.keys(authorised_values).map(function (

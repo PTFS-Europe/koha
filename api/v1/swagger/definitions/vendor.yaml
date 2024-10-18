@@ -114,6 +114,11 @@ properties:
       - string
       - "null"
     description: External id
+  payment_method:
+    type:
+      - string
+      - "null"
+    description: Payment method
   aliases:
     type: array
     description: List of aliases
