@@ -22,6 +22,7 @@
     <script>
 
         const institutions_table_settings = [% TablesSettings.GetTableSettings( 'sip2', 'institutions', 'institutions', 'json' ) | $raw %];
+        const accounts_table_settings = [% TablesSettings.GetTableSettings( 'sip2', 'accounts', 'accounts', 'json' ) | $raw %];
     </script>
 
     [% Asset.js("js/vue/dist/sip2.js") | $raw %]
