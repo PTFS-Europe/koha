@@ -89,6 +89,9 @@ export default {
                     vendor.address3 && (physical += vendor.address3 + "\n")
                     vendor.address4 && (physical += vendor.address4 + "\n")
                     this.vendor.physical = physical
+                    this.vendor.payment_method = vendor.payment_method
+                        ? vendor.payment_method.split("|")
+                        : []
                     this.initialized = true
                 },
                 error => {}
@@ -121,6 +124,12 @@ export default {
                 ({ interface_id, vendor_id, ...requiredProperties }) =>
                     requiredProperties
             )
+
+            if (vendor.payment_method && vendor.payment_method.length > 0) {
+                vendor.payment_method = vendor.payment_method.join("|")
+            } else {
+                vendor.payment_method = null
+            }
 
             const client = APIClient.acquisition
             if (vendorId) {
