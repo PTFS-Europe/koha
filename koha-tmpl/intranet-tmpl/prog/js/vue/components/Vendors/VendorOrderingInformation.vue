@@ -22,6 +22,12 @@
                     {{ vendor.invoice_currency }}
                 </span>
             </li>
+            <li>
+                <label>{{ $__("Payment method") }}:</label>
+                <span>
+                    {{ displayPaymentMethods() }}
+                </span>
+            </li>
             <li v-if="vendor.tax_rate">
                 <label>{{ $__("Tax number registered") }}:</label>
                 <span>
@@ -108,6 +114,17 @@
                     label="currency"
                     :reduce="av => av.currency"
                     :options="currencies"
+                />
+            </li>
+            <li>
+                <label for="payment_method">{{ $__("Payment method") }}:</label>
+                <v-select
+                    id="payment_method"
+                    v-model="vendor.payment_method"
+                    label="description"
+                    :reduce="av => av.value"
+                    :options="authorisedValues.vendor_payment_methods"
+                    multiple
                 />
             </li>
             <li>
@@ -233,10 +250,34 @@ export default {
         const vendorStore = inject("vendorStore")
         const { currencies, gstValues } = storeToRefs(vendorStore)
 
+        const mainStore = inject("mainStore")
+        const { get_lib_from_av } = mainStore
+        const { authorisedValues } = storeToRefs(mainStore)
+
         return {
             currencies,
             gstValues,
+            authorisedValues,
+            get_lib_from_av,
         }
+    },
+    methods: {
+        displayPaymentMethods() {
+            let get_lib_from_av = this.get_lib_from_av
+
+            if (this.vendor.payment_method) {
+                let methods = ""
+                this.vendor.payment_method.split("|").forEach(method => {
+                    const methodLib = get_lib_from_av(
+                        "vendor_payment_methods",
+                        method
+                    )
+                    methods += methodLib + ", "
+                })
+                return methods.substring(0, methods.length - 2)
+            }
+            return ""
+        },
     },
 }
 </script>

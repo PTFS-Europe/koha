@@ -13,6 +13,7 @@ export const useVendorStore = defineStore("vendors", {
         authorisedValues: {
             vendor_types: "VENDOR_TYPE",
             vendor_interface_types: "VENDOR_INTERFACE_TYPE",
+            vendor_payment_methods: "VENDOR_PAYMENT_METHOD",
         },
     }),
 });

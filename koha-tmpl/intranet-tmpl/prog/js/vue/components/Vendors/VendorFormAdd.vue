@@ -61,6 +61,8 @@ export default {
                 deliverytime: null,
                 fax: "",
                 external_id: "",
+                payment_method: [],
+                language: "",
                 aliases: [],
                 contacts: [],
                 interfaces: [],
@@ -121,6 +123,10 @@ export default {
                 ({ interface_id, vendor_id, ...requiredProperties }) =>
                     requiredProperties
             )
+
+            if (vendor.payment_method.length > 0) {
+                vendor.payment_method = vendor.payment_method.join("|")
+            }
 
             const client = APIClient.acquisition
             if (vendorId) {
