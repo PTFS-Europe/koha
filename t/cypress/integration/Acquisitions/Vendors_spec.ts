@@ -47,6 +47,7 @@ const getVendor = () => {
         list_includes_gst: false,
         name: "My Vendor",
         notes: "Sample vendor",
+        payment_method: "card",
         phone: "555-555-5555",
         postal: "567 Main St. PO Box 25 Springfield, MA 44224",
         subscriptions: [],
@@ -127,6 +128,12 @@ describe("Vendor CRUD operations", () => {
         );
         cy.get("#invoice_currency .vs__search").type(
             vendor.invoice_currency + "{enter}",
+            {
+                force: true,
+            }
+        );
+        cy.get("#payment_method .vs__search").type(
+            vendor.payment_method + "{enter}",
             {
                 force: true,
             }
