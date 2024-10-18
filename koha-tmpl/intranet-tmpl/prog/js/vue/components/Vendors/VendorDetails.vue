@@ -60,6 +60,12 @@
                     {{ vendor.accountnumber }}
                 </span>
             </li>
+            <li v-if="vendor.language">
+                <label>{{ $__("Language") }}:</label>
+                <span>
+                    {{ get_lib_from_av("lang", vendor.language) }}
+                </span>
+            </li>
             <li v-if="vendor.aliases.length">
                 <label>{{ $__("Aliases") }}:</label>
                 <ul style="margin-left: 8rem">
@@ -140,6 +146,18 @@
                     :options="authorisedValues.vendor_types"
                 />
                 <input v-else id="vendor_type" v-model="vendor.type" />
+            </li>
+            <li>
+                <label for="language">{{ $__("Language") }}:</label>
+                <v-select
+                    v-if="authorisedValues.lang.length"
+                    id="language"
+                    v-model="vendor.language"
+                    label="description"
+                    :reduce="av => av.value"
+                    :options="authorisedValues.lang"
+                />
+                <input v-else id="language" v-model="vendor.type" />
             </li>
             <li>
                 <label for="vendor_aliases">{{ $__("Aliases") }}:</label>
