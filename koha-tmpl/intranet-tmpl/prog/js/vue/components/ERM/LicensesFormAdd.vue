@@ -152,12 +152,12 @@ import { storeToRefs } from "pinia"
 export default {
     setup() {
         const AVStore = inject("AVStore")
-        const { av_license_types, av_license_statuses, av_user_roles } =
+        const { av_license_statuses, av_license_types, av_user_roles } =
             storeToRefs(AVStore)
 
         return {
-            av_license_types,
             av_license_statuses,
+            av_license_types,
             av_user_roles,
             max_allowed_packet,
         }
