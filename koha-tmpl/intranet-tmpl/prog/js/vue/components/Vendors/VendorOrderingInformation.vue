@@ -22,6 +22,12 @@
                     {{ vendor.invoice_currency }}
                 </span>
             </li>
+            <li>
+                <label>{{ $__("Payment method") }}:</label>
+                <span>
+                    {{ displayPaymentMethods() }}
+                </span>
+            </li>
             <li v-if="vendor.tax_rate">
                 <label>{{ $__("Tax number registered") }}:</label>
                 <span>
@@ -106,6 +112,17 @@
                     label="currency"
                     :reduce="av => av.currency"
                     :options="currencies"
+                />
+            </li>
+            <li>
+                <label for="payment_method">{{ $__("Payment method") }}:</label>
+                <v-select
+                    id="payment_method"
+                    v-model="vendor.payment_method"
+                    label="description"
+                    :reduce="av => av.value"
+                    :options="av_vendor_payment_methods"
+                    multiple
                 />
             </li>
             <li>
@@ -232,14 +249,32 @@ export default {
         const { currencies, gstValues } = storeToRefs(vendorStore)
 
         const AVStore = inject("AVStore")
-        const { get_lib_from_av } = AVStore
+        const { get_lib_from_av, av_vendor_payment_methods } = AVStore
 
         return {
             currencies,
             gstValues,
+            av_vendor_payment_methods,
+            get_lib_from_av,
         }
     },
     methods: {
+        displayPaymentMethods() {
+            let get_lib_from_av = this.get_lib_from_av
+
+            if (this.vendor.payment_method) {
+                let methods = ""
+                this.vendor.payment_method.split("|").forEach(method => {
+                    const methodLib = get_lib_from_av(
+                        "av_vendor_payment_methods",
+                        method
+                    )
+                    methods += methodLib + ", "
+                })
+                return methods.substring(0, methods.length - 2)
+            }
+            return ""
+        },
         formatTaxRate(taxRate) {
             if (!taxRate) return 0
             const decimalPlaces = taxRate.toString().split(".")[1]?.length || 0
