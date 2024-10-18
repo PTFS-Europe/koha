@@ -38,10 +38,12 @@ export default {
         const vendorStore = inject("vendorStore")
         const { vendors } = storeToRefs(vendorStore)
 
-        const AVStore = inject("AVStore")
-        const { get_lib_from_av, map_av_dt_filter } = AVStore
-
-        const { setConfirmationDialog, setMessage } = inject("mainStore")
+        const {
+            setConfirmationDialog,
+            setMessage,
+            get_lib_from_av,
+            map_av_dt_filter,
+        } = inject("mainStore")
 
         const table = ref()
 
@@ -70,7 +72,7 @@ export default {
             searchable_av_options: [],
             tableOptions: {
                 columns: this.getTableColumns(),
-                url: "/api/v1/erm/licenses",
+                url: this.tableURL(),
                 options: { embed: "vendor,extended_attributes,+strings" },
                 table_settings: this.license_table_settings,
                 add_filters: true,
@@ -113,6 +115,15 @@ export default {
                 },
                 error => {}
             )
+        },
+        tableURL() {
+            let url = "/api/v1/erm/licenses"
+
+            const vendorId = this.$route.query.vendor_id
+            if (vendorId) {
+                url += "?vendor_id=" + vendorId
+            }
+            return url
         },
         async getSearchableAdditionalFields() {
             const client = APIClient.additional_fields
