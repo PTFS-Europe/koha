@@ -43,6 +43,43 @@ export class SIP2APIClient extends HttpClient {
                 }),
         };
     }
+
+    get accounts() {
+        return {
+            get: id =>
+                this.get({
+                    endpoint: "accounts/" + id,
+                }),
+            getAll: params =>
+                this.getAll({
+                    endpoint: "accounts",
+                }),
+            delete: id =>
+                this.delete({
+                    endpoint: "accounts/" + id,
+                }),
+            create: institution =>
+                this.post({
+                    endpoint: "accounts",
+                    body: institution,
+                }),
+            update: (institution, id) =>
+                this.put({
+                    endpoint: "accounts/" + id,
+                    body: institution,
+                }),
+            count: (query = {}) =>
+                this.count({
+                    endpoint:
+                        "accounts?" +
+                        new URLSearchParams({
+                            _page: 1,
+                            _per_page: 1,
+                            ...(query && { q: JSON.stringify(query) }),
+                        }),
+                }),
+        };
+    }
 }
 
 export default SIP2APIClient;
