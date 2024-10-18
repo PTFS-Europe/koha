@@ -45,6 +45,7 @@ export const useAVStore = defineStore("authorised_values", {
         av_vendor_types: [],
         av_vendor_interface_types: [],
         av_vendor_payment_methods: [],
+        av_lang: [],
     }),
     actions: {
         get_lib_from_av(arr_name, av) {
