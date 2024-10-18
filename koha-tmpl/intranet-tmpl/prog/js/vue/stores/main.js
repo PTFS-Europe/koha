@@ -12,7 +12,6 @@ export const useMainStore = defineStore("main", {
         displayed_already: false,
         _is_submitting: false,
         _is_loading: false,
-        stringFromStore: "Hello from main store",
     }),
     actions: {
         setMessage(message, displayed = false) {
