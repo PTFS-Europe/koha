@@ -1,26 +1,17 @@
 import HttpClient from "./http-client";
 
-export class PatronAPIClient extends HttpClient {
+export class CashAPIClient extends HttpClient {
     constructor() {
         super({
             baseURL: "/api/v1/",
         });
     }
 
-    get patrons() {
-        return {
-            get: id =>
-                this.get({
-                    endpoint: "patrons/" + id,
-                }),
-        };
-    }
-
-    get patron_categories() {
+    get cash_registers() {
         return {
             getAll: (query, params, headers) =>
                 this.getAll({
-                    endpoint: "patron_categories",
+                    endpoint: "cash_registers",
                     query,
                     params,
                     headers,
@@ -29,4 +20,4 @@ export class PatronAPIClient extends HttpClient {
     }
 }
 
-export default PatronAPIClient;
+export default CashAPIClient;

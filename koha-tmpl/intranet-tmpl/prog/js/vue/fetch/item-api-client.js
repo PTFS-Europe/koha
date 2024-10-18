@@ -18,6 +18,18 @@ export class ItemAPIClient extends HttpClient {
                 }),
         };
     }
+
+    get item_types() {
+        return {
+            getAll: (query, params, headers) =>
+                this.getAll({
+                    endpoint: "item_types",
+                    query,
+                    params,
+                    headers,
+                }),
+        };
+    }
 }
 
 export default ItemAPIClient;
