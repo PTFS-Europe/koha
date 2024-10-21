@@ -190,7 +190,6 @@
                                     <form name="searchform" method="get" action="/cgi-bin/koha/opac-search.pl" id="searchform">
                                         <div class="form-row align-items-center">
                                             <div class="col-sm-auto order-2 order-sm-2">
-                                            <label for="masthead_search" class="visually-hidden">Search the catalog by:</label>
                                                 <select name="idx" id="masthead_search" class="form-control">
                                                     [% IF ( ms_kw ) %]
                                                         <option selected="selected" value="">Library catalog</option>
@@ -245,10 +244,8 @@
 
                                             <div class="col order-4 order-sm-3">
                                                 [% IF ( !Koha.Preference( 'OpacAddMastheadLibraryPulldown' ) == 1 && mylibraryfirst ) %]
-                                                    <label for="translControl1" class="visually-hidden">Search the catalog by keyword in [% Branches.GetName( mylibraryfirst ) | html %]</label>
                                                     <input type="text" class="transl1 form-control form-control-filtered" id="translControl1" name="q" value="[% ms_value | html %]" data-toggle="tooltip" data-placement="top" title="Searching in [% Branches.GetName( mylibraryfirst ) | html %] only" /><span id="translControl"></span>
                                                 [% ELSE %]
-                                                    <label for="translControl1" class="visually-hidden">Search the catalog by keyword</label>
                                                     <input type="text" class="transl1 form-control" id="translControl1" name="q" value="[% ms_value | html %]" /><span id="translControl"></span>
                                                 [% END # /ms_value %]
                                             </div> <!-- /.col -->
