@@ -114,6 +114,43 @@ modules:
             -
               columnname: isbn
 
+    parcel:
+      pending_orders:
+        default_save_state_search: 1
+        columns:
+            -
+              columnname: checkbox
+              cannot_be_toggled: 1
+              cannot_be_modified: 1
+            -
+              columnname: basket
+            -
+              columnname: basket_group
+            -
+              columnname: order_line
+            -
+              columnname: summary
+            -
+              columnname: view
+            -
+              columnname: replacement_price
+            -
+              columnname: quantity
+            -
+              columnname: unit_cost
+            -
+              columnname: order_cost
+            -
+              columnname: fund
+            -
+              columnname: actions_1
+              cannot_be_toggled: 1
+              cannot_be_modified: 1
+            -
+              columnname: actions_2
+              cannot_be_toggled: 1
+              cannot_be_modified: 1
+
     basket:
       orders:
         default_display_length: 20
@@ -177,6 +214,7 @@ modules:
 
     suggestions:
       suggestions:
+        default_save_state_search: 1
         columns:
             -
               columnname: selections
@@ -1924,6 +1962,7 @@ modules:
       circ-overdues:
         default_display_length: 20
         default_sort_order: 0
+        default_save_state_search: 1
         columns:
             -
               columnname: due_date

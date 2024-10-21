@@ -30,6 +30,34 @@ export default {
             included_ids,
             table_settings: this.table_settings,
         })
+
+        if (this.add_filters) {
+            this.options.orderCellsTop = true
+        }
+
+        if (this.table_settings) {
+            let state_settings = _dt_save_restore_state(this.table_settings)
+            this.options.stateSave = state_settings.stateSave
+            this.options.stateSaveCallback = state_settings.stateSaveCallback
+            this.options.stateLoadCallback = state_settings.stateLoadCallback
+
+            if (
+                this.table_settings.hasOwnProperty("default_display_length") &&
+                this.table_settings.default_display_length != null
+            ) {
+                this.options.pageLength =
+                    this.table_settings.default_display_length
+            }
+            if (
+                this.table_settings.hasOwnProperty("default_sort_order") &&
+                this.table_settings.default_sort_order != null
+            ) {
+                this.options.order = [
+                    [this.table_settings.default_sort_order, "asc"],
+                ]
+            }
+        }
+
         return {
             data: [],
             tableColumns: this.columns,
@@ -133,28 +161,6 @@ export default {
                     },
                 },
             ]
-        }
-
-        if (this.add_filters) {
-            this.options.orderCellsTop = true
-        }
-
-        if (this.table_settings) {
-            if (
-                this.table_settings.hasOwnProperty("default_display_length") &&
-                this.table_settings.default_display_length != null
-            ) {
-                this.options.pageLength =
-                    this.table_settings.default_display_length
-            }
-            if (
-                this.table_settings.hasOwnProperty("default_sort_order") &&
-                this.table_settings.default_sort_order != null
-            ) {
-                this.options.order = [
-                    [this.table_settings.default_sort_order, "asc"],
-                ]
-            }
         }
     },
     mounted() {

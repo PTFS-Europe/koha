@@ -56,12 +56,13 @@ var dataTablesDefaults = {
     "pageLength": 20,
     "fixedHeader": true,
     initComplete: function( settings ) {
-        var tableId = settings.nTable.id
-        var state =  settings.oLoadedState;
-        state && toggledClearFilter(state.search.search, tableId);
+        var tableId = settings.nTable.id;
+        let table_node = $("#" + tableId);
+
+        state =  settings.oLoadedState;
+        state && state.search && toggledClearFilter(state.search.search, tableId);
 
         if (settings.ajax) {
-            let table_node = $("#" + tableId);
             if ( typeof this.api === 'function' ) {
                 _dt_add_delay(this.api(), table_node);
             } else {
@@ -757,6 +758,34 @@ function _dt_buttons(params){
         }
     );
 
+    if ( table_settings ) {
+        buttons.push(
+            {
+                autoClose: true,
+                fade: 100,
+                className: "copyConditions_controls",
+                titleAttr: __("Copy shareable link"),
+                text: '<i class="fa fa-lg fa-copy"></i> <span class="dt-button-text">' + __("Copy shareable link") + '</span>',
+                action: function (e, dt, node, config) {
+                    let table_key = 'DataTables_%s_%s_%s'.format(
+                        table_settings.module,
+                        table_settings.page,
+                        table_settings.table);
+
+                    let state = JSON.stringify(dt.state());
+                    delete state.time;
+                    let searchParams = new URLSearchParams(window.location.search);
+                    searchParams.set(table_key + '_state', btoa(state));
+                    let url = window.location.origin + window.location.pathname + '?' + searchParams.toString() + window.location.hash;
+                    if( navigator.clipboard && navigator.clipboard.writeText){
+                        navigator.clipboard.writeText( url );
+                        $(node).tooltip({trigger: 'manual', title: _("Copied!")}).tooltip('show');
+                    }
+                },
+            }
+        );
+    }
+
     if ( table_settings && CAN_user_parameters_manage_column_config ) {
         buttons.push(
             {
@@ -807,18 +836,7 @@ function _dt_visibility(table_settings, settings, node){
 }
 
 function _dt_on_visibility(add_filters, table_node, table_dt){
-    if ( add_filters ) {
-        let visible_columns = table_dt.columns().visible();
-        $(table_node).find('thead tr:eq(1) th').each( function (i) {
-            let th_id = $(this).data('th-id');
-            if ( visible_columns[th_id] == false ) {
-                $(this).hide();
-            } else {
-                $(this).show();
-            }
-        });
-    }
-
+    // FIXME REPLACE ME
     if( typeof columnsInit == 'function' ){
         // This function can be created separately and used to trigger
         // an event after the DataTable has loaded AND column visibility
@@ -828,18 +846,27 @@ function _dt_on_visibility(add_filters, table_node, table_dt){
 }
 
 function _dt_add_filters(table_node, table_dt, filters_options = {}) {
+
+    if (!$(table_node).length) return;
+
+    $(table_node).find('thead tr:eq(1)').remove(); // Remove if one exists already
     $(table_node).find('thead tr').clone().appendTo( $(table_node).find('thead') );
 
-    $(table_node).find('thead tr:eq(1) th').each( function (i) {
-        var is_searchable = table_dt.settings()[0].aoColumns[i].bSearchable;
-        $(this).removeClass('sorting').removeClass("sorting_asc").removeClass("sorting_desc");
-        $(this).data('th-id', i);
+    let visibility = table_dt.columns().visible();
+    let columns = table_dt.settings()[0].aoColumns;
+    table_dt.columns().every( function () {
+        var column = this;
+        let i = column.index();
+        var visible_i = table_dt.column.index('fromData', i);
+        let th = $(table_node).find('thead tr:eq(1) th:eq(%s)'.format(visible_i));
+        var is_searchable = columns[i].bSearchable;
+        $(th).removeClass('sorting').removeClass("sorting_asc").removeClass("sorting_desc");
         if ( is_searchable ) {
             let input_type = 'input';
-            if ( $(this).data('filter') || filters_options.hasOwnProperty(i)) {
+            let existing_search = column.search();
+            if ( $(th).data('filter') || filters_options.hasOwnProperty(i)) {
                 input_type = 'select'
-                let filter_type = $(this).data('filter');
-                let existing_search = table_dt.column(i).search();
+                let filter_type = $(th).data('filter');
                 let select = $('<select class="dt-select-filter"><option value=""></option></select');
 
                 // FIXME eval here is bad and dangerous, how do we workaround that?
@@ -850,20 +877,22 @@ function _dt_add_filters(table_node, table_dt, filters_options = {}) {
                 }
                 $(filters_options[i]).each(function(){
                     let o = $('<option value="%s">%s</option>'.format(this._id, this._str));
-                    if ( existing_search === this._id ) {
+                    // Compare with lc, or selfreg won't match ^SELFREG$ for instance, see bug 32517
+                    // This is only for category, we might want to apply it only in this case.
+                    existing_search = existing_search.toLowerCase()
+                    if ( existing_search === this._id || (existing_search && this._id.match(existing_search)) ) {
                         o.prop("selected", "selected");
                     }
                     o.appendTo(select);
                 });
-                $(this).html( select );
+                $(th).html( select );
             } else {
-                var title = $(this).text();
-                var existing_search = table_dt.column(i).search();
+                var title = $(th).text();
                 if ( existing_search ) {
-                    $(this).html( '<input type="text" value="%s" style="width: 100%" />'.format(existing_search) );
+                    $(th).html( '<input type="text" value="%s" style="width: 100%" />'.format(existing_search) );
                 } else {
                     var search_title = __("%s search").format(title);
-                    $(this).html( '<input type="text" placeholder="%s" style="width: 100%" />'.format(search_title) );
+                    $(th).html( '<input type="text" placeholder="%s" style="width: 100%" />'.format(search_title) );
                 }
             }
 
@@ -878,7 +907,7 @@ function _dt_add_filters(table_node, table_dt, filters_options = {}) {
                 };
             }
 
-            $(input_type, this).on('keyup change', (delay(function () {
+            $(input_type, th).on('keyup change', (delay(function () {
                 if (table_dt.column(i).search() !== this.value) {
                     if (input_type == "input") {
                         table_dt
@@ -894,7 +923,7 @@ function _dt_add_filters(table_node, table_dt, filters_options = {}) {
                 }
             }, 500)));
         } else {
-            $(this).html('');
+            $(th).html('');
         }
     } );
 }
@@ -932,6 +961,102 @@ function _dt_add_delay(table_dt, table_node, delay_ms) {
     });
 }
 
+function _dt_save_restore_state(table_settings, external_filter_nodes={}){
+
+    let table_key = 'DataTables_%s_%s_%s'.format(
+        table_settings.module,
+        table_settings.page,
+        table_settings.table);
+
+    let default_save_state        = table_settings.default_save_state;
+    let default_save_state_search = table_settings.default_save_state_search;
+
+    let stateSaveCallback = function( settings, data ) {
+        localStorage.setItem( table_key, JSON.stringify(data) )
+    }
+
+    function set_default(table_settings, settings){
+        let columns = new Array(table_settings.columns.length).fill({visible: true});
+        let hidden_ids, included_ids;
+        [hidden_ids, included_ids] = _dt_visibility(table_settings, settings, $("#"+settings.nTable.id));
+        hidden_ids.forEach((id, i) => { columns[id] = { visible: false } } );
+        // State is not loaded if time is not passed
+        return { columns, time: new Date() };
+    }
+    let stateLoadCallback = function(settings) {
+        // Load state from URL
+        const url = new URL(window.location.href);
+        let state_from_url = url.searchParams.get( table_key + '_state');
+        if ( state_from_url ) {
+            settings.loaded_from_state = true;
+            return JSON.parse(atob(state_from_url));
+        }
+
+        if (!default_save_state) return set_default(table_settings, settings);
+
+        let state = localStorage.getItem(table_key);
+        if (!state) return set_default(table_settings, settings);
+
+        state = JSON.parse(state);
+
+        if (!default_save_state_search ) {
+            delete state.search;
+            state.columns.forEach(c => delete c.search );
+        }
+        settings.loaded_from_state = true;
+        return state;
+    }
+
+    let stateSaveParams = function (settings, data) {
+        // FIXME Selector in on the whole DOM, we don't know where the filters are
+        // If others exist on the same page this will lead to unexpected behaviours
+        // Should be safe so far as: patron search use the same code for the different searches
+        // but only the main one has the table settings (and so the state saved)
+        data.external_filters = Object.keys(external_filter_nodes).reduce(
+            (r, k) => {
+                let node = $(external_filter_nodes[k]);
+                let tag_name = node.prop("tagName");
+                if ( tag_name == "INPUT" && node.prop("type") == "checkbox" ) {
+                    r[k] = $(external_filter_nodes[k]).prop("checked");
+                } else if ( tag_name == "INPUT" || tag_name == "SELECT" ) {
+                    r[k] = $(external_filter_nodes[k]).val();
+                } else {
+                    console.log("Tag '%s' not supported yet for DT state".format(tag_name))
+                }
+                return r;
+            },
+            {}
+        );
+    };
+    let stateLoadParams = function (settings, data) {
+        if (!settings.loaded_from_state) return;
+
+        if (data.external_filters) {
+            Object.keys(external_filter_nodes).forEach((k, i) => {
+                if (data.external_filters.hasOwnProperty(k)) {
+                    let node = $(external_filter_nodes[k]);
+                    let tag_name = node.prop("tagName");
+                    if ( tag_name == "INPUT" && node.prop("type") == "checkbox" ) {
+                        node.prop("checked", data.external_filters[k]);
+                    } else if ( tag_name == "INPUT" || tag_name == "SELECT" ) {
+                        node.val(data.external_filters[k]);
+                    } else {
+                        console.log("Tag '%s' not supported yet for DT state".format(tag_name))
+                    }
+                }
+            });
+        }
+    };
+
+    return {
+        stateSave: true,
+        stateSaveCallback,
+        stateLoadCallback,
+        stateSaveParams,
+        stateLoadParams,
+    };
+}
+
 (function($) {
 
     /**
@@ -949,7 +1074,7 @@ function _dt_add_delay(table_dt, table_node, delay_ms) {
     * @param  {Object}  default_filters              Add a set of default search filters to apply at table initialisation
     * @return {Object}                               The dataTables instance
     */
-    $.fn.kohaTable = function(options, table_settings, add_filters, default_filters, filters_options) {
+    $.fn.kohaTable = function(options, table_settings, add_filters, default_filters, filters_options, external_filter_nodes) {
         var settings = null;
 
         if(options) {
@@ -973,6 +1098,7 @@ function _dt_add_delay(table_dt, table_node, delay_ms) {
                             'emptyTable': (options.emptyTable) ? options.emptyTable : __("No data available in table")
                         },
                         'ajax': _dt_default_ajax({default_filters, options}),
+                        loaded_from_state: false,
                     }, options);
         }
 
@@ -986,6 +1112,9 @@ function _dt_add_delay(table_dt, table_node, delay_ms) {
         }
 
         if ( table_settings ) {
+            let state_settings = _dt_save_restore_state(table_settings, external_filter_nodes);
+            settings = {...settings, ...state_settings};
+
             if ( table_settings.hasOwnProperty('default_display_length') && table_settings['default_display_length'] != null ) {
                 settings["pageLength"] = table_settings['default_display_length'];
             }
@@ -1001,8 +1130,11 @@ function _dt_add_delay(table_dt, table_node, delay_ms) {
             _dt_add_filters(this, table_dt, filters_options);
         }
 
-        table_dt.on("column-visibility.dt", function(){_dt_on_visibility(add_filters, table, table_dt);})
-            .columns( hidden_ids ).visible( false );
+        table_dt.on("column-visibility.dt", function(){
+            if ( add_filters ) {
+                _dt_add_filters(this, table_dt, filters_options);
+            }
+        });
 
         table_dt.on( 'search.dt', function ( e, settings ) {
             // When the DataTables search function is triggered,

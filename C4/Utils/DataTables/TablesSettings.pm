@@ -57,14 +57,22 @@ sub get_columns {
     my $columns = $list->{modules}{$module}{$page}{$tablename}{columns} || [];
 
     # Assign default value if does not exist
-    $columns = [ map {
-        {
-            cannot_be_toggled => exists $_->{cannot_be_toggled} ? $_->{cannot_be_toggled} : 0,
-            cannot_be_modified => exists $_->{cannot_be_modified} ? $_->{cannot_be_modified} : 0,
-            is_hidden => exists $_->{is_hidden} ? $_->{is_hidden} : 0,
-            columnname => $_->{columnname},
-        }
-    } @$columns ];
+    $columns = [
+        map {
+            {
+                cannot_be_toggled         => exists $_->{cannot_be_toggled}  ? $_->{cannot_be_toggled}  : 0,
+                cannot_be_modified        => exists $_->{cannot_be_modified} ? $_->{cannot_be_modified} : 0,
+                is_hidden                 => exists $_->{is_hidden}          ? $_->{is_hidden}          : 0,
+                default_save_state        => exists $_->{default_save_state} ? $_->{default_save_state} : 1,
+                default_save_state_search => exists $_->{default_save_state_search}
+                    && exists $_->{default_save_state}
+                    && $_->{default_save_state}    # We need default_save_state
+                ? $_->{default_save_state_search}
+                : 0,
+                columnname => $_->{columnname},
+            }
+        } @$columns
+    ];
 
     return $columns;
 }
@@ -81,7 +89,7 @@ sub get_columns {
 
 Returns the settings for a given table.
 
-The settings are default_display_length and default_sort_order.
+The settings are default_display_length, default_sort_order, default_save_state and default_save_state_search.
 
 =cut
 
@@ -100,10 +108,18 @@ sub get_table_settings {
     )->next;
 
     return {
-        default_display_length => $rs ? $rs->default_display_length
-        : $list->{modules}{$module}{$page}{$tablename}{default_display_length},
-        default_sort_order => $rs ? $rs->default_sort_order
-        : $list->{modules}{$module}{$page}{$tablename}{default_sort_order}
+        default_display_length => $rs
+            ? $rs->default_display_length
+            : $list->{modules}{$module}{$page}{$tablename}{default_display_length},
+        default_sort_order => $rs
+            ? $rs->default_sort_order
+            : $list->{modules}{$module}{$page}{$tablename}{default_sort_order},
+        default_save_state => $rs
+            ? $rs->default_save_state
+            : 1,
+        default_save_state_search => $rs
+            ? $rs->default_save_state_search
+            : $list->{modules}{$module}{$page}{$tablename}{default_save_state_search},
     };
 }
 
@@ -150,37 +166,43 @@ sub update_columns {
 
 =head3 update_table_settings
 
-  C4::Utils::DataTables::TablesSettings::update_table_settings(
+C4::Utils::DataTables::TablesSettings::update_table_settings(
     {
-        module                 => $module,
-        pag                    => $page,
-        tablename              => $tablename,
-        default_display_length => $default_display_length,
-        default_sort_order     => $default_sort_order
+        module                    => $module,
+        page                      => $page,
+        tablename                 => $tablename,
+        default_display_length    => $default_display_length,
+        default_sort_order        => $default_sort_order,
+        default_save_state        => $default_save_state,
+        default_save_state_search => $default_save_state_search,
     }
-  );
+);
 
 Will update the default_display_length and default_sort_order for the given table.
 
 =cut
 
 sub update_table_settings {
-    my ($params)               = @_;
-    my $module                 = $params->{module};
-    my $page                   = $params->{page};
-    my $tablename              = $params->{tablename};
-    my $default_display_length = $params->{default_display_length};
-    my $default_sort_order     = $params->{default_sort_order};
+    my ($params)                  = @_;
+    my $module                    = $params->{module};
+    my $page                      = $params->{page};
+    my $tablename                 = $params->{tablename};
+    my $default_display_length    = $params->{default_display_length};
+    my $default_sort_order        = $params->{default_sort_order};
+    my $default_save_state        = $params->{default_save_state};
+    my $default_save_state_search = $params->{default_save_state_search};
 
     my $schema = Koha::Database->new->schema;
 
     $schema->resultset('TablesSetting')->update_or_create(
         {
-            module                 => $module,
-            page                   => $page,
-            tablename              => $tablename,
-            default_display_length => $default_display_length,
-            default_sort_order     => $default_sort_order,
+            module                    => $module,
+            page                      => $page,
+            tablename                 => $tablename,
+            default_display_length    => $default_display_length,
+            default_sort_order        => $default_sort_order,
+            default_save_state        => $default_save_state,
+            default_save_state_search => $default_save_state_search,
         }
     );
 }
