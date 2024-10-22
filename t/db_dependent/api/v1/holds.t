@@ -17,7 +17,7 @@
 
 use Modern::Perl;
 
-use Test::More tests => 14;
+use Test::More tests => 16;
 use Test::MockModule;
 use Test::Mojo;
 use t::lib::TestBuilder;
@@ -1572,6 +1572,128 @@ subtest 'delete() tests' => sub {
         ->status_is( 202, 'Cancellation request accepted' );
 
     is( $hold->cancellation_requests->count, 1 );
+
+    $schema->storage->txn_rollback;
+};
+
+subtest 'PUT /holds/{hold_id}/hold_date tests' => sub {
+
+    plan tests => 10;
+
+    $schema->storage->txn_begin;
+
+    my $password = 'AbcdEFG123';
+
+    my $library_1 = $builder->build_object( { class => 'Koha::Libraries', value => { pickup_location => 1 } } );
+
+    my $patron = $builder->build_object( { class => 'Koha::Patrons', value => { flags => 0 } } );
+    $patron->set_password( { password => $password, skip_validation => 1 } );
+    my $userid = $patron->userid;
+    $builder->build(
+        {
+            source => 'UserPermission',
+            value  => {
+                borrowernumber => $patron->borrowernumber,
+                module_bit     => 6,
+                code           => 'place_holds',
+            },
+        }
+    );
+
+    # Disable logging
+    t::lib::Mocks::mock_preference( 'HoldsLog',      0 );
+    t::lib::Mocks::mock_preference( 'RESTBasicAuth', 1 );
+
+    my $biblio = $builder->build_sample_biblio;
+
+    # biblio-level hold
+    my $hold = Koha::Holds->find(
+        AddReserve(
+            {
+                branchcode     => $library_1->branchcode,
+                borrowernumber => $patron->borrowernumber,
+                biblionumber   => $biblio->biblionumber,
+                priority       => 1,
+                itemnumber     => undef,
+            }
+        )
+    );
+
+    t::lib::Mocks::mock_preference( 'AllowHoldDateInFuture', 0 );
+
+    $t->put_ok(
+        "//$userid:$password@/api/v1/holds/" . $hold->id . "/hold_date" => json => { hold_date => '2022-01-01' } )
+        ->status_is(403)->json_is( { error => 'Update not allowed' } );
+
+    t::lib::Mocks::mock_preference( 'AllowHoldDateInFuture', 1 );
+
+    # Attempt to use an invalid pickup locations ends in 400
+    $t->put_ok( "//$userid:$password@/api/v1/holds/0" . "/hold_date" => json => { hold_date => '2022-01-01' } )
+        ->status_is(404)->json_is( { error => 'Hold not found' } );
+
+    $t->put_ok(
+        "//$userid:$password@/api/v1/holds/" . $hold->id . "/hold_date" => json => { hold_date => '2022-01-01' } )
+        ->status_is(200)->json_is( { hold_date => '2022-01-01' } );
+
+    is( $hold->discard_changes->reservedate, '2022-01-01', 'hold date changed correctly' );
+
+    $schema->storage->txn_rollback;
+};
+
+subtest 'PUT /holds/{hold_id}/expiration_date tests' => sub {
+
+    plan tests => 7;
+
+    $schema->storage->txn_begin;
+
+    my $password = 'AbcdEFG123';
+
+    my $library_1 = $builder->build_object( { class => 'Koha::Libraries', value => { pickup_location => 1 } } );
+
+    my $patron = $builder->build_object( { class => 'Koha::Patrons', value => { flags => 0 } } );
+    $patron->set_password( { password => $password, skip_validation => 1 } );
+    my $userid = $patron->userid;
+    $builder->build(
+        {
+            source => 'UserPermission',
+            value  => {
+                borrowernumber => $patron->borrowernumber,
+                module_bit     => 6,
+                code           => 'place_holds',
+            },
+        }
+    );
+
+    # Disable logging
+    t::lib::Mocks::mock_preference( 'HoldsLog',      0 );
+    t::lib::Mocks::mock_preference( 'RESTBasicAuth', 1 );
+
+    my $biblio = $builder->build_sample_biblio;
+
+    # biblio-level hold
+    my $hold = Koha::Holds->find(
+        AddReserve(
+            {
+                branchcode     => $library_1->branchcode,
+                borrowernumber => $patron->borrowernumber,
+                biblionumber   => $biblio->biblionumber,
+                priority       => 1,
+                itemnumber     => undef,
+            }
+        )
+    );
+
+    # Attempt to use an invalid pickup locations ends in 400
+    $t->put_ok(
+        "//$userid:$password@/api/v1/holds/0" . "/expiration_date" => json => { expiration_date => '2022-01-01' } )
+        ->status_is(404)->json_is( { error => 'Hold not found' } );
+
+    $t->put_ok( "//$userid:$password@/api/v1/holds/"
+            . $hold->id
+            . "/expiration_date" => json => { expiration_date => '2022-01-01' } )->status_is(200)
+        ->json_is( { expiration_date => '2022-01-01' } );
+
+    is( $hold->discard_changes->expirationdate, '2022-01-01', 'expiration date changed correctly' );
 
     $schema->storage->txn_rollback;
 };

@@ -560,4 +560,81 @@ sub update_pickup_location {
     };
 }
 
+=head3 update_hold_date
+
+Method that handles modifying the hold date of a Koha::Hold object
+
+=cut
+
+sub update_hold_date {
+    my $c = shift->openapi->valid_input or return;
+
+    my $hold_id   = $c->param('hold_id');
+    my $body      = $c->req->json;
+    my $hold_date = $body->{hold_date};
+
+    my $hold = Koha::Holds->find($hold_id);
+
+    unless ( C4::Context->preference('AllowHoldDateInFuture') ) {
+        return $c->render(
+            status  => 403,
+            openapi => { error => "Update not allowed" }
+        );
+    }
+
+    unless ($hold) {
+        return $c->render(
+            status  => 404,
+            openapi => { error => "Hold not found" }
+        );
+    }
+
+    return try {
+
+        $hold->set( { reservedate => $hold_date } )->store;
+
+        return $c->render(
+            status  => 200,
+            openapi => { hold_date => $hold_date }
+        );
+    } catch {
+        $c->unhandled_exception($_);
+    };
+}
+
+=head3 update_expiration_date
+
+Method that handles modifying the expiration date of a Koha::Hold object
+
+=cut
+
+sub update_expiration_date {
+    my $c = shift->openapi->valid_input or return;
+
+    my $hold_id         = $c->param('hold_id');
+    my $body            = $c->req->json;
+    my $expiration_date = $body->{expiration_date};
+
+    my $hold = Koha::Holds->find($hold_id);
+
+    unless ($hold) {
+        return $c->render(
+            status  => 404,
+            openapi => { error => "Hold not found" }
+        );
+    }
+
+    return try {
+
+        $hold->set( { expirationdate => $expiration_date } )->store;
+
+        return $c->render(
+            status  => 200,
+            openapi => { expiration_date => $expiration_date }
+        );
+    } catch {
+        $c->unhandled_exception($_);
+    };
+}
+
 1;
