@@ -14,7 +14,7 @@ export class AcquisitionAPIClient extends HttpClient {
                     endpoint: "vendors/" + id,
                     headers: {
                         "x-koha-embed":
-                            "aliases,subscriptions,interfaces,contacts,contracts",
+                            "aliases,subscriptions,interfaces,contacts,contracts,extended_attributes,+strings",
                     },
                 }),
             getAll: (query, params) =>

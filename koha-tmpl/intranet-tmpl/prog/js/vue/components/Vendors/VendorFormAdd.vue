@@ -11,6 +11,11 @@
                 <VendorContacts :vendor="vendor" />
                 <VendorInterfaces :vendor="vendor" />
                 <VendorOrderingInformation :vendor="vendor" />
+                <AdditionalFieldsEntry
+                    resource_type="vendor"
+                    :additional_field_values="vendor.extended_attributes"
+                    @additional-fields-changed="additionalFieldsChanged"
+                />
                 <fieldset class="action">
                     <ButtonSubmit />
                     <router-link
@@ -33,6 +38,7 @@ import VendorDetails from "./VendorDetails.vue"
 import VendorContacts from "./VendorContacts.vue"
 import VendorOrderingInformation from "./VendorOrderingInformation.vue"
 import VendorInterfaces from "./VendorInterfaces.vue"
+import AdditionalFieldsEntry from "../AdditionalFieldsEntry.vue"
 
 export default {
     data() {
@@ -66,6 +72,7 @@ export default {
                 aliases: [],
                 contacts: [],
                 interfaces: [],
+                extended_attributes: [],
             },
             initialized: false,
         }
@@ -117,6 +124,7 @@ export default {
                 })
             }
             delete vendor.physical
+            delete vendor._strings
 
             vendor.contacts = vendor.contacts.map(
                 ({ id, booksellerid, ...requiredProperties }) =>
@@ -152,6 +160,9 @@ export default {
                 )
             }
         },
+        additionalFieldsChanged(additionalFieldValues) {
+            this.vendor.extended_attributes = additionalFieldValues
+        },
     },
     components: {
         ButtonSubmit,
@@ -159,6 +170,7 @@ export default {
         VendorContacts,
         VendorOrderingInformation,
         VendorInterfaces,
+        AdditionalFieldsEntry,
     },
     name: "VendorFormAdd",
 }

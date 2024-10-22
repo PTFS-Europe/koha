@@ -52,6 +52,7 @@ sub list {
         invoice => 'aqinvoices',
         license => 'erm_licenses',
         order   => 'aqorders',
+        vendor  => 'aqbooksellers:vendor',
     };
 
     return try {
