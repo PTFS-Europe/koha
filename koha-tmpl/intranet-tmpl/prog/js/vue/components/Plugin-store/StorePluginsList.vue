@@ -49,8 +49,9 @@ export default {
                         searchable: false,
                         orderable: false,
                         render: function (data, type, row, meta) {
+                            //FIXME: plugin store URL should come from koha-conf.xml (?)
                             return (
-                                '<img style="display:block; margin: 0 auto;" src = "http://localhost:3000/img/' +
+                                '<img style="display:block; margin: 0 auto;" src = "https://plugin-store.koha-ptfs.co.uk/img/' +
                                 row.thumbnail +
                                 '" width="250px"/>'
                             )
@@ -289,9 +290,9 @@ export default {
             return !plugin.releases || plugin.releases.length === 0
         },
         table_url: function () {
-            // FIXME: This is hardcoded
+            //FIXME: plugin store URL should come from koha-conf.xml (?)
             return (
-                "http://localhost:3000/api/plugins?koha_version_release=" +
+                "https://plugin-store.koha-ptfs.co.uk/api/plugins?koha_version_release=" +
                 this.koha_version.release
             )
         },
