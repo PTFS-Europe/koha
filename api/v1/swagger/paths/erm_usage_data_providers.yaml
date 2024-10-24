@@ -212,6 +212,7 @@
           enum:
             - counter_files
             - erm_usage_titles.erm_usage_muses
+            - vendor
         collectionFormat: csv
     responses:
       200:
