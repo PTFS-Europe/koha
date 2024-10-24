@@ -474,6 +474,21 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 erm_usage_data_providers
+
+Type: has_many
+
+Related object: L<Koha::Schema::Result::ErmUsageDataProvider>
+
+=cut
+
+__PACKAGE__->has_many(
+  "erm_usage_data_providers",
+  "Koha::Schema::Result::ErmUsageDataProvider",
+  { "foreign.vendor_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 invoiceprice
 
 Type: belongs_to
@@ -545,8 +560,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-10-18 15:33:12
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:tE8HgaLCWD1I4u7PkZ7WBA
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-10-24 10:42:59
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:i9k1bZ0fQ72xh+My7VMAow
 
 __PACKAGE__->add_columns(
     '+active' => { is_boolean => 1 },
