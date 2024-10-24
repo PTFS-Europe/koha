@@ -398,7 +398,7 @@ if ( $op eq 'do' ) {
         my $i = 0;
         for my $code ( @attributes ) {
             push @{ $attributes->{$code}->{values} }, shift @attr_values; # Handling repeatables
-            $attributes->{$code}->{disabled} = grep { $_ eq sprintf("attr%s_value", ++$i) } @disabled;
+            $attributes->{$code}->{disabled} = grep { $_ eq sprintf("attr%s_value", $i++) } @disabled;
         }
 
         for my $code ( keys %$attributes ) {
