@@ -14,6 +14,16 @@
                     {{ usage_data_provider.description }}
                 </span>
             </li>
+            <li v-if="usage_data_provider.vendor_id">
+                <label>{{ $__("Vendor") }}:</label>
+                <span v-if="usage_data_provider.vendor_id">
+                    <a
+                        :href="`/cgi-bin/koha/vendors/${usage_data_provider.vendor_id}`"
+                    >
+                        {{ usage_data_provider.vendor.name }}
+                    </a>
+                </span>
+            </li>
             <li>
                 <label>{{ $__("Status") }}:</label>
                 <span id="harvester_status">
