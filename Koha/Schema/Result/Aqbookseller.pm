@@ -474,6 +474,21 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 erm_usage_data_providers
+
+Type: has_many
+
+Related object: L<Koha::Schema::Result::ErmUsageDataProvider>
+
+=cut
+
+__PACKAGE__->has_many(
+  "erm_usage_data_providers",
+  "Koha::Schema::Result::ErmUsageDataProvider",
+  { "foreign.vendor_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 invoiceprice
 
 Type: belongs_to
