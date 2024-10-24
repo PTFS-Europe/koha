@@ -36,6 +36,7 @@ use Koha::ERM::EUsage::UsagePlatforms;
 use Koha::ERM::EUsage::UsageDatabases;
 use Koha::ERM::EUsage::MonthlyUsages;
 use Koha::ERM::EUsage::SushiCounter;
+use Koha::Acquisition::Bookseller;
 use Koha::BackgroundJob::ErmSushiHarvester;
 
 =head1 NAME
@@ -365,6 +366,20 @@ sub erm_usage_databases {
     my ($self) = @_;
     my $usage_database_rs = $self->_result->erm_usage_databases;
     return Koha::ERM::EUsage::UsageDatabases->_new_from_dbic($usage_database_rs);
+}
+
+
+=head3 vendor
+
+Return the vendor for this provider
+
+=cut
+
+sub vendor {
+    my ($self) = @_;
+    my $vendor_rs = $self->_result->vendor;
+    return unless $vendor_rs;
+    return Koha::Acquisition::Bookseller->_new_from_dbic($vendor_rs);
 }
 
 =head2 Internal methods

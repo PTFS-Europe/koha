@@ -83,6 +83,14 @@ properties:
     type: 
     - string
     - "null"
+  vendor_id:
+    description: vendor of the provider
+    type: 
+    - integer
+    - "null"
+  vendor:
+    type: object
+    description: embedded vendor
   counter_files:
     type: array
     description: counter files
