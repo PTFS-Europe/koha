@@ -150,6 +150,14 @@ report types provided by the harvester
 
 platform if provider requires it
 
+=head2 vendor_id
+
+  data_type: 'integer'
+  is_foreign_key: 1
+  is_nullable: 1
+
+foreign key to aqbooksellers
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -185,6 +193,8 @@ __PACKAGE__->add_columns(
   { data_type => "varchar", is_nullable => 1, size => 255 },
   "service_platform",
   { data_type => "varchar", is_nullable => 1, size => 80 },
+  "vendor_id",
+  { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -337,9 +347,29 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 vendor
 
-# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-09-27 15:57:24
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:YyiiRHSl3tJTzuLsoy9oPw
+Type: belongs_to
+
+Related object: L<Koha::Schema::Result::Aqbookseller>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "vendor",
+  "Koha::Schema::Result::Aqbookseller",
+  { id => "vendor_id" },
+  {
+    is_deferrable => 1,
+    join_type     => "LEFT",
+    on_delete     => "SET NULL",
+    on_update     => "CASCADE",
+  },
+);
+
+
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-10-24 10:43:00
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:A3fbITzckWWhFnS0Yeclpg
 
 # __PACKAGE__->add_columns(
 #     '+active' => { is_boolean => 1 }
