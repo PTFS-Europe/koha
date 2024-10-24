@@ -122,7 +122,7 @@ sub get {
 
     return try {
         my $usage_data_provider =
-            Koha::ERM::EUsage::UsageDataProviders->find( $c->param('erm_usage_data_provider_id') );
+            $c->objects->find( Koha::ERM::EUsage::UsageDataProviders->search, $c->param('erm_usage_data_provider_id') );
 
         return $c->render_resource_not_found("Usage data provider")
             unless $usage_data_provider;
