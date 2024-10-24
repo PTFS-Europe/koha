@@ -3218,7 +3218,10 @@ CREATE TABLE `erm_usage_data_providers` (
   `requestor_email` varchar(80) DEFAULT NULL COMMENT 'requestor email',
   `report_types` varchar(255) DEFAULT NULL COMMENT 'report types provided by the harvester',
   `service_platform` varchar(80) DEFAULT NULL COMMENT 'platform if provider requires it',
-  PRIMARY KEY (`erm_usage_data_provider_id`)
+  `vendor_id` int(11) DEFAULT NULL COMMENT 'foreign key to aqbooksellers',
+  PRIMARY KEY (`erm_usage_data_provider_id`),
+  KEY `erm_usage_data_provider_ibfk_1` (`vendor_id`),
+  CONSTRAINT `erm_usage_data_provider_ibfk_1` FOREIGN KEY (`vendor_id`) REFERENCES `aqbooksellers` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
