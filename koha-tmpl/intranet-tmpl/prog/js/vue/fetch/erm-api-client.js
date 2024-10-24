@@ -261,11 +261,13 @@ export class ERMAPIClient extends HttpClient {
             get: id =>
                 this.get({
                     endpoint: "usage_data_providers/" + id,
+                    headers: {
+                        "x-koha-embed": "vendor",
+                    },
                 }),
             getAll: query =>
                 this.getAll({
                     endpoint: "usage_data_providers",
-                    query,
                     query,
                 }),
             delete: id =>

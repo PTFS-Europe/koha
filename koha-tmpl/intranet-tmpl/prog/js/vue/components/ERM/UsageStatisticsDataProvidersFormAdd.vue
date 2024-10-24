@@ -96,6 +96,15 @@
                             />
                         </li>
                         <li>
+                            <label for="usage_data_provider_vendor_id"
+                                >{{ $__("Vendor") }}:</label
+                            >
+                            <FormSelectVendors
+                                id="usage_data_provider_vendor_id"
+                                v-model="usage_data_provider.vendor_id"
+                            />
+                        </li>
+                        <li>
                             <label for="usage_data_provider_status"
                                 >{{ $__("Harvester status") }}:</label
                             >
@@ -385,6 +394,7 @@
 
 <script>
 import ButtonSubmit from "../ButtonSubmit.vue"
+import FormSelectVendors from "../FormSelectVendors.vue"
 import { setMessage, setWarning } from "../../messages"
 import { APIClient } from "../../fetch/api-client.js"
 import { inject } from "vue"
@@ -405,6 +415,7 @@ export default {
                 erm_usage_data_provider_id: null,
                 name: "",
                 description: "",
+                vendor_id: null,
                 active: 1,
                 method: "",
                 aggregator: "",
@@ -620,6 +631,7 @@ export default {
     },
     components: {
         ButtonSubmit,
+        FormSelectVendors,
     },
     name: "UsageStatisticsDataProvidersFormAdd",
 }

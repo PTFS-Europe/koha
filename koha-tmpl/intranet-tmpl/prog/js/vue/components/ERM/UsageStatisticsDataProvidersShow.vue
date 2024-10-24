@@ -158,6 +158,7 @@ export default {
                 requestor_name: "",
                 requestor_email: "",
                 report_types: [],
+                vendor: null,
             },
             initialized: false,
             tab_content: "detail",
