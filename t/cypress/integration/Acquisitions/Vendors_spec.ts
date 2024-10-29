@@ -43,6 +43,11 @@ const getVendor = () => {
         ],
         invoice_currency: "USD",
         invoice_includes_gst: false,
+        lib_group_visibility: "|1|11|",
+        lib_group_limits: [
+            { id: 1, title: "LibGroup1" },
+            { id: 11, title: "LibGroup2" },
+        ],
         list_currency: "USD",
         list_includes_gst: false,
         name: "My Vendor",
@@ -225,12 +230,16 @@ describe("Vendor CRUD operations", () => {
                 "X-Total-Count": "1",
             },
         });
+        cy.intercept("GET", "/api/v1/acquisitions/vendors/*", vendor).as(
+            "get-vendor"
+        );
         cy.visit("/cgi-bin/koha/vendors");
         const name_link = cy.get(
             "#vendors_list table tbody tr:first td:first a"
         );
         name_link.should("have.text", vendor.name + " (#" + vendor.id + ")");
         name_link.click();
+        cy.wait("@get-vendor");
         cy.wait(500); // Cypress is too fast! Vue hasn't populated the form yet!
         cy.get("#vendors_show h1").contains(vendor.name);
 
@@ -277,5 +286,82 @@ describe("Vendor CRUD operations", () => {
         cy.get("main div[class='alert alert-info']")
             .contains("Vendor")
             .contains("deleted");
+    });
+});
+
+describe("Library group limits", () => {
+    beforeEach(() => {
+        cy.login();
+        cy.title().should("eq", "Koha staff interface");
+        cy.intercept("GET", "/api/v1/library_groups*", {
+            statusCode: 200,
+            body: cy.getLibraryGroups(),
+        });
+    });
+
+    it("Should show a dropdown of library groups", () => {
+        cy.intercept("GET", "/api/v1/acquisitions/vendors*", {
+            statusCode: 200,
+            body: [],
+        });
+
+        // Click the button in the toolbar
+        cy.visit("/cgi-bin/koha/vendors");
+
+        cy.contains("New vendor").click();
+        cy.get("#vendor_add h2").contains("New vendor");
+
+        cy.get("#lib_group_visibility .vs__open-indicator").click();
+        cy.get("#lib_group_visibility ul.vs__dropdown-menu").should(
+            "be.visible"
+        );
+        cy.get("#lib_group_visibility ul.vs__dropdown-menu")
+            .find("li")
+            .as("options");
+        cy.get("@options").should("have.length", 10);
+
+        cy.get(
+            "#lib_group_visibility ul.vs__dropdown-menu li:nth-child(1)"
+        ).contains("LibGroup1");
+        cy.get(
+            "#lib_group_visibility ul.vs__dropdown-menu li:nth-child(4)"
+        ).contains("LibGroup1 SubGroupB");
+        cy.get(
+            "#lib_group_visibility ul.vs__dropdown-menu li:nth-child(10)"
+        ).contains("LibGroup2 SubGroupC SubGroup2");
+    });
+
+    it("Should show a table of library groups", () => {
+        const vendor = getVendor();
+
+        // Click the "name" link from the list
+        cy.intercept("GET", "/api/v1/acquisitions/vendors*", {
+            statusCode: 200,
+            body: [vendor],
+            headers: {
+                "X-Base-Total-Count": "1",
+                "X-Total-Count": "1",
+            },
+        });
+
+        cy.intercept("GET", "/api/v1/acquisitions/vendors/*", vendor).as(
+            "get-vendor"
+        );
+        cy.visit("/cgi-bin/koha/vendors");
+        const name_link = cy.get(
+            "#vendors_list table tbody tr:first td:first a"
+        );
+        name_link.should("have.text", vendor.name + " (#" + vendor.id + ")");
+        name_link.click();
+        cy.wait("@get-vendor");
+        cy.wait(500); // Cypress is too fast! Vue hasn't populated the form yet!
+        cy.get("#vendors_show h1").contains(vendor.name);
+
+        cy.get(
+            "#lib_group_visibility_table tbody tr:nth-child(1) td:nth-child(2)"
+        ).contains("LibGroup1");
+        cy.get(
+            "#lib_group_visibility_table tbody tr:nth-child(2) td:nth-child(2)"
+        ).contains("LibGroup2");
     });
 });
