@@ -19,13 +19,29 @@ use Modern::Perl;
 
 use Koha::Acquisition::Bookseller;
 
-use base qw( Koha::Object::Mixin::AdditionalFields Koha::Objects );
+use base qw( Koha::Objects Koha::Object::Mixin::AdditionalFields Koha::Objects::Limit::LibraryGroup );
 
 =head1 NAME
 
 Koha::Acquisition::Booksellers object set class
 
 =head1 API
+
+=head2 Class methods
+
+=head3 search
+
+=cut
+
+sub search {
+    my ( $self, $params, $attributes ) = @_;
+
+    my $class = ref($self) ? ref($self) : $self;
+
+    ( $params, $attributes ) = $self->define_library_group_limits( $params, $attributes );
+
+    return $self->SUPER::search( $params, $attributes );
+}
 
 =head2 Internal methods
 

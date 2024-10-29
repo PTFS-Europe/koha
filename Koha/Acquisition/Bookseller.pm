@@ -25,7 +25,7 @@ use Koha::Subscriptions;
 
 use C4::Contract qw( GetContracts );
 
-use base qw( Koha::Object::Mixin::AdditionalFields Koha::Object );
+use base qw( Koha::Object::Mixin::AdditionalFields Koha::Object Koha::Object::Limit::LibraryGroup );
 
 =head1 NAME
 
@@ -34,6 +34,18 @@ Koha::Acquisition::Bookseller Object class
 =head1 API
 
 =head2 Class methods
+
+=head3 store
+
+=cut
+
+sub store {
+    my ($self) = @_;
+
+    $self->set_lib_group_visibility() if $self->lib_group_visibility;
+    $self = $self->SUPER::store();
+    return $self;
+}
 
 =head3 baskets
 
@@ -251,6 +263,19 @@ sub to_api {
     return { %$response, %$overrides };
 }
 
+
+=head3 _library_group_visibility_parameters
+
+Configure library group limits
+
+=cut
+
+sub _library_group_visibility_parameters {
+    return {
+        class             => "Aqbookseller",
+        visibility_column => "lib_group_visibility",
+    };
+}
 
 =head2 Internal methods
 
