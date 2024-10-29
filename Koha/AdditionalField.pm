@@ -61,6 +61,7 @@ sub to_api {
         'aqinvoices'          => 'invoice',
         'erm_licenses'        => 'license',
         'aqorders'            => 'order',
+        'aqbooksellers:vendor'       => 'vendor',
     };
 
     my $json = $self->SUPER::to_api($params);
