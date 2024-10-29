@@ -63,6 +63,7 @@ sub to_api {
         'erm_agreements'      => 'agreement',
         'erm_packages'        => 'package',
         'aqorders'            => 'order',
+        'aqbooksellers:vendor'       => 'vendor',
     };
 
     my $json = $self->SUPER::to_api($params);
