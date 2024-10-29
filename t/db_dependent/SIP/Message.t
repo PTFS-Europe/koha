@@ -428,7 +428,7 @@ subtest "Test patron_status_string" => sub {
 
 subtest 'Lastseen response patron status' => sub {
 
-    plan tests => 6;
+    plan tests => 7;
 
     my $schema = Koha::Database->new->schema;
     $schema->storage->txn_begin;
@@ -488,6 +488,21 @@ subtest 'Lastseen response patron status' => sub {
         output_pref( { str => $seen_patron->lastseen(), dateonly => 1 } ),
         output_pref( { dt  => dt_from_string(), dateonly => 1 } ), 'Last seen updated if tracking patrons'
     );
+
+    my $invalid_cardnumber_siprequest =
+        PATRON_STATUS_REQ
+    . 'engYYYYMMDDZZZZHHMMSS'
+    . FID_INST_ID
+    . $branchcode . '|'
+    . FID_PATRON_ID
+    . 'thiscardnumberdoesnotexist' . '|'
+    . FID_PATRON_PWD
+    . PATRON_PW . '|';
+    my $invalid_msg = C4::SIP::Sip::MsgType->new( $siprequest, 0 );
+    $msg->handle_patron_status($server);
+
+    isnt( $response, undef, 'At least we got a response.' );
+
     $schema->storage->txn_rollback;
 
 };
