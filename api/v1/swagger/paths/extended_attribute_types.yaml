@@ -23,6 +23,7 @@
           - package
           - order
           - subscription
+          - vendor
       - $ref: "../swagger.yaml#/parameters/match"
       - $ref: "../swagger.yaml#/parameters/order_by"
       - $ref: "../swagger.yaml#/parameters/page"
@@ -59,4 +60,7 @@
           $ref: "../swagger.yaml#/definitions/error"
     x-koha-authorization:
       permissions:
-        parameters: manage_additional_fields
+        - parameters: 
+          - manage_additional_fields
+        - acquisition: 
+          - vendors_manage
