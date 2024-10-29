@@ -1,0 +1,210 @@
+---
+/public/lists:
+  get:
+    x-mojo-to: Lists#public_list
+    operationId: listPublicLists
+    tags:
+      - public_lists
+    summary: Retrieve public lists or lists you own
+    produces:
+      - application/json
+    responses:
+      "200":
+        description: OK
+        schema:
+          type: array
+          items:
+            $ref: "../swagger.yaml#/definitions/list"
+      "400":
+        description: Bad request
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "403":
+        description: Access forbidden
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "500":
+        description: |
+          Internal server error. Possible `error_code` attribute values:
+
+          * `internal_server_error`
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+
+  post:
+    x-mojo-to: Lists#public_create
+    operationId: createPublicList
+    tags:
+      - public_lists
+    summary: Create a new list you own
+    produces:
+      - application/json
+    parameters:
+      - in: body
+        name: body
+        description: List object that needs to be created
+        required: true
+        schema:
+          type: object
+          properties:
+            shelfname:
+              type: string
+              description: The name of the list
+            public:
+              type: boolean
+              description: Whether the list is public or not
+            biblionumbers:
+              type: array
+              items:
+                type: integer
+              description: List of biblionumbers to add to the list
+          additionalProperties: false
+    responses:
+      "201":
+        description: Created
+      "400":
+        description: Bad request
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "403":
+        description: Access forbidden
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "500":
+        description: |
+          Internal server error. Possible `error_code` attribute values:
+
+          * `internal_server_error`
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+
+/public/lists/{id}:
+  get:
+    x-mojo-to: Lists#public_read
+    operationId: getPublicList
+    tags:
+      - public_lists
+    summary: Retrieve a specific public list or a list you own
+    produces:
+      - application/json
+    parameters:
+      - name: id
+        in: path
+        required: true
+        type: string
+        description: ID of the list to retrieve
+    responses:
+      "200":
+        description: OK
+        schema:
+          $ref: "../swagger.yaml#/definitions/list"
+      "400":
+        description: Bad request
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "403":
+        description: Access forbidden
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "404":
+        description: Not found
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "500":
+        description: |
+          Internal server error. Possible `error_code` attribute values:
+
+          * `internal_server_error`
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+  put:
+    x-mojo-to: Lists#public_update
+    operationId: updatePublicList
+    tags:
+      - public_lists
+    summary: Update a specific list you own
+    produces:
+      - application/json
+    parameters:
+      - name: id
+        in: path
+        required: true
+        type: integer
+        description: ID of the list to update
+      - in: body
+        name: body
+        description: List object that needs to be updated
+        required: true
+        schema:
+          type: object
+          properties:
+            shelfname:
+              type: string
+            public:
+              type: boolean
+            add_biblionumbers:
+              type: array
+              items:
+                type: integer
+            remove_biblionumbers:
+              type: array
+              items:
+                type: integer
+          additionalProperties: false
+    responses:
+      "200":
+        description: OK
+      "400":
+        description: Bad request
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "403":
+        description: Access forbidden
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "404":
+        description: Not found
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "500":
+        description: |
+          Internal server error. Possible `error_code` attribute values:
+
+          * `internal_server_error`
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+
+  delete:
+    x-mojo-to: Lists#public_delete
+    operationId: deletePublicList
+    tags:
+      - public_lists
+    summary: Delete a specific list you own
+    parameters:
+      - name: id
+        in: path
+        required: true
+        type: string
+        description: ID of the list to delete
+    responses:
+      "200":
+        description: OK
+      "400":
+        description: Bad request
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "403":
+        description: Access forbidden
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "404":
+        description: Not found
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "500":
+        description: |
+          Internal server error. Possible `error_code` attribute values:
+
+          * `internal_server_error`
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"

@@ -513,6 +513,10 @@ paths:
     $ref: ./paths/libraries.yaml#/~1public~1libraries
   "/public/libraries/{library_id}":
     $ref: "./paths/libraries.yaml#/~1public~1libraries~1{library_id}"
+  "/public/lists":
+    $ref: "./paths/public_lists.yaml#/~1public~1lists"
+  "/public/lists/{id}":
+    $ref: "./paths/public_lists.yaml#/~1public~1lists~1{id}"
   "/public/oauth/login/{provider_code}/{interface}":
     $ref: ./paths/public_oauth.yaml#/~1public~1oauth~1login~1{provider_code}~1{interface}
   "/public/patrons/{patron_id}/article_requests/{article_request_id}":
