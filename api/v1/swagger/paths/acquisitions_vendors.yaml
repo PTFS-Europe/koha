@@ -158,6 +158,7 @@
             - contracts
             - extended_attributes
             - +strings
+            - lib_group_limits
         collectionFormat: csv
     produces:
       - application/json

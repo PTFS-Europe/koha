@@ -167,6 +167,12 @@
                                         Is local float group
                                     </label>
                                 </p>
+                                <p>
+                                    <label>
+                                        <input type="checkbox" name="ft_acquisitions" id="add-group-modal-ft_acquisitions" value="1" />
+                                        Use in the acquisitions module
+                                    </label>
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -243,6 +249,12 @@
                                     <label>
                                         <input type="checkbox" id="edit-group-modal-ft_local_float_group" name="ft_local_float_group" value="1" />
                                         Is local float group
+                                    </label>
+                                </p>
+                                <p>
+                                    <label>
+                                        <input type="checkbox" id="edit-group-modal-ft_acquisitions" name="ft_acquisitions" value="1" />
+                                        Use in the acquisitions module
                                     </label>
                                 </p>
                             </div>
@@ -331,7 +343,8 @@
                 var ft_search_groups_staff = $(this).data('groupFt_search_groups_staff');
                 var ft_local_hold_group = $(this).data('groupFt_local_hold_group');
                 var ft_local_float_group = $(this).data('groupFt_local_float_group');
-                edit_group( id, parent_id, title, description, ft_hide_patron_info, ft_search_groups_opac, ft_search_groups_staff, ft_local_hold_group, ft_limit_item_editing, ft_local_float_group );
+                var ft_acquisitions = $(this).data('groupFt_acquisitions');
+                edit_group( id, parent_id, title, description, ft_hide_patron_info, ft_search_groups_opac, ft_search_groups_staff, ft_local_hold_group, ft_limit_item_editing, ft_local_float_group, ft_acquisitions );
             });
 
             $('.delete-group').on('click', function(e) {
@@ -369,6 +382,7 @@
             $('#add-group-modal-ft_search_groups_staff').prop('checked', false);
             $('#add-group-modal-ft_local_hold_group').prop('checked', false);
             $('#add-group-modal-ft_local_float_group').prop('checked', false);
+            $('#add-group-modal-ft_acquisitions').prop('checked', false);
             if ( parent_id ) {
                 $('#root-group-features-add').hide();
             } else {
@@ -378,7 +392,7 @@
 
         }
 
-        function edit_group( id, parent_id, title, description, ft_hide_patron_info, ft_search_groups_opac, ft_search_groups_staff, ft_local_hold_group, ft_limit_item_editing, ft_local_float_group ) {
+        function edit_group( id, parent_id, title, description, ft_hide_patron_info, ft_search_groups_opac, ft_search_groups_staff, ft_local_hold_group, ft_limit_item_editing, ft_local_float_group, ft_acquisitions ) {
             $('#edit-group-modal-id').val( id );
             $('#edit-group-modal-title').val( title );
             $('#edit-group-modal-description').val( description );
@@ -389,6 +403,7 @@
                 $('#edit-group-modal-ft_search_groups_staff').prop('checked', false);
                 $('#edit-group-modal-ft_local_hold_group').prop('checked', false);
                 $('#edit-group-modal-ft_local_float_group').prop('checked', false);
+                $('#edit-group-modal-ft_acquisitions').prop('checked', false);
                 $('#root-group-features-edit').hide();
             } else {
                 $('#edit-group-modal-ft_hide_patron_info').prop('checked', ft_hide_patron_info ? true : false );
@@ -397,6 +412,7 @@
                 $('#edit-group-modal-ft_search_groups_staff').prop('checked', ft_search_groups_staff ? true : false );
                 $('#edit-group-modal-ft_local_hold_group').prop('checked', ft_local_hold_group ? true : false );
                 $('#edit-group-modal-ft_local_float_group').prop('checked', ft_local_float_group ? true : false );
+                $('#edit-group-modal-ft_acquisitions').prop('checked', ft_acquisitions ? true : false );
                 $('#root-group-features-edit').show();
             }
 
@@ -458,6 +474,9 @@
                 [% IF group.ft_local_float_group %]
                     <li>Is local float group</li>
                 [% END %]
+                [% IF group.ft_acquisitions %]
+                    <li>Use in the acquisitions module</li>
+                [% END %]
               </ul>
             [% END %]
         </td>
@@ -475,7 +494,7 @@
                        </li>
 
                         <li>
-                            <a class="edit-group dropdown-item" id="edit-group-[% group.id | html %]" href="#" data-group-id="[% group.id | html %]" data-group-parent-id="[% group.parent_id | html %]" data-group-title="[% group.title | html %]" data-group-description="[% group.description | html %]" data-group-ft_hide_patron_info="[% group.ft_hide_patron_info | html %]" data-group-ft_search_groups_opac="[% group.ft_search_groups_opac | html %]" data-group-ft_search_groups_staff="[% group.ft_search_groups_staff | html %]" data-group-ft_local_hold_group="[% group.ft_local_hold_group | html %]" data-group-ft_limit_item_editing="[% group.ft_limit_item_editing | html %]" data-group-ft_local_float_group="[% group.ft_local_float_group | html %]" >
+                            <a class="edit-group dropdown-item" id="edit-group-[% group.id | html %]" href="#" data-group-id="[% group.id | html %]" data-group-parent-id="[% group.parent_id | html %]" data-group-title="[% group.title | html %]" data-group-description="[% group.description | html %]" data-group-ft_hide_patron_info="[% group.ft_hide_patron_info | html %]" data-group-ft_search_groups_opac="[% group.ft_search_groups_opac | html %]" data-group-ft_search_groups_staff="[% group.ft_search_groups_staff | html %]" data-group-ft_local_hold_group="[% group.ft_local_hold_group | html %]" data-group-ft_limit_item_editing="[% group.ft_limit_item_editing | html %]" data-group-ft_local_float_group="[% group.ft_local_float_group | html %]" data-group-ft_acquisitions="[% group.ft_acquisitions | html %]" >
                                 <i class="fa-solid fa-pencil" aria-hidden="true"></i> Edit
                             </a>
                        </li>

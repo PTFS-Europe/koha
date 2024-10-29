@@ -66,6 +66,30 @@
                     {{ get_lib_from_av("av_lang", vendor.language) }}
                 </span>
             </li>
+            <li v-if="vendor.lib_group_limits.length">
+                <label>{{ $__("Library group visibility") }}:</label>
+                <table id="lib_group_visibility_table">
+                    <thead>
+                        <tr>
+                            <th>{{ $__("ID") }}</th>
+                            <th>{{ $__("Title") }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr
+                            v-for="(libGroup, key) in vendor.lib_group_limits"
+                            v-bind:key="key"
+                        >
+                            <td>{{ libGroup.id }}</td>
+                            <td>{{ libGroup.title }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </li>
+            <li v-else>
+                <label>{{ $__("Library group visibility") }}:</label>
+                <span>{{ $__("All library groups") }}</span>
+            </li>
             <li v-if="vendor.aliases.length">
                 <label>{{ $__("Aliases") }}:</label>
                 <ul style="margin-left: 8rem">
@@ -160,6 +184,21 @@
                 <input v-else id="language" v-model="vendor.type" />
             </li>
             <li>
+                <label for="lib_group_visibility"
+                    >{{ $__("Library group visibility") }}:</label
+                >
+                <v-select
+                    v-if="av_lang.length"
+                    id="lib_group_visibility"
+                    v-model="vendor.lib_group_visibility"
+                    label="title"
+                    :reduce="av => av.id"
+                    :options="getVisibleGroups"
+                    multiple
+                />
+                <input v-else id="lib_group_visibility" v-model="vendor.type" />
+            </li>
+            <li>
                 <label for="vendor_aliases">{{ $__("Aliases") }}:</label>
                 <input id="vendor_aliases" v-model="newAlias" />
                 <span class="aliasAction" @click="addAlias()"
@@ -189,6 +228,7 @@
 <script>
 import { inject } from "vue"
 import ToolbarButton from "../ToolbarButton.vue"
+import { storeToRefs } from "pinia"
 
 export default {
     props: {
@@ -198,10 +238,15 @@ export default {
     setup() {
         const AVStore = inject("AVStore")
         const { get_lib_from_av, av_vendor_types, av_lang } = AVStore
+        const vendorStore = inject("vendorStore")
+        const { formatLibraryGroupIds } = vendorStore
+        const { getVisibleGroups } = storeToRefs(vendorStore)
         return {
             get_lib_from_av,
             av_vendor_types,
             av_lang,
+            getVisibleGroups,
+            formatLibraryGroupIds,
         }
     },
     data() {

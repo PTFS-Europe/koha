@@ -39,8 +39,17 @@ import VendorContacts from "./VendorContacts.vue"
 import VendorOrderingInformation from "./VendorOrderingInformation.vue"
 import VendorInterfaces from "./VendorInterfaces.vue"
 import AdditionalFieldsEntry from "../AdditionalFieldsEntry.vue"
+import { inject } from "vue"
 
 export default {
+    setup() {
+        const vendorStore = inject("vendorStore")
+        const { formatLibraryGroupIds } = vendorStore
+
+        return {
+            formatLibraryGroupIds,
+        }
+    },
     data() {
         return {
             vendor: {
@@ -69,6 +78,7 @@ export default {
                 external_id: "",
                 payment_method: [],
                 language: "",
+                lib_group_visibility: [],
                 aliases: [],
                 contacts: [],
                 interfaces: [],
@@ -101,6 +111,8 @@ export default {
                     this.vendor.payment_method = vendor.payment_method
                         ? vendor.payment_method.split("|")
                         : []
+                    this.vendor.lib_group_visibility =
+                        this.formatLibraryGroupIds(vendor.lib_group_visibility)
                     this.initialized = true
                 },
                 error => {}
@@ -126,6 +138,7 @@ export default {
             delete vendor.physical
             delete vendor.subscriptions_count
             delete vendor._strings
+            delete vendor.lib_group_limits
 
             vendor.contacts = vendor.contacts.map(
                 ({ id, booksellerid, ...requiredProperties }) =>
@@ -141,6 +154,9 @@ export default {
             } else {
                 vendor.payment_method = null
             }
+
+            const visibility = vendor.lib_group_visibility.join("|")
+            vendor.lib_group_visibility = visibility
 
             const client = APIClient.acquisition
             if (vendorId) {

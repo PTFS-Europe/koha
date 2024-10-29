@@ -49,7 +49,8 @@ $template->param(
     currencies       => Koha::Acquisition::Currencies->search->unblessed,
     gst_values       => \@gst_values,
     edifact          => C4::Context->preference('EDIFACT'),
-    erm_module       => C4::Context->preference('ERMModule')
+    erm_module       => C4::Context->preference('ERMModule'),
+    logged_in_branch => { branchcode => C4::Context::mybranch },
 );
 
 output_html_with_http_headers $query, $cookie, $template->output;

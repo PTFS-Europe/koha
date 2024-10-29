@@ -124,6 +124,14 @@ properties:
       - string
       - "null"
     description: Language
+  lib_group_visibility:
+    type:
+      - string
+      - "null"
+    description: Language
+  lib_group_limits:
+    type: array
+    description: Library groups this vendor belongs to
   aliases:
     type: array
     description: List of aliases
