@@ -7,6 +7,7 @@ import ItemAPIClient from "./item-api-client";
 import RecordSourcesAPIClient from "./record-sources-api-client";
 import SysprefAPIClient from "./system-preferences-api-client";
 import PreservationAPIClient from "./preservation-api-client";
+import LibraryAPIClient from "./library-api-client";
 
 export const APIClient = {
     erm: new ERMAPIClient(),
@@ -18,4 +19,5 @@ export const APIClient = {
     sysprefs: new SysprefAPIClient(),
     preservation: new PreservationAPIClient(),
     record_sources: new RecordSourcesAPIClient(),
+    libraries: new LibraryAPIClient(),
 };
