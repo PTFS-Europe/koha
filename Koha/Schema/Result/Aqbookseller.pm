@@ -210,6 +210,14 @@ the payment method for the vendor
 
 the language for the vendor
 
+=head2 lib_group_visibility
+
+  data_type: 'varchar'
+  is_nullable: 1
+  size: 255
+
+the language for the vendor
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -262,6 +270,8 @@ __PACKAGE__->add_columns(
   "payment_method",
   { data_type => "varchar", is_nullable => 1, size => 255 },
   "language",
+  { data_type => "varchar", is_nullable => 1, size => 255 },
+  "lib_group_visibility",
   { data_type => "varchar", is_nullable => 1, size => 255 },
 );
 
