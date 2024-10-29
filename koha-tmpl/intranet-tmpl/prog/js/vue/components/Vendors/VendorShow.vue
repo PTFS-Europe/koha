@@ -75,6 +75,13 @@
             <div class="col-sm-6">
                 <VendorContacts :vendor="vendor" :display="true" />
                 <VendorSubscriptions :vendor="vendor" />
+                <AdditionalFieldsDisplay
+                    v-if="vendor._strings"
+                    resource_type="vendor"
+                    :additional_field_values="
+                        vendor._strings.additional_field_values
+                    "
+                />
             </div>
         </div>
         <div
@@ -98,6 +105,7 @@ import VendorContacts from "./VendorContacts.vue"
 import VendorSubscriptions from "./VendorSubscriptions.vue"
 import VendorContracts from "./VendorContracts.vue"
 import DropdownButtons from "../DropdownButtons.vue"
+import AdditionalFieldsDisplay from "../AdditionalFieldsDisplay.vue"
 import VendorResource from "./VendorResource.vue"
 
 export default {
@@ -144,6 +152,7 @@ export default {
         VendorContacts,
         VendorSubscriptions,
         VendorContracts,
+        AdditionalFieldsDisplay,
         DropdownButtons,
     },
     name: "VendorShow",

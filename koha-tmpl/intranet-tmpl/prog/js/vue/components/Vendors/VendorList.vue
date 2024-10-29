@@ -12,6 +12,8 @@
             <KohaTable
                 ref="table"
                 v-bind="tableOptions"
+                :searchable_additional_fields="searchable_additional_fields"
+                :searchable_av_options="searchable_av_options"
                 @show="goToResourceShow"
                 @edit="goToResourceEdit"
                 @delete="doResourceDelete"
@@ -68,9 +70,13 @@ export default {
             vendor_count: 0,
             initialized: false,
             searchTerm: null,
+            searchable_av_options: [],
+            searchable_additional_fields: [],
             tableOptions: {
                 columns: this.getTableColumns(),
-                options: { embed: "aliases,baskets,subscriptions+count" },
+                options: {
+                    embed: "aliases,baskets,subscriptions+count,extended_attributes,+strings",
+                },
                 url: () => this.tableURL(),
                 add_filters: true,
                 filters_options: {
@@ -117,7 +123,15 @@ export default {
     },
     beforeRouteEnter(to, from, next) {
         next(vm => {
-            vm.getVendorCount().then(() => (vm.initialized = true))
+            vm.getVendorCount().then(() =>
+                vm
+                    .getSearchableAdditionalFields()
+                    .then(() =>
+                        vm
+                            .getSearchableAVOptions()
+                            .then(() => (vm.initialized = true))
+                    )
+            )
             if (to.query.supplier) {
                 vm.searchTerm = to.query.supplier
             }
@@ -230,6 +244,41 @@ export default {
                     },
                 },
             ]
+        },
+        async getSearchableAdditionalFields() {
+            const client = APIClient.additional_fields
+            await client.additional_fields.getAll("vendor").then(
+                searchable_additional_fields => {
+                    this.searchable_additional_fields =
+                        searchable_additional_fields.filter(
+                            field => field.searchable
+                        )
+                },
+                error => {}
+            )
+        },
+        async getSearchableAVOptions() {
+            const client_av = APIClient.authorised_values
+            let av_cat_array = this.searchable_additional_fields
+                .filter(field => field.authorised_value_category_name)
+                .map(field => field.authorised_value_category_name)
+
+            await client_av.values
+                .getCategoriesWithValues([
+                    ...new Set(av_cat_array.map(av_cat => '"' + av_cat + '"')),
+                ]) // unique
+                .then(av_categories => {
+                    av_cat_array.forEach(av_cat => {
+                        let av_match = av_categories.find(
+                            element => element.category_name == av_cat
+                        )
+                        this.searchable_av_options[av_cat] =
+                            av_match.authorised_values.map(av => ({
+                                value: av.value,
+                                label: av.description,
+                            }))
+                    })
+                })
         },
     },
     components: { flatPickr, Toolbar, ToolbarButton, KohaTable },
