@@ -87,13 +87,14 @@ Controller function that handles adding a new Koha::Acquisition::Bookseller obje
 sub add {
     my $c = shift->openapi->valid_input or return;
 
-    my $vendor        = $c->req->json;
-    my $contacts      = delete $vendor->{contacts};
-    my $interfaces    = delete $vendor->{interfaces};
-    my $aliases       = delete $vendor->{aliases};
-    my $subscriptions = delete $vendor->{subscriptions};
-    my $baskets       = delete $vendor->{baskets};
-    my $contracts     = delete $vendor->{contracts};
+    my $vendor              = $c->req->json;
+    my $contacts            = delete $vendor->{contacts};
+    my $interfaces          = delete $vendor->{interfaces};
+    my $aliases             = delete $vendor->{aliases};
+    my $subscriptions       = delete $vendor->{subscriptions};
+    my $baskets             = delete $vendor->{baskets};
+    my $contracts           = delete $vendor->{contracts};
+    my $extended_attributes = delete $vendor->{extended_attributes};
 
     my $vendor_to_store = Koha::Acquisition::Bookseller->new_from_api( $c->req->json );
 
@@ -101,8 +102,13 @@ sub add {
         $vendor_to_store->store;
 
         $vendor_to_store->contacts($contacts)     if scalar($contacts) > 0;
-        $vendor_to_store->aliases($aliases)       if scalar($aliases) > 0;
-        $vendor_to_store->interfaces($interfaces) if scalar($interfaces) > 0;
+        $vendor_to_store->aliases($aliases)       if scalar(@$aliases) > 0;
+        $vendor_to_store->interfaces($interfaces) if scalar(@$interfaces) > 0;
+
+        if(scalar(@$extended_attributes) > 0) {
+            my @extended_attributes = map { { 'id' => $_->{field_id}, 'value' => $_->{value} } } @{$extended_attributes};
+            $vendor_to_store->extended_attributes( \@extended_attributes );
+        }
 
         $c->res->headers->location( $c->req->url->to_string . '/' . $vendor_to_store->id );
         return $c->render(
@@ -131,20 +137,27 @@ sub update {
         unless $vendor;
 
     return try {
-        my $vendor_update = $c->req->json;
-        my $contacts      = delete $vendor_update->{contacts};
-        my $interfaces    = delete $vendor_update->{interfaces};
-        my $aliases       = delete $vendor_update->{aliases};
-        my $subscriptions = delete $vendor_update->{subscriptions};
-        my $baskets       = delete $vendor_update->{baskets};
-        my $contracts     = delete $vendor_update->{contracts};
+        my $vendor_update       = $c->req->json;
+        my $contacts            = delete $vendor_update->{contacts};
+        my $interfaces          = delete $vendor_update->{interfaces};
+        my $aliases             = delete $vendor_update->{aliases};
+        my $subscriptions       = delete $vendor_update->{subscriptions};
+        my $baskets             = delete $vendor_update->{baskets};
+        my $contracts           = delete $vendor_update->{contracts};
+        my $extended_attributes = delete $vendor_update->{extended_attributes};
 
         $vendor->set_from_api($vendor_update);
         $vendor->store();
 
         $vendor->contacts($contacts)     if scalar($contacts) > 0;
-        $vendor->aliases($aliases)       if scalar($aliases) > 0;
-        $vendor->interfaces($interfaces) if scalar($interfaces) > 0;
+        $vendor->aliases($aliases)       if scalar(@$aliases) > 0;
+        $vendor->interfaces($interfaces) if scalar(@$interfaces) > 0;
+
+        if ( scalar(@$extended_attributes) > 0 ) {
+            my @extended_attributes =
+                map { { 'id' => $_->{field_id}, 'value' => $_->{value} } } @{$extended_attributes};
+            $vendor->extended_attributes( \@extended_attributes );
+        }
 
         return $c->render(
             status  => 200,
