@@ -445,6 +445,10 @@ paths:
     $ref: "./paths/libraries.yaml#/~1libraries~1{library_id}~1cash_registers"
   "/libraries/{library_id}/desks":
     $ref: "./paths/libraries.yaml#/~1libraries~1{library_id}~1desks"
+  /lists:
+    $ref: ./paths/lists.yaml#/~1lists
+  "/lists/{id}":
+    $ref: "./paths/lists.yaml#/~1lists~1{id}"
   "/oauth/login/{provider_code}/{interface}":
     $ref: ./paths/oauth.yaml#/~1oauth~1login~1{provider_code}~1{interface}
   /oauth/token:
@@ -804,6 +808,12 @@ parameters:
     description: License internal identifier
     in: path
     name: license_id
+    required: true
+    type: integer
+  list_id_pp:
+    description: list internal identifier
+    in: path
+    name: list_id
     required: true
     type: integer
   match:
