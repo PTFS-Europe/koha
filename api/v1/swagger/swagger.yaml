@@ -447,8 +447,8 @@ paths:
     $ref: "./paths/libraries.yaml#/~1libraries~1{library_id}~1desks"
   /lists:
     $ref: ./paths/lists.yaml#/~1lists
-  "/lists/{id}":
-    $ref: "./paths/lists.yaml#/~1lists~1{id}"
+  "/lists/{list_id}":
+    $ref: "./paths/lists.yaml#/~1lists~1{list_id}"
   "/oauth/login/{provider_code}/{interface}":
     $ref: ./paths/oauth.yaml#/~1oauth~1login~1{provider_code}~1{interface}
   /oauth/token:
