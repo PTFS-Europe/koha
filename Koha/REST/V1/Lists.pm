@@ -163,6 +163,216 @@ sub delete {
     };
 }
 
+=head3 public_add
+
+Create a public virtual shelf
+
+=cut
+
+sub public_add {
+    my $c = shift->openapi->valid_input or return;
+
+    my $user = $c->stash('koha.user');
+
+    # Handle anonymous users first
+    unless ($user) {
+        return $c->render(
+            status  => 401,
+            openapi => {
+                error      => "Authentication required",
+                error_code => "authentication_required"
+            }
+        );
+    }
+
+    my $body = $c->req->json;
+    $body->{owner} = $user->id;
+
+    return try {
+        my $list = Koha::Virtualshelf->new_from_api($body);
+        $list->store->discard_changes;
+
+        $c->res->headers->location( $c->req->url->to_string . '/' . $list->id );
+
+        return $c->render(
+            status  => 201,
+            openapi => $list->to_api
+        );
+    } catch {
+        $c->unhandled_exception($_);
+    };
+}
+
+=head3 public_get
+
+List the contents of a public virtual shelf or a virtual shelf you own
+
+=cut
+
+sub public_get {
+    my $c = shift->openapi->valid_input or return;
+
+    return try {
+        my $list = Koha::Virtualshelves->find( $c->param('list_id') );
+
+        return $c->render_resource_not_found("List")
+            unless $list;
+
+        my $user = $c->stash('koha.user');
+
+        # If no user is logged in, only allow access to public lists
+        unless ($user) {
+            return $c->render(
+                status  => 403,
+                openapi => {
+                    error      => "Forbidden - anonymous users can only view public lists",
+                    error_code => "forbidden"
+                }
+            ) unless $list->public;
+
+            return $c->render(
+                status  => 200,
+                openapi => $list->to_api
+            );
+        }
+
+        # For logged in users, check ownership and public status
+        unless ( $list->owner == $user->id || $list->public == 1 ) {
+            return $c->render(
+                status  => 403,
+                openapi => {
+                    error      => "Forbidden - you can only view your own lists or public lists",
+                    error_code => "forbidden"
+                }
+            );
+        }
+
+        return $c->render(
+            status  => 200,
+            openapi => $list->to_api
+        );
+    } catch {
+        $c->unhandled_exception($_);
+    };
+}
+
+=head3 public_update
+
+Update a public virtual shelf or a shelf you own
+
+=cut
+
+sub public_update {
+    my $c = shift->openapi->valid_input or return;
+
+    my $user = $c->stash('koha.user');
+
+    # Handle anonymous users first
+    unless ($user) {
+        return $c->render(
+            status  => 401,
+            openapi => {
+                error      => "Authentication required",
+                error_code => "authentication_required"
+            }
+        );
+    }
+
+    my $list = Koha::Virtualshelves->find( $c->param('list_id') );
+
+    return $c->render_resource_not_found("List")
+        unless $list;
+
+    if ( $list->owner != $user->id ) {
+        return $c->render(
+            status  => 403,
+            openapi => {
+                error      => "Forbidden - you can only update your own lists",
+                error_code => "forbidden"
+            }
+        );
+    }
+
+    if ( $list->allow_change_from_owner == 0 ) {
+        return $c->render(
+            status  => 403,
+            openapi => {
+                error      => "Forbidden - you can't update this list",
+                error_code => "forbidden"
+            }
+        );
+    }
+
+    return try {
+        $list->set_from_api( $c->req->json );
+        $list->store();
+
+        return $c->render(
+            status  => 200,
+            openapi => $list->to_api
+        );
+    } catch {
+        $c->unhandled_exception($_);
+    };
+}
+
+=head3 public_delete
+
+Delete a public virtual shelf you own
+
+=cut
+
+sub public_delete {
+    my $c = shift->openapi->valid_input or return;
+
+    my $user = $c->stash('koha.user');
+
+    # Handle anonymous users first
+    unless ($user) {
+        return $c->render(
+            status  => 401,
+            openapi => {
+                error      => "Authentication required",
+                error_code => "authentication_required"
+            }
+        );
+    }
+
+    my $list = Koha::Virtualshelves->find( $c->param('list_id') );
+
+    return $c->render_resource_not_found("List")
+        unless $list;
+
+    # Check ownership
+    if ( $list->owner != $user->id ) {
+        return $c->render(
+            status  => 403,
+            openapi => {
+                error      => "Forbidden - you can only delete your own lists",
+                error_code => "forbidden"
+            }
+        );
+    }
+
+    # Check if modifications allowed
+    if ( $list->allow_change_from_owner == 0 ) {
+        return $c->render(
+            status  => 403,
+            openapi => {
+                error      => "Forbidden - you can't delete this list",
+                error_code => "forbidden"
+            }
+        );
+    }
+
+    return try {
+        $list->delete;
+        return $c->render_resource_deleted;
+    } catch {
+        $c->unhandled_exception($_);
+    };
+}
+
 =head3 list_public
 
 =cut
