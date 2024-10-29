@@ -149,6 +149,16 @@ properties:
   invoices:
     type: array
     description: List of invoices
+  extended_attributes:
+    description: Related additional field values
+    type:
+      - array
+    items:
+      $ref: extended_attribute_value.yaml
+  _strings:
+    type:
+      - object
+      - "null"
 additionalProperties: false
 required:
   - name
