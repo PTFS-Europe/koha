@@ -54,6 +54,7 @@ sub list {
         agreement => 'erm_agreements',
         package   => 'erm_packages',
         order     => 'aqorders',
+        vendor  => 'aqbooksellers:vendor',
     };
 
     return try {
