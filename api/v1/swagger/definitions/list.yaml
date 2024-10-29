@@ -1,0 +1,16 @@
+---
+type: object
+properties:
+  id:
+    type: integer
+    description: The unique identifier for the list
+  shelfname:
+    type: string
+    description: The name of the list
+  owner:
+    type: string
+    description: The owner of the list
+  public:
+    type: boolean
+    description: Whether the list is public or not
+additionalProperties: false

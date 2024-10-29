@@ -1,0 +1,238 @@
+---
+/lists:
+  get:
+    x-mojo-to: Lists#list
+    x-koha-authorization:
+      permissions:
+        tools: manage_patron_lists
+    operationId: listLists
+    tags:
+      - lists
+    summary: Retrieve all lists
+    produces:
+      - application/json
+    responses:
+      "200":
+        description: OK
+        schema:
+          type: array
+          items:
+            $ref: "../swagger.yaml#/definitions/list"
+      "400":
+        description: Bad request
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "403":
+        description: Access forbidden
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "500":
+        description: |
+          Internal server error. Possible `error_code` attribute values:
+
+          * `internal_server_error`
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+
+  post:
+    x-mojo-to: Lists#create
+    x-koha-authorization:
+      permissions:
+        tools: manage_patron_lists
+    operationId: createList
+    tags:
+      - lists
+    summary: Create a new list
+    produces:
+      - application/json
+    parameters:
+      - in: body
+        name: body
+        description: List object that needs to be created
+        required: true
+        schema:
+          type: object
+          properties:
+            shelfname:
+              type: string
+              description: The name of the list
+            public:
+              type: boolean
+              description: Whether the list is public or not
+            owner:
+              type: integer
+              description: The borrowernumber of the owner of the list
+            biblionumbers:
+              type: array
+              items:
+                type: integer
+              description: List of biblionumbers to add to the list
+          additionalProperties: false
+    responses:
+      "201":
+        description: Created
+        schema:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: The unique identifier for the list
+      "400":
+        description: Bad request
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "403":
+        description: Access forbidden
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "500":
+        description: |
+          Internal server error. Possible `error_code` attribute values:
+
+          * `internal_server_error`
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+
+/lists/{id}:
+  get:
+    x-mojo-to: Lists#read
+    x-koha-authorization:
+      permissions:
+        tools: manage_patron_lists
+    operationId: readList
+    tags:
+      - lists
+    summary: Retrieve a specific list
+    produces:
+      - application/json
+    parameters:
+      - name: id
+        in: path
+        required: true
+        type: integer
+        description: ID of the list to retrieve
+    responses:
+      "200":
+        description: OK
+        schema:
+          $ref: "../swagger.yaml#/definitions/list"
+      "400":
+        description: Bad request
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "403":
+        description: Access forbidden
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "404":
+        description: Not found
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "500":
+        description: |
+          Internal server error. Possible `error_code` attribute values:
+
+          * `internal_server_error`
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+
+  put:
+    x-mojo-to: Lists#update
+    x-koha-authorization:
+      permissions:
+        tools: manage_patron_lists
+    operationId: updateList
+    tags:
+      - lists
+    summary: Update a specific list
+    produces:
+      - application/json
+    parameters:
+      - name: id
+        in: path
+        required: true
+        type: integer
+        description: ID of the list to update
+      - in: body
+        name: body
+        description: List object that needs to be updated
+        required: true
+        schema:
+          type: object
+          properties:
+            shelfname:
+              type: string
+            public:
+              type: boolean
+            owner:
+              type: integer
+            add_biblionumbers:
+              type: array
+              items:
+                type: integer
+            remove_biblionumbers:
+              type: array
+              items:
+                type: integer
+          additionalProperties: false
+    responses:
+      "200":
+        description: Created
+      "400":
+        description: Bad request
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "403":
+        description: Access forbidden
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "404":
+        description: Not found
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "500":
+        description: |
+          Internal server error. Possible `error_code` attribute values:
+
+          * `internal_server_error`
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+
+  delete:
+    x-mojo-to: Lists#delete
+    x-koha-authorization:
+      permissions:
+        tools: manage_patron_lists
+    operationId: deleteList
+    tags:
+      - lists
+    summary: Delete a specific list
+    produces:
+      - application/json
+    parameters:
+      - name: id
+        in: path
+        required: true
+        type: integer
+    responses:
+      "200":
+        description: OK
+      "400":
+        description: Bad request
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "403":
+        description: Access forbidden
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "404":
+        description: Not found
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "500":
+        description: |
+          Internal server error. Possible `error_code` attribute values:
+
+          * `internal_server_error`
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
