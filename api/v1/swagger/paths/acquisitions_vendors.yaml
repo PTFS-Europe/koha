@@ -37,6 +37,8 @@
             - aliases
             - baskets
             - subscriptions
+            - extended_attributes
+            - +strings
         collectionFormat: csv
     responses:
       "200":
@@ -151,6 +153,8 @@
             - interfaces
             - contacts
             - contracts
+            - extended_attributes
+            - +strings
         collectionFormat: csv
     produces:
       - application/json
