@@ -132,6 +132,8 @@ definitions:
     $ref: ./definitions/job.yaml
   library:
     $ref: ./definitions/library.yaml
+  library_group:
+    $ref: ./definitions/library_group.yaml
   list:
     $ref: ./definitions/list.yaml
   merge_biblios:
@@ -445,6 +447,8 @@ paths:
     $ref: "./paths/libraries.yaml#/~1libraries~1{library_id}~1cash_registers"
   "/libraries/{library_id}/desks":
     $ref: "./paths/libraries.yaml#/~1libraries~1{library_id}~1desks"
+  /library_groups:
+    $ref: ./paths/library_groups.yaml#/~1library_groups
   "/oauth/login/{provider_code}/{interface}":
     $ref: ./paths/oauth.yaml#/~1oauth~1login~1{provider_code}~1{interface}
   /oauth/token:
