@@ -34,6 +34,9 @@
         const gstValues = [% To.json(gst_values) | $raw %];
         const edifact = [% To.json(edifact) | $raw %];
         const ermModule = [% To.json(erm_module) | $raw %];
+        const loggedInUser = [% To.json(logged_in_user.unblessed) | $raw %];
+        const loggedInBranch = [% To.json(logged_in_branch) | $raw %];
+
     </script>
 
 

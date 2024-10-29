@@ -37,7 +37,9 @@ import { APIClient } from "../../fetch/api-client"
 export default {
     setup() {
         const vendorStore = inject("vendorStore")
-        const { config } = storeToRefs(vendorStore)
+        const { config, user, currencies, libraryGroups, gstValues } =
+            storeToRefs(vendorStore)
+        const { setLibraryGroups } = vendorStore
 
         const mainStore = inject("mainStore")
         const { loading, loaded, setError } = mainStore
@@ -54,6 +56,11 @@ export default {
             userPermissions,
             AVStore,
             config,
+            user,
+            currencies,
+            libraryGroups,
+            gstValues,
+            setLibraryGroups,
         }
     },
     beforeCreate() {
@@ -61,6 +68,14 @@ export default {
 
         const fetchConfig = () => {
             let promises = []
+
+            const libraryClient = APIClient.libraries
+            libraryClient.libraryGroups.getAll().then(
+                libraryGroups => {
+                    this.setLibraryGroups(libraryGroups)
+                },
+                error => {}
+            )
 
             const av_client = APIClient.authorised_values
             const authorised_values = {
@@ -100,8 +115,11 @@ export default {
             this.userPermissions = userPermissions
             this.config.settings.edifact = edifact
             this.config.settings.ermModule = ermModule
-            this.vendorStore.currencies = currencies
-            this.vendorStore.gstValues = gstValues.map(gv => {
+            this.currencies = currencies
+            // this.libraryGroups = libraryGroups
+            this.user.loggedInUser = loggedInUser
+            this.user.loggedInUser.loggedInBranch = loggedInBranch.branchcode
+            this.gstValues = gstValues.map(gv => {
                 return {
                     label: `${(gv.option * 100).toFixed(2)}%`,
                     value: gv.option,
