@@ -1222,7 +1222,7 @@ team:
       name: Michael Kuhn
   23.11:
     release_date: 1700697599
-    codename: _PTFS
+    codename: _PTFS_WITH_TRIGGERS
     manager:
       name: Tomás Cohen Arazi
     manager_assistants:
