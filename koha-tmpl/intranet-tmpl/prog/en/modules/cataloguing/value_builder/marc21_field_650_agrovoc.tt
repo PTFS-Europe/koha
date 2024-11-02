@@ -8,23 +8,68 @@
 [% INCLUDE 'greybox.inc' %]
 [% INCLUDE 'doc-head-close.inc' %]
 [% PROCESS 'i18n.inc' %]
-[% SET footerjs = 1 %]
 
 <title>[% FILTER collapse %]
     [% t("Agrovoc") | html %] &rsaquo;
     [% t("Cataloging") | html %] &rsaquo;
     [% t("Koha") | html %]
 [% END %]</title>
-[% INCLUDE 'doc-head-close.inc' %]
 </head>
 
-<h1>THIS IS A TEST</h1>
+<h1>Agrovoc Search</h1>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Marc21 Field 650 Agrovoc</title>
+        <h2>Search API</h2>
+    <input type="text" id="searchTerm" placeholder="Enter search term">
+     <div>
+        <label>Match Type:</label>
+    </div>
+    <div>
+        <input type="radio" id="starts_with" name="matchType" value="starts_with" checked>
+        <label for="starts_with">Starts With</label>
+        <input type="radio" id="exact_match" name="matchType" value="exact">
+        <label for="exact_match">Exact Match</label>
+        <input type="radio" id="contains" name="matchType" value="contains">
+        <label for="contains">Contains</label>
+    </div>
+    <div>
+        <label>Select Language:</label>
+    </div>
+    <div>
+        <input type="radio" id="lang_en" name="lang" value="en" checked>
+        <label for="lang_en">English</label>
+        <input type="radio" id="lang_fr" name="lang" value="fr">
+        <label for="lang_fr">French</label>
+        <input type="radio" id="lang_es" name="lang" value="es">
+        <label for="lang_es">Spanish</label>
+    </div>
+    <button onclick="searchAPI()">Search</button>
+
+
+
+    <div class="container">
+        <div id="results-list" class="results-list">
+            <div id="loadingIndicator" style="display:none;">Loading...        </div>
+        </div>
+        </div>
+        <div class="details-container">
+        <div id="details-view" class="details-view">
+            <!-- Details content will be populated here -->
+        </div>
+        <div id="selected-terms-section" class="selected-terms-section">
+            <h3>Selected Terms:</h3>
+            <ul id="selected-terms-list"></ul>
+        </div>
+    </div>
+    </div>
+    </head>
+    <button onclick="createFieldFromURL()">Create Fields</button>
+</html>
+
 
 
 <script>
