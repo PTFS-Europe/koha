@@ -73,7 +73,7 @@
 
 
 <script>
-const API_URL = 'http://agrovoc.fao.org/browse/rest/v1';
+const API_URL = '/cgi-bin/koha/cataloguing/value_builder/marc21_field_650_agrovoc.pl';
 
 var selectedTerms = [];
 var globalVocid = null;
@@ -84,42 +84,36 @@ function searchAPI() {
     var selectedLang = $('input[name="lang"]:checked').val();
     var matchType = $('input[name="matchType"]:checked').val();
 
-    if (matchType === 'contains') {
-        searchTerm = '*' + searchTerm + '*';
-    } else if (matchType === 'starts_with') {
-        searchTerm = searchTerm + '*';
-    }
-
-     // Check if search term is empty
+    // Check if search term is empty
     if (!searchTerm.trim()) {
         alert("Search term cannot be empty.");
         return;
     }
 
-    var apiUrl = API_URL + '/search?query=' + encodeURIComponent(searchTerm) + '&lang=' + selectedLang;
+    var apiUrl = API_URL + '?action=search&searchTerm=' + encodeURIComponent(searchTerm) + '&lang=' + selectedLang + '&matchType=' + matchType;
 
     // Show loading indicator
     $('#loadingIndicator').show();
 
-  fetch(apiUrl)
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok ' + response.statusText);
-        }
-        return response.json();
-    })
-    .then(data => {
-        displayResults(data);
-        // Hide loading indicator
-        $('#loadingIndicator').hide();
-    })
-    .catch(error => {
-        var errorMessage = 'Error occurred while searching the API.\n';
-        errorMessage += 'Error: ' + error.message + '\n';
-        alert(errorMessage);
-        // Hide loading indicator
-        $('#loadingIndicator').hide();
-    });
+    fetch(apiUrl)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok ' + response.statusText);
+            }
+            return response.json();
+        })
+        .then(data => {
+            displayResults(data);
+            // Hide loading indicator
+            $('#loadingIndicator').hide();
+        })
+        .catch(error => {
+            var errorMessage = 'Error occurred while searching the API.\n';
+            errorMessage += 'Error: ' + error.message + '\n';
+            alert(errorMessage);
+            // Hide loading indicator
+            $('#loadingIndicator').hide();
+        });
 }
 
 
@@ -147,7 +141,7 @@ function fetchAndDisplayConcepts(vocid, uri, lang, type, title) {
     section.append(loadingIndicator);
     detailsView.append(section);
 
-    var apiUrl = `${API_URL}/${vocid}/${type}?uri=${encodeURIComponent(uri)}&lang=${encodeURIComponent(lang)}`;
+    var apiUrl = `${API_URL}?action=fetch_concepts&vocid=${encodeURIComponent(vocid)}&uri=${encodeURIComponent(uri)}&lang=${encodeURIComponent(lang)}&type=${encodeURIComponent(type)}`;
 
     $.get(apiUrl, function(data) {
         loadingIndicator.remove(); // Remove loading indicator
@@ -186,9 +180,6 @@ function fetchAndDisplayConcepts(vocid, uri, lang, type, title) {
         } else {
             section.append($('<p>').text(`No ${title.toLowerCase()} found.`));
         }
-    }).fail(function() {
-        loadingIndicator.remove(); // Remove loading indicator
-        section.append($('<p>').text(`Failed to load ${title.toLowerCase()} concepts.`));
     });
 }
 

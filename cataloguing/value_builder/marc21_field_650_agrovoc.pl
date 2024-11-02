@@ -20,7 +20,16 @@ use CGI qw ( -utf8 );
 
 use C4::Auth qw( get_template_and_user );
 use C4::Context;
-use C4::Output qw( output_html_with_http_headers );
+use C4::Output qw( output_html_with_http_headers output_with_http_headers );
+use HTTP::Tiny;
+use JSON;
+
+my $cgi = CGI->new;
+my $action = $cgi->param('action') || '';
+
+if ($action eq 'search' || $action eq 'fetch_concepts') {
+    search_agrovoc($cgi, $action);
+}
 
 my $builder = sub {
     my ( $params ) = @_;
@@ -55,5 +64,53 @@ my $launcher = sub {
 
     output_html_with_http_headers $cgi, $cookie, $template->output;
 };
+
+sub search_agrovoc {
+    my ($cgi, $action) = @_;
+    my $response_content;
+
+    if ($action eq 'search') {
+        my $search_term = $cgi->param('searchTerm');
+        my $match_type = $cgi->param('matchType');
+        my $lang = $cgi->param('lang');
+
+        # Modify search term based on match type
+        if ($match_type eq 'contains') {
+            $search_term = '*' . $search_term . '*';
+        } elsif ($match_type eq 'starts_with') {
+            $search_term = $search_term . '*';
+        }
+
+        # Perform the search logic here
+        my $api_url = "http://agrovoc.fao.org/browse/rest/v1/search?query=" . CGI::escape($search_term) . "&lang=" . CGI::escape($lang);
+        my $http = HTTP::Tiny->new;
+        my $response = $http->get($api_url);
+
+        if ($response->{success}) {
+            $response_content = $response->{content};
+        } else {
+            $response_content = to_json({ error => $response->{status} . " " . $response->{reason} });
+        }
+    } elsif ($action eq 'fetch_concepts') {
+        my $vocid = $cgi->param('vocid');
+        my $uri = $cgi->param('uri');
+        my $lang = $cgi->param('lang');
+        my $type = $cgi->param('type');
+
+        # Perform the fetch concepts logic here
+        my $api_url = "http://agrovoc.fao.org/browse/rest/v1/$vocid/$type?uri=" . CGI::escape($uri) . "&lang=" . CGI::escape($lang);
+        my $http = HTTP::Tiny->new;
+        my $response = $http->get($api_url);
+
+        if ($response->{success}) {
+            $response_content = $response->{content};
+        } else {
+            $response_content = to_json({ error => $response->{status} . " " . $response->{reason} });
+        }
+    }
+
+    output_with_http_headers($cgi, undef, $response_content, 'json');
+}
+
 
 return { builder => $builder, launcher => $launcher };
