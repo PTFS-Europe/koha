@@ -50,11 +50,10 @@
     <h1>Enter Text for 650 Fields</h1>
     <textarea id="inputText" rows="10" cols="50"></textarea><br>
     <button onclick="importText()">Import Text</button>
-    <button onclick="cloneFieldFromURL()">Clone Field</button> 
+    <button onclick="cloneFieldFromURL()">Clone Field</button>
 </body>
 </html>
 
-<script>
 
 function AddEventHandlers (oldcontrol, newcontrol, newinputid ) {
 // This function is a helper for CloneField and CloneSubfield.
@@ -78,10 +77,10 @@ function AddEventHandlers (oldcontrol, newcontrol, newinputid ) {
             return urlParams.get(name);
         }
  // Function to clone field using index from URL
-        function cloneFieldFromURL() {
+        function createFieldFromURL() {
             var index = getQueryParam('li_id');
             if (index) {
-                CloneField(index);
+                termToTag(index);
             } else {
                 alert('No index parameter found in the URL.');
             }
@@ -253,8 +252,6 @@ function CloneField(index) {
     // insert this line on the page
     original.parentNode.insertBefore(clone,original.nextSibling);
 
- $("ul.sortable_subfield", clone).sortable();
-
     Select2Utils.initSelect2($(original).find('select'));
     Select2Utils.initSelect2($(clone).find('select'));
 
@@ -332,31 +329,66 @@ var Select2Utils = {
 };
 
 
+function termToTag(tagindex) {
+    var terms = selectedTerms.map(termObj => [termObj.label, termObj.uri, termObj.lang]);
+    addTerms2Rec(tagindex, terms);
+    if (opener && !opener.closed) {
+        opener.focus();
+    }
+    window.close();
+    return false;
+}
+
+function addTerms2Rec(index, terms) {
+    var idx = index;
+    for (var i = 0; i < terms.length; ) {
+        idx = CloneField(idx);
+        addTermWorker(idx, terms[i]);
+        i++;
+    }
+}
+
+
+function addTermWorker(index, termArr) {
+    var t = opener.document.getElementById(index);
+    var tagdata = index.split(/_/); // tagdata == tag XXX random
+    var inputs = t.getElementsByTagName('input');
+    var sfdaRegExp = new RegExp("^tag_" + tagdata[1] + "_subfield_a");
+    var sfd0RegExp = new RegExp("^tag_" + tagdata[1] + "_subfield_0");
+    var sfd9RegExp = new RegExp("^tag_" + tagdata[1] + "_subfield_9");
+    var sfd2RegExp = new RegExp("^tag_" + tagdata[1] + "_subfield_2");
+    var ind2RegExp = new RegExp("^tag_" + tagdata[1] + "_indicator2");
+
+    for (var i = 0; i < inputs.length; i++) {
+        if (inputs[i].name.match(sfdaRegExp)) {
+            inputs[i].value = termArr[0];
+        }
+        if (inputs[i].name.match(sfd0RegExp)) {
+            inputs[i].value = termArr[1];
+        }
+        if (inputs[i].name.match(sfd9RegExp)) {
+            // Extract the end section of the URI (the part after the last '_')
+            var uriParts = termArr[1].split('_');
+            inputs[i].value = uriParts[uriParts.length - 1];
+        }
+        if (inputs[i].name.match(sfd2RegExp)) {
+            var language;
+            if (termArr[2] === 'en') {
+                language = 'agrovoc';
+            } else if (termArr[2] === 'fr') {
+                language = 'agrovocf';
+            } else if (termArr[2] === 'es') {
+                language = 'agrovocs';
+            }
+            inputs[i].value = language;
+        }
+        if (inputs[i].name.match(ind2RegExp)) {
+            inputs[i].value = '7';
+        }
+    }
+}
+
 </script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
