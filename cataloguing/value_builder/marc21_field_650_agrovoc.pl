@@ -32,7 +32,7 @@ my $builder = sub {
         var button = ev.target;
         var liElement = button.closest('li[id^=\"tag_\"]');
         var liId = liElement.id;
-        window.open(\"../cataloguing/plugin_launcher.pl?plugin_name=marc21_field_650_agrovoc.pl&popup&li_id=\"+encodeURIComponent(liId),\"agrovoc\",\"width=500,height=400,toolbar=false,scrollbars=yes\");
+        window.open(\"../cataloguing/plugin_launcher.pl?plugin_name=marc21_field_650_agrovoc.pl&popup&li_id=\"+encodeURIComponent(liId),\"agrovoc\",\"width=550,height=600,toolbar=false,scrollbars=yes\");
     }
 </script>
 ";
