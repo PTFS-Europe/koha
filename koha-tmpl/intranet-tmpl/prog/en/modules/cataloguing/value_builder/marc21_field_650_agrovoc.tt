@@ -26,33 +26,205 @@
     <meta charset="UTF-8">
     <title>Marc21 Field 650 Agrovoc</title>
 
-    <script>
-        function importText() {
-            var text = document.getElementById('inputText').value;
-            var fields = text.split(',');
-            var opener = window.opener;
 
-            if (opener) {
-                fields.forEach(function(field) {
-                    // Assuming there's a function in the parent window to add new 500 fields
-                    opener.addNewField500(field.trim());
-                });
-                window.close();
-            } else {
-                alert('No parent window found.');
-            }
+<script>
+const API_URL = 'http://agrovoc.fao.org/browse/rest/v1';
+
+var selectedTerms = [];
+var globalVocid = null;
+var globalLang = null;
+
+function searchAPI() {
+    var searchTerm = $('#searchTerm').val();
+    var selectedLang = $('input[name="lang"]:checked').val();
+    var matchType = $('input[name="matchType"]:checked').val();
+
+    if (matchType === 'contains') {
+        searchTerm = '*' + searchTerm + '*';
+    } else if (matchType === 'starts_with') {
+        searchTerm = searchTerm + '*';
+    }
+
+     // Check if search term is empty
+    if (!searchTerm.trim()) {
+        alert("Search term cannot be empty.");
+        return;
+    }
+
+    var apiUrl = API_URL + '/search?query=' + encodeURIComponent(searchTerm) + '&lang=' + selectedLang;
+
+    // Show loading indicator
+    $('#loadingIndicator').show();
+
+  fetch(apiUrl)
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok ' + response.statusText);
         }
+        return response.json();
+    })
+    .then(data => {
+        displayResults(data);
+        // Hide loading indicator
+        $('#loadingIndicator').hide();
+    })
+    .catch(error => {
+        var errorMessage = 'Error occurred while searching the API.\n';
+        errorMessage += 'Error: ' + error.message + '\n';
+        alert(errorMessage);
+        // Hide loading indicator
+        $('#loadingIndicator').hide();
+    });
+}
 
 
-    </script>
-</head>
-<body>
-    <h1>Enter Text for 650 Fields</h1>
-    <textarea id="inputText" rows="10" cols="50"></textarea><br>
-    <button onclick="importText()">Import Text</button>
-    <button onclick="cloneFieldFromURL()">Clone Field</button>
-</body>
-</html>
+function updateSelectedTermsList() {
+    var selectedTermsList = $('#selected-terms-list');
+    selectedTermsList.empty();
+    selectedTerms.forEach(function(termObj, index) {
+        var listItem = $('<li>').addClass('selected-term-item').text(termObj.label);
+        var deleteButton = $('<button>').html('&times;').addClass('delete-button'); // Using Unicode character for cross
+
+        // Add event listener to the delete button
+        deleteButton.on('click', function() {
+            selectedTerms.splice(index, 1); // Remove the term from the array
+            updateSelectedTermsList(); // Update the list
+        });
+
+        listItem.append(deleteButton);
+        selectedTermsList.append(listItem);
+    });
+}
+function fetchAndDisplayConcepts(vocid, uri, lang, type, title) {
+    var detailsView = $('#details-view');
+    var section = $('<div>').addClass('concept-section').attr('id', `${type}-section`);
+    var loadingIndicator = $('<div>').addClass('loading-indicator').text(`Loading ${title.toLowerCase()}...`);
+    section.append(loadingIndicator);
+    detailsView.append(section);
+
+    var apiUrl = `${API_URL}/${vocid}/${type}?uri=${encodeURIComponent(uri)}&lang=${encodeURIComponent(lang)}`;
+
+    $.get(apiUrl, function(data) {
+        loadingIndicator.remove(); // Remove loading indicator
+
+        if (data[type] && data[type].length > 0) {
+            section.append($('<h3>').text(title));
+            var conceptList = $('<ul>');
+            data[type].forEach(function(concept) {
+                var listItem = $('<li>').text(concept.prefLabel).addClass('concept-item');
+                var selectButton = $('<button>').text('Select').addClass('select-button');
+
+                // Add event listener to the select button
+                selectButton.on('click', function(event) {
+                    event.stopPropagation(); // Prevent the click event from bubbling up to the listItem
+                    if (!selectedTerms.some(termObj => termObj.label === concept.prefLabel)) {
+                        selectedTerms.push({
+                            label: concept.prefLabel,
+                            uri: concept.uri,
+                            lang: globalLang
+                        });
+                        updateSelectedTermsList();
+                    } else {
+                        alert(concept.prefLabel + ' is already in the list.');
+                    }
+                });
+
+                // Add event listener to the list item to fetch related concepts
+                listItem.on('click', function() {
+                    displayDetails(concept);
+                });
+
+                listItem.append(selectButton);
+                conceptList.append(listItem);
+            });
+            section.append(conceptList);
+        } else {
+            section.append($('<p>').text(`No ${title.toLowerCase()} found.`));
+        }
+    }).fail(function() {
+        loadingIndicator.remove(); // Remove loading indicator
+        section.append($('<p>').text(`Failed to load ${title.toLowerCase()} concepts.`));
+    });
+}
+
+function displayDetails(result) {
+    var detailsView = $('#details-view');
+    detailsView.empty();
+
+    // Add the current concept at the top of the details section
+    var currentConcept = $('<div>').addClass('current-concept');
+    var currentConceptLabel = $('<span>').text(`Current Concept: ${result.prefLabel}`);
+    var selectButton = $('<button>').text('Select').addClass('select-button');
+
+    // Add event listener to the select button
+    selectButton.on('click', function(event) {
+        event.stopPropagation(); // Prevent the click event from bubbling up to the currentConcept
+        if (!selectedTerms.some(termObj => termObj.label === result.prefLabel)) {
+            selectedTerms.push({
+                label: result.prefLabel,
+                uri: result.uri,
+                lang: globalLang
+            });
+            updateSelectedTermsList();
+        } else {
+            alert(result.prefLabel + ' is already in the list.');
+        }
+    });
+
+    currentConcept.append(currentConceptLabel);
+    currentConcept.append(selectButton);
+    detailsView.append(currentConcept);
+
+    var vocid = globalVocid; // Use global vocid
+    var uri = result.uri;
+    var lang = globalLang; // Use global lang
+
+    fetchAndDisplayConcepts(vocid, uri, lang, 'broader', 'Broader Concepts');
+    fetchAndDisplayConcepts(vocid, uri, lang, 'narrower', 'Narrower Concepts');
+    fetchAndDisplayConcepts(vocid, uri, lang, 'related', 'Related Concepts');
+}
+
+function displayResults(data) {
+    var resultsList = $('#results-list');
+    resultsList.empty();
+
+    if (data.results && data.results.length > 0) {
+        data.results.forEach(function(result, index) {
+            var resultItem = $('<div>').addClass('result-item');
+            var resultLabel = $('<span>').text(result.prefLabel);
+            var selectButton = $('<button>').text('Select').addClass('select-button');
+
+            selectButton.on('click', function(event) {
+                globalVocid = result.vocab;
+                globalLang = result.lang;
+                event.stopPropagation(); // Prevent the click event from bubbling up to the resultItem
+                if (!selectedTerms.some(termObj => termObj.label === result.prefLabel)) {
+                    selectedTerms.push({
+                        label: result.prefLabel,
+                        uri: result.uri,
+                        lang: globalLang
+                    });
+                    updateSelectedTermsList();
+                } else {
+                    alert(result.prefLabel + ' is already in the list.');
+                }
+            });
+
+            resultItem.append(resultLabel);
+            resultItem.append(selectButton);
+            resultItem.on('click', function() {
+                $('.result-item').removeClass('selected');
+                globalVocid = result.vocab;
+                globalLang = result.lang;
+                resultItem.addClass('selected');
+                displayDetails(result);
+            });
+            resultsList.append(resultItem);
+        });
+    } else {
+        resultsList.append($('<p>').text('No results found.'));
+    }
+}
 
 
 function AddEventHandlers (oldcontrol, newcontrol, newinputid ) {
