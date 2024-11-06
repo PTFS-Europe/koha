@@ -90,6 +90,11 @@ sub define_library_group_limits {
         );
     }
 
+    # TODO: when could there be more than one item in the array?
+    if ( ref( $params ) eq 'ARRAY' ) {
+        $params = @$params[0];
+    }
+
     $params     //= {};
     $attributes //= {};
     $params = { %$params, %$where };
