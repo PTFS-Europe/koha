@@ -524,6 +524,21 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 subscriptions
+
+Type: has_many
+
+Related object: L<Koha::Schema::Result::Subscription>
+
+=cut
+
+__PACKAGE__->has_many(
+  "subscriptions",
+  "Koha::Schema::Result::Subscription",
+  { "foreign.aqbooksellerid" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 vendor_edi_accounts
 
 Type: has_many
