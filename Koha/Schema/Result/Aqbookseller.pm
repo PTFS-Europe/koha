@@ -1,4 +1,5 @@
 use utf8;
+
 package Koha::Schema::Result::Aqbookseller;
 
 # Created by DBIx::Class::Schema::Loader
@@ -197,52 +198,52 @@ external id of the vendor
 =cut
 
 __PACKAGE__->add_columns(
-  "id",
-  { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
-  "name",
-  { data_type => "longtext", is_nullable => 0 },
-  "address1",
-  { data_type => "longtext", is_nullable => 1 },
-  "address2",
-  { data_type => "longtext", is_nullable => 1 },
-  "address3",
-  { data_type => "longtext", is_nullable => 1 },
-  "address4",
-  { data_type => "longtext", is_nullable => 1 },
-  "phone",
-  { data_type => "varchar", is_nullable => 1, size => 30 },
-  "accountnumber",
-  { data_type => "longtext", is_nullable => 1 },
-  "type",
-  { data_type => "varchar", is_nullable => 1, size => 255 },
-  "notes",
-  { data_type => "longtext", is_nullable => 1 },
-  "postal",
-  { data_type => "longtext", is_nullable => 1 },
-  "url",
-  { data_type => "varchar", is_nullable => 1, size => 255 },
-  "active",
-  { data_type => "tinyint", is_nullable => 1 },
-  "listprice",
-  { data_type => "varchar", is_foreign_key => 1, is_nullable => 1, size => 10 },
-  "invoiceprice",
-  { data_type => "varchar", is_foreign_key => 1, is_nullable => 1, size => 10 },
-  "gstreg",
-  { data_type => "tinyint", is_nullable => 1 },
-  "listincgst",
-  { data_type => "tinyint", is_nullable => 1 },
-  "invoiceincgst",
-  { data_type => "tinyint", is_nullable => 1 },
-  "tax_rate",
-  { data_type => "decimal", is_nullable => 1, size => [6, 4] },
-  "discount",
-  { data_type => "float", is_nullable => 1, size => [6, 4] },
-  "fax",
-  { data_type => "varchar", is_nullable => 1, size => 50 },
-  "deliverytime",
-  { data_type => "integer", is_nullable => 1 },
-  "external_id",
-  { data_type => "varchar", is_nullable => 1, size => 255 },
+    "id",
+    { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
+    "name",
+    { data_type => "longtext", is_nullable => 0 },
+    "address1",
+    { data_type => "longtext", is_nullable => 1 },
+    "address2",
+    { data_type => "longtext", is_nullable => 1 },
+    "address3",
+    { data_type => "longtext", is_nullable => 1 },
+    "address4",
+    { data_type => "longtext", is_nullable => 1 },
+    "phone",
+    { data_type => "varchar", is_nullable => 1, size => 30 },
+    "accountnumber",
+    { data_type => "longtext", is_nullable => 1 },
+    "type",
+    { data_type => "varchar", is_nullable => 1, size => 255 },
+    "notes",
+    { data_type => "longtext", is_nullable => 1 },
+    "postal",
+    { data_type => "longtext", is_nullable => 1 },
+    "url",
+    { data_type => "varchar", is_nullable => 1, size => 255 },
+    "active",
+    { data_type => "tinyint", is_nullable => 1 },
+    "listprice",
+    { data_type => "varchar", is_foreign_key => 1, is_nullable => 1, size => 10 },
+    "invoiceprice",
+    { data_type => "varchar", is_foreign_key => 1, is_nullable => 1, size => 10 },
+    "gstreg",
+    { data_type => "tinyint", is_nullable => 1 },
+    "listincgst",
+    { data_type => "tinyint", is_nullable => 1 },
+    "invoiceincgst",
+    { data_type => "tinyint", is_nullable => 1 },
+    "tax_rate",
+    { data_type => "decimal", is_nullable => 1, size => [ 6, 4 ] },
+    "discount",
+    { data_type => "float", is_nullable => 1, size => [ 6, 4 ] },
+    "fax",
+    { data_type => "varchar", is_nullable => 1, size => 50 },
+    "deliverytime",
+    { data_type => "integer", is_nullable => 1 },
+    "external_id",
+    { data_type => "varchar", is_nullable => 1, size => 255 },
 );
 
 =head1 PRIMARY KEY
@@ -268,10 +269,10 @@ Related object: L<Koha::Schema::Result::Aqbasketgroup>
 =cut
 
 __PACKAGE__->has_many(
-  "aqbasketgroups",
-  "Koha::Schema::Result::Aqbasketgroup",
-  { "foreign.booksellerid" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+    "aqbasketgroups",
+    "Koha::Schema::Result::Aqbasketgroup",
+    { "foreign.booksellerid" => "self.id" },
+    { cascade_copy           => 0, cascade_delete => 0 },
 );
 
 =head2 aqbaskets
@@ -283,10 +284,10 @@ Related object: L<Koha::Schema::Result::Aqbasket>
 =cut
 
 __PACKAGE__->has_many(
-  "aqbaskets",
-  "Koha::Schema::Result::Aqbasket",
-  { "foreign.booksellerid" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+    "aqbaskets",
+    "Koha::Schema::Result::Aqbasket",
+    { "foreign.booksellerid" => "self.id" },
+    { cascade_copy           => 0, cascade_delete => 0 },
 );
 
 =head2 aqbookseller_aliases
@@ -298,10 +299,10 @@ Related object: L<Koha::Schema::Result::AqbooksellerAlias>
 =cut
 
 __PACKAGE__->has_many(
-  "aqbookseller_aliases",
-  "Koha::Schema::Result::AqbooksellerAlias",
-  { "foreign.vendor_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+    "aqbookseller_aliases",
+    "Koha::Schema::Result::AqbooksellerAlias",
+    { "foreign.vendor_id" => "self.id" },
+    { cascade_copy        => 0, cascade_delete => 0 },
 );
 
 =head2 aqbookseller_interfaces
@@ -313,10 +314,10 @@ Related object: L<Koha::Schema::Result::AqbooksellerInterface>
 =cut
 
 __PACKAGE__->has_many(
-  "aqbookseller_interfaces",
-  "Koha::Schema::Result::AqbooksellerInterface",
-  { "foreign.vendor_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+    "aqbookseller_interfaces",
+    "Koha::Schema::Result::AqbooksellerInterface",
+    { "foreign.vendor_id" => "self.id" },
+    { cascade_copy        => 0, cascade_delete => 0 },
 );
 
 =head2 aqbookseller_issues
@@ -328,10 +329,10 @@ Related object: L<Koha::Schema::Result::AqbooksellerIssue>
 =cut
 
 __PACKAGE__->has_many(
-  "aqbookseller_issues",
-  "Koha::Schema::Result::AqbooksellerIssue",
-  { "foreign.vendor_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+    "aqbookseller_issues",
+    "Koha::Schema::Result::AqbooksellerIssue",
+    { "foreign.vendor_id" => "self.id" },
+    { cascade_copy        => 0, cascade_delete => 0 },
 );
 
 =head2 aqcontacts
@@ -343,10 +344,10 @@ Related object: L<Koha::Schema::Result::Aqcontact>
 =cut
 
 __PACKAGE__->has_many(
-  "aqcontacts",
-  "Koha::Schema::Result::Aqcontact",
-  { "foreign.booksellerid" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+    "aqcontacts",
+    "Koha::Schema::Result::Aqcontact",
+    { "foreign.booksellerid" => "self.id" },
+    { cascade_copy           => 0, cascade_delete => 0 },
 );
 
 =head2 aqcontracts
@@ -358,10 +359,10 @@ Related object: L<Koha::Schema::Result::Aqcontract>
 =cut
 
 __PACKAGE__->has_many(
-  "aqcontracts",
-  "Koha::Schema::Result::Aqcontract",
-  { "foreign.booksellerid" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+    "aqcontracts",
+    "Koha::Schema::Result::Aqcontract",
+    { "foreign.booksellerid" => "self.id" },
+    { cascade_copy           => 0, cascade_delete => 0 },
 );
 
 =head2 aqinvoices
@@ -373,10 +374,10 @@ Related object: L<Koha::Schema::Result::Aqinvoice>
 =cut
 
 __PACKAGE__->has_many(
-  "aqinvoices",
-  "Koha::Schema::Result::Aqinvoice",
-  { "foreign.booksellerid" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+    "aqinvoices",
+    "Koha::Schema::Result::Aqinvoice",
+    { "foreign.booksellerid" => "self.id" },
+    { cascade_copy           => 0, cascade_delete => 0 },
 );
 
 =head2 edifact_messages
@@ -388,10 +389,10 @@ Related object: L<Koha::Schema::Result::EdifactMessage>
 =cut
 
 __PACKAGE__->has_many(
-  "edifact_messages",
-  "Koha::Schema::Result::EdifactMessage",
-  { "foreign.vendor_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+    "edifact_messages",
+    "Koha::Schema::Result::EdifactMessage",
+    { "foreign.vendor_id" => "self.id" },
+    { cascade_copy        => 0, cascade_delete => 0 },
 );
 
 =head2 erm_agreements
@@ -403,10 +404,10 @@ Related object: L<Koha::Schema::Result::ErmAgreement>
 =cut
 
 __PACKAGE__->has_many(
-  "erm_agreements",
-  "Koha::Schema::Result::ErmAgreement",
-  { "foreign.vendor_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+    "erm_agreements",
+    "Koha::Schema::Result::ErmAgreement",
+    { "foreign.vendor_id" => "self.id" },
+    { cascade_copy        => 0, cascade_delete => 0 },
 );
 
 =head2 erm_eholdings_packages
@@ -418,10 +419,10 @@ Related object: L<Koha::Schema::Result::ErmEholdingsPackage>
 =cut
 
 __PACKAGE__->has_many(
-  "erm_eholdings_packages",
-  "Koha::Schema::Result::ErmEholdingsPackage",
-  { "foreign.vendor_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+    "erm_eholdings_packages",
+    "Koha::Schema::Result::ErmEholdingsPackage",
+    { "foreign.vendor_id" => "self.id" },
+    { cascade_copy        => 0, cascade_delete => 0 },
 );
 
 =head2 erm_eholdings_resources
@@ -433,10 +434,10 @@ Related object: L<Koha::Schema::Result::ErmEholdingsResource>
 =cut
 
 __PACKAGE__->has_many(
-  "erm_eholdings_resources",
-  "Koha::Schema::Result::ErmEholdingsResource",
-  { "foreign.vendor_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+    "erm_eholdings_resources",
+    "Koha::Schema::Result::ErmEholdingsResource",
+    { "foreign.vendor_id" => "self.id" },
+    { cascade_copy        => 0, cascade_delete => 0 },
 );
 
 =head2 erm_licenses
@@ -448,10 +449,10 @@ Related object: L<Koha::Schema::Result::ErmLicense>
 =cut
 
 __PACKAGE__->has_many(
-  "erm_licenses",
-  "Koha::Schema::Result::ErmLicense",
-  { "foreign.vendor_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+    "erm_licenses",
+    "Koha::Schema::Result::ErmLicense",
+    { "foreign.vendor_id" => "self.id" },
+    { cascade_copy        => 0, cascade_delete => 0 },
 );
 
 =head2 invoiceprice
@@ -463,15 +464,15 @@ Related object: L<Koha::Schema::Result::Currency>
 =cut
 
 __PACKAGE__->belongs_to(
-  "invoiceprice",
-  "Koha::Schema::Result::Currency",
-  { currency => "invoiceprice" },
-  {
-    is_deferrable => 1,
-    join_type     => "LEFT",
-    on_delete     => "CASCADE",
-    on_update     => "CASCADE",
-  },
+    "invoiceprice",
+    "Koha::Schema::Result::Currency",
+    { currency => "invoiceprice" },
+    {
+        is_deferrable => 1,
+        join_type     => "LEFT",
+        on_delete     => "CASCADE",
+        on_update     => "CASCADE",
+    },
 );
 
 =head2 listprice
@@ -483,15 +484,15 @@ Related object: L<Koha::Schema::Result::Currency>
 =cut
 
 __PACKAGE__->belongs_to(
-  "listprice",
-  "Koha::Schema::Result::Currency",
-  { currency => "listprice" },
-  {
-    is_deferrable => 1,
-    join_type     => "LEFT",
-    on_delete     => "CASCADE",
-    on_update     => "CASCADE",
-  },
+    "listprice",
+    "Koha::Schema::Result::Currency",
+    { currency => "listprice" },
+    {
+        is_deferrable => 1,
+        join_type     => "LEFT",
+        on_delete     => "CASCADE",
+        on_update     => "CASCADE",
+    },
 );
 
 =head2 marc_order_accounts
@@ -503,10 +504,10 @@ Related object: L<Koha::Schema::Result::MarcOrderAccount>
 =cut
 
 __PACKAGE__->has_many(
-  "marc_order_accounts",
-  "Koha::Schema::Result::MarcOrderAccount",
-  { "foreign.vendor_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+    "marc_order_accounts",
+    "Koha::Schema::Result::MarcOrderAccount",
+    { "foreign.vendor_id" => "self.id" },
+    { cascade_copy        => 0, cascade_delete => 0 },
 );
 
 =head2 subscriptions
@@ -518,10 +519,25 @@ Related object: L<Koha::Schema::Result::Subscription>
 =cut
 
 __PACKAGE__->has_many(
-  "subscriptions",
-  "Koha::Schema::Result::Subscription",
-  { "foreign.aqbooksellerid" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+    "subscriptions",
+    "Koha::Schema::Result::Subscription",
+    { "foreign.aqbooksellerid" => "self.id" },
+    { cascade_copy             => 0, cascade_delete => 0 },
+);
+
+=head2 subscriptions
+
+Type: has_many
+
+Related object: L<Koha::Schema::Result::Subscription>
+
+=cut
+
+__PACKAGE__->has_many(
+    "subscriptions",
+    "Koha::Schema::Result::Subscription",
+    { "foreign.aqbooksellerid" => "self.id" },
+    { cascade_copy             => 0, cascade_delete => 0 },
 );
 
 =head2 vendor_edi_accounts
@@ -533,26 +549,26 @@ Related object: L<Koha::Schema::Result::VendorEdiAccount>
 =cut
 
 __PACKAGE__->has_many(
-  "vendor_edi_accounts",
-  "Koha::Schema::Result::VendorEdiAccount",
-  { "foreign.vendor_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+    "vendor_edi_accounts",
+    "Koha::Schema::Result::VendorEdiAccount",
+    { "foreign.vendor_id" => "self.id" },
+    { cascade_copy        => 0, cascade_delete => 0 },
 );
-
 
 # Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-11-11 15:30:10
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:c2KX3rFyF5f3ISRpCXrLVA
 
 __PACKAGE__->add_columns(
-    '+active' => { is_boolean => 1 },
-    '+gstreg' => { is_boolean => 1 },
-    '+listincgst' => { is_boolean => 1 },
+    '+active'        => { is_boolean => 1 },
+    '+gstreg'        => { is_boolean => 1 },
+    '+listincgst'    => { is_boolean => 1 },
     '+invoiceincgst' => { is_boolean => 1 },
 );
 
 sub koha_object_class {
     'Koha::Acquisition::Bookseller';
 }
+
 sub koha_objects_class {
     'Koha::Acquisition::Booksellers';
 }
