@@ -3,10 +3,12 @@
 [% USE Koha %]
 [% USE KohaDates %]
 [% USE AdditionalContents %]
+[% USE KohaPlugins %]
 [% SET OpacNav = AdditionalContents.get( location => "OpacNav", lang => lang, library => logged_in_user.branchcode || default_branch, blocktitle => 0 ) %]
 [% SET OpacNavBottom = AdditionalContents.get( location => "OpacNavBottom", lang => lang, library => logged_in_user.branchcode || default_branch, blocktitle => 0 ) %]
 [% SET TagsShowEnabled = ( ( Koha.Preference( 'TagsEnabled' ) == 1 ) && Koha.Preference('TagsShowOnList') ) %]
 [% SET TagsInputEnabled = ( ( Koha.Preference( 'opacuserlogin' ) == 1 ) && ( Koha.Preference( 'TagsEnabled' ) == 1 ) && Koha.Preference('TagsInputOnList') ) %]
+[% SET CoverImagePlugins = KohaPlugins.get_plugins_opac_cover_images %]
 
 [% BLOCK delete_shelf %]
     <form action="/cgi-bin/koha/opac-shelves.pl" method="post" id="deleteshelf[% shelf.shelfnumber | html %]" class="d-inline">
@@ -413,12 +415,12 @@
                                                     [% END %]
                                                     <td>
                                                         <div class="coverimages">
-                                                            <a class="p1" href="/cgi-bin/koha/opac-detail.pl?biblionumber=[% itemsloo.biblionumber | html %]">
-                                                                [% IF ( itemsloo.title ) %]
-                                                                    [% img_title = itemsloo.title %]
-                                                                [% ELSE %]
-                                                                    [% img_title = itemsloo.biblionumber %]
-                                                                [% END %]
+                                                            [% IF ( itemsloo.title ) %]
+                                                                [% img_title = itemsloo.title %]
+                                                            [% ELSE %]
+                                                                [% img_title = itemsloo.biblionumber %]
+                                                            [% END %]
+                                                            <a class="p1" href="/cgi-bin/koha/opac-detail.pl?biblionumber=[% itemsloo.biblionumber | html %]" data-isbn="[% itemsloo.normalized_isbn | html %]" data-title="[% img_title | html %]">
 
                                                                 [% IF ( OPACLocalCoverImages ) %]
                                                                     <span title="[% img_title | html %]" class="[% itemsloo.biblionumber | html %]" id="local-thumbnail[% loop.count | html %]"></span>
@@ -826,6 +828,7 @@
 [% INCLUDE 'opac-bottom.inc' %]
 [% BLOCK jsinclude %]
 [% Asset.js("lib/hc-sticky.js") | $raw %]
+[% CoverImagePlugins | $raw %]
 [% IF OpenLibraryCovers || OpenLibrarySearch %]
     [% Asset.js("js/openlibrary.js") | $raw %]
 [% END %]
