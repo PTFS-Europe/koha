@@ -124,7 +124,7 @@ Returns the URL for the given file
 =cut
 
 sub url {
-    my ( $self, $filename ) = @_;
+    my ( $self, $filename, $args ) = @_;
 
     my $stash = $self->{_CONTEXT}->stash();
     my $interface = $stash->get('interface');
@@ -136,13 +136,20 @@ sub url {
     my ($basename, $dirname, $suffix) = fileparse($filename, qr/\.[^.]*/);
 
     my $type = substr $suffix, 1;
+
+    my $version = Koha::version;
+    $version =~ s/([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)/$1.$2$3$4/;
+
+    my $shared = $args->{shared};
+    if ($shared){
+        my $url = File::Spec->catfile('/shared',$dirname, "${basename}_${version}${suffix}");
+        return $url;
+    }
+
     my @dirs = (
         "$theme",
         ".",
     );
-
-    my $version = Koha::version;
-    $version =~ s/([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)/$1.$2$3$4/;
     foreach my $dir (@dirs) {
         my $abspath = File::Spec->catfile($root, $dir, $filename);
         if (-e $abspath) {

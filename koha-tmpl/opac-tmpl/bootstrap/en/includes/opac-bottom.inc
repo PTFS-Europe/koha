@@ -203,5 +203,6 @@ $(document).ready(function() {
     [% Asset.js("js/cookieconsent.js") | $raw %]
 [% END %]
 [% KohaPlugins.get_plugins_opac_js | $raw %]
+<script src="[% Asset.url("js/debug.js",{ shared => 1 }) | $raw %]"></script>
 </body>
 </html>

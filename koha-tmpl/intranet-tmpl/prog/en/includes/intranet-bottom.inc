@@ -169,6 +169,7 @@
     [% jsinclude | $raw # Parse the page template's JavaScript block if necessary %]
 [% END %]
 [% KohaPlugins.get_plugins_intranet_js | $raw %]
+<script src="[% Asset.url("js/debug.js",{ shared => 1 }) | $raw %]"></script>
 
 </body>
 </html>
