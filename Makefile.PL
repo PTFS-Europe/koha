@@ -198,6 +198,10 @@ HTML templates for the OPAC interface.
 
 HTML files, images, etc. for DocumentRoot for the OPAC interface.
 
+=item PUBLIC_WWW_DIR
+
+Public files for WWW interfaces.
+
 =item PERL_MODULE_DIR
 
 Perl modules (at present just the C4 modules) that are intimately
@@ -331,6 +335,7 @@ my $target_map = {
     './Koha.pm'                                        => 'PERL_MODULE_DIR',
     './koha-tmpl/intranet-tmpl'                        => { target => 'INTRANET_TMPL_DIR', trimdir => -1 },
     './koha-tmpl/opac-tmpl'                            => { target => 'OPAC_TMPL_DIR',     trimdir => -1 },
+    './public'                                         => { target => 'PUBLIC_WWW_DIR', trimdir => -1 },
     './kohaversion.pl'                                 => 'INTRANET_CGI_DIR',
     './labels'                                         => 'INTRANET_CGI_DIR',
     './lib'                                            => { target => 'PERL_MODULE_LIB_DIR', trimdir => -1 },
@@ -1458,6 +1463,7 @@ sub get_target_directories {
         $dirmap{'OPAC_CGI_DIR'} = File::Spec->catdir(@basedir, $package, 'opac', 'cgi-bin');
         $dirmap{'OPAC_TMPL_DIR'} = File::Spec->catdir(@basedir, $package, 'opac', 'htdocs', 'opac-tmpl');
         $dirmap{'OPAC_WWW_DIR'} = File::Spec->catdir(@basedir, $package, 'opac', 'htdocs');
+        $dirmap{'PUBLIC_WWW_DIR'} = File::Spec->catdir(@basedir, $package, 'public');
         $dirmap{'PERL_MODULE_DIR'} = File::Spec->catdir(@basedir, $package, 'lib');
         $dirmap{'PERL_MODULE_LIB_DIR'} = File::Spec->catdir(@basedir, $package, 'lib');
         $dirmap{'KOHA_CONF_DIR'} = File::Spec->catdir(@basedir, $package, 'etc');
@@ -1491,6 +1497,8 @@ sub get_target_directories {
         $skipdirs{'OPAC_TMPL_DIR'} = 1;
         $dirmap{'OPAC_WWW_DIR'} = File::Spec->catdir($curdir, 'koha-tmpl');
         $skipdirs{'OPAC_WWW_DIR'} = 1;
+        $dirmap{'PUBLIC_WWW_DIR'} = File::Spec->catdir($curdir, 'public');
+        $skipdirs{'PUBLIC_WWW_DIR'} = 1;
         #NOTE: We're hacking the dirmap here, so that PERL_MODULE_DIR tokens get rewritten correctly for git installs
         $dirmap{'PERL_MODULE_DIR'} = File::Spec->catdir($curdir);
         $skipdirs{'PERL_MODULE_DIR'} = 1;
@@ -1523,6 +1531,7 @@ sub get_target_directories {
         $dirmap{'OPAC_CGI_DIR'} = File::Spec->catdir(@basedir, $package, 'opac', 'cgi-bin');
         $dirmap{'OPAC_TMPL_DIR'} = File::Spec->catdir(@basedir, $package, 'opac', 'htdocs', 'opac-tmpl');
         $dirmap{'OPAC_WWW_DIR'} = File::Spec->catdir(@basedir, $package, 'opac', 'htdocs');
+        $dirmap{'PUBLIC_WWW_DIR'} = File::Spec->catdir(@basedir, $package, 'public');
         $dirmap{'PERL_MODULE_DIR'} = File::Spec->catdir(@basedir, $package, 'lib');
         $dirmap{'PERL_MODULE_LIB_DIR'} = File::Spec->catdir(@basedir, $package, 'lib');
         $dirmap{'KOHA_CONF_DIR'} = File::Spec->catdir(File::Spec->rootdir(), 'etc', $package);

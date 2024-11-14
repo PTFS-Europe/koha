@@ -118,6 +118,7 @@ my %configuration = (
   '__OPAC_CGI_DIR__' => "$prefix/opac/cgi-bin",
   '__OPAC_TMPL_DIR__' => "$prefix/opac/templates",
   '__OPAC_WWW_DIR__' => "$prefix/opac/www",
+  '__PUBLIC_WWW_DIR__' => "$prefix/public",
   '__PERL_MODULE_DIR__' =>  ($ENV{'INSTALLSITELIB'} || sprintf($prefix."/lib/perl5/site_perl/%vd",$^V))."/koha",
   '__KOHA_CONF_DIR__' => "$prefix/etc/koha",
   '__ZEBRA_CONF_DIR__' => "$prefix/etc/koha/zebradb",
