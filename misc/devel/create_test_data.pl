@@ -81,7 +81,7 @@ The DBIx::Class ResultSet source to use ( e.g. Branch, Category, EdifactMessage,
 
 =item B<-d|--data> <valumn>=<value>
 
-Repeatable, set a given column to the specificed value for all generated data.
+Repeatable, set a given column to the specified value for all generated data.
 
 create_test_data.pl -n 5 -s Issue -d borrowernumber=42 -d -d branchcode=MPL
 
