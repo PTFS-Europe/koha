@@ -30,6 +30,7 @@ use Koha::ILL::Requests;
 use Koha::ILL::Request;
 use Koha::ILL::Batches;
 use Koha::ILL::Request::Workflow::Availability;
+use Koha::ILL::Request::Workflow::HistoryCheck;
 use Koha::ILL::Request::Workflow::TypeDisclaimer;
 use Koha::ILL::Request::Workflow::ConfirmAuto;
 use Koha::Libraries;
@@ -134,6 +135,8 @@ if ( $backends_available ) {
         my $request = Koha::ILL::Request->new->load_backend( $params->{backend} );
 
         # Before request creation operations - Preparation
+        my $history_check =
+          Koha::ILL::Request::Workflow::HistoryCheck->new( $params, 'staff' );
         my $availability =
           Koha::ILL::Request::Workflow::Availability->new( $params, 'staff' );
         my $type_disclaimer =
@@ -141,8 +144,14 @@ if ( $backends_available ) {
         my $confirm_auto =
         Koha::ILL::Request::Workflow::ConfirmAuto->new( $params, 'staff' );
 
+        # ILLHistoryCheck operation
+        if ($history_check->show_history_check($request)) {
+            $op = 'historycheck';
+            $template->param(
+                $history_check->history_check_template_params($params)
+            )
         # ILLCheckAvailability operation
-        if ($availability->show_availability($request)) {
+        } elsif ($availability->show_availability($request)) {
             $op = 'availability';
             $template->param(
                 $availability->availability_template_params($params)
