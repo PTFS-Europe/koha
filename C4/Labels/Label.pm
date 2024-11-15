@@ -219,7 +219,7 @@ sub _desc_koha_tables {
 
 sub _BIB {
     my $self = shift;
-    my $line_spacer = ($self->{'font_size'} * 1);       # number of pixels between text rows (This is actually leading: baseline to baseline minus font size. Recommended starting point is 20% of font size.).
+    my $line_spacer = ($self->{'font_size'} + 2);       # number of pixels between text rows (This is actually leading: baseline to baseline minus font size. Recommended starting point is 20% of font size.).
     my $text_lly = ($self->{'lly'} + ($self->{'height'} - $self->{'top_text_margin'}));
     return $self->{'llx'}, $text_lly, $line_spacer, 0, 0, 0, 0;
 }
