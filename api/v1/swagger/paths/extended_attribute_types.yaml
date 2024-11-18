@@ -59,4 +59,6 @@
           $ref: "../swagger.yaml#/definitions/error"
     x-koha-authorization:
       permissions:
-        parameters: manage_additional_fields
+        - parameters:
+          - manage_additional_fields
+        - erm: 1
