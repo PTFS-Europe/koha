@@ -28,12 +28,8 @@
                 :title="$__('New')"
             />
             <ToolbarButton
-                :to="{
-                    name: 'VendorFormAddEdit',
-                    params: { vendor_id: vendor.id },
-                }"
-                icon="pencil"
-                :title="$__('Edit vendor')"
+                action="edit"
+                @go-to-edit-resource="goToResourceEdit"
             />
             <ToolbarButton
                 :to="{
@@ -102,12 +98,15 @@ import VendorContacts from "./VendorContacts.vue"
 import VendorSubscriptions from "./VendorSubscriptions.vue"
 import VendorContracts from "./VendorContracts.vue"
 import DropdownButtons from "../DropdownButtons.vue"
+import VendorResource from "./VendorResource.vue"
 
 export default {
+    extends: VendorResource,
     setup() {
         const { setConfirmationDialog, setMessage } = inject("mainStore")
 
         return {
+            ...VendorResource.setup(),
             setConfirmationDialog,
             setMessage,
         }
@@ -145,6 +144,7 @@ export default {
         VendorContacts,
         VendorSubscriptions,
         VendorContracts,
+        DropdownButtons,
     },
     name: "VendorShow",
 }
