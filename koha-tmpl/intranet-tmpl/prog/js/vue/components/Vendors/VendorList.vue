@@ -3,8 +3,8 @@
     <div v-else id="vendors_list">
         <Toolbar>
             <ToolbarButton
-                :to="{ name: 'VendorFormAdd' }"
-                icon="plus"
+                action="add"
+                @go-to-add-resource="goToResourceAdd"
                 :title="$__('New vendor')"
             />
         </Toolbar>
@@ -12,9 +12,9 @@
             <KohaTable
                 ref="table"
                 v-bind="tableOptions"
-                @show="doShow"
-                @edit="doEdit"
-                @delete="doDelete"
+                @show="goToResourceShow"
+                @edit="goToResourceEdit"
+                @delete="doResourceDelete"
                 @select="doSelect"
                 @receive="doReceive"
             ></KohaTable>
@@ -33,8 +33,10 @@ import { inject, ref } from "vue"
 import { APIClient } from "../../fetch/api-client.js"
 import { storeToRefs } from "pinia"
 import KohaTable from "../KohaTable.vue"
+import VendorResource from "./VendorResource.vue"
 
 export default {
+    extends: VendorResource,
     setup() {
         const vendorStore = inject("vendorStore")
         const { vendors } = storeToRefs(vendorStore)
@@ -49,6 +51,7 @@ export default {
         const { isUserPermitted } = permissionsStore
 
         return {
+            ...VendorResource.setup(),
             vendors,
             get_lib_from_av,
             map_av_dt_filter,
@@ -130,49 +133,9 @@ export default {
                 error => {}
             )
         },
-        doShow({ id }, dt, event) {
-            event.preventDefault()
-            this.$router.push({
-                name: "VendorShow",
-                params: { vendor_id: id },
-            })
-        },
         doReceive({ id }, dt, event) {
             event.preventDefault()
             window.open(`/cgi-bin/koha/acqui/parcels.pl?booksellerid=${id}`)
-        },
-        doEdit({ id }, dt, event) {
-            this.$router.push({
-                name: "VendorFormAddEdit",
-                params: { vendor_id: id },
-            })
-        },
-        doDelete(vendor, dt, event) {
-            this.setConfirmationDialog(
-                {
-                    title: this.$__(
-                        "Are you sure you want to remove this vendor?"
-                    ),
-                    message: vendor.name,
-                    accept_label: this.$__("Yes, delete"),
-                    cancel_label: this.$__("No, do not delete"),
-                },
-                () => {
-                    const client = APIClient.acquisition
-                    client.vendors.delete(vendor.id).then(
-                        success => {
-                            this.setMessage(
-                                this.$__("Vendor %s deleted").format(
-                                    vendor.name
-                                ),
-                                true
-                            )
-                            dt.draw()
-                        },
-                        error => {}
-                    )
-                }
-            )
         },
         doSelect(vendor, dt, event) {
             this.$emit("select-vendor", vendor.id)
