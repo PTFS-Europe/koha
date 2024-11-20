@@ -24,19 +24,18 @@ use warnings;
 use CGI;
 use Encode;
 
-#use Data::Dumper;
-use C4::Auth qw( get_template_and_user);
+use C4::Auth qw(get_template_and_user);
 use C4::Output qw(output_html_with_http_headers);
 use C4::AgrovocWSService qw( simpleSearchByMode2 );
 
 my $q = CGI->new;
 
-my ( $template, $loggedinuser, $cookie ) = get_template_and_user(
+our ( $template, $loggedinuser, $cookie ) = get_template_and_user(
     {
         template_name   => 'agrovoc/search.tt',
         query           => $q,
         type            => 'intranet',
-        authnotrequired => 1,
+	#        authnotrequired => 1,
         flagsrequired   => { catalogue => 1 },
         debug           => 1,
     }

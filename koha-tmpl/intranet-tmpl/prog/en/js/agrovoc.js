@@ -253,6 +253,7 @@ function addTermWorker(index, termArr) {
     var inputs = t.getElementsByTagName('input');
     sfdaRegExp = new RegExp("^tag_" + tagdata[1] + "_subfield_a");
     sfd0RegExp = new RegExp("^tag_" + tagdata[1] + "_subfield_0");
+    //sfd9RegExp = new RegExp("^tag_" + tagdata[1] + "_subfield_9");
     ind2RegExp = new RegExp("^tag_" + tagdata[1] + "_indicator2");
     for (var i = 0; i < inputs.length; i++) {
         if (inputs[i].name.match(sfdaRegExp)) {
@@ -261,10 +262,12 @@ function addTermWorker(index, termArr) {
         if (inputs[i].name.match(sfd0RegExp)) {
             inputs[i].value = termArr[1];
         }
+	//if (inputs[i].name.match(sfd9RegExp)) {
+        //    inputs[i].value = "";
+        //}
         if (inputs[i].name.match(ind2RegExp)) {
             inputs[i].value = '7';
         }
-
     }
     var selects = t.getElementsByTagName('select');
     sfd2RegExp = new RegExp("^tag_" + tagdata[1] + "_subfield_2");
