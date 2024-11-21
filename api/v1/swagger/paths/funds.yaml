@@ -1,0 +1,278 @@
+/acquisitions/funds:
+  get:
+    x-mojo-to: Acquisitions::FundManagement::Funds#list
+    operationId: GetFunds
+    description: Retrieves the funds for the acquisition module
+    tags:
+      - GetFunds
+    produces:
+      - application/json
+    parameters:
+      - name: x-koha-embed
+        in: header
+        description: Embed
+        required: false
+        type: array
+        items:
+          type: string
+          enum:
+          - fiscal_period
+          - ledger
+          - sub_funds
+          - fund_allocations
+          - owner
+        collectionFormat: csv
+      - $ref: "../swagger.yaml#/parameters/match"
+      - $ref: "../swagger.yaml#/parameters/order_by"
+      - $ref: "../swagger.yaml#/parameters/page"
+      - $ref: "../swagger.yaml#/parameters/per_page"
+      - $ref: "../swagger.yaml#/parameters/q_param"
+      - $ref: "../swagger.yaml#/parameters/q_body"
+    responses:
+      '200':
+        description: Fund data
+        schema:
+          items:
+            $ref: "../swagger.yaml#/definitions/fund"
+          type: array
+      "400":
+        description: |
+          Bad request. Possible `error_code` attribute values:
+
+            * `invalid_query`
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "403":
+        description: Access forbidden
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "500":
+        description: |
+          Internal server error. Possible `error_code` attribute values:
+
+          * `internal_server_error`
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "503":
+        description: Under maintenance
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+    x-koha-authorization:
+      permissions: {}
+  post:
+    x-mojo-to: Acquisitions::FundManagement::Funds#add
+    operationId: StoreFund
+    tags:
+      - StoreFund
+    summary: Add fund
+    consumes:
+      - application/json
+    produces:
+      - application/json
+    parameters:
+      - description: A JSON object containing information about the new fund
+        in: body
+        name: body
+        required: true
+        schema:
+            $ref: "../swagger.yaml#/definitions/fund"
+    responses:
+      '201':
+        description: Fund
+        schema:
+          items:
+            $ref: "../swagger.yaml#/definitions/fund"
+      400:
+        description: Bad request
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      401:
+        description: Authentication required
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      403:
+        description: Access forbidden
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      404:
+        description: Ressource not found
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      409:
+        description: Conflict in creating resource
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      413:
+        description: Payload too large
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      500:
+        description: |-
+          Internal server error. Possible `error_code` attribute values:
+          * `internal_server_error`
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      503:
+        description: Under maintenance
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+    x-koha-authorization:
+      permissions: {}
+/acquisitions/funds/{id}:
+  get:
+    x-mojo-to: Acquisitions::FundManagement::Funds#get
+    operationId: getFund
+    tags:
+      - acquire
+    description: Get a single fund
+    parameters:
+      - $ref: "../swagger.yaml#/parameters/fund_id_pp"
+      - name: x-koha-embed
+        in: header
+        description: Embed
+        required: false
+        type: array
+        items:
+          type: string
+          enum:
+          - fiscal_period
+          - ledger
+          - sub_funds
+          - sub_funds.fund_allocations
+          - fund_allocations
+          - owner
+        collectionFormat: csv
+    produces:
+      - application/json
+    responses:
+      '200':
+        description: Fund
+        schema:
+          items:
+            $ref: "../swagger.yaml#/definitions/fund"
+      '400':
+        description: Bad request
+        schema:
+          type: object
+          properties:
+            error:
+              description: An explanation for the error
+              type:
+              - string
+              - array
+      '401':
+        description: Unauthorized
+        schema:
+          type: object
+          properties:
+            error:
+              description: An explanation for the error
+              type: string
+      '403':
+        description: Forbidden
+        schema:
+          type: object
+          properties:
+            error:
+              description: An explanation for the error
+              type: string
+      '404':
+        description: The object was not found
+        schema:
+          type: object
+          properties:
+            error:
+              description: An explanation for the error
+              type: string
+      '409':
+        description: Conflict
+        schema:
+          type: object
+          properties:
+            error:
+              description: An explanation for the error
+              type: string
+      '500':
+        description: Internal server error
+        schema:
+          type: object
+          properties:
+            error:
+              description: An explanation for the error
+              type: string
+    x-koha-authorization:
+      permissions: {}
+  put:
+    x-mojo-to: Acquisitions::FundManagement::Funds#update
+    operationId: updateFund
+    tags:
+      - acquire
+    description: Update a fund
+    parameters:
+      - $ref: "../swagger.yaml#/parameters/fund_id_pp"
+      - name: body
+        in: body
+        description: Fund object that needs to be added
+        required: true
+        schema:
+          type: object
+    produces:
+      - application/json
+    responses:
+      '200':
+        description: Fund
+        schema:
+          type: object
+      '400':
+        description: Bad request
+        schema:
+          type: object
+          properties:
+            error:
+              description: An explanation for the error
+              type:
+              - string
+              - array
+      '401':
+        description: Unauthorized
+        schema:
+          type: object
+          properties:
+            error:
+              description: An explanation for the error
+              type: string
+      '403':
+        description: Forbidden
+        schema:
+          type: object
+          properties:
+            error:
+              description: An explanation for the error
+              type: string
+      '404':
+        description: The object was not found
+        schema:
+          type: object
+          properties:
+            error:
+              description: An explanation for the error
+              type: string
+      '409':
+        description: Conflict
+        schema:
+          type: object
+          properties:
+            error:
+              description: An explanation for the error
+              type: string
+      '500':
+        description: Internal server error
+        schema:
+          type: object
+          properties:
+            error:
+              description: An explanation for the error
+              type: string
+    x-koha-authorization:
+      permissions: {}
+  delete:
