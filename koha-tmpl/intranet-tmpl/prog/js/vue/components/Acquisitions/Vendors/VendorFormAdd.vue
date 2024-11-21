@@ -31,14 +31,14 @@
 </template>
 
 <script>
-import ButtonSubmit from "../ButtonSubmit.vue"
-import { setMessage } from "../../messages"
-import { APIClient } from "../../fetch/api-client.js"
+import ButtonSubmit from "../../ButtonSubmit.vue"
+import { setMessage } from "../../../messages"
+import { APIClient } from "../../../fetch/api-client.js"
 import VendorDetails from "./VendorDetails.vue"
-import VendorContacts from "./VendorContacts.vue"
+import VendorContacts from "../../Acquisitions/Vendors/VendorContacts.vue"
 import VendorOrderingInformation from "./VendorOrderingInformation.vue"
 import VendorInterfaces from "./VendorInterfaces.vue"
-import AdditionalFieldsEntry from "../AdditionalFieldsEntry.vue"
+import AdditionalFieldsEntry from "../../AdditionalFieldsEntry.vue"
 import { inject } from "vue"
 
 export default {

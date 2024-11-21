@@ -7,7 +7,7 @@
 
 <script>
 import { inject } from "vue"
-import { useDataTable } from "../../composables/datatables"
+import { useDataTable } from "../../../composables/datatables"
 
 export default {
     props: {

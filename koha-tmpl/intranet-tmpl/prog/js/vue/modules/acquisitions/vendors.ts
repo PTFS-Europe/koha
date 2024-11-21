@@ -16,16 +16,16 @@ import vSelect from "vue-select";
 
 library.add(faPlus, faMinus, faPencil, faTrash, faSpinner, faInbox);
 
-import App from "../components/Vendors/Main.vue";
+import App from "../../components/Acquisitions/Vendors/Main.vue";
 
-import { routes as routesDef } from "../routes/acquisitions";
+import { routes as routesDef } from "../../routes/acquisitions/vendors.js";
 
-import { useMainStore } from "../stores/main";
-import { useVendorStore } from "../stores/vendors";
-import { useNavigationStore } from "../stores/navigation";
-import { usePermissionsStore } from "../stores/permissions";
-import { useAVStore } from "../stores/authorised-values";
-import i18n from "../i18n";
+import { useMainStore } from "../../stores/main";
+import { useVendorStore } from "../../stores/vendors";
+import { useNavigationStore } from "../../stores/navigation";
+import { usePermissionsStore } from "../../stores/permissions";
+import { useAVStore } from "../../stores/authorised-values";
+import i18n from "../../i18n";
 
 const pinia = createPinia();
 

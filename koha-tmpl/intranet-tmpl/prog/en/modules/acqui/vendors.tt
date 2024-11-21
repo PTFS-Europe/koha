@@ -40,7 +40,7 @@
     </script>
 
 
-    [% Asset.js("js/vue/dist/acquisitions.js") | $raw %]
+    [% Asset.js("js/vue/dist/acquisitions/vendors.js") | $raw %]
     [% INCLUDE 'select2.inc' %]
     [% SET columns = ['cardnumber','name','category','branch','action'] %]
     [% PROCESS patron_search_modal columns => columns, modal_title => t("Select user") %]
