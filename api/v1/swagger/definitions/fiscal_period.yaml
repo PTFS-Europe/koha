@@ -1,0 +1,48 @@
+---
+type: object
+properties:
+  fiscal_period_id:
+    type:
+      - integer
+      - "null"
+    readOnly: true
+    description: Internal fiscal period identifier
+  description:
+    type:
+      - string
+      - "null"
+    description: Description
+  code:
+    type:
+      - string
+      - "null"
+    description: Fiscal period code
+  start_date:
+    type: string
+    format: date-time
+    readOnly: true
+    description: Start date for the fiscal period
+  end_date:
+    type: string
+    format: date-time
+    readOnly: true
+    description: End date for the fiscal period
+  last_updated:
+    type: string
+    format: date-time
+    readOnly: true
+    description: Last update
+  status:
+    description: Is the fiscal period active
+    type: boolean
+  owner_id:
+    type:
+      - integer
+      - "null"
+    description: Owner of the fiscal period
+  lib_group_visibility:
+    type:
+      - string
+      - "null"
+    description: Library group visibility
+additionalProperties: false

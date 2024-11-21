@@ -1,11 +1,16 @@
 ---
 type: object
 properties:
-  fund_id:
+  sub_fund_id:
     type:
       - integer
       - "null"
     readOnly: true
+    description: Internal sub fund identifier
+  fund_id:
+    type:
+      - integer
+      - "null"
     description: Internal fund identifier
   ledger_id:
     type:
@@ -17,11 +22,6 @@ properties:
       - integer
       - "null"
     description: Internal fiscal period identifier
-  fund_group_id:
-    type:
-      - integer
-      - "null"
-    description: Internal fund group identifier
   name:
     type:
       - string
@@ -32,11 +32,6 @@ properties:
       - string
       - "null"
     description: Description
-  fund_type:
-    type:
-      - string
-      - "null"
-    description: Type of the fund
   code:
     type:
       - string
@@ -70,7 +65,7 @@ properties:
       - string
       - "null"
     description: Library group visibility
-  fund_value:
+  sub_fund_value:
     type:
       - integer
       - "null"
