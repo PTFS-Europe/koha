@@ -90,8 +90,14 @@ definitions:
     $ref: ./definitions/extended_attribute_type.yaml
   extended_attribute_value:
     $ref: ./definitions/extended_attribute_value.yaml
+  fiscal_period:
+    $ref: ./definitions/fiscal_period.yaml
   fund:
     $ref: ./definitions/fund.yaml
+  fund_group:
+    $ref: ./definitions/fund_group.yaml
+  fund_allocation:
+    $ref: ./definitions/fund_allocation.yaml
   hold:
     $ref: ./definitions/hold.yaml
   holds:
@@ -130,6 +136,8 @@ definitions:
     $ref: ./definitions/item_type.yaml
   job:
     $ref: ./definitions/job.yaml
+  ledger:
+    $ref: ./definitions/ledger.yaml
   library:
     $ref: ./definitions/library.yaml
   library_group:
@@ -176,6 +184,8 @@ definitions:
     $ref: ./definitions/search_filter.yaml
   smtp_server:
     $ref: ./definitions/smtp_server.yaml
+  sub_fund:
+    $ref: ./definitions/sub_fund.yaml
   suggestion:
     $ref: ./definitions/suggestion.yaml
   ticket:
@@ -195,16 +205,26 @@ paths:
     $ref: ./paths/acquisitions_baskets.yaml#/~1acquisitions~1baskets~1managers
   /acquisitions/edifiles:
     $ref: ./paths/acquisitions_edifiles.yaml#/~1acquisitions~1edifiles
+  /acquisitions/fiscal_periods:
+    $ref: ./paths/fiscal_periods.yaml#/~1acquisitions~1fiscal_periods
   /acquisitions/funds:
-    $ref: ./paths/acquisitions_funds.yaml#/~1acquisitions~1funds
+    $ref: ./paths/funds.yaml#/~1acquisitions~1funds
   /acquisitions/funds/owners:
     $ref: ./paths/acquisitions_funds.yaml#/~1acquisitions~1funds~1owners
   /acquisitions/funds/users:
     $ref: ./paths/acquisitions_funds.yaml#/~1acquisitions~1funds~1users
+  /acquisitions/fund_allocations:
+    $ref: ./paths/fund_allocations.yaml#/~1acquisitions~1fund_allocations
+  /acquisitions/fund_groups:
+    $ref: ./paths/fund_groups.yaml#/~1acquisitions~1fund_groups
+  /acquisitions/ledgers:
+    $ref: ./paths/ledgers.yaml#/~1acquisitions~1ledgers
   /acquisitions/orders:
     $ref: ./paths/acquisitions_orders.yaml#/~1acquisitions~1orders
   "/acquisitions/orders/{order_id}":
     $ref: "./paths/acquisitions_orders.yaml#/~1acquisitions~1orders~1{order_id}"
+  /acquisitions/sub_funds:
+    $ref: ./paths/sub_funds.yaml#/~1acquisitions~1sub_funds
   /acquisitions/vendors:
     $ref: ./paths/acquisitions_vendors.yaml#/~1acquisitions~1vendors
   "/acquisitions/vendors/{vendor_id}":
@@ -739,10 +759,28 @@ parameters:
     name: data_type
     required: true
     type: string
+  fiscal_period_id_pp:
+    description: Fiscal period id
+    in: path
+    name: fiscal_period_id
+    required: true
+    type: integer
   fund_id_pp:
     description: Fund id
     in: path
     name: fund_id
+    required: true
+    type: integer
+  fund_group_id_pp:
+    description: Fund group id
+    in: path
+    name: fund_group_id
+    required: true
+    type: integer
+  fund_allocation_id_pp:
+    description: Fund allocation id
+    in: path
+    name: fund_allocation_id
     required: true
     type: integer
   hold_id_pp:
@@ -796,6 +834,12 @@ parameters:
     description: Job internal identifier
     in: path
     name: job_id
+    required: true
+    type: integer
+  ledger_id_pp:
+    description: Ledger internal identifier
+    in: path
+    name: ledger_id
     required: true
     type: integer
   library_id_pp:
@@ -933,6 +977,12 @@ parameters:
     description: SMTP server internal identifier
     in: path
     name: smtp_server_id
+    required: true
+    type: integer
+  sub_fund_id_pp:
+    description: Sub fund internal identifier
+    in: path
+    name: sub_fund_id
     required: true
     type: integer
   suggestion_id_pp:
