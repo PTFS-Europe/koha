@@ -57,13 +57,6 @@
             <div class="col-sm-6">
                 <VendorContacts :vendor="vendor" :display="true" />
                 <VendorSubscriptions :vendor="vendor" />
-                <AdditionalFieldsDisplay
-                    v-if="vendor._strings"
-                    resource_type="vendor"
-                    :additional_field_values="
-                        vendor._strings.additional_field_values
-                    "
-                />
             </div>
         </div>
         <div
@@ -76,18 +69,17 @@
 </template>
 
 <script>
-import Toolbar from "../Toolbar.vue"
+import Toolbar from "../../Toolbar.vue"
 import { inject } from "vue"
-import { APIClient } from "../../fetch/api-client.js"
-import ToolbarButton from "../ToolbarButton.vue"
+import { APIClient } from "../../../fetch/api-client.js"
+import ToolbarButton from "../../ToolbarButton.vue"
 import VendorDetails from "./VendorDetails.vue"
 import VendorOrderingInformation from "./VendorOrderingInformation.vue"
 import VendorInterfaces from "./VendorInterfaces.vue"
 import VendorContacts from "./VendorContacts.vue"
 import VendorSubscriptions from "./VendorSubscriptions.vue"
 import VendorContracts from "./VendorContracts.vue"
-import DropdownButtons from "../DropdownButtons.vue"
-import AdditionalFieldsDisplay from "../AdditionalFieldsDisplay.vue"
+import DropdownButtons from "../../DropdownButtons.vue"
 import VendorResource from "./VendorResource.vue"
 
 export default {
@@ -134,7 +126,6 @@ export default {
         VendorContacts,
         VendorSubscriptions,
         VendorContracts,
-        AdditionalFieldsDisplay,
         DropdownButtons,
     },
     name: "VendorShow",

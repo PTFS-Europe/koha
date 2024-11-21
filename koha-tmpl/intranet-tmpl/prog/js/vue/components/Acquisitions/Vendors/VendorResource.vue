@@ -1,6 +1,6 @@
 <script>
-import BaseResource from "../BaseResource.vue"
-import { APIClient } from "../../fetch/api-client.js"
+import BaseResource from "../../BaseResource.vue"
+import { APIClient } from "../../../fetch/api-client.js"
 
 export default {
     extends: BaseResource,

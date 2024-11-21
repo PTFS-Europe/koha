@@ -1,11 +1,11 @@
 import { markRaw } from "vue";
 
-import Home from "../components/Vendors/Home.vue";
-import VendorList from "../components/Vendors/VendorList.vue";
-import VendorShow from "../components/Vendors/VendorShow.vue";
-import VendorFormAdd from "../components/Vendors/VendorFormAdd.vue";
+import Home from "../../components/Acquisitions/Vendors/Home.vue";
+import VendorList from "../../components/Acquisitions/Vendors/VendorList.vue";
+import VendorShow from "../../components/Acquisitions/Vendors/VendorShow.vue";
+import VendorFormAdd from "../../components/Acquisitions/Vendors/VendorFormAdd.vue";
 
-import { $__ } from "../i18n";
+import { $__ } from "../../i18n";
 
 export const routes = [
     {
