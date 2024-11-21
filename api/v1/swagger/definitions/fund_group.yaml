@@ -1,0 +1,30 @@
+---
+type: object
+properties:
+  fund_group_id:
+    type:
+      - integer
+      - "null"
+    readOnly: true
+    description: Internal fund group identifier
+  name:
+    type:
+      - string
+      - "null"
+    description: Fund group name
+  description:
+    type:
+      - string
+      - "null"
+    description: Description
+  currency:
+    type:
+      - string
+      - "null"
+    description: Fund group currency
+  lib_group_visibility:
+    type:
+      - string
+      - "null"
+    description: Library group visibility
+additionalProperties: false

@@ -1,11 +1,16 @@
 ---
 type: object
 properties:
-  fund_id:
+  fund_allocation_id:
     type:
       - integer
       - "null"
     readOnly: true
+    description: Internal fund identifier
+  fund_id:
+    type:
+      - integer
+      - "null"
     description: Internal fund identifier
   ledger_id:
     type:
@@ -17,49 +22,34 @@ properties:
       - integer
       - "null"
     description: Internal fiscal period identifier
-  fund_group_id:
+  allocation_amount:
     type:
       - integer
       - "null"
-    description: Internal fund group identifier
-  name:
+    description: Amount allocated to the fund
+  reference:
     type:
       - string
       - "null"
-    description: Fund name
-  description:
+    description: Allocation reference
+  note:
     type:
       - string
       - "null"
-    description: Description
-  fund_type:
-    type:
-      - string
-      - "null"
-    description: Type of the fund
-  code:
-    type:
-      - string
-      - "null"
-    description: Fund code
-  external_id:
-    type:
-      - string
-      - "null"
-    description: Fund external id
+    description: Allocation note
   currency:
     type:
       - string
       - "null"
     description: Fund currency
+  is_transfer:
+    description: is the allocation a transfer
+    type: boolean
   last_updated:
     type: string
     format: date-time
     readOnly: true
     description: Last update
-  status:
-    description: Is the fund active
-    type: boolean
   owner_id:
     type:
       - integer
@@ -70,9 +60,4 @@ properties:
       - string
       - "null"
     description: Library group visibility
-  fund_value:
-    type:
-      - integer
-      - "null"
-    description: Value of the fund
 additionalProperties: false
