@@ -227,7 +227,7 @@
 
 <script>
 import { inject } from "vue"
-import ToolbarButton from "../ToolbarButton.vue"
+import ToolbarButton from "../../ToolbarButton.vue"
 import { storeToRefs } from "pinia"
 
 export default {

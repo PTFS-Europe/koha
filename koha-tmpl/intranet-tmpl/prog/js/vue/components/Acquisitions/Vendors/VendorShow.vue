@@ -28,8 +28,12 @@
                 :title="$__('New')"
             />
             <ToolbarButton
-                action="edit"
-                @go-to-edit-resource="goToResourceEdit"
+                :to="{
+                    name: 'VendorFormAddEdit',
+                    params: { vendor_id: vendor.id },
+                }"
+                icon="pencil"
+                :title="$__('Edit vendor')"
             />
             <ToolbarButton
                 :to="{
@@ -94,27 +98,24 @@
 </template>
 
 <script>
-import Toolbar from "../Toolbar.vue"
+import Toolbar from "../../Toolbar.vue"
 import { inject } from "vue"
-import { APIClient } from "../../fetch/api-client.js"
-import ToolbarButton from "../ToolbarButton.vue"
+import { APIClient } from "../../../fetch/api-client.js"
+import ToolbarButton from "../../ToolbarButton.vue"
 import VendorDetails from "./VendorDetails.vue"
 import VendorOrderingInformation from "./VendorOrderingInformation.vue"
 import VendorInterfaces from "./VendorInterfaces.vue"
 import VendorContacts from "./VendorContacts.vue"
 import VendorSubscriptions from "./VendorSubscriptions.vue"
 import VendorContracts from "./VendorContracts.vue"
-import DropdownButtons from "../DropdownButtons.vue"
-import AdditionalFieldsDisplay from "../AdditionalFieldsDisplay.vue"
-import VendorResource from "./VendorResource.vue"
+import DropdownButtons from "../../DropdownButtons.vue"
+import AdditionalFieldsDisplay from "../../AdditionalFieldsDisplay.vue"
 
 export default {
-    extends: VendorResource,
     setup() {
         const { setConfirmationDialog, setMessage } = inject("mainStore")
 
         return {
-            ...VendorResource.setup(),
             setConfirmationDialog,
             setMessage,
         }
@@ -145,7 +146,7 @@ export default {
     components: {
         Toolbar,
         ToolbarButton,
-        ToolbarButton,
+        DropdownButtons,
         VendorDetails,
         VendorOrderingInformation,
         VendorInterfaces,
@@ -153,7 +154,6 @@ export default {
         VendorSubscriptions,
         VendorContracts,
         AdditionalFieldsDisplay,
-        DropdownButtons,
     },
     name: "VendorShow",
 }
