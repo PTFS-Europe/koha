@@ -83,7 +83,7 @@
             >{{ attr.label }}:</label
         >
         <component
-            v-if="attr.noModel"
+            v-if="!attr.props['v-model']"
             :is="requiredComponent"
             v-bind="requiredProps()"
         ></component>
@@ -129,6 +129,7 @@ export default {
                 return {}
             }
             const props = Object.keys(this.attr.props).reduce((acc, key) => {
+                // This might be better in a switch statement
                 const prop = this.attr.props[key]
                 if (prop.type === "resource") {
                     acc[key] = this.resource
