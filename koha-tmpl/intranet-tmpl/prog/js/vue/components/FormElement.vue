@@ -52,7 +52,7 @@
             />
         </label>
     </div>
-    <div v-else-if="attr.type == 'av'">
+    <div v-else-if="attr.type == 'select'">
         <label
             :for="`${attr.name}${index}`"
             :class="{ required: attr.required }"
@@ -61,9 +61,9 @@
         <v-select
             :id="`${attr.name}${index}`"
             v-model="resource[attr.name]"
-            label="description"
-            :reduce="av => av.value"
-            :options="attr.options"
+            :label="attr.selectLabel"
+            :reduce="av => av[attr.requiredKey]"
+            :options="selectOptions"
             :required="!resource[attr.name] && attr.required"
             :disabled="attr.disabled"
         >
@@ -115,6 +115,12 @@ export default {
             return defineAsyncComponent(() =>
                 import(`${this.attr.componentPath}`)
             )
+        },
+        selectOptions() {
+            if (this.attr.options) {
+                return this.attr.options
+            }
+            return this.options
         },
     },
     methods: {

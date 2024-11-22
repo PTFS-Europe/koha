@@ -136,6 +136,7 @@ export default {
         agreement_id: Number,
         av_agreement_relationships: Array,
         relationships: Array,
+        subFields: Array,
     },
     name: "AgreementRelationships",
 }

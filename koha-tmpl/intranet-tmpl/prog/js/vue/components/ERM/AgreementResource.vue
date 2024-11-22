@@ -76,14 +76,14 @@ export default {
                 {
                     name: "status",
                     required: true,
-                    type: "av",
+                    type: "select",
                     label: __("Status"),
                     av_cat: "av_agreement_statuses",
                     show_in_table: true,
                 },
                 {
                     name: "closure_reason",
-                    type: "av",
+                    type: "select",
                     label: __("Closure reason"),
                     av_cat: "av_agreement_closure_reasons",
                     show_in_table: true,
@@ -96,7 +96,7 @@ export default {
                 },
                 {
                     name: "renewal_priority",
-                    type: "av",
+                    type: "select",
                     label: __("Renewal priority"),
                     av_cat: "av_agreement_renewal_priorities",
                     show_in_table: true,
@@ -233,7 +233,7 @@ export default {
                         },
                         {
                             name: "role",
-                            type: "av",
+                            type: "select",
                             label: __("Role"),
                             av_cat: "av_user_roles",
                             show_in_table: true,
@@ -297,14 +297,14 @@ export default {
                         },
                         {
                             name: "status",
-                            type: "av",
+                            type: "select",
                             label: __("Status"),
                             av_cat: "av_agreement_license_statuses",
                             show_in_table: true,
                         },
                         {
                             name: "physical_location",
-                            type: "av",
+                            type: "select",
                             label: __("Physical location"),
                             av_cat: "av_agreement_license_location",
                             show_in_table: true,
@@ -345,10 +345,18 @@ export default {
                     },
                     subFields: [
                         {
-                            name: "physical_location",
-                            type: "av",
-                            label: __("Physical location"),
-                            av_cat: "av_agreement_license_location",
+                            name: "related_agreement_id",
+                            type: "select",
+                            label: __("Related agreement"),
+                            requiredKey: "agreement_id",
+                            selectLabel: "name",
+                            show_in_table: true,
+                        },
+                        {
+                            name: "relationship",
+                            type: "select",
+                            label: __("Relationship"),
+                            av_cat: "av_agreement_relationships",
                             show_in_table: true,
                         },
                         {
@@ -360,11 +368,6 @@ export default {
                         },
                     ],
                 },
-
-                // {
-                //     name: "agreements",
-                //     type: "relationship",
-                // },
                 // {
                 //     name: "documents",
                 //     type: "relationship",
@@ -380,9 +383,11 @@ export default {
     methods: {
         assignAVs(attrs) {
             attrs.forEach(attr => {
-                if (typeof attr.av_cat === "string") {
+                if (attr.type === "select" && typeof attr.av_cat === "string") {
                     const av_key = attr.av_cat
                     attr.options = this[av_key]
+                    attr.requiredKey = "value"
+                    attr.selectLabel = "description"
                 }
                 if (attr.type == "relationship" && attr.props) {
                     Object.keys(attr.props).forEach(key => {
