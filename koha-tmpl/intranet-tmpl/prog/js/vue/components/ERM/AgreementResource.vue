@@ -368,10 +368,50 @@ export default {
                         },
                     ],
                 },
-                // {
-                //     name: "documents",
-                //     type: "relationship",
-                // },
+                {
+                    name: "documents",
+                    type: "relationship",
+                    componentPath: "./ERM/Documents.vue",
+                    props: {
+                        documents: {
+                            type: "resourceProperty",
+                            resourceProperty: "documents",
+                        },
+                    },
+                    subFields: [
+                        {
+                            name: "document",
+                            type: "component",
+                            componentPath: "./DocumentSelect.vue",
+                            label: __("File"),
+                            props: {
+                                counter: {
+                                    type: "string",
+                                    value: "",
+                                    indexRequired: true,
+                                },
+                                document: {
+                                    type: "resource",
+                                    value: null,
+                                },
+                            },
+                        },
+                        {
+                            name: "uri",
+                            required: false,
+                            type: "text",
+                            label: __("URI"),
+                            show_in_table: true,
+                        },
+                        {
+                            name: "notes",
+                            required: false,
+                            type: "text",
+                            label: __("Notes"),
+                            show_in_table: true,
+                        },
+                    ],
+                },
             ],
         }
     },
@@ -379,28 +419,6 @@ export default {
         //IMPROVEME: We need this for now to assign the correct av array from setup to the attr options in data
         this.assignAVs(this.resource_attrs)
         this.getResourceTableColumns()
-    },
-    methods: {
-        assignAVs(attrs) {
-            attrs.forEach(attr => {
-                if (attr.type === "select" && typeof attr.av_cat === "string") {
-                    const av_key = attr.av_cat
-                    attr.options = this[av_key]
-                    attr.requiredKey = "value"
-                    attr.selectLabel = "description"
-                }
-                if (attr.type == "relationship" && attr.props) {
-                    Object.keys(attr.props).forEach(key => {
-                        if (attr.props[key].type == "av") {
-                            attr.props[key].av = this[key]
-                        }
-                    })
-                }
-                if (attr.subFields?.length) {
-                    this.assignAVs(attr.subFields)
-                }
-            })
-        },
     },
     name: "AgreementResource",
 }
