@@ -55,9 +55,15 @@ export default {
                 {
                     name: "vendor_id",
                     type: "component",
-                    component: "FormSelectVendors",
                     label: __("Vendor"),
-                    show_in_table: true,
+                    componentPath: "./FormSelectVendors.vue",
+                    props: {
+                        id: {
+                            type: "string",
+                            value: "license_id_",
+                            indexRequired: true,
+                        },
+                    },
                 },
                 {
                     name: "description",
@@ -102,18 +108,259 @@ export default {
                     text_area_cols: 50,
                     label: __("License info"),
                 },
-                // {
-                //     name: "periods",
-                //     type: "relationship",
-                // },
-                // {
-                //     name: "user_roles",
-                //     type: "relationship",
-                // },
-                // {
-                //     name: "licenses",
-                //     type: "relationship",
-                // },
+                {
+                    name: "periods",
+                    type: "relationship",
+                    label: __("Periods"),
+                    componentPath: "./ERM/AgreementPeriods.vue",
+                    props: {
+                        periods: {
+                            type: "resourceProperty",
+                            resourceProperty: "periods",
+                        },
+                    },
+                    subFields: [
+                        {
+                            name: "started_on",
+                            type: "component",
+                            label: __("Start date"),
+                            componentPath: "./FlatPickrWrapper.vue",
+                            required: true,
+                            props: {
+                                id: {
+                                    type: "string",
+                                    value: "started_on_",
+                                    indexRequired: true,
+                                },
+                                required: {
+                                    type: "boolean",
+                                    value: true,
+                                },
+                                date_to: {
+                                    type: "string",
+                                    value: "ended_on_",
+                                    indexRequired: true,
+                                },
+                            },
+                        },
+                        {
+                            name: "ended_on",
+                            type: "component",
+                            label: __("End date"),
+                            componentPath: "./FlatPickrWrapper.vue",
+                            required: false,
+                            props: {
+                                id: {
+                                    type: "string",
+                                    value: "ended_on_",
+                                    indexRequired: true,
+                                },
+                            },
+                        },
+                        {
+                            name: "cancellation_deadline",
+                            type: "component",
+                            label: __("Cancellation deadline"),
+                            componentPath: "./FlatPickrWrapper.vue",
+                            required: false,
+                            props: {
+                                id: {
+                                    type: "string",
+                                    value: "cancellation_deadline_",
+                                    indexRequired: true,
+                                },
+                            },
+                        },
+                        {
+                            name: "notes",
+                            required: false,
+                            type: "text",
+                            label: __("Notes"),
+                            show_in_table: true,
+                        },
+                    ],
+                },
+                {
+                    name: "user_roles",
+                    type: "relationship",
+                    label: __("Users"),
+                    componentPath: "./ERM/UserRoles.vue",
+                    props: {
+                        user_roles: {
+                            type: "resourceProperty",
+                            resourceProperty: "user_roles",
+                        },
+                        av_user_roles: {
+                            type: "av",
+                            av: null,
+                        },
+                        user_type: {
+                            type: "string",
+                            value: __("Agreement user %s"),
+                        },
+                    },
+                    subFields: [
+                        {
+                            name: "user_id",
+                            type: "component",
+                            label: __("User"),
+                            componentPath: "./PatronSearch.vue",
+                            noModel: true,
+                            required: true,
+                            props: {
+                                name: {
+                                    type: "string",
+                                    value: "user_id",
+                                },
+                                required: {
+                                    type: "boolean",
+                                    value: true,
+                                },
+                                resource: {
+                                    type: "resource",
+                                    value: null,
+                                },
+                                counter: {
+                                    type: "string",
+                                    value: "",
+                                    indexRequired: true,
+                                },
+                                label: {
+                                    type: "string",
+                                    value: __("User"),
+                                },
+                            },
+                        },
+                        {
+                            name: "role",
+                            type: "av",
+                            label: __("Role"),
+                            av_cat: "av_user_roles",
+                            show_in_table: true,
+                            required: true,
+                        },
+                    ],
+                },
+                {
+                    name: "licenses",
+                    type: "relationship",
+                    label: __("Licenses"),
+                    componentPath: "./ERM/AgreementLicenses.vue",
+                    props: {
+                        agreement_licenses: {
+                            type: "resourceProperty",
+                            resourceProperty: "agreement_licenses",
+                        },
+                        av_agreement_license_statuses: {
+                            type: "av",
+                            av: null,
+                        },
+                        av_agreement_license_location: {
+                            type: "av",
+                            av: null,
+                        },
+                    },
+                    subFields: [
+                        {
+                            name: "license_id",
+                            type: "component",
+                            label: __("License"),
+                            componentPath: "./InfiniteScrollSelect.vue",
+                            required: true,
+                            props: {
+                                id: {
+                                    type: "string",
+                                    value: "license_id_",
+                                    indexRequired: true,
+                                },
+                                selectedData: {
+                                    type: "resourceProperty",
+                                    resourceProperty: "license",
+                                },
+                                dataType: {
+                                    type: "string",
+                                    value: "licenses",
+                                },
+                                dataIdentifier: {
+                                    type: "string",
+                                    value: "license_id",
+                                },
+                                label: {
+                                    type: "string",
+                                    value: "name",
+                                },
+                                required: {
+                                    type: "boolean",
+                                    value: true,
+                                },
+                            },
+                        },
+                        {
+                            name: "status",
+                            type: "av",
+                            label: __("Status"),
+                            av_cat: "av_agreement_license_statuses",
+                            show_in_table: true,
+                        },
+                        {
+                            name: "physical_location",
+                            type: "av",
+                            label: __("Physical location"),
+                            av_cat: "av_agreement_license_location",
+                            show_in_table: true,
+                        },
+                        {
+                            name: "notes",
+                            required: false,
+                            type: "text",
+                            label: __("Notes"),
+                            show_in_table: true,
+                        },
+                        {
+                            name: "uri",
+                            required: false,
+                            type: "text",
+                            label: __("URI"),
+                            show_in_table: true,
+                        },
+                    ],
+                },
+                {
+                    name: "relationships",
+                    type: "relationship",
+                    componentPath: "./ERM/AgreementRelationships.vue",
+                    props: {
+                        agreement_id: {
+                            type: "resourceProperty",
+                            resourceProperty: "agreement_id",
+                        },
+                        av_agreement_relationships: {
+                            type: "av",
+                            av: null,
+                        },
+                        relationships: {
+                            type: "resourceProperty",
+                            resourceProperty: "agreement_relationships",
+                        },
+                    },
+                    subFields: [
+                        {
+                            name: "physical_location",
+                            type: "av",
+                            label: __("Physical location"),
+                            av_cat: "av_agreement_license_location",
+                            show_in_table: true,
+                        },
+                        {
+                            name: "notes",
+                            required: false,
+                            type: "text",
+                            label: __("Notes"),
+                            show_in_table: true,
+                        },
+                    ],
+                },
+
                 // {
                 //     name: "agreements",
                 //     type: "relationship",
@@ -127,15 +374,29 @@ export default {
     },
     created() {
         //IMPROVEME: We need this for now to assign the correct av array from setup to the attr options in data
-        this.resource_attrs.forEach(attr => {
-            if (typeof attr.av_cat === "string") {
-                const av_key = attr.av_cat
-                attr.options = this[av_key]
-            }
-        })
+        this.assignAVs(this.resource_attrs)
         this.getResourceTableColumns()
     },
-    methods: {},
+    methods: {
+        assignAVs(attrs) {
+            attrs.forEach(attr => {
+                if (typeof attr.av_cat === "string") {
+                    const av_key = attr.av_cat
+                    attr.options = this[av_key]
+                }
+                if (attr.type == "relationship" && attr.props) {
+                    Object.keys(attr.props).forEach(key => {
+                        if (attr.props[key].type == "av") {
+                            attr.props[key].av = this[key]
+                        }
+                    })
+                }
+                if (attr.subFields?.length) {
+                    this.assignAVs(attr.subFields)
+                }
+            })
+        },
+    },
     name: "AgreementResource",
 }
 </script>
