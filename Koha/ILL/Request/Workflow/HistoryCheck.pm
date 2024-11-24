@@ -166,12 +166,14 @@ sub after_request_created {
     if ($remaining_matching_requests) {
         my $appended_others_note = 0;
         foreach my $matching_request ( @{$remaining_matching_requests} ) {
-            if ( $appended_others_note == 0 ) {
-                $staffnotes .=
-                    ( $staffnotes ? "\n" : '' ) . __("Request has been submitted by other patrons in the past:");
-                $appended_others_note = 1;
+            if ( $matching_request->illrequest_id ne $request->illrequest_id ) {
+                if ( $appended_others_note == 0 ) {
+                    $staffnotes .=
+                        ( $staffnotes ? "\n" : '' ) . __("Request has been submitted by other patrons in the past:");
+                    $appended_others_note = 1;
+                }
+                $staffnotes .= ' ' . $self->_get_request_staff_link($matching_request);
             }
-            $staffnotes .= ' ' . $self->_get_request_staff_link($matching_request);
         }
     }
 
