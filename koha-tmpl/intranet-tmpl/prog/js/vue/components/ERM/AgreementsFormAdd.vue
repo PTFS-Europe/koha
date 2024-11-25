@@ -28,7 +28,6 @@
                     :additional_field_values="agreement.extended_attributes"
                     @additional-fields-changed="additionalFieldsChanged"
                 />
-                <!-- These relationships need DRY -->
                 <template
                     v-for="(attr, index) in resource_attrs.filter(
                         attr => attr.type === 'relationship'
@@ -37,28 +36,6 @@
                 >
                     <FormElement :resource="agreement" :attr="attr" />
                 </template>
-                <!-- <AgreementPeriods :periods="agreement.periods" />
-                <UserRoles
-                    :user_type="$__('Agreement user %s')"
-                    :user_roles="agreement.user_roles"
-                    :av_user_roles="av_user_roles"
-                /> -->
-                <!-- <AgreementLicenses
-                    :agreement_licenses="agreement.agreement_licenses"
-                    :av_agreement_license_statuses="
-                        av_agreement_license_statuses
-                    "
-                    :av_agreement_license_location="
-                        av_agreement_license_location
-                    "
-                /> -->
-                <!-- <AgreementRelationships
-                    :agreement_id="agreement.agreement_id"
-                    :relationships="agreement.agreement_relationships"
-                    :av_agreement_relationships="av_agreement_relationships"
-                />
-                <Documents :documents="agreement.documents" /> -->
-                <!-- These relationships need DRY -->
                 <fieldset class="action">
                     <ButtonSubmit />
                     <router-link
