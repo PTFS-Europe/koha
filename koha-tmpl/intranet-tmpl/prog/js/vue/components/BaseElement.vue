@@ -57,10 +57,6 @@ export default {
             }
             return props
         },
-        accessNestedProperty(path, obj) {
-            const keys = path.split(".")
-            return keys.reduce((acc, key) => acc[key], obj)
-        },
     },
     name: "BaseElement",
 }

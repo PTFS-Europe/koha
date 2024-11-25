@@ -13,7 +13,9 @@
                 {{
                     attr.showElement?.format
                         ? attr.showElement?.format(
-                              attr.showElement.value,
+                              resource[attr.showElement.value]
+                                  ? resource[attr.showElement.value]
+                                  : attr.showElement.value,
                               resource
                           )
                         : resource[attr.name]
