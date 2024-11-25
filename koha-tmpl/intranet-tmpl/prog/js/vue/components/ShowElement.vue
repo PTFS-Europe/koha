@@ -107,7 +107,7 @@
         <template v-if="attr.showElement.hidden(resource)">
             <component
                 :is="requiredComponent"
-                v-bind="requiredProps()"
+                v-bind="requiredProps(true)"
             ></component>
         </template>
     </div>
@@ -116,15 +116,17 @@
 <script>
 import { inject } from "vue"
 import LinkWrapper from "./LinkWrapper.vue"
-import { defineAsyncComponent } from "vue"
+import BaseElement from "./BaseElement.vue"
 
 export default {
     components: { LinkWrapper },
+    extends: BaseElement,
     setup() {
         const AVStore = inject("AVStore")
         const { get_lib_from_av } = AVStore
 
         return {
+            ...BaseElement.setup(),
             get_lib_from_av,
         }
     },
@@ -134,53 +136,14 @@ export default {
     },
     computed: {
         requiredComponent() {
-            return defineAsyncComponent(() =>
-                import(`${this.attr.showElement.componentPath}`)
-            )
+            const component = this.identifyAndImportComponent(this.attr, true)
+            return component
         },
         selectOptions() {
             if (this.attr.options) {
                 return this.attr.options
             }
             return this.options
-        },
-    },
-    methods: {
-        requiredProps() {
-            if (!this.attr.showElement.props) {
-                return {}
-            }
-            const props = Object.keys(this.attr.showElement.props).reduce(
-                (acc, key) => {
-                    // This might be better in a switch statement
-                    const prop = this.attr.showElement.props[key]
-                    if (prop.type === "resource") {
-                        acc[key] = this.resource
-                    }
-                    if (prop.type === "resourceProperty") {
-                        acc[key] = this.resource[prop.resourceProperty]
-                    }
-                    if (prop.type === "av") {
-                        acc[key] = prop.av
-                    }
-                    if (prop.type === "string") {
-                        if (prop.indexRequired && this.index > -1) {
-                            acc[key] = `${prop.value}${this.index}`
-                        } else {
-                            acc[key] = prop.value
-                        }
-                    }
-                    if (prop.type === "boolean") {
-                        acc[key] = prop.value
-                    }
-                    return acc
-                },
-                {}
-            )
-            if (this.attr.showElement.subFields?.length) {
-                props.subFields = this.attr.showElement.subFields
-            }
-            return props
         },
     },
     name: "ShowElement",
