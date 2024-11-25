@@ -3,6 +3,7 @@
         v-if="
             attr.type == 'text' ||
             attr.type == 'textarea' ||
+            (attr.type == 'select' && !attr.av_cat) ||
             attr.showElement?.type == 'text'
         "
     >
@@ -20,9 +21,16 @@
             </span>
         </LinkWrapper>
     </div>
-    <div v-else-if="attr.type == 'av'">
+    <div
+        v-else-if="attr.type == 'av' || (attr.type == 'select' && attr.av_cat)"
+    >
         <label>{{ attr.label }}:</label>
         <span>{{ get_lib_from_av(attr.av_cat, resource[attr.name]) }}</span>
+    </div>
+    <div v-else-if="attr.type == 'boolean'">
+        <label>{{ attr.label }}:</label>
+        <span v-if="resource[attr.name]">{{ $__("Yes") }}</span>
+        <span v-else>{{ $__("No") }}</span>
     </div>
     <div
         v-else-if="
