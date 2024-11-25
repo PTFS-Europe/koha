@@ -83,7 +83,7 @@
             >{{ attr.label }}:</label
         >
         <component
-            v-if="!attr.props['v-model']"
+            v-if="!isVModelRequired(attr.componentPath)"
             :is="requiredComponent"
             v-bind="requiredProps()"
         ></component>
@@ -156,6 +156,15 @@ export default {
                 props.subFields = this.attr.subFields
             }
             return props
+        },
+        isVModelRequired(componentPath) {
+            const componentsNotRequiringVModel = ["PatronSearch", "Documents,"]
+            componentsNotRequiringVModel.forEach(component => {
+                if (componentPath.includes(component)) {
+                    return false
+                }
+            })
+            return true
         },
     },
     name: "FormElement",
