@@ -58,7 +58,7 @@
                         </table>
                     </li> -->
 
-                    <li v-if="agreement.user_roles.length">
+                    <!-- <li v-if="agreement.user_roles.length">
                         <label>{{ $__("Users") }}</label>
                         <table>
                             <thead>
@@ -84,9 +84,9 @@
                                 </tr>
                             </tbody>
                         </table>
-                    </li>
+                    </li> -->
 
-                    <li v-if="agreement.agreement_licenses.length">
+                    <!-- <li v-if="agreement.agreement_licenses.length">
                         <label>{{ $__("Licenses") }}</label>
                         <table>
                             <thead>
@@ -137,7 +137,7 @@
                                 </tr>
                             </tbody>
                         </table>
-                    </li>
+                    </li> -->
 
                     <li v-if="agreement.agreement_relationships.length">
                         <label>{{ $__("Related agreements") }}</label>

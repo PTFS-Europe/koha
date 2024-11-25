@@ -28,36 +28,54 @@
             attr.type == 'relationship' && attr.showElement.type === 'table'
         "
     >
-        <label>{{ attr.label }}</label>
-        <table>
-            <thead>
-                <th
-                    v-for="column in attr.showElement.columns"
-                    :key="column.name + 'head'"
-                >
-                    {{ column.name }}
-                </th>
-            </thead>
-            <tbody>
-                <tr
-                    v-for="(row, counter) in resource[
-                        attr.showElement.columnData
-                    ]"
-                    v-bind:key="counter"
-                >
-                    <td
-                        v-for="row in attr.showElement.columns"
-                        :key="row.name + 'row'"
+        <template v-if="attr.showElement.hidden(resource)">
+            <label>{{ attr.label }}</label>
+            <table>
+                <thead>
+                    <th
+                        v-for="column in attr.showElement.columns"
+                        :key="column.name + 'head'"
                     >
-                        {{
-                            row.format
-                                ? row.format(resource[row.value])
-                                : resource[row.value]
-                        }}
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+                        {{ column.name }}
+                    </th>
+                </thead>
+                <tbody>
+                    <tr
+                        v-for="(row, counter) in resource[
+                            attr.showElement.columnData
+                        ]"
+                        v-bind:key="counter"
+                    >
+                        <td
+                            v-for="dataColumn in attr.showElement.columns"
+                            :key="dataColumn.name + 'data'"
+                        >
+                            <template v-if="dataColumn.format">
+                                {{
+                                    dataColumn.format(
+                                        row[dataColumn.value]
+                                            ? row[dataColumn.value]
+                                            : dataColumn.value,
+                                        row
+                                    )
+                                }}
+                            </template>
+                            <template v-else-if="dataColumn.av">
+                                {{
+                                    get_lib_from_av(
+                                        dataColumn.av,
+                                        row[dataColumn.value]
+                                    )
+                                }}
+                            </template>
+                            <template v-else>
+                                {{ row[dataColumn.value] }}
+                            </template>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </template>
     </div>
 </template>
 
