@@ -101,7 +101,6 @@
 </template>
 
 <script>
-import { defineAsyncComponent } from "vue"
 import BaseElement from "./BaseElement.vue"
 
 export default {

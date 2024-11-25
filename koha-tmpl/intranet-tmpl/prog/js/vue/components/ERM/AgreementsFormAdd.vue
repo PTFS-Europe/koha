@@ -51,12 +51,7 @@
 </template>
 
 <script>
-import AgreementPeriods from "./AgreementPeriods.vue"
-import UserRoles from "./UserRoles.vue"
 import FormElement from "../FormElement.vue"
-import AgreementLicenses from "./AgreementLicenses.vue"
-import AgreementRelationships from "./AgreementRelationships.vue"
-import Documents from "./Documents.vue"
 import AdditionalFieldsEntry from "../AdditionalFieldsEntry.vue"
 import ButtonSubmit from "../ButtonSubmit.vue"
 import { setMessage, setError, setWarning } from "../../messages"
@@ -271,11 +266,6 @@ export default {
         },
     },
     components: {
-        AgreementPeriods,
-        UserRoles,
-        AgreementLicenses,
-        AgreementRelationships,
-        Documents,
         ButtonSubmit,
         FormElement,
         AdditionalFieldsEntry,
