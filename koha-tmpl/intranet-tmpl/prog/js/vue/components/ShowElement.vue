@@ -51,25 +51,40 @@
                             :key="dataColumn.name + 'data'"
                         >
                             <template v-if="dataColumn.format">
-                                {{
-                                    dataColumn.format(
-                                        row[dataColumn.value]
-                                            ? row[dataColumn.value]
-                                            : dataColumn.value,
-                                        row
-                                    )
-                                }}
+                                <LinkWrapper
+                                    :linkData="dataColumn.link"
+                                    :resource="row"
+                                >
+                                    {{
+                                        dataColumn.format(
+                                            row[dataColumn.value]
+                                                ? row[dataColumn.value]
+                                                : dataColumn.value,
+                                            row
+                                        )
+                                    }}
+                                </LinkWrapper>
                             </template>
                             <template v-else-if="dataColumn.av">
-                                {{
-                                    get_lib_from_av(
-                                        dataColumn.av,
-                                        row[dataColumn.value]
-                                    )
-                                }}
+                                <LinkWrapper
+                                    :linkData="dataColumn.link"
+                                    :resource="row"
+                                >
+                                    {{
+                                        get_lib_from_av(
+                                            dataColumn.av,
+                                            row[dataColumn.value]
+                                        )
+                                    }}
+                                </LinkWrapper>
                             </template>
                             <template v-else>
-                                {{ row[dataColumn.value] }}
+                                <LinkWrapper
+                                    :linkData="dataColumn.link"
+                                    :resource="row"
+                                >
+                                    {{ row[dataColumn.value] }}
+                                </LinkWrapper>
                             </template>
                         </td>
                     </tr>
@@ -81,8 +96,10 @@
 
 <script>
 import { inject } from "vue"
+import LinkWrapper from "./LinkWrapper.vue"
 
 export default {
+    components: { LinkWrapper },
     setup() {
         const AVStore = inject("AVStore")
         const { get_lib_from_av } = AVStore
