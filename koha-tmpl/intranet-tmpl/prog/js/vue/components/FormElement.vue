@@ -83,15 +83,15 @@
             >{{ attr.label }}:</label
         >
         <component
-            v-if="!isVModelRequired(attr.componentPath)"
+            v-if="isVModelRequired(attr.componentPath)"
             :is="requiredComponent"
             v-bind="requiredProps()"
+            v-model="resource[attr.name]"
         ></component>
         <component
             v-else
             :is="requiredComponent"
             v-bind="requiredProps()"
-            v-model="resource[attr.name]"
         ></component>
         <span v-if="attr.required" class="required">{{ $__("Required") }}</span>
     </div>
@@ -158,13 +158,14 @@ export default {
             return props
         },
         isVModelRequired(componentPath) {
-            const componentsNotRequiringVModel = ["PatronSearch", "Documents,"]
+            let vModelRequired = true
+            const componentsNotRequiringVModel = ["PatronSearch", "Documents"]
             componentsNotRequiringVModel.forEach(component => {
                 if (componentPath.includes(component)) {
-                    return false
+                    vModelRequired = false
                 }
             })
-            return true
+            return vModelRequired
         },
     },
     name: "FormElement",
