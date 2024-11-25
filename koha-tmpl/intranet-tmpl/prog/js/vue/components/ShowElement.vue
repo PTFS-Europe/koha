@@ -23,6 +23,42 @@
             </a>
         </span>
     </div>
+    <div
+        v-else-if="
+            attr.type == 'relationship' && attr.showElement.type === 'table'
+        "
+    >
+        <label>{{ attr.label }}</label>
+        <table>
+            <thead>
+                <th
+                    v-for="column in attr.showElement.columns"
+                    :key="column.name + 'head'"
+                >
+                    {{ column.name }}
+                </th>
+            </thead>
+            <tbody>
+                <tr
+                    v-for="(row, counter) in resource[
+                        attr.showElement.columnData
+                    ]"
+                    v-bind:key="counter"
+                >
+                    <td
+                        v-for="row in attr.showElement.columns"
+                        :key="row.name + 'row'"
+                    >
+                        {{
+                            row.format
+                                ? row.format(resource[row.value])
+                                : resource[row.value]
+                        }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 </template>
 
 <script>

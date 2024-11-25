@@ -25,7 +25,7 @@
                         <ShowElement :resource="agreement" :attr="attr" />
                     </li>
 
-                    <li v-if="agreement.periods.length">
+                    <!-- <li v-if="agreement.periods.length">
                         <label>{{ $__("Periods") }}</label>
                         <table>
                             <thead>
@@ -56,7 +56,7 @@
                                 </tr>
                             </tbody>
                         </table>
-                    </li>
+                    </li> -->
 
                     <li v-if="agreement.user_roles.length">
                         <label>{{ $__("Users") }}</label>

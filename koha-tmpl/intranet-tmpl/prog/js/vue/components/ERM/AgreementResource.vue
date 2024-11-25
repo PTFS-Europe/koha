@@ -111,6 +111,32 @@ export default {
                 {
                     name: "periods",
                     type: "relationship",
+                    showElement: {
+                        type: "table",
+                        columnData: "periods",
+                        hidden: agreement => agreement.periods?.length,
+                        columns: [
+                            {
+                                name: __("Period start"),
+                                value: "started_on",
+                                format: this.format_date,
+                            },
+                            {
+                                name: __("Period end"),
+                                value: "ended_on",
+                                format: this.format_date,
+                            },
+                            {
+                                name: __("Cancellation deadline"),
+                                value: "cancellation_deadline",
+                                format: this.format_date,
+                            },
+                            {
+                                name: __("Notes"),
+                                value: "notes",
+                            },
+                        ],
+                    },
                     label: __("Periods"),
                     componentPath: "./ERM/AgreementPeriods.vue",
                     props: {
