@@ -1,52 +1,53 @@
 <template>
     <div
         v-if="
-            attr.type == 'text' ||
-            attr.type == 'textarea' ||
-            (attr.type == 'select' && !attr.av_cat) ||
-            attr.showElement?.type == 'text'
+            attribute.type == 'text' ||
+            attribute.type == 'textarea' ||
+            (attribute.type == 'select' && !attribute.av_cat) ||
+            attribute?.type == 'text'
         "
     >
-        <label>{{ attr.label }}:</label>
-        <LinkWrapper :linkData="attr.showElement?.link" :resource="resource">
+        <label>{{ attribute.label }}:</label>
+        <LinkWrapper :linkData="attribute?.link" :resource="resource">
             <span>
                 {{
-                    attr.showElement?.format
-                        ? attr.showElement?.format(
-                              resource[attr.showElement.value]
-                                  ? resource[attr.showElement.value]
-                                  : attr.showElement.value,
+                    attribute?.format
+                        ? attribute?.format(
+                              resource[attribute.value]
+                                  ? resource[attribute.value]
+                                  : attribute.value,
                               resource
                           )
-                        : resource[attr.name]
+                        : resource[attribute.name]
                 }}
             </span>
         </LinkWrapper>
     </div>
     <div
-        v-else-if="attr.type == 'av' || (attr.type == 'select' && attr.av_cat)"
-    >
-        <label>{{ attr.label }}:</label>
-        <LinkWrapper :linkData="attr.showElement?.link" :resource="resource">
-            <span>{{ get_lib_from_av(attr.av_cat, resource[attr.name]) }}</span>
-        </LinkWrapper>
-    </div>
-    <div v-else-if="attr.type == 'boolean'">
-        <label>{{ attr.label }}:</label>
-        <span v-if="resource[attr.name]">{{ $__("Yes") }}</span>
-        <span v-else>{{ $__("No") }}</span>
-    </div>
-    <div
         v-else-if="
-            attr.type == 'relationship' && attr.showElement.type === 'table'
+            attribute.type == 'av' ||
+            (attribute.type == 'select' && attribute.av_cat)
         "
     >
-        <template v-if="attr.showElement.hidden(resource)">
-            <label>{{ attr.label }}</label>
+        <label>{{ attribute.label }}:</label>
+        <LinkWrapper :linkData="attribute?.link" :resource="resource">
+            <span>{{
+                get_lib_from_av(attribute.av_cat, resource[attribute.name])
+            }}</span>
+        </LinkWrapper>
+    </div>
+    <div v-else-if="attribute.type == 'boolean'">
+        <label>{{ attribute.label }}:</label>
+        <span v-if="resource[attribute.name]">{{ $__("Yes") }}</span>
+        <span v-else>{{ $__("No") }}</span>
+    </div>
+    <div v-else-if="attribute.type === 'table'">
+        <template v-if="attribute.hidden(resource)">
+            <label>{{ attribute.label }}</label>
             <table>
                 <thead>
                     <th
-                        v-for="column in attr.showElement.columns"
+                        v-for="column in attribute.columns"
                         :key="column.name + 'head'"
                     >
                         {{ column.name }}
@@ -54,13 +55,11 @@
                 </thead>
                 <tbody>
                     <tr
-                        v-for="(row, counter) in resource[
-                            attr.showElement.columnData
-                        ]"
+                        v-for="(row, counter) in resource[attribute.columnData]"
                         v-bind:key="counter"
                     >
                         <td
-                            v-for="dataColumn in attr.showElement.columns"
+                            v-for="dataColumn in attribute.columns"
                             :key="dataColumn.name + 'data'"
                         >
                             <template v-if="dataColumn.format">
@@ -105,8 +104,8 @@
             </table>
         </template>
     </div>
-    <div v-else-if="attr.showElement?.type === 'component'">
-        <template v-if="attr.showElement.hidden(resource)">
+    <div v-else-if="attribute?.type === 'component'">
+        <template v-if="attribute.hidden(resource)">
             <component
                 :is="requiredComponent"
                 v-bind="requiredProps(true)"
@@ -146,6 +145,12 @@ export default {
                 return this.attr.options
             }
             return this.options
+        },
+        attribute() {
+            if (this.attr.showElement) {
+                return { ...this.attr, ...this.attr.showElement }
+            }
+            return this.attr
         },
     },
     name: "ShowElement",
