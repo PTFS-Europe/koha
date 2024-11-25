@@ -25,7 +25,9 @@
         v-else-if="attr.type == 'av' || (attr.type == 'select' && attr.av_cat)"
     >
         <label>{{ attr.label }}:</label>
-        <span>{{ get_lib_from_av(attr.av_cat, resource[attr.name]) }}</span>
+        <LinkWrapper :linkData="attr.showElement?.link" :resource="resource">
+            <span>{{ get_lib_from_av(attr.av_cat, resource[attr.name]) }}</span>
+        </LinkWrapper>
     </div>
     <div v-else-if="attr.type == 'boolean'">
         <label>{{ attr.label }}:</label>
