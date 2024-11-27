@@ -156,7 +156,7 @@ export default {
             }
 
             const visibility = vendor.lib_group_visibility.join("|")
-            vendor.lib_group_visibility = visibility
+            vendor.lib_group_visibility = visibility || null
 
             const client = APIClient.acquisition
             if (vendorId) {
