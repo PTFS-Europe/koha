@@ -195,7 +195,7 @@ sub summary {
         my $typed_income = $income_transactions->total( { payment_type => $type->authorised_value } );
         my $typed_payout = $payout_transactions->total( { payment_type => $type->authorised_value } );
         my $typed_total = ( $typed_income + $typed_payout );
-        push @total_grouped, { payment_type => $type->lib, total => $typed_total };
+        push @total_grouped, { payment_type => $type->lib, total => sprintf( "%.2f", $typed_total ) };
     }
 
     $summary = {
@@ -205,7 +205,7 @@ sub summary {
         income_total   => abs($income_total),
         payout_grouped => \@payout,
         payout_total   => abs($payout_total),
-        total          => $total * -1,
+        total          => sprintf( "%.2f", $total * -1),
         total_grouped  => \@total_grouped
     };
 

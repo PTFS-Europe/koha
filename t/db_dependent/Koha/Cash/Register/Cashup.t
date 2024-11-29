@@ -122,7 +122,7 @@ subtest 'summary' => sub {
     unshift @{$expected_income_grouped},
       {
         debit_type_code => 'OVERDUE',
-        total           => '1',
+        total           => '1.00',
         debit_type      => { description => 'Overdue fine' }
       };
 
@@ -159,7 +159,7 @@ subtest 'summary' => sub {
     unshift @{$expected_income_grouped},
       {
         debit_type_code => 'LOST',
-        total           => '0.5',
+        total           => '0.50',
         debit_type      => { description => 'Lost item' }
       };
 
@@ -167,7 +167,7 @@ subtest 'summary' => sub {
     unshift @{$expected_income_grouped},
       {
         debit_type_code => 'ACCOUNT',
-        total           => '1',
+        total           => '1.00',
         debit_type      => { description => 'Account creation fee' }
       };
 
@@ -198,7 +198,7 @@ subtest 'summary' => sub {
     # Lost fee of 0.50 fully refunded
     unshift @{$expected_payout_grouped},
       {
-        'total'       => '0.5',
+        'total'       => '0.50',
         'credit_type' => {
             'description' => 'Refund'
         },
@@ -231,7 +231,7 @@ subtest 'summary' => sub {
     is( scalar @{ $summary->{payout_grouped} }, 1, "payout_grouped contains 1 transaction" );
     is_deeply( $summary->{payout_grouped}, $expected_payout_grouped, "payout_grouped arrayref is correct" );
     is( $summary->{payout_total}, $expected_payout_total, "payout_total is correct" );
-    is( $summary->{total}, $expected_total,"total equals expected_total" );
+    is( $summary->{total}, sprintf( "%.2f", $expected_total),"total equals expected_total" );
 
     # Backdate cashup1 so we can add a new cashup to check 'previous'
     $cashup1->timestamp( \'NOW() - INTERVAL 12 MINUTE' )->store();
@@ -267,7 +267,7 @@ subtest 'summary' => sub {
     unshift @{$expected_income_grouped},
       {
         debit_type_code => 'OVERDUE',
-        total           => '-2.000000' * -1,
+        total           => sprintf( "%.2f", '-2.000000' * -1),
         debit_type      => { 'description' => 'Overdue fine' }
       };
 
@@ -288,7 +288,7 @@ subtest 'summary' => sub {
     is( ref( $summary->{payout_grouped} ), 'ARRAY', "payout_grouped contains Koha::Account::Lines" );
     is( scalar @{ $summary->{payout_grouped} }, 0, "payout_grouped contains 0 transactions" );
     is_deeply( $summary->{payout_grouped}, $expected_payout_grouped, "payout_grouped arrayref is correct" );
-    is( $summary->{total}, $expected_total, "total equals expected_total" );
+    is( $summary->{total}, sprintf( "%.2f", $expected_total ), "total equals expected_total" );
 
     # Backdate cashup2 so we can add a new cashup to check
     $cashup2->timestamp( \'NOW() - INTERVAL 6 MINUTE' )->store();
@@ -326,7 +326,7 @@ subtest 'summary' => sub {
     # Account fee of 1.00 fully refunded (Across cashup boundary)
     unshift @{$expected_payout_grouped},
       {
-        'total'       => '1',
+        'total'       => '1.00',
         'credit_type' => {
             'description' => 'Refund'
         },
@@ -356,7 +356,7 @@ subtest 'summary' => sub {
     is( ref( $summary->{payout_grouped} ), 'ARRAY', "payout_grouped contains Koha::Account::Lines" );
     is( scalar @{ $summary->{payout_grouped} }, 1, "payout_grouped contains 0 transactions" );
     is_deeply( $summary->{payout_grouped}, $expected_payout_grouped, "payout_grouped arrayref is correct" );
-    is( $summary->{total}, $expected_total, "total equals expected_total" );
+    is( $summary->{total}, sprintf( "%.2f", $expected_total), "total equals expected_total" );
 
     $schema->storage->txn_rollback;
 };
