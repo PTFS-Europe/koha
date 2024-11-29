@@ -24,7 +24,6 @@ use CGI;
 use C4::Auth qw( get_template_and_user );
 use C4::Output qw( output_html_with_http_headers );
 use Koha::Database;
-use Koha::Encryption;
 use Koha::Plugins;
 
 our $input = CGI->new();
@@ -39,13 +38,11 @@ our ( $template, $loggedinuser, $cookie ) = get_template_and_user(
     }
 );
 
-my $crypt = Koha::Encryption->new;
-
 my $op = $input->param('op');
 $op ||= 'display';
 
 if ( $op eq 'acct_form' ) {
-    show_account($crypt);
+    show_account();
     $template->param( acct_form => 1 );
     my @vendors = $schema->resultset('Aqbookseller')->search(
         undef,
@@ -56,6 +53,15 @@ if ( $op eq 'acct_form' ) {
     );
     $template->param( vendors => \@vendors );
 
+    my @sftp_servers = $schema->resultset('SftpServer')->search(
+        undef,
+        {
+            columns  => [ 'name', 'host', 'port', 'id' ],
+            order_by => { -asc => 'name' },
+        }
+    );
+    $template->param( sftp_servers => \@sftp_servers );
+
     if ( C4::Context->config("enable_plugins") ) {
         my @plugins = Koha::Plugins->new()->GetPlugins({
             method => 'edifact',
@@ -64,7 +70,7 @@ if ( $op eq 'acct_form' ) {
     }
 }
 elsif ( $op eq 'delete_confirm' ) {
-    show_account($crypt);
+    show_account();
     $template->param( delete_confirm => 1 );
 }
 else {
@@ -72,28 +78,22 @@ else {
 
         # validate & display
         my $id     = $input->param('id');
-        my $password = scalar $input->param('password');
-        $password = $crypt->encrypt_hex($password);
         my $fields = {
-            description        => scalar $input->param('description'),
-            host               => scalar $input->param('host'),
-            username           => scalar $input->param('username'),
-            password           => $password,
-            upload_port        => scalar $input->param('upload_port')   || 22,
-            download_port      => scalar $input->param('download_port') || 22,
-            vendor_id          => scalar $input->param('vendor_id'),
-            upload_directory   => scalar $input->param('upload_directory'),
-            download_directory => scalar $input->param('download_directory'),
-            san                => scalar $input->param('san'),
-            standard           => scalar $input->param('standard'),
-            transport          => scalar $input->param('transport'),
-            quotes_enabled     => $input->param('quotes_enabled') ? 1 : 0,
-            invoices_enabled   => $input->param('invoices_enabled') ? 1 : 0,
-            orders_enabled     => $input->param('orders_enabled') ? 1 : 0,
-            responses_enabled  => $input->param('responses_enabled') ? 1 : 0,
-            auto_orders        => $input->param('auto_orders') ? 1 : 0,
-            id_code_qualifier  => scalar $input->param('id_code_qualifier'),
-            plugin             => scalar $input->param('plugin'),
+            description             => scalar $input->param('description'),
+            upload_sftp_server_id   => $input->param('upload_sftp_server_id') || undef,
+            download_sftp_server_id => $input->param('download_sftp_server_id') || undef,
+            vendor_id               => scalar $input->param('vendor_id'),
+            upload_directory        => scalar $input->param('upload_directory'),
+            download_directory      => scalar $input->param('download_directory'),
+            san                     => scalar $input->param('san'),
+            standard                => scalar $input->param('standard'),
+            quotes_enabled          => $input->param('quotes_enabled') ? 1 : 0,
+            invoices_enabled        => $input->param('invoices_enabled') ? 1 : 0,
+            orders_enabled          => $input->param('orders_enabled') ? 1 : 0,
+            responses_enabled       => $input->param('responses_enabled') ? 1 : 0,
+            auto_orders             => $input->param('auto_orders') ? 1 : 0,
+            id_code_qualifier       => scalar $input->param('id_code_qualifier'),
+            plugin                  => scalar $input->param('plugin'),
         };
 
         if ($id) {
@@ -162,14 +162,11 @@ sub get_account {
 }
 
 sub show_account {
-    my $crypt = shift;
     my $acct_id = $input->param('id');
-    if ($acct_id) {
-        my $acct = $schema->resultset('VendorEdiAccount')->find($acct_id);
-        $acct->password( $crypt->decrypt_hex($acct->password) );
-        if ($acct) {
-            $template->param( account => $acct );
-        }
-    }
-    return;
+    return unless $acct_id;
+
+    my $acct = $schema->resultset('VendorEdiAccount')->find($acct_id);
+    return unless $acct;
+
+    return $template->param( account => $acct );
 }

@@ -166,9 +166,41 @@ __PACKAGE__->add_columns(
 
 __PACKAGE__->set_primary_key("id");
 
+=head1 RELATIONS
 
-# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-12-17 10:30:17
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Dnz0prvPxRoopZCdRaUtnA
+=head2 vendor_edi_accounts_download_sftp_servers
+
+Type: has_many
+
+Related object: L<Koha::Schema::Result::VendorEdiAccount>
+
+=cut
+
+__PACKAGE__->has_many(
+  "vendor_edi_accounts_download_sftp_servers",
+  "Koha::Schema::Result::VendorEdiAccount",
+  { "foreign.download_sftp_server_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+=head2 vendor_edi_accounts_upload_sftp_servers
+
+Type: has_many
+
+Related object: L<Koha::Schema::Result::VendorEdiAccount>
+
+=cut
+
+__PACKAGE__->has_many(
+  "vendor_edi_accounts_upload_sftp_servers",
+  "Koha::Schema::Result::VendorEdiAccount",
+  { "foreign.upload_sftp_server_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-12-17 16:16:48
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:UNNFdqDr0NgEGaYlWJs49w
 
 __PACKAGE__->add_columns(
     '+passiv'     => { is_boolean => 1 },

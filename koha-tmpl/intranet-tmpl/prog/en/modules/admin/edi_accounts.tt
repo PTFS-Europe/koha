@@ -135,41 +135,36 @@
      <input type="text" name="description" id="description" size="20" value="[% account.description | html %]" />
   </li>
   <li>
-     [% transport_types = [ 'FTP', 'SFTP', 'FILE' ] %]
-     <label for="transport">Transport: </label>
-     <select name="transport" title="valid types of transport are FTP and SFTP"
-      id="transport">
-      [% FOREACH transport_type IN transport_types %]
-           [% IF transport_type == account.transport %]
-              <option value="[% transport_type | html %]" selected="selected">[% transport_type | html %]</option>
-           [% ELSE %]
-              <option value="[% transport_type | html %]">[% transport_type | html %]</option>
-           [% END %]
+    <label for="download_sftp_server_id">Download FTP/SFTP server: </label>
+    <select name="download_sftp_server_id" id="download_sftp_server_id">
+        <option value="">(do not use FTP/SFTP Server)</option>
+        [% FOREACH sftp_server IN sftp_servers %]
+        [% IF account.download_sftp_server.id == sftp_server.id %]
+            <option value="[% sftp_server.id | html %]" selected="selected">
+        [% ELSE %]
+            <option value="[% sftp_server.id | html %]">
+        [% END %]
+            [% sftp_server.name | html %] ([% sftp_server.host | html %]:[% sftp_server.port | html %])
+        </option>
+        [% END %]
+    </select>
+  </li>
+  <li>
+    <label for="upload_sftp_server_id">Upload FTP/SFTP server: </label>
+    <select name="upload_sftp_server_id" id="upload_sftp_server_id">
+       <option value="">(do not use FTP/SFTP Server)</option>
+       [% FOREACH sftp_server IN sftp_servers %]
+       [% IF account.upload_sftp_server.id == sftp_server.id %]
+           <option value="[% sftp_server.id | html %]" selected="selected">
+       [% ELSE %]
+           <option value="[% sftp_server.id | html %]">
        [% END %]
-     </select>
-  </li>
-  <li>
-     <label for="host">Remote host: </label>
-     <input type="text" name="host" id="host" size="20" maxlength="40" value="[% account.host | html %]" />
-  </li>
-  <li>
-     <label for="username">Username: </label>
-     <input type="text" name="username" id="username" size="20" maxlength="40" value="[% account.username | html %]" />
-  </li>
-  <li>
-     <label for="password">Password: </label>
-     <input type="text" name="password" id="password" size="20" maxlength="40" value="[% account.password | html %]" />
-  </li>
-  <li>
-     <label for="upload_port">Upload port: </label>
-     <input type="text" name="upload_port" id="upload_port" size="20" maxlength="40" value="[% account.upload_port | html %]" />
-        <div class="hint">The upload port will default to 22 if not set.</div>
-  </li>
-  <li>
-     <label for="download_port">Download port: </label>
-     <input type="text" name="download_port" id="download_port" size="20" maxlength="40" value="[% account.download_port | html %]" />
-        <div class="hint">The download port will default to 22 if not set.</div>
-  </li>
+           [% sftp_server.name | html %] ([% sftp_server.host | html %]:[% sftp_server.port | html %])
+       </option>
+       [% END %]
+   </select>
+   <div class="hint">Configure under <a href="/cgi-bin/koha/admin/sftp_servers.pl">FTP/SFTP Servers</a></div>
+ </li>
   <li>
      <label for="download_directory">Download directory: </label>
      <input type="text" name="download_directory" id="download_directory" size="20" value="[% account.download_directory | html %]" />
@@ -313,12 +308,8 @@
        <th>ID</th>
        <th>Vendor</th>
        <th>Description</th>
-       <th>Transport</th>
-       <th>Remote host</th>
-       <th>Username</th>
-       <th>Password</th>
-       <th>Upload port</th>
-       <th>Download port</th>
+       <th>Upload FTP/SFTP server</th>
+       <th>Download FTP/SFTP server</th>
        <th>Download directory</th>
        <th>Upload directory</th>
        <th>Qualifier</th>
@@ -336,12 +327,24 @@
       <td>[% account.id | html %]</td>
       <td><a href="/cgi-bin/koha/acqui/supplier.pl?booksellerid=[% account.vendor_id | uri %]">[% account.vendor.name | html %]</a></td>
       <td>[% account.description | html %]</td>
-      <td>[% account.transport | html %]</td>
-      <td>[% account.host | html %]</td>
-      <td>[% account.username | html %]</td>
-      <td>[% IF account.password %]*****[% END %]</td>
-      <td>[% account.upload_port | html %]</td>
-      <td>[% account.download_port | html %]</td>
+      <td>
+        [% IF (account.upload_sftp_server) %]
+        <a href="/cgi-bin/koha/admin/sftp_servers.pl?op=edit_form&sftp_server_id=[% account.upload_sftp_server.id | url %]">
+            [% account.upload_sftp_server.name | html %]
+        </a>
+        [% ELSE %]
+        <em>None set</em>
+        [% END %]
+      </td>
+      <td>
+        [% IF (account.download_sftp_server) %]
+        <a href="/cgi-bin/koha/admin/sftp_servers.pl?op=edit_form&sftp_server_id=[% account.download_sftp_server.id | url %]">
+            [% account.download_sftp_server.name | html %]
+        </a>
+        [% ELSE %]
+        <em>None set</em>
+        [% END %]
+      </td>
       <td>[% account.download_directory | html %]</td>
       <td>[% account.upload_directory | html %]</td>
       <td>
@@ -405,5 +408,32 @@
 
 [% MACRO jsinclude BLOCK %]
     [% Asset.js("js/admin-menu.js") | $raw %]
+    [% IF acct_form %]
+    <script>
+        document.addEventListener("DOMContentLoaded", function(event) {
+            $('select[name="download_sftp_server_id"]').on('change', function() {
+                var parent = $('select[name="download_sftp_server_id"]');
+                var option = parent.find('option:selected').first();
+                var value  = option.val();
+                var target = $('input[name="download_directory"]');
+
+                $.get("/api/v1/config/sftp_servers/" + value, function(data, status) {
+                    if (data.download_directory) target.val(data.download_directory);
+                });
+            });
+
+            $('select[name="upload_sftp_server_id"]').on('change', function() {
+                var parent = $('select[name="upload_sftp_server_id"]');
+                var option = parent.find('option:selected').first();
+                var value  = option.val();
+                var target = $('input[name="upload_directory"]');
+
+                $.get("/api/v1/config/sftp_servers/" + value, function(data, status) {
+                    if (data.upload_directory) target.val(data.upload_directory);
+                });
+            });
+        });
+    </script>
+    [% END %]
 [% END %]
 [% INCLUDE 'intranet-bottom.inc' %]

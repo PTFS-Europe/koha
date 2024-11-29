@@ -20,7 +20,9 @@ my $account = $builder->build(
     {
         source => 'VendorEdiAccount',
         value  => {
-            description => 'test vendor', transport => 'FILE',
+            description             => 'test vendor',
+            upload_sftp_server_id   => undef,
+            download_sftp_server_id => undef,
         }
     }
 );

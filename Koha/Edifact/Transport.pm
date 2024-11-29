@@ -32,7 +32,7 @@ use Net::SFTP::Foreign;
 
 use Koha::Database;
 use Koha::DateUtils qw( dt_from_string );
-use Koha::Encryption;
+use Koha::SFTP::Servers;
 
 sub new {
     my ( $class, $account_id ) = @_;
@@ -62,33 +62,44 @@ sub download_messages {
     my ( $self, $message_type ) = @_;
     $self->{message_type} = $message_type;
 
+    my $sftp_server_id = $self->{account}->download_sftp_server_id;
+    my $sftp_server_transport;
+    $sftp_server_transport = Koha::SFTP::Servers->find($sftp_server_id)->transport
+        if ( $sftp_server_id );
+
     my @retrieved_files;
 
-    if ( $self->{account}->transport eq 'SFTP' ) {
-        @retrieved_files = $self->sftp_download();
+    if ($message_type) {
+        if ( !$sftp_server_transport ) {
+            @retrieved_files = $self->file_download();
+        } elsif ( $sftp_server_transport eq 'sftp' ) {
+            @retrieved_files = $self->sftp_download();
+        } elsif ( $sftp_server_transport eq 'ftp' ) {
+            @retrieved_files = $self->ftp_download();
+        }
     }
-    elsif ( $self->{account}->transport eq 'FILE' ) {
-        @retrieved_files = $self->file_download();
-    }
-    else {    # assume FTP
-        @retrieved_files = $self->ftp_download();
-    }
+
     return @retrieved_files;
 }
 
 sub upload_messages {
     my ( $self, @messages ) = @_;
+
+    my $sftp_server_id = $self->{account}->upload_sftp_server_id;
+    my $sftp_server_transport;
+    $sftp_server_transport = Koha::SFTP::Servers->find($sftp_server_id)->transport
+        if ( $sftp_server_id );
+
     if (@messages) {
-        if ( $self->{account}->transport eq 'SFTP' ) {
+        if ( !$sftp_server_transport ) {
+            $self->ftp_upload(@messages);
+        } elsif ( $sftp_server_transport eq 'sftp' ) {
             $self->sftp_upload(@messages);
-        }
-        elsif ( $self->{account}->transport eq 'FILE' ) {
+        } elsif ( $sftp_server_transport eq 'ftp' ) {
             $self->file_upload(@messages);
         }
-        else {    # assume FTP
-            $self->ftp_upload(@messages);
-        }
     }
+
     return;
 }
 
@@ -131,17 +142,23 @@ sub file_download {
 sub sftp_download {
     my $self = shift;
 
+    my $sftp_server_id = $self->{account}->download_sftp_server_id;
+    return
+        unless $sftp_server_id;
+    my $sftp_server = Koha::SFTP::Servers->find($sftp_server_id);
+    return
+        unless $sftp_server;
+
     my $file_ext = _get_file_ext( $self->{message_type} );
 
     # C = ready to retrieve E = Edifact
     my $msg_hash = $self->message_hash();
     my @downloaded_files;
-    my $port = $self->{account}->download_port ? $self->{account}->download_port : '22';
     my $sftp = Net::SFTP::Foreign->new(
-        host     => $self->{account}->host,
-        user     => $self->{account}->username,
-        password => Koha::Encryption->new->decrypt_hex($self->{account}->password),
-        port     => $port,
+        host     => $sftp_server->host,
+        user     => $sftp_server->user_name,
+        password => $sftp_server->plain_text_password,
+        port     => $sftp_server->port,
         timeout  => 10,
     );
     if ( $sftp->error ) {
@@ -213,24 +230,30 @@ sub ingest {
 sub ftp_download {
     my $self = shift;
 
+    my $sftp_server_id = $self->{account}->download_sftp_server_id;
+    return
+        unless $sftp_server_id;
+    my $sftp_server = Koha::SFTP::Servers->find($sftp_server_id);
+    return
+        unless $sftp_server;
+
     my $file_ext = _get_file_ext( $self->{message_type} );
 
     # C = ready to retrieve E = Edifact
 
     my $msg_hash = $self->message_hash();
     my @downloaded_files;
-    my $port = $self->{account}->download_port ? $self->{account}->download_port : '21';
     my $ftp  = Net::FTP->new(
-        $self->{account}->host,
-        Port    => $port,
+        $sftp_server->host,
+        Port    => $sftp_server->port,
         Timeout => 10,
-        Passive => 1
+        Passive => $sftp_server->passiv,
         )
         or return $self->_abort_download(
         undef,
-        "Cannot connect to $self->{account}->host: $EVAL_ERROR"
+        "Cannot connect to " . $sftp_server->host . ": " . $EVAL_ERROR
         );
-    $ftp->login( $self->{account}->username, Koha::Encryption->new->decrypt_hex($self->{account}->password) )
+    $ftp->login( $sftp_server->user_name, $sftp_server->plain_text_password )
       or return $self->_abort_download( $ftp, "Cannot login: $ftp->message()" );
     $ftp->cwd( $self->{account}->download_directory )
       or return $self->_abort_download( $ftp,
@@ -264,18 +287,25 @@ sub ftp_download {
 
 sub ftp_upload {
     my ( $self, @messages ) = @_;
-    my $port = $self->{account}->upload_port ? $self->{account}->upload_port : '21';
+
+    my $sftp_server_id = $self->{account}->upload_sftp_server_id;
+    return
+        unless $sftp_server_id;
+    my $sftp_server = Koha::SFTP::Servers->find($sftp_server_id);
+    return
+        unless $sftp_server;
+
     my $ftp  = Net::FTP->new(
-        $self->{account}->host,
-        Port    => $port,
+        $sftp_server->host,
+        Port    => $sftp_server->port,
         Timeout => 10,
-        Passive => 1
+        Passive => $sftp_server->passiv
         )
         or return $self->_abort_download(
         undef,
-        "Cannot connect to $self->{account}->host: $EVAL_ERROR"
+        "Cannot connect to " . $sftp_server->host . ": " . $EVAL_ERROR
         );
-    $ftp->login( $self->{account}->username, Koha::Encryption->new->decrypt_hex($self->{account}->password) )
+    $ftp->login( $sftp_server->user_name, $sftp_server->plain_text_password )
       or return $self->_abort_download( $ftp, "Cannot login: $ftp->message()" );
     $ftp->cwd( $self->{account}->upload_directory )
       or return $self->_abort_download( $ftp,
@@ -303,15 +333,22 @@ sub ftp_upload {
 
 sub sftp_upload {
     my ( $self, @messages ) = @_;
-    my $port = $self->{account}->upload_port ? $self->{account}->upload_port : '22';
+
+    my $sftp_server_id = $self->{account}->upload_sftp_server_id;
+    return
+        unless $sftp_server_id;
+    my $sftp_server = Koha::SFTP::Servers->find($sftp_server_id);
+    return
+        unless $sftp_server;
+
     my $sftp = Net::SFTP::Foreign->new(
-        host     => $self->{account}->host,
-        user     => $self->{account}->username,
-        password => Koha::Encryption->new->decrypt_hex($self->{account}->password),
-        port     => $port,
+        host     => $sftp_server->host,
+        user     => $sftp_server->user_name,
+        password => $sftp_server->plain_text_password,
+        port     => $sftp_server->port,
         timeout  => 10,
     );
-    $sftp->die_on_error("Cannot ssh to $self->{account}->host");
+    $sftp->die_on_error("Cannot ssh to " . $sftp_server->host);
     $sftp->setcwd( $self->{account}->upload_directory )
       or return $self->_abort_download( $sftp,
         "Cannot change remote dir : " . $sftp->error );

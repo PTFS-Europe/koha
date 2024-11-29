@@ -6629,11 +6629,8 @@ DROP TABLE IF EXISTS `vendor_edi_accounts`;
 CREATE TABLE `vendor_edi_accounts` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `description` mediumtext NOT NULL,
-  `host` varchar(40) DEFAULT NULL,
-  `username` varchar(40) DEFAULT NULL,
-  `password` mediumtext DEFAULT NULL,
-  `upload_port` int(11) DEFAULT NULL,
-  `download_port` int(11) DEFAULT NULL,
+  `download_sftp_server_id` int(11) DEFAULT NULL,
+  `upload_sftp_server_id` int(11) DEFAULT NULL,
   `last_activity` date DEFAULT NULL,
   `vendor_id` int(11) DEFAULT NULL,
   `download_directory` mediumtext DEFAULT NULL,
@@ -6641,7 +6638,6 @@ CREATE TABLE `vendor_edi_accounts` (
   `san` varchar(20) DEFAULT NULL,
   `standard` varchar(3) DEFAULT 'EUR',
   `id_code_qualifier` varchar(3) DEFAULT '14',
-  `transport` varchar(6) DEFAULT 'FTP',
   `quotes_enabled` tinyint(1) NOT NULL DEFAULT 0,
   `invoices_enabled` tinyint(1) NOT NULL DEFAULT 0,
   `orders_enabled` tinyint(1) NOT NULL DEFAULT 0,
@@ -6652,7 +6648,11 @@ CREATE TABLE `vendor_edi_accounts` (
   PRIMARY KEY (`id`),
   KEY `vendorid` (`vendor_id`),
   KEY `shipmentbudget` (`shipment_budget`),
+  KEY `vfk_download_sftp_server_id` (`download_sftp_server_id`),
+  KEY `vfk_upload_sftp_server_id` (`upload_sftp_server_id`),
+  CONSTRAINT `vfk_download_sftp_server_id` FOREIGN KEY (`download_sftp_server_id`) REFERENCES `sftp_servers` (`id`),
   CONSTRAINT `vfk_shipment_budget` FOREIGN KEY (`shipment_budget`) REFERENCES `aqbudgets` (`budget_id`),
+  CONSTRAINT `vfk_upload_sftp_server_id` FOREIGN KEY (`upload_sftp_server_id`) REFERENCES `sftp_servers` (`id`),
   CONSTRAINT `vfk_vendor_id` FOREIGN KEY (`vendor_id`) REFERENCES `aqbooksellers` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
