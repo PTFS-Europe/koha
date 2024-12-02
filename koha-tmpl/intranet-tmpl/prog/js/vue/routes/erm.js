@@ -73,7 +73,7 @@ export const routes = [
                     {
                         path: "edit/:agreement_id",
                         name: "AgreementsFormAddEdit",
-                        component: markRaw(AgreementsFormAdd),
+                        component: markRaw(ResourceWrapper),
                         title: $__("Edit agreement"),
                     },
                 ],

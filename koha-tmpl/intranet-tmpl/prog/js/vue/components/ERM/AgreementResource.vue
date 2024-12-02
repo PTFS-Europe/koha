@@ -12,7 +12,7 @@
         }"
     />
     <ResourceFormAdd
-        v-if="action === 'add'"
+        v-if="['add', 'edit'].includes(action)"
         v-bind="{
             id_attr,
             api_client,

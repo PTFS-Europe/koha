@@ -1,13 +1,13 @@
 <template>
     <div v-if="!initialized">{{ $__("Loading") }}</div>
     <div v-else id="resources_add">
-        <h2 v-if="resource.resource_id">
+        <h2 v-if="resourceToAddOrEdit.resource_id">
             {{
                 $__("Edit") +
                 " " +
                 i18n.display_name +
                 " #" +
-                resource.resource_id
+                resourceToAddOrEdit.resource_id
             }}
         </h2>
         <h2 v-else>{{ $__("New") + " " + i18n.display_name }}</h2>
@@ -22,7 +22,7 @@
                             v-bind:key="index"
                         >
                             <FormElement
-                                :resource="resource"
+                                :resource="resourceToAddOrEdit"
                                 :attr="attr"
                                 :index="index"
                             />
@@ -35,7 +35,7 @@
                     )"
                     v-bind:key="'rel-' + index"
                 >
-                    <FormElement :resource="resource" :attr="attr" />
+                    <FormElement :resource="resourceToAddOrEdit" :attr="attr" />
                 </template>
                 <fieldset class="action">
                     <ButtonSubmit />
@@ -59,6 +59,7 @@ export default {
     data() {
         return {
             initialized: false,
+            resourceToEdit: null,
         }
     },
     props: {
@@ -71,8 +72,8 @@ export default {
         onSubmit: Function,
     },
     created() {
-        if (this.$route.params.agreement_id) {
-            this.getResource(this.$route.params.agreement_id)
+        if (this.$route.params[this.id_attr]) {
+            this.getResource(this.$route.params[this.id_attr])
         } else {
             this.initialized = true
         }
@@ -81,11 +82,19 @@ export default {
         async getResource(resource_id) {
             this.api_client.get(resource_id).then(
                 resource => {
-                    this.resource = resource
+                    this.resourceToEdit = resource
                     this.initialized = true
                 },
                 error => {}
             )
+        },
+    },
+    computed: {
+        resourceToAddOrEdit() {
+            if (this.resourceToEdit) {
+                return this.resourceToEdit
+            }
+            return this.resource
         },
     },
     components: {
