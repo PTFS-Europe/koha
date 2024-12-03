@@ -39,6 +39,7 @@
             type="checkbox"
             :id="`${attr.name}${index}`"
             v-model="resource[attr.name]"
+            @change="attr.onChange && attr.onChange(resource)"
         />
         <span v-if="attr.required" class="required">{{ $__("Required") }}</span>
     </template>

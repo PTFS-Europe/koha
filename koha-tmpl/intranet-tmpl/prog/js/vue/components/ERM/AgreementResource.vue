@@ -101,39 +101,8 @@ export default {
         }
     },
     data() {
-        // FIXME: We have to define this early to get 'default_filters' to work in tableOptions
-        const tableFilters = [
-            {
-                name: "by_expired",
-                type: "checkbox",
-                label: __("Filter by expired"),
-                value: false,
-            },
-            {
-                name: "max_expiration_date",
-                type: "component",
-                label: __("on"),
-                componentPath: "./FlatPickrWrapper.vue",
-                props: {
-                    id: {
-                        type: "string",
-                        value: "max_expiration_date_filter",
-                    },
-                    disabled: {
-                        type: "resourceProperty",
-                        resourceProperty: "by_expired",
-                    },
-                },
-                value: "",
-            },
-            {
-                name: "by_mine",
-                type: "checkbox",
-                label: __("Show mine only"),
-                value: false,
-            },
-        ]
-        const defaults = this.getFilters({}, tableFilters)
+        const tableFilters = this.getTableFilters()
+        const defaults = this.getFilters(this.$route.query, tableFilters)
 
         return {
             resource_attrs: [
@@ -695,7 +664,7 @@ export default {
                 options: {
                     embed: "user_roles,vendor,extended_attributes,+strings",
                 },
-                url: () => this.tableUrl(),
+                url: () => this.tableUrl(defaults),
                 table_settings: this.agreement_table_settings,
                 add_filters: true,
                 filters_options: {
@@ -971,6 +940,49 @@ export default {
                 },
             ]
         },
+        getTableFilters() {
+            return [
+                {
+                    name: "by_expired",
+                    type: "checkbox",
+                    label: __("Filter by expired"),
+                    value: false,
+                    onChange: function (filters) {
+                        if (filters.by_expired) {
+                            filters.max_expiration_date = new Date()
+                                .toISOString()
+                                .substring(0, 10)
+                        } else {
+                            filters.max_expiration_date = ""
+                        }
+                        return filters
+                    },
+                },
+                {
+                    name: "max_expiration_date",
+                    type: "component",
+                    label: __("on"),
+                    componentPath: "./FlatPickrWrapper.vue",
+                    props: {
+                        id: {
+                            type: "string",
+                            value: "max_expiration_date_filter",
+                        },
+                        disabled: {
+                            type: "resourceProperty",
+                            resourceProperty: "by_expired",
+                        },
+                    },
+                    value: "",
+                },
+                {
+                    name: "by_mine",
+                    type: "checkbox",
+                    label: __("Show mine only"),
+                    value: false,
+                },
+            ]
+        },
         tableUrl(filters) {
             let url = this.getResourceTableUrl()
             if (filters?.by_expired)
@@ -991,7 +1003,7 @@ export default {
                 let new_route = this.build_url(href, filters)
                 this.$router.push(new_route)
             }
-            table.redraw(this.tableUrl())
+            table.redraw(this.tableUrl(filters))
         },
     },
     computed: {
