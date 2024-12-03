@@ -131,7 +131,7 @@ if ( $op eq 'connectDuplicate' ) {
 my $suggestions = [ Koha::Suggestions->search_limited(
     {
         ( $author        ? ( author        => $author )        : () ),
-        ( $title         ? ( title         => $title )         : () ),
+        ( $title         ? ( 'me.title'    => $title )         : () ),
         ( $publishercode ? ( publishercode => $publishercode ) : () ),
         STATUS => 'ACCEPTED'
     },
