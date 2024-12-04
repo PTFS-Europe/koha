@@ -119,7 +119,7 @@ export default {
     },
     beforeRouteEnter(to, from, next) {
         next(vm => {
-            vm.getVendor(to.params.vendor_id)
+            vm.getVendor(to.params.id)
         })
     },
     methods: {

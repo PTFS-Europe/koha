@@ -1,5 +1,5 @@
 <template>
-    <aside>
+    <aside v-if="leftNavigation !== 'none'">
         <div id="navmenu">
             <div id="navmenulist">
                 <VendorMenu v-if="leftNavigation === 'VendorMenu'" />
