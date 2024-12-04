@@ -12,7 +12,6 @@
             <KohaTable
                 ref="table"
                 v-bind="tableOptions"
-                @show="goToResourceShow"
                 @edit="goToResourceEdit"
                 @delete="doResourceDelete"
                 @select="doSelect"
@@ -136,10 +135,6 @@ export default {
         doReceive({ id }, dt, event) {
             event.preventDefault()
             window.open(`/cgi-bin/koha/acqui/parcels.pl?booksellerid=${id}`)
-        },
-        doSelect(vendor, dt, event) {
-            this.$emit("select-vendor", vendor.id)
-            this.$emit("close")
         },
         tableURL() {
             let url = "/api/v1/acquisitions/vendors"
