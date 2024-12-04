@@ -99,19 +99,20 @@ sub cascade_to_funds {
 
 =head3 update_ledger_total
 
-This method is triggered whenever a fund value is updated and updates the value of the relevant ledger
+This method is triggered whenever a fund value is updated and updates the value of the relevant ledger.
+It only takes into account positive allocations - the funds underneath the ledger deal with and spend/orders
 
 =cut
 
 sub update_ledger_total {
     my ( $self, $args ) = @_;
 
-    my @funds = $self->funds->as_list;
-    my $total = 0;
-
-    foreach my $fund (@funds) {
-        $total += $fund->fund_value;
+    my $allocations = $self->fund_allocations;
+    my $total       = 0;
+    foreach my $allocation ( $allocations->as_list ) {
+        $total += $allocation->allocation_amount if $allocation->allocation_amount > 0;
     }
+
     $self->ledger_value($total)->store({ no_cascade => 1 });
     return $total;
 }
