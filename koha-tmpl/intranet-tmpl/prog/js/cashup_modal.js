@@ -20,25 +20,26 @@ $(document).ready(function() {
                 tbody.empty();
                 for (out of data.summary.payout_grouped) {
                     if (out.credit_type_code == 'REFUND') {
-                        tbody.append('<tr><td>' + __x('{credit_type_description} against {debit_type_description}', { 'credit_type_description': escape_str(out.credit_type.description), 'debit_type_description': escape_str(out.related_debit.debit_type.description) }) + '</td><td>- ' + out.total.format_price() + '</td></tr>');
+                        tbody.append('<tr><td>' + __x('{credit_type_description} against {debit_type_description}', { 'credit_type_description': escape_str(out.credit_type.description), 'debit_type_description': escape_str(out.related_debit.debit_type.description) }) + '</td><td>- ' + Number(out.total).format_price() + '</td></tr>');
                     } else {
-                        tbody.append('<tr><td>' + escape_str(out.credit_type.description) + '</td><td>- ' + out.total.format_price() + '</td></tr>');
+                        tbody.append('<tr><td>' + escape_str(out.credit_type.description) + '</td><td>- ' + Number(out.total).format_price() + '</td></tr>');
                     }
                 }
 
                 for (income of data.summary.income_grouped) {
-                    tbody.append('<tr><td>' + escape_str(income.debit_type.description) + '</td><td>' + income.total.format_price() + '</td></tr>');
+                    tbody.append('<tr><td>' + escape_str(income.debit_type.description) + '</td><td>' + Number(income.total).format_price() + '</td></tr>');
                 }
 
                 var tfoot = summary_modal.find('tfoot');
                 tfoot.empty();
-                tfoot.append('<tr><td>Total</td><td>' + data.summary.total.format_price() + '</td></tr>');
+                tfoot.append('<tr><td>Total</td><td>' + Number(data.summary.total).format_price() + '</td></tr>');
                 for (type of data.summary.total_grouped) {
-                    if (type.total !== 0) {
-                        tfoot.append('<tr><td>' + escape_str(type.payment_type) + '</td><td>' + type.total.format_price() + '</td></tr>');
+                    if (type.total !== "0.00") {
+                        tfoot.append('<tr><td>' + escape_str(type.payment_type) + '</td><td>' + Number(type.total).format_price() + '</td></tr>');
                     }
                 }
             }
         });
     });
 });
+
