@@ -29,7 +29,7 @@ use Koha::Items;
 use Koha::Library;
 use Koha::Patrons;
 
-use base qw(Koha::Objects);
+use base qw(Koha::Objects::Mixin::AdditionalFields Koha::Objects);
 
 =head1 NAME
 
