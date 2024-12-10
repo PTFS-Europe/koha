@@ -23,6 +23,8 @@ use base qw(Koha::Object Koha::Object::Limit::LibraryGroup);
 use Mojo::JSON qw(decode_json);
 use JSON       qw ( encode_json );
 
+use Koha::Acquisition::FundManagement::FundAllocations;
+use Koha::Acquisition::FundManagement::SubFunds;
 
 =head1 NAME
 
@@ -82,7 +84,7 @@ sub has_sub_funds {
 
 =head3 cascade_to_fund_allocations
 
-This method cascades changes to the values of the "visible_to" and "status" properties to all fund_allocations attached to this fund
+This method cascades changes to the values of the "lib_group_visibility" and "status" properties to all fund_allocations attached to this fund
 
 =cut
 
@@ -90,12 +92,12 @@ sub cascade_to_fund_allocations {
     my ( $self, $args ) = @_;
 
     my @fund_allocations = $self->fund_allocations->as_list;
-    my $visible_to       = $self->visible_to;
+    my $lib_group_visibility       = $self->lib_group_visibility;
 
     foreach my $fund_allocation (@fund_allocations) {
         my $visibility_updated = Koha::Acquisition::FundManagement::Utils->cascade_lib_group_visibility(
             {
-                parent_visibility => $visible_to,
+                parent_visibility => $lib_group_visibility,
                 child             => $fund_allocation
             }
         );
@@ -114,7 +116,7 @@ sub cascade_to_fund_allocations {
 
 =head3 cascade_to_sub_funds
 
-This method cascades changes to the values of the "visible_to" and "status" properties to all sub_funds attached to this fund
+This method cascades changes to the values of the "lib_group_visibility" and "status" properties to all sub_funds attached to this fund
 
 =cut
 
@@ -122,13 +124,13 @@ sub cascade_to_sub_funds {
     my ( $self, $args ) = @_;
 
     my @sub_funds  = $self->sub_funds->as_list;
-    my $visible_to = $self->visible_to;
+    my $lib_group_visibility = $self->lib_group_visibility;
     my $status     = $self->status;
 
     foreach my $sub_fund (@sub_funds) {
         my $visibility_updated = Koha::Acquisition::FundManagement::Utils->cascade_lib_group_visibility(
             {
-                parent_visibility => $visible_to,
+                parent_visibility => $lib_group_visibility,
                 child             => $sub_fund
             }
         );

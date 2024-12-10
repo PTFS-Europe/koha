@@ -65,7 +65,7 @@ sub delete {
 
 =head3 cascade_to_fund_allocations
 
-This method cascades changes to the values of the "visible_to" and "status" properties to all fund_allocations attached to this ledger
+This method cascades changes to the values of the "lib_group_visibility" and "status" properties to all fund_allocations attached to this ledger
 
 =cut
 
@@ -74,13 +74,13 @@ sub cascade_to_fund_allocations {
     my ( $self, $args ) = @_;
 
     my @fund_allocations = $self->fund_allocations->as_list;
-    my $visible_to       = $self->visible_to;
+    my $lib_group_visibility       = $self->lib_group_visibility;
     my $status           = $self->status;
 
     foreach my $fund_allocation (@fund_allocations) {
         my $visibility_updated = Koha::Acquisition::FundManagement::Utils->cascade_lib_group_visibility(
             {
-                parent_visibility => $visible_to,
+                parent_visibility => $lib_group_visibility,
                 child             => $fund_allocation
             }
         );

@@ -65,7 +65,7 @@ sub delete {
 
 =head3 cascade_to_ledgers
 
-This method cascades changes to the values of the "visible_to" and "status" properties to all ledgers attached to this fiscal period
+This method cascades changes to the values of the "lib_group_visibility" and "status" properties to all ledgers attached to this fiscal period
 
 =cut
 
@@ -73,7 +73,7 @@ sub cascade_to_ledgers {
     my ( $self, $args ) = @_;
 
     my @ledgers    = $self->ledgers->as_list;
-    my $visible_to = $self->visible_to;
+    my $lib_group_visibility = $self->lib_group_visibility;
     my $status     = $self->status;
 
     foreach my $ledger (@ledgers) {
@@ -85,7 +85,7 @@ sub cascade_to_ledgers {
         );
         my $visibility_updated = Koha::Acquisition::FundManagement::Utils->cascade_lib_group_visibility(
             {
-                parent_visibility => $visible_to,
+                parent_visibility => $lib_group_visibility,
                 child             => $ledger
             }
         );
