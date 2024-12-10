@@ -104,6 +104,14 @@ currency of the fund allocation
 
 owner of the fund allocation
 
+=head2 type
+
+  data_type: 'enum'
+  extra: {list => ["ordered","spent"]}
+  is_nullable: 1
+
+type of the fund allocation
+
 =head2 is_transfer
 
   data_type: 'tinyint'
@@ -158,6 +166,12 @@ __PACKAGE__->add_columns(
   { data_type => "varchar", default_value => "", is_nullable => 1, size => 10 },
   "owner_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
+  "type",
+  {
+    data_type => "enum",
+    extra => { list => ["ordered", "spent"] },
+    is_nullable => 1,
+  },
   "is_transfer",
   { data_type => "tinyint", default_value => 0, is_nullable => 1 },
   "last_updated",
@@ -286,8 +300,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-11-20 14:37:31
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:KC3yQHE32XPTWHR6PZZeVg
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-12-10 15:03:48
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:yZfy+ILxCL9X1vmBPRhd7w
 
 __PACKAGE__->add_columns(
     '+is_transfer' => { is_boolean => 1 },
