@@ -245,7 +245,7 @@ sub transfer {
                         note              => $note_from,
                         currency          => $fund_transferring_from->currency,
                         owner             => $fund_transferring_from->owner,
-                        visible_to        => $fund_transferring_from->visible_to,
+                        lib_group_visibility        => $fund_transferring_from->lib_group_visibility,
                         is_transfer       => 1
                     }
                 )->store();
@@ -260,7 +260,7 @@ sub transfer {
                         note              => $note_to,
                         currency          => $fund_transferring_to->currency,
                         owner             => $fund_transferring_to->owner,
-                        visible_to        => $fund_transferring_to->visible_to,
+                        lib_group_visibility        => $fund_transferring_to->lib_group_visibility,
                         is_transfer       => 1
                     }
                 )->store();

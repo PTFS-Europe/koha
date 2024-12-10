@@ -37,8 +37,8 @@ sub cascade_lib_group_visibility {
     my $child             = $args->{child};
     my $change_detected;
 
-    if ( $child->visible_to ne $parent_visibility ) {
-        my @child_groups     = split( /\|/, $child->visible_to );
+    if ( $child->lib_group_visibility ne $parent_visibility ) {
+        my @child_groups     = split( /\|/, $child->lib_group_visibility );
         my @parent_groups    = split( /\|/, $parent_visibility );
         my @groups_to_keep   = ();
         my @groups_to_delete = ();
@@ -53,7 +53,7 @@ sub cascade_lib_group_visibility {
         } else {
             my $new_visibility = scalar(@groups_to_keep) > 0 ? join( "|", @groups_to_keep ) : "";
             $change_detected = 1;
-            $child->visible_to($new_visibility);
+            $child->lib_group_visibility($new_visibility);
         }
     }
     return $change_detected;
