@@ -1,3 +1,6 @@
+[% USE KohaPlugins %]
+[% SET CoverImagePlugins = KohaPlugins.get_plugins_opac_cover_images %]
+
 [% BLOCK shelfbrowser %]
     [% IF OpenOPACShelfBrowser %]
         <div id="shelfbrowser">
@@ -28,7 +31,7 @@
                                 [% img_title = item.biblionumber %]
                             [% END %]
 
-                            [% IF ( OPACLocalCoverImages || OPACAmazonCoverImages || ( SyndeticsEnabled && SyndeticsCoverImages ) || GoogleJackets || BakerTaylorEnabled || ( Koha.Preference('OpacCoce') && Koha.Preference('CoceProviders') ) || ( Koha.Preference('OPACCustomCoverImages') AND Koha.Preference('CustomCoverImagesURL') ) ) %]
+                            [% IF ( CoverImagePlugins || OPACLocalCoverImages || OPACAmazonCoverImages || ( SyndeticsEnabled && SyndeticsCoverImages ) || GoogleJackets || BakerTaylorEnabled || ( Koha.Preference('OpacCoce') && Koha.Preference('CoceProviders') ) || ( Koha.Preference('OPACCustomCoverImages') AND Koha.Preference('CustomCoverImagesURL') ) ) %]
                                 <a class="shelfbrowser_cover" href="/cgi-bin/koha/opac-detail.pl?biblionumber=[% item.biblionumber | uri %]&amp;shelfbrowse_itemnumber=[% item.itemnumber | uri %]#shelfbrowser" data-isbn="[% item.browser_normalized_isbn | html%]">
                                     [% IF ( OPACLocalCoverImages ) %]
                                         <div title="[% img_title | html %]" class="[% item.biblionumber | html %] thumbnail-shelfbrowser" id="local-thumbnail-shelf-[% item.biblionumber | html %]"></div>
