@@ -42,6 +42,11 @@ properties:
       - string
       - "null"
     description: Fund currency
+  type:
+    type:
+      - string
+      - "null"
+    description: Type of the allocation
   is_transfer:
     description: is the allocation a transfer
     type: boolean

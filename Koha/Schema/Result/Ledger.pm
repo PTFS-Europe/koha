@@ -115,6 +115,15 @@ owner of the ledger
 
 library groups the ledger is visible to
 
+=head2 spend_limit
+
+  data_type: 'decimal'
+  default_value: 0.000000
+  is_nullable: 1
+  size: [28,6]
+
+spend limit for the ledger
+
 =head2 ledger_value
 
   data_type: 'decimal'
@@ -206,6 +215,13 @@ __PACKAGE__->add_columns(
   { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
   "lib_group_visibility",
   { data_type => "varchar", default_value => "", is_nullable => 1, size => 255 },
+  "spend_limit",
+  {
+    data_type => "decimal",
+    default_value => "0.000000",
+    is_nullable => 1,
+    size => [28, 6],
+  },
   "ledger_value",
   {
     data_type => "decimal",
@@ -347,8 +363,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-11-20 14:37:31
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Xf2tWTl93Ag8eghD5/53Vg
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-12-10 15:03:49
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:z6my78OlTRQkqShyBEh8Ng
 
 __PACKAGE__->add_columns(
     '+status'                   => { is_boolean => 1 },
