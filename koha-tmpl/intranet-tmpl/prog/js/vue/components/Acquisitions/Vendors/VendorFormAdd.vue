@@ -43,8 +43,8 @@ import { inject } from "vue"
 
 export default {
     setup() {
-        const vendorStore = inject("vendorStore")
-        const { formatLibraryGroupIds } = vendorStore
+        const acquisitionsStore = inject("acquisitionsStore")
+        const { formatLibraryGroupIds } = acquisitionsStore
 
         return {
             formatLibraryGroupIds,

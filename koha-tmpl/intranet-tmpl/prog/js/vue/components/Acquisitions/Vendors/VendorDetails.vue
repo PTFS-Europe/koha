@@ -238,9 +238,9 @@ export default {
     setup() {
         const AVStore = inject("AVStore")
         const { get_lib_from_av, av_vendor_types, av_lang } = AVStore
-        const vendorStore = inject("vendorStore")
-        const { formatLibraryGroupIds } = vendorStore
-        const { getVisibleGroups } = storeToRefs(vendorStore)
+        const acquisitionsStore = inject("acquisitionsStore")
+        const { getVisibleGroups } = storeToRefs(acquisitionsStore)
+        const { formatLibraryGroupIds } = acquisitionsStore
         return {
             get_lib_from_av,
             av_vendor_types,
