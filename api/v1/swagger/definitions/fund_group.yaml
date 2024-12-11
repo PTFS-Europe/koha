@@ -42,4 +42,7 @@ properties:
     description: Owner of the ledger
     items:
       $ref: "patron.yaml"
+  lib_group_limits:
+    type: array
+    description: Library groups this vendor belongs to
 additionalProperties: false

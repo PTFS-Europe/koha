@@ -141,6 +141,7 @@
           - sub_funds.fund_allocations
           - fund_allocations
           - owner
+          - lib_group_limits
         collectionFormat: csv
     produces:
       - application/json

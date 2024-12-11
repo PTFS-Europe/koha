@@ -116,7 +116,9 @@ export default {
         async getFiscalPeriod(fiscal_period_id) {
             const client = APIClient.acquisition
             await client.fiscalPeriods
-                .get(fiscal_period_id, { "x-koha-embed": "owner" })
+                .get(fiscal_period_id, {
+                    "x-koha-embed": "owner,lib_group_limits",
+                })
                 .then(
                     fiscal_period => {
                         this.fiscal_period = fiscal_period
