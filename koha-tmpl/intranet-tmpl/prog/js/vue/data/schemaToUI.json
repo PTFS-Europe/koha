@@ -1,0 +1,344 @@
+{
+    "task": {
+        "short_name": {
+            "label": "Task name",
+            "type": "string"
+        },
+        "module": {
+            "label": "Module",
+            "type": "string"
+        },
+        "description": {
+            "label": "Description",
+            "type": "string"
+        },
+        "created_on": {
+            "label": "Date created",
+            "type": "string"
+        },
+        "created_by": {
+            "label": "Requestor",
+            "type": "creator"
+        },
+        "end_date": {
+            "label": "Target close date",
+            "type": "string"
+        },
+        "owner": {
+            "label": "Owner",
+            "type": "owner"
+        },
+        "status": {
+            "label": "Status",
+            "type": "enum",
+            "options": {
+                "assigned": "Assigned",
+                "complete": "Complete",
+                "cancelled": "Cancelled",
+                "on_hold": "On hold"
+            }
+        },
+        "closed_on": {
+            "label": "Date closed",
+            "type": "string"
+        }
+    },
+    "fiscalPeriod": {
+        "code": {
+            "label": "Code",
+            "type": "string"
+        },
+        "description": {
+            "label": "Description",
+            "type": "string"
+        },
+        "start_date": {
+            "label": "Start date",
+            "type": "string"
+        },
+        "end_date": {
+            "label": "End date",
+            "type": "string"
+        },
+        "owner": {
+            "label": "Owner",
+            "type": "owner"
+        },
+        "lib_group_visibility": {
+            "label": "Library groups covered",
+            "type": "table",
+            "dataType": "lib_groups",
+            "columns": [
+                "ID",
+                "Title"
+            ],
+            "keys": [
+                "id",
+                "title"
+            ]
+        },
+        "status": {
+            "label": "Status",
+            "type": "enum",
+            "options": { "1": "Active", "0": "Inactive" }
+        },
+        "last_updated": {
+            "label": "Last updated",
+            "type": "timestamp"
+        }
+    },
+    "ledger": {
+        "name": {
+            "label": "Name",
+            "type": "string"
+        },
+        "description": {
+            "label": "Description",
+            "type": "string"
+        },
+        "code": {
+            "label": "Code",
+            "type": "string"
+        },
+        "fiscal_period_id": {
+            "label": "Fiscal period",
+            "type": "link",
+            "dataType": "fiscal_period",
+            "linkId": "fiscal_period_id",
+            "linkSlug": "fiscal_period",
+            "linkName": "code"
+        },
+        "owner": {
+            "label": "Owner",
+            "type": "owner"
+        },
+        "lib_group_visibility": {
+            "label": "Library groups covered",
+            "type": "table",
+            "dataType": "lib_groups",
+            "columns": [
+                "ID",
+                "Title"
+            ],
+            "keys": [
+                "id",
+                "title"
+            ]
+        },
+        "status": {
+            "label": "Status",
+            "type": "enum",
+            "options": { "1": "Active", "0": "Inactive" }
+        },
+        "last_updated": {
+            "label": "Last updated",
+            "type": "timestamp"
+        },
+        "currency": {
+            "label": "Currency",
+            "type": "string"
+        },
+        "external_id": {
+            "label": "External ID",
+            "type": "string"
+        },
+        "over_spend_allowed": {
+            "label": "Overspend allowed",
+            "type": "enum",
+            "options": { "1": "Allowed", "0": "Not allowed" }
+        },
+        "over_encumbrance_allowed": {
+            "label": "Overencumbrance allowed",
+            "type": "enum",
+            "options": { "1": "Allowed", "0": "Not allowed" }
+        },
+        "oe_warning_percent": {
+            "label": "Overencumbrance warning percentage",
+            "type": "percentage"
+        },
+        "oe_limit_amount": {
+            "label": "Overencumbrance limit amount",
+            "type": "number"
+        },
+        "os_warning_sum": {
+            "label": "Overspend warning amount",
+            "type": "number"
+        },
+        "os_limit_sum": {
+            "label": "Overspend limit amount",
+            "type": "number"
+        }
+    },
+    "fund": {
+        "name": {
+            "label": "Name",
+            "type": "string"
+        },
+        "description": {
+            "label": "Description",
+            "type": "string"
+        },
+        "code": {
+            "label": "Code",
+            "type": "string"
+        },
+        "fiscal_period_id": {
+            "label": "Fiscal period",
+            "type": "link",
+            "dataType": "fiscal_period",
+            "linkId": "fiscal_period_id",
+            "linkSlug": "fiscal_period",
+            "linkName": "code"
+        },
+        "ledger_id": {
+            "label": "Ledger",
+            "type": "link",
+            "dataType": "ledger",
+            "linkId": "ledger_id",
+            "linkSlug": "ledger",
+            "linkName": "name"
+        },
+        "owner": {
+            "label": "Owner",
+            "type": "owner"
+        },
+        "lib_group_visibility": {
+            "label": "Library groups covered",
+            "type": "table",
+            "dataType": "lib_groups",
+            "columns": [
+                "ID",
+                "Title"
+            ],
+            "keys": [
+                "id",
+                "title"
+            ]
+        },
+        "status": {
+            "label": "Status",
+            "type": "enum",
+            "options": { "1": "Active", "0": "Inactive" }
+        },
+        "last_updated": {
+            "label": "Last updated",
+            "type": "timestamp"
+        },
+        "currency": {
+            "label": "Currency",
+            "type": "string"
+        },
+        "external_id": {
+            "label": "External ID",
+            "type": "string"
+        },
+        "fund_group": {
+            "label": "Fund group",
+            "type": "link",
+            "dataType": "fund_group",
+            "linkId": "fund_group_id",
+            "linkSlug": "fund_group",
+            "linkName": "name"
+        },
+        "fund_type": {
+            "label": "Fund type",
+            "type": "av",
+            "av_type": "acquire_fund_types"
+        }
+    },
+    "subFund": {
+        "name": {
+            "label": "Name",
+            "type": "string"
+        },
+        "description": {
+            "label": "Description",
+            "type": "string"
+        },
+        "code": {
+            "label": "Code",
+            "type": "string"
+        },
+        "fiscal_period_id": {
+            "label": "Fiscal period",
+            "type": "link",
+            "dataType": "fiscal_period",
+            "linkId": "fiscal_period_id",
+            "linkSlug": "fiscal_period",
+            "linkName": "code"
+        },
+        "ledger_id": {
+            "label": "Ledger",
+            "type": "link",
+            "dataType": "ledger",
+            "linkId": "ledger_id",
+            "linkSlug": "ledger",
+            "linkName": "name"
+        },
+        "fund_id": {
+            "label": "Parent fund",
+            "type": "link",
+            "dataType": "fund",
+            "linkId": "fund_id",
+            "linkSlug": "fund",
+            "linkName": "name"
+        },
+        "owner": {
+            "label": "Owner",
+            "type": "owner"
+        },
+        "lib_group_visibility": {
+            "label": "Library groups covered",
+            "type": "table",
+            "dataType": "lib_groups",
+            "columns": [
+                "ID",
+                "Title"
+            ],
+            "keys": [
+                "id",
+                "title"
+            ]
+        },
+        "status": {
+            "label": "Status",
+            "type": "enum",
+            "options": { "1": "Active", "0": "Inactive" }
+        },
+        "last_updated": {
+            "label": "Last updated",
+            "type": "timestamp"
+        },
+        "currency": {
+            "label": "Currency",
+            "type": "string"
+        },
+        "external_id": {
+            "label": "External ID",
+            "type": "string"
+        }
+    },
+    "fundGroup": {
+        "name": {
+            "label": "Name",
+            "type": "string"
+        },
+        "currency": {
+            "label": "Currency",
+            "type": "string"
+        },
+        "lib_group_visibility": {
+            "label": "Library groups covered",
+            "type": "table",
+            "dataType": "lib_groups",
+            "columns": [
+                "ID",
+                "Title"
+            ],
+            "keys": [
+                "id",
+                "title"
+            ]
+        }
+    }
+}
