@@ -62,7 +62,7 @@ sub get {
 
     return try {
         my $sub_funds_set = Koha::Acquisition::FundManagement::SubFunds->new;
-        my $sub_fund      = $c->objects->find( $sub_funds_set, $c->param('id') );
+        my $sub_fund      = $c->objects->find( $sub_funds_set, $c->param('sub_fund_id') );
 
         unless ($sub_fund) {
             return $c->render(
@@ -119,7 +119,7 @@ Controller function that handles updating a Koha::Acquisition::FundManagement::S
 sub update {
     my $c = shift->openapi->valid_input or return;
 
-    my $sub_fund = Koha::Acquisition::FundManagement::SubFunds->find( $c->param('id') );
+    my $sub_fund = Koha::Acquisition::FundManagement::SubFunds->find( $c->param('sub_fund_id') );
 
     unless ($sub_fund) {
         return $c->render(
@@ -179,7 +179,7 @@ sub update {
 sub delete {
     my $c = shift->openapi->valid_input or return;
 
-    my $sub_fund = Koha::Acquisition::FundManagement::SubFunds->find( $c->param('id') );
+    my $sub_fund = Koha::Acquisition::FundManagement::SubFunds->find( $c->param('sub_fund_id') );
     unless ($sub_fund) {
         return $c->render(
             status  => 404,

@@ -63,7 +63,7 @@ sub get {
 
     return try {
         my $fund_allocations_set = Koha::Acquisition::FundManagement::FundAllocations->new;
-        my $fund_allocation      = $c->objects->find( $fund_allocations_set, $c->param('id') );
+        my $fund_allocation      = $c->objects->find( $fund_allocations_set, $c->param('fund_allocation_id') );
 
         unless ($fund_allocation) {
             return $c->render(
@@ -118,7 +118,7 @@ Controller function that handles updating a Koha::Acquisition::FundManagement::F
 sub update {
     my $c = shift->openapi->valid_input or return;
 
-    my $fund_allocation = Koha::Acquisition::FundManagement::FundAllocations->find( $c->param('id') );
+    my $fund_allocation = Koha::Acquisition::FundManagement::FundAllocations->find( $c->param('fund_allocation_id') );
 
     unless ($fund_allocation) {
         return $c->render(
@@ -179,7 +179,7 @@ sub update {
 sub delete {
     my $c = shift->openapi->valid_input or return;
 
-    my $fund_allocation = Koha::Acquisition::FundManagement::FundAllocations->find( $c->param('id') );
+    my $fund_allocation = Koha::Acquisition::FundManagement::FundAllocations->find( $c->param('fund_allocation_id') );
     unless ($fund_allocation) {
         return $c->render(
             status  => 404,

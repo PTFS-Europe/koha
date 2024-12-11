@@ -149,7 +149,7 @@
               type: string
     x-koha-authorization:
       permissions: {}
-/acquisitions/fund_allocations/{id}:
+/acquisitions/fund_allocations/{fund_allocation_id}:
   get:
     x-mojo-to: Acquisitions::FundManagement::FundAllocations#get
     operationId: getFundAllocation

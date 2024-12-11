@@ -207,24 +207,38 @@ paths:
     $ref: ./paths/acquisitions_edifiles.yaml#/~1acquisitions~1edifiles
   /acquisitions/fiscal_periods:
     $ref: ./paths/fiscal_periods.yaml#/~1acquisitions~1fiscal_periods
+  "/acquisitions/fiscal_periods/{fiscal_period_id}":
+    $ref: ./paths/fiscal_periods.yaml#/~1acquisitions~1fiscal_periods~1{fiscal_period_id}
   /acquisitions/funds:
     $ref: ./paths/funds.yaml#/~1acquisitions~1funds
+  "/acquisitions/funds/{fund_id}":
+    $ref: ./paths/funds.yaml#/~1acquisitions~1funds~1{fund_id}
   /acquisitions/funds/owners:
     $ref: ./paths/acquisitions_funds.yaml#/~1acquisitions~1funds~1owners
   /acquisitions/funds/users:
     $ref: ./paths/acquisitions_funds.yaml#/~1acquisitions~1funds~1users
   /acquisitions/fund_allocations:
     $ref: ./paths/fund_allocations.yaml#/~1acquisitions~1fund_allocations
+  /acquisitions/fund_allocations/transfer:
+    $ref: ./paths/fund_allocations.yaml#/~1acquisitions~1fund_allocations~1transfer
+  "/acquisitions/fund_allocations/{fund_allocation_id}":
+    $ref: ./paths/fund_allocations.yaml#/~1acquisitions~1fund_allocations~1{fund_allocation_id}
   /acquisitions/fund_groups:
     $ref: ./paths/fund_groups.yaml#/~1acquisitions~1fund_groups
+  "/acquisitions/fund_groups/{fund_group_id}":
+    $ref: ./paths/fund_groups.yaml#/~1acquisitions~1fund_groups~1{fund_group_id}
   /acquisitions/ledgers:
     $ref: ./paths/ledgers.yaml#/~1acquisitions~1ledgers
+  "/acquisitions/ledgers/{ledger_id}":
+    $ref: ./paths/ledgers.yaml#/~1acquisitions~1ledgers~1{ledger_id}
   /acquisitions/orders:
     $ref: ./paths/acquisitions_orders.yaml#/~1acquisitions~1orders
   "/acquisitions/orders/{order_id}":
     $ref: "./paths/acquisitions_orders.yaml#/~1acquisitions~1orders~1{order_id}"
   /acquisitions/sub_funds:
     $ref: ./paths/sub_funds.yaml#/~1acquisitions~1sub_funds
+  "/acquisitions/sub_funds/{sub_fund_id}":
+    $ref: ./paths/sub_funds.yaml#/~1acquisitions~1sub_funds~1{sub_fund_id}
   /acquisitions/vendors:
     $ref: ./paths/acquisitions_vendors.yaml#/~1acquisitions~1vendors
   "/acquisitions/vendors/{vendor_id}":

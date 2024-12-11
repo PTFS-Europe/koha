@@ -73,7 +73,7 @@ properties:
     type: boolean
   oe_warning_percent:
     type:
-      - integer
+      - number
       - "null"
     description: Over encumbrance warning percentage
   oe_limit_amount:
@@ -91,4 +91,19 @@ properties:
       - integer
       - "null"
     description: Over spend limit sum
+  fiscal_period:
+    type: object
+    description: Fiscal period
+    items:
+      $ref: "fiscal_period.yaml"
+  funds:
+    type: array
+    description: List of funds
+    items:
+      $ref: "fund.yaml"
+  owner:
+    type: object
+    description: Owner of the ledger
+    items:
+      $ref: "patron.yaml"
 additionalProperties: false
