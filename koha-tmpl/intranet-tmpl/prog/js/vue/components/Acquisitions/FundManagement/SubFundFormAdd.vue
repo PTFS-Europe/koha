@@ -137,8 +137,8 @@ export default {
         return {
             initialized: false,
             statusOptions: [
-                { description: this.$__("Active"), value: 1 },
-                { description: this.$__("Inactive"), value: 0 },
+                { description: this.$__("Active"), value: true },
+                { description: this.$__("Inactive"), value: false },
             ],
             sub_fund: {
                 fiscal_period_id: null,

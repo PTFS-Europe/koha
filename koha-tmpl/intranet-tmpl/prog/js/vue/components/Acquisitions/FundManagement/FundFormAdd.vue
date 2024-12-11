@@ -258,12 +258,12 @@ export default {
         return {
             initialized: false,
             statusOptions: [
-                { description: this.$__("Active"), value: 1 },
-                { description: this.$__("Inactive"), value: 0 },
+                { description: this.$__("Active"), value: true },
+                { description: this.$__("Inactive"), value: false },
             ],
             allowedOptions: [
-                { description: this.$__("Allowed"), value: 1 },
-                { description: this.$__("Not allowed"), value: 0 },
+                { description: this.$__("Allowed"), value: true },
+                { description: this.$__("Not allowed"), value: false },
             ],
             fund: {
                 fiscal_period_id: null,
@@ -407,7 +407,7 @@ export default {
             const fund_id = fund.fund_id
 
             const visibility = fund.lib_group_visibility.join("|")
-            fund.lib_group_visibility = visibility
+            fund.lib_group_visibility = visibility || null
 
             delete fund.fund_id
 

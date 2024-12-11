@@ -32,7 +32,7 @@
         const logged_in_user = [% To.json(logged_in_user.unblessed) | $raw %];
         const logged_in_branch = [% To.json(logged_in_branch) | $raw %];
         const userflags = [% To.json(userflags) | $raw %];
-        const library_groups = [% To.json(library_groups) | $raw %];
+        // const library_groups = [% To.json(library_groups) | $raw %];
         const currencies = [% To.json(currencies) | $raw %];
         const permitted_patrons = [% To.json(permitted_patrons) | $raw %];
 

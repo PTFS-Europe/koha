@@ -233,8 +233,8 @@ export default {
                 ledger_id: null,
             },
             statusOptions: [
-                { description: this.$__("Active"), value: 1 },
-                { description: this.$__("Inactive"), value: 0 },
+                { description: this.$__("Active"), value: true },
+                { description: this.$__("Inactive"), value: false },
             ],
             fundGroups: [],
             initialized: false,

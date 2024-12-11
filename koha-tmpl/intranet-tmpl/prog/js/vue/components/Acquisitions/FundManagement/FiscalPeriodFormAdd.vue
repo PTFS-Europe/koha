@@ -87,6 +87,18 @@
                             />
                         </li>
                         <li>
+                            <label for="fiscal_period_spend_limit"
+                                >{{ $__("Spend limit") }}:</label
+                            >
+                            <input
+                                id="fiscal_period_spend_limit"
+                                v-model="fiscal_period.spend_limit"
+                                placeholder="The spending limit for the fiscal period"
+                                type="number"
+                                step=".01"
+                            />
+                        </li>
+                        <li>
                             <label for="fiscal_period_owner" class="required"
                                 >{{ $__("Owner") }}:</label
                             >
@@ -201,8 +213,8 @@ export default {
             initialized: false,
             fp_config: flatpickr_defaults,
             statusOptions: [
-                { description: this.$__("Active"), value: 1 },
-                { description: this.$__("Inactive"), value: 0 },
+                { description: this.$__("Active"), value: true },
+                { description: this.$__("Inactive"), value: false },
             ],
             fiscal_period: {
                 fiscal_period_id: null,
@@ -213,6 +225,7 @@ export default {
                 lib_group_visibility: [],
                 start_date: undefined,
                 end_date: undefined,
+                spend_limit: 0,
             },
         }
     },
@@ -253,7 +266,7 @@ export default {
             const fiscal_period_id = fiscal_period.fiscal_period_id
 
             const visibility = fiscal_period.lib_group_visibility.join("|")
-            fiscal_period.lib_group_visibility = visibility
+            fiscal_period.lib_group_visibility = visibility || null
 
             delete fiscal_period.fiscal_period_id
 
