@@ -67,7 +67,7 @@ sub define_library_group_limits {
 
     my $where = {
         '-or' => [
-            { "$visibility_column" => undef },
+            { "me.$visibility_column" => undef },
         ]
     };
 
@@ -79,7 +79,7 @@ sub define_library_group_limits {
     foreach my $library_group (@library_groups) {
         my $group_id = $library_group->id;
         my $query    = {};
-        $query->{"$visibility_column"} = { "-like" => "%|$group_id|%" };
+        $query->{"me.$visibility_column"} = { "-like" => "%|$group_id|%" };
         push( @{ $where->{'-or'} }, $query );
 
         _handle_parent_groups(
@@ -130,7 +130,7 @@ sub _handle_parent_groups {
         my $parent_query = {};
         my $parent_id    = $parent->id;
         push( @$parent_ids, $parent_id );
-        $parent_query->{"$visibility_column"} = { "-like" => "%|$parent_id|%" };
+        $parent_query->{"me.$visibility_column"} = { "-like" => "%|$parent_id|%" };
         push( @{ $where->{'-or'} }, $parent_query );
         _handle_parent_groups(
             {

@@ -20,10 +20,11 @@ package Koha::Acquisition::FundManagement::SubFund;
 use Modern::Perl;
 use base qw(Koha::Acquisition::FundManagement::Funds);
 
-
-use Mojo::JSON qw(decode_json);
-use JSON       qw ( encode_json );
-
+use Koha::Acquisition::FundManagement::FiscalPeriod;
+use Koha::Acquisition::FundManagement::Ledger;
+use Koha::Acquisition::FundManagement::Fund;
+use Koha::Acquisition::FundManagement::FundAllocations;
+use Koha::Patron;
 
 =head1 NAME
 
