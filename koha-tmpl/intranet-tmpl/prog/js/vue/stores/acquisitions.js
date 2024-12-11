@@ -18,7 +18,7 @@ export const useAcquisitionsStore = defineStore("acquisitions", {
             funds: { name: "Funds and ledgers", code: "funds" },
         },
         permissionsMatrix: permissionsMatrix,
-        currencies: null,
+        currencies: [],
     }),
     actions: {
         determineBranch(code) {
@@ -46,8 +46,8 @@ export const useAcquisitionsStore = defineStore("acquisitions", {
                     matched = true;
                 }
             }
-            if (group.sub_groups && group.sub_groups.length) {
-                group.sub_groups.forEach(grp => {
+            if (group.subGroups && group.subGroups.length) {
+                group.subGroups.forEach(grp => {
                     const result = this._mapSubGroups(
                         grp,
                         filteredGroups,
@@ -62,6 +62,9 @@ export const useAcquisitionsStore = defineStore("acquisitions", {
         filterLibGroupsByUsersBranchcode(branchcode, groupsToCheck) {
             const branch = this.determineBranch(branchcode);
             const filteredGroups = {};
+            if (!this.libraryGroups || !this.libraryGroups.length) {
+                return [];
+            }
             this.libraryGroups.forEach(group => {
                 const matched = this._mapSubGroups(
                     group,
@@ -234,10 +237,15 @@ export const useAcquisitionsStore = defineStore("acquisitions", {
             return settingsObject;
         },
         formatLibraryGroupIds(ids) {
+            if (!ids) {
+                return [];
+            }
             const groups = ids.includes("|") ? ids.split("|") : [ids];
-            const groupIds = groups.map(group => {
-                return parseInt(group);
-            });
+            const groupIds = groups
+                .filter(group => !!group)
+                .map(group => {
+                    return parseInt(group);
+                });
             return groupIds;
         },
         formatValueWithCurrency(currency, value) {
@@ -252,6 +260,55 @@ export const useAcquisitionsStore = defineStore("acquisitions", {
             }
             return `${symbol}${value}`;
         },
+        setLibraryGroups(groups) {
+            if (!groups?.length) {
+                return;
+            }
+            const topLevelGroups = groups.filter(
+                group => !group.parent_id && group.ft_acquisitions
+            );
+            if (!topLevelGroups?.length) {
+                return;
+            }
+            this.libraryGroups = topLevelGroups.map(group => {
+                return this._mapLibraryGroup(group, groups);
+            });
+        },
+        _mapLibraryGroup(group, groups) {
+            const groupInfo = {
+                id: group.id,
+                title: group.title,
+                libraries: [],
+                subGroups: [],
+            };
+            const libsOrSubGroups = groups.filter(
+                grp => grp.parent_id == group.id
+            );
+            libsOrSubGroups.forEach(libOrSubGroup => {
+                if (libOrSubGroup.branchcode) {
+                    groupInfo.libraries.push(libOrSubGroup);
+                } else {
+                    const subGroupInfo = this._mapLibraryGroup(
+                        libOrSubGroup,
+                        groups,
+                        true
+                    );
+                    groupInfo.subGroups.push(subGroupInfo);
+                }
+            });
+            groupInfo.subGroups.forEach(subGroup => {
+                subGroup.libraries.forEach(lib => {
+                    if (
+                        !groupInfo.libraries.find(
+                            g => g.branchcode === lib.branchcode
+                        )
+                    ) {
+                        groupInfo.libraries.push(lib);
+                    }
+                });
+            });
+            return groupInfo;
+        },
     },
     getters: {
         modulesEnabled() {
@@ -259,7 +316,9 @@ export const useAcquisitionsStore = defineStore("acquisitions", {
             return modulesEnabled.value ? modulesEnabled.value : "";
         },
         getVisibleGroups() {
-            return this.visibleGroups;
+            return this.visibleGroups?.length
+                ? this.visibleGroups
+                : this.filterLibGroupsByUsersBranchcode();
         },
         getOwners() {
             return this.owners;

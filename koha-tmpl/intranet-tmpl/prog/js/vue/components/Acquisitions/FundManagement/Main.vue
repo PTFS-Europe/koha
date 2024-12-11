@@ -55,6 +55,7 @@ export default {
             filterUsersByPermissions,
             filterLibGroupsByUsersBranchcode,
             convertSettingsToObject,
+            setLibraryGroups,
         } = acquisitionsStore
         const {
             user,
@@ -83,6 +84,7 @@ export default {
             convertSettingsToObject,
             AVStore,
             currencies,
+            setLibraryGroups,
         }
     },
     data() {
@@ -93,6 +95,14 @@ export default {
     },
     beforeCreate() {
         this.loading()
+
+        const libraryClient = APIClient.libraries
+        libraryClient.libraryGroups.getAll().then(
+            libraryGroups => {
+                this.setLibraryGroups(libraryGroups)
+            },
+            error => {}
+        )
 
         const fetch_config = async () => {
             const authorised_values = {
@@ -124,7 +134,7 @@ export default {
                     this.user.loggedInUser.loggedInBranch =
                         logged_in_branch.branchcode
                     this.user.userflags = userflags
-                    this.libraryGroups = library_groups
+                    // this.libraryGroups = library_groups
                     this.currencies = currencies
                     const { acquisition, superlibrarian } = this.user.userflags
                     if (!acquisition && !superlibrarian) {

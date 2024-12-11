@@ -125,6 +125,18 @@
                             <span class="required">{{ $__("Required") }}</span>
                         </li>
                         <li>
+                            <label for="ledger_spend_limit"
+                                >{{ $__("Spend limit") }}:</label
+                            >
+                            <input
+                                id="ledger_spend_limit"
+                                v-model="ledger.spend_limit"
+                                placeholder="The spending limit for the ledger"
+                                type="number"
+                                step=".01"
+                            />
+                        </li>
+                        <li>
                             <label for="ledger_owner" class="required"
                                 >{{ $__("Owner") }}:</label
                             >
@@ -345,12 +357,12 @@ export default {
         return {
             initialized: false,
             statusOptions: [
-                { description: this.$__("Active"), value: 1 },
-                { description: this.$__("Inactive"), value: 0 },
+                { description: this.$__("Active"), value: true },
+                { description: this.$__("Inactive"), value: false },
             ],
             allowedOptions: [
-                { description: this.$__("Allowed"), value: 1 },
-                { description: this.$__("Not allowed"), value: 0 },
+                { description: this.$__("Allowed"), value: true },
+                { description: this.$__("Not allowed"), value: false },
             ],
             ledger: {
                 fiscal_period_id: null,
@@ -368,6 +380,7 @@ export default {
                 oe_limit_amount: null,
                 os_warning_sum: null,
                 os_limit_sum: null,
+                spend_limit: 0,
             },
             fiscal_period: null,
             currencies: [],
@@ -454,7 +467,7 @@ export default {
             const ledger_id = ledger.ledger_id
 
             const visibility = ledger.lib_group_visibility.join("|")
-            ledger.lib_group_visibility = visibility
+            ledger.lib_group_visibility = visibility || null
             const oe_warning_percent = ledger.oe_warning_percent
             ledger.oe_warning_percent = oe_warning_percent / 100
 

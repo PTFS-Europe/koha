@@ -42,28 +42,28 @@ my $patron    = Koha::Patrons->find( { borrowernumber => $borrowernumber } );
 my $userflags = haspermission( $patron->userid );
 
 my $acquisitions_library_groups = Koha::Library::Groups->search( { ft_acquisitions => 1 } );
-my @user_library_groups;
+# my @user_library_groups;
 
-# If no library groups are defined then we gather all branches into one "group"
-if ( scalar( @{ $acquisitions_library_groups->as_list } == 0 ) ) {
-    my @branches  = Koha::Libraries->search()->as_list;
-    my $lib_group = {
-        title => 'All branches',
-        id    => 1,
-    };
-    my @libraries;
-    foreach my $branch (@branches) {
-        push( @libraries, $branch->unblessed );
-    }
-    $lib_group->{libraries} = \@libraries;
-    push( @user_library_groups, $lib_group );
-}
+# # If no library groups are defined then we gather all branches into one "group"
+# if ( scalar( @{ $acquisitions_library_groups->as_list } == 0 ) ) {
+#     my @branches  = Koha::Libraries->search()->as_list;
+#     my $lib_group = {
+#         title => 'All branches',
+#         id    => 1,
+#     };
+#     my @libraries;
+#     foreach my $branch (@branches) {
+#         push( @libraries, $branch->unblessed );
+#     }
+#     $lib_group->{libraries} = \@libraries;
+#     push( @user_library_groups, $lib_group );
+# }
 
-# Get all acquisitions related library groups
-foreach my $alg ( @{ $acquisitions_library_groups->as_list } ) {
-    my $lib_group = _map_library_group( { group => $alg } );
-    push @user_library_groups, $lib_group;
-}
+# # Get all acquisitions related library groups
+# foreach my $alg ( @{ $acquisitions_library_groups->as_list } ) {
+#     my $lib_group = _map_library_group( { group => $alg } );
+#     push @user_library_groups, $lib_group;
+# }
 
 # Get currency data
 my $currencies = Koha::Acquisition::Currencies->search()->unblessed;
@@ -95,64 +95,64 @@ if ( scalar( @{ $acquisitions_library_groups->as_list } == 0 ) ) {
 $template->param(
     userflags        => $userflags,
     logged_in_branch => { branchcode => C4::Context::mybranch },
-    library_groups   => \@user_library_groups,
+    # library_groups   => \@user_library_groups,
     currencies       => $currencies
 );
 
 output_html_with_http_headers $query, $cookie, $template->output;
 
-sub _map_library_group {
-    my ($args) = @_;
+# sub _map_library_group {
+#     my ($args) = @_;
 
-    my $group     = $args->{group};
-    my $lib_group = {
-        title => $group->title,
-        id    => $group->id,
-    };
-    $lib_group->{is_sub_group} = 1 if $args->{sub};
-    my @libs_or_sub_groups = Koha::Library::Groups->search( { parent_id => $group->id } )->as_list;
+#     my $group     = $args->{group};
+#     my $lib_group = {
+#         title => $group->title,
+#         id    => $group->id,
+#     };
+#     $lib_group->{is_sub_group} = 1 if $args->{sub};
+#     my @libs_or_sub_groups = Koha::Library::Groups->search( { parent_id => $group->id } )->as_list;
 
-    my @libraries;
-    my @sub_groups;
-    foreach my $lib (@libs_or_sub_groups) {
-        if ( $lib->branchcode ) {
-            push( @libraries, $lib->unblessed );
-        } else {
-            push( @sub_groups, _map_library_group( { group => $lib, sub => 1 } ) );
-        }
-    }
-    $lib_group->{libraries}  = \@libraries;
-    $lib_group->{sub_groups} = \@sub_groups;
+#     my @libraries;
+#     my @sub_groups;
+#     foreach my $lib (@libs_or_sub_groups) {
+#         if ( $lib->branchcode ) {
+#             push( @libraries, $lib->unblessed );
+#         } else {
+#             push( @sub_groups, _map_library_group( { group => $lib, sub => 1 } ) );
+#         }
+#     }
+#     $lib_group->{libraries}  = \@libraries;
+#     $lib_group->{sub_groups} = \@sub_groups;
 
-    $lib_group = _assign_branches_to_parent( { group => $lib_group } );
+#     $lib_group = _assign_branches_to_parent( { group => $lib_group } );
 
-    return $lib_group;
-}
+#     return $lib_group;
+# }
 
-sub _assign_branches_to_parent {
-    my ($args) = @_;
+# sub _assign_branches_to_parent {
+#     my ($args) = @_;
 
-    my $group      = $args->{group};
-    my $libraries  = $group->{libraries};
-    my $sub_groups = $group->{sub_groups};
+#     my $group      = $args->{group};
+#     my $libraries  = $group->{libraries};
+#     my $sub_groups = $group->{sub_groups};
 
-    if ( !scalar(@$libraries) && scalar(@$sub_groups) ) {
-        my @sub_group_libraries;
-        foreach my $sub_group (@$sub_groups) {
-            if ( !scalar( @{ $sub_group->{libraries} } ) ) {
-                $sub_group = _assign_branches_to_parent( { group => $sub_group } );
-            }
-            push( @sub_group_libraries, @{ $sub_group->{libraries} } );
-        }
-        my @parent_branches;
-        foreach my $library (@sub_group_libraries) {
-            push( @parent_branches, $library )
-                unless grep( $_->{branchcode} eq $library->{branchcode}, @parent_branches );
-        }
-        $group->{libraries} = \@parent_branches;
-    }
-    return $group;
-}
+#     if ( !scalar(@$libraries) && scalar(@$sub_groups) ) {
+#         my @sub_group_libraries;
+#         foreach my $sub_group (@$sub_groups) {
+#             if ( !scalar( @{ $sub_group->{libraries} } ) ) {
+#                 $sub_group = _assign_branches_to_parent( { group => $sub_group } );
+#             }
+#             push( @sub_group_libraries, @{ $sub_group->{libraries} } );
+#         }
+#         my @parent_branches;
+#         foreach my $library (@sub_group_libraries) {
+#             push( @parent_branches, $library )
+#                 unless grep( $_->{branchcode} eq $library->{branchcode}, @parent_branches );
+#         }
+#         $group->{libraries} = \@parent_branches;
+#     }
+#     return $group;
+# }
 
 sub _get_lib_group_branchcodes {
     my ($logged_in_branch) = @_;

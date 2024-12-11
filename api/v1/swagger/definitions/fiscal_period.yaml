@@ -20,12 +20,10 @@ properties:
   start_date:
     type: string
     format: date
-    readOnly: true
     description: Start date for the fiscal period
   end_date:
     type: string
     format: date
-    readOnly: true
     description: End date for the fiscal period
   spend_limit:
     type:
