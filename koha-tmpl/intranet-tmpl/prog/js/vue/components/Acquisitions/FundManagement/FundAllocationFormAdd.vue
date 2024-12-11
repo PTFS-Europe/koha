@@ -1,13 +1,17 @@
 <template>
-    <div v-if="!initialized">Loading...</div>
+    <div v-if="!initialized">{{ $__("Loading") }}...</div>
     <div v-else id="fund_allocation_add">
         <h2 v-if="fund_allocation.fund_allocation_id">
-            {{ `Edit fund allocation ${fund_allocation.fund_allocation_id}` }}
+            {{
+                $__("Edit fund allocation %s").format(
+                    fund_allocation.fund_allocation_id
+                )
+            }}
         </h2>
-        <h2 v-else>New fund allocation</h2>
+        <h2 v-else>{{ $__("New fund allocation") }}</h2>
         <div>
             <form @submit="onSubmit($event)">
-                <h3>Allocate to fund: {{ selectedFund.name }}</h3>
+                <h3>{{ $__("Allocate to fund") }}: {{ selectedFund.name }}</h3>
                 <fieldset class="rows">
                     <ol>
                         <!-- <li>
@@ -28,7 +32,7 @@
                         </li> -->
                         <li>
                             <label for="fund_allocation_amount" class="required"
-                                >Allocation amount:</label
+                                >{{ $__("Allocation amount") }}:</label
                             >
                             <input
                                 id="fund_allocation_amount"
@@ -36,11 +40,11 @@
                                 type="number"
                                 step=".01"
                             />
-                            <span class="required">Required</span>
+                            <span class="required">{{ $__("Required") }}</span>
                         </li>
                         <li>
                             <label for="fund_allocation_reference"
-                                >Reference:</label
+                                >{{ $__("Reference") }}:</label
                             >
                             <input
                                 id="fund_allocation_reference"
@@ -49,7 +53,9 @@
                             />
                         </li>
                         <li>
-                            <label for="fund_allocation_note">Note: </label>
+                            <label for="fund_allocation_note"
+                                >{{ $__("Note") }}:
+                            </label>
                             <textarea
                                 id="fund_allocation_note"
                                 v-model="fund_allocation.note"
@@ -69,7 +75,7 @@
                         }"
                         role="button"
                         class="cancel"
-                        >Cancel</router-link
+                        >{{ $__("Cancel") }}</router-link
                     >
                 </fieldset>
             </form>
@@ -161,7 +167,9 @@ export default {
 
             if (!this.isUserPermitted("createFundAllocation")) {
                 setWarning(
-                    "You do not have the required permissions to create fund allocations."
+                    this.$__(
+                        "You do not have the required permissions to create fund allocations."
+                    )
                 )
                 return
             }
@@ -179,7 +187,7 @@ export default {
                     .update(fund_allocation, fund_allocation_id)
                     .then(
                         success => {
-                            setMessage("Fund allocation updated")
+                            setMessage(this.$__("Fund allocation updated"))
                             this.$router.push({
                                 name: "FundShow",
                                 params: { fund_id: this.selectedFund.fund_id },
@@ -191,7 +199,7 @@ export default {
                 const acq_client = APIClient.acquisition
                 acq_client.fundAllocations.create(fund_allocation).then(
                     success => {
-                        setMessage("Fund allocation created")
+                        setMessage(this.$__("Fund allocation created"))
                         this.$router.push({
                             name: "FundShow",
                             params: { fund_id: this.selectedFund.fund_id },

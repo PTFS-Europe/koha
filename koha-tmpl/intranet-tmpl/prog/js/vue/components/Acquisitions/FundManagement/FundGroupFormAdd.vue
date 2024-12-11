@@ -1,17 +1,17 @@
 <template>
-    <div v-if="!initialized">Loading...</div>
+    <div v-if="!initialized">{{ $__("Loading") }}...</div>
     <div v-else id="fund_group_add">
         <h2 v-if="fundGroup.fund_group_id">
-            {{ `Edit fund group ${fundGroup.fund_group_id}` }}
+            {{ $__("Edit fund group %s").format(fundGroup.fund_group_id) }}
         </h2>
-        <h2 v-else>New fund group</h2>
+        <h2 v-else>{{ $__("New fund group") }}</h2>
         <div>
             <form @submit="onSubmit($event)">
                 <fieldset class="rows">
                     <ol>
                         <li>
                             <label class="required" for="fund_group_name"
-                                >Name:</label
+                                >{{ $__("Name") }}:</label
                             >
                             <input
                                 id="fund_group_name"
@@ -19,11 +19,11 @@
                                 placeholder="Fund group name"
                                 required
                             />
-                            <span class="required">Required</span>
+                            <span class="required">{{ $__("Required") }}</span>
                         </li>
                         <li>
                             <label for="fundGroup_currency" class="required"
-                                >Currency:</label
+                                >{{ $__("Currency") }}:</label
                             >
                             <v-select
                                 id="fundGroup_currency"
@@ -41,13 +41,13 @@
                                     />
                                 </template>
                             </v-select>
-                            <span class="required">Required</span>
+                            <span class="required">{{ $__("Required") }}</span>
                         </li>
                         <li>
                             <label
                                 for="fund_group_lib_group_visibility"
                                 class="required"
-                                >Visible to:</label
+                                >{{ $__("Visible to") }}:</label
                             >
                             <v-select
                                 id="fund_group_lib_group_visibility"
@@ -68,7 +68,7 @@
                                     />
                                 </template>
                             </v-select>
-                            <span class="required">Required</span>
+                            <span class="required">{{ $__("Required") }}</span>
                         </li>
                     </ol>
                 </fieldset>
@@ -78,7 +78,7 @@
                         :to="{ name: 'FundGroupList' }"
                         role="button"
                         class="cancel"
-                        >Cancel</router-link
+                        >{{ $__("Cancel") }}</router-link
                     >
                 </fieldset>
             </form>
@@ -160,7 +160,9 @@ export default {
 
             if (!this.isUserPermitted("createFundGroup")) {
                 setWarning(
-                    "You do not have the required permissions to create fund groups."
+                    this.$__(
+                        "You do not have the required permissions to create fund groups."
+                    )
                 )
                 return
             }
@@ -177,7 +179,7 @@ export default {
                 const acq_client = APIClient.acquisition
                 acq_client.fundGroups.update(fundGroup, fund_group_id).then(
                     success => {
-                        setMessage("Fund group updated")
+                        setMessage(this.$__("Fund group updated"))
                         this.$router.push({ name: "FundGroupList" })
                     },
                     error => {}
@@ -186,7 +188,7 @@ export default {
                 const acq_client = APIClient.acquisition
                 acq_client.fundGroups.create(fundGroup).then(
                     success => {
-                        setMessage("Fund group created")
+                        setMessage(this.$__("Fund group created"))
                         this.$router.push({ name: "FundGroupList" })
                     },
                     error => {}

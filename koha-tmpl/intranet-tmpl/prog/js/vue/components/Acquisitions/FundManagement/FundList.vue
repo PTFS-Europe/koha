@@ -1,5 +1,5 @@
 <template>
-    <div v-if="!initialized">Loading...</div>
+    <div v-if="!initialized">{{ $__("Loading") }}...</div>
     <div v-else id="fund_list">
         <Toolbar>
             <ToolbarLink
@@ -18,7 +18,9 @@
                 @delete="doDelete"
             ></KohaTable>
         </div>
-        <div v-else class="dialog message">There are no funds defined</div>
+        <div v-else class="dialog message">
+            {{ $__("There are no funds defined") }}
+        </div>
     </div>
 </template>
 
@@ -97,16 +99,18 @@ export default {
         doDelete: function (fund, dt, event) {
             this.setConfirmationDialog(
                 {
-                    title: "Are you sure you want to remove this fund?",
+                    title: this.$__(
+                        "Are you sure you want to remove this fund?"
+                    ),
                     message: fund.name,
-                    accept_label: "Yes, delete",
-                    cancel_label: "No, do not delete",
+                    accept_label: this.$__("Yes, delete"),
+                    cancel_label: this.$__("No, do not delete"),
                 },
                 () => {
                     const client = APIClient.acquisition
                     client.funds.delete(fund.fund_id).then(
                         success => {
-                            this.setMessage(`Fund deleted`, true)
+                            this.setMessage(this.$__("Fund deleted"), true)
                             dt.draw()
                         },
                         error => {}
@@ -144,7 +148,7 @@ export default {
                     searchable: true,
                     orderable: true,
                     render: function (data, type, row, meta) {
-                        return row.status ? "Active" : "Inactive"
+                        return row.status ? __("Active") : __("Inactive")
                     },
                 },
                 {

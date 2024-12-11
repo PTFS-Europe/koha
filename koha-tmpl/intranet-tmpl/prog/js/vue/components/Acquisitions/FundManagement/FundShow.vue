@@ -1,11 +1,11 @@
 <template>
-    <div v-if="!initialized">Loading...</div>
+    <div v-if="!initialized">{{ $__("Loading") }}...</div>
     <div v-else id="funds_show">
         <Toolbar>
             <ToolbarLink
                 :to="{ name: 'FundList' }"
                 icon="xmark"
-                title="Close"
+                :title="$__('Close')"
             />
             <ToolbarLink
                 :to="{
@@ -16,12 +16,12 @@
                     },
                 }"
                 icon="pencil"
-                title="Edit"
+                :title="$__('Edit')"
                 v-if="isUserPermitted('editFund')"
             />
             <ToolbarButton
                 icon="trash"
-                title="Delete"
+                :title="$__('Delete')"
                 @clicked="
                     deleteFund(
                         isSubFund ? fund.sub_fund_id : fund.fund_id,
@@ -36,7 +36,7 @@
                     params: { [navParam]: fund[navParam] },
                 }"
                 icon="plus"
-                title="New sub fund"
+                :title="$__('New sub fund')"
                 v-if="
                     isUserPermitted('createFund') &&
                     !hasExistingAllocations &&
@@ -52,7 +52,7 @@
                     },
                 }"
                 icon="plus"
-                title="New fund allocation"
+                :title="$__('New fund allocation')"
                 v-if="
                     isUserPermitted('createFundAllocation') &&
                     !hasSubFunds &&
@@ -68,7 +68,7 @@
                     },
                 }"
                 icon="arrow-right-arrow-left"
-                title="Transfer funds"
+                :title="$__('Transfer funds')"
                 v-if="isUserPermitted('createFundAllocation')"
             />
         </Toolbar>
@@ -85,7 +85,7 @@
     </div>
     <div v-if="initialized && hasExistingAllocations" id="fund_allocations">
         <div class="page-section">
-            <h3>Fund allocations</h3>
+            <h3>{{ $__("Fund allocations") }}</h3>
             <KohaTable
                 ref="allocationTable"
                 v-bind="allocationTableOptions"
@@ -94,7 +94,7 @@
     </div>
     <div v-if="initialized && hasSubFunds" id="fund_allocations">
         <div class="page-section">
-            <h3>Sub funds</h3>
+            <h3>{{ $__("Sub funds") }}</h3>
             <KohaTable
                 ref="subFundTable"
                 v-bind="subFundTableOptions"
@@ -205,16 +205,18 @@ export default {
         deleteFund: function (fund_id, fund_code) {
             this.setConfirmationDialog(
                 {
-                    title: "Are you sure you want to remove this fund?",
+                    title: this.$__(
+                        "Are you sure you want to remove this fund?"
+                    ),
                     message: fund_code,
-                    accept_label: "Yes, delete",
-                    cancel_label: "No, do not delete",
+                    accept_label: this.$__("Yes, delete"),
+                    cancel_label: this.$__("No, do not delete"),
                 },
                 () => {
                     const client = APIClient.acquisition
                     client.funds.delete(fund_id).then(
                         success => {
-                            this.setMessage("Fund deleted")
+                            this.setMessage(this.$__("Fund deleted"))
                             this.$router.push({ name: "FundList" })
                         },
                         error => {}
@@ -309,7 +311,7 @@ export default {
                     searchable: true,
                     orderable: true,
                     render: function (data, type, row, meta) {
-                        return row.status ? "Active" : "Inactive"
+                        return row.status ? __("Active") : __("Inactive")
                     },
                 },
                 {
@@ -328,7 +330,9 @@ export default {
         },
         showTransferWarning() {
             this.setWarning(
-                "This allocation was a transfer between funds and can't be edited or deleted."
+                this.$__(
+                    "This allocation was a transfer between funds and can't be edited or deleted."
+                )
             )
         },
         tableUrl(dataType) {

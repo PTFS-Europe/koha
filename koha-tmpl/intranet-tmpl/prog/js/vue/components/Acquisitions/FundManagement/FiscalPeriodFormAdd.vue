@@ -1,17 +1,21 @@
 <template>
-    <div v-if="!initialized">Loading...</div>
+    <div v-if="!initialized">{{ $__("Loading") }}...</div>
     <div v-else id="fiscal_period_add">
         <h2 v-if="fiscal_period.fiscal_period_id">
-            {{ `Edit fiscal period ${fiscal_period.fiscal_period_id}` }}
+            {{
+                $__("Edit fiscal period %s").format(
+                    fiscal_period.fiscal_period_id
+                )
+            }}
         </h2>
-        <h2 v-else>New fiscal period</h2>
+        <h2 v-else>{{ $__("New fiscal period") }}</h2>
         <div>
             <form @submit="onSubmit($event)">
                 <fieldset class="rows">
                     <ol>
                         <li>
                             <label class="required" for="fiscal_period_code"
-                                >Code:</label
+                                >{{ $__("Code") }}:</label
                             >
                             <input
                                 id="fiscal_period_code"
@@ -19,13 +23,13 @@
                                 placeholder="Fiscal period code"
                                 required
                             />
-                            <span class="required">Required</span>
+                            <span class="required">{{ $__("Required") }}</span>
                         </li>
                         <li>
                             <label
                                 for="fiscal_period_description"
                                 class="required"
-                                >Description:
+                                >{{ $__("Description") }}:
                             </label>
                             <textarea
                                 id="fiscal_period_description"
@@ -35,11 +39,11 @@
                                 cols="50"
                                 required
                             />
-                            <span class="required">Required</span>
+                            <span class="required">{{ $__("Required") }}</span>
                         </li>
                         <li>
                             <label for="fiscal_period_status" class="required"
-                                >Status:</label
+                                >{{ $__("Status") }}:</label
                             >
                             <v-select
                                 id="fiscal_period_status"
@@ -61,10 +65,12 @@
                                     />
                                 </template>
                             </v-select>
-                            <span class="required">Required</span>
+                            <span class="required">{{ $__("Required") }}</span>
                         </li>
                         <li>
-                            <label for="start_date">Start date:</label>
+                            <label for="start_date"
+                                >{{ $__("Start date") }}:</label
+                            >
                             <flat-pickr
                                 id="start_date"
                                 v-model="fiscal_period.start_date"
@@ -73,7 +79,7 @@
                             />
                         </li>
                         <li>
-                            <label for="end_date">End date:</label>
+                            <label for="end_date">{{ $__("End date") }}:</label>
                             <flat-pickr
                                 id="end_date"
                                 v-model="fiscal_period.end_date"
@@ -82,7 +88,7 @@
                         </li>
                         <li>
                             <label for="fiscal_period_owner" class="required"
-                                >Owner:</label
+                                >{{ $__("Owner") }}:</label
                             >
                             <v-select
                                 id="fiscal_period_owner"
@@ -106,13 +112,13 @@
                                     />
                                 </template>
                             </v-select>
-                            <span class="required">Required</span>
+                            <span class="required">{{ $__("Required") }}</span>
                         </li>
                         <li>
                             <label
                                 for="fiscal_period_lib_group_visibility"
                                 class="required"
-                                >Visible to:</label
+                                >{{ $__("Visible to") }}:</label
                             >
                             <v-select
                                 id="fiscal_period_lib_group_visibility"
@@ -139,7 +145,7 @@
                                     />
                                 </template>
                             </v-select>
-                            <span class="required">Required</span>
+                            <span class="required">{{ $__("Required") }}</span>
                         </li>
                     </ol>
                 </fieldset>
@@ -149,7 +155,7 @@
                         :to="{ name: 'FiscalPeriodList' }"
                         role="button"
                         class="cancel"
-                        >Cancel</router-link
+                        >{{ $__("Cancel") }}</router-link
                     >
                 </fieldset>
             </form>
@@ -195,8 +201,8 @@ export default {
             initialized: false,
             fp_config: flatpickr_defaults,
             statusOptions: [
-                { description: "Active", value: 1 },
-                { description: "Inactive", value: 0 },
+                { description: this.$__("Active"), value: 1 },
+                { description: this.$__("Inactive"), value: 0 },
             ],
             fiscal_period: {
                 fiscal_period_id: null,
@@ -236,7 +242,9 @@ export default {
 
             if (!this.isUserPermitted("createFiscalPeriods")) {
                 setWarning(
-                    "You do not have the required permissions to create fiscal periods."
+                    this.$__(
+                        "You do not have the required permissions to create fiscal periods."
+                    )
                 )
                 return
             }
@@ -255,7 +263,7 @@ export default {
                     .update(fiscal_period, fiscal_period_id)
                     .then(
                         success => {
-                            setMessage("Fiscal period updated")
+                            setMessage(this.$__("Fiscal period updated"))
                             this.$router.push({ name: "FiscalPeriodList" })
                         },
                         error => {}
@@ -264,7 +272,7 @@ export default {
                 const acq_client = APIClient.acquisition
                 acq_client.fiscalPeriods.create(fiscal_period).then(
                     success => {
-                        setMessage("Fiscal period created")
+                        setMessage(this.$__("Fiscal period created"))
                         this.$router.push({ name: "FiscalPeriodList" })
                     },
                     error => {}

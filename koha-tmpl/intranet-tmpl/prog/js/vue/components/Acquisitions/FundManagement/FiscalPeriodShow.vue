@@ -1,5 +1,5 @@
 <template>
-    <div v-if="!initialized">Loading...</div>
+    <div v-if="!initialized">{{ $__("Loading") }}...</div>
     <div v-else id="fiscal_periods_show">
         <Toolbar>
             <ToolbarLink
@@ -30,7 +30,9 @@
                 v-if="isUserPermitted('deleteFiscalPeriod')"
             />
         </Toolbar>
-        <h2>{{ "Fiscal period " + fiscal_period.fiscal_period_id }}</h2>
+        <h2>
+            {{ $__("Fiscal period %s").format(fiscal_period.fiscal_period_id) }}
+        </h2>
         <div style="display: flex">
             <DisplayDataFields
                 :data="fiscal_period"
@@ -43,7 +45,7 @@
     </div>
     <div v-if="initialized" id="ledgers">
         <div class="page-section">
-            <h3>Ledgers</h3>
+            <h3>{{ $__("Ledgers") }}</h3>
             <KohaTable
                 ref="table"
                 v-bind="tableOptions"
@@ -126,16 +128,18 @@ export default {
         delete_fiscal_period: function (fiscal_period_id, fiscal_period_code) {
             this.setConfirmationDialog(
                 {
-                    title: "Are you sure you want to remove this fiscal period?",
+                    title: this.$__(
+                        "Are you sure you want to remove this fiscal period?"
+                    ),
                     message: fiscal_period_code,
-                    accept_label: "Yes, delete",
-                    cancel_label: "No, do not delete",
+                    accept_label: this.$__("Yes, delete"),
+                    cancel_label: this.$__("No, do not delete"),
                 },
                 () => {
                     const client = APIClient.acquisition
                     client.fiscalPeriods.delete(fiscal_period_id).then(
                         success => {
-                            this.setMessage("Fiscal period deleted")
+                            this.setMessage(this.$__("Fiscal period deleted"))
                             this.$router.push({ name: "FiscalPeriodList" })
                         },
                         error => {}
@@ -156,16 +160,18 @@ export default {
         doDelete: function (ledger, dt, event) {
             this.setConfirmationDialog(
                 {
-                    title: "Are you sure you want to remove this ledger?",
+                    title: this.$__(
+                        "Are you sure you want to remove this ledger?"
+                    ),
                     message: ledger.name,
-                    accept_label: "Yes, delete",
-                    cancel_label: "No, do not delete",
+                    accept_label: this.$__("Yes, delete"),
+                    cancel_label: this.$__("No, do not delete"),
                 },
                 () => {
                     const client = APIClient.acquisition
                     client.ledgers.delete(ledger.ledger_id).then(
                         success => {
-                            this.setMessage(`Ledger deleted`, true)
+                            this.setMessage(this.$__("Ledger deleted"), true)
                             dt.draw()
                         },
                         error => {}
@@ -203,7 +209,7 @@ export default {
                     searchable: true,
                     orderable: true,
                     render: function (data, type, row, meta) {
-                        return row.status ? "Active" : "Inactive"
+                        return row.status ? __("Active") : __("Inactive")
                     },
                 },
                 {

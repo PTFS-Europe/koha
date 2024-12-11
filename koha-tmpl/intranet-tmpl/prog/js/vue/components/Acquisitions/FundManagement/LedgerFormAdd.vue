@@ -1,17 +1,17 @@
 <template>
-    <div v-if="!initialized">Loading...</div>
+    <div v-if="!initialized">{{ $__("Loading") }}...</div>
     <div v-else id="ledger_add">
         <h2 v-if="ledger.ledger_id">
-            {{ `Edit ledger ${ledger.ledger_id}` }}
+            {{ $__("Edit ledger %s").format(ledger.ledger_id) }}
         </h2>
-        <h2 v-else>New ledger</h2>
+        <h2 v-else>{{ $__("New ledger") }}</h2>
         <div>
             <form @submit="onSubmit($event)">
                 <fieldset class="rows">
                     <ol>
                         <li>
                             <label class="required" for="ledger_name"
-                                >Name:</label
+                                >{{ $__("Name") }}:</label
                             >
                             <input
                                 id="ledger_name"
@@ -19,11 +19,11 @@
                                 placeholder="Ledger name"
                                 required
                             />
-                            <span class="required">Required</span>
+                            <span class="required">{{ $__("Required") }}</span>
                         </li>
                         <li>
                             <label for="ledger_description"
-                                >Description:
+                                >{{ $__("Description") }}:
                             </label>
                             <textarea
                                 id="ledger_description"
@@ -35,7 +35,7 @@
                         </li>
                         <li>
                             <label class="required" for="ledger_code"
-                                >Code:</label
+                                >{{ $__("Code") }}:</label
                             >
                             <input
                                 id="ledger_code"
@@ -43,13 +43,13 @@
                                 placeholder="Ledger code"
                                 required
                             />
-                            <span class="required">Required</span>
+                            <span class="required">{{ $__("Required") }}</span>
                         </li>
                         <li>
                             <label
                                 for="ledger_fiscal_period_id"
                                 class="required"
-                                >Fiscal period:</label
+                                >{{ $__("Fiscal period") }}</label
                             >
                             <InfiniteScrollSelect
                                 id="ledger_fiscal_period_id"
@@ -64,11 +64,11 @@
                                     filterGroupsBySelectedFiscalPeriod($event)
                                 "
                             />
-                            <span class="required">Required</span>
+                            <span class="required">{{ $__("Required") }}</span>
                         </li>
                         <li>
                             <label for="ledger_status" class="required"
-                                >Status:</label
+                                >{{ $__("Status") }}:</label
                             >
                             <v-select
                                 id="ledger_status"
@@ -90,10 +90,12 @@
                                     />
                                 </template>
                             </v-select>
-                            <span class="required">Required</span>
+                            <span class="required">{{ $__("Required") }}</span>
                         </li>
                         <li>
-                            <label for="ledger_external_id">External ID:</label>
+                            <label for="ledger_external_id">{{
+                                $__("External ID")
+                            }}</label>
                             <input
                                 id="ledger_external_id"
                                 v-model="ledger.external_id"
@@ -102,7 +104,7 @@
                         </li>
                         <li>
                             <label for="ledger_currency" class="required"
-                                >Currency:</label
+                                >{{ $__("Currency") }}:</label
                             >
                             <v-select
                                 id="ledger_currency"
@@ -120,11 +122,11 @@
                                     />
                                 </template>
                             </v-select>
-                            <span class="required">Required</span>
+                            <span class="required">{{ $__("Required") }}</span>
                         </li>
                         <li>
                             <label for="ledger_owner" class="required"
-                                >Owner:</label
+                                >{{ $__("Owner") }}:</label
                             >
                             <v-select
                                 id="ledger_owner"
@@ -149,13 +151,13 @@
                                     />
                                 </template>
                             </v-select>
-                            <span class="required">Required</span>
+                            <span class="required">{{ $__("Required") }}</span>
                         </li>
                         <li>
                             <label
                                 for="ledger_lib_group_visibility"
                                 class="required"
-                                >Visible to:</label
+                                >{{ $__("Visible to") }}</label
                             >
                             <v-select
                                 id="ledger_lib_group_visibility"
@@ -182,13 +184,13 @@
                                     />
                                 </template>
                             </v-select>
-                            <span class="required">Required</span>
+                            <span class="required">{{ $__("Required") }}</span>
                         </li>
                         <li>
                             <label
                                 for="ledger_over_spend_allowed"
                                 class="required"
-                                >Overspend allowed?:</label
+                                >{{ $__("Overspend allowed?") }}:</label
                             >
                             <v-select
                                 id="ledger_over_spend_allowed"
@@ -208,13 +210,13 @@
                                     />
                                 </template>
                             </v-select>
-                            <span class="required">Required</span>
+                            <span class="required">{{ $__("Required") }}</span>
                         </li>
                         <li>
                             <label
                                 for="ledger_over_encumbrance_allowed"
                                 class="required"
-                                >Overencumbrance allowed?:</label
+                                >{{ $__("Overencumbrance allowed?") }}:</label
                             >
                             <v-select
                                 id="ledger_over_encumbrance_allowed"
@@ -235,11 +237,13 @@
                                     />
                                 </template>
                             </v-select>
-                            <span class="required">Required</span>
+                            <span class="required">{{ $__("Required") }}</span>
                         </li>
                         <li>
                             <label for="ledger_oe_warning_percent"
-                                >Overencumbrance warning percentage:</label
+                                >{{
+                                    $__("Overencumbrance warning percentage")
+                                }}:</label
                             >
                             <input
                                 id="ledger_oe_warning_percent"
@@ -253,7 +257,9 @@
                         </li>
                         <li>
                             <label for="ledger_oe_limit_amount"
-                                >Overencumbrance limit amount:</label
+                                >{{
+                                    $__("Overencumbrance limit amount")
+                                }}:</label
                             >
                             <input
                                 id="ledger_oe_limit_amount"
@@ -265,7 +271,7 @@
                         </li>
                         <li>
                             <label for="ledger_os_warning_sum"
-                                >Overspend warning sum:</label
+                                >{{ $__("Overspend warning sum") }}:</label
                             >
                             <input
                                 id="ledger_os_warning_sum"
@@ -277,7 +283,7 @@
                         </li>
                         <li>
                             <label for="ledger_os_limit_sum"
-                                >Overspend limit sum:</label
+                                >{{ $__("Overspend limit sum") }}:</label
                             >
                             <input
                                 id="ledger_os_limit_sum"
@@ -295,7 +301,7 @@
                         :to="{ name: 'LedgerList' }"
                         role="button"
                         class="cancel"
-                        >Cancel</router-link
+                        >{{ $__("Cancel") }}</router-link
                     >
                 </fieldset>
             </form>
@@ -339,12 +345,12 @@ export default {
         return {
             initialized: false,
             statusOptions: [
-                { description: "Active", value: 1 },
-                { description: "Inactive", value: 0 },
+                { description: this.$__("Active"), value: 1 },
+                { description: this.$__("Inactive"), value: 0 },
             ],
             allowedOptions: [
-                { description: "Allowed", value: 1 },
-                { description: "Not allowed", value: 0 },
+                { description: this.$__("Allowed"), value: 1 },
+                { description: this.$__("Not allowed"), value: 0 },
             ],
             ledger: {
                 fiscal_period_id: null,
@@ -437,7 +443,9 @@ export default {
 
             if (!this.isUserPermitted("createLedger")) {
                 setWarning(
-                    "You do not have the required permissions to create ledgers."
+                    this.$__(
+                        "You do not have the required permissions to create ledgers."
+                    )
                 )
                 return
             }
@@ -456,7 +464,7 @@ export default {
                 const acq_client = APIClient.acquisition
                 acq_client.ledgers.update(ledger, ledger_id).then(
                     success => {
-                        setMessage("Ledger updated")
+                        setMessage(this.$__("Ledger updated"))
                         this.$router.push({ name: "LedgerList" })
                     },
                     error => {}
@@ -465,7 +473,7 @@ export default {
                 const acq_client = APIClient.acquisition
                 acq_client.ledgers.create(ledger).then(
                     success => {
-                        setMessage("Ledger created")
+                        setMessage(this.$__("Ledger created"))
                         this.$router.push({ name: "LedgerList" })
                     },
                     error => {}

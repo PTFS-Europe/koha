@@ -1,5 +1,5 @@
 <template>
-    <div v-if="!initialized">Loading...</div>
+    <div v-if="!initialized">{{ $__("Loading") }}...</div>
     <div v-else id="fund_groups_show">
         <Toolbar>
             <ToolbarLink
@@ -36,7 +36,7 @@
     </div>
     <div v-if="initialized" id="funds">
         <div class="page-section">
-            <h3>Funds</h3>
+            <h3>{{ $__("Funds") }}</h3>
             <KohaTable ref="table" v-bind="tableOptions"></KohaTable>
         </div>
     </div>
@@ -109,16 +109,18 @@ export default {
         deleteFund: function (fund_group_id, fund_code) {
             this.setConfirmationDialog(
                 {
-                    title: "Are you sure you want to remove this fund group?",
+                    title: this.$__(
+                        "Are you sure you want to remove this fund group?"
+                    ),
                     message: fund_code,
-                    accept_label: "Yes, delete",
-                    cancel_label: "No, do not delete",
+                    accept_label: this.$__("Yes, delete"),
+                    cancel_label: this.$__("No, do not delete"),
                 },
                 () => {
                     const client = APIClient.acquisition
                     client.funds.delete(fund_group_id).then(
                         success => {
-                            this.setMessage("Fund group deleted")
+                            this.setMessage(this.$__("Fund group deleted"))
                             this.$router.push({ name: "FundGroupList" })
                         },
                         error => {}
@@ -156,7 +158,7 @@ export default {
                     searchable: true,
                     orderable: true,
                     render: function (data, type, row, meta) {
-                        return row.status ? "Active" : "Inactive"
+                        return row.status ? __("Active") : __("Inactive")
                     },
                 },
                 {

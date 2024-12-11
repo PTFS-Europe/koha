@@ -1,11 +1,11 @@
 <template>
-    <div v-if="!initialized">Loading...</div>
+    <div v-if="!initialized">{{ $__("Loading") }}...</div>
     <div v-else id="ledgers_show">
         <Toolbar>
             <ToolbarLink
                 :to="{ name: 'LedgerList' }"
                 icon="xmark"
-                title="Close"
+                :title="$__('Close')"
             />
             <ToolbarLink
                 :to="{
@@ -13,12 +13,12 @@
                     params: { ledger_id: ledger.ledger_id },
                 }"
                 icon="pencil"
-                title="Edit"
+                :title="$__('Edit')"
                 v-if="isUserPermitted('editLedger')"
             />
             <ToolbarButton
                 icon="trash"
-                title="Delete"
+                :title="$__('Delete')"
                 @clicked="deleteLedger(ledger.ledger_id, ledger.name)"
                 v-if="isUserPermitted('deleteLedger')"
             />
@@ -36,7 +36,7 @@
     </div>
     <div v-if="initialized" id="funds">
         <div class="page-section">
-            <h3>Funds</h3>
+            <h3>{{ $__("Funds") }}</h3>
             <KohaTable ref="table" v-bind="tableOptions"></KohaTable>
         </div>
     </div>
@@ -106,16 +106,18 @@ export default {
         deleteLedger: function (ledger_id, ledger_code) {
             this.setConfirmationDialog(
                 {
-                    title: "Are you sure you want to remove this ledger?",
+                    title: this.$__(
+                        "Are you sure you want to remove this ledger?"
+                    ),
                     message: ledger_code,
-                    accept_label: "Yes, delete",
-                    cancel_label: "No, do not delete",
+                    accept_label: this.$__("Yes, delete"),
+                    cancel_label: this.$__("No, do not delete"),
                 },
                 () => {
                     const client = APIClient.acquisition
                     client.ledgers.delete(ledger_id).then(
                         success => {
-                            this.setMessage("Ledger deleted")
+                            this.setMessage(this.$__("Ledger deleted"))
                             this.$router.push({ name: "LedgerList" })
                         },
                         error => {}
@@ -153,7 +155,7 @@ export default {
                     searchable: true,
                     orderable: true,
                     render: function (data, type, row, meta) {
-                        return row.status ? "Active" : "Inactive"
+                        return row.status ? __("Active") : __("Inactive")
                     },
                 },
                 {
