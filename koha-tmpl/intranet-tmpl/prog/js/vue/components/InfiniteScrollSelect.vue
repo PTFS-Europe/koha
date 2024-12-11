@@ -10,6 +10,7 @@
         @option:selected="onSelected"
         @search="searchFilter($event)"
         ref="select"
+        :disabled="disabled"
     >
         <template v-if="required" #search="{ attributes, events }">
             <input
@@ -42,17 +43,25 @@ export default {
         dataIdentifier: String,
         label: String,
         required: Boolean,
+        apiClient: String,
+        filters: Object,
+        headers: Object,
+        disabled: Boolean,
     },
     emits: ["update:modelValue"],
     data() {
+        const data = this.selectedData ? [this.selectedData] : []
+        const selectedOptionLabel = this.selectedData
+            ? this.selectedData[this.label]
+            : ""
         return {
             observer: null,
             limit: null,
             search: "",
             scrollPage: null,
-            data: [this.selectedData],
+            data,
             paginationRequired: false,
-            selectedOptionLabel: this.selectedData[this.label],
+            selectedOptionLabel,
         }
     },
     computed: {
@@ -80,16 +89,19 @@ export default {
         this.observer = new IntersectionObserver(this.infiniteScroll)
     },
     methods: {
-        async fetchInitialData(dataType) {
-            const client = APIClient.erm
+        async fetchInitialData(dataType, filters) {
+            const filterOptions = filters ? filters : {}
+            const headers = this.headers ? this.headers : []
+            const client = APIClient[this.apiClient]
             await client[dataType]
                 .getAll(
-                    {},
+                    filterOptions,
                     {
                         _page: 1,
                         _per_page: 20,
                         _match: "contains",
-                    }
+                    },
+                    headers
                 )
                 .then(
                     items => {
@@ -107,14 +119,19 @@ export default {
                 this.observer.disconnect()
                 this.data = []
                 this.search = e
-                const client = APIClient.erm
+                const client = APIClient[this.apiClient]
                 const attribute = "me." + this.label
-                const q = {}
+                const headers = this.headers ? this.headers : []
+                const q = this.filters ? this.filters : {}
                 q[attribute] = { like: `%${e}%` }
                 await client[this.dataType]
-                    .getAll(q, {
-                        _per_page: -1,
-                    })
+                    .getAll(
+                        q,
+                        {
+                            _per_page: -1,
+                        },
+                        headers
+                    )
                     .then(
                         items => {
                             this.data = [...items]
@@ -127,7 +144,7 @@ export default {
         },
         async onOpen() {
             this.paginationRequired = true
-            await this.fetchInitialData(this.dataType)
+            await this.fetchInitialData(this.dataType, this.filters)
             if (this.hasNextPage) {
                 await this.$nextTick()
                 this.observer.observe(this.$refs.load)
@@ -147,16 +164,19 @@ export default {
                     this.limit += 20
                     this.scrollPage++
                     await this.$nextTick()
-                    const client = APIClient.erm
+                    const client = APIClient[this.apiClient]
                     ul.scrollTop = scrollTop
+                    const filterOptions = this.filters ? this.filters : {}
+                    const headers = this.headers ? this.headers : []
                     await client[this.dataType]
                         .getAll(
-                            {},
+                            filterOptions,
                             {
                                 _page: this.scrollPage,
                                 _per_page: 20,
                                 _match: "contains",
-                            }
+                            },
+                            headers
                         )
                         .then(
                             items => {
