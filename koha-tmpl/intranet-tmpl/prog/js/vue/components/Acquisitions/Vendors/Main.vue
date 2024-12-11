@@ -37,9 +37,11 @@ import { APIClient } from "../../../fetch/api-client"
 export default {
     setup() {
         const vendorStore = inject("vendorStore")
-        const { config, user, currencies, libraryGroups, gstValues } =
+        const { config, currencies, libraryGroups, gstValues } =
             storeToRefs(vendorStore)
-        const { setLibraryGroups } = vendorStore
+        const acquisitionsStore = inject("acquisitionsStore")
+        const { setLibraryGroups } = acquisitionsStore
+        const { user } = storeToRefs(acquisitionsStore)
 
         const mainStore = inject("mainStore")
         const { loading, loaded, setError } = mainStore
