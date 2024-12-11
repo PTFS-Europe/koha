@@ -17,7 +17,7 @@
           type: string
           enum:
           - fiscal_period
-          - ledgers
+          - funds
           - funds.fund_allocations
           - owner
         collectionFormat: csv
@@ -117,7 +117,7 @@
           $ref: "../swagger.yaml#/definitions/error"
     x-koha-authorization:
       permissions: {}
-/acquisitions/ledgers/{id}:
+/acquisitions/ledgers/{ledger_id}:
   get:
     x-mojo-to: Acquisitions::FundManagement::Ledgers#get
     operationId: getLedger
@@ -273,3 +273,69 @@
     x-koha-authorization:
       permissions: {}
   delete:
+    x-mojo-to: Acquisitions::FundManagement::Ledgers#delete
+    operationId: deleteLedger
+    tags:
+      - acquire
+    description: Delete a ledger
+    parameters:
+      - $ref: "../swagger.yaml#/parameters/ledger_id_pp"
+    produces:
+      - application/json
+    responses:
+      '204':
+        description: Ledger deleted
+        schema:
+          type: string
+      '400':
+        description: Bad request
+        schema:
+          type: object
+          properties:
+            error:
+              description: An explanation for the error
+              type:
+              - string
+              - array
+      '401':
+        description: Unauthorized
+        schema:
+          type: object
+          properties:
+            error:
+              description: An explanation for the error
+              type: string
+      '403':
+        description: Forbidden
+        schema:
+          type: object
+          properties:
+            error:
+              description: An explanation for the error
+              type: string
+      '404':
+        description: The object was not found
+        schema:
+          type: object
+          properties:
+            error:
+              description: An explanation for the error
+              type: string
+      '409':
+        description: Conflict
+        schema:
+          type: object
+          properties:
+            error:
+              description: An explanation for the error
+              type: string
+      '500':
+        description: Internal server error
+        schema:
+          type: object
+          properties:
+            error:
+              description: An explanation for the error
+              type: string
+    x-koha-authorization:
+      permissions: {}

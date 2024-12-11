@@ -117,7 +117,7 @@
           $ref: "../swagger.yaml#/definitions/error"
     x-koha-authorization:
       permissions: {}
-/acquisitions/fiscal_periods/{id}:
+/acquisitions/fiscal_periods/{fiscal_period_id}:
   get:
     x-mojo-to: Acquisitions::FundManagement::FiscalPeriods#get
     operationId: getFiscalPeriod

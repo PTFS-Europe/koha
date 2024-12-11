@@ -61,7 +61,7 @@ sub get {
 
     return try {
         my $ledgers_set = Koha::Acquisition::FundManagement::Ledgers->new;
-        my $ledger      = $c->objects->find( $ledgers_set, $c->param('id') );
+        my $ledger      = $c->objects->find( $ledgers_set, $c->param('ledger_id') );
 
         unless ($ledger) {
             return $c->render(
@@ -118,7 +118,7 @@ Controller function that handles updating a Koha::Acquisition::FundManagement::L
 sub update {
     my $c = shift->openapi->valid_input or return;
 
-    my $ledger = Koha::Acquisition::FundManagement::Ledgers->find( $c->param('id') );
+    my $ledger = Koha::Acquisition::FundManagement::Ledgers->find( $c->param('ledger_id') );
 
     unless ($ledger) {
         return $c->render(
@@ -179,7 +179,7 @@ sub update {
 sub delete {
     my $c = shift->openapi->valid_input or return;
 
-    my $ledger = Koha::Acquisition::FundManagement::Ledgers->find( $c->param('id') );
+    my $ledger = Koha::Acquisition::FundManagement::Ledgers->find( $c->param('ledger_id') );
     unless ($ledger) {
         return $c->render(
             status  => 404,

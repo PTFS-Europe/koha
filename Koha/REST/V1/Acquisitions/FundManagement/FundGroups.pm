@@ -60,7 +60,7 @@ sub get {
 
     return try {
         my $fund_groups_set = Koha::Acquisition::FundManagement::FundGroups->new;
-        my $fund_group      = $c->objects->find( $fund_groups_set, $c->param('id') );
+        my $fund_group      = $c->objects->find( $fund_groups_set, $c->param('fund_group_id') );
 
         unless ($fund_group) {
             return $c->render(
@@ -118,7 +118,7 @@ Controller function that handles updating a Koha::Acquisition::FundManagement::F
 sub update {
     my $c = shift->openapi->valid_input or return;
 
-    my $fund_group = Koha::Acquisition::FundManagement::FundGroups->find( $c->param('id') );
+    my $fund_group = Koha::Acquisition::FundManagement::FundGroups->find( $c->param('fund_group_id') );
 
     unless ($fund_group) {
         return $c->render(
@@ -176,7 +176,7 @@ sub update {
 sub delete {
     my $c = shift->openapi->valid_input or return;
 
-    my $fund_group = Koha::Acquisition::FundManagement::FundGroups->find( $c->param('id') );
+    my $fund_group = Koha::Acquisition::FundManagement::FundGroups->find( $c->param('fund_group_id') );
     unless ($fund_group) {
         return $c->render(
             status  => 404,

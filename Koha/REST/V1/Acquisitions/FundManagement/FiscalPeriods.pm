@@ -59,7 +59,7 @@ sub get {
 
     return try {
         my $fiscal_periods_set = Koha::Acquisition::FundManagement::FiscalPeriods->new;
-        my $fiscal_period      = $c->objects->find( $fiscal_periods_set, $c->param('id') );
+        my $fiscal_period      = $c->objects->find( $fiscal_periods_set, $c->param('fiscal_period_id') );
 
         unless ($fiscal_period) {
             return $c->render(
@@ -114,7 +114,7 @@ Controller function that handles updating a Koha::Acquisition::FundManagement::F
 sub update {
     my $c = shift->openapi->valid_input or return;
 
-    my $fiscal_period = Koha::Acquisition::FundManagement::FiscalPeriods->find( $c->param('id') );
+    my $fiscal_period = Koha::Acquisition::FundManagement::FiscalPeriods->find( $c->param('fiscal_period_id') );
 
     unless ($fiscal_period) {
         return $c->render(
@@ -174,7 +174,7 @@ sub update {
 sub delete {
     my $c = shift->openapi->valid_input or return;
 
-    my $fiscal_period = Koha::Acquisition::FundManagement::FiscalPeriods->find( $c->param('id') );
+    my $fiscal_period = Koha::Acquisition::FundManagement::FiscalPeriods->find( $c->param('fiscal_period_id') );
     unless ($fiscal_period) {
         return $c->render(
             status  => 404,

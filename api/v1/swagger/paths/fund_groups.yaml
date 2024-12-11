@@ -116,7 +116,7 @@
           $ref: "../swagger.yaml#/definitions/error"
     x-koha-authorization:
       permissions: {}
-/acquisitions/fund_groups/{id}:
+/acquisitions/fund_groups/{fund_group_id}:
   get:
     x-mojo-to: Acquisitions::FundManagement::FundGroups#get
     operationId: getFundGroup
@@ -271,3 +271,69 @@
     x-koha-authorization:
       permissions: {}
   delete:
+    x-mojo-to: Acquisitions::FundManagement::FundGroups#delete
+    operationId: deleteFundGroup
+    tags:
+      - acquire
+    description: Delete a fund group
+    parameters:
+      - $ref: "../swagger.yaml#/parameters/fund_group_id_pp"
+    produces:
+      - application/json
+    responses:
+      '204':
+        description: Fund group deleted
+        schema:
+          type: string
+      '400':
+        description: Bad request
+        schema:
+          type: object
+          properties:
+            error:
+              description: An explanation for the error
+              type:
+              - string
+              - array
+      '401':
+        description: Unauthorized
+        schema:
+          type: object
+          properties:
+            error:
+              description: An explanation for the error
+              type: string
+      '403':
+        description: Forbidden
+        schema:
+          type: object
+          properties:
+            error:
+              description: An explanation for the error
+              type: string
+      '404':
+        description: The object was not found
+        schema:
+          type: object
+          properties:
+            error:
+              description: An explanation for the error
+              type: string
+      '409':
+        description: Conflict
+        schema:
+          type: object
+          properties:
+            error:
+              description: An explanation for the error
+              type: string
+      '500':
+        description: Internal server error
+        schema:
+          type: object
+          properties:
+            error:
+              description: An explanation for the error
+              type: string
+    x-koha-authorization:
+      permissions: {}

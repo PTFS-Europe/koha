@@ -19,12 +19,12 @@ properties:
     description: Fiscal period code
   start_date:
     type: string
-    format: date-time
+    format: date
     readOnly: true
     description: Start date for the fiscal period
   end_date:
     type: string
-    format: date-time
+    format: date
     readOnly: true
     description: End date for the fiscal period
   spend_limit:
@@ -50,4 +50,19 @@ properties:
       - string
       - "null"
     description: Library group visibility
+  ledgers:
+    type: array
+    description: List of ledgers
+    items:
+      $ref: "ledger.yaml"
+  funds:
+    type: array
+    description: List of funds
+    items:
+      $ref: "fund.yaml"
+  owner:
+    type: object
+    description: Owner of the ledger
+    items:
+      $ref: "patron.yaml"
 additionalProperties: false

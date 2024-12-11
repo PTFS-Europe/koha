@@ -75,4 +75,29 @@ properties:
       - integer
       - "null"
     description: Value of the fund
+  fiscal_period:
+    type: object
+    description: Fiscal_period
+    items:
+      $ref: "fiscal_period.yaml"
+  ledger:
+    type: object
+    description: Ledger
+    items:
+      $ref: "ledger.yaml"
+  sub_funds:
+    type: array
+    description: List of sub_funds
+    items:
+      $ref: "sub_fund.yaml"
+  fund_allocations:
+    type: array
+    description: List of fund_allocations
+    items:
+      $ref: "fund_allocation.yaml"
+  owner:
+    type: object
+    description: Owner of the ledger
+    items:
+      $ref: "patron.yaml"
 additionalProperties: false

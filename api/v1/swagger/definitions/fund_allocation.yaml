@@ -12,6 +12,11 @@ properties:
       - integer
       - "null"
     description: Internal fund identifier
+  sub_fund_id:
+    type:
+      - integer
+      - "null"
+    description: Internal sub fund identifier
   ledger_id:
     type:
       - integer
@@ -27,6 +32,16 @@ properties:
       - integer
       - "null"
     description: Amount allocated to the fund
+  allocation_index:
+    type:
+      - integer
+      - "null"
+    description: Index of the allocation
+  new_fund_value:
+    type:
+      - integer
+      - "null"
+    description: Value of the fund after the allocation
   reference:
     type:
       - string
@@ -65,4 +80,24 @@ properties:
       - string
       - "null"
     description: Library group visibility
+  fiscal_period:
+    type: object
+    description: Fiscal_period
+    items:
+      $ref: "fiscal_period.yaml"
+  ledger:
+    type: object
+    description: Ledger
+    items:
+      $ref: "ledger.yaml"
+  fund:
+    type: object
+    description: Fund
+    items:
+      $ref: "fund.yaml"
+  owner:
+    type: object
+    description: Owner of the ledger
+    items:
+      $ref: "patron.yaml"
 additionalProperties: false
