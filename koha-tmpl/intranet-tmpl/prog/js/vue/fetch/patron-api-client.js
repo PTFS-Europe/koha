@@ -13,6 +13,12 @@ export class PatronAPIClient extends HttpClient {
                 this.get({
                     endpoint: "patrons/" + id,
                 }),
+            getPermittedPatrons: (query, params) =>
+                this.get({
+                    endpoint: "permitted_patrons",
+                    query,
+                    params,
+                }),
         };
     }
 }
