@@ -96,7 +96,7 @@ export default {
             const client = APIClient.acquisition
             await client.fundGroups
                 .get(fund_group_id, {
-                    "x-koha-embed": "funds.fund_allocations",
+                    "x-koha-embed": "funds.fund_allocations,lib_group_limits",
                 })
                 .then(
                     fundGroup => {

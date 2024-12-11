@@ -93,7 +93,8 @@ export default {
             const client = APIClient.acquisition
             await client.ledgers
                 .get(ledger_id, {
-                    "x-koha-embed": "fiscal_period,funds.fund_allocations",
+                    "x-koha-embed":
+                        "fiscal_period,funds.fund_allocations,lib_group_limits",
                 })
                 .then(
                     ledger => {

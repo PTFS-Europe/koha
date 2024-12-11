@@ -175,7 +175,7 @@ export default {
             const whichParam = sub_fund_id ? "sub_fund_id" : "fund_id"
             const whichClient = sub_fund_id ? "subFunds" : "funds"
 
-            let embed = "fiscal_period,ledger,fund_allocations"
+            let embed = "fiscal_period,ledger,fund_allocations,lib_group_limits"
             if (sub_fund_id) {
                 embed += ",fund"
             }
