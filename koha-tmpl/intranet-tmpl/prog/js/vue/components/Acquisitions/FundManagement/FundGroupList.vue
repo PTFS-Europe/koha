@@ -1,5 +1,5 @@
 <template>
-    <div v-if="!initialized">Loading...</div>
+    <div v-if="!initialized">{{ $__("Loading") }}...</div>
     <div v-else id="fund_group_list">
         <Toolbar>
             <ToolbarLink
@@ -19,7 +19,7 @@
             ></KohaTable>
         </div>
         <div v-else class="dialog message">
-            There are no fund groups defined
+            {{ $__("There are no fund groups defined") }}
         </div>
     </div>
 </template>
@@ -101,16 +101,21 @@ export default {
         doDelete: function (fundGroup, dt, event) {
             this.setConfirmationDialog(
                 {
-                    title: "Are you sure you want to remove this fund group?",
+                    title: this.$__(
+                        "Are you sure you want to remove this fund group?"
+                    ),
                     message: fundGroup.name,
-                    accept_label: "Yes, delete",
-                    cancel_label: "No, do not delete",
+                    accept_label: this.$__("Yes, delete"),
+                    cancel_label: this.$__("No, do not delete"),
                 },
                 () => {
                     const client = APIClient.acquisition
                     client.fundGroups.delete(fundGroup.fund_group_id).then(
                         success => {
-                            this.setMessage(`Fund group deleted`, true)
+                            this.setMessage(
+                                this.$__("Fund group deleted"),
+                                true
+                            )
                             dt.draw()
                         },
                         error => {}

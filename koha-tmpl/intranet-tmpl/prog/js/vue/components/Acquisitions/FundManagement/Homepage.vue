@@ -1,5 +1,5 @@
 <template>
-    <h1 id="acq2_homepage">Homepage</h1>
+    <h1 id="acq2_homepage">{{ $__("Homepage") }}</h1>
 </template>
 
 <script>
@@ -19,7 +19,9 @@ export default {
     beforeCreate() {
         if (this.navigationBlocked) {
             setWarning(
-                "You did not have the required permissions to access that page. Please contact your system administrator."
+                this.$__(
+                    "You did not have the required permissions to access that page. Please contact your system administrator."
+                )
             )
             this.navigationBlocked = false
         }

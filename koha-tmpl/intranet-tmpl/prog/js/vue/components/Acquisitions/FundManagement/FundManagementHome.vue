@@ -3,35 +3,37 @@
         <ToolbarLink
             :to="{ name: 'FiscalPeriodList' }"
             icon="pen-to-square"
-            title="Manage fiscal periods"
+            :title="$__('Manage fiscal periods')"
             v-if="isUserPermitted('manageFiscalPeriods')"
         />
         <ToolbarLink
             :to="{ name: 'LedgerList' }"
             icon="pen-to-square"
-            title="Manage ledgers"
+            :title="$__('Manage ledgers')"
             v-if="isUserPermitted('manageLedgers')"
         />
         <ToolbarLink
             :to="{ name: 'FundGroupList' }"
             icon="pen-to-square"
-            title="Manage fund groups"
+            :title="$__('Manage fund groups')"
             v-if="isUserPermitted('manageFundGroups')"
         />
         <ToolbarLink
             :to="{ name: 'FundList' }"
             icon="pen-to-square"
-            title="Manage funds"
+            :title="$__('Manage funds')"
             v-if="isUserPermitted('manageFunds')"
         />
     </Toolbar>
     <div v-if="initialized">
-        <h1>Funds and ledgers</h1>
+        <h1>{{ $__("Funds and ledgers") }}</h1>
         <fieldset class="filters">
-            <h2>Filters</h2>
+            <h2>{{ $__("Filters") }}</h2>
             <div class="filters-grid">
                 <div class="filter-grid-cell">
-                    <label for="status" class="filter-label">Status:</label>
+                    <label for="status" class="filter-label"
+                        >{{ $__("Status") }}:</label
+                    >
                     <v-select
                         id="status"
                         v-model="filters.status"
@@ -50,7 +52,7 @@
                 </div>
                 <div class="filter-grid-cell">
                     <label for="fund_fund_type" class="filter-label"
-                        >Fund type:</label
+                        >{{ $__("Fund type") }}:</label
                     >
                     <v-select
                         id="fund_fund_type"
@@ -70,7 +72,7 @@
                 </div>
                 <div class="filter-grid-cell">
                     <label for="fund_fund_group" class="filter-label"
-                        >Fund group:</label
+                        >{{ $__("Fund group") }}:</label
                     >
                     <v-select
                         id="fund_fund_group"
@@ -89,7 +91,9 @@
                     </v-select>
                 </div>
                 <div class="filter-grid-cell">
-                    <label for="owner" class="filter-label">Owner:</label>
+                    <label for="owner" class="filter-label"
+                        >{{ $__("Owner") }}:</label
+                    >
                     <v-select
                         id="owner"
                         v-model="filters.owner_id"
@@ -108,7 +112,7 @@
                 </div>
                 <div class="filter-grid-cell">
                     <label for="fiscal_period" class="filter-label"
-                        >Fiscal period:</label
+                        >{{ $__("Fiscal period") }}:</label
                     >
                     <InfiniteScrollSelect
                         id="fiscal_period"
@@ -123,7 +127,9 @@
                     />
                 </div>
                 <div class="filter-grid-cell">
-                    <label for="ledger" class="filter-label">Ledger:</label>
+                    <label for="ledger" class="filter-label"
+                        >{{ $__("Ledger") }}:</label
+                    >
                     <InfiniteScrollSelect
                         id="ledger"
                         v-model="filters.ledger_id"
@@ -152,14 +158,14 @@
         </fieldset>
         <div class="ledgers-and-funds">
             <div class="page-section flex-table">
-                <h2>Ledgers</h2>
+                <h2>{{ $__("Ledgers") }}</h2>
                 <KohaTable
                     ref="ledgersTable"
                     v-bind="tableOptionsLedgers"
                 ></KohaTable>
             </div>
             <div class="page-section flex-table" style="margin-top: 0px">
-                <h2>Funds</h2>
+                <h2>{{ $__("Funds") }}</h2>
                 <KohaTable
                     ref="fundsTable"
                     v-bind="tableOptionsFunds"
@@ -227,8 +233,8 @@ export default {
                 ledger_id: null,
             },
             statusOptions: [
-                { description: "Active", value: 1 },
-                { description: "Inactive", value: 0 },
+                { description: this.$__("Active"), value: 1 },
+                { description: this.$__("Inactive"), value: 0 },
             ],
             fundGroups: [],
             initialized: false,

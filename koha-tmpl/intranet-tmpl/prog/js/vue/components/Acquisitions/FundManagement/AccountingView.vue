@@ -2,14 +2,14 @@
     <div id="account_view" class="page-section">
         <table class="accounts_table">
             <tr>
-                <th>Description</th>
-                <th>Amount</th>
+                <th>{{ $__("Description") }}</th>
+                <th>{{ $__("Amount") }}</th>
                 <th class="centre_column"></th>
-                <th>Description</th>
-                <th>Amount</th>
+                <th>{{ $__("Description") }}</th>
+                <th>{{ $__("Amount") }}</th>
             </tr>
             <tr>
-                <td>Increase in allocation</td>
+                <td>{{ $__("Increase in allocation") }}</td>
                 <td>
                     {{
                         formatValueWithCurrency(
@@ -19,11 +19,11 @@
                     }}
                 </td>
                 <td class="centre_column"></td>
-                <td>Encumbered</td>
+                <td>{{ $__("Encumbered") }}</td>
                 <td>{{ formatValueWithCurrency(currency) }}</td>
             </tr>
             <tr>
-                <td>Decrease in allocation</td>
+                <td>{{ $__("Decrease in allocation") }}</td>
                 <td>
                     {{
                         formatValueWithCurrency(
@@ -33,18 +33,18 @@
                     }}
                 </td>
                 <td class="centre_column"></td>
-                <td>Awaiting payment</td>
+                <td>{{ $__("Awaiting payment") }}</td>
                 <td>{{ formatValueWithCurrency(currency) }}</td>
             </tr>
             <tr>
-                <td>Total allocated</td>
+                <td>{{ $__("Total allocated") }}</td>
                 <td>
                     {{
                         formatValueWithCurrency(currency, data.total_allocation)
                     }}
                 </td>
                 <td class="centre_column"></td>
-                <td>Expended</td>
+                <td>{{ $__("Expended") }}</td>
                 <td>{{ formatValueWithCurrency(currency) }}</td>
             </tr>
             <tr>
@@ -55,34 +55,34 @@
                 <td class="centre_column"></td>
             </tr>
             <tr>
-                <td>Net transfers</td>
+                <td>{{ $__("Net transfers") }}</td>
                 <td>
                     {{ formatValueWithCurrency(currency, data.net_transfers) }}
                 </td>
                 <td class="centre_column"></td>
-                <td>Over encumbrance</td>
+                <td>{{ $__("Over encumbrance") }}</td>
                 <td>{{ formatValueWithCurrency(currency) }}</td>
             </tr>
             <tr>
-                <td>Total funding</td>
+                <td>{{ $__("Total funding") }}</td>
                 <td>
                     {{
                         formatValueWithCurrency(currency, data.total_allocation)
                     }}
                 </td>
                 <td class="centre_column"></td>
-                <td>Over expended</td>
+                <td>{{ $__("Over expended") }}</td>
                 <td>{{ formatValueWithCurrency(currency) }}</td>
             </tr>
             <tr>
-                <td>Cash balance</td>
+                <td>{{ $__("Cash balance") }}</td>
                 <td>
                     {{
                         formatValueWithCurrency(currency, data.total_allocation)
                     }}
                 </td>
                 <td class="centre_column"></td>
-                <td>Available balance</td>
+                <td>{{ $__("Available balance") }}</td>
                 <td>
                     {{
                         formatValueWithCurrency(currency, data.total_allocation)

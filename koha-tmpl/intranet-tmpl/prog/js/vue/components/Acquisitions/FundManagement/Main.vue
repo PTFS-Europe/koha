@@ -129,7 +129,9 @@ export default {
                     const { acquisition, superlibrarian } = this.user.userflags
                     if (!acquisition && !superlibrarian) {
                         return this.setError(
-                            "You do not have permission to access this module. Please contact your system administrator.",
+                            this.$__(
+                                "You do not have permission to access this module. Please contact your system administrator."
+                            ),
                             false
                         )
                     }

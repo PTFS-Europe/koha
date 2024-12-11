@@ -1,17 +1,17 @@
 <template>
-    <div v-if="!initialized">Loading...</div>
+    <div v-if="!initialized">{{ $__("Loading") }}...</div>
     <div v-else id="fund_add">
         <h2 v-if="fund.fund_id">
-            {{ `Edit fund ${fund.fund_id}` }}
+            {{ $__("Edit fund %s").format(fund.fund_id) }}
         </h2>
-        <h2 v-else>New fund</h2>
+        <h2 v-else>{{ $__("New fund") }}</h2>
         <div>
             <form @submit="onSubmit($event)">
                 <fieldset class="rows">
                     <ol>
                         <li>
                             <label class="required" for="fund_name"
-                                >Name:</label
+                                >{{ $__("Name") }}:</label
                             >
                             <input
                                 id="fund_name"
@@ -19,10 +19,12 @@
                                 placeholder="Fund name"
                                 required
                             />
-                            <span class="required">Required</span>
+                            <span class="required">{{ $__("Required") }}</span>
                         </li>
                         <li>
-                            <label for="fund_description">Description: </label>
+                            <label for="fund_description"
+                                >{{ $__("Description") }}:
+                            </label>
                             <textarea
                                 id="fund_description"
                                 v-model="fund.description"
@@ -33,7 +35,7 @@
                         </li>
                         <li>
                             <label class="required" for="fund_code"
-                                >Code:</label
+                                >{{ $__("Code") }}:</label
                             >
                             <input
                                 id="fund_code"
@@ -41,11 +43,11 @@
                                 placeholder="Fund code"
                                 required
                             />
-                            <span class="required">Required</span>
+                            <span class="required">{{ $__("Required") }}</span>
                         </li>
                         <li>
                             <label for="fund_fiscal_period_id" class="required"
-                                >Fiscal period:</label
+                                >{{ $__("Fiscal period") }}:</label
                             >
                             <InfiniteScrollSelect
                                 id="fund_fiscal_period_id"
@@ -60,11 +62,11 @@
                                     filterLedgersBySelectedFiscalPeriod($event)
                                 "
                             />
-                            <span class="required">Required</span>
+                            <span class="required">{{ $__("Required") }}</span>
                         </li>
                         <li>
                             <label for="fund_ledger_id" class="required"
-                                >Ledger:</label
+                                >{{ $__("Ledger") }}:</label
                             >
                             <v-select
                                 id="fund_ledger_id"
@@ -88,10 +90,12 @@
                                     />
                                 </template>
                             </v-select>
-                            <span class="required">Required</span>
+                            <span class="required">{{ $__("Required") }}</span>
                         </li>
                         <li>
-                            <label for="fund_fund_group_id">Fund group:</label>
+                            <label for="fund_fund_group_id"
+                                >{{ $__("Fund group") }}:</label
+                            >
                             <v-select
                                 id="fund_fund_group"
                                 v-model="fund.fund_group_id"
@@ -110,7 +114,9 @@
                             </v-select>
                         </li>
                         <li>
-                            <label for="fund_fund_type">Fund type:</label>
+                            <label for="fund_fund_type"
+                                >{{ $__("Fund type") }}:</label
+                            >
                             <v-select
                                 id="fund_fund_type"
                                 v-model="fund.fund_type"
@@ -129,7 +135,7 @@
                         </li>
                         <li>
                             <label for="fund_status" class="required"
-                                >Status:</label
+                                >{{ $__("Status") }}:</label
                             >
                             <v-select
                                 id="fund_status"
@@ -151,10 +157,12 @@
                                     />
                                 </template>
                             </v-select>
-                            <span class="required">Required</span>
+                            <span class="required">{{ $__("Required") }}</span>
                         </li>
                         <li>
-                            <label for="fund_external_id">External ID:</label>
+                            <label for="fund_external_id"
+                                >{{ $__("External ID") }}:</label
+                            >
                             <input
                                 id="fund_external_id"
                                 v-model="fund.external_id"
@@ -165,7 +173,7 @@
                             <label
                                 for="fund_lib_group_visibility"
                                 class="required"
-                                >Visible to:</label
+                                >{{ $__("Visible to") }}:</label
                             >
                             <v-select
                                 id="fund_lib_group_visibility"
@@ -192,7 +200,7 @@
                                     />
                                 </template>
                             </v-select>
-                            <span class="required">Required</span>
+                            <span class="required">{{ $__("Required") }}</span>
                         </li>
                     </ol>
                 </fieldset>
@@ -202,7 +210,7 @@
                         :to="{ name: 'FundList' }"
                         role="button"
                         class="cancel"
-                        >Cancel</router-link
+                        >{{ $__("Cancel") }}</router-link
                     >
                 </fieldset>
             </form>
@@ -250,12 +258,12 @@ export default {
         return {
             initialized: false,
             statusOptions: [
-                { description: "Active", value: 1 },
-                { description: "Inactive", value: 0 },
+                { description: this.$__("Active"), value: 1 },
+                { description: this.$__("Inactive"), value: 0 },
             ],
             allowedOptions: [
-                { description: "Allowed", value: 1 },
-                { description: "Not allowed", value: 0 },
+                { description: this.$__("Allowed"), value: 1 },
+                { description: this.$__("Not allowed"), value: 0 },
             ],
             fund: {
                 fiscal_period_id: null,
@@ -335,7 +343,9 @@ export default {
                 const { ledgers: ledgers } = this.fiscalPeriod
                 if (!ledgers || ledgers.length === 0) {
                     setWarning(
-                        "There are no ledgers attached to this fiscal period. Please create one or select a different fiscal period."
+                        this.$__(
+                            "There are no ledgers attached to this fiscal period. Please create one or select a different fiscal period."
+                        )
                     )
                     this.ledger.fiscal_period_id = null
                     return
@@ -386,7 +396,9 @@ export default {
 
             if (!this.isUserPermitted("createFund")) {
                 setWarning(
-                    "You do not have the required permissions to create funds."
+                    this.$__(
+                        "You do not have the required permissions to create funds."
+                    )
                 )
                 return
             }
@@ -403,7 +415,7 @@ export default {
                 const acq_client = APIClient.acquisition
                 acq_client.funds.update(fund, fund_id).then(
                     success => {
-                        setMessage("Fund updated")
+                        setMessage(this.$__("Fund updated"))
                         this.$router.push({ name: "FundList" })
                     },
                     error => {}
@@ -412,7 +424,7 @@ export default {
                 const acq_client = APIClient.acquisition
                 acq_client.funds.create(fund).then(
                     success => {
-                        setMessage("Fund created")
+                        setMessage(this.$__("Fund created"))
                         this.$router.push({ name: "FundList" })
                     },
                     error => {}

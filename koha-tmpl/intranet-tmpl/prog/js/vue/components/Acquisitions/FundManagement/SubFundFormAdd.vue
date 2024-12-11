@@ -1,17 +1,17 @@
 <template>
-    <div v-if="!initialized">Loading...</div>
+    <div v-if="!initialized">{{ $__("Loading") }}...</div>
     <div v-else id="sub_fund_add">
         <h2 v-if="sub_fund.sub_fund_id">
-            {{ `Edit sub fund ${sub_fund.sub_fund_id}` }}
+            {{ $__("Edit sub fund %s").format(sub_fund.sub_fund_id) }}
         </h2>
-        <h2 v-else>New sub fund</h2>
+        <h2 v-else>{{ $__("New sub fund") }}</h2>
         <div>
             <form @submit="onSubmit($event)">
                 <fieldset class="rows">
                     <ol>
                         <li>
                             <label class="required" for="fund_name"
-                                >Name:</label
+                                >{{ $__("Name") }}:</label
                             >
                             <input
                                 id="fund_name"
@@ -19,10 +19,12 @@
                                 placeholder="Fund name"
                                 required
                             />
-                            <span class="required">Required</span>
+                            <span class="required">{{ $__("Required") }}</span>
                         </li>
                         <li>
-                            <label for="fund_description">Description: </label>
+                            <label for="fund_description"
+                                >{{ $__("Description") }}:
+                            </label>
                             <textarea
                                 id="fund_description"
                                 v-model="sub_fund.description"
@@ -33,7 +35,7 @@
                         </li>
                         <li>
                             <label class="required" for="fund_code"
-                                >Code:</label
+                                >{{ $__("Code") }}:</label
                             >
                             <input
                                 id="fund_code"
@@ -41,10 +43,12 @@
                                 placeholder="Fund code"
                                 required
                             />
-                            <span class="required">Required</span>
+                            <span class="required">{{ $__("Required") }}</span>
                         </li>
                         <li>
-                            <label for="fund_external_id">External ID:</label>
+                            <label for="fund_external_id"
+                                >{{ $__("External ID") }}:</label
+                            >
                             <input
                                 id="fund_external_id"
                                 v-model="sub_fund.external_id"
@@ -53,7 +57,7 @@
                         </li>
                         <li>
                             <label for="fund_status" class="required"
-                                >Status:</label
+                                >{{ $__("Status") }}:</label
                             >
                             <v-select
                                 id="fund_status"
@@ -75,7 +79,7 @@
                                     />
                                 </template>
                             </v-select>
-                            <span class="required">Required</span>
+                            <span class="required">{{ $__("Required") }}</span>
                         </li>
                     </ol>
                 </fieldset>
@@ -85,7 +89,7 @@
                         :to="{ name: 'FundList' }"
                         role="button"
                         class="cancel"
-                        >Cancel</router-link
+                        >{{ $__("Cancel") }}</router-link
                     >
                 </fieldset>
             </form>
@@ -133,8 +137,8 @@ export default {
         return {
             initialized: false,
             statusOptions: [
-                { description: "Active", value: 1 },
-                { description: "Inactive", value: 0 },
+                { description: this.$__("Active"), value: 1 },
+                { description: this.$__("Inactive"), value: 0 },
             ],
             sub_fund: {
                 fiscal_period_id: null,
@@ -192,7 +196,9 @@ export default {
 
             if (!this.isUserPermitted("createFund")) {
                 setWarning(
-                    "You do not have the required permissions to create sub funds."
+                    this.$__(
+                        "You do not have the required permissions to create sub funds."
+                    )
                 )
                 return
             }
@@ -206,7 +212,7 @@ export default {
                 const acq_client = APIClient.acquisition
                 acq_client.subFunds.update(sub_fund, sub_fund_id).then(
                     success => {
-                        setMessage("Sub fund updated")
+                        setMessage(this.$__("Sub fund updated"))
                         this.$router.push({
                             name: "FundShow",
                             params: { fund_id: sub_fund.fund_id },
@@ -218,7 +224,7 @@ export default {
                 const acq_client = APIClient.acquisition
                 acq_client.subFunds.create(sub_fund).then(
                     success => {
-                        setMessage("Sub fund created")
+                        setMessage(this.$__("Sub fund created"))
                         this.$router.push({
                             name: "FundShow",
                             params: { fund_id: sub_fund.fund_id },

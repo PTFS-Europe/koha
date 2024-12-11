@@ -1,5 +1,5 @@
 <template>
-    <div v-if="!initialized">Loading...</div>
+    <div v-if="!initialized">{{ $__("Loading") }}...</div>
     <div v-else id="fiscal_period_list">
         <Toolbar>
             <ToolbarLink
@@ -19,7 +19,7 @@
             ></KohaTable>
         </div>
         <div v-else class="dialog message">
-            There are no fiscal periods defined
+            {{ $__("There are no fiscal periods defined") }}
         </div>
     </div>
 </template>
@@ -100,10 +100,12 @@ export default {
         doDelete: function (fiscal_period, dt, event) {
             this.setConfirmationDialog(
                 {
-                    title: "Are you sure you want to remove this fiscal period?",
+                    title: this.$__(
+                        "Are you sure you want to remove this fiscal period?"
+                    ),
                     message: fiscal_period.name,
-                    accept_label: "Yes, delete",
-                    cancel_label: "No, do not delete",
+                    accept_label: this.$__("Yes, delete"),
+                    cancel_label: this.$__("No, do not delete"),
                 },
                 () => {
                     const client = APIClient.acquisition
@@ -111,7 +113,10 @@ export default {
                         .delete(fiscal_period.fiscal_period_id)
                         .then(
                             success => {
-                                this.setMessage(`Fiscal period deleted`, true)
+                                this.setMessage(
+                                    this.$__("Fiscal period deleted"),
+                                    true
+                                )
                                 dt.draw()
                             },
                             error => {}
@@ -148,7 +153,7 @@ export default {
                     searchable: true,
                     orderable: true,
                     render: function (data, type, row, meta) {
-                        return row.status ? "Active" : "Inactive"
+                        return row.status ? __("Active") : __("Inactive")
                     },
                 },
                 {

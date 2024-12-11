@@ -1,14 +1,14 @@
 <template>
-    <div v-if="!initialized">Loading...</div>
+    <div v-if="!initialized">{{ $__("Loading") }}...</div>
     <div v-else id="fund_transfer_add">
-        <h2>Transfer between funds</h2>
+        <h2>{{ $__("Transfer between funds") }}</h2>
         <div>
             <form @submit="onSubmit($event)">
                 <fieldset class="rows">
                     <ol>
                         <li>
                             <label for="fund_transfer_fund_id" class="required"
-                                >Fund to transfer to:</label
+                                >{{ $__("Fund to transfer to") }}:</label
                             >
                             <InfiniteScrollSelect
                                 id="fund_transfer_fund_id"
@@ -24,13 +24,13 @@
                                 }"
                                 @update:modelValue="handleSubFunds"
                             />
-                            <span class="required">Required</span>
+                            <span class="required">{{ $__("Required") }}</span>
                         </li>
                         <li>
                             <label
                                 for="fund_transfer_sub_fund"
                                 :class="noSubFunds ? '' : 'required'"
-                                >Sub fund:</label
+                                >{{ $__("Sub fund") }}:</label
                             >
                             <v-select
                                 id="fund_transfer_sub_fund"
@@ -53,13 +53,13 @@
                                     />
                                 </template>
                             </v-select>
-                            <span v-if="!noSubFunds" class="required"
-                                >Required</span
-                            >
+                            <span v-if="!noSubFunds" class="required">{{
+                                $__("Required")
+                            }}</span>
                         </li>
                         <li>
                             <label for="fund_transfer_amount" class="required"
-                                >Allocation amount:</label
+                                >{{ $__("Allocation amount") }}:</label
                             >
                             <input
                                 id="fund_transfer_amount"
@@ -67,11 +67,11 @@
                                 type="number"
                                 step=".01"
                             />
-                            <span class="required">Required</span>
+                            <span class="required">{{ $__("Required") }}</span>
                         </li>
                         <li>
                             <label for="fund_transfer_reference"
-                                >Reference:</label
+                                >{{ $__("Reference") }}:</label
                             >
                             <input
                                 id="fund_transfer_reference"
@@ -80,7 +80,9 @@
                             />
                         </li>
                         <li>
-                            <label for="fund_transfer_note">Note: </label>
+                            <label for="fund_transfer_note"
+                                >{{ $__("Note") }}:
+                            </label>
                             <textarea
                                 id="fund_transfer_note"
                                 v-model="fund_transfer.note"
@@ -104,7 +106,7 @@
                         }"
                         role="button"
                         class="cancel"
-                        >Cancel</router-link
+                        >{{ $__("Cancel") }}</router-link
                     >
                 </fieldset>
             </form>
@@ -183,7 +185,9 @@ export default {
 
             if (!this.isUserPermitted("createFundAllocation")) {
                 setWarning(
-                    "You do not have the required permissions to transfer funds."
+                    this.$__(
+                        "You do not have the required permissions to transfer between funds."
+                    )
                 )
                 return
             }
@@ -193,7 +197,7 @@ export default {
             const acq_client = APIClient.acquisition
             acq_client.fundAllocations.transfer(fund_transfer).then(
                 success => {
-                    setMessage("Funds successfully transferred")
+                    setMessage(this.$__("Funds successfully transferred"))
                     this.$router.push({
                         name: "FundShow",
                         params: { fund_id: this.$route.query.fund_id },
