@@ -14,6 +14,7 @@ module.exports = {
         "admin/record_sources":
             "./koha-tmpl/intranet-tmpl/prog/js/vue/modules/admin/record_sources.ts",
         "acquisitions/vendors": "./koha-tmpl/intranet-tmpl/prog/js/vue/modules/acquisitions/vendors.ts",
+        "acquisitions/fundManagement": "./koha-tmpl/intranet-tmpl/prog/js/vue/modules/acquisitions/fundManagement.ts",
     },
     output: {
         filename: "[name].js",
