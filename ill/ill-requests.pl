@@ -476,8 +476,6 @@ if ( $backends_available ) {
         exit;
     } elsif ( $op eq "batch_list" ) {
         # Do not remove, it prevents us falling through to the 'else'
-    } elsif ( $op eq "batch_create" ) {
-        # Do not remove, it prevents us falling through to the 'else'
     } else {
         $op =~ s/^cud-//;
         my $request = Koha::ILL::Requests->find( $params->{illrequest_id} );
