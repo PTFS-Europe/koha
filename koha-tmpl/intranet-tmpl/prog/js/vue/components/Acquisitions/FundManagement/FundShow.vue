@@ -2,33 +2,13 @@
     <div v-if="!initialized">{{ $__("Loading") }}...</div>
     <div v-else id="funds_show">
         <Toolbar>
-            <ToolbarLink
-                :to="{ name: 'FundList' }"
-                icon="xmark"
-                :title="$__('Close')"
-            />
-            <ToolbarLink
-                :to="{
-                    name: isSubFund ? 'SubFundFormAddEdit' : 'FundFormEdit',
-                    params: {
-                        fund_id: fund.fund_id,
-                        ...(isSubFund && { sub_fund_id: fund.sub_fund_id }),
-                    },
-                }"
-                icon="pencil"
-                :title="$__('Edit')"
-                v-if="isUserPermitted('editFund')"
+            <ToolbarButton
+                action="edit"
+                @go-to-edit-resource="goToResourceEdit"
             />
             <ToolbarButton
-                icon="trash"
-                :title="$__('Delete')"
-                @clicked="
-                    deleteFund(
-                        isSubFund ? fund.sub_fund_id : fund.fund_id,
-                        fund.name
-                    )
-                "
-                v-if="isUserPermitted('deleteFund')"
+                action="delete"
+                @delete-resource="doResourceDelete"
             />
             <ToolbarLink
                 :to="{
@@ -112,8 +92,10 @@ import { APIClient } from "../../../fetch/api-client.js"
 import DisplayDataFields from "../../DisplayDataFields.vue"
 import KohaTable from "../../KohaTable.vue"
 import AccountingView from "./AccountingView.vue"
+import FundResource from "./FundResource.vue"
 
 export default {
+    extends: FundResource,
     setup() {
         const { setConfirmationDialog, setMessage, setWarning } =
             inject("mainStore")
@@ -125,6 +107,7 @@ export default {
         const subFundTable = ref()
 
         return {
+            ...FundResource.setup(),
             setConfirmationDialog,
             setMessage,
             setWarning,
@@ -175,12 +158,13 @@ export default {
             const whichParam = sub_fund_id ? "sub_fund_id" : "fund_id"
             const whichClient = sub_fund_id ? "subFunds" : "funds"
 
-            let embed = "fiscal_period,ledger,fund_allocations,lib_group_limits"
+            let embed =
+                "fiscal_period,ledger,fund_allocations,lib_group_limits,owner"
             if (sub_fund_id) {
                 embed += ",fund"
             }
             if (fund_id) {
-                embed += ",fund_group,sub_funds.fund_allocations"
+                embed += ",sub_funds.fund_allocations"
             }
             await client[whichClient]
                 .get(params[whichParam], { "x-koha-embed": embed })

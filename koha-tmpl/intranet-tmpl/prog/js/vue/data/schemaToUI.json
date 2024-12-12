@@ -36,7 +36,7 @@
         "status": {
             "label": "Status",
             "type": "enum",
-            "options": { "1": "Active", "0": "Inactive" }
+            "options": { "true": "Active", "false": "Inactive" }
         },
         "last_updated": {
             "label": "Last updated",
@@ -84,7 +84,7 @@
         "status": {
             "label": "Status",
             "type": "enum",
-            "options": { "1": "Active", "0": "Inactive" }
+            "options": { "true": "Active", "false": "Inactive" }
         },
         "last_updated": {
             "label": "Last updated",
@@ -101,12 +101,12 @@
         "over_spend_allowed": {
             "label": "Overspend allowed",
             "type": "enum",
-            "options": { "1": "Allowed", "0": "Not allowed" }
+            "options": { "true": "Allowed", "false": "Not allowed" }
         },
         "over_encumbrance_allowed": {
             "label": "Overencumbrance allowed",
             "type": "enum",
-            "options": { "1": "Allowed", "0": "Not allowed" }
+            "options": { "true": "Allowed", "false": "Not allowed" }
         },
         "oe_warning_percent": {
             "label": "Overencumbrance warning percentage",
@@ -174,7 +174,7 @@
         "status": {
             "label": "Status",
             "type": "enum",
-            "options": { "1": "Active", "0": "Inactive" }
+            "options": { "true": "Active", "false": "Inactive" }
         },
         "last_updated": {
             "label": "Last updated",
@@ -259,7 +259,7 @@
         "status": {
             "label": "Status",
             "type": "enum",
-            "options": { "1": "Active", "0": "Inactive" }
+            "options": { "true": "Active", "false": "Inactive" }
         },
         "last_updated": {
             "label": "Last updated",

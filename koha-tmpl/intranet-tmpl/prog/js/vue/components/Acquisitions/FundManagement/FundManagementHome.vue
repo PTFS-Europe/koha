@@ -286,7 +286,7 @@ export default {
                     render: function (data, type, row, meta) {
                         const key = `${dataType}_id`
                         return (
-                            `<a href="/acquisitions/fund_management/${dataType}/` +
+                            `<a href="/cgi-bin/koha/fund_management/${dataType}/` +
                             row[key] +
                             '" class="show">' +
                             escape_str(`${row.name}`) +

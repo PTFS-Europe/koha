@@ -205,7 +205,7 @@
                     </ol>
                 </fieldset>
                 <fieldset class="action">
-                    <input type="submit" value="Submit" />
+                    <ButtonSubmit />
                     <router-link
                         :to="{ name: 'FundList' }"
                         role="button"
@@ -224,6 +224,7 @@ import { storeToRefs } from "pinia"
 import { APIClient } from "../../../fetch/api-client.js"
 import { setMessage, setWarning } from "../../../messages"
 import InfiniteScrollSelect from "../../InfiniteScrollSelect.vue"
+import ButtonSubmit from "../../ButtonSubmit.vue"
 
 export default {
     setup() {
@@ -437,6 +438,7 @@ export default {
     },
     components: {
         InfiniteScrollSelect,
+        ButtonSubmit,
     },
 }
 </script>
