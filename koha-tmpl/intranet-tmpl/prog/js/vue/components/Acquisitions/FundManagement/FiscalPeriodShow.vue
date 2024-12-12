@@ -24,18 +24,7 @@
             <div class="page-section filler"></div>
         </div>
     </div>
-    <div v-if="initialized" id="ledgers">
-        <div class="page-section">
-            <h3>{{ $__("Ledgers") }}</h3>
-            <KohaTable
-                ref="table"
-                v-bind="tableOptions"
-                @show="doShow"
-                @edit="doEdit"
-                @delete="doDelete"
-            ></KohaTable>
-        </div>
-    </div>
+    <LedgerList v-if="initialized" :embedded="true" />
 </template>
 
 <script>
@@ -47,6 +36,7 @@ import ToolbarButton from "../../ToolbarButton.vue"
 import ToolbarLink from "../../ToolbarLink.vue"
 import KohaTable from "../../KohaTable.vue"
 import FiscalPeriodResource from "./FiscalPeriodResource.vue"
+import LedgerList from "./LedgerList.vue"
 
 export default {
     extends: FiscalPeriodResource,
@@ -56,39 +46,18 @@ export default {
         const acquisitionsStore = inject("acquisitionsStore")
         const { isUserPermitted, formatValueWithCurrency } = acquisitionsStore
 
-        const table = ref()
-
         return {
             ...FiscalPeriodResource.setup(),
             setConfirmationDialog,
             setMessage,
             isUserPermitted,
             formatValueWithCurrency,
-            table,
         }
     },
     data() {
-        const actionButtons = []
-        if (this.isUserPermitted("editLedger")) {
-            actionButtons.push("edit")
-        }
-        if (this.isUserPermitted("deleteLedger")) {
-            actionButtons.push("delete")
-        }
         return {
             fiscal_period: {},
             initialized: false,
-            tableOptions: {
-                columns: this.getTableColumns(),
-                url: this.tableUrl(),
-                options: { embed: "funds" },
-                table_settings: null,
-                add_filters: true,
-                actions: {
-                    0: ["show"],
-                    "-1": actionButtons,
-                },
-            },
         }
     },
     beforeRouteEnter(to, from, next) {
@@ -111,102 +80,6 @@ export default {
                     error => {}
                 )
         },
-        doShow: function ({ ledger_id }, dt, event) {
-            event.preventDefault()
-            this.$router.push({ name: "LedgerShow", params: { ledger_id } })
-        },
-        doEdit: function ({ ledger_id }, dt, event) {
-            this.$router.push({
-                name: "LedgerFormEdit",
-                params: { ledger_id },
-            })
-        },
-        doDelete: function (ledger, dt, event) {
-            this.setConfirmationDialog(
-                {
-                    title: this.$__(
-                        "Are you sure you want to remove this ledger?"
-                    ),
-                    message: ledger.name,
-                    accept_label: this.$__("Yes, delete"),
-                    cancel_label: this.$__("No, do not delete"),
-                },
-                () => {
-                    const client = APIClient.acquisition
-                    client.ledgers.delete(ledger.ledger_id).then(
-                        success => {
-                            this.setMessage(this.$__("Ledger deleted"), true)
-                            dt.draw()
-                        },
-                        error => {}
-                    )
-                }
-            )
-        },
-        getTableColumns: function () {
-            const formatValueWithCurrency = this.formatValueWithCurrency
-            return [
-                {
-                    title: __("Name"),
-                    data: "name:ledger_id",
-                    searchable: true,
-                    orderable: true,
-                    render: function (data, type, row, meta) {
-                        return (
-                            '<a href="/acquisitions/fund_management/ledger/' +
-                            row.ledger_id +
-                            '" class="show">' +
-                            escape_str(`${row.name}`) +
-                            "</a>"
-                        )
-                    },
-                },
-                {
-                    title: __("Code"),
-                    data: "code",
-                    searchable: true,
-                    orderable: true,
-                },
-                {
-                    title: __("Status"),
-                    data: "status",
-                    searchable: true,
-                    orderable: true,
-                    render: function (data, type, row, meta) {
-                        return row.status ? __("Active") : __("Inactive")
-                    },
-                },
-                {
-                    title: __("Fund count"),
-                    data: "status",
-                    searchable: true,
-                    orderable: true,
-                    render: function (data, type, row, meta) {
-                        return row.funds.length
-                    },
-                },
-                {
-                    title: __("Ledger value"),
-                    searchable: true,
-                    orderable: true,
-                    render: function (data, type, row, meta) {
-                        const sum = row.funds.reduce(
-                            (acc, curr) => acc + curr.fund_value,
-                            0
-                        )
-                        return formatValueWithCurrency(row.currency, sum)
-                    },
-                },
-            ]
-        },
-        tableUrl() {
-            const id = this.$route.params.fiscal_period_id
-            let url = "/api/v1/acquisitions/ledgers?q="
-            const query = {
-                "me.fiscal_period_id": id,
-            }
-            return url + JSON.stringify(query)
-        },
     },
     components: {
         DisplayDataFields,
@@ -214,6 +87,7 @@ export default {
         ToolbarButton,
         ToolbarLink,
         KohaTable,
+        LedgerList,
     },
 }
 </script>

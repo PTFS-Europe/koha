@@ -1,7 +1,7 @@
 <template>
     <div v-if="!initialized">{{ $__("Loading") }}...</div>
     <div v-else id="fund_list">
-        <Toolbar>
+        <Toolbar v-if="!embedded">
             <ToolbarButton
                 action="add"
                 @go-to-add-resource="goToResourceAdd"
@@ -29,9 +29,16 @@ import { inject, ref } from "vue"
 import { APIClient } from "../../../fetch/api-client.js"
 import KohaTable from "../../KohaTable.vue"
 import FundResource from "./FundResource.vue"
+import ToolbarButton from "../../ToolbarButton.vue"
 
 export default {
     extends: FundResource,
+    props: {
+        embedded: {
+            type: Boolean,
+            default: false,
+        },
+    },
     setup() {
         const { setConfirmationDialog, setMessage } = inject("mainStore")
         const acquisitionsStore = inject("acquisitionsStore")
@@ -61,14 +68,16 @@ export default {
             initialized: false,
             tableOptions: {
                 columns: this.getTableColumns(),
-                url: "/api/v1/acquisitions/funds",
+                url: this.tableUrl(),
                 options: { embed: "fund_allocations" },
                 table_settings: null,
                 add_filters: true,
-                actions: {
-                    0: ["show"],
-                    "-1": actionButtons,
-                },
+                ...(!this.embedded && {
+                    actions: {
+                        0: ["show"],
+                        "-1": actionButtons,
+                    },
+                }),
             },
         }
     },
@@ -76,6 +85,11 @@ export default {
         next(vm => {
             vm.getFundCount().then(() => (vm.initialized = true))
         })
+    },
+    mounted() {
+        if (this.embedded) {
+            this.getFundCount().then(() => (this.initialized = true))
+        }
     },
     methods: {
         async getFundCount() {
@@ -97,7 +111,7 @@ export default {
                     orderable: true,
                     render: function (data, type, row, meta) {
                         return (
-                            '<a href="/acquisitions/fund_management/fund/' +
+                            '<a href="/cgi-bin/koha/fund_management/fund/' +
                             row.fund_id +
                             '" class="show">' +
                             escape_str(`${row.name}`) +
@@ -134,7 +148,17 @@ export default {
                 },
             ]
         },
+        tableUrl() {
+            if (this.embedded) {
+                const id = this.$route.params.ledger_id
+                const query = {
+                    "me.ledger_id": id,
+                }
+                return "/api/v1/acquisitions/funds?q=" + JSON.stringify(query)
+            }
+            return "/api/v1/acquisitions/funds"
+        },
     },
-    components: { Toolbar, ToolbarLink, KohaTable },
+    components: { Toolbar, ToolbarLink, KohaTable, ToolbarButton },
 }
 </script>

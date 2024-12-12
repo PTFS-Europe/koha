@@ -22,12 +22,7 @@
             <AccountingView :data="fundGroup" :currency="fundGroup.currency" />
         </div>
     </div>
-    <div v-if="initialized" id="funds">
-        <div class="page-section">
-            <h3>{{ $__("Funds") }}</h3>
-            <KohaTable ref="table" v-bind="tableOptions"></KohaTable>
-        </div>
-    </div>
+    <FundList v-if="initialized" :embedded="true" />
 </template>
 
 <script>
@@ -40,6 +35,7 @@ import DisplayDataFields from "../../DisplayDataFields.vue"
 import KohaTable from "../../KohaTable.vue"
 import AccountingView from "./AccountingView.vue"
 import FundGroupResource from "./FundGroupResource.vue"
+import FundList from "./FundList.vue"
 
 export default {
     extends: FundGroupResource,
@@ -66,15 +62,6 @@ export default {
         return {
             fundGroup: {},
             initialized: false,
-            tableOptions: {
-                columns: this.getTableColumns(),
-                url: this.tableUrl(),
-                table_settings: null,
-                add_filters: true,
-                actions: {
-                    0: ["show"],
-                },
-            },
         }
     },
     beforeRouteEnter(to, from, next) {
@@ -97,83 +84,6 @@ export default {
                     error => {}
                 )
         },
-        deleteFund: function (fund_group_id, fund_code) {
-            this.setConfirmationDialog(
-                {
-                    title: this.$__(
-                        "Are you sure you want to remove this fund group?"
-                    ),
-                    message: fund_code,
-                    accept_label: this.$__("Yes, delete"),
-                    cancel_label: this.$__("No, do not delete"),
-                },
-                () => {
-                    const client = APIClient.acquisition
-                    client.funds.delete(fund_group_id).then(
-                        success => {
-                            this.setMessage(this.$__("Fund group deleted"))
-                            this.$router.push({ name: "FundGroupList" })
-                        },
-                        error => {}
-                    )
-                }
-            )
-        },
-        getTableColumns: function () {
-            const formatValueWithCurrency = this.formatValueWithCurrency
-            return [
-                {
-                    title: __("Name"),
-                    data: "name:fund_id",
-                    searchable: true,
-                    orderable: true,
-                    render: function (data, type, row, meta) {
-                        return (
-                            '<a href="/acquisitions/fund_management/fund/' +
-                            row.fund_id +
-                            '" class="show">' +
-                            escape_str(`${row.name}`) +
-                            "</a>"
-                        )
-                    },
-                },
-                {
-                    title: __("Code"),
-                    data: "code",
-                    searchable: true,
-                    orderable: true,
-                },
-                {
-                    title: __("Status"),
-                    data: "status",
-                    searchable: true,
-                    orderable: true,
-                    render: function (data, type, row, meta) {
-                        return row.status ? __("Active") : __("Inactive")
-                    },
-                },
-                {
-                    title: __("Fund value"),
-                    data: "fund_value",
-                    searchable: true,
-                    orderable: true,
-                    render: function (data, type, row, meta) {
-                        return formatValueWithCurrency(
-                            row.currency,
-                            row.fund_value
-                        )
-                    },
-                },
-            ]
-        },
-        tableUrl() {
-            const id = this.$route.params.fund_group_id
-            let url = "/api/v1/acquisitions/funds?q="
-            const query = {
-                fund_group_id: id,
-            }
-            return url + JSON.stringify(query)
-        },
     },
     components: {
         DisplayDataFields,
@@ -182,6 +92,7 @@ export default {
         ToolbarLink,
         KohaTable,
         AccountingView,
+        FundList,
     },
 }
 </script>

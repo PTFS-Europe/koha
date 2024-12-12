@@ -63,7 +63,7 @@ export default {
                                 ? value
                                 : value[fields[key].linkId]
                         fields[key].href =
-                            "/acquisitions/fund_management/" +
+                            "/cgi-bin/koha/fund_management/" +
                             fields[key].linkSlug +
                             "/" +
                             linkParam

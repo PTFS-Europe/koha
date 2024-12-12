@@ -385,7 +385,6 @@ export default {
                 spend_limit: 0,
             },
             fiscal_period: null,
-            currencies: [],
             fiscal_period_groups: [],
         }
     },

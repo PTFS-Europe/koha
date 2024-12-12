@@ -1,7 +1,7 @@
 <template>
     <div v-if="!initialized">{{ $__("Loading") }}...</div>
     <div v-else id="ledger_list">
-        <Toolbar>
+        <Toolbar v-if="!embedded">
             <ToolbarButton
                 action="add"
                 @go-to-add-resource="goToResourceAdd"
@@ -29,9 +29,16 @@ import { inject, ref } from "vue"
 import { APIClient } from "../../../fetch/api-client.js"
 import KohaTable from "../../KohaTable.vue"
 import LedgerResource from "./LedgerResource.vue"
+import ToolbarButton from "../../ToolbarButton.vue"
 
 export default {
     extends: LedgerResource,
+    props: {
+        embedded: {
+            type: Boolean,
+            default: false,
+        },
+    },
     setup() {
         const { setConfirmationDialog, setMessage } = inject("mainStore")
         const acquisitionsStore = inject("acquisitionsStore")
@@ -61,14 +68,16 @@ export default {
             initialized: false,
             tableOptions: {
                 columns: this.getTableColumns(),
-                url: "/api/v1/acquisitions/ledgers",
+                url: this.tableUrl(),
                 options: { embed: "funds" },
                 table_settings: null,
                 add_filters: true,
-                actions: {
-                    0: ["show"],
-                    "-1": actionButtons,
-                },
+                ...(!this.embedded && {
+                    actions: {
+                        0: ["show"],
+                        "-1": actionButtons,
+                    },
+                }),
             },
         }
     },
@@ -76,6 +85,11 @@ export default {
         next(vm => {
             vm.getLedgerCount().then(() => (vm.initialized = true))
         })
+    },
+    mounted() {
+        if (this.embedded) {
+            this.getLedgerCount().then(() => (this.initialized = true))
+        }
     },
     methods: {
         async getLedgerCount() {
@@ -97,7 +111,7 @@ export default {
                     orderable: true,
                     render: function (data, type, row, meta) {
                         return (
-                            '<a href="/acquisitions/fund_management/ledger/' +
+                            '<a href="/cgi-bin/koha/fund_management/ledger/' +
                             row.ledger_id +
                             '" class="show">' +
                             escape_str(`${row.name}`) +
@@ -134,16 +148,25 @@ export default {
                     searchable: true,
                     orderable: true,
                     render: function (data, type, row, meta) {
-                        const sum = row.funds.reduce(
-                            (acc, curr) => acc + curr.fund_value,
-                            0
+                        return formatValueWithCurrency(
+                            row.currency,
+                            row.ledger_value
                         )
-                        return formatValueWithCurrency(row.currency, sum)
                     },
                 },
             ]
         },
+        tableUrl() {
+            if (this.embedded) {
+                const id = this.$route.params.fiscal_period_id
+                const query = {
+                    "me.fiscal_period_id": id,
+                }
+                return "/api/v1/acquisitions/ledgers?q=" + JSON.stringify(query)
+            }
+            return "/api/v1/acquisitions/ledgers"
+        },
     },
-    components: { Toolbar, ToolbarLink, KohaTable },
+    components: { Toolbar, ToolbarLink, KohaTable, ToolbarButton },
 }
 </script>
