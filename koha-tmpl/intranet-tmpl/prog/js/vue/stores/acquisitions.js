@@ -241,11 +241,7 @@ export const useAcquisitionsStore = defineStore("acquisitions", {
                 return [];
             }
             const groups = ids.includes("|") ? ids.split("|") : [ids];
-            const groupIds = groups
-                .filter(group => !!group)
-                .map(group => {
-                    return parseInt(group);
-                });
+            const groupIds = groups.filter(group => !!group);
             return groupIds;
         },
         formatValueWithCurrency(currency, value) {
