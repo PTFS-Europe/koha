@@ -474,16 +474,18 @@
 
 [%# Used to build individual breadcrumb items in the breadcrumb nav %]
 [% BLOCK breadcrumb_item %]
-    [% IF ( bc_active ) %]
-        <li class="breadcrumb-item active" aria-current="page">
-            <a href="#">
+    [% IF content.trim %]
+        [% IF ( bc_active ) %]
+            <li class="breadcrumb-item active" aria-current="page">
+                <a href="#">
+                    [% content | $raw %]
+                </a>
+            </li>
+        [% ELSE %]
+            <li class="breadcrumb-item">
                 [% content | $raw %]
-            </a>
-        </li>
-    [% ELSE %]
-        <li class="breadcrumb-item">
-            [% content | $raw %]
-        </li>
+            </li>
+        [% END %]
     [% END %]
 [% END %]
 
