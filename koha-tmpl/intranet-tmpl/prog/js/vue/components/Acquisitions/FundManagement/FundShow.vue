@@ -275,7 +275,7 @@ export default {
                     orderable: true,
                     render: function (data, type, row, meta) {
                         return (
-                            '<a href="/acquisitions/fund_management/fund/sub_fund/' +
+                            '<a href="/cgi-bin/koha/fund_management/fund/sub_fund/' +
                             row.sub_fund_id +
                             '" class="show">' +
                             escape_str(`${row.name}`) +

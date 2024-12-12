@@ -22,12 +22,7 @@
             <AccountingView :data="ledger" :currency="ledger.currency" />
         </div>
     </div>
-    <div v-if="initialized" id="funds">
-        <div class="page-section">
-            <h3>{{ $__("Funds") }}</h3>
-            <KohaTable ref="table" v-bind="tableOptions"></KohaTable>
-        </div>
-    </div>
+    <FundList v-if="initialized" :embedded="true" />
 </template>
 
 <script>
@@ -40,6 +35,7 @@ import DisplayDataFields from "../../DisplayDataFields.vue"
 import KohaTable from "../../KohaTable.vue"
 import AccountingView from "./AccountingView.vue"
 import LedgerResource from "./LedgerResource.vue"
+import FundList from "./FundList.vue"
 
 export default {
     extends: LedgerResource,
@@ -61,16 +57,6 @@ export default {
         return {
             ledger: {},
             initialized: false,
-            tableOptions: {
-                columns: this.getTableColumns(),
-                url: this.tableUrl(),
-                options: { embed: "fund_allocations" },
-                table_settings: null,
-                add_filters: true,
-                actions: {
-                    0: ["show"],
-                },
-            },
             currency: null,
         }
     },
@@ -95,61 +81,6 @@ export default {
                     error => {}
                 )
         },
-        getTableColumns: function () {
-            const formatValueWithCurrency = this.formatValueWithCurrency
-            return [
-                {
-                    title: __("Name"),
-                    data: "name",
-                    searchable: true,
-                    orderable: true,
-                    render: function (data, type, row, meta) {
-                        return (
-                            '<a href="/acquisitions/fund_management/fund/' +
-                            row.fund_id +
-                            '" class="show">' +
-                            escape_str(`${row.name}`) +
-                            "</a>"
-                        )
-                    },
-                },
-                {
-                    title: __("Code"),
-                    data: "code",
-                    searchable: true,
-                    orderable: true,
-                },
-                {
-                    title: __("Status"),
-                    data: "status",
-                    searchable: true,
-                    orderable: true,
-                    render: function (data, type, row, meta) {
-                        return row.status ? __("Active") : __("Inactive")
-                    },
-                },
-                {
-                    title: __("Fund value"),
-                    data: "fund_total",
-                    searchable: true,
-                    orderable: true,
-                    render: function (data, type, row, meta) {
-                        return formatValueWithCurrency(
-                            row.currency,
-                            row.fund_value
-                        )
-                    },
-                },
-            ]
-        },
-        tableUrl() {
-            const id = this.$route.params.ledger_id
-            let url = "/api/v1/acquisitions/funds?q="
-            const query = {
-                "me.ledger_id": id,
-            }
-            return url + JSON.stringify(query)
-        },
     },
     components: {
         DisplayDataFields,
@@ -158,6 +89,7 @@ export default {
         ToolbarLink,
         KohaTable,
         AccountingView,
+        FundList,
     },
 }
 </script>

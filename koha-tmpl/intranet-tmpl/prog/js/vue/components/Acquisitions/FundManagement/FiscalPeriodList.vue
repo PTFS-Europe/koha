@@ -29,6 +29,7 @@ import { inject, ref } from "vue"
 import { APIClient } from "../../../fetch/api-client.js"
 import KohaTable from "../../KohaTable.vue"
 import FiscalPeriodResource from "./FiscalPeriodResource.vue"
+import ToolbarButton from "../../ToolbarButton.vue"
 
 export default {
     extends: FiscalPeriodResource,
@@ -94,7 +95,7 @@ export default {
                     orderable: true,
                     render: function (data, type, row, meta) {
                         return (
-                            '<a href="/acquisitions/fund_management/fiscal_period/' +
+                            '<a href="/cgi-bin/koha/fund_management/fiscal_period/' +
                             row.fiscal_period_id +
                             '" class="show">' +
                             escape_str(`${row.code}`) +
@@ -138,6 +139,6 @@ export default {
             ]
         },
     },
-    components: { Toolbar, ToolbarLink, KohaTable },
+    components: { Toolbar, ToolbarLink, KohaTable, ToolbarButton },
 }
 </script>
