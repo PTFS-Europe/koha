@@ -2,20 +2,18 @@
     <div v-if="!initialized">{{ $__("Loading") }}...</div>
     <div v-else id="fund_group_list">
         <Toolbar>
-            <ToolbarLink
-                :to="{ name: 'FundGroupFormAdd' }"
-                icon="plus"
-                title="New fund group"
-                v-if="isUserPermitted('createFundGroup')"
+            <ToolbarButton
+                action="add"
+                @go-to-add-resource="goToResourceAdd"
+                :title="$__('New fund group')"
             />
         </Toolbar>
         <div v-if="fundGroupCount > 0" class="page-section">
             <KohaTable
                 ref="table"
                 v-bind="tableOptions"
-                @show="doShow"
-                @edit="doEdit"
-                @delete="doDelete"
+                @edit="goToResourceEdit"
+                @delete="doResourceDelete"
             ></KohaTable>
         </div>
         <div v-else class="dialog message">
@@ -30,8 +28,10 @@ import ToolbarLink from "../../ToolbarLink.vue"
 import { inject, ref } from "vue"
 import { APIClient } from "../../../fetch/api-client.js"
 import KohaTable from "../../KohaTable.vue"
+import FundGroupResource from "./FundGroupResource.vue"
 
 export default {
+    extends: FundGroupResource,
     setup() {
         const { setConfirmationDialog, setMessage } = inject("mainStore")
         const acquisitionsStore = inject("acquisitionsStore")
@@ -40,6 +40,7 @@ export default {
         const table = ref()
 
         return {
+            ...FundGroupResource.setup(),
             table,
             setConfirmationDialog,
             setMessage,
@@ -83,44 +84,6 @@ export default {
                     this.fundGroupCount = count
                 },
                 error => {}
-            )
-        },
-        doShow: function ({ fund_group_id }, dt, event) {
-            event.preventDefault()
-            this.$router.push({
-                name: "FundGroupShow",
-                params: { fund_group_id },
-            })
-        },
-        doEdit: function ({ fund_group_id }, dt, event) {
-            this.$router.push({
-                name: "FundGroupFormEdit",
-                params: { fund_group_id },
-            })
-        },
-        doDelete: function (fundGroup, dt, event) {
-            this.setConfirmationDialog(
-                {
-                    title: this.$__(
-                        "Are you sure you want to remove this fund group?"
-                    ),
-                    message: fundGroup.name,
-                    accept_label: this.$__("Yes, delete"),
-                    cancel_label: this.$__("No, do not delete"),
-                },
-                () => {
-                    const client = APIClient.acquisition
-                    client.fundGroups.delete(fundGroup.fund_group_id).then(
-                        success => {
-                            this.setMessage(
-                                this.$__("Fund group deleted"),
-                                true
-                            )
-                            dt.draw()
-                        },
-                        error => {}
-                    )
-                }
             )
         },
         getTableColumns: function () {

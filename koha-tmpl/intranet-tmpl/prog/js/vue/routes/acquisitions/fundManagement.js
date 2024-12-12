@@ -75,7 +75,7 @@ export const routes = [
                             {
                                 path: "edit/:fiscal_period_id",
                                 component: markRaw(FiscalPeriodFormAdd),
-                                name: "FiscalPeriodFormEdit",
+                                name: "FiscalPeriodFormAddEdit",
                                 title: "Edit fiscal period",
                                 permission: "editFiscalPeriod",
                             },
@@ -110,7 +110,7 @@ export const routes = [
                             {
                                 path: "edit/:ledger_id",
                                 component: markRaw(LedgerFormAdd),
-                                name: "LedgerFormEdit",
+                                name: "LedgerFormAddEdit",
                                 title: "Edit ledger",
                                 permission: "editLedger",
                             },
@@ -145,7 +145,7 @@ export const routes = [
                             {
                                 path: "edit/:fund_id",
                                 component: markRaw(FundFormAdd),
-                                name: "FundFormEdit",
+                                name: "FundFormAddEdit",
                                 title: "Edit fund",
                                 permission: "editFund",
                             },
@@ -159,7 +159,7 @@ export const routes = [
                             {
                                 path: ":fund_id/allocation/edit/:fund_allocation_id",
                                 component: markRaw(FundAllocationFormAdd),
-                                name: "FundAllocationFormEdit",
+                                name: "FundAllocationFormAddEdit",
                                 title: "Edit fund allocation",
                                 permission: "editFundAllocation",
                             },
@@ -229,7 +229,7 @@ export const routes = [
                             {
                                 path: "edit/:fund_group_id",
                                 component: markRaw(FundGroupFormAdd),
-                                name: "FundGroupFormEdit",
+                                name: "FundGroupFormAddEdit",
                                 title: "Edit fund group",
                                 permission: "editFundGroup",
                             },

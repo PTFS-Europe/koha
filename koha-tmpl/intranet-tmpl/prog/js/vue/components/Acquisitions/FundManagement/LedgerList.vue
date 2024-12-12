@@ -2,20 +2,18 @@
     <div v-if="!initialized">{{ $__("Loading") }}...</div>
     <div v-else id="ledger_list">
         <Toolbar>
-            <ToolbarLink
-                :to="{ name: 'LedgerFormAdd' }"
-                icon="plus"
-                title="New ledger"
-                v-if="isUserPermitted('createLedger')"
+            <ToolbarButton
+                action="add"
+                @go-to-add-resource="goToResourceAdd"
+                :title="$__('New ledger')"
             />
         </Toolbar>
         <div v-if="ledger_count > 0" class="page-section">
             <KohaTable
                 ref="table"
                 v-bind="tableOptions"
-                @show="doShow"
-                @edit="doEdit"
-                @delete="doDelete"
+                @edit="goToResourceEdit"
+                @delete="doResourceDelete"
             ></KohaTable>
         </div>
         <div v-else class="dialog message">
@@ -30,8 +28,10 @@ import ToolbarLink from "../../ToolbarLink.vue"
 import { inject, ref } from "vue"
 import { APIClient } from "../../../fetch/api-client.js"
 import KohaTable from "../../KohaTable.vue"
+import LedgerResource from "./LedgerResource.vue"
 
 export default {
+    extends: LedgerResource,
     setup() {
         const { setConfirmationDialog, setMessage } = inject("mainStore")
         const acquisitionsStore = inject("acquisitionsStore")
@@ -40,6 +40,7 @@ export default {
         const table = ref()
 
         return {
+            ...LedgerResource.setup(),
             table,
             setConfirmationDialog,
             setMessage,
@@ -84,38 +85,6 @@ export default {
                     this.ledger_count = count
                 },
                 error => {}
-            )
-        },
-        doShow: function ({ ledger_id }, dt, event) {
-            event.preventDefault()
-            this.$router.push({ name: "LedgerShow", params: { ledger_id } })
-        },
-        doEdit: function ({ ledger_id }, dt, event) {
-            this.$router.push({
-                name: "LedgerFormEdit",
-                params: { ledger_id },
-            })
-        },
-        doDelete: function (ledger, dt, event) {
-            this.setConfirmationDialog(
-                {
-                    title: this.$__(
-                        "Are you sure you want to remove this ledger?"
-                    ),
-                    message: ledger.name,
-                    accept_label: this.$__("Yes, delete"),
-                    cancel_label: this.$__("No, do not delete"),
-                },
-                () => {
-                    const client = APIClient.acquisition
-                    client.ledgers.delete(ledger.ledger_id).then(
-                        success => {
-                            this.setMessage(this.$__("Ledger deleted"), true)
-                            dt.draw()
-                        },
-                        error => {}
-                    )
-                }
             )
         },
         getTableColumns: function () {

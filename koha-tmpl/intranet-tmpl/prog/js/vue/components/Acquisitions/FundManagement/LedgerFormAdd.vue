@@ -308,7 +308,7 @@
                     </ol>
                 </fieldset>
                 <fieldset class="action">
-                    <input type="submit" value="Submit" />
+                    <ButtonSubmit />
                     <router-link
                         :to="{ name: 'LedgerList' }"
                         role="button"
@@ -327,11 +327,12 @@ import { storeToRefs } from "pinia"
 import { APIClient } from "../../../fetch/api-client.js"
 import { setMessage, setWarning } from "../../../messages"
 import InfiniteScrollSelect from "../../InfiniteScrollSelect.vue"
+import ButtonSubmit from "../../ButtonSubmit.vue"
 
 export default {
     setup() {
         const acquisitionsStore = inject("acquisitionsStore")
-        const { libraryGroups, getVisibleGroups, getOwners } =
+        const { libraryGroups, getVisibleGroups, getOwners, currencies } =
             storeToRefs(acquisitionsStore)
 
         const {
@@ -351,6 +352,7 @@ export default {
             resetOwnersAndVisibleGroups,
             getVisibleGroups,
             getOwners,
+            currencies,
         }
     },
     data() {
@@ -394,15 +396,13 @@ export default {
     },
     methods: {
         async getDataRequiredForPageLoad(ledger_id) {
-            this.getCurrencies().then(() => {
-                if (ledger_id) {
-                    this.getLedger(ledger_id).then(() => {
-                        this.getFiscalPeriod(this.ledger.fiscal_period_id)
-                    })
-                } else {
-                    this.initialized = true
-                }
-            })
+            if (ledger_id) {
+                this.getLedger(ledger_id).then(() => {
+                    this.getFiscalPeriod(this.ledger.fiscal_period_id)
+                })
+            } else {
+                this.initialized = true
+            }
         },
         async getLedger(ledger_id) {
             const client = APIClient.acquisition
@@ -421,15 +421,6 @@ export default {
                 fiscal_period => {
                     this.fiscal_period = fiscal_period
                     this.initialized = true
-                },
-                error => {}
-            )
-        },
-        async getCurrencies() {
-            const client = APIClient.acquisition
-            await client.currencies.getAll().then(
-                currencies => {
-                    this.currencies = currencies
                 },
                 error => {}
             )
@@ -499,6 +490,7 @@ export default {
     },
     components: {
         InfiniteScrollSelect,
+        ButtonSubmit,
     },
 }
 </script>

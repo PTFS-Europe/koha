@@ -2,32 +2,13 @@
     <div v-if="!initialized">{{ $__("Loading") }}...</div>
     <div v-else id="fiscal_periods_show">
         <Toolbar>
-            <ToolbarLink
-                :to="{ name: 'FiscalPeriodList' }"
-                icon="xmark"
-                title="Close"
-            />
-            <ToolbarLink
-                :to="{
-                    name: 'FiscalPeriodFormEdit',
-                    params: {
-                        fiscal_period_id: fiscal_period.fiscal_period_id,
-                    },
-                }"
-                icon="pencil"
-                title="Edit"
-                v-if="isUserPermitted('editFiscalPeriod')"
+            <ToolbarButton
+                action="edit"
+                @go-to-edit-resource="goToResourceEdit"
             />
             <ToolbarButton
-                icon="trash"
-                title="Delete"
-                @clicked="
-                    delete_fiscal_period(
-                        fiscal_period.fiscal_period_id,
-                        fiscal_period.code
-                    )
-                "
-                v-if="isUserPermitted('deleteFiscalPeriod')"
+                action="delete"
+                @delete-resource="doResourceDelete"
             />
         </Toolbar>
         <h2>
@@ -65,8 +46,10 @@ import Toolbar from "../../Toolbar.vue"
 import ToolbarButton from "../../ToolbarButton.vue"
 import ToolbarLink from "../../ToolbarLink.vue"
 import KohaTable from "../../KohaTable.vue"
+import FiscalPeriodResource from "./FiscalPeriodResource.vue"
 
 export default {
+    extends: FiscalPeriodResource,
     setup() {
         const { setConfirmationDialog, setMessage } = inject("mainStore")
 
@@ -76,6 +59,7 @@ export default {
         const table = ref()
 
         return {
+            ...FiscalPeriodResource.setup(),
             setConfirmationDialog,
             setMessage,
             isUserPermitted,
@@ -126,28 +110,6 @@ export default {
                     },
                     error => {}
                 )
-        },
-        delete_fiscal_period: function (fiscal_period_id, fiscal_period_code) {
-            this.setConfirmationDialog(
-                {
-                    title: this.$__(
-                        "Are you sure you want to remove this fiscal period?"
-                    ),
-                    message: fiscal_period_code,
-                    accept_label: this.$__("Yes, delete"),
-                    cancel_label: this.$__("No, do not delete"),
-                },
-                () => {
-                    const client = APIClient.acquisition
-                    client.fiscalPeriods.delete(fiscal_period_id).then(
-                        success => {
-                            this.setMessage(this.$__("Fiscal period deleted"))
-                            this.$router.push({ name: "FiscalPeriodList" })
-                        },
-                        error => {}
-                    )
-                }
-            )
         },
         doShow: function ({ ledger_id }, dt, event) {
             event.preventDefault()

@@ -2,25 +2,13 @@
     <div v-if="!initialized">{{ $__("Loading") }}...</div>
     <div v-else id="ledgers_show">
         <Toolbar>
-            <ToolbarLink
-                :to="{ name: 'LedgerList' }"
-                icon="xmark"
-                :title="$__('Close')"
-            />
-            <ToolbarLink
-                :to="{
-                    name: 'LedgerFormEdit',
-                    params: { ledger_id: ledger.ledger_id },
-                }"
-                icon="pencil"
-                :title="$__('Edit')"
-                v-if="isUserPermitted('editLedger')"
+            <ToolbarButton
+                action="edit"
+                @go-to-edit-resource="goToResourceEdit"
             />
             <ToolbarButton
-                icon="trash"
-                :title="$__('Delete')"
-                @clicked="deleteLedger(ledger.ledger_id, ledger.name)"
-                v-if="isUserPermitted('deleteLedger')"
+                action="delete"
+                @delete-resource="doResourceDelete"
             />
         </Toolbar>
         <h2>{{ ledger.name }}</h2>
@@ -51,8 +39,10 @@ import { APIClient } from "../../../fetch/api-client.js"
 import DisplayDataFields from "../../DisplayDataFields.vue"
 import KohaTable from "../../KohaTable.vue"
 import AccountingView from "./AccountingView.vue"
+import LedgerResource from "./LedgerResource.vue"
 
 export default {
+    extends: LedgerResource,
     setup() {
         const { setConfirmationDialog, setMessage } = inject("mainStore")
 
@@ -60,6 +50,7 @@ export default {
         const { isUserPermitted, formatValueWithCurrency } = acquisitionsStore
 
         return {
+            ...LedgerResource.setup(),
             setConfirmationDialog,
             setMessage,
             isUserPermitted,
@@ -94,7 +85,7 @@ export default {
             await client.ledgers
                 .get(ledger_id, {
                     "x-koha-embed":
-                        "fiscal_period,funds.fund_allocations,lib_group_limits",
+                        "fiscal_period,funds.fund_allocations,lib_group_limits,owner",
                 })
                 .then(
                     ledger => {
@@ -103,28 +94,6 @@ export default {
                     },
                     error => {}
                 )
-        },
-        deleteLedger: function (ledger_id, ledger_code) {
-            this.setConfirmationDialog(
-                {
-                    title: this.$__(
-                        "Are you sure you want to remove this ledger?"
-                    ),
-                    message: ledger_code,
-                    accept_label: this.$__("Yes, delete"),
-                    cancel_label: this.$__("No, do not delete"),
-                },
-                () => {
-                    const client = APIClient.acquisition
-                    client.ledgers.delete(ledger_id).then(
-                        success => {
-                            this.setMessage(this.$__("Ledger deleted"))
-                            this.$router.push({ name: "LedgerList" })
-                        },
-                        error => {}
-                    )
-                }
-            )
         },
         getTableColumns: function () {
             const formatValueWithCurrency = this.formatValueWithCurrency

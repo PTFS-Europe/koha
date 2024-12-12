@@ -2,25 +2,13 @@
     <div v-if="!initialized">{{ $__("Loading") }}...</div>
     <div v-else id="fund_groups_show">
         <Toolbar>
-            <ToolbarLink
-                :to="{ name: 'FundGroupList' }"
-                icon="xmark"
-                title="Close"
-            />
-            <ToolbarLink
-                :to="{
-                    name: 'FundGroupFormEdit',
-                    params: { fund_group_id: fundGroup.fund_group_id },
-                }"
-                icon="pencil"
-                title="Edit"
-                v-if="isUserPermitted('editFundGroup')"
+            <ToolbarButton
+                action="edit"
+                @go-to-edit-resource="goToResourceEdit"
             />
             <ToolbarButton
-                icon="trash"
-                title="Delete"
-                @clicked="deleteFund(fundGroup.fund_group_id, fundGroup.name)"
-                v-if="isUserPermitted('deleteFundGroup')"
+                action="delete"
+                @delete-resource="doResourceDelete"
             />
         </Toolbar>
         <h2>{{ fundGroup.name }}</h2>
@@ -51,8 +39,10 @@ import { APIClient } from "../../../fetch/api-client.js"
 import DisplayDataFields from "../../DisplayDataFields.vue"
 import KohaTable from "../../KohaTable.vue"
 import AccountingView from "./AccountingView.vue"
+import FundGroupResource from "./FundGroupResource.vue"
 
 export default {
+    extends: FundGroupResource,
     setup() {
         const { setConfirmationDialog, setMessage, setWarning } =
             inject("mainStore")
@@ -63,6 +53,7 @@ export default {
         const table = ref()
 
         return {
+            ...FundGroupResource.setup(),
             setConfirmationDialog,
             setMessage,
             setWarning,
