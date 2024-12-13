@@ -68,6 +68,7 @@ properties:
   lib_group_visibility:
     type:
       - string
+      - array
       - "null"
     description: Library group visibility
   fund_value:
