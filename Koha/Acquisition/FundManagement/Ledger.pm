@@ -98,26 +98,34 @@ sub cascade_to_funds {
     }
 }
 
-=head3 update_ledger_total
+=head3 update_ledger_value
 
 This method is triggered whenever a fund value is updated and updates the value of the relevant ledger.
 It only takes into account positive allocations - the funds underneath the ledger deal with and spend/orders
 
 =cut
 
-sub update_ledger_total {
+sub update_ledger_value {
     my ( $self, $args ) = @_;
 
-    my $allocations = $self->fund_allocations;
-    my $total       = 0;
-    foreach my $allocation ( $allocations->as_list ) {
-        $total += $allocation->allocation_amount if $allocation->allocation_amount > 0;
+    my $allocations  = $self->fund_allocations;
+    my $ledger_total = 0;
+
+    if ( $self->spend_limit > 0 ) {
+        my $allocation_total = 0;
+        foreach my $allocation ( $allocations->as_list ) {
+            $allocation_total += $allocation->allocation_amount if $allocation->allocation_amount < 0;
+        }
+        $ledger_total = $self->spend_limit + $allocation_total;
+    } else {
+        foreach my $allocation ( $allocations->as_list ) {
+            $ledger_total += $allocation->allocation_amount if $allocation->allocation_amount > 0;
+        }
     }
 
-    $self->ledger_value($total)->store({ no_cascade => 1 });
-    return $total;
+    $self->ledger_value($ledger_total)->store( { no_cascade => 1 } );
+    return $ledger_total;
 }
-
 
 =head3 fiscal_period
 
@@ -169,6 +177,47 @@ sub owner {
     return Koha::Patron->_new_from_dbic($owner_rs);
 }
 
+=head3 is_ledger_within_spend_limit
+
+Checks whether a ledger is within the spend limit
+For a ledger, the spend limit is the ledger_value as this field is made up as follows
+- If an explicit spend_limit has been set on the ledger then it is the spend limit minus any spend against the ledger, giving the remaining value
+- If no spend_limit has been set on the ledger then the spend limit is the ledger_value as this is the sum of positive fund allocations
+Returns the result, including the amount of any breach and whether overspend/overencumbrance are allowed on the ledger
+
+=cut
+
+sub is_ledger_within_spend_limit {
+    my ( $self, $args ) = @_;
+
+    my $new_allocation = $args->{new_allocation};
+    my $spend_limit    = $self->ledger_value;
+    my $total_spent    = $self->ledger_spent + $new_allocation;
+
+    return {
+        within_limit       => -$total_spent <= $spend_limit, breach_amount            => $total_spent + $spend_limit,
+        over_spend_allowed => $self->over_spend_allowed,    over_encumbrance_allowed => $self->over_encumbrance_allowed
+    };
+}
+
+=head3 ledger_spent
+
+This returns the total actual and committed spend against the ledger
+The total is made up of all the fund allocations against the ledger
+
+=cut
+
+sub ledger_spent {
+    my ($self) = @_;
+
+    my $fund_allocations = $self->fund_allocations;
+    my $total            = 0;
+    foreach my $fund_allocation ( $fund_allocations->as_list ) {
+        $total += $fund_allocation->allocation_amount if $fund_allocation->allocation_amount < 0;
+    }
+
+    return $total;
+}
 
 =head3 _library_group_visibility_parameters
 

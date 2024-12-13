@@ -59,7 +59,7 @@ sub delete {
     my $deleted = $self->_result()->delete;
 
     my $fund = $self->fund;
-    $fund->update_fund_total;
+    $fund->update_fund_value;
 
     return $self;
 }
@@ -116,7 +116,7 @@ sub update_sub_fund_total {
     $self->sub_fund_value($total)->store({ no_cascade => 1 });
 
     my $fund = $self->fund;
-    $fund->update_fund_total;
+    $fund->update_fund_value;
 
     return $total;
 }

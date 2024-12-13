@@ -25,6 +25,7 @@ use Try::Tiny;
 
 use Koha::Acquisition::FundManagement::Ledger;
 use Koha::Acquisition::FundManagement::Ledgers;
+use Koha::Acquisition::FundManagement::FiscalPeriods;
 
 use Koha::REST::V1::Acquisitions::FundManagement::Util;
 
@@ -95,7 +96,22 @@ sub add {
                 my $body = $c->req->json;
                 delete $body->{lib_groups} if $body->{lib_groups};
 
+                if ( $body->{spend_limit} ) {
+                    my $fiscal_period =
+                        Koha::Acquisition::FundManagement::FiscalPeriods->find( $body->{fiscal_period_id} );
+                    my $result = $fiscal_period->is_fiscal_period_within_spend_limit(
+                        { new_allocation => $body->{spend_limit} } );
+                    return $c->render(
+                        status => 400,
+                        error  => "Fiscal period spend limit breached, please reduce spend limit by "
+                            . $result->{breach_amount}
+                            . " or increase the spend limit for this fiscal period"
+
+                    ) unless $result->{within_limit};
+                }
+
                 my $ledger = Koha::Acquisition::FundManagement::Ledger->new_from_api($body)->store;
+                $ledger->update_ledger_value;
 
                 $c->res->headers->location( $c->req->url->to_string . '/' . $ledger->ledger_id );
                 return $c->render(
@@ -133,11 +149,34 @@ sub update {
 
                 my $body = $c->req->json;
 
+                if ( $body->{spend_limit} && $ledger->spend_limit != $body->{spend_limit} ) {
+                    if($body->{spend_limit} < $ledger->ledger_value && !$ledger->over_spend_allowed) {
+                        return $c->render(
+                            status  => 400,
+                            openapi => { error => "Spend limit cannot be less than the ledger value when overspend is not allowed" }
+                        );
+                    }
+                    my $fiscal_period =
+                        Koha::Acquisition::FundManagement::FiscalPeriods->find( $body->{fiscal_period_id} );
+                    my $spend_limit_diff = $body->{spend_limit} - $ledger->spend_limit;
+                    my $result = $fiscal_period->fiscal_period_ledger_limits(
+                        { new_allocation => $spend_limit_diff } );
+                    return $c->render(
+                        status  => 400,
+                        openapi => {
+                                  error => "Fiscal period spend limit breached, please reduce spend limit by "
+                                . $result->{breach_amount}
+                                . " or increase the spend limit for this fiscal period"
+                        }
+                    ) unless $result->{within_limit};
+                }
+
                 delete $body->{lib_groups}    if $body->{lib_groups};
                 delete $body->{fiscal_period} if $body->{fiscal_period};
                 delete $body->{last_updated}  if $body->{last_updated};
 
                 $ledger->set_from_api($body)->store;
+                $ledger->update_ledger_value;
 
                 $c->res->headers->location( $c->req->url->to_string . '/' . $ledger->ledger_id );
                 return $c->render(
@@ -171,6 +210,7 @@ sub update {
         $c->unhandled_exception($_);
     };
 }
+
 
 =head3 delete
 
