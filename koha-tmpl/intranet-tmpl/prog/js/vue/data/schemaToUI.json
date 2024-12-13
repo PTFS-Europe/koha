@@ -16,6 +16,10 @@
             "label": "End date",
             "type": "string"
         },
+        "spend_limit": {
+            "label": "Spend limit",
+            "type": "number"
+        },
         "owner": {
             "label": "Owner",
             "type": "owner"
@@ -93,6 +97,10 @@
         "currency": {
             "label": "Currency",
             "type": "string"
+        },
+        "spend_limit": {
+            "label": "Spend limit",
+            "type": "number"
         },
         "external_id": {
             "label": "External ID",
