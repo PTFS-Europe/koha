@@ -25,6 +25,7 @@ use Koha::Acquisition::FundManagement::SubFunds;
 use Koha::Acquisition::FundManagement::FiscalPeriod;
 use Koha::Acquisition::FundManagement::Ledger;
 use Koha::Patron;
+use Koha::Exceptions::Acquisition::FundManagement;
 
 =head1 NAME
 
@@ -39,16 +40,21 @@ Koha::Acquisition::FundManagement::FundAllocation Object class
 =cut
 
 sub store {
-    my ($self, $args) = @_;
+    my ( $self, $args ) = @_;
 
     my $block_fund_value_update = $args->{block_fund_value_update};
 
     $self->set_lib_group_visibility() if $self->lib_group_visibility;
+
+    if ( $self->allocation_amount < 0 ) {
+        $self->will_allocation_breach_spend_limits;
+    }
+
     $self->SUPER::store;
 
-    if(!$block_fund_value_update) {
+    if ( !$block_fund_value_update ) {
         my $fund = $self->fund;
-        $fund->update_fund_total if $fund && !$self->sub_fund_id;
+        $fund->update_fund_value if $fund && !$self->sub_fund_id;
         my $sub_fund = $self->sub_fund;
         $sub_fund->update_sub_fund_total if $sub_fund;
     }
@@ -66,7 +72,7 @@ sub delete {
     my $deleted = $self->_result()->delete;
 
     my $fund = $self->fund;
-    $fund->update_fund_total;
+    $fund->update_fund_value;
 
     return $self;
 }
@@ -82,7 +88,6 @@ sub fiscal_period {
     my $fiscal_period_rs = $self->_result->fiscal_period;
     return Koha::Acquisition::FundManagement::FiscalPeriod->_new_from_dbic($fiscal_period_rs);
 }
-
 
 =head3 ledger
 
@@ -122,7 +127,6 @@ sub sub_fund {
     return Koha::Acquisition::FundManagement::SubFund->_new_from_dbic($sub_fund_rs);
 }
 
-
 =head3 owner
 
 Method to embed the owner to a given fund allocation
@@ -135,6 +139,32 @@ sub owner {
     return Koha::Patron->_new_from_dbic($owner_rs);
 }
 
+=head3 will_allocation_breach_spend_limits
+
+Checks whether the new allocation will breach any spend limits
+A I<Koha::Exceptions::Acquisition::FundManagement::LimitExceeded> exception is thrown if it does
+
+=cut
+
+sub will_allocation_breach_spend_limits {
+    my ($self) = @_;
+
+    my $ledger = $self->ledger;
+    my $result = $ledger->is_ledger_within_spend_limit( { new_allocation => $self->allocation_amount } );
+    Koha::Exceptions::Acquisition::FundManagement::LimitExceeded->throw(
+        data_type => 'ledger',
+        amount    => $result->{breach_amount}
+    ) if !$result->{within_limit};
+
+    my $fiscal_period = $self->fiscal_period;
+    $result = $fiscal_period->is_fiscal_period_within_spend_limit( { new_allocation => $self->allocation_amount } );
+    Koha::Exceptions::Acquisition::FundManagement::LimitExceeded->throw(
+        data_type => 'fiscal_period',
+        amount    => $result->{breach_amount}
+    ) if !$result->{within_limit};
+
+    return 0;
+}
 
 =head3 _library_group_visibility_parameters
 

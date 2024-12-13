@@ -26,6 +26,7 @@ use Try::Tiny;
 use Koha::Acquisition::FundManagement::Funds;
 use Koha::Acquisition::FundManagement::FundAllocation;
 use Koha::Acquisition::FundManagement::FundAllocations;
+use Koha::Exceptions::Acquisition::FundManagement::LimitExceeded;
 
 use C4::Context;
 
@@ -105,7 +106,23 @@ sub add {
             }
         );
     } catch {
-        return $c->unhandled_exception($_);
+        my $to_api_mapping = Koha::Acquisition::FundManagement::FundAllocation->new->to_api_mapping;
+
+        if ( blessed $_ ) {
+            if ( $_->isa('Koha::Exceptions::Acquisition::FundManagement::LimitExceeded') ) {
+                return $c->render(
+                    status  => 400,
+                    openapi => {
+                              error => "This allocation will exceed the spending limit on this "
+                            . $_->data_type . " by "
+                            . $_->amount
+                            . ". Please amend the allocation amount or the spending limit"
+                    }
+                );
+            }
+        }
+
+        $c->unhandled_exception($_);
     };
 }
 
@@ -164,6 +181,16 @@ sub update {
                 return $c->render(
                     status  => 413,
                     openapi => { error => $_->error }
+                );
+            } elsif ( $_->isa('Koha::Exceptions::Acquisition::FundManagement::LimitExceeded') ) {
+                return $c->render(
+                    status  => 400,
+                    openapi => {
+                              error => "This allocation will exceed the spending limit on this "
+                            . $_->data_type . " by "
+                            . $_->amount
+                            . ". Please amend the allocation amount or the spending limit"
+                    }
                 );
             }
         }

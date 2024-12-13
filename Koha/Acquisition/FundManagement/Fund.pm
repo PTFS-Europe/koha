@@ -63,7 +63,7 @@ sub delete {
     my $deleted = $self->_result()->delete;
 
     my $ledger = $self->ledger;
-    $ledger->update_ledger_total;
+    $ledger->update_ledger_value;
 
     return $self;
 }
@@ -153,14 +153,14 @@ sub cascade_to_sub_funds {
     }
 }
 
-=head3 update_fund_total
+=head3 update_fund_value
 
 This method is called whenever a fund allocation is made.
 It updates the value of the fund based on the fund allocations and then triggers an update to the ledger value
 
 =cut
 
-sub update_fund_total {
+sub update_fund_value {
     my ( $self, $args ) = @_;
 
     my @allocations;
@@ -180,7 +180,7 @@ sub update_fund_total {
     $self->fund_value($total)->store({ no_cascade => 1 });
 
     my $ledger = $self->ledger;
-    $ledger->update_ledger_total;
+    $ledger->update_ledger_value;
 
     return $total;
 }

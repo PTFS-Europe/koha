@@ -117,6 +117,80 @@ sub owner {
     return Koha::Patron->_new_from_dbic($owner_rs);
 }
 
+=head3 is_fiscal_period_within_spend_limit
+
+Checks whether a fiscal period is within the spend limit
+
+=cut
+
+sub is_fiscal_period_within_spend_limit {
+    my ($self, $args) = @_;
+
+    return { within_limit => 1 } unless $self->spend_limit > 0;
+
+    my $new_allocation = $args->{new_allocation};
+    my $spend_limit = $self->spend_limit;
+    my $total_spent = $self->fiscal_period_spent + $new_allocation;
+
+    return { within_limit => -$total_spent <= $spend_limit, breach_amount => $total_spent + $spend_limit };
+}
+
+=head3 fiscal_period_spent
+
+This returns the total actual and committed spend against the fiscal period
+The total is made up of the following:
+- For each ledger attached to the fiscal period:
+    - If the ledger has a spend_limit and over_spend_allowed is false then the total is the spend_limit
+    - If the ledger has a spend_limit and over_spend_allowed is true then the total is the total fund allocations against the ledger
+    - If the ledger has no spend_limit then the total is the sum of the actual and committed spend (i.e. fund allocations)
+
+=cut
+
+sub fiscal_period_spent {
+    my ($self) = @_;
+
+    my @ledgers = $self->ledgers->as_list;
+    my $total = 0;
+
+    foreach my $ledger (@ledgers) {
+        $total += $ledger->ledger_spent;
+    }
+
+    return $total;
+}
+
+=head3 fiscal_period_ledger_limits
+
+This returns the spending limits of the ledgers under a fiscal period
+The total is made up of the following:
+- For each ledger attached to the fiscal period:
+    - If the ledger has a spend_limit and over_spend_allowed is false then the total is the spend_limit
+    - If the ledger has a spend_limit and over_spend_allowed is true then the total is the total fund allocations against the ledger
+    - If the ledger has no spend_limit then the total is the sum of the actual and committed spend (i.e. fund allocations)
+
+=cut
+
+sub fiscal_period_ledger_limits {
+    my ($self) = @_;
+
+    my @ledgers = $self->ledgers->as_list;
+    my $total = 0;
+
+    return { within_limit => 1 } if !$self->spend_limit > 0;
+
+    foreach my $ledger (@ledgers) {
+        my $spend_limit = $ledger->spend_limit;
+        my $over_spend_allowed = $ledger->over_spend_allowed;
+
+        if ($spend_limit > 0 && !$over_spend_allowed) {
+            $total += $spend_limit;
+        } else {
+            $total = $ledger->ledger_value;
+        }
+    }
+
+    return { within_limit => $self->spend_limit >= $total, breach_amount => $total - $self->spend_limit };
+}
 
 =head3 _library_group_visibility_parameters
 
