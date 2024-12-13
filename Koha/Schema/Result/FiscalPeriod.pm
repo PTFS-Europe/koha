@@ -65,9 +65,9 @@ end date of the event
 =head2 spend_limit
 
   data_type: 'decimal'
-  default_value: 0.000000
+  default_value: 0.00
   is_nullable: 1
-  size: [28,6]
+  size: [28,2]
 
 spend limit for the fiscal_period
 
@@ -121,9 +121,9 @@ __PACKAGE__->add_columns(
   "spend_limit",
   {
     data_type => "decimal",
-    default_value => "0.000000",
+    default_value => "0.00",
     is_nullable => 1,
-    size => [28, 6],
+    size => [28, 2],
   },
   "status",
   { data_type => "tinyint", default_value => 1, is_nullable => 1 },
@@ -235,8 +235,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-12-10 15:03:48
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:84xpd5ji3TCWDsTD3CBcJg
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-12-13 14:24:22
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:RtepNfNxPlklQ9laeG53qg
 
 __PACKAGE__->add_columns(
     '+status' => { is_boolean => 1 },

@@ -125,9 +125,9 @@ owner of the fund
 =head2 fund_value
 
   data_type: 'decimal'
-  default_value: 0.000000
+  default_value: 0.00
   is_nullable: 1
-  size: [28,6]
+  size: [28,2]
 
 value of the fund
 
@@ -179,9 +179,9 @@ __PACKAGE__->add_columns(
   "fund_value",
   {
     data_type => "decimal",
-    default_value => "0.000000",
+    default_value => "0.00",
     is_nullable => 1,
-    size => [28, 6],
+    size => [28, 2],
   },
   "last_updated",
   {
@@ -319,8 +319,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-11-20 14:37:31
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:pl+BLQTapHPx0MNtq/xmSQ
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-12-13 14:24:22
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Xh5fbjRCZhgSkQ/8yNWNoQ
 
 __PACKAGE__->add_columns(
     '+status' => { is_boolean => 1 },
