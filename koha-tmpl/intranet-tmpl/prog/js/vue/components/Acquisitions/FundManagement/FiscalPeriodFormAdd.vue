@@ -68,7 +68,7 @@
                             <span class="required">{{ $__("Required") }}</span>
                         </li>
                         <li>
-                            <label for="start_date"
+                            <label for="start_date" class="required"
                                 >{{ $__("Start date") }}:</label
                             >
                             <flat-pickr
@@ -76,15 +76,21 @@
                                 v-model="fiscal_period.start_date"
                                 :config="fp_config"
                                 data-date_to="end_date"
+                                required
                             />
+                            <span class="required">{{ $__("Required") }}</span>
                         </li>
                         <li>
-                            <label for="end_date">{{ $__("End date") }}:</label>
+                            <label for="end_date" class="required"
+                                >{{ $__("End date") }}:</label
+                            >
                             <flat-pickr
                                 id="end_date"
                                 v-model="fiscal_period.end_date"
                                 :config="fp_config"
+                                required
                             />
+                            <span class="required">{{ $__("Required") }}</span>
                         </li>
                         <li>
                             <label for="fiscal_period_spend_limit"
