@@ -170,9 +170,6 @@ export default {
             const fundGroup = JSON.parse(JSON.stringify(this.fundGroup))
             const fund_group_id = fundGroup.fund_group_id
 
-            const visibility = fundGroup.lib_group_visibility.join("|")
-            fundGroup.lib_group_visibility = visibility
-
             delete fundGroup.fund_group_id
 
             if (fund_group_id) {

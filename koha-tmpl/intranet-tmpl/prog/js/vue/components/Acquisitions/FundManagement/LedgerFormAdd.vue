@@ -456,8 +456,6 @@ export default {
             const ledger = JSON.parse(JSON.stringify(this.ledger))
             const ledger_id = ledger.ledger_id
 
-            const visibility = ledger.lib_group_visibility.join("|")
-            ledger.lib_group_visibility = visibility || null
             const oe_warning_percent = ledger.oe_warning_percent
             ledger.oe_warning_percent = oe_warning_percent / 100
 

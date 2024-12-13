@@ -127,8 +127,9 @@ properties:
   lib_group_visibility:
     type:
       - string
+      - array
       - "null"
-    description: Language
+    description: Library group visibility
   lib_group_limits:
     type: array
     description: Library groups this vendor belongs to

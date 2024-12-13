@@ -44,16 +44,15 @@ sub cascade_lib_group_visibility {
         my @groups_to_delete = ();
 
         foreach my $group (@child_groups) {
-            push( @groups_to_keep,   $group ) if grep( /^$group$/,  @parent_groups );
-            push( @groups_to_delete, $group ) if !grep( /^$group$/, @parent_groups );
+            push( @groups_to_keep,   $group ) if grep( /^$group$/,  @parent_groups ) && $group ne '';
+            push( @groups_to_delete, $group ) if !grep( /^$group$/, @parent_groups ) && $group ne '';
         }
 
         if ( scalar(@groups_to_delete) == 0 ) {
             $change_detected = 0;
         } else {
-            my $new_visibility = scalar(@groups_to_keep) > 0 ? join( "|", @groups_to_keep ) : "";
             $change_detected = 1;
-            $child->lib_group_visibility($new_visibility);
+            $child->set_lib_group_visibility( { new_visibility => \@groups_to_keep } );
         }
     }
     return $change_detected;

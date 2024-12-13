@@ -265,9 +265,6 @@ export default {
             const fiscal_period = JSON.parse(JSON.stringify(this.fiscal_period))
             const fiscal_period_id = fiscal_period.fiscal_period_id
 
-            const visibility = fiscal_period.lib_group_visibility.join("|")
-            fiscal_period.lib_group_visibility = visibility || null
-
             delete fiscal_period.fiscal_period_id
 
             if (fiscal_period_id) {

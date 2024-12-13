@@ -18,7 +18,7 @@ package Koha::Acquisition::FundManagement::SubFund;
 # along with Koha; if not, see <http://www.gnu.org/licenses>.
 
 use Modern::Perl;
-use base qw(Koha::Acquisition::FundManagement::Funds);
+use base qw(Koha::Object Koha::Object::Limit::LibraryGroup);
 
 use Koha::Acquisition::FundManagement::FiscalPeriod;
 use Koha::Acquisition::FundManagement::Ledger;
