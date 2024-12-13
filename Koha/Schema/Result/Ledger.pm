@@ -118,18 +118,18 @@ library groups the ledger is visible to
 =head2 spend_limit
 
   data_type: 'decimal'
-  default_value: 0.000000
+  default_value: 0.00
   is_nullable: 1
-  size: [28,6]
+  size: [28,2]
 
 spend limit for the ledger
 
 =head2 ledger_value
 
   data_type: 'decimal'
-  default_value: 0.000000
+  default_value: 0.00
   is_nullable: 1
-  size: [28,6]
+  size: [28,2]
 
 value of the ledger
 
@@ -161,27 +161,27 @@ percentage limit for overencumbrance
 =head2 oe_limit_amount
 
   data_type: 'decimal'
-  default_value: 0.000000
+  default_value: 0.00
   is_nullable: 1
-  size: [28,6]
+  size: [28,2]
 
 limit for overspend
 
 =head2 os_warning_sum
 
   data_type: 'decimal'
-  default_value: 0.000000
+  default_value: 0.00
   is_nullable: 1
-  size: [28,6]
+  size: [28,2]
 
 amount to trigger a warning for overspend
 
 =head2 os_limit_sum
 
   data_type: 'decimal'
-  default_value: 0.000000
+  default_value: 0.00
   is_nullable: 1
-  size: [28,6]
+  size: [28,2]
 
 amount to trigger a block on the ledger for overspend
 
@@ -218,16 +218,16 @@ __PACKAGE__->add_columns(
   "spend_limit",
   {
     data_type => "decimal",
-    default_value => "0.000000",
+    default_value => "0.00",
     is_nullable => 1,
-    size => [28, 6],
+    size => [28, 2],
   },
   "ledger_value",
   {
     data_type => "decimal",
-    default_value => "0.000000",
+    default_value => "0.00",
     is_nullable => 1,
-    size => [28, 6],
+    size => [28, 2],
   },
   "over_spend_allowed",
   { data_type => "tinyint", default_value => 1, is_nullable => 1 },
@@ -243,23 +243,23 @@ __PACKAGE__->add_columns(
   "oe_limit_amount",
   {
     data_type => "decimal",
-    default_value => "0.000000",
+    default_value => "0.00",
     is_nullable => 1,
-    size => [28, 6],
+    size => [28, 2],
   },
   "os_warning_sum",
   {
     data_type => "decimal",
-    default_value => "0.000000",
+    default_value => "0.00",
     is_nullable => 1,
-    size => [28, 6],
+    size => [28, 2],
   },
   "os_limit_sum",
   {
     data_type => "decimal",
-    default_value => "0.000000",
+    default_value => "0.00",
     is_nullable => 1,
-    size => [28, 6],
+    size => [28, 2],
   },
 );
 
@@ -363,8 +363,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-12-10 15:03:49
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:z6my78OlTRQkqShyBEh8Ng
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-12-13 14:24:22
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:MaimbquRCUiqXpCst33Oig
 
 __PACKAGE__->add_columns(
     '+status'                   => { is_boolean => 1 },

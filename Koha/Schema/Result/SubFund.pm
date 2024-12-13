@@ -125,9 +125,9 @@ owner of the sub_fund
 =head2 sub_fund_value
 
   data_type: 'decimal'
-  default_value: 0.000000
+  default_value: 0.00
   is_nullable: 1
-  size: [28,6]
+  size: [28,2]
 
 value of the sub_fund
 
@@ -179,9 +179,9 @@ __PACKAGE__->add_columns(
   "sub_fund_value",
   {
     data_type => "decimal",
-    default_value => "0.000000",
+    default_value => "0.00",
     is_nullable => 1,
-    size => [28, 6],
+    size => [28, 2],
   },
   "last_updated",
   {
@@ -304,8 +304,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-11-20 14:37:31
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:bVa5gve364Peq03jNMugkw
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-12-13 14:24:22
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:QNg5XN6mLfNmmX1b9Fg5JQ
 
 __PACKAGE__->add_columns(
     '+status' => { is_boolean => 1 },

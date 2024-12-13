@@ -64,9 +64,9 @@ fiscal period the fund allocation applies to
 =head2 allocation_amount
 
   data_type: 'decimal'
-  default_value: 0.000000
+  default_value: 0.00
   is_nullable: 1
-  size: [28,6]
+  size: [28,2]
 
 amount for the allocation
 
@@ -154,9 +154,9 @@ __PACKAGE__->add_columns(
   "allocation_amount",
   {
     data_type => "decimal",
-    default_value => "0.000000",
+    default_value => "0.00",
     is_nullable => 1,
-    size => [28, 6],
+    size => [28, 2],
   },
   "reference",
   { data_type => "varchar", default_value => "", is_nullable => 1, size => 255 },
@@ -300,8 +300,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-12-10 15:03:48
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:yZfy+ILxCL9X1vmBPRhd7w
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-12-13 14:24:22
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:eiKHlLCyecejDc0BntJKjA
 
 __PACKAGE__->add_columns(
     '+is_transfer' => { is_boolean => 1 },
