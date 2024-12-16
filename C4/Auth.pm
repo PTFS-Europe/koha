@@ -333,11 +333,13 @@ sub get_template_and_user {
                 {
                     borrowernumber => $borrowernumber,
                     public         => 0,
+                    search_attributes => {order_by => { -asc => 'shelfname' }},
                 }
             );
             my $some_public_shelves = Koha::Virtualshelves->get_some_shelves(
                 {
                     public => 1,
+                    search_attributes => {order_by => { -asc => 'shelfname' }},
                 }
             );
             $template->param(
@@ -420,6 +422,7 @@ sub get_template_and_user {
             my $some_public_shelves = Koha::Virtualshelves->get_some_shelves(
                 {
                     public => 1,
+                    search_attributes => {order_by => { -asc => 'shelfname' }},
                 }
             );
             $template->param(
@@ -1481,6 +1484,7 @@ sub checkauth {
         my $some_public_shelves = Koha::Virtualshelves->get_some_shelves(
             {
                 public => 1,
+                search_attributes => {order_by => { -asc => 'shelfname' }},
             }
         );
         $template->param(
