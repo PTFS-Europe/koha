@@ -191,16 +191,20 @@ sub get_some_shelves {
         };
     }
 
+    my $default_search_attributes =  {
+        join => [ 'virtualshelfshares' ],
+        distinct => 'shelfnumber',
+        order_by => { -desc => 'lastmodified' },
+    };
+
+    my %search_attributes = defined($params->{search_attributes}) ? (%{$default_search_attributes}, %{$params->{search_attributes}}) : %{$default_search_attributes};
+
     $self->search(
         {
             public => $public,
             ( @conditions ? ( -and => \@conditions ) : () ),
         },
-        {
-            join => [ 'virtualshelfshares' ],
-            distinct => 'shelfnumber',
-            order_by => { -desc => 'lastmodified' },
-        }
+        \%search_attributes
     );
 }
 
