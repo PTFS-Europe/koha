@@ -9,188 +9,16 @@
             <form @submit="onSubmit($event)">
                 <fieldset class="rows">
                     <ol>
-                        <li>
-                            <label for="account_login_id" class="required"
-                                >{{ $__("Login") }}:</label
-                            >
-                            <input
-                                id="account_login_id"
-                                v-model="account.login_id"
-                                :placeholder="$__('Account login id')"
-                                required
-                            />
-                            <span class="required">{{ $__("Required") }}</span>
-                        </li>
-                        <li>
-                            <label for="account_login_password" class="required"
-                                >{{ $__("Password") }}:</label
-                            >
-                            <input
-                                id="account_login_password"
-                                v-model="account.login_password"
-                                :placeholder="$__('Account login password')"
-                                required
-                            />
-                            <span class="required">{{ $__("Required") }}</span>
-                        </li>
-                        <li>
-                            <label for="account_institution_id" class="required"
-                                >{{ $__("TODO: institution picker") }}:</label
-                            >
-                            <input
-                                id="account_institution_id"
-                                v-model="account.sip_institution_id"
-                                :placeholder="$__('TODO: institution picker')"
-                                required
-                            />
-                            <span class="required">{{ $__("Required") }}</span>
-                        </li>
-                        <li>
-                            <label
-                                for="account_allow_additional_materials_checkout"
-                                >{{
-                                    $__("Allow additional materials checkout")
-                                }}:</label
-                            >
-                            <input
-                                type="checkbox"
-                                id="account_allow_additional_materials_checkout"
-                                v-model="
-                                    account.allow_additional_materials_checkout
-                                "
-                            />
-                        </li>
-                        <li>
-                            <label for="account_allow_empty_passwords"
-                                >{{ $__("Allow empty passwords") }}:</label
-                            >
-                            <input
-                                type="checkbox"
-                                id="account_allow_empty_passwords"
-                                v-model="account.allow_empty_passwords"
-                            />
-                        </li>
-                        <li>
-                            <label for="account_blocked_items_types"
-                                >{{ $__("Blocked item types") }}:</label
-                            >
-                            <input
-                                id="account_blocked_items_types"
-                                v-model="account.blocked_item_types"
-                                placeholder="VM|MU"
-                            />
-                        </li>
-                        <li>
-                            <label for="account_checked_in_ok"
-                                >{{ $__("Checked in OK") }}:</label
-                            >
-                            <input
-                                type="checkbox"
-                                id="account_checked_in_ok"
-                                v-model="account.checked_in_ok"
-                            />
-                        </li>
-                        <li>
-                            <label for="account_cr_item_field"
-                                >{{ $__("CR item field") }}:</label
-                            >
-                            <input
-                                id="account_cr_item_field"
-                                v-model="account.cr_item_field"
-                                placeholder="shelving_location"
-                            />
-                        </li>
-                        <li>
-                            <label for="account_ct_always_send"
-                                >{{ $__("CT always send") }}:</label
-                            >
-                            <input
-                                type="checkbox"
-                                id="account_ct_always_send"
-                                v-model="account.ct_always_send"
-                            />
-                        </li>
-                        <li>
-                            <label for="account_cv_send_00_on_success"
-                                >{{ $__("CT always send") }}:</label
-                            >
-                            <input
-                                type="checkbox"
-                                id="account_cv_send_00_on_success"
-                                v-model="account.cv_send_00_on_success"
-                            />
-                        </li>
-                        <li>
-                            <label for="account_cv_triggers_alert"
-                                >{{ $__("CV triggers alert") }}:</label
-                            >
-                            <input
-                                type="checkbox"
-                                id="account_cv_triggers_alert"
-                                v-model="account.cv_triggers_alert"
-                            />
-                        </li>
-                        <li>
-                            <label for="account_delimiter" class="required"
-                                >{{ $__("Delimiter") }}:</label
-                            >
-                            <input
-                                id="account_delimiter"
-                                v-model="account.delimiter"
-                                placeholder="|"
-                                required
-                            />
-                            <span class="required">{{ $__("Required") }}</span>
-                        </li>
-                        <li>
-                            <label for="account_encoding"
-                                >{{ $__("Encoding") }}:</label
-                            >
-                            <input
-                                id="account_encoding"
-                                v-model="account.encoding"
-                                placeholder="utf8"
-                            />
-                        </li>
-                    </ol>
-                </fieldset>
-                <fieldset class="rows" id="field_templates">
-                    <legend>{{ $__("Field templates") }}</legend>
-                    <ol>
-                        <li>
-                            <label for="account_ae_field_template"
-                                >{{ $__("AV field template") }}:</label
-                            >
-                            <textarea
-                                id="account_ae_field_template"
-                                v-model="account.av_field_template"
-                                placeholder="[% patron.surname %][% IF patron.firstname %], [% patron.firstname %][% END %]"
-                                rows="3"
-                                cols="50"
-                            />
-                        </li>
-                        <li>
-                            <label for="account_av_field_template"
-                                >{{ $__("AE field template") }}:</label
-                            >
-                            <textarea
-                                id="account_av_field_template"
-                                v-model="account.ae_field_template"
-                                placeholder="[% accountline.description %] [% accountline.amountoutstanding | format('%.2f') %]"
-                                rows="3"
-                                cols="50"
-                            />
-                        </li>
-                        <li>
-                            <label for="account_da_field_template"
-                                >{{ $__("DA field template") }}:</label
-                            >
-                            <textarea
-                                id="account_da_field_template"
-                                v-model="account.da_field_template"
-                                placeholder="[% patron.surname %][% IF patron.firstname %], [% patron.firstname %][% END %]"
-                                rows="3"
-                                cols="50"
+                        <li
+                            v-for="(attr, index) in resource_attrs.filter(
+                                attr => attr.type !== 'relationship'
+                            )"
+                            v-bind:key="index"
+                        >
+                            <FormElement
+                                :resource="account"
+                                :attr="attr"
+                                :index="index"
                             />
                         </li>
                     </ol>
@@ -210,11 +38,19 @@
 </template>
 
 <script>
+import FormElement from "../FormElement.vue"
 import ButtonSubmit from "../ButtonSubmit.vue"
 import { setMessage, setError, setWarning } from "../../messages"
 import { APIClient } from "../../fetch/api-client.js"
+import SIP2AccountResource from "./SIP2AccountResource.vue"
 
 export default {
+    extends: SIP2AccountResource,
+    setup() {
+        return {
+            ...SIP2AccountResource.setup(),
+        }
+    },
     data() {
         return {
             account: {
@@ -305,6 +141,7 @@ export default {
     },
     components: {
         ButtonSubmit,
+        FormElement,
     },
     name: "SIP2AccountsFormAdd",
 }
