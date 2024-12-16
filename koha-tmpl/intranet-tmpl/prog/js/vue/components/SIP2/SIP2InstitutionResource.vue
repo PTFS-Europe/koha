@@ -22,6 +22,65 @@ export default {
             }),
         }
     },
+    data() {
+        return {
+            resource_attrs: [
+                {
+                    name: "name",
+                    required: true,
+                    type: "text",
+                    label: __("Name"),
+                    show_in_table: true,
+                },
+                {
+                    name: "implementation",
+                    required: true,
+                    type: "text",
+                    label: __("Implementation"),
+                    show_in_table: true,
+                },
+                {
+                    name: "checkin",
+                    type: "boolean",
+                    label: __("Checkin"),
+                    show_in_table: true,
+                },
+                {
+                    name: "checkout",
+                    type: "boolean",
+                    label: __("Checkout"),
+                    show_in_table: true,
+                },
+                {
+                    name: "renewal",
+                    type: "boolean",
+                    label: __("Renewal"),
+                    show_in_table: true,
+                },
+                {
+                    name: "retries",
+                    required: true,
+                    type: "text",
+                    label: __("Retries"),
+                    show_in_table: true,
+                },
+                {
+                    name: "status_update",
+                    required: true,
+                    type: "boolean",
+                    label: __("Status update"),
+                    show_in_table: true,
+                },
+                {
+                    name: "timeout",
+                    required: true,
+                    type: "text",
+                    label: __("Timeout"),
+                    show_in_table: true,
+                },
+            ],
+        }
+    },
     methods: {},
     name: "SIP2InstitutionResource",
 }

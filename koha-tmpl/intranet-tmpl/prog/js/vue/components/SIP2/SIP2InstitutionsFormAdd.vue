@@ -13,96 +13,16 @@
             <form @submit="onSubmit($event)">
                 <fieldset class="rows">
                     <ol>
-                        <li>
-                            <label for="institution_name" class="required"
-                                >{{ $__("Name") }}:</label
-                            >
-                            <input
-                                id="institution_name"
-                                v-model="institution.name"
-                                :placeholder="$__('Institution name')"
-                                required
-                            />
-                            <span class="required">{{ $__("Required") }}</span>
-                        </li>
-                        <li>
-                            <label
-                                for="institution_implementation"
-                                class="required"
-                                >{{ $__("Implementation") }}:</label
-                            >
-                            <input
-                                id="institution_implementation"
-                                v-model="institution.implementation"
-                                :placeholder="$__('Implementation')"
-                                required
-                            />
-                        </li>
-                    </ol>
-                </fieldset>
-                <fieldset class="rows" id="policy">
-                    <legend>{{ $__("Policy") }}</legend>
-                    <ol>
-                        <li>
-                            <label for="institution_checkin"
-                                >{{ $__("Checkin") }}:</label
-                            >
-                            <input
-                                type="checkbox"
-                                id="institution_checkin"
-                                v-model="institution.checkin"
-                            />
-                        </li>
-                        <li>
-                            <label for="institution_checkout"
-                                >{{ $__("Checkout") }}:</label
-                            >
-                            <input
-                                type="checkbox"
-                                id="institution_checkout"
-                                v-model="institution.checkout"
-                            />
-                        </li>
-                        <li>
-                            <label for="institution_renewal"
-                                >{{ $__("Renewal") }}:</label
-                            >
-                            <input
-                                type="checkbox"
-                                id="institution_renewal"
-                                v-model="institution.renewal"
-                            />
-                        </li>
-                        <li>
-                            <label for="institution_retries" class="required"
-                                >{{ $__("Retries") }}:</label
-                            >
-                            <input
-                                id="institution_retries"
-                                v-model="institution.retries"
-                                :placeholder="$__('Retries')"
-                                required
-                            />
-                        </li>
-                        <li>
-                            <label for="institution_status_update"
-                                >{{ $__("Status update") }}:</label
-                            >
-                            <input
-                                type="checkbox"
-                                id="institution_status_update"
-                                v-model="institution.status_update"
-                            />
-                        </li>
-                        <li>
-                            <label for="institution_timeout" class="required"
-                                >{{ $__("Timeout") }}:</label
-                            >
-                            <input
-                                id="institution_timeout"
-                                v-model="institution.timeout"
-                                :placeholder="$__('Timeout')"
-                                required
+                        <li
+                            v-for="(attr, index) in resource_attrs.filter(
+                                attr => attr.type !== 'relationship'
+                            )"
+                            v-bind:key="index"
+                        >
+                            <FormElement
+                                :resource="institution"
+                                :attr="attr"
+                                :index="index"
                             />
                         </li>
                     </ol>
@@ -122,11 +42,19 @@
 </template>
 
 <script>
+import FormElement from "../FormElement.vue"
 import ButtonSubmit from "../ButtonSubmit.vue"
 import { setMessage, setError, setWarning } from "../../messages"
 import { APIClient } from "../../fetch/api-client.js"
+import SIP2InstitutionResource from "./SIP2InstitutionResource.vue"
 
 export default {
+    extends: SIP2InstitutionResource,
+    setup() {
+        return {
+            ...SIP2InstitutionResource.setup(),
+        }
+    },
     data() {
         return {
             institution: {
@@ -195,6 +123,7 @@ export default {
     },
     components: {
         ButtonSubmit,
+        FormElement,
     },
     name: "SIP2InstitutionsFormAdd",
 }
