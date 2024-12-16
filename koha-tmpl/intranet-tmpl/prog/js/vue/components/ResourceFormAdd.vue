@@ -12,7 +12,7 @@
         </h2>
         <h2 v-else>{{ $__("New") + " " + i18n.display_name }}</h2>
         <div>
-            <form @submit="onSubmit($event)">
+            <form @submit="onSubmit($event, resourceToAddOrEdit)">
                 <fieldset class="rows">
                     <ol>
                         <li

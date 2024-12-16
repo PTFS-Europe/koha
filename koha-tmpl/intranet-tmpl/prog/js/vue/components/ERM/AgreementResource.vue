@@ -786,11 +786,11 @@ export default {
             this.setWarning(errors.join("<br>"))
             return !errors.length
         },
-        onSubmit(e) {
+        onSubmit(e, agreementToSave) {
             e.preventDefault()
 
             //let agreement= Object.assign( {} ,this.agreement); // copy
-            let agreement = JSON.parse(JSON.stringify(this.agreement)) // copy
+            let agreement = JSON.parse(JSON.stringify(agreementToSave)) // copy
             let agreement_id = agreement.agreement_id
 
             if (!this.checkForm(agreement)) {
