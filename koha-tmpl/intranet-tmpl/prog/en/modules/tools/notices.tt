@@ -98,7 +98,7 @@
                                         [% ELSIF ( notice.status == 'deleted' ) %]<span>deleted</span>
                                         [% ELSE %][% notice.status | html %][% END %]
                                     </td>
-                                    <td data-order="[% noice.updated_on | html %]">[% notice.updated_on | $KohaDates with_hours = 1 %]</td>
+                                    <td data-order="[% notice.updated_on | html %]">[% notice.updated_on | $KohaDates with_hours = 1 %]</td>
                                     <td>
                                         [% IF ( notice.failure_code ) %]
                                             [% IF ( notice.failure_code == "INVALID_BORNUMBER" ) %]<span class="clearfix">Invalid borrowernumber [% notice.borrowernumber | html %]</span>
