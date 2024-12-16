@@ -63,7 +63,7 @@
                         <table id="notices">
                             <thead>
                                 <tr>
-                                    <th class="nosort">&nbsp;</th>
+                                    <th class="NoSort">&nbsp;</th>
                                     <th>Time created</th>
                                     <th>Patron</th>
                                     <th>Notice</th>
@@ -71,7 +71,7 @@
                                     <th>Status</th>
                                     <th>Updated on</th>
                                     <th>Delivery note</th>
-                                    <th class="nosort">Actions</th>
+                                    <th class="NoSort">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -275,9 +275,6 @@
     <script>
         $(document).ready(function() {
             $("#notices").dataTable($.extend(true, {}, dataTablesDefaults, {
-                "aoColumnDefs": [
-                    { 'bSortable': false, 'aTargets': [ 'nosort' ] }
-                ],
                 "aaSorting": [[1, "desc" ]],
                 "sPaginationType": "full"
             }));
