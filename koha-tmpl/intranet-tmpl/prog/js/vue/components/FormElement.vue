@@ -23,7 +23,7 @@
             :id="`${attr.name}${index}`"
             v-model="resource[attr.name]"
             :rows="attr.textAreaRows"
-            :cols="attr.textAreaCol"
+            :cols="attr.textAreaCols"
             :placeholder="attr.label"
             :required="attr.required ? true : false"
         />
