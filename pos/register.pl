@@ -106,12 +106,14 @@ else {
     my $op = $input->param('op') // '';
     if ( $op eq 'cashup' ) {
         if ( $logged_in_user->has_permission( { cash_management => 'cashup' } ) ) {
-            $cash_register->add_cashup(
+            my $cashup = $cash_register->add_cashup(
                 {
                     manager_id => $logged_in_user->id,
                     amount     => $cash_register->outstanding_accountlines->total
                 }
             );
+            $template->param( cashup_id => $cashup->id );
+            $template->param( cashup_description => "Some stuff here" );
         }
         else {
             $template->param( error_cashup_permission => 1 );
