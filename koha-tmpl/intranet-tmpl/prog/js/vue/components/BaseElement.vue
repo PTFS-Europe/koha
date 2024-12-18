@@ -54,7 +54,7 @@ export default {
                         acc[key] = prop.value
                     }
                 }
-                if (prop.type === "boolean") {
+                if (prop.type === "boolean" || prop.type === "object") {
                     acc[key] = prop.value
                 }
 
@@ -68,6 +68,8 @@ export default {
             if (attr.subFields?.length) {
                 props.subFields = attr.subFields
             }
+            console.log("props")
+            console.log(props)
             return props
         },
         accessNestedProperty(path, obj) {

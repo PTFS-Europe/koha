@@ -41,10 +41,27 @@ export default {
                 },
                 {
                     name: "sip_institution_id",
+                    type: "component",
+                    label: __("Institution"),
                     required: true,
-                    type: "text", //TODO: Move this to relationship using FormSelectRelatedResource
-                    label: __("Institution ID"),
-                    show_in_table: true,
+                    showElement: {
+                        type: "text",
+                        value: "institution.name",
+                        link: {
+                            href: "/cgi-bin/koha/sip2/institutions/1",
+                            // params: {
+                            //     bookseller_id: "vendor_id",
+                            // },
+                        },
+                    },
+                    componentPath: "./FormSelectRelatedResource.vue",
+
+                    props: {
+                        related_api_client: {
+                            type: "object",
+                            value: APIClient.sip2.institutions,
+                        },
+                    },
                 },
                 {
                     name: "allow_additional_materials_checkout",
