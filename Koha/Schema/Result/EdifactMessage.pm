@@ -174,6 +174,21 @@ __PACKAGE__->belongs_to(
   },
 );
 
+=head2 edifact_errors
+
+Type: has_many
+
+Related object: L<Koha::Schema::Result::EdifactError>
+
+=cut
+
+__PACKAGE__->has_many(
+  "edifact_errors",
+  "Koha::Schema::Result::EdifactError",
+  { "foreign.message_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 vendor
 
 Type: belongs_to
@@ -195,8 +210,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07042 @ 2018-02-16 17:54:53
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:JHUEsQ+kXjGTRxxc2FFSjQ
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-12-19 16:24:01
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:bB1E11DztQ9y9UTnEKtQ1Q
 
 __PACKAGE__->add_columns(
     '+deleted' => { is_boolean => 1 },
