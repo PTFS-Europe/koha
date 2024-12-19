@@ -51,12 +51,15 @@ A method that can be used to embed or simply retrieve the library group limits f
 =cut
 
 sub lib_group_limits {
-    my ( $self ) = @_;
+    my ($self) = @_;
 
-    my $lib_group_visibility = $self->lib_group_visibility;
+    my $lib_group_visibility_parameters = $self->object_class()->_library_group_visibility_parameters;
+    my $visibility_column               = $lib_group_visibility_parameters->{visibility_column};
+
+    my $lib_group_visibility = $self->$visibility_column;
     return [] if !$lib_group_visibility;
 
-    my @ids = grep(/[0-9]/, split(/\|/, $lib_group_visibility));
+    my @ids = grep( /[0-9]/, split( /\|/, $lib_group_visibility ) );
 
     my @lib_groups = map { Koha::Library::Groups->find($_) } @ids;
 
@@ -66,14 +69,27 @@ sub lib_group_limits {
 =head3 set_lib_group_visibility
 
 A method that can be used to set the library group visibility for an object
+If passed an array, it will format it into a string of "|" separated ids
+If passed a string it will check it is formatted correctly and adjust it if needed
 
 =cut
 
 sub set_lib_group_visibility {
-    my ( $self ) = @_;
+    my ( $self, $args ) = @_;
 
-    if ( $self->lib_group_visibility && $self->lib_group_visibility !~ /^\|.*\|$/ ) {
-        $self->lib_group_visibility( "|" . $self->lib_group_visibility . "|" );
+    my $new_visibility                  = $args->{new_visibility} || $self->lib_group_visibility;
+    my $lib_group_visibility_parameters = $self->object_class()->_library_group_visibility_parameters;
+    my $visibility_column               = $lib_group_visibility_parameters->{visibility_column};
+
+    if ( ref $new_visibility eq 'ARRAY' ) {
+        if ( scalar( @{$new_visibility} ) == 0 ) {
+            $self->$visibility_column(undef);
+            return $self;
+        }
+        $self->$visibility_column( join( "|", grep( /[0-9]/, @{$new_visibility} ) ) );
+    }
+    if ( $new_visibility && $new_visibility !~ /^\|.*\|$/ ) {
+        $self->$visibility_column( "|" . $self->$visibility_column . "|" );
     }
 
     return $self;
