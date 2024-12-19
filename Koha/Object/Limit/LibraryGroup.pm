@@ -53,7 +53,7 @@ A method that can be used to embed or simply retrieve the library group limits f
 sub lib_group_limits {
     my ($self) = @_;
 
-    my $lib_group_visibility_parameters = $self->object_class()->_library_group_visibility_parameters;
+    my $lib_group_visibility_parameters = $self->_library_group_visibility_parameters;
     my $visibility_column               = $lib_group_visibility_parameters->{visibility_column};
 
     my $lib_group_visibility = $self->$visibility_column;
@@ -78,8 +78,13 @@ sub set_lib_group_visibility {
     my ( $self, $args ) = @_;
 
     my $new_visibility                  = $args->{new_visibility} || $self->lib_group_visibility;
-    my $lib_group_visibility_parameters = $self->object_class()->_library_group_visibility_parameters;
+    my $lib_group_visibility_parameters = $self->_library_group_visibility_parameters;
     my $visibility_column               = $lib_group_visibility_parameters->{visibility_column};
+
+    if ( !$new_visibility ) {
+        $self->$visibility_column(undef);
+        return $self;
+    }
 
     if ( ref $new_visibility eq 'ARRAY' ) {
         if ( scalar( @{$new_visibility} ) == 0 ) {
