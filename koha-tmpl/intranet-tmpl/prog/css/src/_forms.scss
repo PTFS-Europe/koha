@@ -1,34 +1,6 @@
 fieldset {
     @include card;
 
-    .v-select,
-    select,
-    textarea,
-    input{
-        &:not([type="submit"]):not([type="search"]):not([type="button"]):not([type="checkbox"]):not([type="radio"]) {
-            border-color: rgba(60, 60, 60, 0.26);
-            border-width: 1px;
-            border-radius: 4px;
-            min-width: 30%;
-            line-height: 1.5;
-        }
-    }
-
-    .v-select,
-    select {
-        display: inline-block;
-        background-color: white;
-        width: 30%;
-    }
-
-    select {
-        padding: 2px 0;
-    }
-
-    .flatpickr-input {
-        width: 30%;
-    }
-
     legend {
         border-bottom: 0 none;
         color: #696969;
@@ -148,6 +120,35 @@ fieldset {
         }
 
         li {
+
+            .v-select,
+            select,
+            textarea,
+            input{
+                &:not([type="submit"]):not([type="search"]):not([type="button"]):not([type="checkbox"]):not([type="radio"]) {
+                    border-color: rgba(60, 60, 60, 0.26);
+                    border-width: 1px;
+                    border-radius: 4px;
+                    min-width: 30%;
+                    line-height: 1.5;
+                }
+            }
+
+            .v-select,
+            select {
+                display: inline-block;
+                background-color: white;
+                width: 30%;
+            }
+
+            select {
+                padding: 2px 0;
+            }
+
+            .flatpickr-input {
+                width: 30%;
+            }
+
             clear: left;
             float: left;
             list-style-type: none;
