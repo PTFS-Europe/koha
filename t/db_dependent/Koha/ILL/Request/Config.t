@@ -16,6 +16,8 @@
 # along with Koha; if not, see <http://www.gnu.org/licenses>.
 
 use Modern::Perl;
+use File::Basename;
+use File::Path qw(make_path remove_tree);
 
 use Koha::Database;
 use t::lib::Mocks;
@@ -23,8 +25,17 @@ use t::lib::TestBuilder;
 use Test::MockObject;
 use Test::Exception;
 
-use Test::NoWarnings;
-use Test::More tests => 7;
+use Test::More tests => 9;
+
+BEGIN {
+    # Mock pluginsdir before loading Plugins module
+    my $path = dirname(__FILE__) . '/../../../../lib/plugins';
+    t::lib::Mocks::mock_config( 'pluginsdir', $path );
+
+    use_ok('Koha::Plugins');
+    use_ok('Koha::Plugins::Handler');
+    use_ok('Koha::Plugin::Test');
+}
 
 my $schema  = Koha::Database->new->schema;
 my $builder = t::lib::TestBuilder->new;
@@ -538,7 +549,7 @@ subtest 'Final tests' => sub {
 
 subtest 'get_backend_plugin_names() tests' => sub {
 
-    plan tests => 1;
+    plan tests => 3;
 
     $schema->storage->txn_begin;
 
@@ -549,6 +560,35 @@ subtest 'get_backend_plugin_names() tests' => sub {
         'get_backend_plugin_names returns empty list if plugins are disabled'
     );
 
+    t::lib::Mocks::mock_config( 'enable_plugins', 1 );
+    my $koha_plugins = Koha::Plugins->new();
+    $koha_plugins->InstallPlugins;
+
+    my @backend_plugins =
+          $koha_plugins
+        ? $koha_plugins->GetPlugins( { plugin_class => 'Koha::Plugin::Test' } )
+        : ();
+    my $backend_plugin = $backend_plugins[0];
+
+    my @backend_plugin_names = $config->get_backend_plugin_names();
+    my $backend_plugin_name  = $backend_plugin_names[0];
+
+    is(
+        $backend_plugin_name, $backend_plugin->get_metadata()->{name},
+        'get_backend_plugin_names returns list of backend plugin names'
+    );
+
+    $backend_plugin->disable;
+    my @after_disable_backend_plugin_names = $config->get_backend_plugin_names();
+    my $after_disable_backend_plugin_name  = $after_disable_backend_plugin_names[0];
+
+    is(
+        $after_disable_backend_plugin_name, undef,
+        'get_backend_plugin_names returns empty list if backend plugin is disabled'
+    );
+
+    #cleanup
+    Koha::Plugins::Methods->delete;
     $schema->storage->txn_rollback;
 };
 
