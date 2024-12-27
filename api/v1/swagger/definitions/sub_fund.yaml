@@ -66,11 +66,42 @@ properties:
       - array
       - "null"
     description: Library group visibility
+  spend_limit:
+    type:
+      - integer
+      - "null"
+    description: Spend limit of the sub_fund
   sub_fund_value:
     type:
       - integer
       - "null"
-    description: Value of the fund
+    description: Value of the sub_fund
+  over_spend_allowed:
+    description: Is over spend allowed on the sub_fund
+    type: boolean
+  over_encumbrance_allowed:
+    description: Is over encumbrance allowed on the sub_fund
+    type: boolean
+  oe_warning_percent:
+    type:
+      - number
+      - "null"
+    description: Over encumbrance warning percentage
+  oe_limit_amount:
+    type:
+      - integer
+      - "null"
+    description: Over encumbrance limit amount
+  os_warning_sum:
+    type:
+      - integer
+      - "null"
+    description: Over spend warning sum
+  os_limit_sum:
+    type:
+      - integer
+      - "null"
+    description: Over spend limit sum
   fiscal_period:
     type: object
     description: Fiscal_period

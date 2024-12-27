@@ -260,7 +260,9 @@
                             <input
                                 id="ledger_oe_warning_percent"
                                 v-model="ledger.oe_warning_percent"
-                                placeholder="Percentage that triggers a warning"
+                                :placeholder="
+                                    $__('Percentage that triggers a warning')
+                                "
                                 type="number"
                                 min="0"
                                 max="100"
@@ -276,7 +278,11 @@
                             <input
                                 id="ledger_oe_limit_amount"
                                 v-model="ledger.oe_limit_amount"
-                                placeholder="The amount at which a block is triggered"
+                                :placeholder="
+                                    $__(
+                                        'The amount at which a block is triggered'
+                                    )
+                                "
                                 type="number"
                                 step=".01"
                             />
@@ -288,7 +294,11 @@
                             <input
                                 id="ledger_os_warning_sum"
                                 v-model="ledger.os_warning_sum"
-                                placeholder="The amount at which a warning is triggered"
+                                :placeholder="
+                                    $__(
+                                        'The amount at which a warning is triggered'
+                                    )
+                                "
                                 type="number"
                                 step=".01"
                             />
@@ -300,7 +310,11 @@
                             <input
                                 id="ledger_os_limit_sum"
                                 v-model="ledger.os_limit_sum"
-                                placeholder="The amount at which a block is triggered"
+                                :placeholder="
+                                    $__(
+                                        'The amount at which a block is triggered'
+                                    )
+                                "
                                 type="number"
                                 step=".01"
                             />

@@ -25,22 +25,6 @@
             />
             <ToolbarLink
                 :to="{
-                    name: 'FundAllocationFormAdd',
-                    params: {
-                        fund_id: fund.fund_id,
-                        ...(isSubFund && { sub_fund_id: fund.sub_fund_id }),
-                    },
-                }"
-                icon="plus"
-                :title="$__('New fund allocation')"
-                v-if="
-                    isUserPermitted('createFundAllocation') &&
-                    !hasSubFunds &&
-                    fund.status
-                "
-            />
-            <ToolbarLink
-                :to="{
                     name: 'TransferFunds',
                     query: {
                         fund_id: fund.fund_id,
