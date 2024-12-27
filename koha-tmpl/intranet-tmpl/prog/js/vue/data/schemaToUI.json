@@ -208,6 +208,38 @@
             "label": "Fund type",
             "type": "av",
             "av_type": "acquire_fund_types"
+        },
+        "over_spend_allowed": {
+            "label": "Overspend allowed",
+            "type": "enum",
+            "options": {
+                "true": "Allowed",
+                "false": "Not allowed"
+            }
+        },
+        "over_encumbrance_allowed": {
+            "label": "Overencumbrance allowed",
+            "type": "enum",
+            "options": {
+                "true": "Allowed",
+                "false": "Not allowed"
+            }
+        },
+        "oe_warning_percent": {
+            "label": "Overencumbrance warning percentage",
+            "type": "percentage"
+        },
+        "oe_limit_amount": {
+            "label": "Overencumbrance limit amount",
+            "type": "number"
+        },
+        "os_warning_sum": {
+            "label": "Overspend warning amount",
+            "type": "number"
+        },
+        "os_limit_sum": {
+            "label": "Overspend limit amount",
+            "type": "number"
         }
     },
     "subFund": {
@@ -280,6 +312,38 @@
         "external_id": {
             "label": "External ID",
             "type": "string"
+        },
+        "over_spend_allowed": {
+            "label": "Overspend allowed",
+            "type": "enum",
+            "options": {
+                "true": "Allowed",
+                "false": "Not allowed"
+            }
+        },
+        "over_encumbrance_allowed": {
+            "label": "Overencumbrance allowed",
+            "type": "enum",
+            "options": {
+                "true": "Allowed",
+                "false": "Not allowed"
+            }
+        },
+        "oe_warning_percent": {
+            "label": "Overencumbrance warning percentage",
+            "type": "percentage"
+        },
+        "oe_limit_amount": {
+            "label": "Overencumbrance limit amount",
+            "type": "number"
+        },
+        "os_warning_sum": {
+            "label": "Overspend warning amount",
+            "type": "number"
+        },
+        "os_limit_sum": {
+            "label": "Overspend limit amount",
+            "type": "number"
         }
     },
     "fundGroup": {

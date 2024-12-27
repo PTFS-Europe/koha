@@ -202,6 +202,139 @@
                             </v-select>
                             <span class="required">{{ $__("Required") }}</span>
                         </li>
+                        <li>
+                            <label for="fund_spend_limit"
+                                >{{ $__("Spend limit") }}:</label
+                            >
+                            <input
+                                id="fund_spend_limit"
+                                v-model="fund.spend_limit"
+                                placeholder="The spending limit for the fund"
+                                type="number"
+                                step=".01"
+                            />
+                        </li>
+                        <li>
+                            <label
+                                for="fund_over_spend_allowed"
+                                class="required"
+                                >{{ $__("Overspend allowed?") }}:</label
+                            >
+                            <v-select
+                                id="fund_over_spend_allowed"
+                                v-model="fund.over_spend_allowed"
+                                :reduce="av => av.value"
+                                :options="allowedOptions"
+                                label="description"
+                            >
+                                <template #search="{ attributes, events }">
+                                    <input
+                                        :required="
+                                            fund.over_spend_allowed === null
+                                        "
+                                        class="vs__search"
+                                        v-bind="attributes"
+                                        v-on="events"
+                                    />
+                                </template>
+                            </v-select>
+                            <span class="required">{{ $__("Required") }}</span>
+                        </li>
+                        <li>
+                            <label
+                                for="fund_over_encumbrance_allowed"
+                                class="required"
+                                >{{ $__("Overencumbrance allowed?") }}:</label
+                            >
+                            <v-select
+                                id="fund_over_encumbrance_allowed"
+                                v-model="fund.over_encumbrance_allowed"
+                                :reduce="av => av.value"
+                                :options="allowedOptions"
+                                label="description"
+                            >
+                                <template #search="{ attributes, events }">
+                                    <input
+                                        :required="
+                                            fund.over_encumbrance_allowed ===
+                                            null
+                                        "
+                                        class="vs__search"
+                                        v-bind="attributes"
+                                        v-on="events"
+                                    />
+                                </template>
+                            </v-select>
+                            <span class="required">{{ $__("Required") }}</span>
+                        </li>
+                        <li>
+                            <label for="fund_oe_warning_percent"
+                                >{{
+                                    $__("Overencumbrance warning percentage")
+                                }}:</label
+                            >
+                            <input
+                                id="fund_oe_warning_percent"
+                                v-model="fund.oe_warning_percent"
+                                :placeholder="
+                                    $__('Percentage that triggers a warning')
+                                "
+                                type="number"
+                                min="0"
+                                max="100"
+                                step=".01"
+                            />
+                        </li>
+                        <li>
+                            <label for="fund_oe_limit_amount"
+                                >{{
+                                    $__("Overencumbrance limit amount")
+                                }}:</label
+                            >
+                            <input
+                                id="fund_oe_limit_amount"
+                                v-model="fund.oe_limit_amount"
+                                :placeholder="
+                                    $__(
+                                        'The amount at which a block is triggered'
+                                    )
+                                "
+                                type="number"
+                                step=".01"
+                            />
+                        </li>
+                        <li>
+                            <label for="fund_os_warning_sum"
+                                >{{ $__("Overspend warning sum") }}:</label
+                            >
+                            <input
+                                id="fund_os_warning_sum"
+                                v-model="fund.os_warning_sum"
+                                :placeholder="
+                                    $__(
+                                        'The amount at which a warning is triggered'
+                                    )
+                                "
+                                type="number"
+                                step=".01"
+                            />
+                        </li>
+                        <li>
+                            <label for="fund_os_limit_sum"
+                                >{{ $__("Overspend limit sum") }}:</label
+                            >
+                            <input
+                                id="fund_os_limit_sum"
+                                v-model="fund.os_limit_sum"
+                                :placeholder="
+                                    $__(
+                                        'The amount at which a block is triggered'
+                                    )
+                                "
+                                type="number"
+                                step=".01"
+                            />
+                        </li>
                     </ol>
                 </fieldset>
                 <fieldset class="action">
