@@ -18,7 +18,7 @@ package Koha::Acquisition::FundManagement::SubFund;
 # along with Koha; if not, see <http://www.gnu.org/licenses>.
 
 use Modern::Perl;
-use base qw(Koha::Object Koha::Object::Limit::LibraryGroup);
+use base qw(Koha::Object::Limit::LibraryGroup Koha::Acquisition::FundManagement::BaseObject);
 
 use Koha::Acquisition::FundManagement::FiscalPeriod;
 use Koha::Acquisition::FundManagement::Ledger;
@@ -63,7 +63,7 @@ sub delete {
     my $deleted = $self->_result()->delete;
 
     my $fund = $self->fund;
-    $fund->update_fund_value;
+    $fund->update_object_value;
 
     return $self;
 }
@@ -82,14 +82,14 @@ sub cascade_to_fund_allocations {
     my $status               = $self->status;
 
     foreach my $fund_allocation (@fund_allocations) {
-        my $visibility_updated = Koha::Acquisition::FundManagement::Utils->cascade_lib_group_visibility(
+        my $visibility_updated = $self->cascade_lib_group_visibility(
             {
                 parent_visibility => $lib_group_visibility,
                 child             => $fund_allocation
             }
         );
         my @data_to_cascade = ( 'fiscal_period_id', 'currency', 'owner_id', 'ledger_id' );
-        my $data_updated    = Koha::Acquisition::FundManagement::Utils->cascade_data(
+        my $data_updated    = $self->cascade_data(
             {
                 parent     => $self,
                 child      => $fund_allocation,
@@ -100,128 +100,17 @@ sub cascade_to_fund_allocations {
     }
 }
 
-=head3 update_fund_value
-
-This method is called whenever a fund allocation is made.
-It updates the value of the fund based on the fund allocations and then triggers an update to the ledger value
+=head3 _object_hierarchy
 
 =cut
 
-sub update_sub_fund_value {
-    my ( $self, $args ) = @_;
-
-    my @allocations = $self->fund_allocations->as_list;
-    my $total       = 0;
-
-    foreach my $allocation (@allocations) {
-        $total += $allocation->allocation_amount;
-    }
-    $self->sub_fund_value($total)->store( { no_cascade => 1 } );
-
-    my $fund = $self->fund;
-    $fund->update_fund_value;
-
-    return $total;
-}
-
-=head3 is_sub_fund_within_spend_limit
-
-Checks whether a sub_fund is within the spend limit
-For a sub_fund, the spend limit is the sub_fund_value as this is the limit on the sub_fund minus any spend
-Returns the result, including the amount of any breach and whether overspend/overencumbrance are allowed on the sub_fund
-
-=cut
-
-sub is_sub_fund_within_spend_limit {
-    my ( $self, $args ) = @_;
-
-    my $new_allocation = $args->{new_allocation};
-    my $spend_limit    = $self->sub_fund_value;
-    my $total_spent    = $self->sub_fund_spent + $new_allocation;
-
+sub _object_hierarchy {
     return {
-        within_limit       => -$total_spent <= $spend_limit, breach_amount            => $total_spent + $spend_limit,
-        over_spend_allowed => $self->over_spend_allowed,     over_encumbrance_allowed => $self->over_encumbrance_allowed
+        object => 'sub_fund',
+        parent => 'fund',
+        child  => 'fund_allocation',
+        children => 'fund_allocations'
     };
-}
-
-=head3 sub_fund_spent
-
-This returns the total actual and committed spend against the sub_fund
-The total is made up of all the sub_fund allocations against the sub_fund
-
-=cut
-
-sub sub_fund_spent {
-    my ($self) = @_;
-
-    my $fund_allocations = $self->fund_allocations;
-    my $total            = 0;
-    foreach my $fund_allocation ( $fund_allocations->as_list ) {
-        $total += $fund_allocation->allocation_amount;
-    }
-
-    return $total;
-}
-
-=head3 fiscal_period
-
-Method to embed the fiscal period to a given sub fund
-
-=cut
-
-sub fiscal_period {
-    my ($self) = @_;
-    my $fiscal_period_rs = $self->_result->fiscal_period;
-    return Koha::Acquisition::FundManagement::FiscalPeriod->_new_from_dbic($fiscal_period_rs);
-}
-
-=head3 ledger
-
-Method to embed the ledger to a given sub fund
-
-=cut
-
-sub ledger {
-    my ($self) = @_;
-    my $ledger_rs = $self->_result->ledger;
-    return Koha::Acquisition::FundManagement::Ledger->_new_from_dbic($ledger_rs);
-}
-
-=head3 fund
-
-Method to embed the fund to a given sub fund
-
-=cut
-
-sub fund {
-    my ($self) = @_;
-    my $fund_rs = $self->_result->fund;
-    return Koha::Acquisition::FundManagement::Fund->_new_from_dbic($fund_rs);
-}
-
-=head3 fund_allocations
-
-Method to embed fund allocations to the fund
-
-=cut
-
-sub fund_allocations {
-    my ($self) = @_;
-    my $fund_allocation_rs = $self->_result->fund_allocations;
-    return Koha::Acquisition::FundManagement::FundAllocations->_new_from_dbic($fund_allocation_rs);
-}
-
-=head3 owner
-
-Method to embed the owner to a given sub fund
-
-=cut
-
-sub owner {
-    my ($self) = @_;
-    my $owner_rs = $self->_result->owner;
-    return Koha::Patron->_new_from_dbic($owner_rs);
 }
 
 =head3 _library_group_visibility_parameters

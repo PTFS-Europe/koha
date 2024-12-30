@@ -18,7 +18,7 @@ package Koha::Acquisition::FundManagement::FundAllocations;
 # along with Koha; if not, see <http://www.gnu.org/licenses>.
 
 use Modern::Perl;
-use base qw(Koha::Objects Koha::Objects::Limit::LibraryGroup);
+use base qw(Koha::Acquisition::FundManagement::BaseObjects Koha::Objects::Limit::LibraryGroup);
 
 use Koha::Acquisition::FundManagement::FundAllocation;
 
@@ -29,20 +29,6 @@ Koha::Acquisition::FundManagement::FundAllocations object set class
 =head1 API
 
 =head2 Class methods
-
-=head3 search
-
-=cut
-
-sub search {
-    my ( $self, $params, $attributes ) = @_;
-
-    my $class = ref($self) ? ref($self) : $self;
-
-    ( $params, $attributes ) = $self->define_library_group_limits( $params, $attributes );
-
-    return $self->SUPER::search( $params, $attributes );
-}
 
 =head3 add_totals_to_fund_allocations
 

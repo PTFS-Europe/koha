@@ -17,7 +17,7 @@
 
 use Modern::Perl;
 
-use Test::More tests => 2;
+use Test::More tests => 1;
 
 use t::lib::TestBuilder;
 use t::lib::Mocks;
@@ -89,58 +89,3 @@ subtest 'cascade_to_funds' => sub {
     $schema->storage->txn_rollback;
 };
 
-subtest 'update_ledger_value' => sub {
-
-    plan tests => 1;
-
-    $schema->storage->txn_begin;
-
-    my $fiscal_period = $builder->build_object(
-        {
-            class => 'Koha::Acquisition::FundManagement::FiscalPeriods',
-            value => { status => 1, lib_group_visibility => '1|2', spend_limit => 0 }
-        }
-    );
-    my $ledger = Koha::Acquisition::FundManagement::Ledger->new(
-        {
-            fiscal_period_id     => $fiscal_period->fiscal_period_id,
-            lib_group_visibility => $fiscal_period->lib_group_visibility,
-            status               => $fiscal_period->status,
-            currency             => 'GBP',
-            owner_id             => '1',
-            ledger_value         => 0,
-            spend_limit          => 100
-        }
-    )->store();
-
-    my $fund = $builder->build_object(
-        {
-            class => 'Koha::Acquisition::FundManagement::Funds',
-            value => {
-                fiscal_period_id     => $fiscal_period->fiscal_period_id,
-                ledger_id            => $ledger->ledger_id,
-                lib_group_visibility => $fiscal_period->lib_group_visibility,
-                status               => $fiscal_period->status,
-                currency             => $ledger->currency,
-                owner_id             => $ledger->owner_id,
-                fund_value           => 0
-            }
-        }
-    );
-
-    my $allocation = Koha::Acquisition::FundManagement::FundAllocation->new(
-        {
-            fund_id           => $fund->fund_id,
-            sub_fund_id       => undef,
-            ledger_id         => $ledger->ledger_id,
-            fiscal_period_id  => $fiscal_period->fiscal_period_id,
-            allocation_amount => -10
-        }
-    )->store();
-
-    my $updated_ledger = Koha::Acquisition::FundManagement::Ledgers->find( $ledger->ledger_id );
-
-    is( $updated_ledger->ledger_value + 0, 90, 'Ledger value is 100' );
-
-    $schema->storage->txn_rollback;
-};

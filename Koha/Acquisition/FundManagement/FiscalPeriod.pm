@@ -18,9 +18,8 @@ package Koha::Acquisition::FundManagement::FiscalPeriod;
 # along with Koha; if not, see <http://www.gnu.org/licenses>.
 
 use Modern::Perl;
-use base qw(Koha::Object Koha::Object::Limit::LibraryGroup);
+use base qw(Koha::Object::Limit::LibraryGroup Koha::Acquisition::FundManagement::BaseObject);
 
-use Koha::Acquisition::FundManagement::Utils;
 use Koha::Acquisition::FundManagement::Ledgers;
 use Koha::Patron;
 
@@ -47,18 +46,6 @@ sub store {
     return $self;
 }
 
-=head3 delete
-
-=cut
-
-sub delete {
-    my ( $self, $args ) = @_;
-
-    my $deleted = $self->_result()->delete;
-
-    return $self;
-}
-
 =head3 cascade_to_ledgers
 
 This method cascades changes to the values of the "lib_group_visibility" and "status" properties to all ledgers attached to this fiscal period
@@ -73,13 +60,13 @@ sub cascade_to_ledgers {
     my $status               = $self->status;
 
     foreach my $ledger (@ledgers) {
-        my $status_updated = Koha::Acquisition::FundManagement::Utils->cascade_status(
+        my $status_updated = $self->cascade_status(
             {
                 parent_status => $status,
                 child         => $ledger
             }
         );
-        my $visibility_updated = Koha::Acquisition::FundManagement::Utils->cascade_lib_group_visibility(
+        my $visibility_updated = $self->cascade_lib_group_visibility(
             {
                 parent_visibility => $lib_group_visibility,
                 child             => $ledger
@@ -89,88 +76,17 @@ sub cascade_to_ledgers {
     }
 }
 
-=head3 ledgers
-
-Method to embed ledgers to the fiscal period
+=head3 _object_hierarchy
 
 =cut
 
-sub ledgers {
-    my ($self) = @_;
-    my $ledger_rs = $self->_result->ledgers;
-    return Koha::Acquisition::FundManagement::Ledgers->_new_from_dbic($ledger_rs);
-}
-
-=head3 owner
-
-Method to embed the owner to a given fiscal period
-
-=cut
-
-sub owner {
-    my ($self) = @_;
-    my $owner_rs = $self->_result->owner;
-    return Koha::Patron->_new_from_dbic($owner_rs);
-}
-
-=head3 is_fiscal_period_within_spend_limit
-
-Checks whether a fiscal period is within the spend limit
-
-=cut
-
-sub is_fiscal_period_within_spend_limit {
-    my ( $self, $args ) = @_;
-
-    return { within_limit => 1 } unless $self->spend_limit > 0;
-
-    my $new_allocation = $args->{new_allocation};
-    my $spend_limit    = $self->spend_limit;
-    my $total_spent    = $self->fiscal_period_spent + $new_allocation;
-
-    return { within_limit => -$total_spent <= $spend_limit, breach_amount => $total_spent + $spend_limit };
-}
-
-=head3 fiscal_period_spent
-
-This returns the total actual and committed spend against the fiscal period
-
-=cut
-
-sub fiscal_period_spent {
-    my ($self) = @_;
-
-    my @ledgers = $self->ledgers->as_list;
-    my $total   = 0;
-
-    foreach my $ledger (@ledgers) {
-        $total += $ledger->ledger_spent;
-    }
-
-    return $total;
-}
-
-=head3 fiscal_period_ledger_limits
-
-This returns the spending limits of the ledgers under a fiscal period
-The total is made up of the spend_limits for all the ledgers attached to the fiscal period
-
-=cut
-
-sub fiscal_period_ledger_limits {
-    my ($self) = @_;
-
-    my @ledgers = $self->ledgers->as_list;
-    my $total   = 0;
-
-    return { within_limit => 1 } if !$self->spend_limit > 0;
-
-    foreach my $ledger (@ledgers) {
-        my $spend_limit = $ledger->spend_limit;
-        $total += $spend_limit;
-    }
-
-    return { within_limit => $self->spend_limit >= $total, breach_amount => $total - $self->spend_limit };
+sub _object_hierarchy {
+    return {
+        object => 'fiscal_period',
+        parent => undef,
+        child  => 'ledger',
+        children => 'ledgers'
+    };
 }
 
 =head3 _library_group_visibility_parameters

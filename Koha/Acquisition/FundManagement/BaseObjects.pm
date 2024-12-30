@@ -1,4 +1,4 @@
-package Koha::Acquisition::FundManagement::FiscalPeriods;
+package Koha::Acquisition::FundManagement::BaseObjects;
 
 # Copyright 2024 PTFS Europe
 
@@ -18,34 +18,30 @@ package Koha::Acquisition::FundManagement::FiscalPeriods;
 # along with Koha; if not, see <http://www.gnu.org/licenses>.
 
 use Modern::Perl;
-use base qw(Koha::Acquisition::FundManagement::BaseObjects Koha::Objects::Limit::LibraryGroup);
+use base qw(Koha::Objects Koha::Objects::Limit::LibraryGroup);
 
-use Koha::Acquisition::FundManagement::FiscalPeriod;
+use Koha::Acquisition::FundManagement::BaseObject;
 
 =head1 NAME
 
-Koha::Acquisition::FundManagement::FiscalPeriods object set class
+Koha::Acquisition::FundManagement::BaseObjects object set class
 
 =head1 API
 
 =head2 Class methods
 
-=head2 Internal methods
-
-=head3 _type
+=head3 search
 
 =cut
 
-sub _type {
-    return 'FiscalPeriod';
-}
+sub search {
+    my ( $self, $params, $attributes ) = @_;
 
-=head3 object_class
+    my $class = ref($self) ? ref($self) : $self;
 
-=cut
+    ( $params, $attributes ) = $self->define_library_group_limits( $params, $attributes );
 
-sub object_class {
-    return 'Koha::Acquisition::FundManagement::FiscalPeriod';
+    return $self->SUPER::search( $params, $attributes );
 }
 
 1;

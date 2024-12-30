@@ -99,7 +99,7 @@ sub add {
 
                 if ( $body->{spend_limit} ) {
                     my $fund   = Koha::Acquisition::FundManagement::Funds->find( $body->{fund_id} );
-                    my $result = $fund->is_fund_within_spend_limit( { new_allocation => $body->{spend_limit} } );
+                    my $result = $fund->is_spend_limit_breached( { new_allocation => $body->{spend_limit} } );
                     return $c->render(
                         status => 400,
                         error  => "Fund spend limit breached, please reduce spend limit by "
@@ -162,7 +162,7 @@ sub update {
                     }
                     my $fund             = Koha::Acquisition::FundManagement::Funds->find( $body->{fund_id} );
                     my $spend_limit_diff = $body->{spend_limit} - $sub_fund->spend_limit;
-                    my $result           = $fund->sub_fund_limits( { new_allocation => $spend_limit_diff } );
+                    my $result           = $fund->check_spend_limits( { new_allocation => $spend_limit_diff } );
                     return $c->render(
                         status  => 400,
                         openapi => {

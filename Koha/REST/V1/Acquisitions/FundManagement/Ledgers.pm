@@ -99,7 +99,7 @@ sub add {
                 if ( $body->{spend_limit} ) {
                     my $fiscal_period =
                         Koha::Acquisition::FundManagement::FiscalPeriods->find( $body->{fiscal_period_id} );
-                    my $result = $fiscal_period->is_fiscal_period_within_spend_limit(
+                    my $result = $fiscal_period->is_spend_limit_breached(
                         { new_allocation => $body->{spend_limit} } );
                     return $c->render(
                         status => 400,
@@ -161,7 +161,7 @@ sub update {
                     my $fiscal_period =
                         Koha::Acquisition::FundManagement::FiscalPeriods->find( $body->{fiscal_period_id} );
                     my $spend_limit_diff = $body->{spend_limit} - $ledger->spend_limit;
-                    my $result = $fiscal_period->fiscal_period_ledger_limits( { new_allocation => $spend_limit_diff } );
+                    my $result = $fiscal_period->check_spend_limits( { new_allocation => $spend_limit_diff } );
                     return $c->render(
                         status  => 400,
                         openapi => {
@@ -177,7 +177,7 @@ sub update {
                 delete $body->{last_updated}  if $body->{last_updated};
 
                 $ledger->set_from_api($body)->store;
-                $ledger->update_ledger_value;
+                $ledger->update_object_value;
 
                 $c->res->headers->location( $c->req->url->to_string . '/' . $ledger->ledger_id );
                 return $c->render(
