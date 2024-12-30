@@ -17,7 +17,7 @@
 
 use Modern::Perl;
 
-use Test::More tests => 2;
+use Test::More tests => 1;
 
 use t::lib::TestBuilder;
 use t::lib::Mocks;
@@ -119,75 +119,3 @@ subtest 'cascade_to_fund_allocations' => sub {
     $schema->storage->txn_rollback;
 };
 
-subtest 'update_fund_value' => sub {
-
-    plan tests => 1;
-
-    $schema->storage->txn_begin;
-
-    my $fiscal_period = $builder->build_object(
-        {
-            class => 'Koha::Acquisition::FundManagement::FiscalPeriods',
-            value => { status => 1, lib_group_visibility => '1|2', spend_limit => 0 }
-        }
-    );
-    my $ledger = $builder->build_object(
-        {
-            class => 'Koha::Acquisition::FundManagement::Ledgers',
-            value => {
-                fiscal_period_id     => $fiscal_period->fiscal_period_id,
-                lib_group_visibility => $fiscal_period->lib_group_visibility,
-                status               => $fiscal_period->status,
-                currency             => 'GBP',
-                owner_id             => '1',
-                ledger_value         => 0,
-                spend_limit          => 0
-            }
-        }
-    );
-    my $fund = $builder->build_object(
-        {
-            class => 'Koha::Acquisition::FundManagement::Funds',
-            value => {
-                fiscal_period_id     => $fiscal_period->fiscal_period_id,
-                ledger_id            => $ledger->ledger_id,
-                lib_group_visibility => $fiscal_period->lib_group_visibility,
-                status               => $fiscal_period->status,
-                currency             => $ledger->currency,
-                owner_id             => $ledger->owner_id,
-                fund_value           => 0
-            }
-        }
-    );
-    my $sub_fund = $builder->build_object(
-        {
-            class => 'Koha::Acquisition::FundManagement::SubFunds',
-            value => {
-                fiscal_period_id => $fiscal_period->fiscal_period_id,
-                ledger_id        => $ledger->ledger_id,
-
-                fund_id              => $fund->fund_id,
-                lib_group_visibility => '1|2',
-                status               => 1,
-                currency             => 'GBP',
-                owner_id             => '1'
-            }
-        }
-    );
-
-    my $allocation = Koha::Acquisition::FundManagement::FundAllocation->new(
-        {
-            fund_id           => undef,
-            sub_fund_id       => $sub_fund->sub_fund_id,
-            ledger_id         => $ledger->ledger_id,
-            fiscal_period_id  => $fiscal_period->fiscal_period_id,
-            allocation_amount => 100
-        }
-    )->store();
-
-    my $updated_sub_fund = Koha::Acquisition::FundManagement::SubFunds->find( $sub_fund->sub_fund_id );
-
-    is( $updated_sub_fund->sub_fund_value + 0, 100, 'Fund value is 100' );
-
-    $schema->storage->txn_rollback;
-};

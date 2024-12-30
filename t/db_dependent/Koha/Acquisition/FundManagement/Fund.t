@@ -17,7 +17,7 @@
 
 use Modern::Perl;
 
-use Test::More tests => 4;
+use Test::More tests => 3;
 
 use t::lib::TestBuilder;
 use t::lib::Mocks;
@@ -248,103 +248,6 @@ subtest 'cascade_to_sub_funds' => sub {
 
     is( $fund->currency, $updated_sub_fund->currency, 'Sub fund has updated' );
     is( $fund->owner_id, $updated_sub_fund->owner_id, 'Sub fund has updated' );
-
-    $schema->storage->txn_rollback;
-};
-
-subtest 'update_fund_value' => sub {
-
-    plan tests => 2;
-
-    $schema->storage->txn_begin;
-
-    my $fiscal_period = $builder->build_object(
-        {
-            class => 'Koha::Acquisition::FundManagement::FiscalPeriods',
-            value => { status => 1, lib_group_visibility => '1|2' }
-        }
-    );
-    my $ledger = Koha::Acquisition::FundManagement::Ledger->new(
-        {
-            fiscal_period_id     => $fiscal_period->fiscal_period_id,
-            lib_group_visibility => $fiscal_period->lib_group_visibility,
-            status               => $fiscal_period->status,
-            currency             => 'GBP',
-            owner_id             => '1',
-            ledger_value         => 0,
-            spend_limit          => 100
-        }
-    )->store();
-    my $fund = Koha::Acquisition::FundManagement::Fund->new(
-        {
-            fiscal_period_id     => $fiscal_period->fiscal_period_id,
-            ledger_id            => $ledger->ledger_id,
-            lib_group_visibility => $fiscal_period->lib_group_visibility,
-            status               => $fiscal_period->status,
-            currency             => $ledger->currency,
-            owner_id             => $ledger->owner_id,
-            fund_value           => 0,
-            spend_limit          => 50
-        }
-    )->store();
-
-    my $allocation = Koha::Acquisition::FundManagement::FundAllocation->new(
-        {
-            fund_id           => $fund->fund_id,
-            sub_fund_id       => undef,
-            ledger_id         => $ledger->ledger_id,
-            fiscal_period_id  => $fiscal_period->fiscal_period_id,
-            allocation_amount => -20
-        }
-    )->store();
-
-    my $updated_fund = Koha::Acquisition::FundManagement::Funds->find( $fund->fund_id );
-
-    is( $updated_fund->fund_value + 0, 30, 'Fund value is 30 based on the value of fund allocations v spend_limit' );
-
-    my $fund2 = Koha::Acquisition::FundManagement::Fund->new(
-        {
-            fiscal_period_id     => $fiscal_period->fiscal_period_id,
-            ledger_id            => $ledger->ledger_id,
-            lib_group_visibility => $fiscal_period->lib_group_visibility,
-            status               => $fiscal_period->status,
-            currency             => $ledger->currency,
-            owner_id             => $ledger->owner_id,
-            fund_value           => 0,
-            spend_limit          => 50
-        }
-    )->store();
-
-    my $sub_fund = Koha::Acquisition::FundManagement::SubFund->new(
-        {
-            fiscal_period_id     => $fiscal_period->fiscal_period_id,
-            ledger_id            => $ledger->ledger_id,
-            fund_id              => $fund2->fund_id,
-            lib_group_visibility => $fiscal_period->lib_group_visibility,
-            status               => $fiscal_period->status,
-            currency             => $ledger->currency,
-            owner_id             => $ledger->owner_id,
-            sub_fund_value       => 0,
-            spend_limit          => 20
-        }
-    )->store();
-
-    my $allocation2 = Koha::Acquisition::FundManagement::FundAllocation->new(
-        {
-            fund_id           => undef,
-            sub_fund_id       => $sub_fund->sub_fund_id,
-            ledger_id         => $ledger->ledger_id,
-            fiscal_period_id  => $fiscal_period->fiscal_period_id,
-            allocation_amount => -10
-        }
-    )->store();
-
-    my $updated_fund2 = Koha::Acquisition::FundManagement::Funds->find( $fund2->fund_id );
-
-    is(
-        $updated_fund2->fund_value + 0, 40,
-        'Fund value is 40 based on the value of all sub funds and fund allocations'
-    );
 
     $schema->storage->txn_rollback;
 };

@@ -18,7 +18,7 @@ package Koha::Acquisition::FundManagement::FundAllocation;
 # along with Koha; if not, see <http://www.gnu.org/licenses>.
 
 use Modern::Perl;
-use base qw(Koha::Object Koha::Object::Limit::LibraryGroup);
+use base qw(Koha::Object::Limit::LibraryGroup Koha::Acquisition::FundManagement::BaseObject);
 
 use Koha::Acquisition::FundManagement::Fund;
 use Koha::Acquisition::FundManagement::SubFunds;
@@ -53,10 +53,13 @@ sub store {
     $self->SUPER::store;
 
     if ( !$block_fund_value_update ) {
-        my $fund = $self->fund;
-        $fund->update_fund_value if $fund && !$self->sub_fund_id;
-        my $sub_fund = $self->sub_fund;
-        $sub_fund->update_sub_fund_value if $sub_fund;
+        if ( $self->fund_id && !$self->sub_fund_id ) {
+            my $fund = $self->fund;
+            $fund->update_object_value;
+        } elsif ( $self->sub_fund_id ) {
+            my $sub_fund = $self->sub_fund;
+            $sub_fund->update_object_value if $sub_fund;
+        }
     }
 
     return $self;
@@ -72,71 +75,9 @@ sub delete {
     my $deleted = $self->_result()->delete;
 
     my $fund = $self->fund;
-    $fund->update_fund_value;
+    $fund->update_object_value;
 
     return $self;
-}
-
-=head3 fiscal_period
-
-Method to embed the fiscal period to a given fund allocation
-
-=cut
-
-sub fiscal_period {
-    my ($self) = @_;
-    my $fiscal_period_rs = $self->_result->fiscal_period;
-    return Koha::Acquisition::FundManagement::FiscalPeriod->_new_from_dbic($fiscal_period_rs);
-}
-
-=head3 ledger
-
-Method to embed the ledger to a given fund allocation
-
-=cut
-
-sub ledger {
-    my ($self) = @_;
-    my $ledger_rs = $self->_result->ledger;
-    return Koha::Acquisition::FundManagement::Ledger->_new_from_dbic($ledger_rs);
-}
-
-=head3 fund
-
-Method to embed the fund to a given fund allocation
-
-=cut
-
-sub fund {
-    my ($self) = @_;
-    my $fund_rs = $self->_result->fund;
-    return unless $fund_rs;
-    return Koha::Acquisition::FundManagement::Fund->_new_from_dbic($fund_rs);
-}
-
-=head3 sub_fund
-
-Method to embed the sub_fund to a given fund allocation
-
-=cut
-
-sub sub_fund {
-    my ($self) = @_;
-    my $sub_fund_rs = $self->_result->sub_fund;
-    return unless $sub_fund_rs;
-    return Koha::Acquisition::FundManagement::SubFund->_new_from_dbic($sub_fund_rs);
-}
-
-=head3 owner
-
-Method to embed the owner to a given fund allocation
-
-=cut
-
-sub owner {
-    my ($self) = @_;
-    my $owner_rs = $self->_result->owner;
-    return Koha::Patron->_new_from_dbic($owner_rs);
 }
 
 =head3 will_allocation_breach_spend_limits
@@ -149,15 +90,39 @@ A I<Koha::Exceptions::Acquisition::FundManagement::LimitExceeded> exception is t
 sub will_allocation_breach_spend_limits {
     my ($self) = @_;
 
+    my $result;
+    if ( $self->sub_fund_id ) {
+        my $sub_fund = $self->sub_fund;
+        $result = $sub_fund->is_spend_limit_breached( { new_allocation => $self->allocation_amount } );
+        Koha::Exceptions::Acquisition::FundManagement::LimitExceeded->throw(
+            data_type => 'sub_fund',
+            amount    => $result->{breach_amount}
+        ) if !$result->{within_limit};
+
+        my $fund = $self->sub_fund->fund;
+        $result = $fund->is_spend_limit_breached( { new_allocation => $self->allocation_amount } );
+        Koha::Exceptions::Acquisition::FundManagement::LimitExceeded->throw(
+            data_type => 'fund',
+            amount    => $result->{breach_amount}
+        ) if !$result->{within_limit};
+    } else {
+        my $fund = $self->fund;
+        $result = $fund->is_spend_limit_breached( { new_allocation => $self->allocation_amount } );
+        Koha::Exceptions::Acquisition::FundManagement::LimitExceeded->throw(
+            data_type => 'fund',
+            amount    => $result->{breach_amount}
+        ) if !$result->{within_limit};
+    }
+
     my $ledger = $self->ledger;
-    my $result = $ledger->is_ledger_within_spend_limit( { new_allocation => $self->allocation_amount } );
+    $result = $ledger->is_spend_limit_breached( { new_allocation => $self->allocation_amount } );
     Koha::Exceptions::Acquisition::FundManagement::LimitExceeded->throw(
         data_type => 'ledger',
         amount    => $result->{breach_amount}
     ) if !$result->{within_limit};
 
     my $fiscal_period = $self->fiscal_period;
-    $result = $fiscal_period->is_fiscal_period_within_spend_limit( { new_allocation => $self->allocation_amount } );
+    $result = $fiscal_period->is_spend_limit_breached( { new_allocation => $self->allocation_amount } );
     Koha::Exceptions::Acquisition::FundManagement::LimitExceeded->throw(
         data_type => 'fiscal_period',
         amount    => $result->{breach_amount}
