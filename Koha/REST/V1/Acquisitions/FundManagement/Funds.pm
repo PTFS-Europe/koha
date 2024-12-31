@@ -43,9 +43,7 @@ sub list {
     my $c = shift->openapi->valid_input or return;
 
     return try {
-        my $funds_set = Koha::Acquisition::FundManagement::Funds->new;
-        my $funds     = $c->objects->search($funds_set);
-
+        my $funds = $c->objects->search( Koha::Acquisition::FundManagement::Funds->new );
         return $c->render( status => 200, openapi => $funds );
     } catch {
         $c->unhandled_exception($_);
@@ -61,22 +59,12 @@ sub get {
     my $c = shift->openapi->valid_input or return;
 
     return try {
-        my $funds_set = Koha::Acquisition::FundManagement::Funds->new;
-        my $fund      = $c->objects->find( $funds_set, $c->param('fund_id') );
+        my $fund = Koha::Acquisition::FundManagement::Funds->find( $c->param('fund_id') );
+        return $c->render_resource_not_found("Fund group")
+            unless $fund;
 
-        unless ($fund) {
-            return $c->render(
-                status  => 404,
-                openapi => { error => "Fund not found" }
-            );
-        }
-
-        $fund = Koha::REST::V1::Acquisitions::FundManagement::Util->add_accounting_values( { data => $fund } );
-
-        return $c->render(
-            status  => 200,
-            openapi => $fund
-        );
+        $fund->{add_accounting_values} = 1;
+        return $c->render( status => 200, openapi => $c->objects->to_api($fund), );
     } catch {
         $c->unhandled_exception($_);
     };
@@ -115,7 +103,7 @@ sub add {
                 $c->res->headers->location( $c->req->url->to_string . '/' . $fund->fund_id );
                 return $c->render(
                     status  => 201,
-                    openapi => $fund->to_api
+                    openapi => $c->objects->to_api($fund)
                 );
             }
         );
@@ -181,7 +169,7 @@ sub update {
                 $c->res->headers->location( $c->req->url->to_string . '/' . $fund->fund_id );
                 return $c->render(
                     status  => 200,
-                    openapi => $fund->to_api
+                    openapi => $c->objects->to_api($fund)
                 );
             }
         );
@@ -219,58 +207,15 @@ sub delete {
     my $c = shift->openapi->valid_input or return;
 
     my $fund = Koha::Acquisition::FundManagement::Funds->find( $c->param('fund_id') );
-    unless ($fund) {
-        return $c->render(
-            status  => 404,
-            openapi => { error => "Fund not found" }
-        );
-    }
+    return $c->render_resource_not_found("Fund")
+        unless $fund;
 
     return try {
         $fund->delete;
-        return $c->render(
-            status  => 204,
-            openapi => q{}
-        );
+        return $c->render_resource_deleted;
     } catch {
         $c->unhandled_exception($_);
     };
-}
-
-=head3 get_fund_group
-
-=cut
-
-sub get_fund_group {
-    my $c = shift->openapi->valid_input or return;
-
-    return try {
-        my $funds_set = Koha::Acquisition::FundManagement::Funds->new;
-        my $funds     = $c->objects->search($funds_set);
-
-        my @combined_fund_allocations = ();
-
-        my $group_name;
-        foreach my $fund (@$funds) {
-            push( @combined_fund_allocations, @{ $fund->fund_allocations } );
-            $group_name = $fund->fund_group if !$group_name;
-        }
-
-        my $combined_fund_data = {
-            name             => $group_name,
-            fund_allocations => \@combined_fund_allocations,
-            currency         => 'GBP'                          # FIXME: How do we handle currencies in groups?
-        };
-
-        my $fund_group =
-            Koha::REST::V1::Acquisitions::FundManagement::Util->add_accounting_values(
-            { data => $combined_fund_data } );
-
-        return $c->render( status => 200, openapi => $fund_group );
-    } catch {
-        $c->unhandled_exception($_);
-    };
-
 }
 
 sub _inherit_currency_and_owner {

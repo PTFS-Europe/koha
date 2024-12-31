@@ -41,9 +41,7 @@ sub list {
     my $c = shift->openapi->valid_input or return;
 
     return try {
-        my $fund_groups_set = Koha::Acquisition::FundManagement::FundGroups->new;
-        my $fund_groups     = $c->objects->search($fund_groups_set);
-
+        my $fund_groups = $c->objects->search( Koha::Acquisition::FundManagement::FundGroups->new );
         return $c->render( status => 200, openapi => $fund_groups );
     } catch {
         $c->unhandled_exception($_);
@@ -59,23 +57,11 @@ sub get {
     my $c = shift->openapi->valid_input or return;
 
     return try {
-        my $fund_groups_set = Koha::Acquisition::FundManagement::FundGroups->new;
-        my $fund_group      = $c->objects->find( $fund_groups_set, $c->param('fund_group_id') );
+        my $fund_group = Koha::Acquisition::FundManagement::FundGroups->find( $c->param('fund_group_id') );
+        return $c->render_resource_not_found("Fund group")
+            unless $fund_group;
 
-        unless ($fund_group) {
-            return $c->render(
-                status  => 404,
-                openapi => { error => "Fund group not found" }
-            );
-        }
-
-        $fund_group =
-            Koha::REST::V1::Acquisitions::FundManagement::Util->add_accounting_values( { data => $fund_group } );
-
-        return $c->render(
-            status  => 200,
-            openapi => $fund_group
-        );
+        return $c->render( status => 200, openapi => $c->objects->to_api($fund_group), );
     } catch {
         $c->unhandled_exception($_);
     };
@@ -100,7 +86,7 @@ sub add {
                 $c->res->headers->location( $c->req->url->to_string . '/' . $fund_group->fund_group_id );
                 return $c->render(
                     status  => 201,
-                    openapi => $fund_group->to_api
+                    openapi => $c->objects->to_api($fund_group)
                 );
             }
         );
@@ -120,12 +106,8 @@ sub update {
 
     my $fund_group = Koha::Acquisition::FundManagement::FundGroups->find( $c->param('fund_group_id') );
 
-    unless ($fund_group) {
-        return $c->render(
-            status  => 404,
-            openapi => { error => "Fund group not found" }
-        );
-    }
+    return $c->render_resource_not_found("Fund group")
+        unless $fund_group;
 
     return try {
         Koha::Database->new->schema->txn_do(
@@ -139,7 +121,7 @@ sub update {
                 $c->res->headers->location( $c->req->url->to_string . '/' . $fund_group->fund_group_id );
                 return $c->render(
                     status  => 200,
-                    openapi => $fund_group->to_api
+                    openapi => $c->objects->to_api($fund_group)
                 );
             }
         );
@@ -177,20 +159,12 @@ sub delete {
     my $c = shift->openapi->valid_input or return;
 
     my $fund_group = Koha::Acquisition::FundManagement::FundGroups->find( $c->param('fund_group_id') );
-    unless ($fund_group) {
-        return $c->render(
-            status  => 404,
-            openapi => { error => "Fund group not found" }
-        );
-    }
+    return $c->render_resource_not_found("Fund group")
+        unless $fund_group;
 
     return try {
         $fund_group->delete;
-
-        return $c->render(
-            status  => 204,
-            openapi => q{}
-        );
+        return $c->render_resource_deleted;
     } catch {
         $c->unhandled_exception($_);
     };

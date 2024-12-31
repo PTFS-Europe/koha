@@ -40,9 +40,7 @@ sub list {
     my $c = shift->openapi->valid_input or return;
 
     return try {
-        my $fiscal_periods_set = Koha::Acquisition::FundManagement::FiscalPeriods->new;
-        my $fiscal_periods     = $c->objects->search($fiscal_periods_set);
-
+        my $fiscal_periods = $c->objects->search( Koha::Acquisition::FundManagement::FiscalPeriods->new );
         return $c->render( status => 200, openapi => $fiscal_periods );
     } catch {
         $c->unhandled_exception($_);
@@ -58,20 +56,11 @@ sub get {
     my $c = shift->openapi->valid_input or return;
 
     return try {
-        my $fiscal_periods_set = Koha::Acquisition::FundManagement::FiscalPeriods->new;
-        my $fiscal_period      = $c->objects->find( $fiscal_periods_set, $c->param('fiscal_period_id') );
+        my $fiscal_period = Koha::Acquisition::FundManagement::FiscalPeriods->find( $c->param('fiscal_period_id') );
+        return $c->render_resource_not_found("Fiscal period")
+            unless $fiscal_period;
 
-        unless ($fiscal_period) {
-            return $c->render(
-                status  => 404,
-                openapi => { error => "Fiscal period not found" }
-            );
-        }
-
-        return $c->render(
-            status  => 200,
-            openapi => $fiscal_period
-        );
+        return $c->render( status => 200, openapi => $c->objects->to_api($fiscal_period), );
     } catch {
         $c->unhandled_exception($_);
     };
@@ -96,7 +85,7 @@ sub add {
                 $c->res->headers->location( $c->req->url->to_string . '/' . $fiscal_period->fiscal_period_id );
                 return $c->render(
                     status  => 201,
-                    openapi => $fiscal_period->to_api
+                    openapi => $c->objects->to_api($fiscal_period)
                 );
             }
         );
@@ -137,7 +126,7 @@ sub update {
                 $c->res->headers->location( $c->req->url->to_string . '/' . $fiscal_period->fiscal_period_id );
                 return $c->render(
                     status  => 200,
-                    openapi => $fiscal_period->to_api
+                    openapi => $c->objects->to_api($fiscal_period)
                 );
             }
         );
@@ -175,19 +164,12 @@ sub delete {
     my $c = shift->openapi->valid_input or return;
 
     my $fiscal_period = Koha::Acquisition::FundManagement::FiscalPeriods->find( $c->param('fiscal_period_id') );
-    unless ($fiscal_period) {
-        return $c->render(
-            status  => 404,
-            openapi => { error => "Fiscal period not found" }
-        );
-    }
+    return $c->render_resource_not_found("Fiscal period")
+        unless $fiscal_period;
 
     return try {
         $fiscal_period->delete;
-        return $c->render(
-            status  => 204,
-            openapi => q{}
-        );
+        return $c->render_resource_deleted;
     } catch {
         $c->unhandled_exception($_);
     };
