@@ -44,9 +44,7 @@ sub list {
     my $c = shift->openapi->valid_input or return;
 
     return try {
-        my $sub_funds_set = Koha::Acquisition::FundManagement::SubFunds->new;
-        my $sub_funds     = $c->objects->search($sub_funds_set);
-
+        my $sub_funds = $c->objects->search( Koha::Acquisition::FundManagement::SubFunds->new );
         return $c->render( status => 200, openapi => $sub_funds );
     } catch {
         $c->unhandled_exception($_);
@@ -62,22 +60,12 @@ sub get {
     my $c = shift->openapi->valid_input or return;
 
     return try {
-        my $sub_funds_set = Koha::Acquisition::FundManagement::SubFunds->new;
-        my $sub_fund      = $c->objects->find( $sub_funds_set, $c->param('sub_fund_id') );
+        my $sub_fund = Koha::Acquisition::FundManagement::SubFunds->find( $c->param('sub_fund_id') );
+        return $c->render_resource_not_found("Sub fund")
+            unless $sub_fund;
 
-        unless ($sub_fund) {
-            return $c->render(
-                status  => 404,
-                openapi => { error => "Sub fund not found" }
-            );
-        }
-
-        $sub_fund = Koha::REST::V1::Acquisitions::FundManagement::Util->add_accounting_values( { data => $sub_fund } );
-
-        return $c->render(
-            status  => 200,
-            openapi => $sub_fund
-        );
+        $sub_fund->{add_accounting_values} = 1;
+        return $c->render( status => 200, openapi => $c->objects->to_api($sub_fund), );
     } catch {
         $c->unhandled_exception($_);
     };
@@ -114,7 +102,7 @@ sub add {
                 $c->res->headers->location( $c->req->url->to_string . '/' . $sub_fund->sub_fund_id );
                 return $c->render(
                     status  => 201,
-                    openapi => $sub_fund->to_api
+                    openapi => $c->objects->to_api($sub_fund)
                 );
             }
         );
@@ -178,7 +166,7 @@ sub update {
                 $c->res->headers->location( $c->req->url->to_string . '/' . $sub_fund->sub_fund_id );
                 return $c->render(
                     status  => 200,
-                    openapi => $sub_fund->to_api
+                    openapi => $c->objects->to_api($sub_fund)
                 );
             }
         );
@@ -216,19 +204,12 @@ sub delete {
     my $c = shift->openapi->valid_input or return;
 
     my $sub_fund = Koha::Acquisition::FundManagement::SubFunds->find( $c->param('sub_fund_id') );
-    unless ($sub_fund) {
-        return $c->render(
-            status  => 404,
-            openapi => { error => "Sub fund not found" }
-        );
-    }
+    return $c->render_resource_not_found("Sub fund")
+        unless $sub_fund;
 
     return try {
         $sub_fund->delete;
-        return $c->render(
-            status  => 204,
-            openapi => q{}
-        );
+        return $c->render_resource_deleted;
     } catch {
         $c->unhandled_exception($_);
     };

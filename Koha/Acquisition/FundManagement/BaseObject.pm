@@ -289,8 +289,8 @@ sub check_spend_limits {
         $total += $spend_limit;
     }
 
-    my $limit_check = $self->spend_limit >= $total ? 1 : 0;
-    my $breach_amount = ($total - $self->spend_limit) > 0 ? $total - $self->spend_limit : 0;
+    my $limit_check   = $self->spend_limit >= $total        ? 1                           : 0;
+    my $breach_amount = ( $total - $self->spend_limit ) > 0 ? $total - $self->spend_limit : 0;
     return { within_limit => $limit_check, breach_amount => $breach_amount };
 }
 
@@ -308,7 +308,7 @@ sub is_spend_limit_breached {
     my $spend_limit    = $self->spend_limit;
     my $total_spent    = $self->total_spent + $new_allocation;
 
-    my $limit_check = -$total_spent <= $spend_limit ? 1 : 0;
+    my $limit_check   = -$total_spent <= $spend_limit        ? 1                            : 0;
     my $breach_amount = ( -$total_spent - $spend_limit ) > 0 ? -$total_spent - $spend_limit : 0;
 
     return { within_limit => $limit_check, breach_amount => $breach_amount };
@@ -356,6 +356,83 @@ sub update_object_value {
     }
 
     return $total;
+}
+
+=head3 add_accounting_values
+    This method takes a hashref as an argument, containing the data to be
+    processed.  The data may include funds, sub-funds, and/or fund_allocations.
+    The method will calculate the total allocation, allocation_decrease,
+    allocation_increase, and net_transfers, and add these values to the
+    data hashref.
+        
+    The method returns the modified data hashref.
+=cut
+
+sub add_accounting_values {
+    my ( $self, $args ) = @_;
+
+    my $data = $args->{data};
+
+    my @allocations = ();
+
+    if ( defined $data->{funds} ) {
+        foreach my $fund ( @{ $data->{funds} } ) {
+            my @fund_allocations = @{ $fund->{fund_allocations} };
+            push( @allocations, @fund_allocations );
+        }
+    }
+    if ( defined $data->{sub_funds} ) {
+        foreach my $sub_fund ( @{ $data->{sub_funds} } ) {
+            if ( defined $sub_fund->{fund_allocations} ) {
+                my @fund_allocations = @{ $sub_fund->{fund_allocations} };
+                push( @allocations, @fund_allocations );
+            }
+        }
+    }
+    if ( defined $data->{fund_allocations} ) {
+        push( @allocations, @{ $data->{fund_allocations} } );
+    }
+
+    if ( scalar(@allocations) > 0 ) {
+        my $allocation_increase = 0;
+        my $allocation_decrease = 0;
+        my $net_transfers       = 0;
+
+        foreach my $allocation (@allocations) {
+            $allocation_increase += $allocation->{allocation_amount} if $allocation->{allocation_amount} > 0;
+            $allocation_decrease += $allocation->{allocation_amount} if $allocation->{allocation_amount} < 0;
+            $net_transfers       += $allocation->{allocation_amount} if $allocation->{is_transfer};
+        }
+
+        my $total_allocation = $allocation_increase + $allocation_decrease;
+        $data->{total_allocation}    = $total_allocation;
+        $data->{allocation_decrease} = $allocation_decrease;
+        $data->{allocation_increase} = $allocation_increase;
+        $data->{net_transfers}       = $net_transfers;
+    }
+    return $data;
+}
+
+=head3 to_api
+
+    my $json = $av->to_api;
+
+Overloaded method that returns a JSON representation of the object,
+suitable for API output.
+
+=cut
+
+sub to_api {
+    my ( $self, $params ) = @_;
+
+    my $needs_values = delete $self->{add_accounting_values};
+
+    my $response = $self->SUPER::to_api($params);
+    $response = $self->add_accounting_values( { data => $response } ) if $needs_values;
+
+    my $overrides = {};
+
+    return { %$response, %$overrides };
 }
 
 1;

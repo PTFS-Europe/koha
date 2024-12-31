@@ -43,9 +43,7 @@ sub list {
     my $c = shift->openapi->valid_input or return;
 
     return try {
-        my $ledgers_set = Koha::Acquisition::FundManagement::Ledgers->new;
-        my $ledgers     = $c->objects->search($ledgers_set);
-
+        my $ledgers = $c->objects->search( Koha::Acquisition::FundManagement::Ledgers->new );
         return $c->render( status => 200, openapi => $ledgers );
     } catch {
         $c->unhandled_exception($_);
@@ -61,22 +59,12 @@ sub get {
     my $c = shift->openapi->valid_input or return;
 
     return try {
-        my $ledgers_set = Koha::Acquisition::FundManagement::Ledgers->new;
-        my $ledger      = $c->objects->find( $ledgers_set, $c->param('ledger_id') );
+        my $ledger = Koha::Acquisition::FundManagement::Ledgers->find( $c->param('ledger_id') );
+        return $c->render_resource_not_found("Ledger")
+            unless $ledger;
 
-        unless ($ledger) {
-            return $c->render(
-                status  => 404,
-                openapi => { error => "Ledger not found" }
-            );
-        }
-
-        $ledger = Koha::REST::V1::Acquisitions::FundManagement::Util->add_accounting_values( { data => $ledger } );
-
-        return $c->render(
-            status  => 200,
-            openapi => $ledger
-        );
+        $ledger->{add_accounting_values} = 1;
+        return $c->render( status => 200, openapi => $c->objects->to_api($ledger), );
     } catch {
         $c->unhandled_exception($_);
     };
@@ -99,8 +87,7 @@ sub add {
                 if ( $body->{spend_limit} ) {
                     my $fiscal_period =
                         Koha::Acquisition::FundManagement::FiscalPeriods->find( $body->{fiscal_period_id} );
-                    my $result = $fiscal_period->is_spend_limit_breached(
-                        { new_allocation => $body->{spend_limit} } );
+                    my $result = $fiscal_period->is_spend_limit_breached( { new_allocation => $body->{spend_limit} } );
                     return $c->render(
                         status => 400,
                         error  => "Fiscal period spend limit breached, please reduce spend limit by "
@@ -115,7 +102,7 @@ sub add {
                 $c->res->headers->location( $c->req->url->to_string . '/' . $ledger->ledger_id );
                 return $c->render(
                     status  => 201,
-                    openapi => $ledger->to_api
+                    openapi => $c->objects->to_api($ledger)
                 );
             }
         );
@@ -182,7 +169,7 @@ sub update {
                 $c->res->headers->location( $c->req->url->to_string . '/' . $ledger->ledger_id );
                 return $c->render(
                     status  => 200,
-                    openapi => $ledger->to_api
+                    openapi => $c->objects->to_api($ledger)
                 );
             }
         );
@@ -220,19 +207,12 @@ sub delete {
     my $c = shift->openapi->valid_input or return;
 
     my $ledger = Koha::Acquisition::FundManagement::Ledgers->find( $c->param('ledger_id') );
-    unless ($ledger) {
-        return $c->render(
-            status  => 404,
-            openapi => { error => "Ledger not found" }
-        );
-    }
+    return $c->render_resource_not_found("Ledger")
+        unless $ledger;
 
     return try {
         $ledger->delete;
-        return $c->render(
-            status  => 204,
-            openapi => q{}
-        );
+        return $c->render_resource_deleted;
     } catch {
         $c->unhandled_exception($_);
     };
