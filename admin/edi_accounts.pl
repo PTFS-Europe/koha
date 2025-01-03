@@ -21,20 +21,20 @@ use Modern::Perl;
 
 use CGI;
 
-use C4::Auth qw( get_template_and_user );
+use C4::Auth   qw( get_template_and_user );
 use C4::Output qw( output_html_with_http_headers );
 use Koha::Database;
 use Koha::Plugins;
 
-our $input = CGI->new();
+our $input  = CGI->new();
 our $schema = Koha::Database->new()->schema();
 
 our ( $template, $loggedinuser, $cookie ) = get_template_and_user(
     {
-        template_name   => 'admin/edi_accounts.tt',
-        query           => $input,
-        type            => 'intranet',
-        flagsrequired   => { acquisition => 'edi_manage' },
+        template_name => 'admin/edi_accounts.tt',
+        query         => $input,
+        type          => 'intranet',
+        flagsrequired => { acquisition => 'edi_manage' },
     }
 );
 
@@ -47,7 +47,7 @@ if ( $op eq 'acct_form' ) {
     my @vendors = $schema->resultset('Aqbookseller')->search(
         undef,
         {
-            columns => [ 'name', 'id' ],
+            columns  => [ 'name', 'id' ],
             order_by => { -asc => 'name' }
         }
     );
@@ -63,35 +63,35 @@ if ( $op eq 'acct_form' ) {
     $template->param( sftp_servers => \@sftp_servers );
 
     if ( C4::Context->config("enable_plugins") ) {
-        my @plugins = Koha::Plugins->new()->GetPlugins({
-            method => 'edifact',
-        });
+        my @plugins = Koha::Plugins->new()->GetPlugins(
+            {
+                method => 'edifact',
+            }
+        );
         $template->param( plugins => \@plugins );
     }
-}
-elsif ( $op eq 'delete_confirm' ) {
+} elsif ( $op eq 'delete_confirm' ) {
     show_account();
     $template->param( delete_confirm => 1 );
-}
-else {
+} else {
     if ( $op eq 'cud-save' ) {
 
         # validate & display
         my $id     = $input->param('id');
         my $fields = {
             description             => scalar $input->param('description'),
-            upload_sftp_server_id   => $input->param('upload_sftp_server_id') || undef,
+            upload_sftp_server_id   => $input->param('upload_sftp_server_id')   || undef,
             download_sftp_server_id => $input->param('download_sftp_server_id') || undef,
             vendor_id               => scalar $input->param('vendor_id'),
             upload_directory        => scalar $input->param('upload_directory'),
             download_directory      => scalar $input->param('download_directory'),
             san                     => scalar $input->param('san'),
             standard                => scalar $input->param('standard'),
-            quotes_enabled          => $input->param('quotes_enabled') ? 1 : 0,
-            invoices_enabled        => $input->param('invoices_enabled') ? 1 : 0,
-            orders_enabled          => $input->param('orders_enabled') ? 1 : 0,
+            quotes_enabled          => $input->param('quotes_enabled')    ? 1 : 0,
+            invoices_enabled        => $input->param('invoices_enabled')  ? 1 : 0,
+            orders_enabled          => $input->param('orders_enabled')    ? 1 : 0,
             responses_enabled       => $input->param('responses_enabled') ? 1 : 0,
-            auto_orders             => $input->param('auto_orders') ? 1 : 0,
+            auto_orders             => $input->param('auto_orders')       ? 1 : 0,
             id_code_qualifier       => scalar $input->param('id_code_qualifier'),
             plugin                  => scalar $input->param('plugin'),
         };
@@ -102,15 +102,12 @@ else {
                     id => $id,
                 }
             )->update_all($fields);
-        }
-        else {    # new record
+        } else {    # new record
             $schema->resultset('VendorEdiAccount')->create($fields);
         }
-    }
-    elsif ( $op eq 'cud-delete_confirmed' ) {
+    } elsif ( $op eq 'cud-delete_confirmed' ) {
 
-        $schema->resultset('VendorEdiAccount')
-          ->search( { id => scalar $input->param('id'), } )->delete_all;
+        $schema->resultset('VendorEdiAccount')->search( { id => scalar $input->param('id'), } )->delete_all;
     }
 
     # we do a default dispaly after deletes and saves
