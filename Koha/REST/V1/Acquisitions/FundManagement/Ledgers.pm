@@ -135,39 +135,11 @@ sub update {
 
                 my $body = $c->req->json;
 
-                if ( $body->{spend_limit} && $ledger->spend_limit != $body->{spend_limit} ) {
-                    if ( $body->{spend_limit} < $ledger->ledger_value && !$ledger->over_spend_allowed ) {
-                        return $c->render(
-                            status  => 400,
-                            openapi => {
-                                error =>
-                                    "Spend limit cannot be less than the ledger value when overspend is not allowed"
-                            }
-                        );
-                    }
-                    my $fiscal_period =
-                        Koha::Acquisition::FundManagement::FiscalPeriods->find( $body->{fiscal_period_id} );
-                    my $spend_limit_diff = $body->{spend_limit} - $ledger->spend_limit;
-                    my $result = $fiscal_period->check_spend_limits( { new_allocation => $spend_limit_diff } );
-                    return $c->render(
-                        status  => 400,
-                        openapi => {
-                                  error => "Fiscal period spend limit breached, please reduce spend limit by "
-                                . $result->{breach_amount}
-                                . " or increase the spend limit for this fiscal period"
-                        }
-                    ) unless $result->{within_limit};
-                    $result = $ledger->check_spend_limits( { new_spend_limit => $body->{spend_limit} } );
-                    return $c->render(
-                        status  => 400,
-                        openapi => {
-                            error =>
-                                "The ledger spend limit is less than the total of the spend limits for the funds below, please increase spend limit by "
-                                . $result->{breach_amount}
-                                . " or decrease the spend limit for the funds"
-                        }
-                    ) unless $result->{within_limit};
-                }
+                my $error = $ledger->verify_updated_fields( { updated_fields => $body } );
+                return $c->render(
+                    status  => 400,
+                    openapi => { error => $error }
+                ) if $error;
 
                 delete $body->{lib_groups}    if $body->{lib_groups};
                 delete $body->{fiscal_period} if $body->{fiscal_period};

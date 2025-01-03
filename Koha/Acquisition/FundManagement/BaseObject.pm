@@ -436,4 +436,77 @@ sub to_api {
     return { %$response, %$overrides };
 }
 
+=head3 verify_updated_fields
+
+=cut
+
+sub verify_updated_fields {
+    my ( $self, $args ) = @_;
+
+    my $updated_fields = $args->{updated_fields};
+
+    my $error;
+    if ( $updated_fields->{spend_limit} && $updated_fields->{spend_limit} != $self->spend_limit ) {
+        $error = $self->handle_spend_limit_changes( { new_limit => $updated_fields->{spend_limit} } );
+        return $error if $error;
+    }
+
+}
+
+=head3 handle_spend_limit_changes
+
+=cut
+
+sub handle_spend_limit_changes {
+    my ( $self, $args ) = @_;
+
+    my $new_limit        = $args->{new_limit};
+    my $object_hierarchy = $self->_object_hierarchy();
+
+    my $value_method = $object_hierarchy->{object} . "_value";
+    if ( $new_limit < $self->$value_method && !$self->over_spend_allowed ) {
+        return
+              "Spend limit cannot be less than the "
+            . $object_hierarchy->{object}
+            . " value when overspend is not allowed";
+    }
+
+    my $parent_object = $object_hierarchy->{parent};
+    my $parent        = $self->$parent_object;
+
+    my $spend_limit_diff = $new_limit - $self->spend_limit;
+    my $result           = $parent->check_spend_limits( { new_allocation => $spend_limit_diff } );
+
+    return
+          "Spend limit breached for the "
+        . _format_object_name( $object_hierarchy->{parent_object} )
+        . ", please reduce spend limit on the "
+        . _format_object_name( $object_hierarchy->{object} ) . " by "
+        . $result->{breach_amount}
+        . " or increase the spend limit for the "
+        . _format_object_name( $object_hierarchy->{parent_object} )
+        unless $result->{within_limit};
+
+    $result = $self->check_spend_limits( { new_spend_limit => $new_limit } );
+
+    return
+          "The "
+        . _format_object_name( $object_hierarchy->{object} )
+        . " spend limit is less than the total of the spend limits for the "
+        . _format_object_name( $object_hierarchy->{children} )
+        . " below, please increase spend limit by "
+        . $result->{breach_amount}
+        . " or decrease the spend limit for the "
+        . _format_object_name( $object_hierarchy->{children} )
+        unless $result->{within_limit};
+
+    return;
+}
+
+sub _format_object_name {
+    my ($name) = @_;
+
+    $name =~ s/_/ /g;
+    return $name;
+}
 1;
