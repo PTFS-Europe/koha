@@ -27,8 +27,6 @@ use Koha::Acquisition::FundManagement::Fund;
 use Koha::Acquisition::FundManagement::Funds;
 use Koha::Acquisition::FundManagement::Ledgers;
 
-use Koha::REST::V1::Acquisitions::FundManagement::Util;
-
 use C4::Context;
 
 =head1 API
@@ -60,7 +58,7 @@ sub get {
 
     return try {
         my $fund = Koha::Acquisition::FundManagement::Funds->find( $c->param('fund_id') );
-        return $c->render_resource_not_found("Fund group")
+        return $c->render_resource_not_found("Fund")
             unless $fund;
 
         $fund->{add_accounting_values} = 1;
@@ -98,7 +96,7 @@ sub add {
                     ) unless $result->{within_limit};
                 }
 
-                my $fund = Koha::Acquisition::FundManagement::Fund->new_from_api($body)->store;
+                my $fund = Koha::Acquisition::FundManagement::Fund->new_from_api($body)->store->discard_changes;
 
                 $c->res->headers->location( $c->req->url->to_string . '/' . $fund->fund_id );
                 return $c->render(

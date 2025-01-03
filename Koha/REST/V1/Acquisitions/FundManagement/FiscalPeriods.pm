@@ -74,20 +74,16 @@ sub add {
     my $c = shift->openapi->valid_input or return;
 
     return try {
-        Koha::Database->new->schema->txn_do(
-            sub {
 
-                my $body = $c->req->json;
-                delete $body->{lib_groups} if $body->{lib_groups};
+        my $body = $c->req->json;
+        delete $body->{lib_groups} if $body->{lib_groups};
 
-                my $fiscal_period = Koha::Acquisition::FundManagement::FiscalPeriod->new_from_api($body)->store;
-
-                $c->res->headers->location( $c->req->url->to_string . '/' . $fiscal_period->fiscal_period_id );
-                return $c->render(
-                    status  => 201,
-                    openapi => $c->objects->to_api($fiscal_period)
-                );
-            }
+        my $fiscal_period =
+            Koha::Acquisition::FundManagement::FiscalPeriod->new_from_api($body)->store->discard_changes;
+        $c->res->headers->location( $c->req->url->to_string . '/' . $fiscal_period->fiscal_period_id );
+        return $c->render(
+            status  => 201,
+            openapi => $c->objects->to_api($fiscal_period)
         );
     } catch {
         return $c->unhandled_exception($_);
@@ -105,53 +101,23 @@ sub update {
 
     my $fiscal_period = Koha::Acquisition::FundManagement::FiscalPeriods->find( $c->param('fiscal_period_id') );
 
-    unless ($fiscal_period) {
-        return $c->render(
-            status  => 404,
-            openapi => { error => "Fiscal period not found" }
-        );
-    }
+    return $c->render_resource_not_found("Fiscal period")
+        unless $fiscal_period;
 
     return try {
-        Koha::Database->new->schema->txn_do(
-            sub {
+        my $body = $c->req->json;
 
-                my $body = $c->req->json;
+        delete $body->{lib_groups}   if $body->{lib_groups};
+        delete $body->{last_updated} if $body->{last_updated};
 
-                delete $body->{lib_groups}   if $body->{lib_groups};
-                delete $body->{last_updated} if $body->{last_updated};
+        $fiscal_period->set_from_api($body)->store;
 
-                $fiscal_period->set_from_api($body)->store;
-
-                $c->res->headers->location( $c->req->url->to_string . '/' . $fiscal_period->fiscal_period_id );
-                return $c->render(
-                    status  => 200,
-                    openapi => $c->objects->to_api($fiscal_period)
-                );
-            }
+        $c->res->headers->location( $c->req->url->to_string . '/' . $fiscal_period->fiscal_period_id );
+        return $c->render(
+            status  => 200,
+            openapi => $c->objects->to_api($fiscal_period)
         );
     } catch {
-        my $to_api_mapping = Koha::Acquisition::FundManagement::FiscalPeriod->new->to_api_mapping;
-
-        if ( blessed $_ ) {
-            if ( $_->isa('Koha::Exceptions::Object::FKConstraint') ) {
-                return $c->render(
-                    status  => 400,
-                    openapi => { error => "Given " . $to_api_mapping->{ $_->broken_fk } . " does not exist" }
-                );
-            } elsif ( $_->isa('Koha::Exceptions::BadParameter') ) {
-                return $c->render(
-                    status  => 400,
-                    openapi => { error => "Given " . $to_api_mapping->{ $_->parameter } . " does not exist" }
-                );
-            } elsif ( $_->isa('Koha::Exceptions::PayloadTooLarge') ) {
-                return $c->render(
-                    status  => 413,
-                    openapi => { error => $_->error }
-                );
-            }
-        }
-
         $c->unhandled_exception($_);
     };
 }

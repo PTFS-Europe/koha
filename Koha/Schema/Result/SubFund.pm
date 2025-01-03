@@ -192,7 +192,7 @@ amount to trigger a block on the sub_fund for overspend
   data_type: 'timestamp'
   datetime_undef_if_invalid: 1
   default_value: current_timestamp
-  is_nullable: 1
+  is_nullable: 0
 
 time of the last update to the sub_fund
 
@@ -282,7 +282,7 @@ __PACKAGE__->add_columns(
     data_type => "timestamp",
     datetime_undef_if_invalid => 1,
     default_value => \"current_timestamp",
-    is_nullable => 1,
+    is_nullable => 0,
   },
   "lib_group_visibility",
   { data_type => "varchar", is_nullable => 1, size => 255 },
@@ -398,8 +398,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-12-30 13:46:15
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:k+h0Ksj1Z9yjqQ6yGgQg/w
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2025-01-02 14:35:46
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:sJtaffK8wdV/LnPlEtftUQ
 
 __PACKAGE__->add_columns(
     '+status' => { is_boolean => 1 },

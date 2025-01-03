@@ -90,7 +90,7 @@ is the ledger currently active
   data_type: 'timestamp'
   datetime_undef_if_invalid: 1
   default_value: current_timestamp
-  is_nullable: 1
+  is_nullable: 0
 
 time of the last update to the ledger
 
@@ -204,7 +204,7 @@ __PACKAGE__->add_columns(
     data_type => "timestamp",
     datetime_undef_if_invalid => 1,
     default_value => \"current_timestamp",
-    is_nullable => 1,
+    is_nullable => 0,
   },
   "owner_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
@@ -358,8 +358,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-12-30 13:46:15
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:MgSYq6Odqcdai1nJ7DZw+A
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2025-01-02 14:35:46
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:3E5MT1oZuDD2eVNJetUPkw
 
 __PACKAGE__->add_columns(
     '+status'                   => { is_boolean => 1 },

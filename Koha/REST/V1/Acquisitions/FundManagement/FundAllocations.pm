@@ -96,7 +96,8 @@ sub add {
                 my $body = $c->req->json;
                 delete $body->{lib_groups} if $body->{lib_groups};
 
-                my $fund_allocation = Koha::Acquisition::FundManagement::FundAllocation->new_from_api($body)->store;
+                my $fund_allocation =
+                    Koha::Acquisition::FundManagement::FundAllocation->new_from_api($body)->store->discard_changes;
 
                 $c->res->headers->location( $c->req->url->to_string . '/' . $fund_allocation->fund_allocation_id );
                 return $c->render(
@@ -263,32 +264,32 @@ sub transfer {
 
                 my $allocation_from = Koha::Acquisition::FundManagement::FundAllocation->new(
                     {
-                        fund_id           => $fund_id_from,
-                        sub_fund_id       => $body->{sub_fund_id_from},
-                        ledger_id         => $fund_transferring_from->ledger_id,
-                        fiscal_period_id  => $fund_transferring_from->fiscal_period_id,
-                        allocation_amount => -$body->{transfer_amount},
-                        reference         => $body->{reference},
-                        note              => $note_from,
-                        currency          => $fund_transferring_from->currency,
-                        owner             => $fund_transferring_from->owner,
-                        lib_group_visibility        => $fund_transferring_from->lib_group_visibility,
-                        is_transfer       => 1
+                        fund_id              => $fund_id_from,
+                        sub_fund_id          => $body->{sub_fund_id_from},
+                        ledger_id            => $fund_transferring_from->ledger_id,
+                        fiscal_period_id     => $fund_transferring_from->fiscal_period_id,
+                        allocation_amount    => -$body->{transfer_amount},
+                        reference            => $body->{reference},
+                        note                 => $note_from,
+                        currency             => $fund_transferring_from->currency,
+                        owner                => $fund_transferring_from->owner,
+                        lib_group_visibility => $fund_transferring_from->lib_group_visibility,
+                        is_transfer          => 1
                     }
                 )->store();
                 my $allocation_to = Koha::Acquisition::FundManagement::FundAllocation->new(
                     {
-                        fund_id           => $fund_id_to,
-                        sub_fund_id       => $body->{sub_fund_id_to},
-                        ledger_id         => $fund_transferring_to->ledger_id,
-                        fiscal_period_id  => $fund_transferring_to->fiscal_period_id,
-                        allocation_amount => $body->{transfer_amount},
-                        reference         => $body->{reference},
-                        note              => $note_to,
-                        currency          => $fund_transferring_to->currency,
-                        owner             => $fund_transferring_to->owner,
-                        lib_group_visibility        => $fund_transferring_to->lib_group_visibility,
-                        is_transfer       => 1
+                        fund_id              => $fund_id_to,
+                        sub_fund_id          => $body->{sub_fund_id_to},
+                        ledger_id            => $fund_transferring_to->ledger_id,
+                        fiscal_period_id     => $fund_transferring_to->fiscal_period_id,
+                        allocation_amount    => $body->{transfer_amount},
+                        reference            => $body->{reference},
+                        note                 => $note_to,
+                        currency             => $fund_transferring_to->currency,
+                        owner                => $fund_transferring_to->owner,
+                        lib_group_visibility => $fund_transferring_to->lib_group_visibility,
+                        is_transfer          => 1
                     }
                 )->store();
 

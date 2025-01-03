@@ -28,8 +28,6 @@ use Koha::Acquisition::FundManagement::SubFunds;
 use Koha::Acquisition::FundManagement::Ledgers;
 use Koha::Acquisition::FundManagement::Funds;
 
-use Koha::REST::V1::Acquisitions::FundManagement::Util;
-
 use C4::Context;
 
 =head1 API
@@ -97,7 +95,7 @@ sub add {
                     ) unless $result->{within_limit};
                 }
 
-                my $sub_fund = Koha::Acquisition::FundManagement::SubFund->new_from_api($body)->store;
+                my $sub_fund = Koha::Acquisition::FundManagement::SubFund->new_from_api($body)->store->discard_changes;
 
                 $c->res->headers->location( $c->req->url->to_string . '/' . $sub_fund->sub_fund_id );
                 return $c->render(

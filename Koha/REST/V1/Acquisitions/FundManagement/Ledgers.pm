@@ -27,8 +27,6 @@ use Koha::Acquisition::FundManagement::Ledger;
 use Koha::Acquisition::FundManagement::Ledgers;
 use Koha::Acquisition::FundManagement::FiscalPeriods;
 
-use Koha::REST::V1::Acquisitions::FundManagement::Util;
-
 use C4::Context;
 
 =head1 API
@@ -87,17 +85,19 @@ sub add {
                 if ( $body->{spend_limit} ) {
                     my $fiscal_period =
                         Koha::Acquisition::FundManagement::FiscalPeriods->find( $body->{fiscal_period_id} );
-                    my $result = $fiscal_period->is_spend_limit_breached( { new_allocation => $body->{spend_limit} } );
+                    my $result = $fiscal_period->check_spend_limits( { new_allocation => $body->{spend_limit} } );
                     return $c->render(
-                        status => 400,
-                        error  => "Fiscal period spend limit breached, please reduce spend limit by "
-                            . $result->{breach_amount}
-                            . " or increase the spend limit for this fiscal period"
+                        status  => 400,
+                        openapi => {
+                                  error => "Fiscal period spend limit breached, please reduce spend limit by "
+                                . $result->{breach_amount}
+                                . " or increase the spend limit for this fiscal period"
+                        }
 
                     ) unless $result->{within_limit};
                 }
 
-                my $ledger = Koha::Acquisition::FundManagement::Ledger->new_from_api($body)->store;
+                my $ledger = Koha::Acquisition::FundManagement::Ledger->new_from_api($body)->store->discard_changes;
 
                 $c->res->headers->location( $c->req->url->to_string . '/' . $ledger->ledger_id );
                 return $c->render(
@@ -155,6 +155,16 @@ sub update {
                                   error => "Fiscal period spend limit breached, please reduce spend limit by "
                                 . $result->{breach_amount}
                                 . " or increase the spend limit for this fiscal period"
+                        }
+                    ) unless $result->{within_limit};
+                    $result = $ledger->check_spend_limits( { new_spend_limit => $body->{spend_limit} } );
+                    return $c->render(
+                        status  => 400,
+                        openapi => {
+                            error =>
+                                "The ledger spend limit is less than the total of the spend limits for the funds below, please increase spend limit by "
+                                . $result->{breach_amount}
+                                . " or decrease the spend limit for the funds"
                         }
                     ) unless $result->{within_limit};
                 }

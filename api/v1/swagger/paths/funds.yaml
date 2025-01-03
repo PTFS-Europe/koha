@@ -58,7 +58,8 @@
         schema:
           $ref: "../swagger.yaml#/definitions/error"
     x-koha-authorization:
-      permissions: {}
+      permissions:
+        acquisition: budget_manage_all
   post:
     x-mojo-to: Acquisitions::FundManagement::Funds#add
     operationId: StoreFund
@@ -80,8 +81,7 @@
       '201':
         description: Fund
         schema:
-          items:
-            $ref: "../swagger.yaml#/definitions/fund"
+          $ref: "../swagger.yaml#/definitions/fund"
       400:
         description: Bad request
         schema:
@@ -117,7 +117,8 @@
         schema:
           $ref: "../swagger.yaml#/definitions/error"
     x-koha-authorization:
-      permissions: {}
+      permissions:
+        acquisition: budget_manage_all
 /acquisitions/funds/{fund_id}:
   get:
     x-mojo-to: Acquisitions::FundManagement::Funds#get
@@ -149,8 +150,7 @@
       '200':
         description: Fund
         schema:
-          items:
-            $ref: "../swagger.yaml#/definitions/fund"
+          $ref: "../swagger.yaml#/definitions/fund"
       '400':
         description: Bad request
         schema:
@@ -202,7 +202,8 @@
               description: An explanation for the error
               type: string
     x-koha-authorization:
-      permissions: {}
+      permissions:
+        acquisition: budget_manage_all
   put:
     x-mojo-to: Acquisitions::FundManagement::Funds#update
     operationId: updateFund
@@ -216,14 +217,14 @@
         description: Fund object that needs to be added
         required: true
         schema:
-          type: object
+          $ref: "../swagger.yaml#/definitions/fund"
     produces:
       - application/json
     responses:
       '200':
         description: Fund
         schema:
-          type: object
+          $ref: "../swagger.yaml#/definitions/fund"
       '400':
         description: Bad request
         schema:
@@ -275,7 +276,8 @@
               description: An explanation for the error
               type: string
     x-koha-authorization:
-      permissions: {}
+      permissions:
+        acquisition: budget_manage_all
   delete:
     x-mojo-to: Acquisitions::FundManagement::Funds#delete
     operationId: deleteFund
@@ -342,4 +344,5 @@
               description: An explanation for the error
               type: string
     x-koha-authorization:
-      permissions: {}
+      permissions:
+        acquisition: budget_manage_all

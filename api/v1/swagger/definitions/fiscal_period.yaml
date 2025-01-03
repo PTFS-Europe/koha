@@ -27,7 +27,7 @@ properties:
     description: End date for the fiscal period
   spend_limit:
     type:
-      - integer
+      - number
       - "null"
     description: Spend limit of the fiscal period
   last_updated:
