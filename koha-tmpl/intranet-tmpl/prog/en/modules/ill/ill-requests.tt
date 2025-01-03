@@ -498,7 +498,17 @@
                         [% END %]
                         [% NEXT IF has_prefs_count < needs_prefs.size || has_perms_count < needs_perms.size || has_all_count < needs_all.size %]
                         [% IF action.method == 'migrate' %]
-                            [% IF backends.size > 2 %]
+                            [% IF Koha.Preference('AutoILLBackendPriority') && backends.size > 1 %]
+                                <a
+                                    title="[% action.ui_method_name | html %]"
+                                    id="ill-toolbar-btn-[% action.id | lower | html %]"
+                                    class="btn btn-default"
+                                    href="/cgi-bin/koha/ill/ill-requests.pl?op=[% action.method | uri %]&amp;illrequest_id=[% request.illrequest_id | uri %]&amp;auto_migrate=1"
+                                >
+                                    <span class="fa [% action.ui_method_icon | html %]"></span>
+                                    [% action.ui_method_name | html %]
+                                </a>
+                            [% ELSIF backends.size > 2 %]
                                 <div class="dropdown btn-group">
                                     <button class="btn btn-default dropdown-toggle" type="button" id="ill-migrate-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                                         <i class="fa [% action.ui_method_icon | html %]"></i> [% action.ui_method_name | html %]
@@ -884,6 +894,10 @@
                             <p id="autoillbackend-message" class="text-info"></p>
                         </fieldset>
                         <fieldset class="action">
+                            [% IF auto_migrate %]
+                                <a id="confirm-auto-migrate" data-illrequest_id="[% request.illrequest_id %]" class="btn btn-primary disabled">Confirm</a>
+                                <a class="cancel" href="ill-requests.pl">Cancel</a>
+                            [% ELSE %]
                             [% FOREACH key IN whole.keys %]
                                 [% value = whole.$key %]
                                 [% IF key != 'op' && key != 'method' && key != 'custom_key' && key != 'custom_value' %]
@@ -903,6 +917,7 @@
                             <input type="hidden" name="confirm_auto_submitted" value="1" />
                             <input type="submit" class="btn btn-primary" value="Confirm" />
                             <a class="cancel" href="ill-requests.pl">Cancel</a>
+                            [% END %]
                         </fieldset>
                     </form>
                 </div>
