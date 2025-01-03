@@ -58,7 +58,8 @@
         schema:
           $ref: "../swagger.yaml#/definitions/error"
     x-koha-authorization:
-      permissions: {}
+      permissions:
+        acquisition: budget_manage_all
   post:
     x-mojo-to: Acquisitions::FundManagement::FundAllocations#add
     operationId: StoreFundAllocation
@@ -117,7 +118,8 @@
         schema:
           $ref: "../swagger.yaml#/definitions/error"
     x-koha-authorization:
-      permissions: {}
+      permissions:
+        acquisition: budget_manage_all
 /acquisitions/fund_allocations/transfer:
   post:
     x-mojo-to: Acquisitions::FundManagement::FundAllocations#transfer
@@ -148,7 +150,8 @@
               description: An explanation for the error
               type: string
     x-koha-authorization:
-      permissions: {}
+      permissions:
+        acquisition: budget_manage_all
 /acquisitions/fund_allocations/{fund_allocation_id}:
   get:
     x-mojo-to: Acquisitions::FundManagement::FundAllocations#get
@@ -177,8 +180,7 @@
       '200':
         description: Fund allocation
         schema:
-          items:
-            $ref: "../swagger.yaml#/definitions/fund_allocation"
+          $ref: "../swagger.yaml#/definitions/fund_allocation"
       '400':
         description: Bad request
         schema:
@@ -230,7 +232,8 @@
               description: An explanation for the error
               type: string
     x-koha-authorization:
-      permissions: {}
+      permissions:
+        acquisition: budget_manage_all
   put:
     x-mojo-to: Acquisitions::FundManagement::FundAllocations#update
     operationId: updateFundAllocation
@@ -244,14 +247,14 @@
         description: Fund allocation object that needs to be added
         required: true
         schema:
-          type: object
+          $ref: "../swagger.yaml#/definitions/fund_allocation"
     produces:
       - application/json
     responses:
       '200':
         description: Fund allocation
         schema:
-          type: object
+          $ref: "../swagger.yaml#/definitions/fund_allocation"
       '400':
         description: Bad request
         schema:
@@ -303,7 +306,8 @@
               description: An explanation for the error
               type: string
     x-koha-authorization:
-      permissions: {}
+      permissions:
+        acquisition: budget_manage_all
   delete:
     x-mojo-to: Acquisitions::FundManagement::FundAllocations#delete
     operationId: deleteFundAllocation
@@ -370,4 +374,5 @@
               description: An explanation for the error
               type: string
     x-koha-authorization:
-      permissions: {}
+      permissions:
+        acquisition: budget_manage_all

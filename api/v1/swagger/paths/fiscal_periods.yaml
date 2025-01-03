@@ -57,7 +57,8 @@
         schema:
           $ref: "../swagger.yaml#/definitions/error"
     x-koha-authorization:
-      permissions: {}
+      permissions:
+        acquisition: budget_manage_all
   post:
     x-mojo-to: Acquisitions::FundManagement::FiscalPeriods#add
     operationId: StoreFiscalPeriod
@@ -79,44 +80,33 @@
       '201':
         description: FiscalPeriod
         schema:
-          items:
-            $ref: "../swagger.yaml#/definitions/fiscal_period"
-      400:
+          $ref: "../swagger.yaml#/definitions/fiscal_period"
+      "400":
         description: Bad request
         schema:
           $ref: "../swagger.yaml#/definitions/error"
-      401:
+      "401":
         description: Authentication required
         schema:
           $ref: "../swagger.yaml#/definitions/error"
-      403:
+      "403":
         description: Access forbidden
         schema:
           $ref: "../swagger.yaml#/definitions/error"
-      404:
-        description: Ressource not found
-        schema:
-          $ref: "../swagger.yaml#/definitions/error"
-      409:
-        description: Conflict in creating resource
-        schema:
-          $ref: "../swagger.yaml#/definitions/error"
-      413:
-        description: Payload too large
-        schema:
-          $ref: "../swagger.yaml#/definitions/error"
-      500:
-        description: |-
+      "500":
+        description: |
           Internal server error. Possible `error_code` attribute values:
+
           * `internal_server_error`
         schema:
           $ref: "../swagger.yaml#/definitions/error"
-      503:
+      "503":
         description: Under maintenance
         schema:
           $ref: "../swagger.yaml#/definitions/error"
     x-koha-authorization:
-      permissions: {}
+      permissions:
+        acquisition: budget_manage_all
 /acquisitions/fiscal_periods/{fiscal_period_id}:
   get:
     x-mojo-to: Acquisitions::FundManagement::FiscalPeriods#get
@@ -142,63 +132,32 @@
     produces:
       - application/json
     responses:
-      '200':
-        description: Fiscal period
+      "200":
+        description: A fiscal period
         schema:
-          items:
-            $ref: "../swagger.yaml#/definitions/fiscal_period"
-      '400':
+          $ref: "../swagger.yaml#/definitions/fiscal_period"
+      "400":
         description: Bad request
         schema:
-          type: object
-          properties:
-            error:
-              description: An explanation for the error
-              type:
-              - string
-              - array
-      '401':
-        description: Unauthorized
+          $ref: "../swagger.yaml#/definitions/error"
+      "404":
+        description: City not found
         schema:
-          type: object
-          properties:
-            error:
-              description: An explanation for the error
-              type: string
-      '403':
-        description: Forbidden
+          $ref: "../swagger.yaml#/definitions/error"
+      "500":
+        description: |
+          Internal server error. Possible `error_code` attribute values:
+
+          * `internal_server_error`
         schema:
-          type: object
-          properties:
-            error:
-              description: An explanation for the error
-              type: string
-      '404':
-        description: The object was not found
+          $ref: "../swagger.yaml#/definitions/error"
+      "503":
+        description: Under maintenance
         schema:
-          type: object
-          properties:
-            error:
-              description: An explanation for the error
-              type: string
-      '409':
-        description: Conflict
-        schema:
-          type: object
-          properties:
-            error:
-              description: An explanation for the error
-              type: string
-      '500':
-        description: Internal server error
-        schema:
-          type: object
-          properties:
-            error:
-              description: An explanation for the error
-              type: string
+          $ref: "../swagger.yaml#/definitions/error"
     x-koha-authorization:
-      permissions: {}
+      permissions:
+        acquisition: budget_manage_all
   put:
     x-mojo-to: Acquisitions::FundManagement::FiscalPeriods#update
     operationId: updateFiscalPeriod
@@ -212,66 +171,41 @@
         description: Fiscal period object that needs to be added
         required: true
         schema:
-          type: object
+          $ref: "../swagger.yaml#/definitions/fiscal_period"
     produces:
       - application/json
     responses:
       '200':
         description: Fiscal period
         schema:
-          type: object
-      '400':
+          $ref: "../swagger.yaml#/definitions/fiscal_period"
+      "400":
         description: Bad request
         schema:
-          type: object
-          properties:
-            error:
-              description: An explanation for the error
-              type:
-              - string
-              - array
-      '401':
-        description: Unauthorized
+          $ref: "../swagger.yaml#/definitions/error"
+      "401":
+        description: Authentication required
         schema:
-          type: object
-          properties:
-            error:
-              description: An explanation for the error
-              type: string
-      '403':
-        description: Forbidden
+          $ref: "../swagger.yaml#/definitions/error"
+      "403":
+        description: Access forbidden
         schema:
-          type: object
-          properties:
-            error:
-              description: An explanation for the error
-              type: string
-      '404':
-        description: The object was not found
+          $ref: "../swagger.yaml#/definitions/error"
+      "404":
+        description: City not found
         schema:
-          type: object
-          properties:
-            error:
-              description: An explanation for the error
-              type: string
-      '409':
-        description: Conflict
+          $ref: "../swagger.yaml#/definitions/error"
+      "500":
+        description: Internal error
         schema:
-          type: object
-          properties:
-            error:
-              description: An explanation for the error
-              type: string
-      '500':
-        description: Internal server error
+          $ref: "../swagger.yaml#/definitions/error"
+      "503":
+        description: Under maintenance
         schema:
-          type: object
-          properties:
-            error:
-              description: An explanation for the error
-              type: string
+          $ref: "../swagger.yaml#/definitions/error"
     x-koha-authorization:
-      permissions: {}
+      permissions:
+        acquisition: budget_manage_all
   delete:
     x-mojo-to: Acquisitions::FundManagement::FiscalPeriods#delete
     operationId: deleteFiscalPeriod
@@ -287,55 +221,30 @@
         description: Fiscal period deleted
         schema:
           type: string
-      '400':
+      "400":
         description: Bad request
         schema:
-          type: object
-          properties:
-            error:
-              description: An explanation for the error
-              type:
-              - string
-              - array
-      '401':
-        description: Unauthorized
+          $ref: "../swagger.yaml#/definitions/error"
+      "401":
+        description: Authentication required
         schema:
-          type: object
-          properties:
-            error:
-              description: An explanation for the error
-              type: string
-      '403':
-        description: Forbidden
+          $ref: "../swagger.yaml#/definitions/error"
+      "403":
+        description: Access forbidden
         schema:
-          type: object
-          properties:
-            error:
-              description: An explanation for the error
-              type: string
-      '404':
-        description: The object was not found
+          $ref: "../swagger.yaml#/definitions/error"
+      "404":
+        description: City not found
         schema:
-          type: object
-          properties:
-            error:
-              description: An explanation for the error
-              type: string
-      '409':
-        description: Conflict
+          $ref: "../swagger.yaml#/definitions/error"
+      "500":
+        description: Internal error
         schema:
-          type: object
-          properties:
-            error:
-              description: An explanation for the error
-              type: string
-      '500':
-        description: Internal server error
+          $ref: "../swagger.yaml#/definitions/error"
+      "503":
+        description: Under maintenance
         schema:
-          type: object
-          properties:
-            error:
-              description: An explanation for the error
-              type: string
+          $ref: "../swagger.yaml#/definitions/error"
     x-koha-authorization:
-      permissions: {}
+      permissions:
+        acquisition: budget_manage_all

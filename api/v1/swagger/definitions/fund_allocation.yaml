@@ -29,7 +29,7 @@ properties:
     description: Internal fiscal period identifier
   allocation_amount:
     type:
-      - integer
+      - number
       - "null"
     description: Amount allocated to the fund
   allocation_index:

@@ -47,6 +47,11 @@ properties:
       - string
       - "null"
     description: Fund currency
+  sub_fund_type:
+    type:
+      - string
+      - "null"
+    description: Fund currency
   last_updated:
     type: string
     format: date-time
@@ -68,12 +73,12 @@ properties:
     description: Library group visibility
   spend_limit:
     type:
-      - integer
+      - number
       - "null"
     description: Spend limit of the sub_fund
   sub_fund_value:
     type:
-      - integer
+      - number
       - "null"
     description: Value of the sub_fund
   over_spend_allowed:
@@ -89,17 +94,17 @@ properties:
     description: Over encumbrance warning percentage
   oe_limit_amount:
     type:
-      - integer
+      - number
       - "null"
     description: Over encumbrance limit amount
   os_warning_sum:
     type:
-      - integer
+      - number
       - "null"
     description: Over spend warning sum
   os_limit_sum:
     type:
-      - integer
+      - number
       - "null"
     description: Over spend limit sum
   fiscal_period:

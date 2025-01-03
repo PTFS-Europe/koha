@@ -81,7 +81,8 @@ sub add {
                 my $body = $c->req->json;
                 delete $body->{lib_groups} if $body->{lib_groups};
 
-                my $fund_group = Koha::Acquisition::FundManagement::FundGroup->new_from_api($body)->store;
+                my $fund_group =
+                    Koha::Acquisition::FundManagement::FundGroup->new_from_api($body)->store->discard_changes;
 
                 $c->res->headers->location( $c->req->url->to_string . '/' . $fund_group->fund_group_id );
                 return $c->render(

@@ -57,7 +57,8 @@
         schema:
           $ref: "../swagger.yaml#/definitions/error"
     x-koha-authorization:
-      permissions: {}
+      permissions:
+        acquisition: budget_manage_all
   post:
     x-mojo-to: Acquisitions::FundManagement::Ledgers#add
     operationId: StoreLedger
@@ -79,8 +80,7 @@
       '201':
         description: Ledger
         schema:
-          items:
-            $ref: "../swagger.yaml#/definitions/ledger"
+          $ref: "../swagger.yaml#/definitions/ledger"
       400:
         description: Bad request
         schema:
@@ -116,7 +116,8 @@
         schema:
           $ref: "../swagger.yaml#/definitions/error"
     x-koha-authorization:
-      permissions: {}
+      permissions:
+        acquisition: budget_manage_all
 /acquisitions/ledgers/{ledger_id}:
   get:
     x-mojo-to: Acquisitions::FundManagement::Ledgers#get
@@ -146,8 +147,7 @@
       '200':
         description: Ledger
         schema:
-          items:
-            $ref: "../swagger.yaml#/definitions/ledger"
+          $ref: "../swagger.yaml#/definitions/ledger"
       '400':
         description: Bad request
         schema:
@@ -199,7 +199,8 @@
               description: An explanation for the error
               type: string
     x-koha-authorization:
-      permissions: {}
+      permissions:
+        acquisition: budget_manage_all
   put:
     x-mojo-to: Acquisitions::FundManagement::Ledgers#update
     operationId: updateLedger
@@ -213,14 +214,14 @@
         description: Ledger object that needs to be added
         required: true
         schema:
-          type: object
+          $ref: "../swagger.yaml#/definitions/ledger"
     produces:
       - application/json
     responses:
       '200':
         description: Ledger
         schema:
-          type: object
+          $ref: "../swagger.yaml#/definitions/ledger"
       '400':
         description: Bad request
         schema:
@@ -272,7 +273,8 @@
               description: An explanation for the error
               type: string
     x-koha-authorization:
-      permissions: {}
+      permissions:
+        acquisition: budget_manage_all
   delete:
     x-mojo-to: Acquisitions::FundManagement::Ledgers#delete
     operationId: deleteLedger
@@ -339,4 +341,5 @@
               description: An explanation for the error
               type: string
     x-koha-authorization:
-      permissions: {}
+      permissions:
+        acquisition: budget_manage_all

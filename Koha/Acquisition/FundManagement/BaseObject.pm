@@ -280,17 +280,18 @@ sub check_spend_limits {
 
     my $child_class = $self->_object_hierarchy->{children};
     my @children    = $self->$child_class->as_list;
-    my $total       = $args->{new_allocation} || 0;
+    my $total       = $args->{new_allocation}  || 0;
+    my $spend_limit = $args->{new_spend_limit} || $self->spend_limit || 0;
 
-    return { within_limit => 1 } if !$self->spend_limit > 0;
+    return { within_limit => 1 } if !$spend_limit > 0;
 
     foreach my $child (@children) {
         my $spend_limit = $child->spend_limit;
         $total += $spend_limit;
     }
 
-    my $limit_check   = $self->spend_limit >= $total        ? 1                           : 0;
-    my $breach_amount = ( $total - $self->spend_limit ) > 0 ? $total - $self->spend_limit : 0;
+    my $limit_check   = $spend_limit >= $total        ? 1                     : 0;
+    my $breach_amount = ( $total - $spend_limit ) > 0 ? $total - $spend_limit : 0;
     return { within_limit => $limit_check, breach_amount => $breach_amount };
 }
 
