@@ -17,7 +17,8 @@
 
 use Modern::Perl;
 
-use Test::More tests => 6;
+use Test::More tests => 9;
+use Test::MockModule;
 
 use t::lib::TestBuilder;
 use t::lib::Mocks;
@@ -154,7 +155,6 @@ subtest 'cascade_data' => sub {
                 status               => $fiscal_period->status,
                 currency             => $ledger->currency,
                 owner_id             => $ledger->owner_id,
-                fund_value           => 0
             }
         }
     );
@@ -206,7 +206,6 @@ subtest 'total_allocations' => sub {
             status               => $fiscal_period->status,
             currency             => $ledger->currency,
             owner_id             => $ledger->owner_id,
-            fund_value           => 0,
             spend_limit          => 50
         }
     )->store();
@@ -251,6 +250,170 @@ subtest 'total_allocations' => sub {
     $schema->storage->txn_rollback;
 };
 
+subtest 'total_spent' => sub {
+
+    plan tests => 3;
+
+    $schema->storage->txn_begin;
+
+    my $library = $builder->build_object( { class => 'Koha::Libraries' } );
+
+    t::lib::Mocks::mock_userenv( { branchcode => $library->branchcode } );
+
+    my $fiscal_period = $builder->build_object(
+        {
+            class => 'Koha::Acquisition::FundManagement::FiscalPeriods',
+            value => { status => 1, lib_group_visibility => '|' . $library->branchcode . '|', spend_limit => 100 }
+        }
+    );
+    my $ledger = Koha::Acquisition::FundManagement::Ledger->new(
+        {
+            fiscal_period_id     => $fiscal_period->fiscal_period_id,
+            lib_group_visibility => $fiscal_period->lib_group_visibility,
+            status               => $fiscal_period->status,
+            currency             => 'GBP',
+            owner_id             => '1',
+            ledger_value         => 0,
+            spend_limit          => 100
+        }
+    )->store();
+    my $fund = Koha::Acquisition::FundManagement::Fund->new(
+        {
+            fiscal_period_id     => $fiscal_period->fiscal_period_id,
+            ledger_id            => $ledger->ledger_id,
+            lib_group_visibility => $fiscal_period->lib_group_visibility,
+            status               => $fiscal_period->status,
+            currency             => $ledger->currency,
+            owner_id             => $ledger->owner_id,
+            spend_limit          => 50
+        }
+    )->store();
+
+    my $allocation = Koha::Acquisition::FundManagement::FundAllocation->new(
+        {
+            fund_id           => $fund->fund_id,
+            sub_fund_id       => undef,
+            ledger_id         => $ledger->ledger_id,
+            fiscal_period_id  => $fiscal_period->fiscal_period_id,
+            allocation_amount => -10,
+            type              => 'spent'
+        }
+    )->store();
+
+    is( $fiscal_period->total_spent + 0, -10, 'Total spent is -10' );
+
+    my $allocation2 = Koha::Acquisition::FundManagement::FundAllocation->new(
+        {
+            fund_id           => $fund->fund_id,
+            sub_fund_id       => undef,
+            ledger_id         => $ledger->ledger_id,
+            fiscal_period_id  => $fiscal_period->fiscal_period_id,
+            allocation_amount => -5,
+            type              => 'spent'
+        }
+    )->store();
+
+    is( $fiscal_period->total_spent + 0, -15, 'Total spent is -15' );
+
+    # encumbrance rather than spend
+    my $allocation3 = Koha::Acquisition::FundManagement::FundAllocation->new(
+        {
+            fund_id           => $fund->fund_id,
+            sub_fund_id       => undef,
+            ledger_id         => $ledger->ledger_id,
+            fiscal_period_id  => $fiscal_period->fiscal_period_id,
+            allocation_amount => -10,
+            type              => 'encumbered'
+        }
+    )->store();
+
+    is( $fiscal_period->total_spent + 0, -15, 'Total spent is still -15' );
+
+    $schema->storage->txn_rollback;
+};
+
+subtest 'total_encumbered' => sub {
+
+    plan tests => 3;
+
+    $schema->storage->txn_begin;
+
+    my $library = $builder->build_object( { class => 'Koha::Libraries' } );
+
+    t::lib::Mocks::mock_userenv( { branchcode => $library->branchcode } );
+
+    my $fiscal_period = $builder->build_object(
+        {
+            class => 'Koha::Acquisition::FundManagement::FiscalPeriods',
+            value => { status => 1, lib_group_visibility => "|" . $library->branchcode . "|", spend_limit => 100 }
+        }
+    );
+    my $ledger = Koha::Acquisition::FundManagement::Ledger->new(
+        {
+            fiscal_period_id     => $fiscal_period->fiscal_period_id,
+            lib_group_visibility => $fiscal_period->lib_group_visibility,
+            status               => $fiscal_period->status,
+            currency             => 'GBP',
+            owner_id             => '1',
+            ledger_value         => 0,
+            spend_limit          => 100
+        }
+    )->store();
+    my $fund = Koha::Acquisition::FundManagement::Fund->new(
+        {
+            fiscal_period_id     => $fiscal_period->fiscal_period_id,
+            ledger_id            => $ledger->ledger_id,
+            lib_group_visibility => $fiscal_period->lib_group_visibility,
+            status               => $fiscal_period->status,
+            currency             => $ledger->currency,
+            owner_id             => $ledger->owner_id,
+            spend_limit          => 50
+        }
+    )->store();
+
+    my $allocation = Koha::Acquisition::FundManagement::FundAllocation->new(
+        {
+            fund_id           => $fund->fund_id,
+            sub_fund_id       => undef,
+            ledger_id         => $ledger->ledger_id,
+            fiscal_period_id  => $fiscal_period->fiscal_period_id,
+            allocation_amount => -10,
+            type              => 'encumbered'
+        }
+    )->store();
+
+    is( $fiscal_period->total_encumbered + 0, -10, 'Total encumbered is -10' );
+
+    my $allocation2 = Koha::Acquisition::FundManagement::FundAllocation->new(
+        {
+            fund_id           => $fund->fund_id,
+            sub_fund_id       => undef,
+            ledger_id         => $ledger->ledger_id,
+            fiscal_period_id  => $fiscal_period->fiscal_period_id,
+            allocation_amount => -5,
+            type              => 'encumbered'
+        }
+    )->store();
+
+    is( $fiscal_period->total_encumbered + 0, -15, 'Total encumbered is -15' );
+
+    # Spend rather than encumbrance
+    my $allocation3 = Koha::Acquisition::FundManagement::FundAllocation->new(
+        {
+            fund_id           => $fund->fund_id,
+            sub_fund_id       => undef,
+            ledger_id         => $ledger->ledger_id,
+            fiscal_period_id  => $fiscal_period->fiscal_period_id,
+            allocation_amount => -10,
+            type              => 'spent'
+        }
+    )->store();
+
+    is( $fiscal_period->total_encumbered + 0, -15, 'Total encumbered is still -15' );
+
+    $schema->storage->txn_rollback;
+};
+
 subtest 'check_spend_limits' => sub {
 
     plan tests => 6;
@@ -282,7 +445,6 @@ subtest 'check_spend_limits' => sub {
             status               => $fiscal_period->status,
             currency             => $ledger->currency,
             owner_id             => $ledger->owner_id,
-            fund_value           => 0,
             spend_limit          => 50
         }
     )->store();
@@ -319,6 +481,120 @@ subtest 'is_spend_limit_breached' => sub {
     is( $result->{within_limit}, 1, 'Within limit' );
     $result = $fiscal_period->is_spend_limit_breached( { new_allocation => -101 } );
     is( $result->{breach_amount}, 1, 'Breached by 1' );
+
+    $schema->storage->txn_rollback;
+};
+
+subtest 'add_accounting_values' => sub {
+
+    plan tests => 4;
+
+    $schema->storage->txn_begin;
+
+    my $fiscal_period = $builder->build_object(
+        {
+            class => 'Koha::Acquisition::FundManagement::FiscalPeriods',
+            value => { status => 1, lib_group_visibility => '1|2', spend_limit => 100 }
+        }
+    );
+    my $ledger = Koha::Acquisition::FundManagement::Ledger->new(
+        {
+            fiscal_period_id     => $fiscal_period->fiscal_period_id,
+            lib_group_visibility => $fiscal_period->lib_group_visibility,
+            status               => $fiscal_period->status,
+            currency             => 'GBP',
+            owner_id             => '1',
+            ledger_value         => 0,
+            spend_limit          => 100
+        }
+    )->store();
+    my $fund = Koha::Acquisition::FundManagement::Fund->new(
+        {
+            fiscal_period_id     => $fiscal_period->fiscal_period_id,
+            ledger_id            => $ledger->ledger_id,
+            lib_group_visibility => $fiscal_period->lib_group_visibility,
+            status               => $fiscal_period->status,
+            currency             => $ledger->currency,
+            owner_id             => $ledger->owner_id,
+            spend_limit          => 50
+        }
+    )->store();
+    my $fund2 = Koha::Acquisition::FundManagement::Fund->new(
+        {
+            fiscal_period_id     => $fiscal_period->fiscal_period_id,
+            ledger_id            => $ledger->ledger_id,
+            lib_group_visibility => $fiscal_period->lib_group_visibility,
+            status               => $fiscal_period->status,
+            currency             => $ledger->currency,
+            owner_id             => $ledger->owner_id,
+            spend_limit          => 50
+        }
+    )->store();
+    my $sub_fund = Koha::Acquisition::FundManagement::SubFund->new(
+        {
+            fiscal_period_id     => $fiscal_period->fiscal_period_id,
+            ledger_id            => $ledger->ledger_id,
+            fund_id              => $fund2->fund_id,
+            lib_group_visibility => $fiscal_period->lib_group_visibility,
+            status               => $fiscal_period->status,
+            currency             => $ledger->currency,
+            owner_id             => $ledger->owner_id,
+            spend_limit          => 50
+        }
+    )->store();
+
+    my $allocation1 = Koha::Acquisition::FundManagement::FundAllocation->new(
+        {
+            fund_id           => $fund->fund_id,
+            sub_fund_id       => undef,
+            ledger_id         => $ledger->ledger_id,
+            fiscal_period_id  => $fiscal_period->fiscal_period_id,
+            allocation_amount => -15
+        }
+    )->store();
+    my $allocation2 = Koha::Acquisition::FundManagement::FundAllocation->new(
+        {
+            fund_id           => $fund->fund_id,
+            sub_fund_id       => undef,
+            ledger_id         => $ledger->ledger_id,
+            fiscal_period_id  => $fiscal_period->fiscal_period_id,
+            allocation_amount => -5
+        }
+    )->store();
+    my $allocation3 = Koha::Acquisition::FundManagement::FundAllocation->new(
+        {
+            fund_id           => $fund2->fund_id,
+            sub_fund_id       => $sub_fund->sub_fund_id,
+            ledger_id         => $ledger->ledger_id,
+            fiscal_period_id  => $fiscal_period->fiscal_period_id,
+            allocation_amount => -10
+        }
+    )->store();
+    my $allocation4 = Koha::Acquisition::FundManagement::FundAllocation->new(
+        {
+            fund_id           => $fund2->fund_id,
+            sub_fund_id       => $sub_fund->sub_fund_id,
+            ledger_id         => $ledger->ledger_id,
+            fiscal_period_id  => $fiscal_period->fiscal_period_id,
+            allocation_amount => 10,
+            type              => 'credit'
+        }
+    )->store();
+
+    $sub_fund                     = $sub_fund->unblessed;
+    $sub_fund->{fund_allocations} = [ $allocation3->unblessed, $allocation4->unblessed ];
+    $fund                         = $fund->unblessed;
+    $fund->{fund_allocations}     = [ $allocation1->unblessed, $allocation2->unblessed ];
+    $fund2                        = $fund2->unblessed;
+    $fund2->{sub_funds}           = [$sub_fund];
+    my $data = $ledger->unblessed;
+    $data->{funds} = [ $fund, $fund2 ];
+    my $result = $ledger->add_accounting_values( { data => $data } );
+
+    is( $result->{total_allocation},    -20, 'Total allocations is -20' );
+    is( $result->{allocation_decrease}, -30, 'Total decrease is -30' );
+    is( $result->{allocation_increase}, 10,  'Total allocations is 10' );
+    is( $result->{net_transfers},       0,   'Total allocations is 0' );
 
     $schema->storage->txn_rollback;
 };
