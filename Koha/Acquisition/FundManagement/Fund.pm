@@ -67,7 +67,6 @@ sub delete {
     my $deleted = $self->_result()->delete;
 
     my $ledger = $self->ledger;
-    $ledger->update_object_value;
 
     return $self;
 }
@@ -114,7 +113,7 @@ sub cascade_to_fund_allocations {
                 properties => \@data_to_cascade
             }
         );
-        $fund_allocation->store( { block_fund_value_update => 1 } ) if $visibility_updated || $data_updated;
+        $fund_allocation->store() if $visibility_updated || $data_updated;
     }
 }
 
@@ -152,7 +151,7 @@ sub cascade_to_sub_funds {
                 properties => \@data_to_cascade
             }
         );
-        $sub_fund->store( { block_fund_value_update => 1 } ) if $status_updated || $visibility_updated || $data_updated;
+        $sub_fund->store() if $status_updated || $visibility_updated || $data_updated;
     }
 }
 

@@ -353,50 +353,6 @@ sub is_spend_limit_breached {
     return { within_limit => $limit_check, breach_amount => $breach_amount };
 }
 
-=head3 update_object_value
-
-This method is called whenever a fund allocation is made.
-It updates the value of the object based on the spend_limit and fund allocations and then triggers an update to the parent object value
-
-=cut
-
-sub update_object_value {
-    my ( $self, $args ) = @_;
-
-    my @allocations;
-    if ( $self->_type() eq 'Fund' ) {
-        if ( $self->has_sub_funds ) {
-            my @sub_funds = $self->sub_funds->as_list;
-            foreach my $sub_fund (@sub_funds) {
-                push( @allocations, $sub_fund->fund_allocations->as_list );
-            }
-        } else {
-            push( @allocations, $self->fund_allocations->as_list );
-        }
-    } else {
-        push( @allocations, $self->fund_allocations->as_list );
-    }
-    my $total = 0;
-
-    foreach my $allocation (@allocations) {
-        $total += $allocation->allocation_amount;
-    }
-
-    my $hierarchy    = $self->_object_hierarchy;
-    my $parent       = $hierarchy->{parent};
-    my $object_field = $hierarchy->{object} . "_value";
-
-    my $object_total = $self->spend_limit + $total;
-    $self->$object_field($object_total)->store( { no_cascade => 1 } );
-
-    if ( $parent && $parent ne 'fiscal_period' ) {
-        my $parent_object = $self->$parent;
-        $parent_object->update_object_value;
-    }
-
-    return $total;
-}
-
 =head3 add_accounting_values
     This method takes a hashref as an argument, containing the data to be
     processed.  The data may include funds, sub-funds, and/or fund_allocations.
@@ -468,6 +424,11 @@ sub to_api {
 
     my $response = $self->SUPER::to_api($params);
     $response = $self->add_accounting_values( { data => $response } ) if $needs_values;
+
+    my $object_hierarchy = $self->_object_hierarchy();
+    my $value_field = $object_hierarchy->{object} . "_value";
+
+    $response->{$value_field} = $self->spend_limit + $self->total_allocations;
 
     my $overrides = {};
 
@@ -583,8 +544,7 @@ sub handle_spend_limit_changes {
     my $over_spend_allowed = $args->{over_spend_allowed} || $self->over_spend_allowed;
     my $object_hierarchy   = $self->_object_hierarchy();
 
-    my $value_method = $object_hierarchy->{object} . "_value";
-    if ( $new_limit < $self->$value_method && !$over_spend_allowed ) {
+    if ( $new_limit < -$self->total_allocations && !$over_spend_allowed ) {
         return
               "Spend limit cannot be less than the "
             . $object_hierarchy->{object}
