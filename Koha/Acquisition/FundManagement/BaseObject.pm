@@ -372,15 +372,17 @@ sub add_accounting_values {
 
     if ( defined $data->{funds} ) {
         foreach my $fund ( @{ $data->{funds} } ) {
-            my @fund_allocations = @{ $fund->{fund_allocations} };
-            push( @allocations, @fund_allocations );
-        }
-    }
-    if ( defined $data->{sub_funds} ) {
-        foreach my $sub_fund ( @{ $data->{sub_funds} } ) {
-            if ( defined $sub_fund->{fund_allocations} ) {
-                my @fund_allocations = @{ $sub_fund->{fund_allocations} };
+            if(defined $fund->{fund_allocations}) {
+                my @fund_allocations = @{ $fund->{fund_allocations} };
                 push( @allocations, @fund_allocations );
+            }
+            if ( defined $fund->{sub_funds} ) {
+                foreach my $sub_fund ( @{ $fund->{sub_funds} } ) {
+                    if ( defined $sub_fund->{fund_allocations} ) {
+                        my @fund_allocations = @{ $sub_fund->{fund_allocations} };
+                        push( @allocations, @fund_allocations );
+                    }
+                }
             }
         }
     }
