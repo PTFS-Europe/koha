@@ -17,7 +17,7 @@
 
 use Modern::Perl;
 
-use Test::More tests => 7;
+use Test::More tests => 6;
 
 use t::lib::TestBuilder;
 use t::lib::Mocks;
@@ -171,96 +171,6 @@ subtest 'cascade_data' => sub {
     );
 
     is( $data_updated, 1, 'Updated fields have been cascaded to the ledger' );
-
-    $schema->storage->txn_rollback;
-};
-
-subtest 'update_object_value' => sub {
-
-    plan tests => 6;
-
-    $schema->storage->txn_begin;
-
-    my $fiscal_period = $builder->build_object(
-        {
-            class => 'Koha::Acquisition::FundManagement::FiscalPeriods',
-            value => { status => 1, lib_group_visibility => '1|2', spend_limit => 100 }
-        }
-    );
-    my $ledger = Koha::Acquisition::FundManagement::Ledger->new(
-        {
-            fiscal_period_id     => $fiscal_period->fiscal_period_id,
-            lib_group_visibility => $fiscal_period->lib_group_visibility,
-            status               => $fiscal_period->status,
-            currency             => 'GBP',
-            owner_id             => '1',
-            ledger_value         => 0,
-            spend_limit          => 100
-        }
-    )->store();
-    my $fund = Koha::Acquisition::FundManagement::Fund->new(
-        {
-            fiscal_period_id     => $fiscal_period->fiscal_period_id,
-            ledger_id            => $ledger->ledger_id,
-            lib_group_visibility => $fiscal_period->lib_group_visibility,
-            status               => $fiscal_period->status,
-            currency             => $ledger->currency,
-            owner_id             => $ledger->owner_id,
-            fund_value           => 0,
-            spend_limit          => 50
-        }
-    )->store();
-    my $sub_fund = Koha::Acquisition::FundManagement::SubFund->new(
-        {
-            fiscal_period_id     => $fiscal_period->fiscal_period_id,
-            ledger_id            => $ledger->ledger_id,
-            fund_id              => $fund->fund_id,
-            lib_group_visibility => $fiscal_period->lib_group_visibility,
-            status               => $fiscal_period->status,
-            currency             => $ledger->currency,
-            owner_id             => $ledger->owner_id,
-            sub_fund_value       => 0,
-            spend_limit          => 25
-        }
-    )->store();
-
-    my $allocation = Koha::Acquisition::FundManagement::FundAllocation->new(
-        {
-            fund_id           => undef,
-            sub_fund_id       => $sub_fund->sub_fund_id,
-            ledger_id         => $ledger->ledger_id,
-            fiscal_period_id  => $fiscal_period->fiscal_period_id,
-            allocation_amount => -10
-        }
-    )->store();
-
-    my $updated_ledger = Koha::Acquisition::FundManagement::Ledgers->find( $ledger->ledger_id );
-    is( $updated_ledger->ledger_value + 0, 90, 'Ledger value is reduced from 100 to 90' );
-
-    my $updated_fund = Koha::Acquisition::FundManagement::Funds->find( $fund->fund_id );
-    is( $updated_fund->fund_value + 0, 40, 'Fund value is reduced from 50 to 40' );
-
-    my $updated_sub_fund = Koha::Acquisition::FundManagement::SubFunds->find( $sub_fund->sub_fund_id );
-    is( $updated_sub_fund->sub_fund_value + 0, 15, 'Sub fund value is reduced from 25 to 15' );
-
-    my $allocation2 = Koha::Acquisition::FundManagement::FundAllocation->new(
-        {
-            fund_id           => undef,
-            sub_fund_id       => $sub_fund->sub_fund_id,
-            ledger_id         => $ledger->ledger_id,
-            fiscal_period_id  => $fiscal_period->fiscal_period_id,
-            allocation_amount => -5
-        }
-    )->store();
-
-    $updated_ledger = Koha::Acquisition::FundManagement::Ledgers->find( $ledger->ledger_id );
-    is( $updated_ledger->ledger_value + 0, 85, 'Ledger value is reduced from 90 to 85' );
-
-    $updated_fund = Koha::Acquisition::FundManagement::Funds->find( $fund->fund_id );
-    is( $updated_fund->fund_value + 0, 35, 'Fund value is reduced from 40 to 35' );
-
-    $updated_sub_fund = Koha::Acquisition::FundManagement::SubFunds->find( $sub_fund->sub_fund_id );
-    is( $updated_sub_fund->sub_fund_value + 0, 10, 'Sub fund value is reduced from 15 to 10' );
 
     $schema->storage->txn_rollback;
 };

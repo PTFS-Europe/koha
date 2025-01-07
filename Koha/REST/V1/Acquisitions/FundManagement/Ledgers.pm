@@ -146,7 +146,6 @@ sub update {
                 delete $body->{last_updated}  if $body->{last_updated};
 
                 $ledger->set_from_api($body)->store;
-                $ledger->update_object_value;
 
                 $c->res->headers->location( $c->req->url->to_string . '/' . $ledger->ledger_id );
                 return $c->render(

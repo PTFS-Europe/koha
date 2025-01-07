@@ -332,7 +332,6 @@ subtest 'update() tests' => sub {
         }
     );
     my $ledger_id = $ledger->ledger_id;
-    $ledger->update_object_value;
 
     # Full object update on PUT
     my $ledger_with_updated_field = {
@@ -374,6 +373,15 @@ subtest 'update() tests' => sub {
     # Test that spend_limit can't be reduced below the total spend if over_spend_allowed is set to false
     $ledger_with_updated_field->{spend_limit} = 40;
     delete $ledger_with_updated_field->{ledger_id};
+
+    # Mock allocations totalling a spend of 45
+    my $module = Test::MockModule->new('Koha::Acquisition::FundManagement::BaseObject');
+    $module->mock(
+        'total_allocations',
+        sub {
+            return -45;
+        }
+    );
 
     $t->put_ok( "//$userid:$password@/api/v1/acquisitions/ledgers/$ledger_id" => json => $ledger_with_updated_field )
         ->status_is(400)

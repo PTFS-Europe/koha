@@ -42,8 +42,6 @@ Koha::Acquisition::FundManagement::FundAllocation Object class
 sub store {
     my ( $self, $args ) = @_;
 
-    my $block_fund_value_update = $args->{block_fund_value_update};
-
     $self->set_lib_group_visibility() if $self->lib_group_visibility;
 
     if ( $self->allocation_amount < 0 ) {
@@ -51,16 +49,6 @@ sub store {
     }
 
     $self->SUPER::store;
-
-    if ( !$block_fund_value_update ) {
-        if ( $self->fund_id && !$self->sub_fund_id ) {
-            my $fund = $self->fund;
-            $fund->update_object_value;
-        } elsif ( $self->sub_fund_id ) {
-            my $sub_fund = $self->sub_fund;
-            $sub_fund->update_object_value if $sub_fund;
-        }
-    }
 
     return $self;
 }
@@ -73,9 +61,6 @@ sub delete {
     my ( $self, $args ) = @_;
 
     my $deleted = $self->_result()->delete;
-
-    my $fund = $self->fund;
-    $fund->update_object_value;
 
     return $self;
 }

@@ -146,7 +146,6 @@ sub update {
                 ) if $error;
 
                 $fund->set_from_api($body)->store;
-                $fund->update_object_value;
 
                 $c->res->headers->location( $c->req->url->to_string . '/' . $fund->fund_id );
                 return $c->render(
