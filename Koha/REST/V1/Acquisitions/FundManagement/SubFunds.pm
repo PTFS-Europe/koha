@@ -136,28 +136,7 @@ sub update {
                 delete $body->{lib_groups}   if $body->{lib_groups};
                 delete $body->{last_updated} if $body->{last_updated};
 
-                if ( $body->{spend_limit} && $sub_fund->spend_limit != $body->{spend_limit} ) {
-                    if ( $body->{spend_limit} < $sub_fund->sub_fund_value && !$sub_fund->over_spend_allowed ) {
-                        return $c->render(
-                            status  => 400,
-                            openapi => {
-                                error =>
-                                    "Spend limit cannot be less than the sub fund value when overspend is not allowed"
-                            }
-                        );
-                    }
-                    my $fund             = Koha::Acquisition::FundManagement::Funds->find( $body->{fund_id} );
-                    my $spend_limit_diff = $body->{spend_limit} - $sub_fund->spend_limit;
-                    my $result           = $fund->check_spend_limits( { new_allocation => $spend_limit_diff } );
-                    return $c->render(
-                        status  => 400,
-                        openapi => {
-                                  error => "Fund spend limit breached, please reduce spend limit by "
-                                . $result->{breach_amount}
-                                . " or increase the spend limit for this fund"
-                        }
-                    ) unless $result->{within_limit};
-                }
+                my $error = $sub_fund->verify_updated_fields( { updated_fields => $body } );
 
                 $sub_fund->set_from_api($body)->store;
 

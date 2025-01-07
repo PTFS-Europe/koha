@@ -105,7 +105,7 @@ owner of the fund allocation
 =head2 type
 
   data_type: 'enum'
-  extra: {list => ["ordered","spent"]}
+  extra: {list => ["encumbered","spent","transfer","credit"]}
   is_nullable: 1
 
 type of the fund allocation
@@ -166,7 +166,7 @@ __PACKAGE__->add_columns(
   "type",
   {
     data_type => "enum",
-    extra => { list => ["ordered", "spent"] },
+    extra => { list => ["encumbered", "spent", "transfer", "credit"] },
     is_nullable => 1,
   },
   "is_transfer",
@@ -297,8 +297,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07051 @ 2025-01-02 14:35:46
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:0g7hA03HxnhyZw7nHdVldA
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2025-01-07 11:02:42
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:KhE/vYplvFdV01hwOO6EYQ
 
 __PACKAGE__->add_columns(
     '+is_transfer' => { is_boolean => 1 },

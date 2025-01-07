@@ -265,7 +265,7 @@ subtest 'update_object_value' => sub {
     $schema->storage->txn_rollback;
 };
 
-subtest 'total_spent' => sub {
+subtest 'total_allocations' => sub {
 
     plan tests => 3;
 
@@ -311,7 +311,7 @@ subtest 'total_spent' => sub {
         }
     )->store();
 
-    is( $fiscal_period->total_spent + 0, -10, 'Total spent is -10' );
+    is( $fiscal_period->total_allocations + 0, -10, 'Total spent is -10' );
 
     my $allocation2 = Koha::Acquisition::FundManagement::FundAllocation->new(
         {
@@ -323,7 +323,7 @@ subtest 'total_spent' => sub {
         }
     )->store();
 
-    is( $fiscal_period->total_spent + 0, -15, 'Total spent is -15' );
+    is( $fiscal_period->total_allocations + 0, -15, 'Total spent is -15' );
 
     # Positive allocation to simulate a transfer from another fund or a credit note
     my $allocation3 = Koha::Acquisition::FundManagement::FundAllocation->new(
@@ -336,7 +336,7 @@ subtest 'total_spent' => sub {
         }
     )->store();
 
-    is( $fiscal_period->total_spent + 0, 0, 'Total spent is 0' );
+    is( $fiscal_period->total_allocations + 0, 0, 'Total spent is 0' );
 
     $schema->storage->txn_rollback;
 };

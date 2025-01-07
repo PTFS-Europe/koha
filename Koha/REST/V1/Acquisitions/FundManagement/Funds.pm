@@ -139,27 +139,11 @@ sub update {
 
                 $body = _inherit_currency_and_owner($body);
 
-                if ( $body->{spend_limit} && $fund->spend_limit != $body->{spend_limit} ) {
-                    if ( $body->{spend_limit} < $fund->fund_value && !$fund->over_spend_allowed ) {
-                        return $c->render(
-                            status  => 400,
-                            openapi => {
-                                error => "Spend limit cannot be less than the fund value when overspend is not allowed"
-                            }
-                        );
-                    }
-                    my $ledger           = Koha::Acquisition::FundManagement::Ledgers->find( $body->{ledger_id} );
-                    my $spend_limit_diff = $body->{spend_limit} - $fund->spend_limit;
-                    my $result           = $ledger->check_spend_limits( { new_allocation => $spend_limit_diff } );
-                    return $c->render(
-                        status  => 400,
-                        openapi => {
-                                  error => "Ledger spend limit breached, please reduce spend limit by "
-                                . $result->{breach_amount}
-                                . " or increase the spend limit for this ledger"
-                        }
-                    ) unless $result->{within_limit};
-                }
+                my $error = $fund->verify_updated_fields( { updated_fields => $body } );
+                return $c->render(
+                    status  => 400,
+                    openapi => { error => $error }
+                ) if $error;
 
                 $fund->set_from_api($body)->store;
                 $fund->update_object_value;

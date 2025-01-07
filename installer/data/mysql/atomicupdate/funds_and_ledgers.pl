@@ -180,7 +180,7 @@ return {
                 `note` longtext DEFAULT '' COMMENT 'any notes associated to the allocation',
                 `currency` VARCHAR(10) DEFAULT NULL COMMENT 'currency of the fund allocation',
                 `owner_id` INT(11) DEFAULT NULL COMMENT 'owner of the fund allocation',
-                `type` enum('ordered','spent') DEFAULT NULL COMMENT 'type of the fund allocation',
+                `type` enum('encumbered','spent', 'transfer', 'credit') DEFAULT NULL COMMENT 'type of the fund allocation',
                 `is_transfer` TINYINT(1) DEFAULT '0' COMMENT 'is the fund allocation a transfer to/from another fund',
                 `last_updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT 'time of the last update to the fund allocation',
                 `lib_group_visibility` VARCHAR(255) DEFAULT NULL COMMENT 'library groups the fund allocation is visible to',
