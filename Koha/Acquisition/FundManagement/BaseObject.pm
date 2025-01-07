@@ -248,17 +248,55 @@ sub owner {
     return Koha::Patron->_new_from_dbic($owner_rs);
 }
 
-=head3 total_spent
+=head3 total_allocations
 
 This returns the total actual and committed spend against the object
 The total is made up of all the fund allocations against the object
 
 =cut
 
-sub total_spent {
+sub total_allocations {
     my ($self) = @_;
 
     my $fund_allocations = $self->fund_allocations;
+    my $total            = 0;
+    foreach my $fund_allocation ( $fund_allocations->as_list ) {
+        $total += $fund_allocation->allocation_amount;
+    }
+
+    return $total;
+}
+
+=head3 total_spent
+
+This returns the total actual spend against the object
+The total is made up of all the fund allocations against the object that are not encumbered
+
+=cut
+
+sub total_spent {
+    my ($self) = @_;
+
+    my $fund_allocations = $self->fund_allocations->search( { type => { '!=', 'encumbered' } } );
+    my $total            = 0;
+    foreach my $fund_allocation ( $fund_allocations->as_list ) {
+        $total += $fund_allocation->allocation_amount;
+    }
+
+    return $total;
+}
+
+=head3 total_encumbered
+
+This returns the total non-committed spend against the object
+The total is made up of all the fund allocations against the object that are encumbered
+
+=cut
+
+sub total_encumbered {
+    my ($self) = @_;
+
+    my $fund_allocations = $self->fund_allocations->search( { type => 'encumbered' } );
     my $total            = 0;
     foreach my $fund_allocation ( $fund_allocations->as_list ) {
         $total += $fund_allocation->allocation_amount;
@@ -305,12 +343,12 @@ Checks the sum total of all allocations made against the object and the new allo
 sub is_spend_limit_breached {
     my ( $self, $args ) = @_;
 
-    my $new_allocation = $args->{new_allocation} || 0;
-    my $spend_limit    = $self->spend_limit;
-    my $total_spent    = $self->total_spent + $new_allocation;
+    my $new_allocation    = $args->{new_allocation} || 0;
+    my $spend_limit       = $self->spend_limit;
+    my $total_allocations = $self->total_allocations + $new_allocation;
 
-    my $limit_check   = -$total_spent <= $spend_limit        ? 1                            : 0;
-    my $breach_amount = ( -$total_spent - $spend_limit ) > 0 ? -$total_spent - $spend_limit : 0;
+    my $limit_check   = -$total_allocations <= $spend_limit        ? 1                                  : 0;
+    my $breach_amount = ( -$total_allocations - $spend_limit ) > 0 ? -$total_allocations - $spend_limit : 0;
 
     return { within_limit => $limit_check, breach_amount => $breach_amount };
 }
@@ -438,6 +476,14 @@ sub to_api {
 
 =head3 verify_updated_fields
 
+A method to handle changes to the following fields for ledgers, funds and sub funds:
+- spend_limit
+- over_spend_allowed
+- over_encumbrance_allowed
+
+This is a helper method that calls handle_spending_block_changes and handle_spend_limit_changes
+It returns an error string if updating the field values will cause a conflict
+
 =cut
 
 sub verify_updated_fields {
@@ -446,25 +492,99 @@ sub verify_updated_fields {
     my $updated_fields = $args->{updated_fields};
 
     my $error;
-    if ( $updated_fields->{spend_limit} && $updated_fields->{spend_limit} != $self->spend_limit ) {
-        $error = $self->handle_spend_limit_changes( { new_limit => $updated_fields->{spend_limit} } );
+    if (
+        (
+               defined $updated_fields->{over_spend_allowed}
+            && !$updated_fields->{over_spend_allowed}
+            && $updated_fields->{over_spend_allowed} != $self->over_spend_allowed
+        )
+        || (   defined $updated_fields->{over_encumbrance_allowed}
+            && !$updated_fields->{over_encumbrance_allowed}
+            && $updated_fields->{over_encumbrance_allowed} != $self->over_encumbrance_allowed )
+        )
+    {
+        $error = $self->handle_spending_block_changes(
+            {
+                spend       => $updated_fields->{over_spend_allowed},
+                encumbrance => $updated_fields->{over_encumbrance_allowed}
+            }
+        );
         return $error if $error;
     }
 
+    my $over_spend_allowed =
+        defined $updated_fields->{over_spend_allowed}
+        ? $updated_fields->{over_spend_allowed}
+        : $self->over_spend_allowed;
+    if ( defined $updated_fields->{spend_limit} && $updated_fields->{spend_limit} != $self->spend_limit ) {
+        $error = $self->handle_spend_limit_changes(
+            { new_limit => $updated_fields->{spend_limit}, over_spend_allowed => $over_spend_allowed } );
+        return $error if $error;
+    }
+
+    return;
+}
+
+=head3 handle_spending_block_changes
+
+A method to handle changes to the following fields for ledgers, funds and sub funds:
+- over_spend_allowed
+- over_encumbrance_allowed
+
+The method is only called if either over spend or over encumbrance is changed to be blocked, i.e. set to 0
+It checks whether the object is overspent or overspent and encumbered and returns an error message if so
+
+=cut
+
+sub handle_spending_block_changes {
+    my ( $self, $args ) = @_;
+
+    my $over_spend_allowed       = $args->{spend}       || $self->over_spend_allowed;
+    my $over_encumbrance_allowed = $args->{encumbrance} || $self->over_encumbrance_allowed;
+    my $spend_limit              = $self->spend_limit;
+    my $total_allocations        = $self->total_allocations;
+    my $total_spent              = $self->total_spent;
+    my $total_encumbered         = $self->total_encumbered;
+    my $object_hierarchy         = $self->_object_hierarchy();
+
+    return if $total_allocations <= $spend_limit;
+
+    if ( !$over_spend_allowed && $over_encumbrance_allowed ) {
+        return "You cannot prevent overspend on a " . _format_object_name($object_hierarchy->{object}) . " that is already overspent"
+            if $total_spent > $spend_limit;
+    }
+    if ( !$over_spend_allowed && !$over_encumbrance_allowed ) {
+        return
+              "You cannot prevent over encumbrance on a "
+            . _format_object_name($object_hierarchy->{object})
+            . " that is already over encumbered"
+            if ( $total_spent < $spend_limit && $total_spent + $total_encumbered > $spend_limit );
+    }
+
+    return;
 }
 
 =head3 handle_spend_limit_changes
+
+A method to handle changes to the following fields for ledgers, funds and sub funds:
+- spend_limit
+
+If the spend limit is increased, it checks that the sum of all allocations is not greater than the new spend limit
+It also checks that the sum of the spend_limits of all child objects would not exceed the new limit
+
+If the spend limit is decreased, it checks that the sum
 
 =cut
 
 sub handle_spend_limit_changes {
     my ( $self, $args ) = @_;
 
-    my $new_limit        = $args->{new_limit};
-    my $object_hierarchy = $self->_object_hierarchy();
+    my $new_limit          = $args->{new_limit};
+    my $over_spend_allowed = $args->{over_spend_allowed} || $self->over_spend_allowed;
+    my $object_hierarchy   = $self->_object_hierarchy();
 
     my $value_method = $object_hierarchy->{object} . "_value";
-    if ( $new_limit < $self->$value_method && !$self->over_spend_allowed ) {
+    if ( $new_limit < $self->$value_method && !$over_spend_allowed ) {
         return
               "Spend limit cannot be less than the "
             . $object_hierarchy->{object}
