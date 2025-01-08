@@ -49,7 +49,6 @@ subtest 'add_totals_to_fund_allocations' => sub {
                 status               => $fiscal_period->status,
                 currency             => 'GBP',
                 owner_id             => '1',
-                ledger_value         => 0
             }
         }
     );
@@ -63,7 +62,6 @@ subtest 'add_totals_to_fund_allocations' => sub {
                 status               => $fiscal_period->status,
                 currency             => $ledger->currency,
                 owner_id             => $ledger->owner_id,
-                fund_value           => 0
             }
         }
     );

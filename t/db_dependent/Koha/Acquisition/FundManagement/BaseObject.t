@@ -17,7 +17,7 @@
 
 use Modern::Perl;
 
-use Test::More tests => 11;
+use Test::More tests => 12;
 use Test::MockModule;
 
 use t::lib::TestBuilder;
@@ -181,7 +181,7 @@ subtest 'total_allocations' => sub {
 
     $schema->storage->txn_begin;
 
-        my $library = $builder->build_object( { class => 'Koha::Libraries' } );
+    my $library = $builder->build_object( { class => 'Koha::Libraries' } );
 
     t::lib::Mocks::mock_userenv( { branchcode => $library->branchcode } );
 
@@ -220,7 +220,7 @@ subtest 'total_allocations' => sub {
             ledger_id         => $ledger->ledger_id,
             fiscal_period_id  => $fiscal_period->fiscal_period_id,
             allocation_amount => -10,
-            type => 'spent'
+            type              => 'spent'
         }
     )->store();
 
@@ -233,7 +233,7 @@ subtest 'total_allocations' => sub {
             ledger_id         => $ledger->ledger_id,
             fiscal_period_id  => $fiscal_period->fiscal_period_id,
             allocation_amount => -5,
-            type => 'spent'
+            type              => 'spent'
         }
     )->store();
 
@@ -247,7 +247,7 @@ subtest 'total_allocations' => sub {
             ledger_id         => $ledger->ledger_id,
             fiscal_period_id  => $fiscal_period->fiscal_period_id,
             allocation_amount => 15,
-            type => 'spent'
+            type              => 'spent'
         }
     )->store();
 
@@ -469,7 +469,7 @@ subtest 'check_spend_limits' => sub {
 
 subtest 'is_spend_limit_breached' => sub {
 
-    plan tests => 2;
+    plan tests => 6;
 
     $schema->storage->txn_begin;
 
@@ -487,7 +487,11 @@ subtest 'is_spend_limit_breached' => sub {
             currency             => 'GBP',
             owner_id             => '1',
             spend_limit          => 100,
-            over_spend_allowed   => 0
+            over_spend_allowed   => 0,
+            oe_warning_percent   => 0.50,
+            oe_limit_amount      => 85,
+            os_warning_sum       => 75,
+            os_limit_sum         => 90
         }
     )->store();
     my $fund = Koha::Acquisition::FundManagement::Fund->new(
@@ -529,6 +533,37 @@ subtest 'is_spend_limit_breached' => sub {
 
     $result = $ledger->is_spend_limit_breached( { new_allocation => $allocation2 } );
     is( $result->{breach_amount}, 1, 'Breached by 1' );
+
+    # Warnings
+    $allocation2 = Koha::Acquisition::FundManagement::FundAllocation->new(
+        {
+            fund_id           => $fund->fund_id,
+            sub_fund_id       => undef,
+            ledger_id         => $ledger->ledger_id,
+            fiscal_period_id  => $fiscal_period->fiscal_period_id,
+            allocation_amount => -40,
+            type              => 'encumbered'
+        }
+    );
+
+    $result = $ledger->is_spend_limit_breached( { new_allocation => $allocation2 } );
+    is( $result->{within_limit}, 1, 'No breach' );
+    is( $result->{oe_warning},   1, 'Warning for encumbrance triggered' );
+
+    $allocation2 = Koha::Acquisition::FundManagement::FundAllocation->new(
+        {
+            fund_id           => $fund->fund_id,
+            sub_fund_id       => undef,
+            ledger_id         => $ledger->ledger_id,
+            fiscal_period_id  => $fiscal_period->fiscal_period_id,
+            allocation_amount => -65,
+            type              => 'spent'
+        }
+    );
+
+    $result = $ledger->is_spend_limit_breached( { new_allocation => $allocation2 } );
+    is( $result->{within_limit}, 1, 'No breach' );
+    is( $result->{os_warning},   1, 'Warning for spend triggered' );
 
     $schema->storage->txn_rollback;
 };
@@ -597,7 +632,7 @@ subtest 'add_accounting_values' => sub {
             ledger_id         => $ledger->ledger_id,
             fiscal_period_id  => $fiscal_period->fiscal_period_id,
             allocation_amount => -15,
-            type => 'spent'
+            type              => 'spent'
         }
     )->store();
     my $allocation2 = Koha::Acquisition::FundManagement::FundAllocation->new(
@@ -607,7 +642,7 @@ subtest 'add_accounting_values' => sub {
             ledger_id         => $ledger->ledger_id,
             fiscal_period_id  => $fiscal_period->fiscal_period_id,
             allocation_amount => -5,
-            type => 'spent'
+            type              => 'spent'
         }
     )->store();
     my $allocation3 = Koha::Acquisition::FundManagement::FundAllocation->new(
@@ -617,7 +652,7 @@ subtest 'add_accounting_values' => sub {
             ledger_id         => $ledger->ledger_id,
             fiscal_period_id  => $fiscal_period->fiscal_period_id,
             allocation_amount => -10,
-            type => 'spent'
+            type              => 'spent'
         }
     )->store();
     my $allocation4 = Koha::Acquisition::FundManagement::FundAllocation->new(
@@ -663,13 +698,13 @@ subtest 'verify_updated_fields' => sub {
     );
     my $ledger = Koha::Acquisition::FundManagement::Ledger->new(
         {
-            fiscal_period_id         => $fiscal_period->fiscal_period_id,
-            lib_group_visibility     => $fiscal_period->lib_group_visibility,
-            status                   => $fiscal_period->status,
-            currency                 => 'GBP',
-            owner_id                 => '1',
-            spend_limit              => 100,
-            over_spend_allowed       => 1,
+            fiscal_period_id     => $fiscal_period->fiscal_period_id,
+            lib_group_visibility => $fiscal_period->lib_group_visibility,
+            status               => $fiscal_period->status,
+            currency             => 'GBP',
+            owner_id             => '1',
+            spend_limit          => 100,
+            over_spend_allowed   => 1,
         }
     )->store();
 
@@ -691,24 +726,24 @@ subtest 'verify_updated_fields' => sub {
 
     # If over_spend_allowed or over_spend_encumbrance are allowed, no check is needed
     my $updated_fields = {
-        over_spend_allowed       => 1,
-        spend_limit              => 100
+        over_spend_allowed => 1,
+        spend_limit        => 100
     };
 
     my $error = $ledger->verify_updated_fields( { updated_fields => $updated_fields } );
     is( $error, undef, 'No check run so no error reported' );
 
     $updated_fields = {
-        over_spend_allowed       => 0,
-        spend_limit              => 100
+        over_spend_allowed => 0,
+        spend_limit        => 100
     };
 
     $error = $ledger->verify_updated_fields( { updated_fields => $updated_fields } );
     is( $error, 'Error with spending blocks', 'Spending block check has run and returned an error' );
 
     $updated_fields = {
-        over_spend_allowed       => 1,
-        spend_limit              => 200
+        over_spend_allowed => 1,
+        spend_limit        => 200
     };
 
     $error = $ledger->verify_updated_fields( { updated_fields => $updated_fields } );
@@ -731,13 +766,13 @@ subtest 'handle_spending_block_changes' => sub {
     );
     my $ledger = Koha::Acquisition::FundManagement::Ledger->new(
         {
-            fiscal_period_id         => $fiscal_period->fiscal_period_id,
-            lib_group_visibility     => $fiscal_period->lib_group_visibility,
-            status                   => $fiscal_period->status,
-            currency                 => 'GBP',
-            owner_id                 => '1',
-            spend_limit              => 100,
-            over_spend_allowed       => 1,
+            fiscal_period_id     => $fiscal_period->fiscal_period_id,
+            lib_group_visibility => $fiscal_period->lib_group_visibility,
+            status               => $fiscal_period->status,
+            currency             => 'GBP',
+            owner_id             => '1',
+            spend_limit          => 100,
+            over_spend_allowed   => 1,
         }
     )->store();
 
@@ -750,7 +785,7 @@ subtest 'handle_spending_block_changes' => sub {
             currency             => $ledger->currency,
             owner_id             => $ledger->owner_id,
             spend_limit          => 50,
-            over_spend_allowed           => 1,
+            over_spend_allowed   => 1,
         }
     )->store();
 
@@ -791,6 +826,76 @@ subtest 'handle_spending_block_changes' => sub {
     is(
         $error, "You cannot prevent overspend on a ledger that is already overspent"
         ,       'Overspend correctly identified so over_spend_allowed cannot be set to 0'
+    );
+
+    $schema->storage->txn_rollback;
+};
+
+subtest 'handle_spend_limit_changes' => sub {
+
+    plan tests => 3;
+
+    $schema->storage->txn_begin;
+
+    my $fiscal_period = $builder->build_object(
+        {
+            class => 'Koha::Acquisition::FundManagement::FiscalPeriods',
+            value => { status => 1, lib_group_visibility => '1|2', spend_limit => 100 }
+        }
+    );
+    my $ledger = Koha::Acquisition::FundManagement::Ledger->new(
+        {
+            fiscal_period_id     => $fiscal_period->fiscal_period_id,
+            lib_group_visibility => $fiscal_period->lib_group_visibility,
+            status               => $fiscal_period->status,
+            currency             => 'GBP',
+            owner_id             => '1',
+            spend_limit          => 100,
+            over_spend_allowed   => 1,
+        }
+    )->store();
+
+    my $fund = Koha::Acquisition::FundManagement::Fund->new(
+        {
+            fiscal_period_id     => $fiscal_period->fiscal_period_id,
+            ledger_id            => $ledger->ledger_id,
+            lib_group_visibility => $fiscal_period->lib_group_visibility,
+            status               => $fiscal_period->status,
+            currency             => $ledger->currency,
+            owner_id             => $ledger->owner_id,
+            spend_limit          => 50,
+            over_spend_allowed   => 1,
+        }
+    )->store();
+
+    my $error = $ledger->handle_spend_limit_changes( { new_limit => 60, over_spend_allowed => 0 } );
+    is( $error, undef, 'Ledger spend_limit still greater than that of its funds' );
+
+    my $fund2 = Koha::Acquisition::FundManagement::Fund->new(
+        {
+            fiscal_period_id     => $fiscal_period->fiscal_period_id,
+            ledger_id            => $ledger->ledger_id,
+            lib_group_visibility => $fiscal_period->lib_group_visibility,
+            status               => $fiscal_period->status,
+            currency             => $ledger->currency,
+            owner_id             => $ledger->owner_id,
+            spend_limit          => 50,
+            over_spend_allowed   => 1,
+        }
+    )->store();
+
+    $error = $ledger->handle_spend_limit_changes( { new_limit => 90, over_spend_allowed => 0 } );
+    is(
+        $error,
+        "The ledger spend limit is less than the total of the spend limits for the funds below, please increase spend limit by 10 or decrease the spend limit for the funds",
+        'Correctly identifies an insufficient spend_limit on the ledger'
+    );
+
+    $error = $ledger->handle_spend_limit_changes( { new_limit => 110, over_spend_allowed => 0 } );
+    is(
+        $error,
+        "Spend limit breached for the fiscal period, please reduce the spend limit on the ledger by 10 or increase the spend limit for the fiscal period",
+        'Correctly identifies that the spend_limit is now too high on the ledger'
     );
 
     $schema->storage->txn_rollback;
