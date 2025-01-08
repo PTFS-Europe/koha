@@ -225,33 +225,6 @@
                             <span class="required">{{ $__("Required") }}</span>
                         </li>
                         <li>
-                            <label
-                                for="ledger_over_encumbrance_allowed"
-                                class="required"
-                                >{{ $__("Overencumbrance allowed?") }}:</label
-                            >
-                            <v-select
-                                id="ledger_over_encumbrance_allowed"
-                                v-model="ledger.over_encumbrance_allowed"
-                                :reduce="av => av.value"
-                                :options="allowedOptions"
-                                label="description"
-                            >
-                                <template #search="{ attributes, events }">
-                                    <input
-                                        :required="
-                                            ledger.over_encumbrance_allowed ===
-                                            null
-                                        "
-                                        class="vs__search"
-                                        v-bind="attributes"
-                                        v-on="events"
-                                    />
-                                </template>
-                            </v-select>
-                            <span class="required">{{ $__("Required") }}</span>
-                        </li>
-                        <li>
                             <label for="ledger_oe_warning_percent"
                                 >{{
                                     $__("Overencumbrance warning percentage")
@@ -391,7 +364,6 @@ export default {
                 owner_id: null,
                 lib_group_visibility: [],
                 over_spend_allowed: null,
-                over_encumbrance_allowed: null,
                 oe_warning_percent: null,
                 oe_limit_amount: null,
                 os_warning_sum: null,

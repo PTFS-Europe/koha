@@ -111,11 +111,6 @@
             "type": "enum",
             "options": { "true": "Allowed", "false": "Not allowed" }
         },
-        "over_encumbrance_allowed": {
-            "label": "Overencumbrance allowed",
-            "type": "enum",
-            "options": { "true": "Allowed", "false": "Not allowed" }
-        },
         "oe_warning_percent": {
             "label": "Overencumbrance warning percentage",
             "type": "percentage"
@@ -217,14 +212,6 @@
                 "false": "Not allowed"
             }
         },
-        "over_encumbrance_allowed": {
-            "label": "Overencumbrance allowed",
-            "type": "enum",
-            "options": {
-                "true": "Allowed",
-                "false": "Not allowed"
-            }
-        },
         "oe_warning_percent": {
             "label": "Overencumbrance warning percentage",
             "type": "percentage"
@@ -315,14 +302,6 @@
         },
         "over_spend_allowed": {
             "label": "Overspend allowed",
-            "type": "enum",
-            "options": {
-                "true": "Allowed",
-                "false": "Not allowed"
-            }
-        },
-        "over_encumbrance_allowed": {
-            "label": "Overencumbrance allowed",
             "type": "enum",
             "options": {
                 "true": "Allowed",

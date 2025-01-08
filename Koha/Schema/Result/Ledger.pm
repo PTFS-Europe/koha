@@ -119,15 +119,6 @@ library groups the ledger is visible to
 
 spend limit for the ledger
 
-=head2 ledger_value
-
-  data_type: 'decimal'
-  default_value: 0.00
-  is_nullable: 1
-  size: [28,2]
-
-value of the ledger
-
 =head2 over_spend_allowed
 
   data_type: 'tinyint'
@@ -135,14 +126,6 @@ value of the ledger
   is_nullable: 1
 
 is an overspend allowed on the ledger
-
-=head2 over_encumbrance_allowed
-
-  data_type: 'tinyint'
-  default_value: 1
-  is_nullable: 1
-
-is an overencumbrance allowed on the ledger
 
 =head2 oe_warning_percent
 
@@ -217,16 +200,7 @@ __PACKAGE__->add_columns(
     is_nullable => 1,
     size => [28, 2],
   },
-  "ledger_value",
-  {
-    data_type => "decimal",
-    default_value => "0.00",
-    is_nullable => 1,
-    size => [28, 2],
-  },
   "over_spend_allowed",
-  { data_type => "tinyint", default_value => 1, is_nullable => 1 },
-  "over_encumbrance_allowed",
   { data_type => "tinyint", default_value => 1, is_nullable => 1 },
   "oe_warning_percent",
   {
@@ -358,12 +332,11 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07051 @ 2025-01-02 14:35:46
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:3E5MT1oZuDD2eVNJetUPkw
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2025-01-08 12:27:59
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:LPDaPi+stpRPVUYrrhb66g
 
 __PACKAGE__->add_columns(
     '+status'                   => { is_boolean => 1 },
-    '+over_encumbrance_allowed' => { is_boolean => 1 },
     '+over_spend_allowed'       => { is_boolean => 1 },
 );
 

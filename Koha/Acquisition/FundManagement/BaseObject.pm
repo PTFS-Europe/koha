@@ -370,16 +370,10 @@ sub is_spend_limit_breached {
         return { within_limit => 0, breach_type => 'overspend', breach_amount => $breach_amount };
     }
 
-    if(!$self->over_spend_allowed && $self->over_encumbrance_allowed) {
+    if(!$self->over_spend_allowed) {
         return { within_limit => 1 } if !$overspent;
         my $breach_amount = $total_spent - $spend_limit;
         return { within_limit => 0, breach_type => 'overspend', breach_amount => $breach_amount };
-    }
-
-    if(!$self->over_spend_allowed && !$self->over_encumbrance_allowed) {
-        return { within_limit => 1 } if !$overspent;
-        my $breach_amount = ($total_encumbered + $total_spent) - $spend_limit;
-        return { within_limit => 0, breach_type => 'overencumbrance', breach_amount => $breach_amount };
     }
 }
 
@@ -472,7 +466,6 @@ sub to_api {
 A method to handle changes to the following fields for ledgers, funds and sub funds:
 - spend_limit
 - over_spend_allowed
-- over_encumbrance_allowed
 
 This is a helper method that calls handle_spending_block_changes and handle_spend_limit_changes
 It returns an error string if updating the field values will cause a conflict
@@ -486,20 +479,14 @@ sub verify_updated_fields {
 
     my $error;
     if (
-        (
                defined $updated_fields->{over_spend_allowed}
             && !$updated_fields->{over_spend_allowed}
             && $updated_fields->{over_spend_allowed} != $self->over_spend_allowed
-        )
-        || (   defined $updated_fields->{over_encumbrance_allowed}
-            && !$updated_fields->{over_encumbrance_allowed}
-            && $updated_fields->{over_encumbrance_allowed} != $self->over_encumbrance_allowed )
         )
     {
         $error = $self->handle_spending_block_changes(
             {
                 spend       => $updated_fields->{over_spend_allowed},
-                encumbrance => $updated_fields->{over_encumbrance_allowed}
             }
         );
         return $error if $error;
@@ -522,7 +509,6 @@ sub verify_updated_fields {
 
 A method to handle changes to the following fields for ledgers, funds and sub funds:
 - over_spend_allowed
-- over_encumbrance_allowed
 
 The method is only called if either over spend or over encumbrance is changed to be blocked, i.e. set to 0
 It checks whether the object is overspent or overspent and encumbered and returns an error message if so
@@ -533,7 +519,6 @@ sub handle_spending_block_changes {
     my ( $self, $args ) = @_;
 
     my $over_spend_allowed       = $args->{spend}       || $self->over_spend_allowed;
-    my $over_encumbrance_allowed = $args->{encumbrance} || $self->over_encumbrance_allowed;
     my $spend_limit              = $self->spend_limit;
     my $total_allocations        = $self->total_allocations;
     my $total_spent              = $self->total_spent;
@@ -542,19 +527,12 @@ sub handle_spending_block_changes {
 
     return if $total_allocations <= $spend_limit;
 
-    if ( !$over_spend_allowed && $over_encumbrance_allowed ) {
+    if ( !$over_spend_allowed ) {
         return
               "You cannot prevent overspend on a "
             . _format_object_name( $object_hierarchy->{object} )
             . " that is already overspent"
             if $total_spent > $spend_limit;
-    }
-    if ( !$over_spend_allowed && !$over_encumbrance_allowed ) {
-        return
-              "You cannot prevent over encumbrance on a "
-            . _format_object_name( $object_hierarchy->{object} )
-            . " that is already over encumbered"
-            if ( $total_spent < $spend_limit && $total_spent + $total_encumbered > $spend_limit );
     }
 
     return;

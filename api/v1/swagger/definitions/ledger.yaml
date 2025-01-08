@@ -69,9 +69,6 @@ properties:
   over_spend_allowed:
     description: Is over spend allowed on the ledger
     type: boolean
-  over_encumbrance_allowed:
-    description: Is over encumbrance allowed on the ledger
-    type: boolean
   oe_warning_percent:
     type:
       - number

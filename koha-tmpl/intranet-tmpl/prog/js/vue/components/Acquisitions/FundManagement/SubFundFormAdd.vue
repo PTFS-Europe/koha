@@ -120,33 +120,6 @@
                             <span class="required">{{ $__("Required") }}</span>
                         </li>
                         <li>
-                            <label
-                                for="sub_fund_over_encumbrance_allowed"
-                                class="required"
-                                >{{ $__("Overencumbrance allowed?") }}:</label
-                            >
-                            <v-select
-                                id="sub_fund_over_encumbrance_allowed"
-                                v-model="sub_fund.over_encumbrance_allowed"
-                                :reduce="av => av.value"
-                                :options="allowedOptions"
-                                label="description"
-                            >
-                                <template #search="{ attributes, events }">
-                                    <input
-                                        :required="
-                                            sub_fund.over_encumbrance_allowed ===
-                                            null
-                                        "
-                                        class="vs__search"
-                                        v-bind="attributes"
-                                        v-on="events"
-                                    />
-                                </template>
-                            </v-select>
-                            <span class="required">{{ $__("Required") }}</span>
-                        </li>
-                        <li>
                             <label for="sub_fund_oe_warning_percent"
                                 >{{
                                     $__("Overencumbrance warning percentage")
