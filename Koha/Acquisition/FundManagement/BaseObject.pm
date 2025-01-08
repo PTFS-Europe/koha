@@ -347,34 +347,46 @@ It takes into account whether over spend or over encumbrance are allowed on the 
 sub is_spend_limit_breached {
     my ( $self, $args ) = @_;
 
-    return { within_limit => 1 } if $self->_type() ne 'FiscalPeriod' && $self->over_spend_allowed;
+    my $over_spend_allowed;
+    if($self->_type() ne 'FiscalPeriod') {
+        $over_spend_allowed = defined $args->{over_spend_allowed} ?  $args->{over_spend_allowed} : $self->over_spend_allowed;
+        return { within_limit => 1 } if $over_spend_allowed;
+    }
 
     my $new_allocation        = $args->{new_allocation};
-    my $new_allocation_amount = $new_allocation->allocation_amount;
-    my $new_allocation_type   = $new_allocation->type || '';
+    my $new_allocation_amount = defined $new_allocation ? -$new_allocation->allocation_amount : 0;
+    my $new_allocation_type   = defined $new_allocation ? $new_allocation->type               : '';
     my $spend_limit           = $self->spend_limit;
-    my $total_allocations     = $self->total_allocations + $new_allocation_amount;
+    my $total_allocations     = -$self->total_allocations + $new_allocation_amount;
     my $total_spent =
-        $new_allocation_type ne 'encumbered' ? $self->total_spent + $new_allocation_amount : $self->total_spent;
+        $new_allocation_type ne 'encumbered' ? -$self->total_spent + $new_allocation_amount : -$self->total_spent;
     my $total_encumbered =
-          $new_allocation_type eq 'encumbered'
-        ? $self->total_encumbered + $new_allocation_amount
-        : $self->total_encumbered;
+        $new_allocation_type eq 'encumbered'
+        ? -$self->total_encumbered + $new_allocation_amount
+        : -$self->total_encumbered;
 
-    my $overspent = $total_spent > $spend_limit;
-    my $over_encumbered = $overspent ? 1 : $total_encumbered + $total_spent > $spend_limit;
+    my $overspent       = $total_allocations > $spend_limit;
 
-    if($self->_type() eq 'FiscalPeriod') {
-        return { within_limit => 1 } if $total_allocations <= $spend_limit;
-        my $breach_amount = $total_allocations - $spend_limit;
-        return { within_limit => 0, breach_type => 'overspend', breach_amount => $breach_amount };
-    }
-
-    if(!$self->over_spend_allowed) {
+    my $breach_amount = $total_allocations - $spend_limit;
+    if ( $self->_type() eq 'FiscalPeriod' ) {
         return { within_limit => 1 } if !$overspent;
-        my $breach_amount = $total_spent - $spend_limit;
-        return { within_limit => 0, breach_type => 'overspend', breach_amount => $breach_amount };
+        return { within_limit => 0, breach_amount => $breach_amount };
     }
+
+    my $oe_warning_percent = $self->oe_warning_percent || 1;
+    my $oe_limit_amount    = $self->oe_limit_amount || $self->spend_limit;
+    my $os_warning_sum     = $self->os_warning_sum || $self->spend_limit;
+    my $os_limit_sum       = $self->os_limit_sum || $self->spend_limit;
+
+    my $warnings = {
+        oe_warning_required => $total_encumbered >= $oe_warning_percent * $spend_limit,
+        oe_limit_amount => $total_encumbered >= $oe_limit_amount,
+        os_warning_sum => $total_spent >= $os_warning_sum,
+        os_limit_sum => $total_spent >= $os_limit_sum,
+    };
+
+    return { within_limit => 1, %$warnings } if !$overspent;
+    return { within_limit => 0, breach_amount => $breach_amount, %$warnings };
 }
 
 =head3 add_accounting_values
@@ -452,9 +464,10 @@ sub to_api {
     $response = $self->add_accounting_values( { data => $response } ) if $needs_values;
 
     my $object_name = $self->_object_hierarchy()->{object};
-    my $value_field      = $object_name . "_value";
+    my $value_field = $object_name . "_value";
 
-    $response->{$value_field} = $self->spend_limit + $self->total_allocations if $object_name ne 'fund_allocation' && $object_name ne 'fiscal_period';
+    $response->{$value_field} = $self->spend_limit + $self->total_allocations
+        if $object_name ne 'fund_allocation' && $object_name ne 'fiscal_period';
 
     my $overrides = {};
 
@@ -478,15 +491,13 @@ sub verify_updated_fields {
     my $updated_fields = $args->{updated_fields};
 
     my $error;
-    if (
-               defined $updated_fields->{over_spend_allowed}
-            && !$updated_fields->{over_spend_allowed}
-            && $updated_fields->{over_spend_allowed} != $self->over_spend_allowed
-        )
+    if (   defined $updated_fields->{over_spend_allowed}
+        && !$updated_fields->{over_spend_allowed}
+        && $updated_fields->{over_spend_allowed} != $self->over_spend_allowed )
     {
         $error = $self->handle_spending_block_changes(
             {
-                spend       => $updated_fields->{over_spend_allowed},
+                spend => $updated_fields->{over_spend_allowed},
             }
         );
         return $error if $error;
@@ -518,22 +529,15 @@ It checks whether the object is overspent or overspent and encumbered and return
 sub handle_spending_block_changes {
     my ( $self, $args ) = @_;
 
-    my $over_spend_allowed       = $args->{spend}       || $self->over_spend_allowed;
-    my $spend_limit              = $self->spend_limit;
-    my $total_allocations        = $self->total_allocations;
-    my $total_spent              = $self->total_spent;
-    my $total_encumbered         = $self->total_encumbered;
-    my $object_hierarchy         = $self->_object_hierarchy();
+    my $object_hierarchy = $self->_object_hierarchy();
 
-    return if $total_allocations <= $spend_limit;
+    my $result = $self->is_spend_limit_breached( { new_allocation => undef, over_spend_allowed => $args->{spend} } );
 
-    if ( !$over_spend_allowed ) {
-        return
-              "You cannot prevent overspend on a "
-            . _format_object_name( $object_hierarchy->{object} )
-            . " that is already overspent"
-            if $total_spent > $spend_limit;
-    }
+    return
+          "You cannot prevent overspend on a "
+        . _format_object_name( $object_hierarchy->{object} )
+        . " that is already overspent"
+        if !$result->{within_limit};
 
     return;
 }
