@@ -360,10 +360,6 @@ sub is_spend_limit_breached {
     my $total_allocations     = -$self->total_allocations + $new_allocation_amount;
     my $total_spent =
         $new_allocation_type ne 'encumbered' ? -$self->total_spent + $new_allocation_amount : -$self->total_spent;
-    my $total_encumbered =
-        $new_allocation_type eq 'encumbered'
-        ? -$self->total_encumbered + $new_allocation_amount
-        : -$self->total_encumbered;
 
     my $overspent       = $total_allocations > $spend_limit;
 
@@ -379,10 +375,10 @@ sub is_spend_limit_breached {
     my $os_limit_sum       = $self->os_limit_sum || $self->spend_limit;
 
     my $warnings = {
-        oe_warning_required => $total_encumbered >= $oe_warning_percent * $spend_limit,
-        oe_limit_amount => $total_encumbered >= $oe_limit_amount,
-        os_warning_sum => $total_spent >= $os_warning_sum,
-        os_limit_sum => $total_spent >= $os_limit_sum,
+        oe_warning => $total_allocations >= $oe_warning_percent * $spend_limit,
+        oe_limit => $total_allocations >= $oe_limit_amount,
+        os_warning => $total_spent >= $os_warning_sum,
+        os_limit => $total_spent >= $os_limit_sum,
     };
 
     return { within_limit => 1, %$warnings } if !$overspent;
@@ -558,7 +554,7 @@ sub handle_spend_limit_changes {
     my ( $self, $args ) = @_;
 
     my $new_limit          = $args->{new_limit};
-    my $over_spend_allowed = $args->{over_spend_allowed} || $self->over_spend_allowed;
+    my $over_spend_allowed = $args->{over_spend_allowed};
     my $object_hierarchy   = $self->_object_hierarchy();
 
     if ( $new_limit < -$self->total_allocations && !$over_spend_allowed ) {
@@ -572,18 +568,17 @@ sub handle_spend_limit_changes {
     my $parent        = $self->$parent_object;
     my $id_field      = $object_hierarchy->{object} . "_id";
 
-    my $spend_limit_diff = $new_limit - $self->spend_limit;
     my $result =
-        $parent->check_spend_limits( { new_allocation => $spend_limit_diff, id_to_ignore => $self->$id_field } );
+        $parent->check_spend_limits( { new_allocation => $new_limit, id_to_ignore => $self->$id_field } );
 
     return
           "Spend limit breached for the "
-        . _format_object_name( $object_hierarchy->{parent_object} )
-        . ", please reduce spend limit on the "
+        . _format_object_name( $object_hierarchy->{parent} )
+        . ", please reduce the spend limit on the "
         . _format_object_name( $object_hierarchy->{object} ) . " by "
         . $result->{breach_amount}
         . " or increase the spend limit for the "
-        . _format_object_name( $object_hierarchy->{parent_object} )
+        . _format_object_name( $object_hierarchy->{parent} )
         unless $result->{within_limit};
 
     $result = $self->check_spend_limits( { new_spend_limit => $new_limit } );
