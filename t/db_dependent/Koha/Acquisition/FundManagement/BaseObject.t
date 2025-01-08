@@ -17,7 +17,7 @@
 
 use Modern::Perl;
 
-use Test::More tests => 9;
+use Test::More tests => 11;
 use Test::MockModule;
 
 use t::lib::TestBuilder;
@@ -595,6 +595,152 @@ subtest 'add_accounting_values' => sub {
     is( $result->{allocation_decrease}, -30, 'Total decrease is -30' );
     is( $result->{allocation_increase}, 10,  'Total allocations is 10' );
     is( $result->{net_transfers},       0,   'Total allocations is 0' );
+
+    $schema->storage->txn_rollback;
+};
+
+subtest 'verify_updated_fields' => sub {
+
+    plan tests => 3;
+
+    $schema->storage->txn_begin;
+
+    my $fiscal_period = $builder->build_object(
+        {
+            class => 'Koha::Acquisition::FundManagement::FiscalPeriods',
+            value => { status => 1, lib_group_visibility => '1|2', spend_limit => 100 }
+        }
+    );
+    my $ledger = Koha::Acquisition::FundManagement::Ledger->new(
+        {
+            fiscal_period_id         => $fiscal_period->fiscal_period_id,
+            lib_group_visibility     => $fiscal_period->lib_group_visibility,
+            status                   => $fiscal_period->status,
+            currency                 => 'GBP',
+            owner_id                 => '1',
+            ledger_value             => 0,
+            spend_limit              => 100,
+            over_spend_allowed       => 1,
+        }
+    )->store();
+
+    # The sub methods have their own tests, here we just need to check that they are called and the error is passed back correctly
+    my $module = Test::MockModule->new('Koha::Acquisition::FundManagement::BaseObject');
+    $module->mock(
+        'handle_spending_block_changes',
+        sub {
+            return 'Error with spending blocks';
+        }
+    );
+
+    $module->mock(
+        'handle_spend_limit_changes',
+        sub {
+            return 'Error with spend_limit';
+        }
+    );
+
+    # If over_spend_allowed or over_spend_encumbrance are allowed, no check is needed
+    my $updated_fields = {
+        over_spend_allowed       => 1,
+        spend_limit              => 100
+    };
+
+    my $error = $ledger->verify_updated_fields( { updated_fields => $updated_fields } );
+    is( $error, undef, 'No check run so no error reported' );
+
+    $updated_fields = {
+        over_spend_allowed       => 0,
+        spend_limit              => 100
+    };
+
+    $error = $ledger->verify_updated_fields( { updated_fields => $updated_fields } );
+    is( $error, 'Error with spending blocks', 'Spending block check has run and returned an error' );
+
+    $updated_fields = {
+        over_spend_allowed       => 1,
+        spend_limit              => 200
+    };
+
+    $error = $ledger->verify_updated_fields( { updated_fields => $updated_fields } );
+    is( $error, 'Error with spend_limit', 'Spend_limit check has run and returned an error' );
+
+    $schema->storage->txn_rollback;
+};
+
+subtest 'handle_spending_block_changes' => sub {
+
+    plan tests => 3;
+
+    $schema->storage->txn_begin;
+
+    my $fiscal_period = $builder->build_object(
+        {
+            class => 'Koha::Acquisition::FundManagement::FiscalPeriods',
+            value => { status => 1, lib_group_visibility => '1|2', spend_limit => 100 }
+        }
+    );
+    my $ledger = Koha::Acquisition::FundManagement::Ledger->new(
+        {
+            fiscal_period_id         => $fiscal_period->fiscal_period_id,
+            lib_group_visibility     => $fiscal_period->lib_group_visibility,
+            status                   => $fiscal_period->status,
+            currency                 => 'GBP',
+            owner_id                 => '1',
+            ledger_value             => 0,
+            spend_limit              => 100,
+            over_spend_allowed       => 1,
+        }
+    )->store();
+
+    my $fund = Koha::Acquisition::FundManagement::Fund->new(
+        {
+            fiscal_period_id     => $fiscal_period->fiscal_period_id,
+            ledger_id            => $ledger->ledger_id,
+            lib_group_visibility => $fiscal_period->lib_group_visibility,
+            status               => $fiscal_period->status,
+            currency             => $ledger->currency,
+            owner_id             => $ledger->owner_id,
+            spend_limit          => 50,
+            over_spend_allowed           => 1,
+        }
+    )->store();
+
+    my $allocation1 = Koha::Acquisition::FundManagement::FundAllocation->new(
+        {
+            fund_id           => $fund->fund_id,
+            sub_fund_id       => undef,
+            ledger_id         => $ledger->ledger_id,
+            fiscal_period_id  => $fiscal_period->fiscal_period_id,
+            allocation_amount => -50,
+            type              => 'spent'
+        }
+    )->store();
+
+    # If the object isn't overspent then switching on the limit will throw no warning
+    my $updated_fields = {
+        over_spend_allowed       => 0,
+    };
+
+    my $error = $ledger->handle_spending_block_changes( { updated_fields => $updated_fields } );
+    is( $error, undef, 'Ledger has no over spend so no check required' );
+
+    my $allocation2 = Koha::Acquisition::FundManagement::FundAllocation->new(
+        {
+            fund_id           => $fund->fund_id,
+            sub_fund_id       => undef,
+            ledger_id         => $ledger->ledger_id,
+            fiscal_period_id  => $fiscal_period->fiscal_period_id,
+            allocation_amount => -5,
+            type              => 'spent'
+        }
+    )->store();
+
+    $error = $ledger->handle_spending_block_changes( { updated_fields => $updated_fields } );
+    is(
+        $error, "You cannot prevent overspend on a ledger that is already overspent"
+        ,       'Overspend correctly identified so over_spend_allowed cannot be set to 0'
+    );
 
     $schema->storage->txn_rollback;
 };
