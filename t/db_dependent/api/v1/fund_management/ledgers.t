@@ -385,7 +385,7 @@ subtest 'update() tests' => sub {
 
     $t->put_ok( "//$userid:$password@/api/v1/acquisitions/ledgers/$ledger_id" => json => $ledger_with_updated_field )
         ->status_is(400)
-        ->json_is( '/error' => "Spend limit cannot be less than the ledger value when overspend is not allowed" );
+        ->json_is( '/error' => "Spend limit cannot be less than the ledger spend when overspend is not allowed" );
 
     # Test that the spend_limit can't be reduced to a value below the sum of any funds attached to it
     $ledger->over_spend_allowed(1)->store;
