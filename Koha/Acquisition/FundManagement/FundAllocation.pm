@@ -78,42 +78,58 @@ sub will_allocation_breach_spend_limits {
     my $result;
     if ( $self->sub_fund_id ) {
         my $sub_fund = $self->sub_fund;
-        $result = $sub_fund->is_spend_limit_breached( { new_allocation => $self->allocation_amount } );
+        $result = $sub_fund->is_spend_limit_breached( { new_allocation => $self } );
         Koha::Exceptions::Acquisition::FundManagement::LimitExceeded->throw(
             data_type => 'sub_fund',
-            amount    => $result->{breach_amount}
+            amount    => $result->{breach_amount},
+            breach_type => $result->{breach_type}
         ) if !$result->{within_limit};
 
         my $fund = $self->sub_fund->fund;
-        $result = $fund->is_spend_limit_breached( { new_allocation => $self->allocation_amount } );
+        $result = $fund->is_spend_limit_breached( { new_allocation => $self } );
         Koha::Exceptions::Acquisition::FundManagement::LimitExceeded->throw(
             data_type => 'fund',
-            amount    => $result->{breach_amount}
+            amount    => $result->{breach_amount},
+            breach_type => $result->{breach_type}
         ) if !$result->{within_limit};
     } else {
         my $fund = $self->fund;
-        $result = $fund->is_spend_limit_breached( { new_allocation => $self->allocation_amount } );
+        $result = $fund->is_spend_limit_breached( { new_allocation => $self } );
         Koha::Exceptions::Acquisition::FundManagement::LimitExceeded->throw(
             data_type => 'fund',
-            amount    => $result->{breach_amount}
+            amount    => $result->{breach_amount},
+            breach_type => $result->{breach_type}
         ) if !$result->{within_limit};
     }
 
     my $ledger = $self->ledger;
-    $result = $ledger->is_spend_limit_breached( { new_allocation => $self->allocation_amount } );
+    $result = $ledger->is_spend_limit_breached( { new_allocation => $self } );
     Koha::Exceptions::Acquisition::FundManagement::LimitExceeded->throw(
         data_type => 'ledger',
-        amount    => $result->{breach_amount}
+        amount    => $result->{breach_amount},
+        breach_type => $result->{breach_type}
     ) if !$result->{within_limit};
 
     my $fiscal_period = $self->fiscal_period;
-    $result = $fiscal_period->is_spend_limit_breached( { new_allocation => $self->allocation_amount } );
+    $result = $fiscal_period->is_spend_limit_breached( { new_allocation => $self } );
     Koha::Exceptions::Acquisition::FundManagement::LimitExceeded->throw(
         data_type => 'fiscal_period',
-        amount    => $result->{breach_amount}
+        amount    => $result->{breach_amount},
+        breach_type => $result->{breach_type}
     ) if !$result->{within_limit};
 
     return 0;
+}
+
+
+=head3 _object_hierarchy
+
+=cut
+
+sub _object_hierarchy {
+    return {
+        object   => 'fund_allocation',
+    };
 }
 
 =head3 _library_group_visibility_parameters
