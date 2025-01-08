@@ -316,16 +316,18 @@ The total is made up of the spend_limits for all the child objects attached to t
 sub check_spend_limits {
     my ( $self, $args ) = @_;
 
-    my $child_class = $self->_object_hierarchy->{children};
-    my @children    = $self->$child_class->as_list;
-    my $total       = $args->{new_allocation}  || 0;
-    my $spend_limit = $args->{new_spend_limit} || $self->spend_limit || 0;
+    my $child_class  = $self->_object_hierarchy->{children};
+    my @children     = $self->$child_class->as_list;
+    my $total        = $args->{new_allocation}  || 0;
+    my $spend_limit  = $args->{new_spend_limit} || $self->spend_limit || 0;
+    my $id_field     = $self->_object_hierarchy->{child} . "_id";
+    my $id_to_ignore = $args->{id_to_ignore} || 0;
 
     return { within_limit => 1 } if !$spend_limit > 0;
 
     foreach my $child (@children) {
         my $spend_limit = $child->spend_limit;
-        $total += $spend_limit;
+        $total += $spend_limit if $child->$id_field != $id_to_ignore;
     }
 
     my $limit_check   = $spend_limit >= $total        ? 1                     : 0;
@@ -338,19 +340,47 @@ sub check_spend_limits {
 Checks whether a new allocation will breach the spend limit of an object
 Checks the sum total of all allocations made against the object and the new allocation
 
+It takes into account whether over spend or over encumbrance are allowed on the object
+
 =cut
 
 sub is_spend_limit_breached {
     my ( $self, $args ) = @_;
 
-    my $new_allocation    = $args->{new_allocation} || 0;
-    my $spend_limit       = $self->spend_limit;
-    my $total_allocations = $self->total_allocations + $new_allocation;
+    return { within_limit => 1 } if $self->_type() ne 'FiscalPeriod' && $self->over_spend_allowed;
 
-    my $limit_check   = -$total_allocations <= $spend_limit        ? 1                                  : 0;
-    my $breach_amount = ( -$total_allocations - $spend_limit ) > 0 ? -$total_allocations - $spend_limit : 0;
+    my $new_allocation        = $args->{new_allocation};
+    my $new_allocation_amount = $new_allocation->allocation_amount;
+    my $new_allocation_type   = $new_allocation->type || '';
+    my $spend_limit           = $self->spend_limit;
+    my $total_allocations     = $self->total_allocations + $new_allocation_amount;
+    my $total_spent =
+        $new_allocation_type ne 'encumbered' ? $self->total_spent + $new_allocation_amount : $self->total_spent;
+    my $total_encumbered =
+          $new_allocation_type eq 'encumbered'
+        ? $self->total_encumbered + $new_allocation_amount
+        : $self->total_encumbered;
 
-    return { within_limit => $limit_check, breach_amount => $breach_amount };
+    my $overspent = $total_spent > $spend_limit;
+    my $over_encumbered = $overspent ? 1 : $total_encumbered + $total_spent > $spend_limit;
+
+    if($self->_type() eq 'FiscalPeriod') {
+        return { within_limit => 1 } if $total_allocations <= $spend_limit;
+        my $breach_amount = $total_allocations - $spend_limit;
+        return { within_limit => 0, breach_type => 'overspend', breach_amount => $breach_amount };
+    }
+
+    if(!$self->over_spend_allowed && $self->over_encumbrance_allowed) {
+        return { within_limit => 1 } if !$overspent;
+        my $breach_amount = $total_spent - $spend_limit;
+        return { within_limit => 0, breach_type => 'overspend', breach_amount => $breach_amount };
+    }
+
+    if(!$self->over_spend_allowed && !$self->over_encumbrance_allowed) {
+        return { within_limit => 1 } if !$overspent;
+        my $breach_amount = ($total_encumbered + $total_spent) - $spend_limit;
+        return { within_limit => 0, breach_type => 'overencumbrance', breach_amount => $breach_amount };
+    }
 }
 
 =head3 add_accounting_values
@@ -372,7 +402,7 @@ sub add_accounting_values {
 
     if ( defined $data->{funds} ) {
         foreach my $fund ( @{ $data->{funds} } ) {
-            if(defined $fund->{fund_allocations}) {
+            if ( defined $fund->{fund_allocations} ) {
                 my @fund_allocations = @{ $fund->{fund_allocations} };
                 push( @allocations, @fund_allocations );
             }
@@ -427,10 +457,10 @@ sub to_api {
     my $response = $self->SUPER::to_api($params);
     $response = $self->add_accounting_values( { data => $response } ) if $needs_values;
 
-    my $object_hierarchy = $self->_object_hierarchy();
-    my $value_field = $object_hierarchy->{object} . "_value";
+    my $object_name = $self->_object_hierarchy()->{object};
+    my $value_field      = $object_name . "_value";
 
-    $response->{$value_field} = $self->spend_limit + $self->total_allocations;
+    $response->{$value_field} = $self->spend_limit + $self->total_allocations if $object_name ne 'fund_allocation' && $object_name ne 'fiscal_period';
 
     my $overrides = {};
 
@@ -513,13 +543,16 @@ sub handle_spending_block_changes {
     return if $total_allocations <= $spend_limit;
 
     if ( !$over_spend_allowed && $over_encumbrance_allowed ) {
-        return "You cannot prevent overspend on a " . _format_object_name($object_hierarchy->{object}) . " that is already overspent"
+        return
+              "You cannot prevent overspend on a "
+            . _format_object_name( $object_hierarchy->{object} )
+            . " that is already overspent"
             if $total_spent > $spend_limit;
     }
     if ( !$over_spend_allowed && !$over_encumbrance_allowed ) {
         return
               "You cannot prevent over encumbrance on a "
-            . _format_object_name($object_hierarchy->{object})
+            . _format_object_name( $object_hierarchy->{object} )
             . " that is already over encumbered"
             if ( $total_spent < $spend_limit && $total_spent + $total_encumbered > $spend_limit );
     }
@@ -550,14 +583,16 @@ sub handle_spend_limit_changes {
         return
               "Spend limit cannot be less than the "
             . $object_hierarchy->{object}
-            . " value when overspend is not allowed";
+            . " spend when overspend is not allowed";
     }
 
     my $parent_object = $object_hierarchy->{parent};
     my $parent        = $self->$parent_object;
+    my $id_field      = $object_hierarchy->{object} . "_id";
 
     my $spend_limit_diff = $new_limit - $self->spend_limit;
-    my $result           = $parent->check_spend_limits( { new_allocation => $spend_limit_diff } );
+    my $result =
+        $parent->check_spend_limits( { new_allocation => $spend_limit_diff, id_to_ignore => $self->$id_field } );
 
     return
           "Spend limit breached for the "

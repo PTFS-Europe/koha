@@ -86,7 +86,7 @@ sub add {
 
                 if ( $body->{spend_limit} ) {
                     my $ledger = Koha::Acquisition::FundManagement::Ledgers->find( $body->{ledger_id} );
-                    my $result = $ledger->is_spend_limit_breached( { new_allocation => $body->{spend_limit} } );
+                    my $result = $ledger->check_spend_limits( { new_allocation => $body->{spend_limit} } );
                     return $c->render(
                         status => 400,
                         error  => "Ledger spend limit breached, please reduce spend limit by "

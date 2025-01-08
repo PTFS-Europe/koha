@@ -27,7 +27,7 @@ use Exception::Class (
     'Koha::Exceptions::Acquisition::FundManagement::LimitExceeded' => {
         isa         => 'Koha::Exceptions::Acquisition::FundManagement',
         description => 'Spend limit has been exceeded',
-        fields      => ['data_type', 'amount']
+        fields      => [ 'data_type', 'amount', 'breach_type' ]
     }
 );
 
