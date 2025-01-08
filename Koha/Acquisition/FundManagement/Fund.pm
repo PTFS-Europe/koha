@@ -42,10 +42,6 @@ Koha::Acquisition::FundManagement::Fund Object class
 sub store {
     my ( $self, $args ) = @_;
 
-    if ( !$self->fund_value && !$self->fund_allocations->count ) {
-        $self->fund_value( $self->spend_limit );
-    }
-
     $self->set_lib_group_visibility() if $self->lib_group_visibility;
     $self->SUPER::store;
 
