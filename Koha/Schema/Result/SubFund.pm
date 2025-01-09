@@ -56,7 +56,6 @@ fiscal period the sub_fund applies to
 =head2 name
 
   data_type: 'varchar'
-  default_value: (empty string)
   is_nullable: 1
   size: 255
 
@@ -73,7 +72,6 @@ description for the sub_fund
 =head2 sub_fund_type
 
   data_type: 'varchar'
-  default_value: (empty string)
   is_nullable: 1
   size: 255
 
@@ -82,7 +80,6 @@ type for the sub_fund
 =head2 code
 
   data_type: 'varchar'
-  default_value: (empty string)
   is_nullable: 1
   size: 255
 
@@ -91,7 +88,6 @@ code for the sub_fund
 =head2 external_id
 
   data_type: 'varchar'
-  default_value: (empty string)
   is_nullable: 1
   size: 255
 
@@ -100,7 +96,6 @@ external id for the sub_fund for use with external accounting systems
 =head2 currency
 
   data_type: 'varchar'
-  default_value: (empty string)
   is_nullable: 1
   size: 10
 
@@ -122,6 +117,15 @@ is the sub_fund currently active
 
 owner of the sub_fund
 
+=head2 spend_limit
+
+  data_type: 'decimal'
+  default_value: 0.00
+  is_nullable: 1
+  size: [28,2]
+
+spend limit for the sub_fund
+
 =head2 sub_fund_value
 
   data_type: 'decimal'
@@ -130,6 +134,58 @@ owner of the sub_fund
   size: [28,2]
 
 value of the sub_fund
+
+=head2 over_spend_allowed
+
+  data_type: 'tinyint'
+  default_value: 1
+  is_nullable: 1
+
+is an overspend allowed on the sub_fund
+
+=head2 over_encumbrance_allowed
+
+  data_type: 'tinyint'
+  default_value: 1
+  is_nullable: 1
+
+is an overencumbrance allowed on the sub_fund
+
+=head2 oe_warning_percent
+
+  data_type: 'decimal'
+  default_value: 0.0000
+  is_nullable: 1
+  size: [5,4]
+
+percentage limit for overencumbrance
+
+=head2 oe_limit_amount
+
+  data_type: 'decimal'
+  default_value: 0.00
+  is_nullable: 1
+  size: [28,2]
+
+limit for overspend
+
+=head2 os_warning_sum
+
+  data_type: 'decimal'
+  default_value: 0.00
+  is_nullable: 1
+  size: [28,2]
+
+amount to trigger a warning for overspend
+
+=head2 os_limit_sum
+
+  data_type: 'decimal'
+  default_value: 0.00
+  is_nullable: 1
+  size: [28,2]
+
+amount to trigger a block on the sub_fund for overspend
 
 =head2 last_updated
 
@@ -143,7 +199,6 @@ time of the last update to the sub_fund
 =head2 lib_group_visibility
 
   data_type: 'varchar'
-  default_value: (empty string)
   is_nullable: 1
   size: 255
 
@@ -161,22 +216,61 @@ __PACKAGE__->add_columns(
   "fiscal_period_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
   "name",
-  { data_type => "varchar", default_value => "", is_nullable => 1, size => 255 },
+  { data_type => "varchar", is_nullable => 1, size => 255 },
   "description",
   { data_type => "longtext", default_value => "''", is_nullable => 1 },
   "sub_fund_type",
-  { data_type => "varchar", default_value => "", is_nullable => 1, size => 255 },
+  { data_type => "varchar", is_nullable => 1, size => 255 },
   "code",
-  { data_type => "varchar", default_value => "", is_nullable => 1, size => 255 },
+  { data_type => "varchar", is_nullable => 1, size => 255 },
   "external_id",
-  { data_type => "varchar", default_value => "", is_nullable => 1, size => 255 },
+  { data_type => "varchar", is_nullable => 1, size => 255 },
   "currency",
-  { data_type => "varchar", default_value => "", is_nullable => 1, size => 10 },
+  { data_type => "varchar", is_nullable => 1, size => 10 },
   "status",
   { data_type => "tinyint", default_value => 1, is_nullable => 1 },
   "owner_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
+  "spend_limit",
+  {
+    data_type => "decimal",
+    default_value => "0.00",
+    is_nullable => 1,
+    size => [28, 2],
+  },
   "sub_fund_value",
+  {
+    data_type => "decimal",
+    default_value => "0.00",
+    is_nullable => 1,
+    size => [28, 2],
+  },
+  "over_spend_allowed",
+  { data_type => "tinyint", default_value => 1, is_nullable => 1 },
+  "over_encumbrance_allowed",
+  { data_type => "tinyint", default_value => 1, is_nullable => 1 },
+  "oe_warning_percent",
+  {
+    data_type => "decimal",
+    default_value => "0.0000",
+    is_nullable => 1,
+    size => [5, 4],
+  },
+  "oe_limit_amount",
+  {
+    data_type => "decimal",
+    default_value => "0.00",
+    is_nullable => 1,
+    size => [28, 2],
+  },
+  "os_warning_sum",
+  {
+    data_type => "decimal",
+    default_value => "0.00",
+    is_nullable => 1,
+    size => [28, 2],
+  },
+  "os_limit_sum",
   {
     data_type => "decimal",
     default_value => "0.00",
@@ -191,7 +285,7 @@ __PACKAGE__->add_columns(
     is_nullable => 1,
   },
   "lib_group_visibility",
-  { data_type => "varchar", default_value => "", is_nullable => 1, size => 255 },
+  { data_type => "varchar", is_nullable => 1, size => 255 },
 );
 
 =head1 PRIMARY KEY
@@ -304,8 +398,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-12-13 14:24:22
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:QNg5XN6mLfNmmX1b9Fg5JQ
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-12-30 13:46:15
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:k+h0Ksj1Z9yjqQ6yGgQg/w
 
 __PACKAGE__->add_columns(
     '+status' => { is_boolean => 1 },

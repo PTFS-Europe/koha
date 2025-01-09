@@ -41,6 +41,10 @@ Koha::Acquisition::FundManagement::SubFund Object class
 sub store {
     my ( $self, $args ) = @_;
 
+    if ( !$self->sub_fund_value && !$self->fund_allocations->count ) {
+        $self->sub_fund_value( $self->spend_limit );
+    }
+
     $self->set_lib_group_visibility() if $self->lib_group_visibility;
     $self->SUPER::store;
 
@@ -71,12 +75,11 @@ This method cascades changes to the values of the "lib_group_visibility" and "st
 =cut
 
 sub cascade_to_fund_allocations {
-    # TODO: Needs to cascade to sub funds from parent fund and to FAs
     my ( $self, $args ) = @_;
 
-    my @fund_allocations = $self->fund_allocations->as_list;
-    my $lib_group_visibility       = $self->lib_group_visibility;
-    my $status           = $self->status;
+    my @fund_allocations     = $self->fund_allocations->as_list;
+    my $lib_group_visibility = $self->lib_group_visibility;
+    my $status               = $self->status;
 
     foreach my $fund_allocation (@fund_allocations) {
         my $visibility_updated = Koha::Acquisition::FundManagement::Utils->cascade_lib_group_visibility(
@@ -97,14 +100,14 @@ sub cascade_to_fund_allocations {
     }
 }
 
-=head3 update_sub_fund_total
+=head3 update_fund_value
 
 This method is called whenever a fund allocation is made.
 It updates the value of the fund based on the fund allocations and then triggers an update to the ledger value
 
 =cut
 
-sub update_sub_fund_total {
+sub update_sub_fund_value {
     my ( $self, $args ) = @_;
 
     my @allocations = $self->fund_allocations->as_list;
@@ -113,10 +116,50 @@ sub update_sub_fund_total {
     foreach my $allocation (@allocations) {
         $total += $allocation->allocation_amount;
     }
-    $self->sub_fund_value($total)->store({ no_cascade => 1 });
+    $self->sub_fund_value($total)->store( { no_cascade => 1 } );
 
     my $fund = $self->fund;
     $fund->update_fund_value;
+
+    return $total;
+}
+
+=head3 is_sub_fund_within_spend_limit
+
+Checks whether a sub_fund is within the spend limit
+For a sub_fund, the spend limit is the sub_fund_value as this is the limit on the sub_fund minus any spend
+Returns the result, including the amount of any breach and whether overspend/overencumbrance are allowed on the sub_fund
+
+=cut
+
+sub is_sub_fund_within_spend_limit {
+    my ( $self, $args ) = @_;
+
+    my $new_allocation = $args->{new_allocation};
+    my $spend_limit    = $self->sub_fund_value;
+    my $total_spent    = $self->sub_fund_spent + $new_allocation;
+
+    return {
+        within_limit       => -$total_spent <= $spend_limit, breach_amount            => $total_spent + $spend_limit,
+        over_spend_allowed => $self->over_spend_allowed,     over_encumbrance_allowed => $self->over_encumbrance_allowed
+    };
+}
+
+=head3 sub_fund_spent
+
+This returns the total actual and committed spend against the sub_fund
+The total is made up of all the sub_fund allocations against the sub_fund
+
+=cut
+
+sub sub_fund_spent {
+    my ($self) = @_;
+
+    my $fund_allocations = $self->fund_allocations;
+    my $total            = 0;
+    foreach my $fund_allocation ( $fund_allocations->as_list ) {
+        $total += $fund_allocation->allocation_amount;
+    }
 
     return $total;
 }
@@ -168,7 +211,6 @@ sub fund_allocations {
     my $fund_allocation_rs = $self->_result->fund_allocations;
     return Koha::Acquisition::FundManagement::FundAllocations->_new_from_dbic($fund_allocation_rs);
 }
-
 
 =head3 owner
 

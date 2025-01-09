@@ -40,7 +40,6 @@ description for the fiscal period
 =head2 code
 
   data_type: 'varchar'
-  default_value: (empty string)
   is_nullable: 1
   size: 255
 
@@ -99,7 +98,6 @@ owner of the fiscal period
 =head2 lib_group_visibility
 
   data_type: 'varchar'
-  default_value: (empty string)
   is_nullable: 1
   size: 255
 
@@ -113,7 +111,7 @@ __PACKAGE__->add_columns(
   "description",
   { data_type => "longtext", default_value => "''", is_nullable => 1 },
   "code",
-  { data_type => "varchar", default_value => "", is_nullable => 1, size => 255 },
+  { data_type => "varchar", is_nullable => 1, size => 255 },
   "start_date",
   { data_type => "date", datetime_undef_if_invalid => 1, is_nullable => 1 },
   "end_date",
@@ -137,7 +135,7 @@ __PACKAGE__->add_columns(
   "owner_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
   "lib_group_visibility",
-  { data_type => "varchar", default_value => "", is_nullable => 1, size => 255 },
+  { data_type => "varchar", is_nullable => 1, size => 255 },
 );
 
 =head1 PRIMARY KEY
@@ -235,8 +233,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-12-13 14:24:22
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:RtepNfNxPlklQ9laeG53qg
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-12-30 13:46:15
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ndvH1BmwYJC6sWV8iWSH4A
 
 __PACKAGE__->add_columns(
     '+status' => { is_boolean => 1 },

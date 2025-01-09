@@ -89,7 +89,7 @@ subtest 'cascade_to_funds' => sub {
     $schema->storage->txn_rollback;
 };
 
-subtest 'update_ledger_total' => sub {
+subtest 'update_ledger_value' => sub {
 
     plan tests => 1;
 
@@ -101,20 +101,18 @@ subtest 'update_ledger_total' => sub {
             value => { status => 1, lib_group_visibility => '1|2', spend_limit => 0 }
         }
     );
-    my $ledger = $builder->build_object(
+    my $ledger = Koha::Acquisition::FundManagement::Ledger->new(
         {
-            class => 'Koha::Acquisition::FundManagement::Ledgers',
-            value => {
-                fiscal_period_id     => $fiscal_period->fiscal_period_id,
-                lib_group_visibility => $fiscal_period->lib_group_visibility,
-                status               => $fiscal_period->status,
-                currency             => 'GBP',
-                owner_id             => '1',
-                ledger_value         => 0,
-                spend_limit          => 0
-            }
+            fiscal_period_id     => $fiscal_period->fiscal_period_id,
+            lib_group_visibility => $fiscal_period->lib_group_visibility,
+            status               => $fiscal_period->status,
+            currency             => 'GBP',
+            owner_id             => '1',
+            ledger_value         => 0,
+            spend_limit          => 100
         }
-    );
+    )->store();
+
     my $fund = $builder->build_object(
         {
             class => 'Koha::Acquisition::FundManagement::Funds',
@@ -136,13 +134,13 @@ subtest 'update_ledger_total' => sub {
             sub_fund_id       => undef,
             ledger_id         => $ledger->ledger_id,
             fiscal_period_id  => $fiscal_period->fiscal_period_id,
-            allocation_amount => 100
+            allocation_amount => -10
         }
     )->store();
 
     my $updated_ledger = Koha::Acquisition::FundManagement::Ledgers->find( $ledger->ledger_id );
 
-    is( $updated_ledger->ledger_value + 0, 100, 'Ledger value is 100' );
+    is( $updated_ledger->ledger_value + 0, 90, 'Ledger value is 100' );
 
     $schema->storage->txn_rollback;
 };

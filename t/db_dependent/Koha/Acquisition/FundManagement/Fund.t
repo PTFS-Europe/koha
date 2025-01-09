@@ -252,7 +252,7 @@ subtest 'cascade_to_sub_funds' => sub {
     $schema->storage->txn_rollback;
 };
 
-subtest 'update_fund_total' => sub {
+subtest 'update_fund_value' => sub {
 
     plan tests => 2;
 
@@ -264,33 +264,29 @@ subtest 'update_fund_total' => sub {
             value => { status => 1, lib_group_visibility => '1|2' }
         }
     );
-    my $ledger = $builder->build_object(
+    my $ledger = Koha::Acquisition::FundManagement::Ledger->new(
         {
-            class => 'Koha::Acquisition::FundManagement::Ledgers',
-            value => {
-                fiscal_period_id     => $fiscal_period->fiscal_period_id,
-                lib_group_visibility => $fiscal_period->lib_group_visibility,
-                status               => $fiscal_period->status,
-                currency             => 'GBP',
-                owner_id             => '1',
-                ledger_value         => 0
-            }
+            fiscal_period_id     => $fiscal_period->fiscal_period_id,
+            lib_group_visibility => $fiscal_period->lib_group_visibility,
+            status               => $fiscal_period->status,
+            currency             => 'GBP',
+            owner_id             => '1',
+            ledger_value         => 0,
+            spend_limit          => 100
         }
-    );
-    my $fund = $builder->build_object(
+    )->store();
+    my $fund = Koha::Acquisition::FundManagement::Fund->new(
         {
-            class => 'Koha::Acquisition::FundManagement::Funds',
-            value => {
-                fiscal_period_id     => $fiscal_period->fiscal_period_id,
-                ledger_id            => $ledger->ledger_id,
-                lib_group_visibility => $fiscal_period->lib_group_visibility,
-                status               => $fiscal_period->status,
-                currency             => $ledger->currency,
-                owner_id             => $ledger->owner_id,
-                fund_value           => 0
-            }
+            fiscal_period_id     => $fiscal_period->fiscal_period_id,
+            ledger_id            => $ledger->ledger_id,
+            lib_group_visibility => $fiscal_period->lib_group_visibility,
+            status               => $fiscal_period->status,
+            currency             => $ledger->currency,
+            owner_id             => $ledger->owner_id,
+            fund_value           => 0,
+            spend_limit          => 50
         }
-    );
+    )->store();
 
     my $allocation = Koha::Acquisition::FundManagement::FundAllocation->new(
         {
@@ -298,44 +294,40 @@ subtest 'update_fund_total' => sub {
             sub_fund_id       => undef,
             ledger_id         => $ledger->ledger_id,
             fiscal_period_id  => $fiscal_period->fiscal_period_id,
-            allocation_amount => 100
+            allocation_amount => -20
         }
     )->store();
 
     my $updated_fund = Koha::Acquisition::FundManagement::Funds->find( $fund->fund_id );
 
-    is( $updated_fund->fund_value + 0, 100, 'Fund value is 100 based on the value of fund allocations' );
+    is( $updated_fund->fund_value + 0, 30, 'Fund value is 30 based on the value of fund allocations v spend_limit' );
 
-    my $fund2 = $builder->build_object(
+    my $fund2 = Koha::Acquisition::FundManagement::Fund->new(
         {
-            class => 'Koha::Acquisition::FundManagement::Funds',
-            value => {
-                fiscal_period_id     => $fiscal_period->fiscal_period_id,
-                ledger_id            => $ledger->ledger_id,
-                lib_group_visibility => $fiscal_period->lib_group_visibility,
-                status               => $fiscal_period->status,
-                currency             => $ledger->currency,
-                owner_id             => $ledger->owner_id,
-                fund_value           => 0
-            }
+            fiscal_period_id     => $fiscal_period->fiscal_period_id,
+            ledger_id            => $ledger->ledger_id,
+            lib_group_visibility => $fiscal_period->lib_group_visibility,
+            status               => $fiscal_period->status,
+            currency             => $ledger->currency,
+            owner_id             => $ledger->owner_id,
+            fund_value           => 0,
+            spend_limit          => 50
         }
-    );
+    )->store();
 
-    my $sub_fund = $builder->build_object(
+    my $sub_fund = Koha::Acquisition::FundManagement::SubFund->new(
         {
-            class => 'Koha::Acquisition::FundManagement::SubFunds',
-            value => {
-                fiscal_period_id => $fiscal_period->fiscal_period_id,
-                ledger_id        => $ledger->ledger_id,
-
-                fund_id              => $fund2->fund_id,
-                lib_group_visibility => '1|2',
-                status               => 1,
-                currency             => 'GBP',
-                owner_id             => '1'
-            }
+            fiscal_period_id     => $fiscal_period->fiscal_period_id,
+            ledger_id            => $ledger->ledger_id,
+            fund_id              => $fund2->fund_id,
+            lib_group_visibility => $fiscal_period->lib_group_visibility,
+            status               => $fiscal_period->status,
+            currency             => $ledger->currency,
+            owner_id             => $ledger->owner_id,
+            sub_fund_value       => 0,
+            spend_limit          => 20
         }
-    );
+    )->store();
 
     my $allocation2 = Koha::Acquisition::FundManagement::FundAllocation->new(
         {
@@ -343,13 +335,16 @@ subtest 'update_fund_total' => sub {
             sub_fund_id       => $sub_fund->sub_fund_id,
             ledger_id         => $ledger->ledger_id,
             fiscal_period_id  => $fiscal_period->fiscal_period_id,
-            allocation_amount => 200
+            allocation_amount => -10
         }
     )->store();
 
     my $updated_fund2 = Koha::Acquisition::FundManagement::Funds->find( $fund2->fund_id );
 
-    is( $updated_fund2->fund_value + 0, 200, 'Fund value is 200 based on the value of all sub funds' );
+    is(
+        $updated_fund2->fund_value + 0, 40,
+        'Fund value is 40 based on the value of all sub funds and fund allocations'
+    );
 
     $schema->storage->txn_rollback;
 };

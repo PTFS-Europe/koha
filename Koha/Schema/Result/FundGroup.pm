@@ -32,7 +32,6 @@ __PACKAGE__->table("fund_group");
 =head2 name
 
   data_type: 'varchar'
-  default_value: (empty string)
   is_nullable: 1
   size: 255
 
@@ -41,7 +40,6 @@ name for the fund group
 =head2 currency
 
   data_type: 'varchar'
-  default_value: (empty string)
   is_nullable: 1
   size: 10
 
@@ -50,7 +48,6 @@ currency of the fund allocation
 =head2 lib_group_visibility
 
   data_type: 'varchar'
-  default_value: (empty string)
   is_nullable: 1
   size: 255
 
@@ -62,11 +59,11 @@ __PACKAGE__->add_columns(
   "fund_group_id",
   { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
   "name",
-  { data_type => "varchar", default_value => "", is_nullable => 1, size => 255 },
+  { data_type => "varchar", is_nullable => 1, size => 255 },
   "currency",
-  { data_type => "varchar", default_value => "", is_nullable => 1, size => 10 },
+  { data_type => "varchar", is_nullable => 1, size => 10 },
   "lib_group_visibility",
-  { data_type => "varchar", default_value => "", is_nullable => 1, size => 255 },
+  { data_type => "varchar", is_nullable => 1, size => 255 },
 );
 
 =head1 PRIMARY KEY
@@ -99,8 +96,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-11-20 14:37:31
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:c1fXUeRuV5D+SnjdF/Iw6w
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-12-30 13:46:15
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ZokNYrWcp6oyR3wVeJekuw
 
 sub koha_object_class {
     'Koha::Acquisition::FundManagement::FundGroup';
