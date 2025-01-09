@@ -119,7 +119,7 @@ subtest 'cascade_to_fund_allocations' => sub {
     $schema->storage->txn_rollback;
 };
 
-subtest 'update_sub_fund_total' => sub {
+subtest 'update_fund_value' => sub {
 
     plan tests => 1;
 

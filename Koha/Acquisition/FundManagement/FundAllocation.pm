@@ -56,7 +56,7 @@ sub store {
         my $fund = $self->fund;
         $fund->update_fund_value if $fund && !$self->sub_fund_id;
         my $sub_fund = $self->sub_fund;
-        $sub_fund->update_sub_fund_total if $sub_fund;
+        $sub_fund->update_sub_fund_value if $sub_fund;
     }
 
     return $self;

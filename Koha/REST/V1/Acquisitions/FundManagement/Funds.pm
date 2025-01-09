@@ -98,6 +98,18 @@ sub add {
 
                 $body = _inherit_currency_and_owner($body);
 
+                if ( $body->{spend_limit} ) {
+                    my $ledger = Koha::Acquisition::FundManagement::Ledgers->find( $body->{ledger_id} );
+                    my $result = $ledger->is_ledger_within_spend_limit( { new_allocation => $body->{spend_limit} } );
+                    return $c->render(
+                        status => 400,
+                        error  => "Ledger spend limit breached, please reduce spend limit by "
+                            . $result->{breach_amount}
+                            . " or increase the spend limit for this ledger"
+
+                    ) unless $result->{within_limit};
+                }
+
                 my $fund = Koha::Acquisition::FundManagement::Fund->new_from_api($body)->store;
 
                 $c->res->headers->location( $c->req->url->to_string . '/' . $fund->fund_id );
@@ -141,7 +153,30 @@ sub update {
 
                 $body = _inherit_currency_and_owner($body);
 
+                if ( $body->{spend_limit} && $fund->spend_limit != $body->{spend_limit} ) {
+                    if ( $body->{spend_limit} < $fund->fund_value && !$fund->over_spend_allowed ) {
+                        return $c->render(
+                            status  => 400,
+                            openapi => {
+                                error => "Spend limit cannot be less than the fund value when overspend is not allowed"
+                            }
+                        );
+                    }
+                    my $ledger           = Koha::Acquisition::FundManagement::Ledgers->find( $body->{ledger_id} );
+                    my $spend_limit_diff = $body->{spend_limit} - $fund->spend_limit;
+                    my $result           = $ledger->fund_limits( { new_allocation => $spend_limit_diff } );
+                    return $c->render(
+                        status  => 400,
+                        openapi => {
+                                  error => "Ledger spend limit breached, please reduce spend limit by "
+                                . $result->{breach_amount}
+                                . " or increase the spend limit for this ledger"
+                        }
+                    ) unless $result->{within_limit};
+                }
+
                 $fund->set_from_api($body)->store;
+                $fund->update_fund_value;
 
                 $c->res->headers->location( $c->req->url->to_string . '/' . $fund->fund_id );
                 return $c->render(

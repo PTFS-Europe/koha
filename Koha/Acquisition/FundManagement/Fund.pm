@@ -42,10 +42,14 @@ Koha::Acquisition::FundManagement::Fund Object class
 sub store {
     my ( $self, $args ) = @_;
 
+    if ( !$self->fund_value && !$self->fund_allocations->count ) {
+        $self->fund_value( $self->spend_limit );
+    }
+
     $self->set_lib_group_visibility() if $self->lib_group_visibility;
     $self->SUPER::store;
 
-    unless ($args->{no_cascade}) {
+    unless ( $args->{no_cascade} ) {
         $self->cascade_to_fund_allocations;
         $self->cascade_to_sub_funds;
     }
@@ -79,7 +83,7 @@ sub has_sub_funds {
 
     my $sub_fund_count = $self->sub_funds->count;
 
-    return 1 if scalar($sub_fund_count > 0);
+    return 1 if scalar( $sub_fund_count > 0 );
     return 0;
 }
 
@@ -92,8 +96,8 @@ This method cascades changes to the values of the "lib_group_visibility" and "st
 sub cascade_to_fund_allocations {
     my ( $self, $args ) = @_;
 
-    my @fund_allocations = $self->fund_allocations->as_list;
-    my $lib_group_visibility       = $self->lib_group_visibility;
+    my @fund_allocations     = $self->fund_allocations->as_list;
+    my $lib_group_visibility = $self->lib_group_visibility;
 
     foreach my $fund_allocation (@fund_allocations) {
         my $visibility_updated = Koha::Acquisition::FundManagement::Utils->cascade_lib_group_visibility(
@@ -103,17 +107,16 @@ sub cascade_to_fund_allocations {
             }
         );
         my @data_to_cascade = ( 'fiscal_period_id', 'currency', 'owner_id', 'ledger_id' );
-        my $data_updated = Koha::Acquisition::FundManagement::Utils->cascade_data(
+        my $data_updated    = Koha::Acquisition::FundManagement::Utils->cascade_data(
             {
                 parent     => $self,
                 child      => $fund_allocation,
                 properties => \@data_to_cascade
             }
         );
-        $fund_allocation->store({ block_fund_value_update => 1 }) if $visibility_updated || $data_updated;
+        $fund_allocation->store( { block_fund_value_update => 1 } ) if $visibility_updated || $data_updated;
     }
 }
-
 
 =head3 cascade_to_sub_funds
 
@@ -124,9 +127,9 @@ This method cascades changes to the values of the "lib_group_visibility" and "st
 sub cascade_to_sub_funds {
     my ( $self, $args ) = @_;
 
-    my @sub_funds  = $self->sub_funds->as_list;
+    my @sub_funds            = $self->sub_funds->as_list;
     my $lib_group_visibility = $self->lib_group_visibility;
-    my $status     = $self->status;
+    my $status               = $self->status;
 
     foreach my $sub_fund (@sub_funds) {
         my $visibility_updated = Koha::Acquisition::FundManagement::Utils->cascade_lib_group_visibility(
@@ -156,7 +159,7 @@ sub cascade_to_sub_funds {
 =head3 update_fund_value
 
 This method is called whenever a fund allocation is made.
-It updates the value of the fund based on the fund allocations and then triggers an update to the ledger value
+It updates the value of the fund based on the spend_limit and fund allocations and then triggers an update to the ledger value
 
 =cut
 
@@ -177,10 +180,52 @@ sub update_fund_value {
     foreach my $allocation (@allocations) {
         $total += $allocation->allocation_amount;
     }
-    $self->fund_value($total)->store({ no_cascade => 1 });
+
+    my $fund_total = $self->spend_limit + $total;
+    $self->fund_value($fund_total)->store( { no_cascade => 1 } );
 
     my $ledger = $self->ledger;
     $ledger->update_ledger_value;
+
+    return $total;
+}
+
+=head3 is_fund_within_spend_limit
+
+Checks whether a fund is within the spend limit
+For a fund, the spend limit is the fund_value as this is the limit on the fund minus any spend
+Returns the result, including the amount of any breach and whether overspend/overencumbrance are allowed on the fund
+
+=cut
+
+sub is_fund_within_spend_limit {
+    my ( $self, $args ) = @_;
+
+    my $new_allocation = $args->{new_allocation};
+    my $spend_limit    = $self->fund_value;
+    my $total_spent    = $self->fund_spent + $new_allocation;
+
+    return {
+        within_limit       => -$total_spent <= $spend_limit, breach_amount            => $total_spent + $spend_limit,
+        over_spend_allowed => $self->over_spend_allowed,     over_encumbrance_allowed => $self->over_encumbrance_allowed
+    };
+}
+
+=head3 fund_spent
+
+This returns the total actual and committed spend against the fund
+The total is made up of all the fund allocations against the fund
+
+=cut
+
+sub fund_spent {
+    my ($self) = @_;
+
+    my $fund_allocations = $self->fund_allocations;
+    my $total            = 0;
+    foreach my $fund_allocation ( $fund_allocations->as_list ) {
+        $total += $fund_allocation->allocation_amount;
+    }
 
     return $total;
 }
@@ -246,7 +291,6 @@ sub fund_allocations {
     return Koha::Acquisition::FundManagement::FundAllocations->_new_from_dbic($fund_allocation_rs);
 }
 
-
 =head3 owner
 
 Method to embed the owner to a given fund
@@ -258,7 +302,6 @@ sub owner {
     my $owner_rs = $self->_result->owner;
     return Koha::Patron->_new_from_dbic($owner_rs);
 }
-
 
 =head3 _library_group_visibility_parameters
 

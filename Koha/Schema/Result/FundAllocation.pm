@@ -73,7 +73,6 @@ amount for the allocation
 =head2 reference
 
   data_type: 'varchar'
-  default_value: (empty string)
   is_nullable: 1
   size: 255
 
@@ -90,7 +89,6 @@ any notes associated to the allocation
 =head2 currency
 
   data_type: 'varchar'
-  default_value: (empty string)
   is_nullable: 1
   size: 10
 
@@ -132,7 +130,6 @@ time of the last update to the fund allocation
 =head2 lib_group_visibility
 
   data_type: 'varchar'
-  default_value: (empty string)
   is_nullable: 1
   size: 255
 
@@ -159,11 +156,11 @@ __PACKAGE__->add_columns(
     size => [28, 2],
   },
   "reference",
-  { data_type => "varchar", default_value => "", is_nullable => 1, size => 255 },
+  { data_type => "varchar", is_nullable => 1, size => 255 },
   "note",
   { data_type => "longtext", default_value => "''", is_nullable => 1 },
   "currency",
-  { data_type => "varchar", default_value => "", is_nullable => 1, size => 10 },
+  { data_type => "varchar", is_nullable => 1, size => 10 },
   "owner_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
   "type",
@@ -182,7 +179,7 @@ __PACKAGE__->add_columns(
     is_nullable => 1,
   },
   "lib_group_visibility",
-  { data_type => "varchar", default_value => "", is_nullable => 1, size => 255 },
+  { data_type => "varchar", is_nullable => 1, size => 255 },
 );
 
 =head1 PRIMARY KEY
@@ -300,8 +297,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-12-13 14:24:22
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:eiKHlLCyecejDc0BntJKjA
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-12-30 13:46:15
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Zhyg1kAkdt/mdNBLKxkKGA
 
 __PACKAGE__->add_columns(
     '+is_transfer' => { is_boolean => 1 },

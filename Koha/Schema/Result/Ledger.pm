@@ -40,7 +40,6 @@ fiscal period the ledger applies to
 =head2 name
 
   data_type: 'varchar'
-  default_value: (empty string)
   is_nullable: 1
   size: 255
 
@@ -57,7 +56,6 @@ description for the ledger
 =head2 code
 
   data_type: 'varchar'
-  default_value: (empty string)
   is_nullable: 1
   size: 255
 
@@ -66,7 +64,6 @@ code for the ledger
 =head2 external_id
 
   data_type: 'varchar'
-  default_value: (empty string)
   is_nullable: 1
   size: 255
 
@@ -75,7 +72,6 @@ external id for the ledger for use with external accounting systems
 =head2 currency
 
   data_type: 'varchar'
-  default_value: (empty string)
   is_nullable: 1
   size: 10
 
@@ -109,7 +105,6 @@ owner of the ledger
 =head2 lib_group_visibility
 
   data_type: 'varchar'
-  default_value: (empty string)
   is_nullable: 1
   size: 255
 
@@ -193,15 +188,15 @@ __PACKAGE__->add_columns(
   "fiscal_period_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
   "name",
-  { data_type => "varchar", default_value => "", is_nullable => 1, size => 255 },
+  { data_type => "varchar", is_nullable => 1, size => 255 },
   "description",
   { data_type => "longtext", default_value => "''", is_nullable => 1 },
   "code",
-  { data_type => "varchar", default_value => "", is_nullable => 1, size => 255 },
+  { data_type => "varchar", is_nullable => 1, size => 255 },
   "external_id",
-  { data_type => "varchar", default_value => "", is_nullable => 1, size => 255 },
+  { data_type => "varchar", is_nullable => 1, size => 255 },
   "currency",
-  { data_type => "varchar", default_value => "", is_nullable => 1, size => 10 },
+  { data_type => "varchar", is_nullable => 1, size => 10 },
   "status",
   { data_type => "tinyint", default_value => 1, is_nullable => 1 },
   "last_updated",
@@ -214,7 +209,7 @@ __PACKAGE__->add_columns(
   "owner_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
   "lib_group_visibility",
-  { data_type => "varchar", default_value => "", is_nullable => 1, size => 255 },
+  { data_type => "varchar", is_nullable => 1, size => 255 },
   "spend_limit",
   {
     data_type => "decimal",
@@ -363,8 +358,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-12-13 14:24:22
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:MaimbquRCUiqXpCst33Oig
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-12-30 13:46:15
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:MgSYq6Odqcdai1nJ7DZw+A
 
 __PACKAGE__->add_columns(
     '+status'                   => { is_boolean => 1 },

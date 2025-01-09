@@ -47,7 +47,6 @@ sub store {
     return $self;
 }
 
-
 =head3 delete
 
 =cut
@@ -60,7 +59,6 @@ sub delete {
     return $self;
 }
 
-
 =head3 cascade_to_ledgers
 
 This method cascades changes to the values of the "lib_group_visibility" and "status" properties to all ledgers attached to this fiscal period
@@ -70,9 +68,9 @@ This method cascades changes to the values of the "lib_group_visibility" and "st
 sub cascade_to_ledgers {
     my ( $self, $args ) = @_;
 
-    my @ledgers    = $self->ledgers->as_list;
+    my @ledgers              = $self->ledgers->as_list;
     my $lib_group_visibility = $self->lib_group_visibility;
-    my $status     = $self->status;
+    my $status               = $self->status;
 
     foreach my $ledger (@ledgers) {
         my $status_updated = Koha::Acquisition::FundManagement::Utils->cascade_status(
@@ -91,7 +89,6 @@ sub cascade_to_ledgers {
     }
 }
 
-
 =head3 ledgers
 
 Method to embed ledgers to the fiscal period
@@ -103,7 +100,6 @@ sub ledgers {
     my $ledger_rs = $self->_result->ledgers;
     return Koha::Acquisition::FundManagement::Ledgers->_new_from_dbic($ledger_rs);
 }
-
 
 =head3 owner
 
@@ -124,13 +120,13 @@ Checks whether a fiscal period is within the spend limit
 =cut
 
 sub is_fiscal_period_within_spend_limit {
-    my ($self, $args) = @_;
+    my ( $self, $args ) = @_;
 
     return { within_limit => 1 } unless $self->spend_limit > 0;
 
     my $new_allocation = $args->{new_allocation};
-    my $spend_limit = $self->spend_limit;
-    my $total_spent = $self->fiscal_period_spent + $new_allocation;
+    my $spend_limit    = $self->spend_limit;
+    my $total_spent    = $self->fiscal_period_spent + $new_allocation;
 
     return { within_limit => -$total_spent <= $spend_limit, breach_amount => $total_spent + $spend_limit };
 }
@@ -138,11 +134,6 @@ sub is_fiscal_period_within_spend_limit {
 =head3 fiscal_period_spent
 
 This returns the total actual and committed spend against the fiscal period
-The total is made up of the following:
-- For each ledger attached to the fiscal period:
-    - If the ledger has a spend_limit and over_spend_allowed is false then the total is the spend_limit
-    - If the ledger has a spend_limit and over_spend_allowed is true then the total is the total fund allocations against the ledger
-    - If the ledger has no spend_limit then the total is the sum of the actual and committed spend (i.e. fund allocations)
 
 =cut
 
@@ -150,7 +141,7 @@ sub fiscal_period_spent {
     my ($self) = @_;
 
     my @ledgers = $self->ledgers->as_list;
-    my $total = 0;
+    my $total   = 0;
 
     foreach my $ledger (@ledgers) {
         $total += $ledger->ledger_spent;
@@ -162,11 +153,7 @@ sub fiscal_period_spent {
 =head3 fiscal_period_ledger_limits
 
 This returns the spending limits of the ledgers under a fiscal period
-The total is made up of the following:
-- For each ledger attached to the fiscal period:
-    - If the ledger has a spend_limit and over_spend_allowed is false then the total is the spend_limit
-    - If the ledger has a spend_limit and over_spend_allowed is true then the total is the total fund allocations against the ledger
-    - If the ledger has no spend_limit then the total is the sum of the actual and committed spend (i.e. fund allocations)
+The total is made up of the spend_limits for all the ledgers attached to the fiscal period
 
 =cut
 
@@ -174,19 +161,13 @@ sub fiscal_period_ledger_limits {
     my ($self) = @_;
 
     my @ledgers = $self->ledgers->as_list;
-    my $total = 0;
+    my $total   = 0;
 
     return { within_limit => 1 } if !$self->spend_limit > 0;
 
     foreach my $ledger (@ledgers) {
         my $spend_limit = $ledger->spend_limit;
-        my $over_spend_allowed = $ledger->over_spend_allowed;
-
-        if ($spend_limit > 0 && !$over_spend_allowed) {
-            $total += $spend_limit;
-        } else {
-            $total = $ledger->ledger_value;
-        }
+        $total += $spend_limit;
     }
 
     return { within_limit => $self->spend_limit >= $total, breach_amount => $total - $self->spend_limit };
