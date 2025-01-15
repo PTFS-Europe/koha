@@ -1026,6 +1026,7 @@
                     [% END %]
                     <div id="results" class="page-section">
                         <form method="post" id="confirmautoill-goback-form">
+                                [% INCLUDE 'csrf-token.inc' %]
                                 [% FOREACH key IN whole.keys %]
                                     [% value = whole.$key %]
                                     [% IF key != 'method' && key != 'custom_key' && key != 'custom_value' %]
@@ -1040,7 +1041,7 @@
                                     <input type="hidden" name="custom_value" value="[% custom_values.$i | html %]">
                                     [% i = i + 1 %]
                                 [% END %]
-                                <input type="hidden" name="method" value="create" />
+                                <input type="hidden" name="op" value="cud-create" />
                                 <input type="hidden" name="stage" value="0">
                                 [% IF auto_migrate %]
                                     <a class="btn btn-link" href="ill-requests.pl?op=illview&amp;illrequest_id=[% request.illrequest_id %]">
