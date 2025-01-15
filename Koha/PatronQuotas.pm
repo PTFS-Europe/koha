@@ -12,14 +12,18 @@ Koha::PatronQuotas - Koha PatronQuota Object set class
 
 =head2 Internal methods
 
-=cut
+=head3 object_class
 
-sub _type {
-    return 'PatronQuota';
-}
+Returns the package name for patron quota objects
+
+=cut
 
 sub object_class {
     return 'Koha::PatronQuota';
+}
+
+sub _type {
+    return 'PatronQuota';
 }
 
 =head2 Class Methods
