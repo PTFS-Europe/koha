@@ -1706,6 +1706,21 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 patron_quotas
+
+Type: has_many
+
+Related object: L<Koha::Schema::Result::PatronQuota>
+
+=cut
+
+__PACKAGE__->has_many(
+  "patron_quotas",
+  "Koha::Schema::Result::PatronQuota",
+  { "foreign.patron_id" => "self.borrowernumber" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 patronimage
 
 Type: might_have
@@ -2197,8 +2212,8 @@ Composing rels: L</user_permissions> -> permission
 __PACKAGE__->many_to_many("permissions", "user_permissions", "permission");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-11-11 11:07:06
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:wJkyjCy8MXEe2ZZCxszAMQ
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2025-01-15 14:23:33
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:owrnW20RwWMMM8VZtH1yUw
 
 __PACKAGE__->belongs_to(
   "library",
