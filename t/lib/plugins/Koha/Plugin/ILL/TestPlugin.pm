@@ -31,16 +31,15 @@ our $metadata = {
 };
 
 sub new {
-    my ( $self, $params ) = @_;
+    my ( $class, $args ) = @_;
 
-    my $backend = {
-        _logger => $params->{logger},
-        _config => $params->{config},
-        _plugin => $self,
-    };
+    $args->{'metadata'} = $metadata;
+    $args->{'_logger'} = $args->{logger};
+    $args->{'_config'} = $args->{config};
+    $args->{'_plugin'} = $class;
 
-    bless $backend, $self;
-    return $backend;
+    my $self = $class->SUPER::new($args);
+    return $self;
 }
 
 sub capabilities {
