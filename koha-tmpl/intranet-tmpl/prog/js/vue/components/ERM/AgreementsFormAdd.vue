@@ -202,8 +202,8 @@ import { storeToRefs } from "pinia";
 export default {
     extends: AgreementResource,
     setup() {
-        const mainStore = inject("mainStore");
-        const { authorisedValues } = storeToRefs(mainStore);
+        const ERMStore = inject("ERMStore");
+        const { authorisedValues } = storeToRefs(ERMStore);
 
         return {
             authorisedValues,
