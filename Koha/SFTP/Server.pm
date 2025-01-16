@@ -20,12 +20,15 @@ use Modern::Perl;
 use Koha::Database;
 use Koha::Exceptions::Object;
 use Koha::Encryption;
+use Koha::Logger;
 use Koha::SFTP::Servers;
 
 use Try::Tiny qw( catch try );
 use Mojo::JSON;
 use Net::SFTP::Foreign;
 use Net::FTP;
+use File::Spec;
+use IO::File;
 
 use base qw(Koha::Object);
 
@@ -41,17 +44,19 @@ Koha::SFTP::Server - Koha SFTP Server Object class
 
     $server->store;
 
-Overloaded store method.
+Overloaded store method that ensures directory paths end with a forward slash.
 
 =cut
 
 sub store {
     my ($self) = @_;
 
-    $self->download_directory( $self->download_directory . '/' )
-        if ( ( substr( $self->download_directory, -1 ) ne '/' ) && ( $self->download_directory ne '' ) );
-    $self->upload_directory( $self->upload_directory . '/' )
-        if ( ( substr( $self->upload_directory, -1 ) ne '/' ) && ( $self->upload_directory ne '' ) );
+    for my $dir_field (qw( download_directory upload_directory )) {
+        my $dir = $self->$dir_field;
+        next unless $dir && $dir ne '';
+
+        $self->$dir_field( $dir . '/' ) unless substr( $dir, -1 ) eq '/';
+    }
 
     return $self->SUPER::store;
 }
@@ -60,16 +65,15 @@ sub store {
 
     my $json = $sftp_server->to_api;
 
-Overloaded method that returns a JSON representation of the Koha::SFTP::Server object,
-suitable for API output.
+Returns a JSON representation of the object suitable for API output,
+excluding sensitive data.
 
 =cut
 
 sub to_api {
     my ( $self, $params ) = @_;
 
-    my $json_sftp = $self->SUPER::to_api($params);
-    return unless $json_sftp;
+    my $json_sftp = $self->SUPER::to_api($params) or return;
     delete $json_sftp->{password};
     delete $json_sftp->{key_file};
 
@@ -89,130 +93,140 @@ sub to_api_mapping {
 
 =head3 plain_text_password
 
-    $server->plain_text_password;
-Fetches the plaintext password, from the object
+    my $password = $server->plain_text_password;
+
+Returns the decrypted plaintext password.
 
 =cut
 
 sub plain_text_password {
     my ($self) = @_;
-
-    return Koha::Encryption->new->decrypt_hex( $self->password )
-        if $self->password;
+    return unless $self->password;
+    return Koha::Encryption->new->decrypt_hex( $self->password );
 }
 
 =head3 plain_text_key
 
-    $server->plain_text_key;
-Fetches the plaintext key file, from the object
+    my $key = $server->plain_text_key;
+
+Returns the decrypted plaintext key file.
 
 =cut
 
 sub plain_text_key {
     my ($self) = @_;
-
-    return Koha::Encryption->new->decrypt_hex( $self->key_file ) . "\n"
-        if $self->key_file;
+    return unless $self->key_file;
+    return Koha::Encryption->new->decrypt_hex( $self->key_file ) . "\n";
 }
 
 =head3 write_key_file
 
-    $server->write_key_file;
-Writes the keyfile from the db into a file
+    my $success = $server->write_key_file;
+
+Writes the keyfile from the db into a file.
+
+Returns 1 on success, undef on failure.
 
 =cut
 
 sub write_key_file {
-    my ($self)      = @_;
+    my ($self) = @_;
+
     my $upload_path = C4::Context->config('upload_path') or return;
-    my $key_path    = $upload_path . '/ssh_keys';
-    my $key_file    = $key_path . '/id_ssh_' . $self->id;
+    my $logger      = Koha::Logger->get;
+    my $key_path    = File::Spec->catdir( $upload_path, 'ssh_keys' );
+    my $key_file    = File::Spec->catfile( $key_path, 'id_ssh_' . $self->id );
 
-    mkdir $key_path if ( !-d $key_path );
+    mkdir $key_path unless -d $key_path;
+    unlink $key_file if -f $key_file;
 
-    unlink $key_file if ( -f $key_file );
-    my $fh;
-    $fh = IO::File->new( $key_file, 'w' ) or return;
-    chmod 0600, $key_file if ( -f $key_file );
+    my $fh = IO::File->new( $key_file, 'w' ) or return;
 
-    print $fh $self->plain_text_key;
-
-    undef $fh;
-
-    return 1;
+    try {
+        chmod 0600, $key_file if -f $key_file;
+        print $fh $self->plain_text_key;
+        close $fh or $logger->warn("Failed to close key file: $!");
+        return 1;
+    } catch {
+        $logger->warn("Error writing key file: $_");
+        close $fh;
+        return;
+    };
 }
 
 =head3 locate_key_file
 
-    $server->locate_key_file;
-Returns the keyfile's expected path
+    my $path = $server->locate_key_file;
+
+Returns the keyfile's path if it exists, undef otherwise.
 
 =cut
 
 sub locate_key_file {
     my ($self) = @_;
-    my $upload_path = C4::Context->config('upload_path');
-    return if not defined $upload_path;
 
-    my $keyf_path = $upload_path . '/ssh_keys/id_ssh_' . $self->id;
+    my $upload_path = C4::Context->config('upload_path') or return;
+    my $key_file    = File::Spec->catfile(
+        $upload_path,
+        'ssh_keys',
+        'id_ssh_' . $self->id
+    );
 
-    return ( -f $keyf_path ) ? $keyf_path : undef;
+    return ( -f $key_file ) ? $key_file : undef;
 }
 
 =head3 update_password
-    $server->update_password;
-Update the password of this FTP/SFTP server
+
+    my $success = $server->update_password;
+
+Update the server's encrypted password.
 
 =cut
 
 sub update_password {
     my ( $self, $value ) = @_;
+    return unless defined $value;
 
-    return
-        if not defined $value;
-
-    $self->password( Koha::Encryption->new->encrypt_hex( $value ) );
-
+    $self->password( Koha::Encryption->new->encrypt_hex($value) );
     return $self->SUPER::store;
 }
 
 =head3 update_key_file
-    $server->update_password;
-Update the password of this FTP/SFTP server
+
+    my $success = $server->update_key_file($new_key_file);
+
+Update the server's encrypted key file.
 
 =cut
 
 sub update_key_file {
     my ( $self, $value ) = @_;
+    return unless defined $value;
 
-    return
-        if not defined $value;
-
-    $self->key_file( Koha::Encryption->new->encrypt_hex( _dos2unix( $value ) ) );
-
+    $self->key_file( Koha::Encryption->new->encrypt_hex( _dos2unix($value) ) );
     return $self->SUPER::store;
 }
 
 =head3 update_status
 
-    $server->update_status;
-Update the status of this FTP/SFTP server
+    my $success = $server->update_status($new_status);
+
+Update the server's status
 
 =cut
 
 sub update_status {
     my ( $self, $value ) = @_;
-
-    return
-        if not defined $value;
+    return unless defined $value;
 
     return $self->set( { status => $value } )->store;
 }
 
 =head3 test_conn
 
-    $server->test_conn;
-Tests a connection to a given sftp server
+    my ($success, $results) = $server->test_conn;
+
+Tests connection to the server. Returns success flag and detailed test results.
 
 =cut
 
