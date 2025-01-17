@@ -184,6 +184,8 @@ definitions:
     $ref: ./definitions/ticket_update.yaml
   transfer_limit:
     $ref: ./definitions/transfer_limit.yaml
+  user_permission:
+    $ref: ./definitions/user_permission.yaml
   vendor:
     $ref: ./definitions/vendor.yaml
   vendor_issue:
@@ -571,6 +573,8 @@ paths:
     $ref: ./paths/transfer_limits.yaml#/~1transfer_limits~1batch
   "/transfer_limits/{limit_id}":
     $ref: "./paths/transfer_limits.yaml#/~1transfer_limits~1{limit_id}"
+  "/user_permissions":
+    $ref: "./paths/user_permissions.yaml#/~1user_permissions"
 parameters:
   advancededitormacro_id_pp:
     description: Advanced editor macro internal identifier

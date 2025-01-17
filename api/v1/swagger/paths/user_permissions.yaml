@@ -1,0 +1,49 @@
+---
+/user_permissions:
+  get:
+    x-mojo-to: UserPermissions#get
+    operationId: getUserPermissions
+    description: This resource returns the permissions for the user attached to the request
+    summary: List of permissions and subpermissions
+    tags:
+      - permissions
+    parameters:
+      - $ref: "../swagger.yaml#/parameters/match"
+      - $ref: "../swagger.yaml#/parameters/order_by"
+      - $ref: "../swagger.yaml#/parameters/page"
+      - $ref: "../swagger.yaml#/parameters/per_page"
+      - $ref: "../swagger.yaml#/parameters/q_param"
+      - $ref: "../swagger.yaml#/parameters/q_body"
+    produces:
+      - application/json
+    responses:
+      "200":
+        description: A list of permissions
+        schema:
+          type: object
+          $ref: "../swagger.yaml#/definitions/user_permission"
+      "400":
+        description: |
+          Bad request. Possible `error_code` attribute values:
+
+            * `invalid_query`
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "403":
+        description: Access forbidden
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "500":
+        description: |
+          Internal server error. Possible `error_code` attribute values:
+
+          * `internal_server_error`
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "503":
+        description: Under maintenance
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+    x-koha-authorization:
+      permissions:
+        catalogue: 1
