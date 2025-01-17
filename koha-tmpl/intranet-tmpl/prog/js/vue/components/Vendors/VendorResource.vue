@@ -20,7 +20,6 @@ export default {
                     display_name: __("Vendor"),
                 },
             }),
-            //AgreementResource specific setup here
         };
     },
     methods: {},
