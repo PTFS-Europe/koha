@@ -1,0 +1,7 @@
+---
+type: object
+properties:
+  permissions:
+    type: object
+    description: the permissions object for the user
+additionalProperties: false
