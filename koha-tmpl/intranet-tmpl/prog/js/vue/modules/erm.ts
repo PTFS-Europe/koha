@@ -24,6 +24,7 @@ import { useVendorStore } from "../stores/vendors";
 import { useERMStore } from "../stores/erm";
 import { useNavigationStore } from "../stores/navigation";
 import { useReportsStore } from "../stores/usage-reports";
+import { usePermissionsStore } from "../stores/permissions";
 import i18n from "../i18n";
 
 const pinia = createPinia();
@@ -31,6 +32,7 @@ const pinia = createPinia();
 const mainStore = useMainStore(pinia);
 const navigationStore = useNavigationStore(pinia);
 const routes = navigationStore.setRoutes(routesDef);
+const permissionsStore = usePermissionsStore(pinia);
 
 const router = createRouter({
     history: createWebHistory(),
@@ -50,6 +52,7 @@ const rootComponent = app
 app.config.unwrapInjectedRef = true;
 app.provide("vendorStore", useVendorStore(pinia));
 app.provide("mainStore", mainStore);
+app.provide("permissionsStore", permissionsStore);
 app.provide("navigationStore", navigationStore);
 const ERMStore = useERMStore(pinia);
 app.provide("ERMStore", ERMStore);
