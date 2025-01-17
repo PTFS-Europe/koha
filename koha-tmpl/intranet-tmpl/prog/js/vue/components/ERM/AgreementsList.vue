@@ -6,6 +6,9 @@
                 action="add"
                 @go-to-add-resource="goToResourceAdd"
                 :title="$__('New agreement')"
+                v-if="
+                    isUserPermitted('CAN_user_suggestions_suggestions_create')
+                "
             />
         </Toolbar>
         <fieldset v-if="agreement_count > 0" class="filters">
@@ -74,6 +77,8 @@ export default {
         const vendorStore = inject("vendorStore");
         const { vendors } = storeToRefs(vendorStore);
 
+        const { isUserPermitted } = inject("permissionsStore");
+
         const { setConfirmationDialog, setMessage } = inject("mainStore");
 
         const { get_lib_from_av, map_av_dt_filter } = inject("ERMStore");
@@ -95,6 +100,7 @@ export default {
             escape_str,
             agreement_table_settings,
             filters,
+            isUserPermitted,
         };
     },
     data: function () {

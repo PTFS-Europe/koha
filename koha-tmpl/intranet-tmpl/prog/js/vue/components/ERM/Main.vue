@@ -50,6 +50,9 @@ export default {
         const { config, authorisedValues } = storeToRefs(ERMStore);
         const { loadAuthorisedValues } = ERMStore;
 
+        const permissionsStore = inject("permissionsStore");
+        const { loadUserPermissions } = permissionsStore;
+
         return {
             vendorStore,
             ERMStore,
@@ -59,6 +62,7 @@ export default {
             loaded,
             loadAuthorisedValues,
             authorisedValues,
+            loadUserPermissions,
         };
     },
     data() {
@@ -82,8 +86,10 @@ export default {
                 this.authorisedValues,
                 this.ERMStore
             ).then(() => {
-                this.loaded();
-                this.initialized = true;
+                this.loadUserPermissions().then(() => {
+                    this.loaded();
+                    this.initialized = true;
+                });
             });
         };
 
