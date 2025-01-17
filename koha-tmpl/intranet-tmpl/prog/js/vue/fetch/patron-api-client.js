@@ -15,6 +15,15 @@ export class PatronAPIClient extends HttpClient {
                 }),
         };
     }
+
+    get userPermissions() {
+        return {
+            get: () =>
+                this.get({
+                    endpoint: "user_permissions",
+                }),
+        };
+    }
 }
 
 export default PatronAPIClient;
