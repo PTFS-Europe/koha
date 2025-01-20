@@ -248,7 +248,7 @@ sub _find_matching_requests {
         push @query, {
             'illrequestattributes.type'  => $id_field,
             'illrequestattributes.value' => $self->{metadata}->{$id_field},
-        };
+        } if $self->{metadata}->{$id_field};
     }
 
     my $matching_requests = Koha::ILL::Requests->search(
