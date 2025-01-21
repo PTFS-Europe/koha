@@ -17,7 +17,7 @@
 
 use Modern::Perl;
 
-use Test::More tests => 5;
+use Test::More tests => 6;
 use Test::Exception;
 use Test::MockModule;
 use Test::Warn;
@@ -34,6 +34,116 @@ BEGIN {
 
 my $schema  = Koha::Database->new->schema;
 my $builder = t::lib::TestBuilder->new;
+
+subtest 'Testing store() method' => sub {
+    plan tests => 4;
+
+    $schema->storage->txn_begin;
+
+    # Create a test bibliographic record
+    my $biblio = $builder->build(
+        {
+            source => 'Biblio',
+        }
+    );
+
+    subtest 'Valid MARCXML storage' => sub {
+        $schema->storage->txn_begin;
+
+        my $valid_marcxml = <<'EOX';
+<?xml version="1.0" encoding="UTF-8"?>
+<record xmlns="http://www.loc.gov/MARC21/slim">
+  <leader>00925nam a22002411a 4500</leader>
+  <controlfield tag="001">1234567</controlfield>
+  <datafield tag="245" ind1="1" ind2="0">
+    <subfield code="a">Test Title</subfield>
+  </datafield>
+</record>
+EOX
+
+        my $record = Koha::Biblio::Metadata->new(
+            {
+                format       => 'marcxml',
+                metadata     => $valid_marcxml,
+                biblionumber => $biblio->{biblionumber},
+                schema       => 'MARC21',
+            }
+        );
+
+        lives_ok { $record->store }
+        'Valid MARCXML record stores successfully';
+
+        $schema->storage->txn_rollback;
+    };
+
+    subtest 'Invalid MARCXML handling' => sub {
+        $schema->storage->txn_begin;
+        my $invalid_marcxml = <<'EOX';
+<?xml version="1.0" encoding="UTF-8"?>
+<record xmlns="http://www.loc.gov/MARC21/slim">
+  <leader>00925nam a22002411a 4500</leader>
+  <controlfield tag="001">1234567</controlfield>
+  <datafield tag="245" ind1="1" ind2="0">
+    <subfield code="a">This string will  break your record</subfield>
+  </datafield>
+  <!-- Invalid XML structure -->
+</record>
+EOX
+
+        my $record = Koha::Biblio::Metadata->new(
+            {
+                format       => 'marcxml',
+                metadata     => $invalid_marcxml,
+                biblionumber => $biblio->{biblionumber},
+                schema       => 'MARC21',
+            }
+        );
+
+        throws_ok { $record->store }
+        'Koha::Exceptions::Metadata::Invalid',
+            'Invalid MARCXML throws expected exception';
+
+        my $thrown = $@;
+        ok( $thrown->decoding_error, 'Exception contains decoding error message' );
+        is( $thrown->biblionumber, $biblio->{biblionumber}, 'Exception contains correct biblionumber' );
+        $schema->storage->txn_rollback;
+    };
+
+    subtest 'Non-MARCXML format' => sub {
+        $schema->storage->txn_begin;
+        my $other_metadata = '{"title": "Test Title"}';
+
+        my $record = Koha::Biblio::Metadata->new(
+            {
+                format       => 'json',
+                metadata     => $other_metadata,
+                biblionumber => $biblio->{biblionumber},
+                schema       => 'LOCAL',
+            }
+        );
+
+        lives_ok { $record->store }
+        'Non-MARCXML record stores without validation';
+        $schema->storage->txn_rollback;
+    };
+
+    subtest 'Empty MARCXML handling' => sub {
+        $schema->storage->txn_begin;
+        my $empty_record = Koha::Biblio::Metadata->new(
+            {
+                format       => 'marcxml',
+                metadata     => '',
+                biblionumber => $biblio->{biblionumber},
+                schema       => 'MARC21',
+            }
+        );
+
+        throws_ok { $empty_record->store }
+        'Koha::Exceptions::Metadata::Invalid',
+            'Empty MARCXML throws expected exception';
+        $schema->storage->txn_rollback;
+    };
+};
 
 subtest 'record() tests' => sub {
 
@@ -117,7 +227,7 @@ subtest 'record_strip_nonxml() tests' => sub {
 
     $schema->storage->txn_begin;
 
-    my $title = 'Oranges and' . chr(31) . ' Peaches';
+    my $title = 'Oranges and Peaches';
 
     # Create a valid record
     my $record = MARC::Record->new();
@@ -126,7 +236,16 @@ subtest 'record_strip_nonxml() tests' => sub {
     my ($biblio_id) = C4::Biblio::AddBiblio( $record, '' );
 
     my $metadata = Koha::Biblios->find($biblio_id)->metadata;
-    my $record2  = $metadata->record_strip_nonxml;
+
+    # Update the record in the database directly to include our error character
+    my $bad_title = 'Oranges and' . chr(31) . ' Peaches';
+    $record = $metadata->record;
+    $record->delete_fields( $record->field('245') );
+    $record->insert_fields_ordered( MARC::Field->new( '245', '', '', 'a' => $bad_title ) );
+    $metadata->_result->update( { metadata => $record->as_xml_record } );
+    $metadata->discard_changes;
+
+    my $record2 = $metadata->record_strip_nonxml;
 
     is( ref $record2, 'MARC::Record', 'Method record() returned a MARC::Record object' );
     is(
@@ -150,8 +269,7 @@ subtest 'record_strip_nonxml() tests' => sub {
         "record_strip_nonxml returns undef when the record cannot be parsed after removing nonxml characters"
     );
 
-    my $builder = t::lib::TestBuilder->new;
-    my $item    = $builder->build_sample_item( { biblionumber => $metadata->biblionumber } );
+    my $item = $builder->build_sample_item( { biblionumber => $metadata->biblionumber } );
 
     # Emptied the OpacHiddenItems pref
     t::lib::Mocks::mock_preference( 'OpacHiddenItems', '' );
