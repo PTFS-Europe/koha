@@ -176,6 +176,7 @@ return {
                 `owner_id` INT(11) DEFAULT NULL COMMENT 'owner of the fund allocation',
                 `type` enum('encumbered','spent', 'transfer', 'credit') DEFAULT NULL COMMENT 'type of the fund allocation',
                 `is_transfer` TINYINT(1) DEFAULT '0' COMMENT 'is the fund allocation a transfer to/from another fund',
+                `ordernumber` int(11) DEFAULT NULL COMMENT 'order this fund allocation was made against',
                 `last_updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT 'time of the last update to the fund allocation',
                 `lib_group_visibility` VARCHAR(255) DEFAULT NULL COMMENT 'library groups the fund allocation is visible to',
                 PRIMARY KEY (`fund_allocation_id`),
@@ -183,7 +184,8 @@ return {
                 FOREIGN KEY (`fund_id`) REFERENCES `funds` (`fund_id`) ON DELETE CASCADE ON UPDATE CASCADE,
                 FOREIGN KEY (`ledger_id`) REFERENCES `ledgers` (`ledger_id`) ON DELETE CASCADE ON UPDATE CASCADE,
                 FOREIGN KEY (`fiscal_period_id`) REFERENCES `fiscal_period` (`fiscal_period_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-                FOREIGN KEY (`owner_id`) REFERENCES `borrowers` (`borrowernumber`)
+                FOREIGN KEY (`owner_id`) REFERENCES `borrowers` (`borrowernumber`),
+                FOREIGN KEY (`ordernumber`) REFERENCES `aqorders` (`ordernumber`) ON DELETE CASCADE ON UPDATE CASCADE
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
             }
             );

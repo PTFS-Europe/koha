@@ -664,6 +664,19 @@ sub to_api_mapping {
     };
 }
 
+
+=head3 fund_allocations
+
+Method to retrieve the fund allocations attributed to the order
+
+=cut
+
+sub fund_allocations {
+    my ($self) = @_;
+    my $fund_allocation_rs = $self->_result->fund_allocations;
+    return Koha::Acquisition::FundManagement::FundAllocations->_new_from_dbic($fund_allocation_rs);
+}
+
 =head2 Internal methods
 
 =head3 _type

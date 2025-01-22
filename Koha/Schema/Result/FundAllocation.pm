@@ -118,6 +118,14 @@ type of the fund allocation
 
 is the fund allocation a transfer to/from another fund
 
+=head2 ordernumber
+
+  data_type: 'integer'
+  is_foreign_key: 1
+  is_nullable: 1
+
+order this fund allocation was made against
+
 =head2 last_updated
 
   data_type: 'timestamp'
@@ -171,6 +179,8 @@ __PACKAGE__->add_columns(
   },
   "is_transfer",
   { data_type => "tinyint", default_value => 0, is_nullable => 1 },
+  "ordernumber",
+  { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
   "last_updated",
   {
     data_type => "timestamp",
@@ -256,6 +266,26 @@ __PACKAGE__->belongs_to(
   },
 );
 
+=head2 ordernumber
+
+Type: belongs_to
+
+Related object: L<Koha::Schema::Result::Aqorder>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "ordernumber",
+  "Koha::Schema::Result::Aqorder",
+  { ordernumber => "ordernumber" },
+  {
+    is_deferrable => 1,
+    join_type     => "LEFT",
+    on_delete     => "CASCADE",
+    on_update     => "CASCADE",
+  },
+);
+
 =head2 owner
 
 Type: belongs_to
@@ -297,8 +327,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07051 @ 2025-01-07 11:02:42
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:KhE/vYplvFdV01hwOO6EYQ
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2025-01-22 16:50:56
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:niH21AB1fxqlvNkOnQ3rNQ
 
 __PACKAGE__->add_columns(
     '+is_transfer' => { is_boolean => 1 },

@@ -734,6 +734,21 @@ __PACKAGE__->belongs_to(
   },
 );
 
+=head2 fund_allocations
+
+Type: has_many
+
+Related object: L<Koha::Schema::Result::FundAllocation>
+
+=cut
+
+__PACKAGE__->has_many(
+  "fund_allocations",
+  "Koha::Schema::Result::FundAllocation",
+  { "foreign.ordernumber" => "self.ordernumber" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 invoice_currency
 
 Type: belongs_to
@@ -805,8 +820,8 @@ Composing rels: L</aqorder_users> -> borrowernumber
 __PACKAGE__->many_to_many("borrowernumbers", "aqorder_users", "borrowernumber");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-04-30 13:34:51
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:FyRqcj4OmkBR6PpW3tY8bA
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2025-01-22 16:50:55
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:izDWMXDUxCx+EGJNeZX27A
 
 __PACKAGE__->belongs_to(
   "basket",
