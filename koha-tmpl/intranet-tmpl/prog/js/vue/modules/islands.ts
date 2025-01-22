@@ -3,6 +3,7 @@ import { createPinia } from "pinia";
 import { $__ } from "../i18n";
 import { useMainStore } from "../stores/main";
 import { useNavigationStore } from "../stores/navigation";
+import vSelect from "vue-select";
 
 /**
  * Represents a web component with an import function and optional configuration.
@@ -13,7 +14,11 @@ import { useNavigationStore } from "../stores/navigation";
  */
 type WebComponentDynamicImport = {
     importFn: () => Promise<Component>;
-    config?: Record<"stores", Array<string>>;
+    config?: WebComponentConfig;
+};
+type WebComponentConfig = {
+    stores: Array<string>;
+    components: Array<string>;
 };
 
 /**
@@ -40,7 +45,24 @@ type WebComponentDynamicImport = {
  * ],
  */
 export const componentRegistry: Map<string, WebComponentDynamicImport> =
-    new Map([]);
+    new Map([
+        [
+            "fund-select",
+            {
+                importFn: async () => {
+                    const module = await import(
+                        /* webpackChunkName: "fund-select" */
+                        "../components/Islands/FundSelect.vue"
+                    );
+                    return module.default;
+                },
+                config: {
+                    stores: [],
+                    components: ["v-select"],
+                },
+            },
+        ],
+    ]);
 
 /**
  * Hydrates custom elements by scanning the document and loading only necessary components.
@@ -52,6 +74,9 @@ export function hydrate(): void {
         const storesMatrix = {
             mainStore: useMainStore(pinia),
             navigationStore: useNavigationStore(pinia),
+        };
+        const childComponents = {
+            "v-select": vSelect,
         };
 
         const islandTagNames = Array.from(componentRegistry.keys()).join(", ");
@@ -78,6 +103,14 @@ export function hydrate(): void {
                                 app.use(pinia);
                                 config.stores.forEach(store => {
                                     app.provide(store, storesMatrix[store]);
+                                });
+                            }
+                            if (config.components?.length > 0) {
+                                config.components.forEach(component => {
+                                    app.component(
+                                        component,
+                                        childComponents[component]
+                                    );
                                 });
                             }
                             app.config.globalProperties.$__ = $__;
