@@ -32,24 +32,6 @@ Koha::File::Transport::SFTP - SFTP implementation of file transport
 
 =head2 Class methods
 
-=head3 store
-
-    $server->store;
-
-Overloaded store method that ensures key_file also gets written to the filesystem.
-
-=cut
-
-sub store {
-    my ($self) = @_;
-
-    $self->SUPER::store;
-    $self->discard_changes;
-    $self->_write_key_file;
-
-    return $self;
-}
-
 =head3 connect
 
     my $success = $self->connect;
@@ -61,24 +43,32 @@ Start the SFTP transport connect, returns true on success or undefined on failur
 sub connect {
     my ($self) = @_;
 
+    # String to capture STDERR output
+    $self->{stderr_capture} = '';
+    open my $stderr_fh, '>', \$self->{stderr_capture} or die "Can't open scalar as filehandle: $!";
     $self->{connection} = Net::SFTP::Foreign->new(
-        host     => $self->host,
-        port     => $self->port,
-        user     => $self->user_name,
-        password => $self->plain_text_password,
-        key_path => $self->_locate_key_file,
-        timeout  => $self->DEFAULT_TIMEOUT,
-        more     => [qw(-o StrictHostKeyChecking=no)],
+        host      => $self->host,
+        port      => $self->port,
+        user      => $self->user_name,
+        password  => $self->plain_text_password,
+        key_path  => $self->_locate_key_file,
+        timeout   => $self->DEFAULT_TIMEOUT,
+        stderr_fh => $stderr_fh,
+        more      => [qw(-o StrictHostKeyChecking=no)],
     );
-    $self->{connection}->die_on_error("SFTP failure for remote host");
+    $self->{stderr_fh} = $stderr_fh;
 
-    return $self->_abort_operation() if ( $self->{connection}->error );
+    return $self->_abort_operation("transport connection") if ( $self->{connection}->error );
 
     $self->add_message(
         {
-            message => $self->{connection}->status,
+            message => 'transport connected',
             type    => 'success',
-            payload => { detail => '' }
+            payload => {
+                status => $self->{connection}->status,
+                error  => $self->{connection}->error,
+                path   => $self->{connection}->cwd
+            }
         }
     );
 
@@ -100,13 +90,17 @@ sub upload_file {
 
     my $logger = Koha::Logger->get_logger();
 
-    $self->{connection}->put( $local_file, $remote_file ) or return $self->_abort_operation();
+    $self->{connection}->put( $local_file, $remote_file ) or return $self->_abort_operation("file upload");
 
     $self->add_message(
         {
-            message => $self->{connection}->status,
+            message => 'file uploaded',
             type    => 'success',
-            payload => { detail => '' }
+            payload => {
+                status => $self->{connection}->status,
+                error  => $self->{connection}->error,
+                path   => $self->{connection}->cwd
+            }
         }
     );
 
@@ -126,13 +120,17 @@ Returns true on success or undefined on failure.
 sub download_file {
     my ( $self, $remote_file, $local_file ) = @_;
 
-    $self->{connection}->get( $remote_file, $local_file ) or return $self->_abort_operation();
+    $self->{connection}->get( $remote_file, $local_file ) or return $self->_abort_operation("file download");
 
     $self->add_message(
         {
-            message => $self->{connection}->status,
+            message => 'file downloaded',
             type    => 'success',
-            payload => { detail => '' }
+            payload => {
+                status => $self->{connection}->status,
+                error  => $self->{connection}->error,
+                path   => $self->{connection}->cwd
+            }
         }
     );
 
@@ -152,13 +150,17 @@ Returns true on success or undefined on failure.
 sub change_directory {
     my ( $self, $remote_directory ) = @_;
 
-    $self->{connection}->setcwd($remote_directory) or return $self->_abort_operation();
+    $self->{connection}->setcwd($remote_directory) or return $self->_abort_operation("change directory");
 
     $self->add_message(
         {
-            message => $self->{connection}->status,
+            message => 'changed directory',
             type    => 'success',
-            payload => { detail => '' }
+            payload => {
+                status => $self->{connection}->status,
+                error  => $self->{connection}->error,
+                path   => $self->{connection}->cwd
+            }
         }
     );
 
@@ -176,13 +178,17 @@ Returns an array of filenames found in the current directory of the server conne
 sub list_files {
     my ($self) = @_;
 
-    my $file_list = $self->{connection}->ls or return $self->_abort_operation();
+    my $file_list = $self->{connection}->ls or return $self->_abort_operation("list files");
 
     $self->add_message(
         {
-            message => $self->{connection}->status,
+            message => 'files listed',
             type    => 'success',
-            payload => { detail => '' }
+            payload => {
+                status => $self->{connection}->status,
+                error  => $self->{connection}->error,
+                path   => $self->{connection}->cwd
+            }
         }
     );
 
@@ -190,6 +196,21 @@ sub list_files {
 }
 
 =head2 Internal methods
+
+=head3 _post_store_trigger
+
+    $server->post_store_trigger;
+
+Local trigger run by the parent store method after storage.
+Ensures key_file also gets written to the filesystem.
+
+=cut
+
+sub _post_store_trigger {
+    my ($self) = @_;
+    $self->_write_key_file;
+    return $self;
+}
 
 =head3 _write_key_file
 
@@ -254,13 +275,21 @@ Helper method to abort the current operation and return.
 =cut
 
 sub _abort_operation {
-    my ($self) = @_;
+    my ( $self, $operation ) = @_;
+
+    my $stderr = $self->{stderr_capture};
+    $self->{stderr_capture} = '';
 
     $self->add_message(
         {
-            message => $self->{connection}->error,
+            message => $operation . " failed",
             type    => 'error',
-            payload => { detail => $self->{connection} ? $self->{connection}->status : '' }
+            payload => {
+                status    => $self->{connection}->status,
+                error     => $self->{connection}->error,
+                path      => $self->{connection}->cwd,
+                error_raw => $stderr
+            }
         }
     );
 
@@ -269,6 +298,21 @@ sub _abort_operation {
     }
 
     return;
+}
+
+=head3 DESTROY
+
+Ensure proper cleanup of open filehandles
+
+=cut
+
+sub DESTROY {
+    my ($self) = @_;
+
+    # Ensure the filehandle is closed properly
+    if ( $self->{stderr_fh} ) {
+        close $self->{stderr_fh} or warn "Failed to close STDERR filehandle: $!";
+    }
 }
 
 1;

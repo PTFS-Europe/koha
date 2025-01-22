@@ -17,11 +17,13 @@ package Koha::File::Transport;
 
 use Modern::Perl;
 use constant {
-    DEFAULT_TIMEOUT      => 10,
-    TEST_FILE_NAME       => '.koha_test_file',
-    TEST_FILE_CONTENT    => "Hello, world!\n",
+    DEFAULT_TIMEOUT   => 10,
+    TEST_FILE_NAME    => '.koha_test_file',
+    TEST_FILE_CONTENT => "Hello, world!\n",
 };
+use List::MoreUtils qw( any );
 
+use Koha::BackgroundJob::TestTransport;
 use Koha::Database;
 use Koha::Exceptions::Object;
 use Koha::Encryption;
@@ -63,11 +65,24 @@ sub store {
         $self->$dir_field( $dir . '/' ) unless substr( $dir, -1 ) eq '/';
     }
 
+    my @config_fields  = (qw(host port user_name password key_file upload_directory download_directory));
+    my $changed_config = ( !$self->in_storage || any { $self->is_changed($_) } @config_fields ) ? 1 : 0;
+
     # Store
     $self->SUPER::store;
 
+    # Subclass triggers
+    my $subclass = $self->transport eq 'sftp' ? 'Koha::File::Transport::SFTP' : 'Koha::File::Transport::FTP';
+    $self = $subclass->_new_from_dbic( $self->_result->discard_changes );
+    $self->_post_store_trigger;
+
+    # Enqueue a connection test
+    if ($changed_config) {
+        Koha::BackgroundJob::TestTransport->new->enqueue( { transport_id => $self->id } );
+    }
+
     # Return the updated object including the encrypt_sensitive_data
-    return $self->discard_changes;
+    return $self;
 }
 
 =head3 plain_text_password
@@ -142,13 +157,20 @@ sub test_connection {
 
     for my $dir_type (qw(download upload)) {
         my $dir = $self->{"${dir_type}_directory"};
-        next if $dir eq '';
+        $dir ||= undef;
 
-        $self->change_directory($dir) or return;
-        $self->list_files()           or return;
+        $self->change_directory(undef) or next;
+        $self->change_directory($dir)  or next;
+        $self->list_files()            or next;
     }
 
-    return 1;
+    my $return   = 1;
+    my $messages = $self->object_messages;
+    for my $message ( @{$messages} ) {
+        $return = 0 if $message->type eq 'error';
+    }
+
+    return $return;
 }
 
 =head2 Subclass methods
@@ -220,6 +242,20 @@ sub list_files {
     die "Subclass must implement list_files";
 }
 
+=head3 _post_store_trigger
+
+    $server->_post_store_trigger;
+
+Method triggered by parent store to allow local additions to the store call
+
+=cut
+
+sub _post_store_trigger {
+    my ($self) = @_;
+    warn "Subclass may impliment a _post_store_trigger as required";
+    return $self;
+}
+
 =head2 Internal methods
 
 =head3 _encrypt_sensitive_data
@@ -240,6 +276,8 @@ sub _encrypt_sensitive_data {
     if ( ( !$self->in_storage || $self->is_changed('key_file') ) && $self->key_file ) {
         $self->key_file( $encryption->encrypt_hex( _dos2unix( $self->key_file ) ) );
     }
+
+    return;
 }
 
 =head3 _dos2unix
