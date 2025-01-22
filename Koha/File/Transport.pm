@@ -20,7 +20,6 @@ use constant {
     DEFAULT_TIMEOUT      => 10,
     TEST_FILE_NAME       => '.koha_test_file',
     TEST_FILE_CONTENT    => "Hello, world!\n",
-    KEY_FILE_PERMISSIONS => '0600',
 };
 
 use Koha::Database;
