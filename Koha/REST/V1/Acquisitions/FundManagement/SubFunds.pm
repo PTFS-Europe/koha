@@ -133,8 +133,9 @@ sub update {
 
                 my $body = $c->req->json;
 
-                delete $body->{lib_groups}   if $body->{lib_groups};
-                delete $body->{last_updated} if $body->{last_updated};
+                delete $body->{lib_groups}     if $body->{lib_groups};
+                delete $body->{last_updated}   if $body->{last_updated};
+                delete $body->{sub_fund_value} if exists $body->{sub_fund_value};
 
                 my $error = $sub_fund->verify_updated_fields( { updated_fields => $body } );
 

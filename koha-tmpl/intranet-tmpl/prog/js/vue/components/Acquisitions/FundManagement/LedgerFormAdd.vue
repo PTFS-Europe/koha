@@ -446,6 +446,7 @@ export default {
             ledger.oe_warning_percent = oe_warning_percent / 100
 
             delete ledger.ledger_id
+            delete ledger.last_updated
 
             if (ledger_id) {
                 const acq_client = APIClient.acquisition

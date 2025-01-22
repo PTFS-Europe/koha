@@ -246,6 +246,10 @@ export default {
                 { description: this.$__("Active"), value: true },
                 { description: this.$__("Inactive"), value: false },
             ],
+            allowedOptions: [
+                { description: this.$__("Allowed"), value: true },
+                { description: this.$__("Not allowed"), value: false },
+            ],
             sub_fund: {
                 fiscal_period_id: null,
                 ledger_id: null,
@@ -313,6 +317,7 @@ export default {
             const sub_fund_id = sub_fund.sub_fund_id
 
             delete sub_fund.sub_fund_id
+            delete sub_fund.last_updated
 
             if (sub_fund_id) {
                 const acq_client = APIClient.acquisition

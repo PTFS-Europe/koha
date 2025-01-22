@@ -144,6 +144,7 @@ sub update {
                 delete $body->{lib_groups}    if $body->{lib_groups};
                 delete $body->{fiscal_period} if $body->{fiscal_period};
                 delete $body->{last_updated}  if $body->{last_updated};
+                delete $body->{ledger_value}  if exists $body->{ledger_value};
 
                 $ledger->set_from_api($body)->store;
 

@@ -514,6 +514,7 @@ export default {
             const fund_id = fund.fund_id
 
             delete fund.fund_id
+            delete fund.last_updated
 
             if (fund_id) {
                 const acq_client = APIClient.acquisition

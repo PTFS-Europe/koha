@@ -136,6 +136,7 @@ sub update {
 
                 delete $body->{lib_groups}   if $body->{lib_groups};
                 delete $body->{last_updated} if $body->{last_updated};
+                delete $body->{fund_value}   if exists $body->{fund_value};
 
                 $body = _inherit_currency_and_owner($body);
 
