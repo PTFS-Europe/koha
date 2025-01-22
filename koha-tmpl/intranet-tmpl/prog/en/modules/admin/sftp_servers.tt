@@ -8,32 +8,12 @@
         [% t("New FTP/SFTP server") | html %] &rsaquo;
     [% ELSIF op == 'edit_form' %]
         [% tx("Modify FTP/SFTP server '{sftp_server}'", { sftp_server = sftp_server.name }) | html %] &rsaquo;
-    [% ELSIF op == 'test_form' %]
-        [% tx("Test FTP/SFTP server '{sftp_server}'", { sftp_server = sftp_server.name }) | html %] &rsaquo;
     [% END %]
     [% t("FTP/SFTP Servers") | html %] &rsaquo;
     [% t("Administration") | html %] &rsaquo;
     [% t("Koha") | html %]
 [% END %]</title>
 [% INCLUDE 'doc-head-close.inc' %]
-<style>
-    #testOutput {
-        font-size: 1.25rem;
-    }
-
-    #testOutput .pending-loading {
-        font-size: 1.5rem;
-        margin-left: 1.25rem;
-    }
-
-    #testOutput code {
-        font-size: 87.5%;
-        color: #e83e8c;
-        background: transparent;
-        word-break: break-word;
-    }
-</style>
-
 </head>
 
 <body id="admin_sftp_servers" class="admin">
@@ -47,7 +27,7 @@
             <a href="/cgi-bin/koha/admin/admin-home.pl">Administration</a>
         [% END %]
 
-        [% IF op == 'add_form' || op == 'edit_form' || op == 'test_form' %]
+        [% IF op == 'add_form' || op == 'edit_form' %]
             [% WRAPPER breadcrumb_item %]
                 <a href="/cgi-bin/koha/admin/sftp_servers.pl">FTP/SFTP servers</a>
             [% END %]
@@ -61,11 +41,6 @@
         [% ELSIF op == 'edit_form' %]
             [% WRAPPER breadcrumb_item bc_active= 1 %]
                 [% tx("Modify FTP/SFTP server '{sftp_server}'", { sftp_server = sftp_server.name }) | html %]
-            [% END %]
-
-        [% ELSIF op == 'test_form' %]
-            [% WRAPPER breadcrumb_item bc_active= 1 %]
-                [% tx("Test FTP/SFTP server '{sftp_server}'", { sftp_server = sftp_server.name }) | html %]
             [% END %]
 
         [% ELSE %]
@@ -91,8 +66,6 @@
             <span>An error occurred trying to open the server for editing. The passed ID is invalid.</span>
         [% CASE 'error_on_edit' %]
             <span>An error occurred trying to open the server for editing. The passed ID is invalid.</span>
-        [% CASE 'error_on_test' %]
-            <span>An error occurred when connecting to this server. Please see the text below for more information.</span>
         [% CASE 'success_on_update' %]
             <span>Server updated successfully.</span>
         [% CASE 'success_on_insert' %]
@@ -172,6 +145,14 @@
 
         <fieldset class="rows">
             <ol>
+                <li>
+                    <label for="sftp_transport" class="required">Transport: </label>
+                    <select name="sftp_transport" id="sftp_transport" class="required">
+                        <option value="ftp">FTP</option>
+                        <option value="sftp" selected="selected">SFTP</option>
+                    </select>
+                    <span class="required">Required</span>
+                </li>
                 <li>
                     <label for="sftp_host" class="required">Host: </label>
                     <input type="text" value="localhost" name="sftp_host" id="sftp_host" size="60" class="required" />
@@ -427,85 +408,6 @@
     </form>
 [% END %]
 
-[% IF op == 'test_form' %]
-
-    <h1>[% tx("Test FTP/SFTP server '{sftp_server}'", { sftp_server = sftp_server.name }) | html %]</h1>
-    [% IF sftp_server.id %]
-    <div class="page-section">
-        [% IF sftp_server.transport == 'sftp' %]
-        <div class="alert alert-warning">
-            <strong>For your information:</strong> As the transport in use for this server is SFTP, please be aware that running a test attempt will also accept the current host key fingerprint of the destination server. If you have doubts about the authenticity of this server, remove its host key from your authorized_keys file immediately, and contact your System Administrator.
-        </div>
-        [% END %]
-        <div class="row">
-            <div class="col-12 col-lg-6 order-1 order-lg-0">
-                <h3>Test results</h3>
-                <div id="testOutput">
-                    <!-- tests will appear here -->
-                </div>
-            </div>
-            <div class="col-12 col-lg-6 order-0 order-lg-1">
-                <h3>Test details</h3>
-                <p>Connection details are as follows:</p>
-                <table class="mx-4 mb-3">
-                    <thead></thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>Host</strong></td>
-                            <td>[% sftp_server.host | html %]</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Port</strong></td>
-                            <td>[% sftp_server.port | html %]</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Transport</strong></td>
-                            <td>[% sftp_server.transport FILTER upper | html %]</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Username</strong></td>
-                            <td>[% sftp_server.user_name | html %]</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Authentication mode</strong></td>
-                            <td>
-                                [% IF sftp_server.auth_mode == 'password' %]
-                                Password-based
-                                [% ELSE %]
-                                Key file-based
-                                [% END %]
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><strong>Status</strong></td>
-                            <td>
-                                [% SWITCH sftp_server.status %]
-                                [% CASE 'tests_ok' %]
-                                    Tests passing
-                                [% CASE 'tests_failed' %]
-                                    Tests failing
-                                [% CASE %]
-                                    <em>Never used</em>
-                                [% END %]
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-    <fieldset class="action">
-        <a href="/cgi-bin/koha/admin/sftp_servers.pl?op=edit_form&sftp_server_id=[% sftp_server.id | uri %]" class="btn btn-primary"><i class="fa-solid fa-pencil" aria-hidden="true"></i> Edit</a>
-        <a href="/cgi-bin/koha/admin/sftp_servers.pl?op=test_form&sftp_server_id=[% sftp_server.id | uri %]" class="cancel">Reset</a>
-    </fieldset>
-    [% ELSE %]
-    <div class="page-section">
-        <h3>Oops &ndash; Not Found</h3>
-        <p>An FTP/SFTP server with that ID was not found. Please go back and try again.</p>
-    </div>
-    [% END %]
-[% END %]
-
 [% IF op == 'list' %]
 
     <div id="toolbar" class="btn-toolbar">
@@ -575,6 +477,7 @@
 
 [% MACRO jsinclude BLOCK %]
     [% Asset.js("js/admin-menu.js") | $raw %]
+    [% Asset.js("js/transport_status.js") | $raw %]
     [% INCLUDE 'datatables.inc' %]
     <script>
         $(document).ready(function() {
@@ -670,13 +573,38 @@
                     {
                         "data": "status",
                         "render": function(data, type, row, meta) {
-                            if (data == "tests_ok") {
-                                return _("Tests passing");
-                            } else if (data == "tests_failed") {
-                                return _("Tests failing");
+                            let render = '';
+                            if (data) {
+                                if (data.status == "ok") {
+                                    render += '<i class="text-success fa-solid fa-circle-check"></i> ';
+                                    render += '<span class="text-success">';
+                                    render += _("Tests passing");
+                                    render += '</span>'
+                                } else if (data.status == "errors") {
+                                    data.operations.forEach(operation => {
+                                        render += "<div>";
+                                        if ( operation.status == "error" ) {
+                                            render += '<i class="text-danger fa-solid fa-circle-xmark"></i> ';
+                                            render += '<span class="text-danger">';
+                                            render += operationLabels[operation.code] || operation.code;
+                                            render += ' ' + _("failed");
+                                            render += '</span>';
+                                        } else {
+                                            render += '<i class="text-success fa-solid fa-circle-check"></i> ';
+                                            render += '<span class="text-success">';
+                                            render += operationLabels[operation.code] || operation.code;
+                                            render += ' ' + _("ok");
+                                            render += '</span>';
+                                        }
+                                        render += "</div>";
+                                    });
+                                } else {
+                                    render += "<em>" + _("Never used") + "</em>";
+                                }
                             } else {
-                                return "<em>" + _("Never used") + "</em>";
+                                render += "<em>" + _("Never used") + "</em>";
                             }
+                            return render;
                         },
                         "searchable": false,
                         "orderable": false
@@ -696,8 +624,7 @@
                     },
                     {
                         "data": function(row, type, val, meta) {
-                            var result = '<a class="btn btn-default btn-xs" role="button" href="/cgi-bin/koha/admin/sftp_servers.pl?op=test_form&amp;sftp_server_id='+ encodeURIComponent(row.sftp_server_id) +'"><i class="fa-solid fa-vial" aria-hidden="true"></i> '+_("Test")+'</a>'+"\n";
-                            result += '<a class="btn btn-default btn-xs" role="button" href="/cgi-bin/koha/admin/sftp_servers.pl?op=edit_form&amp;sftp_server_id='+ encodeURIComponent(row.sftp_server_id) +'"><i class="fa-solid fa-pencil" aria-hidden="true"></i> '+_("Edit")+'</a>'+"\n";
+                            let result = '<a class="btn btn-default btn-xs" role="button" href="/cgi-bin/koha/admin/sftp_servers.pl?op=edit_form&amp;sftp_server_id='+ encodeURIComponent(row.sftp_server_id) +'"><i class="fa-solid fa-pencil" aria-hidden="true"></i> '+_("Edit")+'</a>'+"\n";
                             result += '<a class="btn btn-default btn-xs delete_server" role="button" href="#" data-bs-toggle="modal" data-bs-target="#delete_confirm_modal" data-sftp-server-id="'+ encodeURIComponent(row.sftp_server_id) +'" data-sftp-server-name="'+ encodeURIComponent(row.name.escapeHtml()) +'"><i class="fa fa-trash-can" aria-hidden="true"></i> '+_("Delete")+'</a>';
                             return result;
                         },
@@ -864,100 +791,6 @@
         }
     </script>
 
-    [% IF op == 'test_form' %]
-    <script>
-        $(document).ready(function() {
-            handleTests();
-        });
-
-        function handleTests() {
-            var testOutput = $('#testOutput');
-            var runTests   = $('#runTests');
-
-            runTests.addClass('disabled');
-            testOutput.html('<div class="spinner-border text-warning" style="height:1.5rem;width:1.5rem" role="status"><span class="sr-only">Loading...</span></div><span class="pending-loading">' + _("Running tests . . . ") + '</span>');
-
-            return $.ajax({
-                url: "/api/v1/sftp_server/[% sftp_server.id | html %]/test_connection",
-            })
-            .done(function(data) {
-                testOutput.text('');
-
-                for ( let [key, value] of Object.entries( data ) ) {
-                    var title;
-                    switch(key) {
-                        case '1_sftp_conn':
-                            title = _("Testing SFTP connectivity");
-                            break;
-                        case '1_ftp_conn':
-                            title = _("Testing FTP connectivity");
-                            break;
-                        case '2_ftp_login':
-                            title = _("Testing we can log in");
-                            break;
-                        case '2a_sftp_cwd_dl':
-                        case '3a_ftp_cwd_dl':
-                            title = _("Testing we can cwd to download directory");
-                            break;
-                        case '2b_sftp_ls_dl':
-                        case '3b_ftp_ls_dl':
-                            title = _("Testing we can list download directory");
-                            break;
-                        case '2c_sftp_cwd_ul':
-                        case '3c_ftp_cwd_ul':
-                            title = _("Testing we can cwd to upload directory");
-                            break;
-                        case '2d_sftp_ls_ul':
-                        case '3d_ftp_ls_ul':
-                            title = _("Testing we can list upload directory");
-                            break;
-                        case '3_sftp_write':
-                        case '4_ftp_write':
-                            title = _("Testing we can write a test file");
-                            break;
-                        case '4_sftp_del':
-                        case '5_ftp_del':
-                            title = _("Testing we can delete test file");
-                            break;
-                        default:
-                            title = key
-                    }
-
-                    if ( value.passed ) {
-                        testOutput.append(
-                            '<i class="text-success fa-solid fa-circle-check"></i> '
-                            + title
-                            + '... <span class="text-success">'
-                            + _("Passed")
-                            + '</span><br />'
-                        );
-                        if( value.msg ) testOutput.append( _("Message: ") + '<code>' + value.msg + '</code><br />' );
-                    } else {
-                        testOutput.append(
-                            '<i class="text-danger fa-solid fa-circle-xmark"></i> '
-                            + title
-                            + '... <span class="text-danger">'
-                            + _("Failed")
-                            + '</span><br />'
-                        );
-                        if( value.err ) testOutput.append( _("Error message: ") + '<code>' + value.err + '</code><br />' );
-                    }
-                    testOutput.append( '<br />' );
-                }
-            })
-            .fail(function(data) {
-                if( data.status == 404 ) {
-                    return testOutput.text( '<i class="text-success fa-solid fa-circle-check"></i> ' + _("FTP/SFTP Server not found") );
-                } else {
-                    return testOutput.text( '<i class="text-success fa-solid fa-circle-check"></i> ' + _("Internal Server Error. Please check the server logs") );
-                }
-            })
-            .always(function(data) {
-                runTests.removeClass('disabled');
-            });
-        }
-    </script>
-    [% END %]
 [% END %]
 
 [% INCLUDE 'intranet-bottom.inc' %]
