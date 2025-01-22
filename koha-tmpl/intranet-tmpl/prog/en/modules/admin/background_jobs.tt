@@ -238,6 +238,10 @@
                 '_id': 'import_from_kbart_file',
                 '_str': _("Import titles from a KBART file")
             },
+            {
+                '_id': 'file_transport_test',
+                '_str': _("File transport connection test")
+            }
         ];
 
         function get_job_type (job_type) {
