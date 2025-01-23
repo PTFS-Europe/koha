@@ -22,7 +22,60 @@ export default {
             }),
         }
     },
-    methods: {},
+    methods: {
+        goToSubFundEdit: function (subFund) {
+            this.$router.push({
+                name: "SubFundFormAddEdit",
+                params: {
+                    fund_id: subFund.fund_id,
+                    sub_fund_id: subFund.sub_fund_id,
+                },
+            })
+        },
+        doSubFundDelete: function (subFund) {
+            let resource_id = subFund.sub_fund_id
+            let resource_name = subFund.name
+
+            this.setConfirmationDialog(
+                {
+                    title: this.$__(
+                        "Are you sure you want to remove this sub fund?"
+                    ),
+                    message: resource_name,
+                    accept_label: this.$__("Yes, delete"),
+                    cancel_label: this.$__("No, do not delete"),
+                },
+                () => {
+                    APIClient.acquisition.subFunds.delete(resource_id).then(
+                        success => {
+                            this.setMessage(
+                                this.$__("Sub fund %s deleted").format(
+                                    resource_name
+                                ),
+                                true
+                            )
+                            if (typeof callback === "function") {
+                                callback()
+                            } else {
+                                if (
+                                    this.$options.name === this.list_component
+                                ) {
+                                    this.$refs.table.redraw(
+                                        this.getResourceTableUrl()
+                                    )
+                                } else if (
+                                    this.$options.name === this.show_component
+                                ) {
+                                    this.goToResourceList()
+                                }
+                            }
+                        },
+                        error => {}
+                    )
+                }
+            )
+        },
+    },
     name: "FundResource",
 }
 </script>

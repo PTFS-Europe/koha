@@ -5,10 +5,22 @@
             <ToolbarButton
                 action="edit"
                 @go-to-edit-resource="goToResourceEdit"
+                v-if="!isSubFund"
+            />
+            <ToolbarButton
+                action="edit"
+                @go-to-edit-resource="goToSubFundEdit(fund)"
+                v-if="isSubFund"
             />
             <ToolbarButton
                 action="delete"
                 @delete-resource="doResourceDelete"
+                v-if="!isSubFund"
+            />
+            <ToolbarButton
+                action="delete"
+                @delete-resource="doSubFundDelete(fund)"
+                v-if="isSubFund"
             />
             <ToolbarLink
                 :to="{
