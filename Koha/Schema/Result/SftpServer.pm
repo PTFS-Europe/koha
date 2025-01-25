@@ -96,9 +96,8 @@ __PACKAGE__->table("sftp_servers");
 
 =head2 status
 
-  data_type: 'varchar'
+  data_type: 'longtext'
   is_nullable: 1
-  size: 32
 
 =head2 debug
 
@@ -149,7 +148,7 @@ __PACKAGE__->add_columns(
   "upload_directory",
   { data_type => "mediumtext", is_nullable => 1 },
   "status",
-  { data_type => "varchar", is_nullable => 1, size => 32 },
+  { data_type => "longtext", is_nullable => 1 },
   "debug",
   { data_type => "tinyint", default_value => 0, is_nullable => 0 },
 );
@@ -167,8 +166,8 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key("id");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-12-17 10:30:17
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Dnz0prvPxRoopZCdRaUtnA
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2025-01-25 11:27:50
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:/2s84yiI4PELbMGgLw7yHg
 
 __PACKAGE__->add_columns(
     '+passiv'     => { is_boolean => 1 },
