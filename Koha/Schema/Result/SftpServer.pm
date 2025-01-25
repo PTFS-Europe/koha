@@ -1,5 +1,4 @@
 use utf8;
-
 package Koha::Schema::Result::SftpServer;
 
 # Created by DBIx::Class::Schema::Loader
@@ -56,7 +55,7 @@ __PACKAGE__->table("sftp_servers");
   extra: {list => ["ftp","sftp"]}
   is_nullable: 0
 
-=head2 passiv
+=head2 passive
 
   data_type: 'tinyint'
   default_value: 1
@@ -97,9 +96,8 @@ __PACKAGE__->table("sftp_servers");
 
 =head2 status
 
-  data_type: 'varchar'
+  data_type: 'longtext'
   is_nullable: 1
-  size: 32
 
 =head2 debug
 
@@ -110,49 +108,49 @@ __PACKAGE__->table("sftp_servers");
 =cut
 
 __PACKAGE__->add_columns(
-    "id",
-    { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
-    "name",
-    { data_type => "varchar", is_nullable => 0, size => 80 },
-    "host",
-    {
-        data_type     => "varchar",
-        default_value => "localhost",
-        is_nullable   => 0,
-        size          => 80,
-    },
-    "port",
-    { data_type => "integer", default_value => 22, is_nullable => 0 },
-    "transport",
-    {
-        data_type     => "enum",
-        default_value => "sftp",
-        extra         => { list => [ "ftp", "sftp" ] },
-        is_nullable   => 0,
-    },
-    "passiv",
-    { data_type => "tinyint", default_value => 1, is_nullable => 0 },
-    "user_name",
-    { data_type => "varchar", is_nullable => 1, size => 80 },
-    "password",
-    { data_type => "mediumtext", is_nullable => 1 },
-    "key_file",
-    { data_type => "mediumtext", is_nullable => 1 },
-    "auth_mode",
-    {
-        data_type     => "enum",
-        default_value => "password",
-        extra         => { list => [ "password", "key_file", "noauth" ] },
-        is_nullable   => 0,
-    },
-    "download_directory",
-    { data_type => "mediumtext", is_nullable => 1 },
-    "upload_directory",
-    { data_type => "mediumtext", is_nullable => 1 },
-    "status",
-    { data_type => "varchar", is_nullable => 1, size => 32 },
-    "debug",
-    { data_type => "tinyint", default_value => 0, is_nullable => 0 },
+  "id",
+  { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
+  "name",
+  { data_type => "varchar", is_nullable => 0, size => 80 },
+  "host",
+  {
+    data_type => "varchar",
+    default_value => "localhost",
+    is_nullable => 0,
+    size => 80,
+  },
+  "port",
+  { data_type => "integer", default_value => 22, is_nullable => 0 },
+  "transport",
+  {
+    data_type => "enum",
+    default_value => "sftp",
+    extra => { list => ["ftp", "sftp"] },
+    is_nullable => 0,
+  },
+  "passive",
+  { data_type => "tinyint", default_value => 1, is_nullable => 0 },
+  "user_name",
+  { data_type => "varchar", is_nullable => 1, size => 80 },
+  "password",
+  { data_type => "mediumtext", is_nullable => 1 },
+  "key_file",
+  { data_type => "mediumtext", is_nullable => 1 },
+  "auth_mode",
+  {
+    data_type => "enum",
+    default_value => "password",
+    extra => { list => ["password", "key_file", "noauth"] },
+    is_nullable => 0,
+  },
+  "download_directory",
+  { data_type => "mediumtext", is_nullable => 1 },
+  "upload_directory",
+  { data_type => "mediumtext", is_nullable => 1 },
+  "status",
+  { data_type => "longtext", is_nullable => 1 },
+  "debug",
+  { data_type => "tinyint", default_value => 0, is_nullable => 0 },
 );
 
 =head1 PRIMARY KEY
@@ -167,8 +165,9 @@ __PACKAGE__->add_columns(
 
 __PACKAGE__->set_primary_key("id");
 
-# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-12-17 10:30:17
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Dnz0prvPxRoopZCdRaUtnA
+
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2025-02-14 14:24:27
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:XRl+5L8ZfcwGfIKPxcWWzg
 
 __PACKAGE__->add_columns(
     '+passive' => { is_boolean => 1 },
