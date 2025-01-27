@@ -16,11 +16,13 @@ package Koha::File::Transport;
 # along with Koha; if not, see <http://www.gnu.org/licenses>.
 
 use Modern::Perl;
+
 use constant {
     DEFAULT_TIMEOUT   => 10,
     TEST_FILE_NAME    => '.koha_test_file',
     TEST_FILE_CONTENT => "Hello, world!\n",
 };
+use JSON            qw( decode_json encode_json );
 use List::MoreUtils qw( any );
 
 use Koha::BackgroundJob::TestTransport;
@@ -126,7 +128,8 @@ sub to_api {
     my ( $self, $params ) = @_;
 
     my $json = $self->SUPER::to_api($params) or return;
-    delete @{$json}{qw(password key_file)};    # Remove sensitive data
+    delete @{$json}{qw(password key_file)};            # Remove sensitive data
+    $json->{status} = decode_json( $self->status );    # Decode json status
 
     return $json;
 }
