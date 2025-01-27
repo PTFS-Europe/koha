@@ -53,7 +53,8 @@ Wrapper method for searching objects with library limits, respecting those limit
 sub define_library_group_limits {
     my ( $self, $params, $attributes ) = @_;
 
-    my $logged_in_branch = C4::Context->userenv()->{'branch'} || undef;
+    my $userenv = C4::Context->userenv();
+    my $logged_in_branch = $userenv ? $userenv->{'branch'} : undef;
     return ( $params, $attributes ) unless $logged_in_branch;
 
     my $lib_group_visibility_parameters = $self->object_class()->_library_group_visibility_parameters;

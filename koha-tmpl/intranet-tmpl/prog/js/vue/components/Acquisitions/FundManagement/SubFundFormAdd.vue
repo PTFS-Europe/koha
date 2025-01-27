@@ -134,7 +134,7 @@
                                 type="number"
                                 min="0"
                                 max="100"
-                                step=".01"
+                                step="1"
                             />
                         </li>
                         <li>
@@ -152,7 +152,7 @@
                                     )
                                 "
                                 type="number"
-                                step=".01"
+                                step="1"
                             />
                         </li>
                         <li>
@@ -168,7 +168,7 @@
                                     )
                                 "
                                 type="number"
-                                step=".01"
+                                step="1"
                             />
                         </li>
                         <li>
@@ -184,7 +184,7 @@
                                     )
                                 "
                                 type="number"
-                                step=".01"
+                                step="1"
                             />
                         </li>
                     </ol>
@@ -318,6 +318,8 @@ export default {
 
             delete sub_fund.sub_fund_id
             delete sub_fund.last_updated
+
+            sub_fund.oe_warning_percent = sub_fund.oe_warning_percent / 100
 
             if (sub_fund_id) {
                 const acq_client = APIClient.acquisition
