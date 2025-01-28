@@ -14,6 +14,7 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import vSelect from "vue-select";
 import { useNavigationStore } from "../../stores/navigation";
 import { useMainStore } from "../../stores/main";
+import { useAVStore } from "../../stores/authorised-values";
 import routesDef from "../../routes/admin/record_sources";
 
 library.add(faPlus, faMinus, faPencil, faTrash, faSpinner);
@@ -21,6 +22,7 @@ library.add(faPlus, faMinus, faPencil, faTrash, faSpinner);
 const pinia = createPinia();
 const navigationStore = useNavigationStore(pinia);
 const mainStore = useMainStore(pinia);
+const AVStore = useAVStore(pinia);
 const { removeMessages } = mainStore;
 const { setRoutes } = navigationStore;
 const routes = setRoutes(routesDef);
@@ -46,6 +48,7 @@ const rootComponent = app
 app.config.unwrapInjectedRef = true;
 app.provide("mainStore", mainStore);
 app.provide("navigationStore", navigationStore);
+app.provide("AVStore", AVStore);
 app.mount("#record-source");
 
 router.beforeEach(to => {
