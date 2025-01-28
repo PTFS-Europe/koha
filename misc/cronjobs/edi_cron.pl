@@ -31,27 +31,17 @@ use utf8;
 
 use Koha::Script -cron;
 use C4::Context;
-use Log::Log4perl qw(:easy);
 use Koha::Database;
 use Koha::EDI qw( process_quote process_invoice process_ordrsp );
 use Koha::Edifact::Transport;
+use Koha::Logger;
 use Koha::Plugins::Handler;
 use Fcntl qw( LOCK_EX O_CREAT O_RDWR SEEK_SET );
 
 die "Syspref 'EDIFACT' is disabled" unless C4::Context->preference('EDIFACT');
 
-my $logdir = C4::Context->config('logdir');
-
-# logging set to trace as this may be what you
-# want on implementation
-Log::Log4perl->easy_init(
-    {
-        level => $TRACE,
-        file  => ">>$logdir/editrace.log",
-    }
-);
-
 # we dont have a lock dir in context so use the logdir
+my $logdir  = C4::Context->config('logdir');
 my $pidfile = "$logdir/edicron.pid";
 
 my $pid_handle = check_pidfile();
@@ -60,7 +50,7 @@ my $schema = Koha::Database->new()->schema();
 
 my @edi_accts = $schema->resultset('VendorEdiAccount')->all();
 
-my $logger = Log::Log4perl->get_logger();
+my $logger = Koha::Logger->get( { interface => 'edi', prefix => 0 } );
 
 for my $acct (@edi_accts) {
     if ( $acct->quotes_enabled ) {
@@ -155,8 +145,7 @@ foreach my $response (@downloaded_responses) {
 if ( close $pid_handle ) {
     unlink $pidfile;
     exit 0;
-}
-else {
+} else {
     $logger->error("Error on pidfile close: $!");
     exit 1;
 }
@@ -165,7 +154,7 @@ sub check_pidfile {
 
     # sysopen my $fh, $pidfile, O_EXCL | O_RDWR or log_exit "$0 already running"
     sysopen my $fh, $pidfile, O_RDWR | O_CREAT
-      or log_exit("$0: open $pidfile: $!");
+        or log_exit("$0: open $pidfile: $!");
     flock $fh => LOCK_EX or log_exit("$0: flock $pidfile: $!");
 
     sysseek $fh, 0, SEEK_SET or log_exit("$0: sysseek $pidfile: $!");

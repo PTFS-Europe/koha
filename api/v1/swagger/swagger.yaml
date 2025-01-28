@@ -156,6 +156,8 @@ definitions:
     $ref: ./definitions/preservation_train_item.yaml
   preservation_processing:
     $ref: ./definitions/preservation_processing.yaml
+  public_list:
+    $ref: ./definitions/public_list.yaml
   quote:
     $ref: ./definitions/quote.yaml
   recall:
@@ -445,6 +447,10 @@ paths:
     $ref: "./paths/libraries.yaml#/~1libraries~1{library_id}~1cash_registers"
   "/libraries/{library_id}/desks":
     $ref: "./paths/libraries.yaml#/~1libraries~1{library_id}~1desks"
+  /lists:
+    $ref: ./paths/lists.yaml#/~1lists
+  "/lists/{list_id}":
+    $ref: "./paths/lists.yaml#/~1lists~1{list_id}"
   "/oauth/login/{provider_code}/{interface}":
     $ref: ./paths/oauth.yaml#/~1oauth~1login~1{provider_code}~1{interface}
   /oauth/token:
@@ -512,7 +518,9 @@ paths:
   "/public/libraries/{library_id}":
     $ref: "./paths/libraries.yaml#/~1public~1libraries~1{library_id}"
   "/public/lists":
-    $ref: "./paths/lists.yaml#/~1public~1lists"
+    $ref: "./paths/public_lists.yaml#/~1public~1lists"
+  "/public/lists/{list_id}":
+    $ref: "./paths/public_lists.yaml#/~1public~1lists~1{list_id}"
   "/public/oauth/login/{provider_code}/{interface}":
     $ref: ./paths/public_oauth.yaml#/~1public~1oauth~1login~1{provider_code}~1{interface}
   "/public/patrons/{patron_id}/article_requests/{article_request_id}":
@@ -804,6 +812,12 @@ parameters:
     description: License internal identifier
     in: path
     name: license_id
+    required: true
+    type: integer
+  list_id_pp:
+    description: list internal identifier
+    in: path
+    name: list_id
     required: true
     type: integer
   match:

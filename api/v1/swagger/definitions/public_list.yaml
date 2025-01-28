@@ -21,6 +21,7 @@ properties:
     owner_id:
         description: Internal identifier for the owning patron
         type: integer
+        readOnly: true
     allow_change_from_owner:
         description: If the owner can change the contents
         type: boolean

@@ -64,18 +64,17 @@ my $orig_record = build_record([
     [ '250', 'a', '250 bottles of beer on the wall' ],
     [ '250', 'a', '256 bottles of beer on the wall' ],
     [ '500', 'a', 'One bottle of beer in the fridge' ],
-]
-);
+]);
 
 my $incoming_record = build_record(
     [
-    ['250', 'a', '256 bottles of beer on the wall'], # Unchanged
-    ['250', 'a', '251 bottles of beer on the wall'], # Appended
-    #['250', 'a', '250 bottles of beer on the wall'], # Removed
-    #['500', 'a', 'One bottle of beer in the fridge'], # Deleted
-    ['501', 'a', 'One cold bottle of beer in the fridge'], # Added
-    ['501', 'a', 'Two cold bottles of beer in the fridge'], # Added
-]
+        [ '250', 'a', '256 bottles of beer on the wall' ],        # Unchanged
+        [ '250', 'a', '251 bottles of beer on the wall' ],        # Appended
+      # ['250', 'a', '250 bottles of beer on the wall'],          # Removed
+      # ['500', 'a', 'One bottle of beer in the fridge'],         # Deleted
+        [ '501', 'a', 'One cold bottle of beer in the fridge' ],  # Added
+        [ '501', 'a', 'Two cold bottles of beer in the fridge' ], # Added
+    ]
 );
 
 # Test default behavior when MARCOverlayRules is enabled, but no rules defined (overwrite)
@@ -685,24 +684,250 @@ subtest '"5XX" fields has been protected when rule matching on regexp "5\d{2}" i
 
 $skip_all_rule->delete();
 
-# Test module specificity, the 0 all rule should no longer be included in set of applied rules
-subtest 'Record fields has been overwritten when non wild card rule with filter match is add = 1, append = 1, remove = 1, delete = 1' => sub {
-    plan tests => 1;
+# Test module filter specificity
+subtest 'Module filter precedence tests' => sub {
+    plan tests => 9;
 
     $rule->set(
         {
-            'filter' => 'test',
+            tag    => '*',
+            module => 'source',
+            filter => '*',
+            add    => 0,
+            append => 0,
+            remove => 0,
+            delete => 0,
         }
     )->store();
 
-    my $merged_record = Koha::MarcOverlayRules->merge_records($orig_record, $incoming_record, { 'source' => 'test' });
+    my $matching_filter_rule_overwrite = Koha::MarcOverlayRules->find_or_create(
+        {
+            tag    => '*',
+            module => 'source',
+            filter => 'test',
+            add    => 1,
+            append => 1,
+            remove => 1,
+            delete => 1
+        }
+    );
+
+    # Current rules:
+    # source: *, tag: *, add: 0, append: 0, remove: 0, delete: 0
+    # source: test, tag: *, add: 1, append: 1, remove: 1, delete: 1
+    my $merged_record = Koha::MarcOverlayRules->merge_records( $orig_record, $incoming_record, { 'source' => 'test' } );
 
     is(
         $merged_record->as_formatted,
         $incoming_record->as_formatted,
-        'Only existing rule is not for us, erasing' # FIXME Is this comment correct?
+        'Non wildcard rule with wildcard tag matches and overrides wildcard rule with wildcard tag'
     );
 
+    $rule->set( { tag => '5\d{2}' } )->store();
+
+    # Current rules:
+    # source: *, tag: 5\d{2}, add: 0, append: 0, remove: 0, delete: 0
+    # source: test, tag: *, add: 1, append: 1, remove: 1, delete: 1
+    $merged_record = Koha::MarcOverlayRules->merge_records( $orig_record, $incoming_record, { 'source' => 'test' } );
+
+    is(
+        $merged_record->as_formatted,
+        $incoming_record->as_formatted,
+        'Non wildcard rule with wildcard tag matches and overrides wildcard rules with regexp tags'
+    );
+
+    $rule->set( { tag => '501' } )->store();
+
+    # Current rules:
+    # source: *, tag: 501, add: 0, append: 0, remove: 0, delete: 0
+    # source: test, tag: *, add: 1, append: 1, remove: 1, delete: 1
+    $merged_record = Koha::MarcOverlayRules->merge_records( $orig_record, $incoming_record, { 'source' => 'test' } );
+
+    is(
+        $merged_record->as_formatted,
+        $incoming_record->as_formatted,
+        'Non wildcard rule with wildcard tag matches and overrides wildcard rules with specific tags'
+    );
+
+    $rule->set( { tag => '*' } )->store();
+
+    my $wildcard_filter_rule_overwrite = Koha::MarcOverlayRules->find_or_create(
+        {
+            tag    => '501',
+            module => 'source',
+            filter => '*',
+            add    => 1,
+            append => 1,
+            remove => 1,
+            delete => 1,
+        }
+    );
+
+    $matching_filter_rule_overwrite->set( { tag => '250' } )->store();
+
+    # Current rules:
+    # source: *, tag: *, add: 0, append: 0, remove: 0, delete: 0
+    # source: *, tag: 501, add: 1, append: 1, remove: 1, delete: 1
+    # source: test, tag: 250, add: 1, append: 1, remove: 1, delete: 1
+    $merged_record = Koha::MarcOverlayRules->merge_records( $orig_record, $incoming_record, { 'source' => 'test' } );
+
+    my $expected_record = build_record(
+        [
+            [ '250', 'a', '256 bottles of beer on the wall' ],    # Unchanged
+            [ '250', 'a', '251 bottles of beer on the wall' ],    # Appended
+                #['250', 'a', '250 bottles of beer on the wall'], # Removed
+            [ '500', 'a', 'One bottle of beer in the fridge' ],          # Protected
+            [ '501', 'a', 'One cold bottle of beer in the fridge' ],     # Added
+            [ '501', 'a', 'Two cold bottles of beer in the fridge' ],    # Added
+        ]
+    );
+
+    is(
+        $merged_record->as_formatted,
+        $expected_record->as_formatted,
+        'Rules have been merged when non wildcard filter context does not contain any wildcard tag rules'
+    );
+
+    my $matching_filter_rule_protect = Koha::MarcOverlayRules->find_or_create(
+        {
+            tag    => '501',
+            module => 'source',
+            filter => 'test',
+            add    => 0,
+            append => 0,
+            remove => 0,
+            delete => 0
+        }
+    );
+
+    # Current rules:
+    # source: *, tag: *, add: 0, append: 0, remove: 0, delete: 0
+    # source: *, tag: 501, add: 1, append: 1, remove: 1, delete: 1
+    # source: test, tag: 250, add: 1, append: 1, remove: 1, delete: 1
+    # source: test, tag: 501, add: 0, append: 0, remove: 0, delete: 0
+    $merged_record = Koha::MarcOverlayRules->merge_records( $orig_record, $incoming_record, { 'source' => 'test' } );
+
+    $expected_record = build_record(
+        [
+            [ '250', 'a', '256 bottles of beer on the wall' ],    # Unchanged
+            [ '250', 'a', '251 bottles of beer on the wall' ],    # Appended
+                #['250', 'a', '250 bottles of beer on the wall'], # Removed
+            [ '500', 'a', 'One bottle of beer in the fridge' ],    # Protected
+                #['501', 'a', 'One cold bottle of beer in the fridge'], # Protected
+                #['501', 'a', 'Two cold bottles of beer in the fridge'], # Protected
+        ]
+    );
+
+    is(
+        $merged_record->as_formatted,
+        $expected_record->as_formatted,
+        'Wildcard filter rule has been overridden by non wildcard filter rule with same tag'
+    );
+
+    $matching_filter_rule_protect->set(
+        {
+            tag => '5\d{2}',
+        }
+    )->store();
+
+    # Current rules:
+    # source: *, tag: *, add: 0, append: 0, remove: 0, delete: 0
+    # source: *, tag: 501, add: 1, append: 1, remove: 1, delete: 1
+    # source: test, tag: 250, add: 1, append: 1, remove: 1, delete: 1
+    # source: test, tag: 5\d{2}, add: 0, append: 0, remove: 0, delete: 0
+    $merged_record = Koha::MarcOverlayRules->merge_records( $orig_record, $incoming_record, { 'source' => 'test' } );
+
+    is(
+        $merged_record->as_formatted,
+        $expected_record->as_formatted,
+        'Wildcard filter rules with tags that matches tag regexps for non wildcard filter rules has been overridden'
+    );
+
+    $wildcard_filter_rule_overwrite->set(
+        {
+            tag => '5\d{2}',
+        }
+    )->store();
+
+    # Current rules:
+    # source: *, tag: *, add: 0, append: 0, remove: 0, delete: 0
+    # source: *, tag: 5\d{2}, add: 1, append: 1, remove: 1, delete: 1
+    # source: test, tag: 250, add: 1, append: 1, remove: 1, delete: 1
+    # source: test, tag: 5\d{2}, add: 0, append: 0, remove: 0, delete: 0
+    $merged_record = Koha::MarcOverlayRules->merge_records( $orig_record, $incoming_record, { 'source' => 'test' } );
+
+    is(
+        $merged_record->as_formatted,
+        $expected_record->as_formatted,
+        'Wildcard filter rules with tags with tag regexps matching the same tag as regexps for non wildcard filter rules has been overridden'
+    );
+
+    my $categorycode_matching_filter_rule_protect = Koha::MarcOverlayRules->find_or_create(
+        {
+            tag    => '*',
+            module => 'categorycode',
+            filter => 'C',
+            add    => 0,
+            append => 0,
+            remove => 0,
+            delete => 0
+        }
+    );
+
+    # Current rules:
+    # source: *, tag: *, add: 0, append: 0, remove: 0, delete: 0
+    # source: *, tag: 5\d{2}, add: 1, append: 1, remove: 1, delete: 1
+    # source: test, tag: 250, add: 1, append: 1, remove: 1, delete: 1
+    # source: test, tag: 5\d{2}, add: 0, append: 0, remove: 0, delete: 0
+    # categorycode: C, tag: *, add: 0, append: 0, remove: 0, delete: 0
+    $merged_record = Koha::MarcOverlayRules->merge_records(
+        $orig_record,
+        $incoming_record,
+        { 'source' => 'test', 'categorycode' => 'C' }
+    );
+
+    is(
+        $merged_record->as_formatted,
+        $orig_record->as_formatted,
+        'If both categorycode and source module contexts matches, rules from categorycode module context are used'
+    );
+
+    my $userid_matching_filter_rule_protect = Koha::MarcOverlayRules->find_or_create(
+        {
+            tag    => '*',
+            module => 'userid',
+            filter => '123',
+            add    => 1,
+            append => 1,
+            remove => 1,
+            delete => 1
+        }
+    );
+
+    # Current rules:
+    # source: *, tag: *, add: 0, append: 0, remove: 0, delete: 0
+    # source: *, tag: 5\d{2}, add: 1, append: 1, remove: 1, delete: 1
+    # source: test, tag: 250, add: 1, append: 1, remove: 1, delete: 1
+    # source: test, tag: 5\d{2}, add: 0, append: 0, remove: 0, delete: 0
+    # categorycode: C, tag: *, add: 0, append: 0, remove: 0, delete: 0
+    # userid: 123, tag: *, add: 1, append: 1, remove: 1, delete: 1
+    $merged_record = Koha::MarcOverlayRules->merge_records(
+        $orig_record,
+        $incoming_record,
+        { 'source' => 'test', 'categorycode' => 'C', 'userid' => '123' }
+    );
+
+    is(
+        $merged_record->as_formatted,
+        $incoming_record->as_formatted,
+        'If both userid, categorycode and source module contexts matches, rules from userid module context are used'
+    );
+
+    $categorycode_matching_filter_rule_protect->delete();
+    $userid_matching_filter_rule_protect->delete();
+    $wildcard_filter_rule_overwrite->delete();
+    $matching_filter_rule_overwrite->delete();
+    $matching_filter_rule_protect->delete();
 };
 
 subtest 'An exception is thrown when append = 1, remove = 0 is set for control field rule' => sub {
@@ -765,7 +990,7 @@ subtest 'context option in ModBiblio is handled correctly' => sub {
     my $expected_record = build_record([
             # "250" field has been appended
             [ '250', 'a', '250 bottles of beer on the wall' ],        # original
-            [ '250', 'a', '256 bottles of beer on the wall' ],        # incoming
+            [ '250', 'a', '256 bottles of beer on the wall' ],        # original
             [ '500', 'a', 'One bottle of beer in the fridge' ],       # original
             [ '999', 'c', $biblionumber, 'd', $biblioitemnumber ],    # created by AddBiblio
     ]);
@@ -791,10 +1016,11 @@ subtest 'context option in ModBiblio is handled correctly' => sub {
     my $updated_record = $biblio->get_from_storage->metadata->record;
 
     $expected_record = build_record([
-            # "250" field has been appended
+            # "250" field has been protected
             [ '250', 'a', '250 bottles of beer on the wall' ],
             [ '250', 'a', '256 bottles of beer on the wall' ],
             [ '500', 'a', 'One bottle of beer in the fridge' ],
+            # "500" field has been appended
             [ '500', 'a', 'One cold bottle of beer in the fridge' ],
             [ '999', 'c', $biblionumber, 'd', $biblioitemnumber ],    # created by AddBiblio
     ]);
