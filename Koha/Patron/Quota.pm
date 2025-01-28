@@ -12,6 +12,59 @@ Koha::Patron::Quota - Koha Patron::Quota Object class
 
 =head2 Class Methods
 
+=head2 store
+
+Overloaded store method to prevent creation of overlapping quota periods for a user
+
+=cut
+
+sub store {
+    my ($self) = @_;
+
+    # Throw exception for quota period clash
+    my $dtf            = Koha::Database->new->schema->storage->datetime_parser;
+    my $existing_quota = Koha::Patron::Quotas->search(
+        {
+            {
+                '-and' => [
+                    {
+                        '-or' => [
+                            period_start => {
+                                '-between' => [
+                                    $dtf->format_datetime( $self->period_start ),
+                                    $dtf->format_datetime( $self->period_end )
+                                ]
+                            },
+                            period_end => {
+                                '-between' => [
+                                    $dtf->format_datetime( $self->period_start ),
+                                    $dtf->format_datetime( $self->period_end )
+                                ]
+                            },
+                            {
+                                period_start => { '<' => $dtf->format_datetime( $self->period_start ) },
+                                period_end   => { '>' => $dtf->format_datetime( $self->period_end ) }
+                            }
+                        ]
+                    },
+                    {
+                        patron_id => $self->patron_id,
+                        (
+                            $self->in_storage
+                            ? ( quota_id => { '!=' => $self->quota_id } )
+                            : ()
+                        ),
+                    }
+                ]
+            }
+        }
+    );
+    Koha::Exceptions::Quota::Clash->throw()
+        if $existing_quota->count;
+
+    return $self->SUPER::store();
+}
+
 =head3 add_to_quota
 
 Adds specified amount to the quota_used value
