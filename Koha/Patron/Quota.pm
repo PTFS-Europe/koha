@@ -1,24 +1,16 @@
-package Koha::PatronQuota;
+package Koha::Patron::Quota;
 
 use Modern::Perl;
 use Koha::DateUtils qw( dt_from_string );
-use base qw(Koha::Object);
+use base            qw(Koha::Object);
 
 =head1 NAME
 
-Koha::PatronQuota - Koha PatronQuota Object class
+Koha::Patron::Quota - Koha Patron::Quota Object class
 
 =head1 API
 
 =head2 Class Methods
-
-=head3 type
-
-=cut
-
-sub _type {
-    return 'PatronQuota';
-}
 
 =head3 add_to_quota
 
@@ -27,8 +19,8 @@ Adds specified amount to the quota_used value
 =cut
 
 sub add_to_quota {
-    my ($self, $amount) = @_;
-    
+    my ( $self, $amount ) = @_;
+
     my $new_used = $self->quota_used + $amount;
     $self->quota_used($new_used);
     return $self->store;
@@ -66,7 +58,7 @@ Returns the patron object associated with this quota
 
 sub get_patron {
     my ($self) = @_;
-    return Koha::Patrons->find($self->patron_id);
+    return Koha::Patrons->find( $self->patron_id );
 }
 
 =head3 is_active
@@ -78,20 +70,30 @@ Returns boolean indicating if the quota period includes today's date
 sub is_active {
     my ($self) = @_;
     my $today = dt_from_string;
-    
+
     my $start = DateTime->new(
-        year => substr($self->period_start, 0, 4),
-        month => substr($self->period_start, 5, 2),
-        day => substr($self->period_start, 8, 2)
+        year  => substr( $self->period_start, 0, 4 ),
+        month => substr( $self->period_start, 5, 2 ),
+        day   => substr( $self->period_start, 8, 2 )
     );
-    
+
     my $end = DateTime->new(
-        year => substr($self->period_end, 0, 4),
-        month => substr($self->period_end, 5, 2),
-        day => substr($self->period_end, 8, 2)
+        year  => substr( $self->period_end, 0, 4 ),
+        month => substr( $self->period_end, 5, 2 ),
+        day   => substr( $self->period_end, 8, 2 )
     );
-    
-    return ($start <= $today && $end >= $today);
+
+    return ( $start <= $today && $end >= $today );
+}
+
+=head2 Internal methods
+
+=head3 _type
+
+=cut
+
+sub _type {
+    return 'PatronQuota';
 }
 
 1;
