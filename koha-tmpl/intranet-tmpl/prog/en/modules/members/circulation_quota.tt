@@ -1,0 +1,127 @@
+[% USE raw %]
+[% USE Asset %]
+[% USE KohaDates %]
+[% USE Koha %]
+[% USE AuthorisedValues %]
+[% USE Branches %]
+[% USE TablesSettings %]
+[% PROCESS 'i18n.inc' %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>[% FILTER collapse %]
+    [% t("Circulation quota for") | html %] [% INCLUDE 'patron-title.inc' no_html = 1 %]
+    [% t("Patrons") | html %] &rsaquo;
+    [% t("Koha") | html %]
+[% END %]</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+
+<body id="pat_readingrec" class="pat">
+[% WRAPPER 'header.inc' %]
+    [% INCLUDE 'patron-search-header.inc' %]
+[% END %]
+
+[% WRAPPER 'sub-header.inc' %]
+    [% WRAPPER breadcrumbs %]
+        [% WRAPPER breadcrumb_item %]
+            <a href="/cgi-bin/koha/members/members-home.pl">Patrons</a>
+        [% END %]
+        [% WRAPPER breadcrumb_item %]
+            <a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% patron.borrowernumber | uri %]">[% INCLUDE 'patron-title.inc' %]</a>
+        [% END %]
+        [% WRAPPER breadcrumb_item bc_active= 1 %]
+            <span>Circulation quotas</span>
+        [% END %]
+    [% END #/ WRAPPER breadcrumbs %]
+[% END #/ WRAPPER sub-header.inc %]
+
+<div class="main container-fluid">
+    <div class="row">
+        <div class="col-md-10 order-md-2 order-sm-1">
+            <main>
+                [% INCLUDE 'messages.inc' %]
+                [% INCLUDE 'members-toolbar.inc' %]
+                <h1>Circulation quota</h1>
+                <div class="page-section">
+                    <h2>Organization quota</h2>
+                    <table id="patrons_quota"></table>
+                </div>
+            </main>
+        </div> <!-- /.col-md-10.order-md-2.order-sm-1 -->
+
+        <div class="col-md-2 order-sm-2 order-md-1">
+            <aside>
+                [% INCLUDE 'circ-menu.inc' %]
+            </aside>
+        </div> <!-- /.col-md-2.order-sm-2.order-md-1 -->
+    </div> <!-- /.row -->
+
+[% MACRO jsinclude BLOCK %]
+    [% INCLUDE 'str/members-menu.inc' %]
+    [% Asset.js("js/members-menu.js") | $raw %]
+    [% INCLUDE 'datatables.inc' %]
+    [% INCLUDE 'columns_settings.inc' %]
+    [% INCLUDE 'js-date-format.inc' %]
+    [% INCLUDE 'js-patron-format.inc' %]
+    <script>
+        var patrons_quota_url= "/api/v1/patrons/%s/quota".format(borrowernumber);
+        let patrons_quota_table = $('#patrons_quota').kohaTable({
+            "ajax": {
+                "url": patrons_quota_url
+            },
+            "embed": [
+            ],
+            "columns": [{
+                "data": "quota_id",
+                "title": _("Quota ID"),
+                "visible": false
+            },
+            {
+                "data": "name",
+                "title": _("Name"),
+                "visible": true,
+            },
+            {
+                "data": "start_date",
+                "title": _("Start date"),
+                "searchable": true,
+                "orderable": true,
+                "render": function(data, type, row, meta) {
+                    return $date(row.start_date);
+                }
+            },
+            {
+                "data": "end_date",
+                "title": _("End date"),
+                "searchable": true,
+                "orderable": true,
+                "render": function(data, type, row, meta) {
+                    return $date(row.end_date);
+                }
+            },
+            {
+                "data": "quota_total:quota_used",
+                "title": _("Allowance"),
+                "searchable": true,
+                "orderable": true,
+                "render": function(data, type, row, meta) {
+                    return row.quota_used + "/" + row.quota_total;
+                }
+            },
+            {
+                "data": "",
+                "title": _("Actions"),
+                "class": "actions",
+                "searchable": false,
+                "orderable": false,
+                "render": function(data, type, row, meta) {
+                    result += '<button type="button" class="btn btn-default btn-xs edit-action" data-bs-toggle="modal" data-bs-target="#editQuotaModal" data-quota="%s" data-patron="%s" data-start_date="%s" data-end_date="%s"><i class="fa fa-pencil" aria-hidden="true"></i> %s</button>'.format(row.quota_id, row.patron_id, row.start_date, row.end_date, _("Edit"));
+                    return result;
+                }
+            }]
+        }, undefined, 0, undefined);
+
+    </script>
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' %]

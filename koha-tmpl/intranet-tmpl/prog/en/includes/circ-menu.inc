@@ -155,6 +155,9 @@
             [% IF ( readingrecordview ) %]<li class="active">[% ELSE %]<li>[% END %]<a href="/cgi-bin/koha/members/readingrec.pl?borrowernumber=[% patron.borrowernumber | uri %]">Circulation history</a></li>
         [% END %]
     [% END %]
+    <li class="active">
+        <a href="/cgi-bin/koha/members/circulation_quota.pl?borrowernumber=[% patron.borrowernumber | uri %]">Circulation quota</a>
+    </li>
     [% IF CAN_user_borrowers_edit_borrowers %]
         [% IF ( IntranetReadingHistoryHolds ) %]
             [% IF ( holdshistoryview ) %]<li class="active">[% ELSE %]<li>[% END %]<a href="/cgi-bin/koha/members/holdshistory.pl?borrowernumber=[% patron.borrowernumber | uri %]">Holds history</a></li>
