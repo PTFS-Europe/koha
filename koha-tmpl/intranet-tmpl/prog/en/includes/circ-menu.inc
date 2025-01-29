@@ -193,9 +193,11 @@
                     </li>
                 [% END %]
             [% END %]
-                    <li class="active">
+                [% IF patron.category.category_type == 'I' %]
+                    [% IF ( quotaview ) %]<li class="active">[% ELSE %]<li>[% END %]
                         <a href="/cgi-bin/koha/members/circulation_quota.pl?borrowernumber=[% patron.borrowernumber | uri %]">Circulation quota</a>
                     </li>
+                [% END %]
             [% IF CAN_user_borrowers_edit_borrowers %]
                 [% IF ( IntranetReadingHistoryHolds ) %]
                     [% IF ( holdshistoryview ) %]<li class="active">[% ELSE %]<li>[% END %]
