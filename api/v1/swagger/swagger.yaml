@@ -160,6 +160,8 @@ definitions:
     $ref: ./definitions/preservation_processing.yaml
   quote:
     $ref: ./definitions/quote.yaml
+  quota:
+    $ref: ./definitions/quota.yaml
   recall:
     $ref: ./definitions/recall.yaml
   recalls:
@@ -473,6 +475,10 @@ paths:
     $ref: "./paths/patrons_password.yaml#/~1patrons~1{patron_id}~1password"
   "/patrons/{patron_id}/password/expiration_date":
     $ref: "./paths/patrons_password.yaml#/~1patrons~1{patron_id}~1password~1expiration_date"
+  "/patrons/{patron_id}/quotas":
+    $ref: "./paths/patrons_quotas.yaml#/~1patrons~1{patron_id}~1quotas"
+  "/patrons/{patron_id}/quotas/{quota_id}":
+    $ref: "./paths/patrons_quotas.yaml#/~1patrons~1{patron_id}~1quotas~1{quota_id}"
   "/patrons/{patron_id}/recalls":
     $ref: "./paths/patrons_recalls.yaml#/~1patrons~1{patron_id}~1recalls"
   /patron_categories:
@@ -897,6 +903,12 @@ parameters:
     name: quote_id
     required: true
     type: integer
+  quota_id_pp:
+    description: Internal quota identifier
+    in: path
+    name: quota_id
+    required: true
+    type: integer
   record_source_id_header:
     description: Internal record source identifier.
     name: x-record-source-id
@@ -1262,6 +1274,9 @@ tags:
   - description: "Manage purchase suggestions\n"
     name: suggestions
     x-displayName: Purchase suggestions
+  - description: "Manage quotas\n"
+    name: quotas
+    x-displayName: Quotas
   - description: "Manage quotes\n"
     name: quotes
     x-displayName: Quotes
