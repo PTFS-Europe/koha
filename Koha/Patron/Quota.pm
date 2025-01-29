@@ -2,6 +2,7 @@ package Koha::Patron::Quota;
 
 use Modern::Perl;
 use Koha::DateUtils qw( dt_from_string );
+use Koha::Exceptions::Quota;
 use base            qw(Koha::Object);
 
 =head1 NAME
@@ -21,42 +22,44 @@ Overloaded store method to prevent creation of overlapping quota periods for a u
 sub store {
     my ($self) = @_;
 
+    # Parse dates into DateTime objects first
+    my $start_dt = dt_from_string($self->period_start);
+    my $end_dt = dt_from_string($self->period_end);
+
     # Throw exception for quota period clash
-    my $dtf            = Koha::Database->new->schema->storage->datetime_parser;
+    my $dtf = Koha::Database->new->schema->storage->datetime_parser;
     my $existing_quota = Koha::Patron::Quotas->search(
         {
-            {
-                '-and' => [
-                    {
-                        '-or' => [
-                            period_start => {
-                                '-between' => [
-                                    $dtf->format_datetime( $self->period_start ),
-                                    $dtf->format_datetime( $self->period_end )
-                                ]
-                            },
-                            period_end => {
-                                '-between' => [
-                                    $dtf->format_datetime( $self->period_start ),
-                                    $dtf->format_datetime( $self->period_end )
-                                ]
-                            },
-                            {
-                                period_start => { '<' => $dtf->format_datetime( $self->period_start ) },
-                                period_end   => { '>' => $dtf->format_datetime( $self->period_end ) }
-                            }
-                        ]
-                    },
-                    {
-                        patron_id => $self->patron_id,
-                        (
-                            $self->in_storage
-                            ? ( quota_id => { '!=' => $self->quota_id } )
-                            : ()
-                        ),
-                    }
-                ]
-            }
+            '-and' => [
+                {
+                    '-or' => [
+                        period_start => {
+                            '-between' => [
+                                $dtf->format_datetime($start_dt),
+                                $dtf->format_datetime($end_dt)
+                            ]
+                        },
+                        period_end => {
+                            '-between' => [
+                                $dtf->format_datetime($start_dt),
+                                $dtf->format_datetime($end_dt)
+                            ]
+                        },
+                        {
+                            period_start => { '<' => $dtf->format_datetime($start_dt) },
+                            period_end   => { '>' => $dtf->format_datetime($end_dt) }
+                        }
+                    ]
+                },
+                {
+                    patron_id => $self->patron_id,
+                    (
+                        $self->in_storage
+                        ? ( quota_id => { '!=' => $self->quota_id } )
+                        : ()
+                    ),
+                }
+            ]
         }
     );
     Koha::Exceptions::Quota::Clash->throw()
