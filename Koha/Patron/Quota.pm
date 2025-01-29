@@ -142,6 +142,24 @@ sub is_active {
     return ( $start <= $today && $end >= $today );
 }
 
+=head3 to_api
+
+=cut
+
+sub to_api {
+    my ($self, $args) = @_;
+    return $self->SUPER::to_api($args);
+}
+
+=head3 set_from_api
+
+=cut
+
+sub set_from_api {
+    my ($self, $data) = @_;
+    return $self->SUPER::set_from_api($data);
+}
+
 =head2 Internal methods
 
 =head3 _type
