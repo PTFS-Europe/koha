@@ -55,7 +55,8 @@ output_and_exit_if_error(
 );
 
 $template->param(
-    patron => $patron,
+    patron    => $patron,
+    quotaview => 1
 );
 output_html_with_http_headers $input, $cookie, $template->output;
 
