@@ -41,9 +41,20 @@
             <main>
                 [% INCLUDE 'messages.inc' %]
                 [% INCLUDE 'members-toolbar.inc' %]
-                <h1>Circulation quota</h1>
+                <h1>Circulation quota for [% INCLUDE 'patron-title.inc' %]</h1>
+                [% IF patron.guarantor_relationships.count > 0 %]
+                <div class="page-section">
+                    <h2>Guarantors quota</h2>
+                    <table id="guarantors_quota"></table>
+                </div>
+                [% END %]
                 <div class="page-section">
                     <h2>Organization quota</h2>
+
+                    <div id="quota-toobar" class="btn-toolbar">
+                        <button class="btn btn-default" data-bs-toggle="modal" data-bs-target="#quotaModal" data-borrowernumber="[% patron.borrowernumber | html %]"><i class="fa fa-plus" aria-hidden="true"></i> Add a new quota</button>
+                    </div>
+
                     <table id="patrons_quota"></table>
                 </div>
             </main>
@@ -56,6 +67,8 @@
         </div> <!-- /.col-md-2.order-sm-2.order-md-1 -->
     </div> <!-- /.row -->
 
+    [% INCLUDE 'modals/quota.inc' %]
+
 [% MACRO jsinclude BLOCK %]
     [% INCLUDE 'str/members-menu.inc' %]
     [% Asset.js("js/members-menu.js") | $raw %]
@@ -63,6 +76,7 @@
     [% INCLUDE 'columns_settings.inc' %]
     [% INCLUDE 'js-date-format.inc' %]
     [% INCLUDE 'js-patron-format.inc' %]
+    [% Asset.js("js/modals/quota.js") | $raw %]]
     <script>
         var patrons_quota_url= "/api/v1/patrons/%s/quota".format(borrowernumber);
         let patrons_quota_table = $('#patrons_quota').kohaTable({
