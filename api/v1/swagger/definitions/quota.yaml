@@ -1,0 +1,30 @@
+---
+type: object
+properties:
+  quota_id:
+    type: integer
+    description: Internal quota identifier
+    readOnly: true
+  patron_id:
+    type: integer
+    description: Link to patron
+  period_start:
+    type: string
+    format: date
+    description: Start date of quota period
+  period_end:
+    type: string
+    format: date
+    description: End date of quota period
+  quota_total:
+    type: integer
+    description: Total quota amount for period
+  quota_used:
+    type: integer
+    description: Amount of quota used so far
+additionalProperties: false
+required:
+  - patron_id
+  - period_start
+  - period_end
+  - quota_total
