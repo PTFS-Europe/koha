@@ -1,0 +1,225 @@
+---
+/patrons/quotas:
+  get:
+    x-mojo-to: Patrons::Quotas#list
+    operationId: listQuotas
+    tags:
+      - quotas
+    summary: List all quotas
+    parameters:
+      - name: patron_id
+        in: query
+        description: Filter by patron ID
+        required: false
+        type: integer
+        minimum: 1
+      - name: only_active
+        in: query
+        description: Only return active quotas
+        required: false
+        type: boolean
+      - $ref: "../swagger.yaml#/parameters/page"
+      - $ref: "../swagger.yaml#/parameters/per_page"
+      - $ref: "../swagger.yaml#/parameters/match"
+      - $ref: "../swagger.yaml#/parameters/order_by"
+      - $ref: "../swagger.yaml#/parameters/q_param"
+      - $ref: "../swagger.yaml#/parameters/q_body"
+      - $ref: "../swagger.yaml#/parameters/request_id_header"
+    produces:
+      - application/json
+    responses:
+      "200":
+        description: A list of quotas
+        schema:
+          type: array
+          items:
+            $ref: "../swagger.yaml#/definitions/quota"
+      "403":
+        description: Access forbidden
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "500":
+        description: Internal server error
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+    x-koha-authorization:
+      permissions:
+        borrowers: view_borrower_quotas
+
+/patrons/{patron_id}/quotas:
+  post:
+    x-mojo-to: Patrons::Quotas#add
+    operationId: addPatronQuota
+    tags:
+      - quotas
+    summary: Add new quota for patron
+    parameters:
+      - $ref: "../swagger.yaml#/parameters/patron_id_pp"
+      - name: body
+        in: body
+        description: A JSON object containing quota information
+        required: true
+        schema:
+          type: object
+          properties:
+            period_start:
+              type: string
+              format: date
+            period_end:
+              type: string
+              format: date
+            quota_total:
+              type: integer
+            quota_used:
+              type: integer
+          required:
+            - period_start
+            - period_end
+            - quota_total
+    produces:
+      - application/json
+    responses:
+      "201":
+        description: Quota created
+        schema:
+          $ref: "../swagger.yaml#/definitions/quota"
+      "400":
+        description: Bad request
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "404":
+        description: Patron not found
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "409":
+        description: Quota period clash
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "500":
+        description: Internal server error
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+    x-koha-authorization:
+      permissions:
+        borrowers: manage_borrower_quotas
+
+/patrons/{patron_id}/quotas/{quota_id}:
+  get:
+    x-mojo-to: Patrons::Quotas#get
+    operationId: getPatronQuota
+    tags:
+      - quotas
+    summary: Get quota details
+    parameters:
+      - $ref: "../swagger.yaml#/parameters/patron_id_pp"
+      - name: quota_id
+        in: path
+        description: Internal quota identifier
+        required: true
+        type: string
+    produces:
+      - application/json
+    responses:
+      "200":
+        description: A quota
+        schema:
+          $ref: "../swagger.yaml#/definitions/quota"
+      "404":
+        description: Quota not found
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "500":
+        description: Internal server error
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+    x-koha-authorization:
+      permissions:
+        borrowers: view_borrower_quotas
+
+  put:
+    x-mojo-to: Patrons::Quotas#update
+    operationId: updatePatronQuota
+    tags:
+      - quotas  
+    summary: Update quota
+    parameters:
+      - $ref: "../swagger.yaml#/parameters/patron_id_pp"
+      - $ref: "../swagger.yaml#/parameters/quota_id_pp"
+      - name: body
+        in: body
+        description: A quota object
+        required: true
+        schema:
+          type: object
+          properties:
+            period_start:
+              type: string
+              format: date
+            period_end:
+              type: string
+              format: date
+            quota_total:
+              type: integer
+            quota_used:
+              type: integer
+          required:
+            - period_start
+            - period_end
+            - quota_total
+    produces:
+      - application/json
+    responses:
+      "200":
+        description: Quota updated
+        schema:
+          $ref: "../swagger.yaml#/definitions/quota"
+      "400":
+        description: Bad request
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "404":
+        description: Quota not found
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "409":
+        description: Quota period clash
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "500":
+        description: Internal server error
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+    x-koha-authorization:
+      permissions:
+        borrowers: manage_borrower_quotas
+
+  delete:
+    x-mojo-to: Patrons::Quotas#delete
+    operationId: deletePatronQuota
+    tags:
+      - quotas
+    summary: Delete quota
+    parameters:
+      - $ref: "../swagger.yaml#/parameters/patron_id_pp"
+      - name: quota_id
+        in: path
+        description: Internal quota identifier
+        required: true
+        type: integer
+    produces:
+      - application/json
+    responses:
+      "204":
+        description: Quota deleted
+      "404":
+        description: Quota not found
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "500":
+        description: Internal server error
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+    x-koha-authorization:
+      permissions:
+        borrowers: manage_borrower_quotas
+
