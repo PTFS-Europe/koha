@@ -336,8 +336,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-11-14 13:08:04
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Azy+cns0/GJMwsXWJdkolg
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2025-01-31 16:17:33
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:UjFMApIlJ/quE0c2Vc77mA
 
 __PACKAGE__->add_columns(
     '+auto_renew'      => { is_boolean => 1 },
