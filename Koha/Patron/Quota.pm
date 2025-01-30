@@ -1,9 +1,10 @@
 package Koha::Patron::Quota;
 
+use base qw(Koha::Object);
 use Modern::Perl;
 use Koha::DateUtils qw( dt_from_string );
+use Koha::Patron::Quotas;
 use Koha::Exceptions::Quota;
-use base qw(Koha::Object);
 
 =head1 NAME
 
@@ -114,8 +115,8 @@ Returns the Koha::Patron associated with this quota
 =cut
 
 sub patron {
-    my ( $self ) = @_;
-    return Koha::Patron->_new_from_dbic($self->_result->patron);
+    my ($self) = @_;
+    return Koha::Patron->_new_from_dbic( $self->_result->patron );
 }
 
 =head3 is_active
@@ -141,6 +142,42 @@ sub is_active {
     );
 
     return ( $start <= $today && $end >= $today );
+}
+
+=head3 usages
+
+Returns all usage records for this quota
+
+=cut
+
+sub usages {
+    my ($self) = @_;
+    my $usages_rs = $self->_result->patron_quota_usages;
+    return Koha::Patron::Quota::Usages->_new_from_dbic($usages_rs);
+}
+
+=head3 add_usage
+
+Creates a new usage record for this quota with the specified parameters.
+Returns the new Koha::Patron::Quota::Usage object.
+
+=cut
+
+sub add_usage {
+    my ( $self, $params ) = @_;
+
+    # Set defaults
+    $params->{patron_id}       = $self->patron_id;
+    $params->{patron_quota_id} = $self->id;
+    $params->{issue_id}        = undef unless exists $params->{issue_id};
+
+    # Create usage record
+    my $usage = Koha::Patron::Quota::Usage->new($params)->store;
+
+    # Update quota used amount
+    $self->add_to_quota( $params->{amount} );
+
+    return $usage;
 }
 
 =head2 Internal methods
