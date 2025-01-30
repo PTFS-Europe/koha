@@ -23,9 +23,9 @@ sub get_patron_quota {
 
     return $self->search(
         {
-            patron_id    => $patron_id,
-            period_start => { '<=' => \'CURRENT_DATE' },
-            period_end   => { '>=' => \'CURRENT_DATE' },
+            patron_id  => $patron_id,
+            start_date => { '<=' => \'CURRENT_DATE' },
+            end_date   => { '>=' => \'CURRENT_DATE' },
         }
     )->single;
 }
@@ -63,8 +63,8 @@ sub get_active_quotas {
     my ($self) = @_;
     return $self->search(
         {
-            period_start => { '<=' => \'CURRENT_DATE' },
-            period_end   => { '>=' => \'CURRENT_DATE' }
+            start_date => { '<=' => \'CURRENT_DATE' },
+            end_date   => { '>=' => \'CURRENT_DATE' }
         }
     );
 }
