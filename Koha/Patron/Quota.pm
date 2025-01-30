@@ -3,7 +3,7 @@ package Koha::Patron::Quota;
 use Modern::Perl;
 use Koha::DateUtils qw( dt_from_string );
 use Koha::Exceptions::Quota;
-use base            qw(Koha::Object);
+use base qw(Koha::Object);
 
 =head1 NAME
 
@@ -23,31 +23,31 @@ sub store {
     my ($self) = @_;
 
     # Parse dates into DateTime objects first
-    my $start_dt = dt_from_string($self->period_start);
-    my $end_dt = dt_from_string($self->period_end);
+    my $start_dt = dt_from_string( $self->start_date );
+    my $end_dt   = dt_from_string( $self->end_date );
 
     # Throw exception for quota period clash
-    my $dtf = Koha::Database->new->schema->storage->datetime_parser;
+    my $dtf            = Koha::Database->new->schema->storage->datetime_parser;
     my $existing_quota = Koha::Patron::Quotas->search(
         {
             '-and' => [
                 {
                     '-or' => [
-                        period_start => {
+                        start_date => {
                             '-between' => [
                                 $dtf->format_datetime($start_dt),
                                 $dtf->format_datetime($end_dt)
                             ]
                         },
-                        period_end => {
+                        end_date => {
                             '-between' => [
                                 $dtf->format_datetime($start_dt),
                                 $dtf->format_datetime($end_dt)
                             ]
                         },
                         {
-                            period_start => { '<' => $dtf->format_datetime($start_dt) },
-                            period_end   => { '>' => $dtf->format_datetime($end_dt) }
+                            start_date => { '<' => $dtf->format_datetime($start_dt) },
+                            end_date   => { '>' => $dtf->format_datetime($end_dt) }
                         }
                     ]
                 },
@@ -55,7 +55,7 @@ sub store {
                     patron_id => $self->patron_id,
                     (
                         $self->in_storage
-                        ? ( quota_id => { '!=' => $self->quota_id } )
+                        ? ( id => { '!=' => $self->id } )
                         : ()
                     ),
                 }
@@ -128,15 +128,15 @@ sub is_active {
     my $today = dt_from_string;
 
     my $start = DateTime->new(
-        year  => substr( $self->period_start, 0, 4 ),
-        month => substr( $self->period_start, 5, 2 ),
-        day   => substr( $self->period_start, 8, 2 )
+        year  => substr( $self->start_date, 0, 4 ),
+        month => substr( $self->start_date, 5, 2 ),
+        day   => substr( $self->start_date, 8, 2 )
     );
 
     my $end = DateTime->new(
-        year  => substr( $self->period_end, 0, 4 ),
-        month => substr( $self->period_end, 5, 2 ),
-        day   => substr( $self->period_end, 8, 2 )
+        year  => substr( $self->end_date, 0, 4 ),
+        month => substr( $self->end_date, 5, 2 ),
+        day   => substr( $self->end_date, 8, 2 )
     );
 
     return ( $start <= $today && $end >= $today );
@@ -147,7 +147,7 @@ sub is_active {
 =cut
 
 sub to_api {
-    my ($self, $args) = @_;
+    my ( $self, $args ) = @_;
     return $self->SUPER::to_api($args);
 }
 
@@ -156,7 +156,7 @@ sub to_api {
 =cut
 
 sub set_from_api {
-    my ($self, $data) = @_;
+    my ( $self, $data ) = @_;
     return $self->SUPER::set_from_api($data);
 }
 
