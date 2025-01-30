@@ -815,12 +815,11 @@ parameters:
     required: false
     type: integer
   patron_id_pp:
-    name: patron_id
-    in: path
     description: Internal patron identifier
+    in: path
+    name: patron_id
     required: true
     type: integer
-    minimum: 1
   patron_id_qp:
     description: Internal patron identifier
     in: query
