@@ -3,7 +3,7 @@ use Koha::Installer::Output qw(say_warning say_success say_info);
 
 return {
     bug_number  => "patronquotas",
-    description => "Add patron quota table",
+    description => "Add patron quota and quota usage tables",
     up          => sub {
         my ($args) = @_;
         my ( $dbh, $out ) = @$args{qw(dbh out)};
@@ -25,15 +25,38 @@ return {
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
             });
             
+            say_success( $out, "Patron quota table created successfully" );
+        } else {
+            say_info( $out, "Patron quota table already exists" );
+        }
+
+        unless ( TableExists('patron_quota_usage') )
+        {
+            $dbh->do(q{
+                CREATE TABLE `patron_quota_usage` (
+                  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'unique identifier for quota usage record',
+                  `patron_quota_id` int(11) NOT NULL COMMENT 'foreign key linking to patron_quota.id',
+                  `issue_id` int(11) DEFAULT NULL COMMENT 'foreign key linking to issues.issue_id',
+                  `patron_id` int(11) NOT NULL COMMENT 'foreign key linking to borrowers.borrowernumber',
+                  PRIMARY KEY (`id`),
+                  KEY `patron_quota_usage_ibfk_1` (`patron_quota_id`),
+                  KEY `patron_quota_usage_ibfk_2` (`issue_id`),
+                  KEY `patron_quota_usage_ibfk_3` (`patron_id`),
+                  CONSTRAINT `patron_quota_usage_ibfk_1` FOREIGN KEY (`patron_quota_id`) REFERENCES `patron_quota` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+                  CONSTRAINT `patron_quota_usage_ibfk_2` FOREIGN KEY (`issue_id`) REFERENCES `issues` (`issue_id`) ON DELETE SET NULL ON UPDATE CASCADE,
+                  CONSTRAINT `patron_quota_usage_ibfk_3` FOREIGN KEY (`patron_id`) REFERENCES `borrowers` (`borrowernumber`) ON DELETE CASCADE ON UPDATE CASCADE
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+            });
+
             $dbh->do(q{
                 INSERT IGNORE INTO permissions (module_bit, code, description) VALUES
                 (4, 'manage_borrower_quotas', 'Manage patron quotas'),
                 (4, 'view_borrower_quotas', 'View patron quotas')
             });
             
-            say_success( $out, "Patron quota table and permissions created successfully" );
+            say_success( $out, "Patron quota usage table and permissions created successfully" );
         } else {
-            say_info( $out, "Patron quota table already exists" );
+            say_info( $out, "Patron quota usage table already exists" );
         }
     },
 };
