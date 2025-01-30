@@ -23,13 +23,20 @@ __PACKAGE__->table("patron_quota");
 
 =head1 ACCESSORS
 
-=head2 quota_id
+=head2 id
 
   data_type: 'integer'
   is_auto_increment: 1
   is_nullable: 0
 
 unique identifier for the quota record
+
+=head2 description
+
+  data_type: 'longtext'
+  is_nullable: 0
+
+user friendly description for the quota record
 
 =head2 patron_id
 
@@ -39,7 +46,7 @@ unique identifier for the quota record
 
 foreign key linking to borrowers.borrowernumber
 
-=head2 quota_total
+=head2 allocation
 
   data_type: 'integer'
   default_value: 0
@@ -47,15 +54,15 @@ foreign key linking to borrowers.borrowernumber
 
 total quota allocation for the period
 
-=head2 quota_used
+=head2 used
 
   data_type: 'integer'
   default_value: 0
   is_nullable: 0
 
-units used within the current period
+amount of allocation used for current period
 
-=head2 period_start
+=head2 start_date
 
   data_type: 'date'
   datetime_undef_if_invalid: 1
@@ -63,7 +70,7 @@ units used within the current period
 
 start date of the allocation period
 
-=head2 period_end
+=head2 end_date
 
   data_type: 'date'
   datetime_undef_if_invalid: 1
@@ -74,17 +81,19 @@ end date of the allocation period
 =cut
 
 __PACKAGE__->add_columns(
-  "quota_id",
+  "id",
   { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
+  "description",
+  { data_type => "longtext", is_nullable => 0 },
   "patron_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
-  "quota_total",
+  "allocation",
   { data_type => "integer", default_value => 0, is_nullable => 0 },
-  "quota_used",
+  "used",
   { data_type => "integer", default_value => 0, is_nullable => 0 },
-  "period_start",
+  "start_date",
   { data_type => "date", datetime_undef_if_invalid => 1, is_nullable => 0 },
-  "period_end",
+  "end_date",
   { data_type => "date", datetime_undef_if_invalid => 1, is_nullable => 0 },
 );
 
@@ -92,13 +101,13 @@ __PACKAGE__->add_columns(
 
 =over 4
 
-=item * L</quota_id>
+=item * L</id>
 
 =back
 
 =cut
 
-__PACKAGE__->set_primary_key("quota_id");
+__PACKAGE__->set_primary_key("id");
 
 =head1 RELATIONS
 
@@ -118,8 +127,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07051 @ 2025-01-15 14:23:34
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:jVwg3AqHZ+VDXf/GOyGOgA
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2025-01-30 13:56:19
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:4NGr+IaPuboW4p8f1v+6Ng
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
