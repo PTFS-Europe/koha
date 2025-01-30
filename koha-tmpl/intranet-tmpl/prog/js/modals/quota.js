@@ -17,9 +17,10 @@
         const formData = new FormData(target);
         const quotaId = formData.get("quota_id");
         const patronId = formData.get("patron_id");
+        const description = formData.get("description");
         const startDate = formData.get("start_date");
         const endDate = formData.get("end_date");
-        const allowance = formData.get("allowance");
+        const allocation = formData.get("allocation");
 
         const quotaUrl = quotaId ? `/api/v1/patrons/${patronId}/quotas/${quotaId}` : `/api/v1/patrons/${patronId}/quotas`;
         let [error, response] = await catchError(
@@ -27,9 +28,10 @@
                 method: quotaId ? "PUT" : "POST",
                 body: JSON.stringify({
                     patron_id: patronId,
-                    period_start: startDate,
-                    period_end: endDate,
-                    quota_total: allowance
+                    description: description,
+                    start_date: startDate,
+                    end_date: endDate,
+                    allocation: allocation
                 }),
                 headers: {
                     "Content-Type": "application/json",

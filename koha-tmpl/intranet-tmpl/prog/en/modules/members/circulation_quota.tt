@@ -87,7 +87,7 @@
             "embed": [
             ],
             "columns": [{
-                "data": "quota_id",
+                "data": "id",
                 "title": _("Quota ID"),
                 "visible": false
             },
@@ -130,7 +130,7 @@
                 "searchable": false,
                 "orderable": false,
                 "render": function(data, type, row, meta) {
-                    result += '<button type="button" class="btn btn-default btn-xs edit-action" data-bs-toggle="modal" data-bs-target="#editQuotaModal" data-quota="%s" data-patron="%s" data-start_date="%s" data-end_date="%s"><i class="fa fa-pencil" aria-hidden="true"></i> %s</button>'.format(row.quota_id, row.patron_id, row.start_date, row.end_date, _("Edit"));
+                    result += '<button type="button" class="btn btn-default btn-xs edit-action" data-bs-toggle="modal" data-bs-target="#editQuotaModal" data-quota="%s" data-patron="%s" data-start_date="%s" data-end_date="%s"><i class="fa fa-pencil" aria-hidden="true"></i> %s</button>'.format(row.id, row.patron_id, row.start_date, row.end_date, _("Edit"));
                     return result;
                 }
             }]
