@@ -77,8 +77,9 @@ Adds specified amount to the quota_used value
 sub add_to_quota {
     my ( $self, $amount ) = @_;
 
-    my $new_used = $self->quota_used + $amount;
-    $self->quota_used($new_used);
+    $amount //= 1;
+    my $new_used = $self->used + $amount;
+    $self->used($new_used);
     return $self->store;
 }
 
@@ -101,7 +102,7 @@ Returns the amount still available in the quota
 
 sub available_quota {
     my ($self) = @_;
-    return $self->quota_total - $self->quota_used;
+    return $self->allocation - $self->used;
 }
 
 =head2 Instance Methods
