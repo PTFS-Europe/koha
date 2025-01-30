@@ -126,9 +126,24 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 1, on_delete => "CASCADE", on_update => "CASCADE" },
 );
 
+=head2 patron_quota_usages
 
-# Created by DBIx::Class::Schema::Loader v0.07051 @ 2025-01-30 13:56:19
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:4NGr+IaPuboW4p8f1v+6Ng
+Type: has_many
+
+Related object: L<Koha::Schema::Result::PatronQuotaUsage>
+
+=cut
+
+__PACKAGE__->has_many(
+  "patron_quota_usages",
+  "Koha::Schema::Result::PatronQuotaUsage",
+  { "foreign.patron_quota_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2025-01-30 16:04:36
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:KG/MIjPSLcpeSlPypwli2Q
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
