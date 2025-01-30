@@ -14,8 +14,29 @@
                     <fieldset class="rows">
                         <ol>
                             <li>
-                                <label class="required" for="amount">Returned to patron: </label>
-                                <input type="text" inputmode="numeric" pattern="[0-9]*" id="amount" name="amount" required="required">
+                                <label class="required" for="name">Description: </label>
+                                <input type="text" id="name" name="name" required="required">
+                                <span class="required">Required</span>
+                            </li>
+                            <li>
+                                <label for="quota_from" class="required">
+                                    Start date:
+                                </label>
+                                <input type="text" id="quota_from" name="start_date"  maxlength="10" size="10" class="flatpickr" data-date_to="quota_to" />
+                                <span class="required">Required</span>
+                                <div class="hint">[% INCLUDE 'date-format.inc' %]</div>
+                            </li>
+                            <li>
+                                <label for="quota_to" class="required">
+                                    End date:
+                                </label>
+                                <input type="text" id="quota_to" name="end_date" maxlength="10"  size="10" class="flatpickr" />
+                                <span class="required">Required</span>
+                                <div class="hint">[% INCLUDE 'date-format.inc' %]</div>
+                            </li>
+                            <li>
+                                <label class="required" for="allowance">Loan allowance: </label>
+                                <input type="number" min="0" id="allowance" name="allowance" required="required">
                                 <span class="required">Required</span>
                             </li>
                         </ol>
