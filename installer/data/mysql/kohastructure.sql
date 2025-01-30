@@ -6596,6 +6596,29 @@ CREATE TABLE `patron_quota` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
+--
+-- Table structure for table `patron_quota_usage`
+--
+
+DROP TABLE IF EXISTS `patron_quota_usage`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `patron_quota_usage` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'unique identifier for quota usage record',
+  `patron_quota_id` int(11) NOT NULL COMMENT 'foreign key linking to patron_quota.id',
+  `issue_id` int(11) DEFAULT NULL COMMENT 'foreign key linking to issues.issue_id',
+  `patron_id` int(11) NOT NULL COMMENT 'foreign key linking to borrowers.borrowernumber',
+  PRIMARY KEY (`id`),
+  KEY `patron_quota_usage_ibfk_1` (`patron_quota_id`),
+  KEY `patron_quota_usage_ibfk_2` (`issue_id`),
+  KEY `patron_quota_usage_ibfk_3` (`patron_id`),
+  CONSTRAINT `patron_quota_usage_ibfk_1` FOREIGN KEY (`patron_quota_id`) REFERENCES `patron_quota` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `patron_quota_usage_ibfk_2` FOREIGN KEY (`issue_id`) REFERENCES `issues` (`issue_id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `patron_quota_usage_ibfk_3` FOREIGN KEY (`patron_id`) REFERENCES `borrowers` (`borrowernumber`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;     
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
