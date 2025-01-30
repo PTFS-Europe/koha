@@ -85,7 +85,10 @@ sub add {
 
                 my $body = $c->req->json;
 
+                my $patron_attributes = delete $body->{patron_attributes} // [];
+
                 my $account = Koha::SIP2::Account->new_from_api($body)->store;
+                $account->patron_attributes($patron_attributes);
 
                 $c->res->headers->location($c->req->url->to_string . '/' . $account->sip_account_id);
                 return $c->render(
@@ -142,7 +145,10 @@ sub update {
 
                 my $body = $c->req->json;
 
+                my $patron_attributes = delete $body->{patron_attributes} // [];
+
                 $account->set_from_api($body)->store;
+                $account->patron_attributes($patron_attributes);
 
                 $c->res->headers->location($c->req->url->to_string . '/' . $account->sip_account_id);
                 return $c->render(
