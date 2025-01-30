@@ -35,8 +35,8 @@
                                 <div class="hint">[% INCLUDE 'date-format.inc' %]</div>
                             </li>
                             <li>
-                                <label class="required" for="allowance">Loan allowance: </label>
-                                <input type="number" min="0" id="allowance" name="allowance" required="required">
+                                <label class="required" for="allocation">Loan allocation: </label>
+                                <input type="number" min="0" id="allocation" name="allocation" required="required">
                                 <span class="required">Required</span>
                             </li>
                         </ol>
