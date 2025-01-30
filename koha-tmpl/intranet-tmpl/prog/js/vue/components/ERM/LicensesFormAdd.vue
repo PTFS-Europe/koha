@@ -148,8 +148,10 @@ import FormSelectVendors from "../FormSelectVendors.vue";
 import { setMessage, setWarning } from "../../messages";
 import { APIClient } from "../../fetch/api-client.js";
 import { storeToRefs } from "pinia";
+import LicenseResource from "./LicenseResource.vue";
 
 export default {
+    extends: LicenseResource,
     setup() {
         const AVStore = inject("AVStore");
         const { av_license_types, av_license_statuses, av_user_roles } =

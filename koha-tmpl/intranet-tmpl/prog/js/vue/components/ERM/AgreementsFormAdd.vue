@@ -182,11 +182,13 @@ import Documents from "./Documents.vue";
 import AdditionalFieldsEntry from "../AdditionalFieldsEntry.vue";
 import ButtonSubmit from "../ButtonSubmit.vue";
 import FormSelectVendors from "../FormSelectVendors.vue";
+import AgreementResource from "./AgreementResource.vue";
 import { setMessage, setError, setWarning } from "../../messages";
 import { APIClient } from "../../fetch/api-client.js";
 import { storeToRefs } from "pinia";
 
 export default {
+    extends: AgreementResource,
     setup() {
         const AVStore = inject("AVStore");
         const {

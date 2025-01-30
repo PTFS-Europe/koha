@@ -98,8 +98,10 @@
 import { inject } from "vue";
 import { storeToRefs } from "pinia";
 import { APIClient } from "../../fetch/api-client.js";
+import TrainResource from "./TrainResource.vue";
 
 export default {
+    extends: TrainResource,
     setup() {
         const AVStore = inject("AVStore");
         const { av_notforloan } = storeToRefs(AVStore);
