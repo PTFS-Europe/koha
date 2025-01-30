@@ -10,12 +10,12 @@
                 <div class="modal-body overflow-visible">
                     <div id="quota_result"></div>
                     <input type="hidden" name="quota_id" id="quota_id">
-                    <input type="hidden" name="patron_id" id="quota_patron_id">
+                    <input type="hidden" name="patron_id" id="patron_id">
                     <fieldset class="rows">
                         <ol>
                             <li>
-                                <label class="required" for="name">Description: </label>
-                                <input type="text" id="name" name="name" required="required">
+                                <label class="required" for="description">Description: </label>
+                                <input type="text" id="quota_description" name="description" required="required">
                                 <span class="required">Required</span>
                             </li>
                             <li>
@@ -36,7 +36,7 @@
                             </li>
                             <li>
                                 <label class="required" for="allocation">Loan allocation: </label>
-                                <input type="number" min="0" id="allocation" name="allocation" required="required">
+                                <input type="number" min="0" id="quota_allocation" name="allocation" required="required">
                                 <span class="required">Required</span>
                             </li>
                         </ol>

@@ -52,7 +52,7 @@
                     <h2>Organization quota</h2>
 
                     <div id="quota-toobar" class="btn-toolbar">
-                        <button class="btn btn-default" data-bs-toggle="modal" data-bs-target="#quotaModal" data-borrowernumber="[% patron.borrowernumber | html %]"><i class="fa fa-plus" aria-hidden="true"></i> Add a new quota</button>
+                        <button class="btn btn-default" data-bs-toggle="modal" data-bs-target="#quotaModal" data-patron="[% patron.borrowernumber | html %]"><i class="fa fa-plus" aria-hidden="true"></i> Add a new quota</button>
                     </div>
 
                     <table id="patrons_quota"></table>
@@ -92,8 +92,8 @@
                 "visible": false
             },
             {
-                "data": "name",
-                "title": _("Name"),
+                "data": "description",
+                "title": _("Description"),
                 "visible": true,
             },
             {
@@ -115,12 +115,12 @@
                 }
             },
             {
-                "data": "quota_total:quota_used",
+                "data": "allowance:used",
                 "title": _("Allowance"),
                 "searchable": true,
                 "orderable": true,
                 "render": function(data, type, row, meta) {
-                    return row.quota_used + "/" + row.quota_total;
+                    return row.allocation + "/" + row.used;
                 }
             },
             {
@@ -130,7 +130,7 @@
                 "searchable": false,
                 "orderable": false,
                 "render": function(data, type, row, meta) {
-                    result += '<button type="button" class="btn btn-default btn-xs edit-action" data-bs-toggle="modal" data-bs-target="#editQuotaModal" data-quota="%s" data-patron="%s" data-start_date="%s" data-end_date="%s"><i class="fa fa-pencil" aria-hidden="true"></i> %s</button>'.format(row.id, row.patron_id, row.start_date, row.end_date, _("Edit"));
+                    let result = '<button type="button" class="btn btn-default btn-xs edit-action" data-bs-toggle="modal" data-bs-target="#quotaModal" data-quota="%s" data-patron="%s" data-description="%s" data-start_date="%s" data-end_date="%s" data-allocation="%s"><i class="fa fa-pencil" aria-hidden="true"></i> %s</button>'.format(row.id, row.patron_id, row.description, row.start_date, row.end_date, row.allocation, _("Edit"));
                     return result;
                 }
             }]
