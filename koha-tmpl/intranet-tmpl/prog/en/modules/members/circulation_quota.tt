@@ -78,7 +78,7 @@
     [% INCLUDE 'js-patron-format.inc' %]
     [% Asset.js("js/modals/quota.js") | $raw %]]
     <script>
-        var patrons_quota_url= "/api/v1/patrons/%s/quota".format(borrowernumber);
+        var patrons_quota_url= "/api/v1/patrons/%s/quotas".format(borrowernumber);
         let patrons_quota_table = $('#patrons_quota').kohaTable({
             "ajax": {
                 "url": patrons_quota_url
