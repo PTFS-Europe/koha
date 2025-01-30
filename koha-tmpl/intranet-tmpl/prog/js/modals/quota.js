@@ -66,20 +66,33 @@
         const quotaModalLabel = document.getElementById("quotaLabel");
         const quotaModalSubmit = document.getElementById("quotaFormSubmit");
 
-        const quota = button.dataset.quota;
         const quotaIdInput = document.getElementById("quota_id");
+        const quotaPatronInput = document.getElementById("patron_id");
+        const quotaDescriptionInput = document.getElementById("quota_description");
+        const quotaStartDateInput = document.getElementById("quota_from");
+        const quotaEndDateInput = document.getElementById("quota_to");
+        const quotaAllocationInput = document.getElementById("quota_allocation");
+
+        const quota = button.dataset.quota;
         if (quota) {
             quotaIdInput.value = quota;
-            quotaModalLabel.textContent = _("Edit quote");
+            quotaModalLabel.textContent = _("Edit quota");
             quotaModalSubmit.innerHTML = "<i class=\"fa fa-check\"></i> " + _("Update");
+            quotaDescriptionInput.value = button.dataset.description;
+            quotaStartDateInput._flatpickr.setDate(button.dataset.start_date, 1);
+            quotaEndDateInput._flatpickr.setDate(button.dataset.end_date, 1);
+            quotaAllocationInput.value = button.dataset.allocation;
         } else {
             quotaIdInput.value = null;
             quotaModalLabel.textContent = _("Add quota");
             quotaModalSubmit.innerHTML = "<i class=\"fa fa-fw fa-plus\"></i> " + _("Add");
+            quotaDescriptionInput.value = null;
+            quotaStartDateInput.value = null;
+            quotaEndDateInput.value = null;
+            quotaAllocationInput.value = null;
         }
 
-        const patron = button.dataset.borrowernumber;
-        const quotaPatronInput = document.getElementById("quota_patron_id");
+        const patron = button.dataset.patron;
         quotaPatronInput.value = patron;
 
         return;
