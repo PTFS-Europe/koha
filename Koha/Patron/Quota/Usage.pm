@@ -3,6 +3,8 @@ package Koha::Patron::Quota::Usage;
 use Modern::Perl;
 
 use base qw(Koha::Object);
+use Koha::Patron::Quota;
+use Koha::Patron::Quota::Usages;
 
 =head1 NAME
 
@@ -16,6 +18,30 @@ Koha::Patron::Quota::Usage - Koha Patron Quota Usage Object class
 
 sub _type {
     return 'PatronQuotaUsage';
+}
+
+=head3 patron
+
+Returns the patron this quota usage belongs to
+
+=cut
+
+sub patron {
+    my ($self) = @_;
+    my $rs = $self->_result->patron;
+    return Koha::Patron->_new_from_dbic($rs);
+}
+
+=head3 quota
+
+Returns the quota this usage belongs to
+
+=cut
+
+sub quota {
+    my ($self) = @_;
+    my $rs = $self->_result->patron_quota;
+    return Koha::Patron::Quota->_new_from_dbic($rs);
 }
 
 =head2 Internal methods
