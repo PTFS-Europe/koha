@@ -15,20 +15,20 @@
         schema:
           type: object
           properties:
-            period_start:
+            start_date:
               type: string
               format: date
-            period_end:
+            end_date:
               type: string
               format: date
-            quota_total:
+            allocation:
               type: integer
-            quota_used:
+            used:
               type: integer
           required:
-            - period_start
-            - period_end
-            - quota_total
+            - start_date
+            - end_date
+            - allocation
     produces:
       - application/json
     responses:
@@ -143,20 +143,20 @@
         schema:
           type: object
           properties:
-            period_start:
+            start_date:
               type: string
               format: date
-            period_end:
+            end_date:
               type: string
               format: date
-            quota_total:
+            allocation:
               type: integer
-            quota_used:
+            used:
               type: integer
           required:
-            - period_start
-            - period_end
-            - quota_total
+            - start_date
+            - end_date
+            - allocation
     produces:
       - application/json
     responses:
