@@ -23,7 +23,21 @@ return {
                     CONSTRAINT `patron_quota_ibfk_1` FOREIGN KEY (`patron_id`) REFERENCES `borrowers` (`borrowernumber`) ON DELETE CASCADE ON UPDATE CASCADE
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
             });
-            say_success( $out, "Patron quota table created successfully" );
+            
+            # Add quota user flag
+            $dbh->do(q{
+                INSERT IGNORE INTO userflags (bit, flag, flagdesc, defaulton) 
+                VALUES (31, 'Quotas', 'Manage patron quotas', 0)
+            });
+            
+            # Add quota permissions
+            $dbh->do(q{
+                INSERT IGNORE INTO permissions (module_bit, code, description) VALUES
+                (31, 'manage_quotas', 'Manage patron quotas'),
+                (31, 'view_quotas', 'View patron quotas')
+            });
+            
+            say_success( $out, "Patron quota table and permissions created successfully" );
         } else {
             say_info( $out, "Patron quota table already exists" );
         }
