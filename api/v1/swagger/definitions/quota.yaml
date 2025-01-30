@@ -5,6 +5,9 @@ properties:
     type: integer
     description: Internal quota identifier
     readOnly: true
+  description:
+    type: string
+    description: User friendly description of the quota
   patron_id:
     type: integer
     description: Link to patron
