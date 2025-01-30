@@ -153,7 +153,7 @@ INSERT INTO permissions (module_bit, code, description) VALUES
    (25, 'cashup', 'Perform cash register cashup action'),
    (25, 'takepayment', 'Access the point of sale page and take payments'),
    (26, 'manage_problem_reports', 'Manage OPAC problem reports'),
-   (27, 'manage_recalls', 'Manage recalls for patrons')
+   (27, 'manage_recalls', 'Manage recalls for patrons'),
    (31, 'manage_quotas', 'Manage patron quotas'),
    (31, 'view_quotas', 'View patron quotas')
 ;
