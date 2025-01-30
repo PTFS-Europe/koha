@@ -33,6 +33,7 @@
           type: string
           enum:
             - institution
+            - item_fields
             - patron_attributes
         collectionFormat: csv
       - $ref: "../swagger.yaml#/parameters/match"
@@ -151,6 +152,7 @@
         items:
           type: string
           enum:
+            - item_fields
             - patron_attributes
         collectionFormat: csv
     responses:
