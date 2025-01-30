@@ -335,9 +335,24 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 1, on_delete => "RESTRICT", on_update => "CASCADE" },
 );
 
+=head2 patron_quota_usages
 
-# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-11-14 13:08:04
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Azy+cns0/GJMwsXWJdkolg
+Type: has_many
+
+Related object: L<Koha::Schema::Result::PatronQuotaUsage>
+
+=cut
+
+__PACKAGE__->has_many(
+  "patron_quota_usages",
+  "Koha::Schema::Result::PatronQuotaUsage",
+  { "foreign.issue_id" => "self.issue_id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2025-01-30 16:04:36
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:DPk8VPDEU6OhuG7EWGOdCw
 
 __PACKAGE__->add_columns(
     '+auto_renew'      => { is_boolean => 1 },
