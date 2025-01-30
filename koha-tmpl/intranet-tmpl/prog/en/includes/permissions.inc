@@ -787,6 +787,16 @@
             Manage EDIFACT transmissions
         </span>
         <span class="permissioncode">([% name | html %])</span>
+    [%- CASE 'view_borrower_quotas' -%]
+        <span class="sub_permission view_borrower_quotas_subpermission">
+            View patron quotas
+        </span>
+        <span class="permissioncode">([% name | html %])</span>
+    [%- CASE 'manage_borrower_quotas' -%]
+        <span class="sub_permission manage_borrower_quotas_subpermission">
+            Manage patron quotas
+        </span>
+        <span class="permissioncode">([% name | html %])</span>
     [%- CASE 'reopen_closed_invoices' -%]
         <span class="sub_permission reopen_closed_invoices_subpermission">
             Reopen closed invoices
