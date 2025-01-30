@@ -3,7 +3,7 @@ use Koha::Installer::Output qw(say_warning say_success say_info);
 
 return {
     bug_number  => "38924",
-    description => "Add patron quota table",
+    description => "Add patron quota table and permissions",
     up          => sub {
         my ($args) = @_;
         my ( $dbh, $out ) = @$args{qw(dbh out)};
@@ -25,7 +25,14 @@ return {
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
                 }
             );
-            say_success( $out, "Patron quota table created successfully" );
+            
+            $dbh->do(q{
+                INSERT IGNORE INTO permissions (module_bit, code, description) VALUES
+                (4, 'manage_borrower_quotas', 'Manage patron quotas'),
+                (4, 'view_borrower_quotas', 'View patron quotas')
+            });
+            
+            say_success( $out, "Patron quota table and permissions created successfully" );
         } else {
             say_info( $out, "Patron quota table already exists" );
         }
