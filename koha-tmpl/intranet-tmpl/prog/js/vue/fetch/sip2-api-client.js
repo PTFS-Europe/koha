@@ -50,7 +50,7 @@ export class SIP2APIClient extends HttpClient {
                 this.get({
                     endpoint: "accounts/" + id,
                     headers: {
-                        "x-koha-embed": "patron_attributes",
+                        "x-koha-embed": "item_fields,patron_attributes",
                     },
                 }),
             getAll: params =>
