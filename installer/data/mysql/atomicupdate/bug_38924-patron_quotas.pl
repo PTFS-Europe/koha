@@ -3,7 +3,7 @@ use Koha::Installer::Output qw(say_warning say_success say_info);
 
 return {
     bug_number  => "38924",
-    description => "Add patron quota and quota_usage tables and permissions",
+    description => "Add patron quota and quota_usage tables, permissions and system preferences for quotas",
     up          => sub {
         my ($args) = @_;
         my ( $dbh, $out ) = @$args{qw(dbh out)};
@@ -58,5 +58,14 @@ return {
         } else {
             say_info( $out, "Patron quota usage table already exists" );
         }
+
+        $dbh->do(q{
+            INSERT IGNORE INTO systempreferences (variable, value, options, explanation, type)
+            VALUES 
+            ('AllowQuotaOverride', '0', NULL, 'Allow staff to override and check out items to patrons who have exceeded their quota limit', 'YesNo'),
+            ('UseGuarantorQuota', '0', NULL, 'Use guarantor quota instead of guarantee quota when checking out items', 'YesNo')
+        });
+
+        say_success( $out, "Patron quota preferences added successfully" );
     },
 };
