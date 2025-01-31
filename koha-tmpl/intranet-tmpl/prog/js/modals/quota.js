@@ -52,9 +52,10 @@
         }
 
         quota_success = true;
-        quotas_table?.api().ajax.reload();
+        quota_table?.api().ajax.reload();
 
         $("#quotaModal").modal("hide");
+        return;
     }
 
     function handleShowBsModal(e) {
