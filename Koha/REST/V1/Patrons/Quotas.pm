@@ -84,7 +84,7 @@ sub add {
         my $quota = Koha::Patron::Quota->new_from_api($body);
         $quota->store;
 
-        $c->res->headers->location($c->req->url->to_string . '/' . $quota->quota_id);
+        $c->res->headers->location($c->req->url->to_string . '/' . $quota->id);
         return $c->render(
             status  => 201,
             openapi => $c->objects->to_api($quota)
