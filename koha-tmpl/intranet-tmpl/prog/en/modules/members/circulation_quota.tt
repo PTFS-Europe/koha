@@ -115,12 +115,13 @@
                 }
             },
             {
-                "data": "allowance:used",
-                "title": _("Allowance"),
+                "data": "allocation:used",
+                "title": _("Allocation (Used:Total)"),
                 "searchable": true,
                 "orderable": true,
                 "render": function(data, type, row, meta) {
-                    return row.allocation + "/" + row.used;
+                    let used = row.user > row.allocation ? "<span class='text-danger'>" + row.used + "</span>" : "<span class='text-success'>" + row.used + "</span>";
+                    return used + " : " + row.allocation;
                 }
             },
             {
