@@ -162,6 +162,25 @@ sub to_api_mapping {
     };
 }
 
+=head3 delete
+
+Overloaded delete method to ensure quota usages are updated.
+
+=cut
+
+sub delete {
+    my ($self) = @_;
+
+    my $schema = Koha::Database->new->schema;
+    $schema->txn_do(sub {
+        # Update any quota usages linked to this checkout
+        Koha::Patron::Quota::Usages->search({ issue_id => $self->issue_id })
+            ->update({ issue_id => undef });
+        
+        return $self->SUPER::delete();
+    });
+}
+
 =head2 Internal methods
 
 =head3 _type
