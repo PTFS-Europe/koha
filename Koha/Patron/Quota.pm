@@ -92,7 +92,7 @@ Returns boolean indicating if there is quota available
 
 sub has_available_quota {
     my ($self) = @_;
-    return $self->available_quota >= 0;
+    return $self->available_quota >= 1;
 }
 
 =head3 available_quota
