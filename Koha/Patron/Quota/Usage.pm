@@ -44,6 +44,23 @@ sub quota {
     return Koha::Patron::Quota->_new_from_dbic($rs);
 }
 
+sub store {
+    my ($self) = @_;
+
+    # Check that we have a valid issue_id
+    unless ( !$self->issue_id
+        || Koha::Checkouts->find( $self->issue_id )
+        || Koha::Old::Checkouts->find( $self->issue_id ) )
+    {
+            Koha::Exceptions::Object::FKConstraint->throw(
+                error     => 'Broken FK Contraint',
+                broken_fk => 'issue_id'
+            );
+    }
+
+    return $self->SUPER::store();
+}
+
 =head2 Internal methods
 
 =head3 _type
