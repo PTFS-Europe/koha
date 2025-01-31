@@ -63,6 +63,11 @@ use Koha::Exceptions::Checkout;
 use Koha::Plugins;
 use Koha::Recalls;
 use Koha::Library::Hours;
+
+use Koha::Patron::Quotas;
+use Koha::Patron::Quota;
+use Koha::Patron::Quota::Usage;
+
 use Carp qw( carp );
 use List::MoreUtils qw( any );
 use Scalar::Util qw( looks_like_number blessed );
@@ -1332,6 +1337,26 @@ sub CanBookBeIssued {
         }
     }
 
+    # CHECK FOR QUOTAS
+    if ( my $quota = Koha::Patron::Quotas->get_patron_quota($patron->borrowernumber) ) {
+        unless ( $quota->has_available_quota ) {
+            if ( C4::Context->preference("AllowQuotaOverride") ) {
+                $needsconfirmation{QUOTA_EXCEEDED} = {
+                    available => $quota->available_quota,
+                    total => $quota->allocation,
+                    used => $quota->used,
+                };
+            }
+            else {
+                $issuingimpossible{QUOTA_EXCEEDED} = {
+                    available => $quota->available_quota,
+                    total => $quota->allocation, 
+                    used => $quota->used,
+                };
+            }
+        }
+    }
+
     return ( \%issuingimpossible, \%needsconfirmation, \%alerts, \%messages, );
 }
 
@@ -1864,6 +1889,17 @@ sub AddIssue {
                     biblio_ids => [ $item_object->biblionumber ]
                 }
             ) if C4::Context->preference('RealTimeHoldsQueue');
+
+            # Check quotas and record usage if needed
+            if ( my $quota = Koha::Patron::Quotas->get_patron_quota($patron->borrowernumber) ) {
+                warn "Quota not found for patron " . $patron->borrowernumber unless $quota;
+                warn "Quota found for patron " . $patron->borrowernumber if $quota;
+                # Update patron's used quota value
+                $quota->add_usage({
+                    patron_id => $patron->borrowernumber, 
+                    issue_id => $issue->issue_id,
+                });
+            }
         }
     }
     return $issue;
