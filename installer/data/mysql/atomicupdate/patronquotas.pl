@@ -3,7 +3,7 @@ use Koha::Installer::Output qw(say_warning say_success say_info);
 
 return {
     bug_number  => "patronquotas",
-    description => "Add patron quota and quota usage tables",
+    description => "Add patron quota and quota usage tables, add permissions and sysprefs for quotas",
     up          => sub {
         my ($args) = @_;
         my ( $dbh, $out ) = @$args{qw(dbh out)};
@@ -53,8 +53,13 @@ return {
                 (4, 'manage_borrower_quotas', 'Manage patron quotas'),
                 (4, 'view_borrower_quotas', 'View patron quotas')
             });
+
+            $dbh->do(q{
+                INSERT IGNORE INTO systempreferences (variable, value, options, explanation, type)
+                VALUES ('AllowQuotaOverride', '0', NULL, 'Allow staff to override and check out items to patrons who have exceeded their quota limit', 'YesNo')
+            });
             
-            say_success( $out, "Patron quota usage table and permissions created successfully" );
+            say_success( $out, "Patron quota usage table, permissions and syspref created successfully" );
         } else {
             say_info( $out, "Patron quota usage table already exists" );
         }
