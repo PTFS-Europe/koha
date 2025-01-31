@@ -126,6 +126,15 @@
                                         [% END %]
                                     </li>
                                 [% END %]
+                                
+                                [%IF ( QUOTA_EXCEEDED ) %]
+                                    <li class="needsconfirm age_restriction">
+                                        Quota Exceeded [% QUOTA_EXCEEDED | html %].
+                                        [% IF CAN_user_circulate_force_checkout %]
+                                            Check out anyway?
+                                        [% END %]
+                                    </li>
+                                [% END %]
 
 
                                 [% IF ( DEBT ) %]
@@ -581,6 +590,10 @@
 
                                 [%IF ( AGE_RESTRICTION ) %]
                                     <li>Age restriction [% AGE_RESTRICTION | html %].</li>
+                                [% END %]
+
+                                [%IF ( QUOTA_EXCEEDED ) %]
+                                    <li>Quota Exceeded [% QUOTA_EXCEEDED | html %].</li>
                                 [% END %]
 
                                 [% IF ( EXPIRED ) %]
