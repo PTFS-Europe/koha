@@ -38,6 +38,21 @@ Koha::SIP2::Account- Koha SipAccount Object class
 
 =cut
 
+=head3 store
+
+Override the default store behavior so that new opac requests
+will have notifications sent.
+
+=cut
+
+sub store {
+    my ($self) = @_;
+
+    system("koha-sip --restart");
+
+    return $self->SUPER::store;
+}
+
 =head3 get_for_config
 
 Returns the account hashref as expected by C4/SIP/Sip/Configuration->new;
