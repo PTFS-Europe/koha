@@ -42,7 +42,6 @@ foreign key linking to patron_quota.id
 =head2 issue_id
 
   data_type: 'integer'
-  is_foreign_key: 1
   is_nullable: 1
 
 foreign key linking to issues.issue_id
@@ -63,7 +62,7 @@ __PACKAGE__->add_columns(
   "patron_quota_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
   "issue_id",
-  { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
+  { data_type => "integer", is_nullable => 1 },
   "patron_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
 );
@@ -81,26 +80,6 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key("id");
 
 =head1 RELATIONS
-
-=head2 issue
-
-Type: belongs_to
-
-Related object: L<Koha::Schema::Result::Issue>
-
-=cut
-
-__PACKAGE__->belongs_to(
-  "issue",
-  "Koha::Schema::Result::Issue",
-  { issue_id => "issue_id" },
-  {
-    is_deferrable => 1,
-    join_type     => "LEFT",
-    on_delete     => "SET NULL",
-    on_update     => "CASCADE",
-  },
-);
 
 =head2 patron
 
@@ -133,8 +112,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07051 @ 2025-01-30 16:04:36
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:n1Hc6G8Z2fYHFlGpF4c/jg
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2025-01-31 16:17:33
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:V5C3mWjeEHKuqk42HnrxOg
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
