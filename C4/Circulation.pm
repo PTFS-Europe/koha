@@ -1892,8 +1892,6 @@ sub AddIssue {
 
             # Check quotas and record usage if needed
             if ( my $quota = Koha::Patron::Quotas->get_patron_quota($patron->borrowernumber) ) {
-                warn "Quota not found for patron " . $patron->borrowernumber unless $quota;
-                warn "Quota found for patron " . $patron->borrowernumber if $quota;
                 # Update patron's used quota value
                 $quota->add_usage({
                     patron_id => $patron->borrowernumber, 
