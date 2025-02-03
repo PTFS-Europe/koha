@@ -173,6 +173,14 @@
         <fieldset class="rows">
             <ol>
                 <li>
+                    <label for="sftp_transport" class="required">Transport: </label>
+                    <select name="sftp_transport" id="sftp_transport" class="required">
+                        <option value="ftp">FTP</option>
+                        <option value="sftp" selected="selected">SFTP</option>
+                    </select>
+                    <span class="required">Required</span>
+                </li>
+                <li>
                     <label for="sftp_host" class="required">Host: </label>
                     <input type="text" value="localhost" name="sftp_host" id="sftp_host" size="60" class="required" />
                     <span class="required">Required</span>
@@ -180,14 +188,6 @@
                 <li>
                     <label for="sftp_port" class="required">Port: </label>
                     <input type="text" inputmode="numeric" pattern="[0-9]*" value="22" name="sftp_port" id="sftp_port" size="20" class="required" />
-                    <span class="required">Required</span>
-                </li>
-                <li>
-                    <label for="sftp_transport" class="required">Transport: </label>
-                    <select name="sftp_transport" id="sftp_transport" class="required">
-                        <option value="ftp">FTP</option>
-                        <option value="sftp" selected="selected">SFTP</option>
-                    </select>
                     <span class="required">Required</span>
                 </li>
                 <li>
@@ -575,6 +575,7 @@
 
 [% MACRO jsinclude BLOCK %]
     [% Asset.js("js/admin-menu.js") | $raw %]
+    [% Asset.js("js/transport_status.js") | $raw %]
     [% INCLUDE 'datatables.inc' %]
     <script>
         $(document).ready(function() {
@@ -670,13 +671,38 @@
                     {
                         "data": "status",
                         "render": function(data, type, row, meta) {
-                            if (data == "tests_ok") {
-                                return _("Tests passing");
-                            } else if (data == "tests_failed") {
-                                return _("Tests failing");
+                            let render = '';
+                            if (data) {
+                                if (data.status == "ok") {
+                                    render += '<i class="text-success fa-solid fa-circle-check"></i> ';
+                                    render += '<span class="text-success">';
+                                    render += _("Tests passing");
+                                    render += '</span>'
+                                } else if (data.status == "errors") {
+                                    data.operations.forEach(operation => {
+                                        render += "<div>";
+                                        if ( operation.status == "error" ) {
+                                            render += '<i class="text-danger fa-solid fa-circle-xmark"></i> ';
+                                            render += '<span class="text-danger">';
+                                            render += operationLabels[operation.code] || operation.code;
+                                            render += ' ' + _("failed");
+                                            render += '</span>';
+                                        } else {
+                                            render += '<i class="text-success fa-solid fa-circle-check"></i> ';
+                                            render += '<span class="text-success">';
+                                            render += operationLabels[operation.code] || operation.code;
+                                            render += ' ' + _("ok");
+                                            render += '</span>';
+                                        }
+                                        render += "</div>";
+                                    });
+                                } else {
+                                    render += "<em>" + _("Never used") + "</em>";
+                                }
                             } else {
-                                return "<em>" + _("Never used") + "</em>";
+                                render += "<em>" + _("Never used") + "</em>";
                             }
+                            return render;
                         },
                         "searchable": false,
                         "orderable": false

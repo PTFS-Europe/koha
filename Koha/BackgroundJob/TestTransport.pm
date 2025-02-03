@@ -53,13 +53,14 @@ sub process {
 
     my $transport = Koha::File::Transports->find( $args->{transport_id} );
     $transport->test_connection;
-    my $status   = {};
+    my $status   = { status => 'ok' };
     my $messages = $transport->object_messages;
     for my $message (@$messages) {
         $status->{status} = 'errors' if $message->{type} eq 'error';
-        push @{ $status->{operations} }, { operation => $message->{message}, status => $message->{type} };
+        push @{ $status->{operations} },
+            { code => $message->{message}, status => $message->{type}, detail => $message->{payload} };
     }
-    $transport->set({ status => encode_json($status) })->store();
+    $transport->set( { status => encode_json($status) } )->store();
 
     my $data = $status;
     $self->finish($data);

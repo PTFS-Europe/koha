@@ -42,27 +42,28 @@ Start the SFTP transport connect, returns true on success or undefined on failur
 
 sub connect {
     my ($self) = @_;
+    my $operation = "connection";
 
     # String to capture STDERR output
     $self->{stderr_capture} = '';
     open my $stderr_fh, '>', \$self->{stderr_capture} or die "Can't open scalar as filehandle: $!";
     $self->{connection} = Net::SFTP::Foreign->new(
-        host      => $self->host,
-        port      => $self->port,
-        user      => $self->user_name,
-        password  => $self->plain_text_password,
-        key_path  => $self->_locate_key_file,
+        host     => $self->host,
+        port     => $self->port,
+        user     => $self->user_name,
+        password => $self->plain_text_password,
+        $self->_locate_key_file ? ( key_path => $self->_locate_key_file ) : (),
         timeout   => $self->DEFAULT_TIMEOUT,
         stderr_fh => $stderr_fh,
-        more      => [qw(-o StrictHostKeyChecking=no)],
+        more      => [qw( -v -o StrictHostKeyChecking=no)],
     );
     $self->{stderr_fh} = $stderr_fh;
 
-    return $self->_abort_operation("transport connection") if ( $self->{connection}->error );
+    return $self->_abort_operation($operation) if ( $self->{connection}->error );
 
     $self->add_message(
         {
-            message => 'transport connected',
+            message => $operation,
             type    => 'success',
             payload => {
                 status => $self->{connection}->status,
@@ -87,14 +88,15 @@ Returns true on success or undefined on failure.
 
 sub upload_file {
     my ( $self, $local_file, $remote_file ) = @_;
+    my $operation = "upload";
 
     my $logger = Koha::Logger->get_logger();
 
-    $self->{connection}->put( $local_file, $remote_file ) or return $self->_abort_operation("file upload");
+    $self->{connection}->put( $local_file, $remote_file ) or return $self->_abort_operation($operation);
 
     $self->add_message(
         {
-            message => 'file uploaded',
+            message => $operation,
             type    => 'success',
             payload => {
                 status => $self->{connection}->status,
@@ -119,12 +121,13 @@ Returns true on success or undefined on failure.
 
 sub download_file {
     my ( $self, $remote_file, $local_file ) = @_;
+    my $operation = 'download';
 
-    $self->{connection}->get( $remote_file, $local_file ) or return $self->_abort_operation("file download");
+    $self->{connection}->get( $remote_file, $local_file ) or return $self->_abort_operation($operation);
 
     $self->add_message(
         {
-            message => 'file downloaded',
+            message => $operation,
             type    => 'success',
             payload => {
                 status => $self->{connection}->status,
@@ -149,12 +152,13 @@ Returns true on success or undefined on failure.
 
 sub change_directory {
     my ( $self, $remote_directory ) = @_;
+    my $operation = 'change_directory';
 
-    $self->{connection}->setcwd($remote_directory) or return $self->_abort_operation("change directory");
+    $self->{connection}->setcwd($remote_directory) or return $self->_abort_operation( $operation, $remote_directory );
 
     $self->add_message(
         {
-            message => 'changed directory',
+            message => $operation,
             type    => 'success',
             payload => {
                 status => $self->{connection}->status,
@@ -177,12 +181,13 @@ Returns an array of filenames found in the current directory of the server conne
 
 sub list_files {
     my ($self) = @_;
+    my $operation = "list";
 
-    my $file_list = $self->{connection}->ls or return $self->_abort_operation("list files");
+    my $file_list = $self->{connection}->ls or return $self->_abort_operation($operation);
 
     $self->add_message(
         {
-            message => 'files listed',
+            message => $operation,
             type    => 'success',
             payload => {
                 status => $self->{connection}->status,
@@ -224,6 +229,8 @@ Returns 1 on success, undef on failure.
 
 sub _write_key_file {
     my ($self) = @_;
+
+    return unless $self->plain_text_key;
 
     my $upload_path = C4::Context->config('upload_path') or return;
     my $logger      = Koha::Logger->get;
@@ -275,19 +282,19 @@ Helper method to abort the current operation and return.
 =cut
 
 sub _abort_operation {
-    my ( $self, $operation ) = @_;
+    my ( $self, $operation, $path ) = @_;
 
     my $stderr = $self->{stderr_capture};
     $self->{stderr_capture} = '';
 
     $self->add_message(
         {
-            message => $operation . " failed",
+            message => $operation,
             type    => 'error',
             payload => {
                 status    => $self->{connection}->status,
                 error     => $self->{connection}->error,
-                path      => $self->{connection}->cwd,
+                path      => $path ? $path : $self->{connection}->cwd,
                 error_raw => $stderr
             }
         }

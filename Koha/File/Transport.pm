@@ -68,14 +68,14 @@ sub store {
     }
 
     my @config_fields  = (qw(host port user_name password key_file upload_directory download_directory));
-    my $changed_config = ( !$self->in_storage || any { $self->is_changed($_) } @config_fields ) ? 1 : 0;
+    my $changed_config = ( !$self->in_storage || any { $self->_result->is_column_changed($_) } @config_fields ) ? 1 : 0;
 
     # Store
     $self->SUPER::store;
 
     # Subclass triggers
     my $subclass = $self->transport eq 'sftp' ? 'Koha::File::Transport::SFTP' : 'Koha::File::Transport::FTP';
-    $self = $subclass->_new_from_dbic( $self->_result->discard_changes );
+    $self = $subclass->_new_from_dbic( $self->_result );
     $self->_post_store_trigger;
 
     # Enqueue a connection test
@@ -128,8 +128,8 @@ sub to_api {
     my ( $self, $params ) = @_;
 
     my $json = $self->SUPER::to_api($params) or return;
-    delete @{$json}{qw(password key_file)};            # Remove sensitive data
-    $json->{status} = decode_json( $self->status );    # Decode json status
+    delete @{$json}{qw(password key_file)};                                    # Remove sensitive data
+    $json->{status} = $self->status ? decode_json( $self->status ) : undef;    # Decode json status
 
     return $json;
 }
@@ -159,7 +159,8 @@ sub test_connection {
     $self->connect or return;
 
     for my $dir_type (qw(download upload)) {
-        my $dir = $self->{"${dir_type}_directory"};
+        my $field = "${dir_type}_directory";
+        my $dir = $self->$field;
         $dir ||= undef;
 
         $self->change_directory(undef) or next;
@@ -271,12 +272,12 @@ sub _encrypt_sensitive_data {
     my ($self) = @_;
     my $encryption = Koha::Encryption->new;
 
-    # Only encrypt if the value has changed (is_changed from Koha::Object)
-    if ( ( !$self->in_storage || $self->is_changed('password') ) && $self->password ) {
+    # Only encrypt if the value has changed ($self->_result->is_column_changed from Koha::Object)
+    if ( ( !$self->in_storage || $self->_result->is_column_changed('password') ) && $self->password ) {
         $self->password( $encryption->encrypt_hex( $self->password ) );
     }
 
-    if ( ( !$self->in_storage || $self->is_changed('key_file') ) && $self->key_file ) {
+    if ( ( !$self->in_storage || $self->_result->is_column_changed('key_file') ) && $self->key_file ) {
         $self->key_file( $encryption->encrypt_hex( _dos2unix( $self->key_file ) ) );
     }
 
