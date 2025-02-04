@@ -35,6 +35,7 @@
             - institution
             - custom_item_fields
             - item_fields
+            - custom_patron_fields
             - patron_attributes
         collectionFormat: csv
       - $ref: "../swagger.yaml#/parameters/match"
@@ -155,6 +156,7 @@
           enum:
             - custom_item_fields
             - item_fields
+            - custom_patron_fields
             - patron_attributes
         collectionFormat: csv
     responses:
