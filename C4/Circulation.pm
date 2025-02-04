@@ -3178,7 +3178,13 @@ sub CanBookBeRenewed {
         {
             return ( 0, 'booked' ) unless ( $booking->patron_id == $patron->borrowernumber );
         }
+    }
 
+    # CHECK FOR QUOTAS  
+    if ( my $quota = Koha::Patron::Quotas->get_patron_quota($patron->borrowernumber) ) {
+        unless ( $quota->has_available_quota ) {
+            return ( 0, "QUOTA_EXCEEDED" );
+        }
     }
 
     if ( $auto_renew eq 'auto_too_soon' ) {
@@ -3291,6 +3297,15 @@ sub AddRenewal {
     my $patron_unblessed = $patron->unblessed;
 
     my $circ_library = Koha::Libraries->find( _GetCircControlBranch($item_object, $patron) );
+
+    # Check quotas and record usage if needed
+    if ( my $quota = Koha::Patron::Quotas->get_patron_quota($patron->borrowernumber) ) {
+        # Update patron's used quota value
+        $quota->add_usage({
+            patron_id => $patron->borrowernumber, 
+            issue_id => $issue->issue_id,
+        });
+    }
 
     my $schema = Koha::Database->schema;
     $schema->txn_do(sub{
