@@ -1898,7 +1898,7 @@ sub AddIssue {
             if ( my $quota = Koha::Patron::Quotas->get_patron_quota($patron->borrowernumber) ) {
                 # Update patron's used quota value
                 $quota->add_usage({
-                    patron_id => $patron->borrowernumber, 
+                    patron_id => $quota->patron_id, 
                     issue_id => $issue->issue_id,
                 });
             }
@@ -3287,7 +3287,7 @@ sub AddRenewal {
     if ( my $quota = Koha::Patron::Quotas->get_patron_quota($patron->borrowernumber) ) {
         # Update patron's used quota value
         $quota->add_usage({
-            patron_id => $patron->borrowernumber, 
+            patron_id => $quota->patron_id, 
             issue_id => $issue->issue_id,
         });
     }
