@@ -13,6 +13,10 @@ use Exception::Class (
         isa         => 'Koha::Exceptions::Quota',
         description => 'Thrown when a quota period overlaps with an existing one',
     },
+    'Koha::Exceptions::Quota::NoAvailableQuota' => {
+        isa         => 'Koha::Exceptions::Quota', 
+        description => 'Thrown when no quota with sufficient availability was found',
+    }
 );
 
 1;
