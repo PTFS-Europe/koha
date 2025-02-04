@@ -45,6 +45,7 @@ INSERT INTO systempreferences ( `variable`, `value`, `options`, `explanation`, `
 ('AllowPatronToSetFinesVisibilityForGuarantor',  '0', NULL, 'If enabled, the patron can set fines to be visible to their guarantor',  'YesNo'),
 ('AllowPKIAuth','None','None|Common Name|emailAddress','Use the field from a client-side SSL certificate to look a user in the Koha database','Choice'),
 ('AllowQuotaOverride','0','Allow staff to override and check out items to patrons who have exceeded their quota limit','','YesNo'),
+('UseGuarantorQuota','0','Use guarantor quota instead of guarantee quota when checking out items if one exists and has enough quota available','','YesNo'),
 ('AllowRenewalIfOtherItemsAvailable','0',NULL,'If enabled, allow a patron to renew an item with unfilled holds if other available items can fill that hold.','YesNo'),
 ('AllowRenewalLimitOverride','0',NULL,'if ON, allows renewal limits to be overridden on the circulation screen','YesNo'),
 ('AllowRenewalOnHoldOverride','0',NULL,'If ON, allow items on hold to be renewed with a specified due date','YesNo'),
