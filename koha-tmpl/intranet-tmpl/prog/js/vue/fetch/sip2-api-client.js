@@ -51,7 +51,7 @@ export class SIP2APIClient extends HttpClient {
                     endpoint: "accounts/" + id,
                     headers: {
                         "x-koha-embed":
-                            "custom_item_fields,item_fields,patron_attributes",
+                            "custom_item_fields,item_fields,custom_patron_fields,patron_attributes",
                     },
                 }),
             getAll: params =>
