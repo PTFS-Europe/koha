@@ -5934,13 +5934,13 @@ CREATE TABLE `sip_accounts` (
   `sip_account_id` int(11) NOT NULL AUTO_INCREMENT,
   `sip_institution_id` int(11) NOT NULL COMMENT 'Foreign key to sip_institutions.sip_institution_id',
   `ae_field_template` varchar(255) NULL,
-  `allow_additional_materials_checkout` tinyint(1) NOT NULL DEFAULT 0,
+  `allow_additional_materials_checkout` tinyint(1) NOT NULL DEFAULT 0, /* TODO: make this nullable */
   `allow_empty_passwords` tinyint(1) NULL,
   `allow_fields` varchar(255) NULL,
   `av_field_template` varchar(255) NULL,
   `blocked_item_types` varchar(255) NULL,
   `checked_in_ok` tinyint(1) NULL,
-  `convert_nonprinting_characters` varchar(10) NOT NULL DEFAULT '',
+  `convert_nonprinting_characters` varchar(10) NOT NULL DEFAULT '', /* TODO: make this nullable */
   `cr_item_field` varchar(255) NULL,
   `ct_always_send` tinyint(1) NULL,
   `cv_send_00_on_success` tinyint(1) NULL,
