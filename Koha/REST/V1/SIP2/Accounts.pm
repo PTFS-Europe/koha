@@ -89,12 +89,14 @@ sub add {
                 my $item_fields = delete $body->{item_fields} // [];
                 my $custom_patron_fields = delete $body->{custom_patron_fields} // [];
                 my $patron_attributes = delete $body->{patron_attributes} // [];
+                my $system_preference_overrides = delete $body->{system_preference_overrides} // [];
 
                 my $account = Koha::SIP2::Account->new_from_api($body)->store;
                 $account->custom_item_fields($custom_item_fields);
                 $account->item_fields($item_fields);
                 $account->custom_patron_fields($custom_patron_fields);
                 $account->patron_attributes($patron_attributes);
+                $account->system_preference_overrides($system_preference_overrides);
 
                 $c->res->headers->location($c->req->url->to_string . '/' . $account->sip_account_id);
                 return $c->render(
@@ -155,12 +157,14 @@ sub update {
                 my $item_fields = delete $body->{item_fields} // [];
                 my $custom_patron_fields = delete $body->{custom_patron_fields} // [];
                 my $patron_attributes = delete $body->{patron_attributes} // [];
+                my $system_preference_overrides = delete $body->{system_preference_overrides} // [];
 
                 $account->set_from_api($body)->store;
                 $account->custom_item_fields($custom_item_fields);
                 $account->item_fields($item_fields);
                 $account->custom_patron_fields($custom_patron_fields);
                 $account->patron_attributes($patron_attributes);
+                $account->system_preference_overrides($system_preference_overrides);
 
                 $c->res->headers->location($c->req->url->to_string . '/' . $account->sip_account_id);
                 return $c->render(
