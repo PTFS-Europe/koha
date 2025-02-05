@@ -41,9 +41,6 @@ sub get_patron_quota {
                     patron_id => $guarantor->borrowernumber,
                     start_date => { '<=' => \'CURRENT_DATE' },
                     end_date   => { '>=' => \'CURRENT_DATE' }
-                },
-                {
-                    order_by => { -asc => 'start_date' }
                 }
             )->single;
             
@@ -64,9 +61,6 @@ sub get_patron_quota {
             patron_id => $patron_id,
             start_date => { '<=' => \'CURRENT_DATE' },
             end_date   => { '>=' => \'CURRENT_DATE' }
-        },
-        {
-            order_by => { -asc => 'start_date' }
         }
     )->single;
 
