@@ -345,6 +345,25 @@
                                         [% END %]
                                     [% END %]
 
+                                    [% IF ( QUOTA_SELECT ) %]
+                                        <p>
+                                            <label for="selected_quota_id">Select quota to use:</label>
+                                            <select name="selected_quota_id" id="selected_quota_id" required>
+                                                <option value="">Select a quota</option>
+                                                [% FOREACH quota IN QUOTA_SELECT %]
+                                                    <option value="[% quota.id | html %]">
+                                                        [% IF quota.patron_id != patron.borrowernumber %]
+                                                            Guarantor ([% quota.patron_id | html %]) -
+                                                        [% ELSE %]
+                                                            This patron -
+                                                        [% END %]
+                                                        Available: [% quota.available_quota | html %] / [% quota.allocation | html %]
+                                                    </option>
+                                                [% END %]
+                                            </select>
+                                        </p>
+                                    [% END %]
+
                                     <input type="hidden" name="barcode" value="[% barcode | html %]" />
                                     <input type="hidden" name="borrowernumber" value="[% patron.borrowernumber | html %]" />
                                     <input type="hidden" name="issueconfirmed" value="1" />
