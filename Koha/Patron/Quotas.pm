@@ -116,6 +116,26 @@ sub get_active_quotas {
     );
 }
 
+=head2 get_active_quota
+
+  my $active_quota = Koha::Patron::Quotas->get_active_quota($patron_id);
+
+Returns the currently active quota for a patron if one exists.
+Active means start_date <= NOW() and end_date >= NOW().
+Returns undef if no active quota found.
+
+=cut
+
+sub get_active_quota {
+    my ($self, $patron_id) = @_;
+
+    return Koha::Patron::Quotas->search({
+        patron_id => $patron_id,
+        start_date => {'<=' => \'CURRENT_DATE'},
+        end_date => {'>=' => \'CURRENT_DATE'}
+    })->single
+}
+
 =head2 Internal methods
 
 =head3 _type
