@@ -1902,7 +1902,6 @@ sub AddIssue {
 
             # Check quotas and record usage if needed
             my $quota;
-            warn $selected_quota_id;
             if ($selected_quota_id) {
                 $quota = Koha::Patron::Quotas->find($selected_quota_id);
             } else {
