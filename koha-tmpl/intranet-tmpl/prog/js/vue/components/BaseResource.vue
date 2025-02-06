@@ -46,6 +46,7 @@
             onSubmit,
             resourceName,
             getFieldGroupings,
+            formGroupsDisplayMode,
         }"
     />
 </template>
