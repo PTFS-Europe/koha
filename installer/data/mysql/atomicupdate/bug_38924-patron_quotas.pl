@@ -2,7 +2,7 @@ use Modern::Perl;
 use Koha::Installer::Output qw(say_warning say_success say_info);
 
 return {
-    bug_number  => "patronquotas",
+    bug_number  => "38924",
     description => "Add patron quota table",
     up          => sub {
         my ($args) = @_;
@@ -23,7 +23,7 @@ return {
                   KEY `patron_quota_ibfk_1` (`patron_id`),
                   CONSTRAINT `patron_quota_ibfk_1` FOREIGN KEY (`patron_id`) REFERENCES `borrowers` (`borrowernumber`) ON DELETE CASCADE ON UPDATE CASCADE
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-            }
+                }
             );
             say_success( $out, "Patron quota table created successfully" );
         } else {
