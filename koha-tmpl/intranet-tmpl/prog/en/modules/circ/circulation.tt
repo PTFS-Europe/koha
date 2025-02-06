@@ -137,7 +137,7 @@
 
                 [%IF ( QUOTA_EXCEEDED ) %]
                     <li class="needsconfirm age_restriction">
-                        Quota Exceeded [% QUOTA_EXCEEDED | html %].
+                        Quota Exceeded. Available: [% QUOTA_EXCEEDED.available | html %] / [% QUOTA_EXCEEDED.total | html %].
                         [% IF CAN_user_circulate_force_checkout %]
                             Check out anyway?
                         [% END %]
@@ -375,6 +375,25 @@
                                     <input type="hidden" value="[% RECALLED.id | html %]" name="recall_id" />
                                 </p>
                             [% END %]
+                        [% END %]
+
+                        [% IF ( QUOTA_SELECT ) %]
+                            <p>
+                                <label for="selected_quota_id">Select quota to use:</label>
+                                <select name="selected_quota_id" id="selected_quota_id" required>
+                                    <option value="">Select a quota</option>
+                                    [% FOREACH quota IN QUOTA_SELECT %]
+                                        <option value="[% quota.id | html %]">
+                                            [% IF quota.patron_id != patron.borrowernumber %]
+                                                Guarantor ([% INCLUDE 'patron-title.inc' patron = quota.patron %]) -
+                                            [% ELSE %]
+                                                This patron ([% INCLUDE 'patron-title.inc' patron = quota.patron %]) -
+                                            [% END %]
+                                            Available: [% quota.available_quota | html %] / [% quota.allocation | html %]
+                                        </option>
+                                    [% END %]
+                                </select>
+                            </p>
                         [% END %]
 
                         <input type="hidden" name="barcode" value="[% barcode | html %]" />
@@ -638,7 +657,7 @@
                 [% END %]
 
                 [%IF ( QUOTA_EXCEEDED ) %]
-                    <li>Quota Exceeded [% QUOTA_EXCEEDED | html %].</li>
+                    <li>Quota Exceeded. Available: [% QUOTA_EXCEEDED.available | html %] / [% QUOTA_EXCEEDED.total | html %].</li>
                 [% END %]
 
                 [% IF ( EXPIRED ) %]

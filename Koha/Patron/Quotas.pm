@@ -1,9 +1,9 @@
 package Koha::Patron::Quotas;
 
+use base qw(Koha::Objects);
 use Modern::Perl;
 use Koha::Patron::Quota;
 use Koha::Patrons;
-use base qw(Koha::Objects);
 
 =head1 NAME
 
@@ -25,47 +25,57 @@ Searches for any applicable quota for the given patron. Returns:
 =cut
 
 sub get_patron_quota {
-    my ($self, $patron_id) = @_;
-    
-    my $patron_quota = undef;
+    my ( $self, $patron_id ) = @_;
+
+    my @available_quotas;
     my $first_found_quota = undef;
 
-    # First check all guarantor quotas if enabled
-    if (C4::Context->preference('UseGuarantorQuota')) {
-        my $patron = Koha::Patrons->find($patron_id);
+    # First check patron's own quota
+    my $patron_quota = $self->search(
+        {
+            patron_id  => $patron_id,
+            start_date => { '<=' => \'CURRENT_DATE' },
+            end_date   => { '>=' => \'CURRENT_DATE' }
+        }
+    )->single;
+
+    if ( $patron_quota && $patron_quota->has_available_quota ) {
+        push @available_quotas, $patron_quota;
+    }
+    $first_found_quota ||= $patron_quota if $patron_quota;
+
+    # Then check all guarantor quotas if enabled
+    if ( C4::Context->preference('UseGuarantorQuota') ) {
+        my $patron     = Koha::Patrons->find($patron_id);
         my @guarantors = $patron->guarantor_relationships->guarantors->as_list;
 
         foreach my $guarantor (@guarantors) {
             my $guarantor_quota = $self->search(
                 {
-                    patron_id => $guarantor->borrowernumber,
+                    patron_id  => $guarantor->borrowernumber,
                     start_date => { '<=' => \'CURRENT_DATE' },
                     end_date   => { '>=' => \'CURRENT_DATE' }
                 }
             )->single;
             
             if ($guarantor_quota) {
-                # Return immediately if guarantor quota has availability
-                if ($guarantor_quota->has_available_quota) {
-                    return $guarantor_quota;
-                }
+
                 # Store first found quota in case we need it later
                 $first_found_quota ||= $guarantor_quota;
+
+                # Collect available guarantor quotas
+                if ( $guarantor_quota->has_available_quota ) {
+                    push @available_quotas, $guarantor_quota;
+                }
             }
         }
     }
 
-    # Check patron's own quota if no available guarantor quota was found
-    $patron_quota = $self->search(
-        {
-            patron_id => $patron_id,
-            start_date => { '<=' => \'CURRENT_DATE' },
-            end_date   => { '>=' => \'CURRENT_DATE' }
-        }
-    )->single;
-
-    # Return patron quota if exists, otherwise first found guarantor quota
-    return $patron_quota || $first_found_quota;
+    # Return single quota if only one available, array of quotas if multiple available,
+    # first found quota if none available
+    return $available_quotas[0] if @available_quotas == 1;
+    return \@available_quotas   if @available_quotas > 1;
+    return $first_found_quota;
 }
 
 =head3 create_quota
@@ -107,6 +117,28 @@ sub get_active_quotas {
     );
 }
 
+=head2 get_active_quota
+
+  my $active_quota = Koha::Patron::Quotas->get_active_quota($patron_id);
+
+Returns the currently active quota for a patron if one exists.
+Active means start_date <= NOW() and end_date >= NOW().
+Returns undef if no active quota found.
+
+=cut
+
+sub get_active_quota {
+    my ( $self, $patron_id ) = @_;
+
+    return Koha::Patron::Quotas->search(
+        {
+            patron_id  => $patron_id,
+            start_date => { '<=' => \'CURRENT_DATE' },
+            end_date   => { '>=' => \'CURRENT_DATE' }
+        }
+    )->single;
+}
+
 =head2 Internal methods
 
 =head3 _type
@@ -119,7 +151,7 @@ sub _type {
 
 =head3 object_class
 
-Returns the package name for patron quota objects
+Returns the package name for koha patron quota objects
 
 =cut
 

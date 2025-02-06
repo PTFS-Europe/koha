@@ -67,6 +67,7 @@ use Koha::Library::Hours;
 use Koha::Patron::Quotas;
 use Koha::Patron::Quota;
 use Koha::Patron::Quota::Usage;
+use Koha::Patron::Quota::Usages;
 
 use Carp qw( carp );
 use List::MoreUtils qw( any );
@@ -1356,11 +1357,15 @@ sub CanBookBeIssued {
 
     # CHECK FOR QUOTAS
     if ( my $quota = Koha::Patron::Quotas->get_patron_quota($patron->borrowernumber) ) {
-        unless ( $quota->has_available_quota ) {
+        if (ref($quota) eq 'ARRAY') {
+            # Multiple available quotas found - need confirmation from user
+            $needsconfirmation{QUOTA_SELECT} = $quota;
+        }
+        elsif (!$quota->has_available_quota) {
             if ( C4::Context->preference("AllowQuotaOverride") ) {
                 $needsconfirmation{QUOTA_EXCEEDED} = {
                     available => $quota->available_quota,
-                    total => $quota->allocation,
+                    total => $quota->allocation, 
                     used => $quota->used,
                 };
             }
@@ -1599,6 +1604,7 @@ sub AddIssue {
     my $auto_renew             = $params && $params->{auto_renew};
     my $cancel_recall          = $params && $params->{cancel_recall};
     my $recall_id              = $params && $params->{recall_id};
+    my $selected_quota_id      = $params && $params->{selected_quota_id};
     my $dbh                    = C4::Context->dbh;
     my $barcodecheck           = CheckValidBarcode($barcode);
 
@@ -1925,9 +1931,16 @@ sub AddIssue {
                 if C4::Context->preference('RealTimeHoldsQueue');
 
             # Check quotas and record usage if needed
-            if ( my $quota = Koha::Patron::Quotas->get_patron_quota($patron->borrowernumber) ) {
-                # Update patron's used quota value
-                $quota->add_usage({
+            my $quota;
+            if ($selected_quota_id) {
+                $quota = Koha::Patron::Quotas->find($selected_quota_id);
+            } else {
+                $quota = Koha::Patron::Quotas->get_patron_quota($patron->borrowernumber); 
+            }
+
+            if ($quota) {
+              # Update patron's used quota value
+              $quota->add_usage({
                     patron_id => $patron->patron_id, 
                     issue_id => $issue->issue_id,
                 });
@@ -3269,10 +3282,15 @@ sub CanBookBeRenewed {
         }
     }
 
-    # CHECK FOR QUOTAS  
-    if ( my $quota = Koha::Patron::Quotas->get_patron_quota($patron->borrowernumber) ) {
-        unless ( $quota->has_available_quota ) {
-            return ( 0, "QUOTA_EXCEEDED" );
+    # # CHECK FOR QUOTAS  
+    if (my $quota_usage = Koha::Patron::Quota::Usages->find({ issue_id => $issue->issue_id })) {
+        
+        # Get current active quota for the patron
+        if (my $active_quota = Koha::Patron::Quotas->get_active_quota($quota_usage->patron_id)) {
+            
+            if (!$active_quota->has_available_quota) {
+                return (0, "QUOTA_EXCEEDED");
+            }
         }
     }
 
@@ -3389,12 +3407,15 @@ sub AddRenewal {
     my $circ_library = Koha::Libraries->find( _GetCircControlBranch( $item_object, $patron ) );
 
     # Check quotas and record usage if needed
-    if ( my $quota = Koha::Patron::Quotas->get_patron_quota($patron->borrowernumber) ) {
-        # Update patron's used quota value
-        $quota->add_usage({
-            patron_id => $patron->patron_id, 
-            issue_id => $issue->issue_id,
-        });
+    if (my $quota_usage = Koha::Patron::Quota::Usages->find({ issue_id => $issue->issue_id })) {
+        # Get current active quota for the patron
+        if (my $active_quota = Koha::Patron::Quotas->get_active_quota($quota_usage->patron_id)) {
+            # Update patron's used quota value
+            $active_quota->add_usage({
+                patron_id => $patron->patron_id,
+                issue_id  => $issue->issue_id,
+            });
+        }
     }
 
     my $schema = Koha::Database->schema;
