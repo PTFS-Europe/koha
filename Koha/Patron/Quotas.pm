@@ -27,10 +27,24 @@ Searches for any applicable quota for the given patron. Returns:
 sub get_patron_quota {
     my ($self, $patron_id) = @_;
     
-    my $patron_quota = undef;
+    my @available_quotas;
     my $first_found_quota = undef;
 
-    # First check all guarantor quotas if enabled
+    # First check patron's own quota
+    my $patron_quota = $self->search(
+        {
+            patron_id => $patron_id,
+            start_date => { '<=' => \'CURRENT_DATE' },
+            end_date   => { '>=' => \'CURRENT_DATE' }
+        }
+    )->single;
+
+    if ($patron_quota && $patron_quota->has_available_quota) {
+        push @available_quotas, $patron_quota;
+    }
+    $first_found_quota ||= $patron_quota if $patron_quota;
+
+    # Then check all guarantor quotas if enabled
     if (C4::Context->preference('UseGuarantorQuota')) {
         my $patron = Koha::Patrons->find($patron_id);
         my @guarantors = $patron->guarantor_relationships->guarantors->as_list;
@@ -45,27 +59,22 @@ sub get_patron_quota {
             )->single;
             
             if ($guarantor_quota) {
-                # Return immediately if guarantor quota has availability
-                if ($guarantor_quota->has_available_quota) {
-                    return $guarantor_quota;
-                }
                 # Store first found quota in case we need it later
                 $first_found_quota ||= $guarantor_quota;
+
+                # Collect available guarantor quotas
+                if ($guarantor_quota->has_available_quota) {
+                    push @available_quotas, $guarantor_quota;
+                }
             }
         }
     }
 
-    # Check patron's own quota if no available guarantor quota was found
-    $patron_quota = $self->search(
-        {
-            patron_id => $patron_id,
-            start_date => { '<=' => \'CURRENT_DATE' },
-            end_date   => { '>=' => \'CURRENT_DATE' }
-        }
-    )->single;
-
-    # Return patron quota if exists, otherwise first found guarantor quota
-    return $patron_quota || $first_found_quota;
+    # Return single quota if only one available, array of quotas if multiple available,
+    # first found quota if none available
+    return $available_quotas[0] if @available_quotas == 1;
+    return \@available_quotas if @available_quotas > 1;
+    return $first_found_quota;
 }
 
 =head3 create_quota
