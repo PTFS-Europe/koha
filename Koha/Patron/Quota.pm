@@ -108,15 +108,15 @@ sub available_quota {
 
 =head2 Instance Methods
 
-=head3 get_patron
+=head3 patron
 
-Returns the patron object associated with this quota
+Returns the Koha::Patron associated with this quota
 
 =cut
 
-sub get_patron {
-    my ($self) = @_;
-    return Koha::Patrons->find( $self->patron_id );
+sub patron {
+    my ( $self ) = @_;
+    return Koha::Patron->_new_from_dbic($self->_result->patron);
 }
 
 =head3 is_active
