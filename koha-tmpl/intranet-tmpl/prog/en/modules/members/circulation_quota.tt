@@ -120,7 +120,7 @@
                 "searchable": true,
                 "orderable": true,
                 "render": function(data, type, row, meta) {
-                    let used = row.user > row.allocation ? "<span class='text-danger'>" + row.used + "</span>" : "<span class='text-success'>" + row.used + "</span>";
+                    let used = row.used > row.allocation ? "<span class='text-danger'>" + row.used + "</span>" : "<span class='text-success'>" + row.used + "</span>";
                     return used + " : " + row.allocation;
                 }
             },
