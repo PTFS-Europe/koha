@@ -2,7 +2,7 @@ use Modern::Perl;
 use Koha::Installer::Output qw(say_warning say_success say_info);
 
 return {
-    bug_number  => "patronquotas",
+    bug_number  => "38924",
     description => "Add patron quota and quota usage tables, add permissions and sysprefs for quotas",
     up          => sub {
         my ($args) = @_;
