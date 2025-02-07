@@ -1228,6 +1228,9 @@ tags:
   - description: "Manage purchase suggestions\n"
     name: suggestions
     x-displayName: Purchase suggestions
+  - description: "Manage quotas\n"
+    name: quotas
+    x-displayName: Quotas
   - description: "Manage quotes\n"
     name: quotes
     x-displayName: Quotes
