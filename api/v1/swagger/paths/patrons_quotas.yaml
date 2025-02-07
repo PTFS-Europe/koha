@@ -13,22 +13,7 @@
         description: A JSON object containing quota information
         required: true
         schema:
-          type: object
-          properties:
-            start_date:
-              type: string
-              format: date
-            end_date:
-              type: string
-              format: date
-            allocation:
-              type: integer
-            used:
-              type: integer
-          required:
-            - start_date
-            - end_date
-            - allocation
+          $ref: "../swagger.yaml#/definitions/quota"
     produces:
       - application/json
     responses:
@@ -84,6 +69,13 @@
           type: array
           items:
             $ref: "../swagger.yaml#/definitions/quota"
+      "400":
+        description: | 
+          Bad request. Possible `error_code` attribute values:
+            * `bad_request`
+            * `invalid_query`
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
       "403":
         description: Access forbidden
         schema:
@@ -116,6 +108,10 @@
         description: A quota
         schema:
           $ref: "../swagger.yaml#/definitions/quota"
+      "400":
+        description: Bad request
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
       "404":
         description: Quota not found
         schema:
@@ -138,25 +134,10 @@
       - $ref: "../swagger.yaml#/parameters/quota_id_pp"
       - name: body
         in: body
-        description: A quota object
+        description: A JSON object containing quota information
         required: true
         schema:
-          type: object
-          properties:
-            start_date:
-              type: string
-              format: date
-            end_date:
-              type: string
-              format: date
-            allocation:
-              type: integer
-            used:
-              type: integer
-          required:
-            - start_date
-            - end_date
-            - allocation
+          $ref: "../swagger.yaml#/definitions/quota"
     produces:
       - application/json
     responses:
@@ -201,6 +182,10 @@
     responses:
       "204":
         description: Quota deleted
+      "400":
+        description: Bad request
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
       "404":
         description: Quota not found
         schema:
