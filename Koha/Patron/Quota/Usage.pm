@@ -1,8 +1,7 @@
 package Koha::Patron::Quota::Usage;
 
-use Modern::Perl;
-
 use base qw(Koha::Object);
+use Modern::Perl;
 use Koha::Patron::Quota;
 use Koha::Patron::Quota::Usages;
 
@@ -15,10 +14,6 @@ Koha::Patron::Quota::Usage - Koha Patron Quota Usage Object class
 =head2 Class methods
 
 =cut
-
-sub _type {
-    return 'PatronQuotaUsage';
-}
 
 =head3 patron
 
@@ -52,10 +47,10 @@ sub store {
         || Koha::Checkouts->find( $self->issue_id )
         || Koha::Old::Checkouts->find( $self->issue_id ) )
     {
-            Koha::Exceptions::Object::FKConstraint->throw(
-                error     => 'Broken FK Contraint',
-                broken_fk => 'issue_id'
-            );
+        Koha::Exceptions::Object::FKConstraint->throw(
+            error     => 'Broken FK Contraint',
+            broken_fk => 'issue_id'
+        );
     }
 
     return $self->SUPER::store();
@@ -66,5 +61,9 @@ sub store {
 =head3 _type
 
 =cut
+
+sub _type {
+    return 'PatronQuotaUsage';
+}
 
 1;
