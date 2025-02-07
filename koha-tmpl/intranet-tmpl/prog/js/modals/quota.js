@@ -1,7 +1,5 @@
 (() => {
-    document
-        .getElementById("quotaModal")
-        ?.addEventListener("show.bs.modal", handleShowBsModal);
+    $('#quotaModal').on('show.bs.modal', handleShowBsModal);
     document
         .getElementById("quotaForm")
         ?.addEventListener("submit", handleSubmit);
