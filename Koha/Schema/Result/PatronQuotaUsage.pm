@@ -172,6 +172,10 @@ __PACKAGE__->belongs_to(
     { join_type => 'left' }
 );
 
+sub koha_object_class {
+    return 'Koha::Patron::Quota::Usage';
+}
+
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 
 sub koha_object_class {
