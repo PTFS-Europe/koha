@@ -6822,9 +6822,12 @@ CREATE TABLE `patron_quota_usage` (
   `patron_quota_id` int(11) NOT NULL COMMENT 'foreign key linking to patron_quota.id',
   `issue_id` int(11) DEFAULT NULL COMMENT 'linking to issues.issue_id or old_issues.issue_id',
   `patron_id` int(11) NOT NULL COMMENT 'foreign key linking to borrowers.borrowernumber',
+  `type` enum('ISSUE','RENEW') NOT NULL COMMENT 'The type of usage this is',
+  `creation_date` timestamp NOT NULL DEFAULT current_timestamp() COMMENT 'the timestamp for when a usage was recorded',
   PRIMARY KEY (`id`),
   KEY `patron_quota_usage_ibfk_1` (`patron_quota_id`),
   KEY `patron_quota_usage_ibfk_2` (`patron_id`),
+  KEY `patron_quota_usage_issue_id` (`issue_id`),
   CONSTRAINT `patron_quota_usage_ibfk_1` FOREIGN KEY (`patron_quota_id`) REFERENCES `patron_quota` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `patron_quota_usage_ibfk_2` FOREIGN KEY (`patron_id`) REFERENCES `borrowers` (`borrowernumber`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;     
