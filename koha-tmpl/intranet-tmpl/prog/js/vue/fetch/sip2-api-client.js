@@ -121,6 +121,20 @@ export class SIP2APIClient extends HttpClient {
                 }),
         };
     }
+
+    get serverparams() {
+        return {
+            getAll: params =>
+                this.getAll({
+                    endpoint: "serverparams",
+                }),
+            updateAll: (body) =>
+                this.patch({
+                    endpoint: "serverparams",
+                    body: body,
+                }),
+        };
+    }
 }
 
 export default SIP2APIClient;
