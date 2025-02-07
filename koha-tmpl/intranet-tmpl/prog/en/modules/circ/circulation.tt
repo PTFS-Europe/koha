@@ -108,7 +108,8 @@
                     [% END %]
 
                     [% IF issue && issue.quota %]
-                        <div class="alert alert-info">[% issue.quota.description | html %] quota reduced.</div>
+                        [% SET quota = issue.quota %]
+                        <div class="alert alert-info">Usage recorded against[% IF quota.patron_id != issue.borrowernumber %] [% INCLUDE 'patron-title.inc' patron = quota.patron no_cardnumber = 1 %][% END %] [% quota.description | html %] quota.</div>
                     [% END %]
 
                     [% IF ( NEEDSCONFIRMATION ) %]
