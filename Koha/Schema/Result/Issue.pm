@@ -400,6 +400,19 @@ __PACKAGE__->has_many(
     { cascade_copy       => 0, cascade_delete => 0 },
 );
 
+=head2 quota_usages
+
+Type: has_many
+
+Related object: L<Koha::Schema::Result::PatronQuotaUsage>
+
+=cut
+
+__PACKAGE__->has_many(
+    'quota_usages' => 'Koha::Schema::Result::PatronQuotaUsage',
+    'issue_id'
+);
+
 sub koha_object_class {
     'Koha::Checkout';
 }

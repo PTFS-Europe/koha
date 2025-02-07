@@ -153,25 +153,23 @@ sub renewals {
 
 =head3 quota
 
-  my $quota = $checkout->quota;
+my $quota = $checkout->quota;
 
-Return a Koha::Patron::Quota object for the quota this checkout recorded a usage against
+Return the checked out quota
 
 =cut
 
 sub quota {
-    my ($self) = @_;
-    my $quota_rs = $self->_result->search_related(
-        'quotas',
+    my ( $self ) = @_;
+    my $usage_rs = $self->_result->quota_usages->search(
         {},
         {
-            join     => 'quota_usages',
-            order_by => { -desc => 'quota_usages.created_at' },
-            rows     => 1
+            rows     => 1,
+            order_by => { '-desc' => 'creation_date' }
         }
     )->single;
-    return unless $quota_rs;
-    return Koha::Patron::Quota->_new_from_dbic($quota_rs);
+    return unless $usage_rs;
+    return Koha::Patron::Quota->_new_from_dbic( $usage_rs->patron_quota );
 }
 
 =head3 attempt_auto_renew
