@@ -165,6 +165,27 @@ sub renewals {
     return Koha::Checkouts::Renewals->_new_from_dbic($renewals_rs);
 }
 
+=head3 quota
+
+my $quota = $checkout->quota;
+
+Return the checked out quota
+
+=cut
+
+sub quota {
+    my ($self) = @_;
+    my $usage_rs = $self->_result->quota_usages->search(
+        {},
+        {
+            rows     => 1,
+            order_by => { '-desc' => 'creation_date' }
+        }
+    )->single;
+    return unless $usage_rs;
+    return Koha::Patron::Quota->_new_from_dbic( $usage_rs->patron_quota );
+}
+
 =head3 attempt_auto_renew
 
   my ($success, $error, $updated) = $checkout->auto_renew({ confirm => 1 });
