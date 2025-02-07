@@ -151,6 +151,29 @@ sub renewals {
     return Koha::Checkouts::Renewals->_new_from_dbic( $renewals_rs );
 }
 
+=head3 quota
+
+  my $quota = $checkout->quota;
+
+Return a Koha::Patron::Quota object for the quota this checkout recorded a usage against
+
+=cut
+
+sub quota {
+    my ($self) = @_;
+    my $quota_rs = $self->_result->search_related(
+        'quotas',
+        {},
+        {
+            join     => 'quota_usages',
+            order_by => { -desc => 'quota_usages.created_at' },
+            rows     => 1
+        }
+    )->single;
+    return unless $quota_rs;
+    return Koha::Patron::Quota->_new_from_dbic($quota_rs);
+}
+
 =head3 attempt_auto_renew
 
   my ($success, $error, $updated) = $checkout->auto_renew({ confirm => 1 });

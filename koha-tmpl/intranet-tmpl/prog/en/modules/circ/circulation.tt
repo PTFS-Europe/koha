@@ -107,6 +107,10 @@
                         <div class="dialog alert">This is the anonymous patron, so circulation is disabled.</div>
                     [% END %]
 
+                    [% IF issue && issue.quota %]
+                        <div class="alert alert-info">[% issue.quota.description | html %] quota reduced.</div>
+                    [% END %]
+
                     [% IF ( NEEDSCONFIRMATION ) %]
                         <div id="circ_needsconfirmation" class="dialog alert audio-alert-action focus" tabindex="-1">
                             [% IF CAN_user_circulate_force_checkout or ADDITIONAL_MATERIALS %]
