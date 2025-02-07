@@ -54,6 +54,23 @@ linking to issues.issue_id or old_issues.issue_id
 
 foreign key linking to borrowers.borrowernumber
 
+=head2 type
+
+  data_type: 'enum'
+  extra: {list => ["ISSUE","RENEW"]}
+  is_nullable: 0
+
+The type of usage this is
+
+=head2 creation_date
+
+  data_type: 'timestamp'
+  datetime_undef_if_invalid: 1
+  default_value: current_timestamp
+  is_nullable: 0
+
+the timestamp for when a usage was recorded
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -65,6 +82,19 @@ __PACKAGE__->add_columns(
   { data_type => "integer", is_nullable => 1 },
   "patron_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
+  "type",
+  {
+    data_type => "enum",
+    extra => { list => ["ISSUE", "RENEW"] },
+    is_nullable => 0,
+  },
+  "creation_date",
+  {
+    data_type => "timestamp",
+    datetime_undef_if_invalid => 1,
+    default_value => \"current_timestamp",
+    is_nullable => 0,
+  },
 );
 
 =head1 PRIMARY KEY
@@ -112,8 +142,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07051 @ 2025-02-07 14:14:27
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:/UbHmNOqiKX4ZjaDZOKi0Q
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2025-02-07 11:22:06
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:WSsSTNOfNnTSyP3AGS9NXA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
