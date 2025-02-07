@@ -4,8 +4,10 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title" id="quotaLabel"></h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h1 class="modal-title" id="quotaLabel">Add Quota</h1>
+                    <button type="button" class="closebtn" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
                 <div class="modal-body overflow-visible">
                     <div id="quota_result"></div>
@@ -43,10 +45,32 @@
                     </fieldset> <!-- /.brief -->
                 </div> <!-- /.modal-body -->
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary approve" id="quotaFormSubmit"></button>
-                    <button type="button" class="btn btn-default deny cancel" data-bs-dismiss="modal"><i class="fa fa-times"></i> Cancel</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button> 
+                    <button type="submit" class="btn btn-primary" id="quotaFormSubmit">Add</button>
                 </div> <!-- /.modal-footer -->
             </div> <!-- /.modal-content -->
         </div> <!-- /.modal-dialog -->
     </form>
 </div> <!-- /#quotaModal -->
+
+<style>
+.modal-header {
+    position: relative;
+    padding: 15px;
+}
+
+.modal-header .closebtn {
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    font-size: 21px;
+    font-weight: bold;
+    border: 0;
+    background: transparent;
+}
+
+.modal-title {
+    margin: 0;
+    line-height: 1.42857143;
+}
+</style>
