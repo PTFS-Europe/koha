@@ -61,6 +61,7 @@ subtest 'get() tests' => sub {
         "id",
         "ip_address_authorization",
         "ip_address_authorization_info",
+        "last_audit",
         "migrations",
         "notification_count",
         "notifications_url",
