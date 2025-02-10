@@ -1,0 +1,14 @@
+---
+type: object
+properties:
+  id:
+    type: integer
+    description: Internal quota identifier
+    readOnly: true
+  patron_id:
+    type: integer
+    description: Link to patron
+additionalProperties: false
+required:
+  - id
+
