@@ -1,12 +1,18 @@
 (() => {
     document
         .getElementById("quotaModal")
-        ?.addEventListener("show.bs.modal", handleShowBsModal);
+        ?.addEventListener("show.bs.modal", handleShowQuotaModal);
     document
         .getElementById("quotaForm")
-        ?.addEventListener("submit", handleSubmit);
+        ?.addEventListener("submit", handleQuotaSubmit);
+    document
+        .getElementById("deleteQuotaModal")
+        ?.addEventListener("show.bs.modal", handleShowDeleteModal);
+    document
+        .getElementById("deleteForm")
+        ?.addEventListener("submit", handleDeleteSubmit);
 
-    async function handleSubmit(e) {
+    async function handleQuotaSubmit(e) {
         e.preventDefault();
 
         const target = e.target;
@@ -58,7 +64,7 @@
         return;
     }
 
-    function handleShowBsModal(e) {
+    function handleShowQuotaModal(e) {
         const button = e.relatedTarget;
         if (!button) {
             return;
@@ -93,6 +99,63 @@
             quotaAllocationInput.value = null;
         }
 
+        const patron = button.dataset.patron;
+        quotaPatronInput.value = patron;
+
+        return;
+    }
+
+    async function handleDeleteSubmit(e) {
+        e.preventDefault();
+
+        const target = e.target;
+        if (!(target instanceof HTMLFormElement)) {
+            return;
+        }
+
+        const formData = new FormData(target);
+        const quotaId = formData.get("quota_id");
+        const patronId = formData.get("patron_id");
+
+        const quotaUrl = `/api/v1/patrons/${patronId}/quotas/${quotaId}`;
+        let [error, response] = await catchError(
+            fetch(quotaUrl, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            })
+        );
+        if (error || !response.ok) {
+            const alertContainer = document.getElementById(
+                "quota_result"
+            );
+            alertContainer.outerHTML = `
+                <div id="quota_result" class="alert alert-danger">
+                    ${__("Failure")}
+                </div>
+            `;
+
+            return;
+        }
+
+        quota_table?.api().ajax.reload();
+
+        $("#deleteQuotaModal").modal("hide");
+        return;
+    }
+
+    function handleShowDeleteModal(e) {
+        const button = e.relatedTarget;
+        if (!button) {
+            return;
+        }
+
+        const quotaIdInput = document.getElementById("quota_id_delete");
+        const quotaPatronInput = document.getElementById("patron_id_delete");
+
+        const quota = button.dataset.quota;
+        quotaIdInput.value = quota;
         const patron = button.dataset.patron;
         quotaPatronInput.value = patron;
 
