@@ -3180,14 +3180,17 @@ sub CanBookBeRenewed {
     }
 
     # # CHECK FOR QUOTAS  
-    if (my $quota_usage = Koha::Patron::Quota::Usages->find({ issue_id => $issue->issue_id })) {
-        
-        # Get current active quota for the patron
-        if (my $active_quota = Koha::Patron::Quotas->get_active_quota($quota_usage->patron_id)) {
-            
-            if (!$active_quota->has_available_quota) {
-                return (0, "QUOTA_EXCEEDED");
+    if ( my $quota_usage = Koha::Patron::Quota::Usages->find( { issue_id => $issue->issue_id } ) ) {
+
+        # Get current actives quota for the patron
+        if ( my $active_quotas = $patron->all_quotas->filter_by_active ) {
+            my $all_exceeded = 1;
+            while ( my $active_quota = $active_quotas->next ) {
+                if ( $active_quota->has_available_quota ) {
+                    $all_exceeded = 0;
+                }
             }
+            return ( 0, "QUOTA_EXCEEDED" ) if $all_exceeded;
         }
     }
 
