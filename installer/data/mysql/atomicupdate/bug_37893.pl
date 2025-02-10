@@ -313,5 +313,31 @@ return {
                 $SIPconfig->{'server-params'}->{$server_params_key}
             );
         }
+
+        # System preference overrides
+        my @system_preference_overrides =
+            ref $SIPconfig->{syspref_overrides} eq "ARRAY"
+            ? @{ $SIPconfig->{syspref_overrides} }
+            : ( $SIPconfig->{syspref_overrides} );
+
+        my $insert_system_preference_overrides = $dbh->prepare(
+            q{INSERT IGNORE INTO sip_system_preference_overrides (variable, value) VALUES (?, ?)});
+
+        foreach my $system_preference_override (@system_preference_overrides) {
+
+            if ( ref $system_preference_override eq 'HASH' ) {
+                for my $key ( keys %{$system_preference_override} ) {
+                    my $override_value = $system_preference_override->{$key};
+                    if (ref $system_preference_override->{$key} eq 'ARRAY'){
+                        $override_value = $system_preference_override->{$key}->[0];
+                    }
+                    $insert_system_preference_overrides->execute(
+                        $key,
+                        $override_value
+                    );
+                }
+            }
+        }
+
     },
 };
