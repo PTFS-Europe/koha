@@ -132,7 +132,9 @@
                 "orderable": false,
                 "render": function(data, type, row, meta) {
                     let result = '<button type="button" class="btn btn-default btn-xs edit-action" data-bs-toggle="modal" data-bs-target="#quotaModal" data-quota="%s" data-patron="%s" data-description="%s" data-start_date="%s" data-end_date="%s" data-allocation="%s"><i class="fa fa-pencil" aria-hidden="true"></i> %s</button>'.format(row.id, row.patron_id, row.description, row.start_date, row.end_date, row.allocation, _("Edit"));
-                    result += '<button type="button" class="btn btn-default btn-xs delete-action" data-bs-toggle="modal" data-bs-target="#deleteQuotaModal" data-quota="%s" data-patron="%s"><i class="fa fa-trash-can" aria-hidden="true"></i> %s</button>'.format(row.id, row.patron_id, _("Delete"));
+                    if ( row.used === 0 ) {
+                        result += '<button type="button" class="btn btn-default btn-xs delete-action" data-bs-toggle="modal" data-bs-target="#deleteQuotaModal" data-quota="%s" data-patron="%s"><i class="fa fa-trash-can" aria-hidden="true"></i> %s</button>'.format(row.id, row.patron_id, _("Delete"));
+                    }
                     return result;
                 }
             }]
