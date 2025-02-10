@@ -650,7 +650,7 @@ sub all_quotas {
         },
         {
             order_by => \[
-                "CASE WHEN patron_id = ? THEN 0 ELSE 1 END, borrowernumber",
+                "CASE WHEN patron_id = ? THEN 0 ELSE 1 END, patron_id",
                 $self->id
             ],
         }
