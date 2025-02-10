@@ -53,6 +53,29 @@
     </form>
 </div> <!-- /#quotaModal -->
 
+<!-- Delete Quota modal form -->
+<div id="deleteQuotaModal" class="modal" tabindex="-1" role="dialog" aria-labelledby="deleteQuotaModalLabel">
+    <form method="delete" id="deleteForm">
+        <input type="hidden" name="quota_id" id="quota_id_delete">
+        <input type="hidden" name="patron_id" id="patron_id_delete">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="deleteQuotaModalLabel">Delete quota</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this quota?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" id="deleteQuotaModaConfirmBtn" class="btn btn-default approve"><i class="fa fa-check" aria-hidden="true"></i> Yes</button>
+                    <button type="button" id="deleteQuotaModaCancelBtn" data-bs-dismiss="modal" class="btn btn-default deny"><i class="fa fa-times" aria-hidden="true"></i> No</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
 <style>
 .modal-header {
     position: relative;
@@ -74,3 +97,4 @@
     line-height: 1.42857143;
 }
 </style>
+
