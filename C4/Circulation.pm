@@ -1344,7 +1344,7 @@ sub CanBookBeIssued {
 
             # Multiple available quotas found - need confirmation from user
             $needsconfirmation{QUOTA_SELECT} = $quotas;
-        } else {
+        } elsif ( $quotas->count == 1 ) {
             my $quota = $quotas->next;
             if ( !$quota->has_available_quota ) {
                 if ( C4::Context->preference("AllowQuotaOverride") ) {
@@ -1903,7 +1903,7 @@ sub AddIssue {
             if ($selected_quota_id) {
                 $quota = Koha::Patron::Quotas->find($selected_quota_id);
             } else {
-                $quota = $patron->all_quota->filter_by_active->first;
+                $quota = $patron->all_quotas->filter_by_active->first;
             }
 
             if ($quota) {
