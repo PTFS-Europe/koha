@@ -48,6 +48,7 @@ use Koha::CsvProfiles;
 use Koha::Patrons;
 use Koha::DateUtils qw( dt_from_string );
 use Koha::Patron::Restriction::Types;
+use Koha::Patron::Quotas;
 use Koha::Plugins;
 use Koha::Database;
 use Koha::BiblioFrameworks;
@@ -320,6 +321,10 @@ if ($patron) {
     {
         $template->param( limited_category => 1 );
     }
+
+    # Add quota details
+    my $quotas = Koha::Patron::Quotas->get_patron_quota($patron->borrowernumber);
+    $template->param( quotas => $quotas ) if $quotas;
 }
 
 #
