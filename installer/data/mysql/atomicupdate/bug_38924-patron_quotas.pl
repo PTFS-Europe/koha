@@ -1,5 +1,4 @@
 use Modern::Perl;
-use Koha::Installer::Output qw(say_warning say_success say_info);
 
 return {
     bug_number  => "38924",
@@ -24,9 +23,9 @@ return {
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
             }
             );
-            say_success( $out, "Patron quota table created successfully" );
+            say $out "Patron quota table created successfully";
         } else {
-            say_info( $out, "Patron quota table already exists" );
+            say $out "Patron quota table already exists";
         }
         unless ( TableExists('patron_quota_usage') ) {
             $dbh->do(
@@ -60,9 +59,9 @@ return {
                 ('UseGuarantorQuota', '0', NULL, 'Use guarantor quota instead of guarantee quota when checking out items', 'YesNo')
             }
             );
-            say_success( $out, "Patron quota usage table, permissions and syspref created successfully" );
+            say $out "Patron quota usage table, permissions and syspref created successfully";
         } else {
-            say_info( $out, "Patron quota usage table already exists" );
+            say $out "Patron quota usage table already exists";
         }
     },
 };
