@@ -594,6 +594,68 @@ sub is_guarantor {
     return $self->guarantee_relationships()->count();
 }
 
+=head3 quotas
+
+Returns any quotas this patron may have
+
+=cut
+
+sub quotas {
+    my ($self) = @_;
+    my $quotas_rs = $self->_result->patron_quotas;
+    return Koha::Patron::Quotas->_new_from_dbic($quotas_rs);
+}
+
+=head3 guarantors_quotas
+
+Returns any guarantor quotas this patron may use
+
+=cut
+
+sub guarantors_quotas {
+    my ($self) = @_;
+    my $guarantors_query =
+        $self->_result->borrower_relationships_guarantors->search( {}, { columns => ['guarantor_id'] } )->as_query;
+    return Koha::Patron::Quotas->search(
+        {
+            patron_id => { '-in' => $guarantors_query },
+        }
+    );
+}
+
+=head3 all_quotas
+
+Returns a Koha::Patron::Quotas resultset containing:
+- Directly related quotas (first)
+- Guarantor quotas (second, if applicable)
+
+=cut
+
+sub all_quotas {
+    my ($self) = @_;
+
+    # Step 1: Build a subquery to fetch the patron's own ID + guarantor IDs from borrower_relationships
+    my $guarantors_query =
+        $self->_result->borrower_relationships_guarantors->search( {}, { columns => ['guarantor_id'] } )->as_query;
+
+    # Step 2: Fetch quotas where borrowernumber is either:
+    # - The patron's own borrowernumber
+    # - One of the guarantor_id values found in the subquery
+    return Koha::Patron::Quotas->search(
+        {
+            '-or' => [
+                { patron_id => $self->id },                         # The patron's own quotas
+                { patron_id => { '-in' => $guarantors_query } },    # Guarantor quotas if they exist
+            ],
+        },
+        {
+            order_by => \[
+                "CASE WHEN patron_id = ? THEN 0 ELSE 1 END, borrowernumber",
+                $self->id
+            ],
+        }
+    );
+}
 
 =head3 relationships_debt
 

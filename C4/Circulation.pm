@@ -1339,25 +1339,27 @@ sub CanBookBeIssued {
     }
 
     # CHECK FOR QUOTAS
-    if ( my $quota = Koha::Patron::Quotas->get_patron_quota($patron->borrowernumber) ) {
-        if (ref($quota) eq 'ARRAY') {
+    if ( my $quotas = $patron->all_quotas->filter_by_active ) {
+        if ( $quotas->count > 1 ) {
+
             # Multiple available quotas found - need confirmation from user
-            $needsconfirmation{QUOTA_SELECT} = $quota;
-        }
-        elsif (!$quota->has_available_quota) {
-            if ( C4::Context->preference("AllowQuotaOverride") ) {
-                $needsconfirmation{QUOTA_EXCEEDED} = {
-                    available => $quota->available_quota,
-                    total => $quota->allocation, 
-                    used => $quota->used,
-                };
-            }
-            else {
-                $issuingimpossible{QUOTA_EXCEEDED} = {
-                    available => $quota->available_quota,
-                    total => $quota->allocation, 
-                    used => $quota->used,
-                };
+            $needsconfirmation{QUOTA_SELECT} = $quotas;
+        } else {
+            my $quota = $quotas->next;
+            if ( !$quota->has_available_quota ) {
+                if ( C4::Context->preference("AllowQuotaOverride") ) {
+                    $needsconfirmation{QUOTA_EXCEEDED} = {
+                        available => $quota->available_quota,
+                        total     => $quota->allocation,
+                        used      => $quota->used,
+                    };
+                } else {
+                    $issuingimpossible{QUOTA_EXCEEDED} = {
+                        available => $quota->available_quota,
+                        total     => $quota->allocation,
+                        used      => $quota->used,
+                    };
+                }
             }
         }
     }
@@ -1901,7 +1903,7 @@ sub AddIssue {
             if ($selected_quota_id) {
                 $quota = Koha::Patron::Quotas->find($selected_quota_id);
             } else {
-                $quota = Koha::Patron::Quotas->get_patron_quota($patron->borrowernumber); 
+                $quota = $patron->all_quota->filter_by_active->first;
             }
 
             if ($quota) {
