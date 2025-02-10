@@ -132,6 +132,7 @@
                 "orderable": false,
                 "render": function(data, type, row, meta) {
                     let result = '<button type="button" class="btn btn-default btn-xs edit-action" data-toggle="modal" data-target="#quotaModal" data-quota="%s" data-patron="%s" data-description="%s" data-start_date="%s" data-end_date="%s" data-allocation="%s"><i class="fa fa-pencil" aria-hidden="true"></i> %s</button>'.format(row.id, row.patron_id, row.description, row.start_date, row.end_date, row.allocation, _("Edit"));
+                    result += '<button type="button" class="btn btn-default btn-xs delete-action" data-toggle="modal" data-target="#deleteQuotaModal" data-quota="%s" data-patron="%s"><i class="fa fa-trash-can" aria-hidden="true"></i> %s</button>'.format(row.id, row.patron_id, _("Delete"));
                     return result;
                 }
             }]
