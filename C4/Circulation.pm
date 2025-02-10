@@ -3307,7 +3307,7 @@ sub AddRenewal {
 
     if (my $quota_usage = Koha::Patron::Quota::Usages->find({ issue_id => $issue->issue_id })) {
         # Get current active quota for the patron
-        if (my $active_quota = Koha::Patron::Quotas->get_active_quota($quota_usage->patron_id)) {
+        if (my $active_quota = Koha::Patron::Quotas->find($quota_usage->patron_quota_id)) {
                 $active_quota->add_usage({
                     patron_id => $active_quota->patron_id,
                     issue_id => $issue->issue_id,
