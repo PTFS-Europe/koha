@@ -323,8 +323,8 @@ if ($patron) {
     }
 
     # Add quota details
-    my $quotas = Koha::Patron::Quotas->get_patron_quota($patron->borrowernumber);
-    $template->param( quotas => $quotas ) if $quotas;
+    my $quotas = $patron->all_quotas;
+    $template->param( quotas => $quotas );
 }
 
 #

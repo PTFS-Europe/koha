@@ -34,7 +34,7 @@ sub list {
         }
 
         if ($only_active) {
-            $quotas_set = $quotas_set->get_active_quotas;
+            $quotas_set = $quotas_set->filter_by_active;
         }
 
         return $c->render(
