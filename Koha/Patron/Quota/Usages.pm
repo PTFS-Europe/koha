@@ -28,10 +28,6 @@ sub _type {
 
 =cut
 
-sub koha_object_class {
-    return 'Koha::Patron::Quota::Usage';
-}
-
 sub object_class {
     return 'Koha::Patron::Quota::Usage';
 }
