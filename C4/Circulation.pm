@@ -1903,7 +1903,7 @@ sub AddIssue {
             if ($selected_quota_id) {
                 $quota = Koha::Patron::Quotas->find($selected_quota_id);
             } else {
-                $quota = $patron->all_quotas->filter_by_active->first;
+                $quota = $patron->all_quotas->filter_by_active->single;
             }
 
             if ($quota) {

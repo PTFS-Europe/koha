@@ -636,7 +636,7 @@ sub all_quotas {
 
     # Step 1: Build a subquery to fetch the patron's own ID + guarantor IDs from borrower_relationships
     my $guarantors_query =
-        $self->_result->borrower_relationships_guarantors->search( {}, { columns => ['guarantor_id'] } )->as_query;
+        $self->_result->borrower_relationships_guarantees->search( {}, { columns => ['guarantor_id'] } )->as_query;
 
     # Step 2: Fetch quotas where borrowernumber is either:
     # - The patron's own borrowernumber
