@@ -217,7 +217,9 @@
       "200":
         description: A quota usage
         schema:
-          $ref: "../swagger.yaml#/definitions/quota_usage"
+          type: array
+          items:
+            $ref: "../swagger.yaml#/definitions/quota_usage"
       "400":
         description: Bad request
         schema:
