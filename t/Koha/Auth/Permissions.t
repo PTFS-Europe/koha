@@ -127,6 +127,7 @@ subtest 'superlibrarian tests' => sub {
         'CAN_user_borrowers_edit_borrowers'                         => 1,
         'CAN_user_borrowers_list_borrowers'                         => 1,
         'CAN_user_borrowers_manage_borrower_quotas'                 => 1,
+        'CAN_user_borrowers_send_messages_to_borrowers'             => 1,
         'CAN_user_borrowers_view_borrower_quotas'                   => 1,
         'CAN_user_borrowers_view_borrower_infos_from_any_libraries' => 1,
         'CAN_user_borrowers'                                        => 1,
