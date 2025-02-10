@@ -117,4 +117,13 @@ __PACKAGE__->belongs_to(
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
+
+sub koha_object_class {
+    return 'Koha::Patron::Quota::Usage';
+}
+
+sub koha_objects_class {
+    return 'Koha::Patron::Quota::Usages';
+}
+
 1;

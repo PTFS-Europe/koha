@@ -151,13 +151,9 @@ sub _type {
 
 =head3 object_class
 
-Returns the package name for patron quota objects
+Returns the package name for koha patron quota objects
 
 =cut
-
-sub koha_object_class {
-    return 'Koha::Patron::Quota';
-}
 
 sub object_class {
     return 'Koha::Patron::Quota';
