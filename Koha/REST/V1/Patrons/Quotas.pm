@@ -152,4 +152,27 @@ sub delete {
     };
 }
 
+=head3 get_usage
+
+Controller method for getting usage for a quota
+
+=cut
+
+sub get_usage {
+    my $c = shift->openapi->valid_input or return;
+
+    my $quota = Koha::Patron::Quotas->find( $c->param('quota_id') );
+    return $c->render_resource_not_found("Quota") unless $quota;
+
+    return try {
+        my $usage_set = $quota->usages;
+        return $c->render(
+            status  => 200,
+            openapi => $c->objects->search($usage_set)
+        );
+    } catch {
+        $c->unhandled_exception($_);
+    };
+}
+
 1;

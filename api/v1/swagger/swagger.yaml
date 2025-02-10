@@ -154,6 +154,8 @@ definitions:
     $ref: ./definitions/quote.yaml
   quota:
     $ref: ./definitions/quota.yaml
+  quota_usage:
+    $ref: ./definitions/quota_usage.yaml
   recall:
     $ref: ./definitions/recall.yaml
   recalls:
@@ -461,6 +463,9 @@ paths:
     $ref: "./paths/patrons_quotas.yaml#/~1patrons~1{patron_id}~1quotas"
   "/patrons/{patron_id}/quotas/{quota_id}":
     $ref: "./paths/patrons_quotas.yaml#/~1patrons~1{patron_id}~1quotas~1{quota_id}"
+  "/patrons/{patron_id}/quotas/{quota_id}/usages":
+    $ref: "./paths/patrons_quotas.yaml#/~1patrons~1{patron_id}~1quotas~1{quota_id}~1usages"
+
   "/patrons/{patron_id}/recalls":
     $ref: "./paths/patrons_recalls.yaml#/~1patrons~1{patron_id}~1recalls"
   /patron_categories:
