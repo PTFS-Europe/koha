@@ -320,6 +320,7 @@ if ($patron) {
     {
         $template->param( limited_category => 1 );
     }
+
 }
 
 #

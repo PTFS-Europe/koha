@@ -1356,25 +1356,27 @@ sub CanBookBeIssued {
     }
 
     # CHECK FOR QUOTAS
-    if ( my $quota = Koha::Patron::Quotas->get_patron_quota($patron->borrowernumber) ) {
-        if (ref($quota) eq 'ARRAY') {
+    if ( my $quotas = $patron->all_quotas->filter_by_active ) {
+        if ( $quotas->count > 1 ) {
+
             # Multiple available quotas found - need confirmation from user
-            $needsconfirmation{QUOTA_SELECT} = $quota;
-        }
-        elsif (!$quota->has_available_quota) {
-            if ( C4::Context->preference("AllowQuotaOverride") ) {
-                $needsconfirmation{QUOTA_EXCEEDED} = {
-                    available => $quota->available_quota,
-                    total => $quota->allocation, 
-                    used => $quota->used,
-                };
-            }
-            else {
-                $issuingimpossible{QUOTA_EXCEEDED} = {
-                    available => $quota->available_quota,
-                    total => $quota->allocation, 
-                    used => $quota->used,
-                };
+            $needsconfirmation{QUOTA_SELECT} = $quotas;
+        } elsif ( $quotas->count == 1 ) {
+            my $quota = $quotas->next;
+            if ( !$quota->has_available_quota ) {
+                if ( C4::Context->preference("AllowQuotaOverride") ) {
+                    $needsconfirmation{QUOTA_EXCEEDED} = {
+                        available => $quota->available_quota,
+                        total     => $quota->allocation,
+                        used      => $quota->used,
+                    };
+                } else {
+                    $issuingimpossible{QUOTA_EXCEEDED} = {
+                        available => $quota->available_quota,
+                        total     => $quota->allocation,
+                        used      => $quota->used,
+                    };
+                }
             }
         }
     }
@@ -1935,7 +1937,7 @@ sub AddIssue {
             if ($selected_quota_id) {
                 $quota = Koha::Patron::Quotas->find($selected_quota_id);
             } else {
-                $quota = Koha::Patron::Quotas->get_patron_quota($patron->borrowernumber); 
+                $quota = $patron->all_quotas->filter_by_active->single;
             }
 
             if ($quota) {
@@ -3283,14 +3285,17 @@ sub CanBookBeRenewed {
     }
 
     # # CHECK FOR QUOTAS  
-    if (my $quota_usage = Koha::Patron::Quota::Usages->find({ issue_id => $issue->issue_id })) {
-        
-        # Get current active quota for the patron
-        if (my $active_quota = Koha::Patron::Quotas->get_active_quota($quota_usage->patron_id)) {
-            
-            if (!$active_quota->has_available_quota) {
-                return (0, "QUOTA_EXCEEDED");
+    if ( my $quota_usage = Koha::Patron::Quota::Usages->find( { issue_id => $issue->issue_id } ) ) {
+
+        # Get current actives quota for the patron
+        if ( my $active_quotas = $patron->all_quotas->filter_by_active ) {
+            my $all_exceeded = 1;
+            while ( my $active_quota = $active_quotas->next ) {
+                if ( $active_quota->has_available_quota ) {
+                    $all_exceeded = 0;
+                }
             }
+            return ( 0, "QUOTA_EXCEEDED" ) if $all_exceeded;
         }
     }
 
@@ -3409,12 +3414,12 @@ sub AddRenewal {
     # Check quotas and record usage if needed
     if (my $quota_usage = Koha::Patron::Quota::Usages->find({ issue_id => $issue->issue_id })) {
         # Get current active quota for the patron
-        if (my $active_quota = Koha::Patron::Quotas->get_active_quota($quota_usage->patron_id)) {
+        if (my $active_quota = Koha::Patron::Quotas->find($quota_usage->patron_quota_id)) {
             # Update patron's used quota value
-            $active_quota->add_usage({
-                patron_id => $patron->patron_id,
-                issue_id  => $issue->issue_id,
-            });
+                $active_quota->add_usage({
+                    patron_id => $patron->borrowernumber,
+                    issue_id  => $issue->issue_id,
+                });
         }
     }
 
