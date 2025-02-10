@@ -48,6 +48,7 @@ use Koha::CsvProfiles;
 use Koha::Patrons;
 use Koha::DateUtils qw( dt_from_string );
 use Koha::Patron::Restriction::Types;
+use Koha::Patron::Quotas;
 use Koha::Plugins;
 use Koha::Database;
 use Koha::BiblioFrameworks;
@@ -183,13 +184,13 @@ my $restoreduedatespec = $query->param('restoreduedatespec') || $duedatespec || 
 if ( $restoreduedatespec && $restoreduedatespec eq "highholds_empty" ) {
     undef $restoreduedatespec;
 }
-my $issueconfirmed = $query->param('issueconfirmed');
-my $cancelreserve  = $query->param('cancelreserve');
-my $cancel_recall  = $query->param('cancel_recall');
+my $issueconfirmed    = $query->param('issueconfirmed');
+my $cancelreserve     = $query->param('cancelreserve');
+my $cancel_recall     = $query->param('cancel_recall');
 my $selected_quota_id = $query->param('selected_quota_id');
-my $recall_id      = $query->param('recall_id');
-my $debt_confirmed = $query->param('debt_confirmed') || 0;     # Don't show the debt error dialog twice
-my $charges        = $query->param('charges')        || q{};
+my $recall_id         = $query->param('recall_id');
+my $debt_confirmed    = $query->param('debt_confirmed') || 0;     # Don't show the debt error dialog twice
+my $charges           = $query->param('charges')        || q{};
 
 # Check if stickyduedate is turned off
 if (@$barcodes) {
@@ -321,6 +322,9 @@ if ($patron) {
         $template->param( limited_category => 1 );
     }
 
+    # Add quota details
+    my $quotas = $patron->all_quotas;
+    $template->param( quotas => $quotas );
 }
 
 #
@@ -544,7 +548,7 @@ if ( @$barcodes && $op eq 'cud-checkout' ) {
                     undef, undef,
                     {
                         onsite_checkout        => $onsite_checkout,        auto_renew => $session->param('auto_renew'),
-                        switch_onsite_checkout => $switch_onsite_checkout, cancel_recall => $cancel_recall,
+                        switch_onsite_checkout => $switch_onsite_checkout, cancel_recall     => $cancel_recall,
                         recall_id              => $recall_id,              selected_quota_id => $selected_quota_id,
                     }
                 );

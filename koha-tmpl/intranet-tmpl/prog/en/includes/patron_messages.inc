@@ -167,6 +167,20 @@
     </ul>
 [% END # /F ( has_modifications || warndeparture... %]
 
+[% IF quotas %]
+    <div id="quota" class="circmessage">
+        <h4>Quota details</h4>
+        <ul>
+            [% FOREACH quota IN quotas %]
+                <li
+                    >[% IF quota.patron_id != issue.borrowernumber %][% INCLUDE 'patron-title.inc' patron = quota.patron no_cardnumber = 1 %] -[% END %][% quota.description | html %] : [% quota.used | html %] /
+                    [% quota.allocation | html %]</li
+                >
+            [% END %]
+        </ul>
+    </div>
+[% END %]
+
 [% IF waiting_recalls.count %]
     <div id="recallswaiting" class="circmessage">
         [% SET waiting_here = 0 %]
