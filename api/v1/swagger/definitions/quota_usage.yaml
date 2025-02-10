@@ -1,0 +1,37 @@
+---
+type: object
+properties:
+  id:
+    type: integer
+    description: Internal quota identifier
+    readOnly: true
+  patron_quota_id:
+    type: integer
+    description: Link to quota
+  patron_id:
+    type: integer
+    description: Link to patron
+  patron:
+    type: object
+  checkout_id:
+    type:
+      - integer
+      - "null"
+    description: Link to issue
+  checkout:
+    type:
+      - object
+      - "null"
+  creation_date:
+    type: string
+    format: date-time
+    description: Date of increment
+  type:
+    type: string
+    enum:
+      - 'ISSUE'
+      - 'RENEW'
+additionalProperties: false
+required:
+  - id
+

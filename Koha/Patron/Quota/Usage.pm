@@ -39,6 +39,20 @@ sub quota {
     return Koha::Patron::Quota->_new_from_dbic($rs);
 }
 
+=head3 checkout
+
+    my $checkout = $usage->checkout;
+
+=cut
+
+sub checkout {
+    my ($self) = @_;
+
+    my $checkout_rs = $self->_result->checkout;
+    return unless $checkout_rs;
+    return Koha::Checkout->_new_from_dbic($checkout_rs);
+}
+
 =head3 store
 
 Overloaded I<store> method to set implement issue_id foreign key in code
@@ -60,6 +74,17 @@ sub store {
     }
 
     return $self->SUPER::store();
+}
+
+=head3 to_api_mapping
+
+This method returns the mapping for representing a Koha::Patron::Quota::Usage
+object on the API.
+
+=cut
+
+sub to_api_mapping {
+    return { issue_id => 'checkout_id' };
 }
 
 =head2 Internal methods
