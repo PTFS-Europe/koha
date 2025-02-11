@@ -8,6 +8,9 @@
     document
         .getElementById("deleteForm")
         ?.addEventListener("submit", handleDeleteSubmit);
+    document
+        .getElementById("quotaUsageModal")
+        ?.addEventListener("show.bs.modal", handleShowQuotaUsageModal);
 
     async function handleQuotaSubmit(e) {
         e.preventDefault();
@@ -156,6 +159,72 @@
         const patron = button.dataset.patron;
         quotaPatronInput.value = patron;
 
+        return;
+    }
+
+    function handleShowQuotaUsageModal(e) {
+        const button = e.relatedTarget;
+        if (!button) {
+            return;
+        }
+
+        const quota = button.dataset.quota;
+        const patron = button.dataset.patron;
+
+        // Destroy any existing DataTable instance to prevent duplication
+        if ($.fn.DataTable.isDataTable("#usage_detail")) {
+            $("#usage_detail").DataTable().destroy();
+        }
+
+        // Initialize DataTable
+        let usage_url = "/api/v1/patrons/%s/quotas/%s/usages".format(patron, quota);
+        $("#usage_detail").kohaTable({
+            ajax: {
+                url: usage_url,
+            },
+            embed: [ 'patron', 'checkout.item.biblio' ],
+            columns: [
+                { 
+                    title: _("Date"),
+                    data: "creation_date",
+                    searchable: true,
+                    orderable: true,
+                    render: function(data, type, row, meta) {
+                        return $date(row.creation_date);
+                    }
+                },
+                {
+                    title: _("Patron"),
+                    data: "patron",
+                    render: function(data, type, row, meta) {
+                        return $patron_to_html(row.patron, {
+                            display_cardnumber: false,
+                            url: true
+                        });
+                    }
+                },
+                {
+                    title: _("Item"),
+                    data: "checkout.item.biblio.title",
+                    render: function(data, type, row, meta) {
+                        return $biblio_to_html(row.checkout.item.biblio, { link: 1 }
+                        );
+                    }
+                },
+                { 
+                    title: _("Usage Type"),
+                    data: "type",
+                    searchable: true,
+                    orderable: true,
+                    render: function(data, type, row, meta) {
+                        return row.type;
+                    }
+                },
+            ],
+            paging: true,
+            searching: true,
+            lengthChange: false,
+        });
         return;
     }
 

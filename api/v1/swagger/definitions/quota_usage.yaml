@@ -11,6 +11,8 @@ properties:
   patron_id:
     type: integer
     description: Link to patron
+  patron:
+    type: object
   checkout_id:
     type:
       - integer
