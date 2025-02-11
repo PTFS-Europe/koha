@@ -69,7 +69,7 @@ use Koha::Patron::Quota;
 use Koha::Patron::Quota::Usage;
 use Koha::Patron::Quota::Usages;
 
-use Carp qw( carp );
+use Carp            qw( carp );
 use List::MoreUtils qw( any );
 use Scalar::Util    qw( looks_like_number blessed );
 use Date::Calc      qw( Date_to_Days );
@@ -1356,26 +1356,28 @@ sub CanBookBeIssued {
     }
 
     # CHECK FOR QUOTAS
-    if ( my $quotas = $patron->all_quotas->filter_by_active ) {
-        if ( $quotas->count > 1 ) {
+    if ( C4::Context->preference('EnableCirculationQuotas') ) {
+        if ( my $quotas = $patron->all_quotas->filter_by_active ) {
+            if ( $quotas->count > 1 ) {
 
-            # Multiple available quotas found - need confirmation from user
-            $needsconfirmation{QUOTA_SELECT} = $quotas;
-        } elsif ( $quotas->count == 1 ) {
-            my $quota = $quotas->next;
-            if ( !$quota->has_available_quota ) {
-                if ( C4::Context->preference("AllowQuotaOverride") ) {
-                    $needsconfirmation{QUOTA_EXCEEDED} = {
-                        available => $quota->available_quota,
-                        total     => $quota->allocation,
-                        used      => $quota->used,
-                    };
-                } else {
-                    $issuingimpossible{QUOTA_EXCEEDED} = {
-                        available => $quota->available_quota,
-                        total     => $quota->allocation,
-                        used      => $quota->used,
-                    };
+                # Multiple available quotas found - need confirmation from user
+                $needsconfirmation{QUOTA_SELECT} = $quotas;
+            } elsif ( $quotas->count == 1 ) {
+                my $quota = $quotas->next;
+                if ( !$quota->has_available_quota ) {
+                    if ( C4::Context->preference("AllowQuotaOverride") ) {
+                        $needsconfirmation{QUOTA_EXCEEDED} = {
+                            available => $quota->available_quota,
+                            total     => $quota->allocation,
+                            used      => $quota->used,
+                        };
+                    } else {
+                        $issuingimpossible{QUOTA_EXCEEDED} = {
+                            available => $quota->available_quota,
+                            total     => $quota->allocation,
+                            used      => $quota->used,
+                        };
+                    }
                 }
             }
         }
@@ -1933,19 +1935,24 @@ sub AddIssue {
                 if C4::Context->preference('RealTimeHoldsQueue');
 
             # Check quotas and record usage if needed
-            my $quota;
-            if ($selected_quota_id) {
-                $quota = Koha::Patron::Quotas->find($selected_quota_id);
-            } else {
-                $quota = $patron->all_quotas->filter_by_active->single;
-            }
+            if ( C4::Context->preference('EnableCirculationQuotas') ) {
+                my $quota;
+                if ($selected_quota_id) {
+                    $quota = Koha::Patron::Quotas->find($selected_quota_id);
+                } else {
+                    $quota = $patron->all_quotas->filter_by_active->single;
+                }
 
-            if ($quota) {
-              # Update patron's used quota value
-              $quota->add_usage({
-                    patron_id => $patron->patron_id, 
-                    issue_id => $issue->issue_id,
-                });
+                if ($quota) {
+
+                    # Update patron's used quota value
+                    $quota->add_usage(
+                        {
+                            patron_id => $patron->borrowernumber,
+                            issue_id  => $issue->issue_id,
+                        }
+                    );
+                }
             }
         }
     }
@@ -3284,18 +3291,20 @@ sub CanBookBeRenewed {
         }
     }
 
-    # # CHECK FOR QUOTAS  
-    if ( my $quota_usage = Koha::Patron::Quota::Usages->find( { issue_id => $issue->issue_id } ) ) {
+    # # CHECK FOR QUOTAS
+    if ( C4::Context->preference('EnableCirculationQuotas') ) {
+        if ( my $quota_usage = Koha::Patron::Quota::Usages->find( { issue_id => $issue->issue_id } ) ) {
 
-        # Get current actives quota for the patron
-        if ( my $active_quotas = $patron->all_quotas->filter_by_active ) {
-            my $all_exceeded = 1;
-            while ( my $active_quota = $active_quotas->next ) {
-                if ( $active_quota->has_available_quota ) {
-                    $all_exceeded = 0;
+            # Get current actives quota for the patron
+            if ( my $active_quotas = $patron->all_quotas->filter_by_active ) {
+                my $all_exceeded = 1;
+                while ( my $active_quota = $active_quotas->next ) {
+                    if ( $active_quota->has_available_quota ) {
+                        $all_exceeded = 0;
+                    }
                 }
+                return ( 0, "QUOTA_EXCEEDED" ) if $all_exceeded;
             }
-            return ( 0, "QUOTA_EXCEEDED" ) if $all_exceeded;
         }
     }
 
@@ -3412,14 +3421,20 @@ sub AddRenewal {
     my $circ_library = Koha::Libraries->find( _GetCircControlBranch( $item_object, $patron ) );
 
     # Check quotas and record usage if needed
-    if (my $quota_usage = Koha::Patron::Quota::Usages->find({ issue_id => $issue->issue_id })) {
-        # Get current active quota for the patron
-        if (my $active_quota = Koha::Patron::Quotas->find($quota_usage->patron_quota_id)) {
-            # Update patron's used quota value
-                $active_quota->add_usage({
-                    patron_id => $patron->borrowernumber,
-                    issue_id  => $issue->issue_id,
-                });
+    if ( C4::Context->preference('EnableCirculationQuotas') ) {
+        if ( my $quota_usage = Koha::Patron::Quota::Usages->find( { issue_id => $issue->issue_id } ) ) {
+
+            # Get current active quota for the patron
+            if ( my $active_quota = Koha::Patron::Quotas->find( $quota_usage->patron_quota_id ) ) {
+
+                # Update patron's used quota value
+                $active_quota->add_usage(
+                    {
+                        patron_id => $patron->borrowernumber,
+                        issue_id  => $issue->issue_id,
+                    }
+                );
+            }
         }
     }
 
