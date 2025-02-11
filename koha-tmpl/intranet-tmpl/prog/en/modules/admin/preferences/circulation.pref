@@ -390,18 +390,6 @@ Circulation:
                   0: "Don't allow"
             - staff to check out an item with age restriction.
         -
-            - pref: AllowQuotaOverride
-              choices:
-                  1: "Allow"
-                  0: "Don't allow" 
-            - staff to check out items to patrons who have exceeded their quota limit.
-        -
-            - pref: UseGuarantorQuota
-              choices:
-                  1: "Use"
-                  0: "Don't use"
-            - guarantor's quota instead of guarantee's quota when checking out items if guarantor has an active quota and quota has enough availability.
-        -
             - Prevent patrons from checking out items if they have more than
             - pref: noissuescharge
               class: integer
@@ -1324,6 +1312,25 @@ Circulation:
             - pref: SCOBatchCheckoutsValidCategories
               choices: patron-categories
               class: multiple
+    Quotas:
+        -
+            - pref: EnableCirculationQuotas
+              choices:
+                  1: "Enable"
+                  0: "Disable"
+            - circulation quotas for patrons.
+        -
+            - pref: AllowQuotaOverride
+              choices:
+                  1: "Allow"
+                  0: "Don't allow" 
+            - staff to check out items to patrons who have exceeded their quota limit.
+        -
+            - pref: UseGuarantorQuota
+              choices:
+                  1: "Use"
+                  0: "Don't use"
+            - guarantor's quota instead of guarantee's quota when checking out items if guarantor has an active quota and quota has enough availability.
     Course reserves:
         -
             - pref: UseCourseReserves

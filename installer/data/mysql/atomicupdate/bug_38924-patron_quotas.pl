@@ -66,5 +66,13 @@ return {
         } else {
             say_info( $out, "Patron quota usage table already exists" );
         }
+
+        $dbh->do(
+            q{
+            INSERT IGNORE INTO systempreferences (variable, value, options, explanation, type)
+            VALUES 
+            ('EnableCirculationQuotas','0','','Enable or disable the circulation quotas feature','YesNo')
+        }
+        );
     },
 };
