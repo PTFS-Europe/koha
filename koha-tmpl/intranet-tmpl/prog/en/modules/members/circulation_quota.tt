@@ -77,6 +77,7 @@
     [% INCLUDE 'columns_settings.inc' %]
     [% INCLUDE 'js-date-format.inc' %]
     [% INCLUDE 'js-patron-format.inc' %]
+    [% INCLUDE 'js-biblio-format.inc' %]
     [% Asset.js("js/modals/quota.js") | $raw %]]
     <script>
         var quota_url= "/api/v1/patrons/%s/quotas".format(borrowernumber);
@@ -121,7 +122,13 @@
                 "orderable": true,
                 "render": function(data, type, row, meta) {
                     let used = row.used > row.allocation ? "<span class='text-danger'>" + row.used + "</span>" : "<span class='text-success'>" + row.used + "</span>";
-                    return used + " : " + row.allocation;
+                    let render = '<div class="d-flex">';
+                    render += '<div class="p-2 flex-grow-1">';
+                    render += used + " : " + row.allocation;
+                    render += '</div><div class="p-2">';
+                    render += '<span class="text-end">(<a href="#" data-bs-toggle="modal" data-bs-target="#quotaUsageModal" data-quota="%s" data-patron="%s">%s</a>)</span>'.format(row.id, row.patron_id, _("details"));
+                    render += '</div></div>';
+                    return render;
                 }
             },
             {
