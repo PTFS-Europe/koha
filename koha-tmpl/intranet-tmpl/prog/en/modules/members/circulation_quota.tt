@@ -126,7 +126,7 @@
                     render += '<div class="p-2 flex-grow-1">';
                     render += used + " : " + row.allocation;
                     render += '</div><div class="p-2">';
-                    render += '<span class="text-end">(<a href="#" data-bs-toggle="modal" data-bs-target="#quotaUsageModal" data-quota="%s" data-patron="%s">%s</a>)</span>'.format(row.id, row.patron_id, _("details"));
+                    render += '<span class="text-end">(<a href="#" data-toggle="modal" data-target="#quotaUsageModal" data-quota="%s" data-patron="%s">%s</a>)</span>'.format(row.id, row.patron_id, _("details"));
                     render += '</div></div>';
                     return render;
                 }
