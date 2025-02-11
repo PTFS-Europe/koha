@@ -231,7 +231,6 @@
             - checkout.item.biblio
             - patron
         collectionFormat: csv
-
     produces:
       - application/json
     responses:
@@ -242,7 +241,14 @@
           items:
             $ref: "../swagger.yaml#/definitions/quota_usage"
       "400":
-        description: Bad request
+        description: | 
+          Bad request. Possible `error_code` attribute values:
+            * `bad_request`
+            * `invalid_query`
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "403":
+        description: Access forbidden
         schema:
           $ref: "../swagger.yaml#/definitions/error"
       "404":
@@ -256,4 +262,3 @@
     x-koha-authorization:
       permissions:
         borrowers: view_borrower_quotas
-
