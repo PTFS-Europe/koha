@@ -8,11 +8,14 @@
 [% PROCESS 'i18n.inc' %]
 [% SET footerjs = 1 %]
 [% INCLUDE 'doc-head-open.inc' %]
-<title>[% FILTER collapse %]
-    [% t("Circulation quota for") | html %] [% INCLUDE 'patron-title.inc' no_html = 1 %]
-    [% t("Patrons") | html %] &rsaquo;
-    [% t("Koha") | html %]
-[% END %]</title>
+<title
+    >[% FILTER collapse %]
+        [% t("Circulation quota for") | html %]
+        [% INCLUDE 'patron-title.inc' no_html = 1 %]
+        [% t("Patrons") | html %]
+        &rsaquo; [% t("Koha") | html %]
+    [% END %]</title
+>
 [% INCLUDE 'doc-head-close.inc' %]
 </head>
 
@@ -43,10 +46,10 @@
                 [% INCLUDE 'members-toolbar.inc' %]
                 <h1>Circulation quota for [% INCLUDE 'patron-title.inc' %]</h1>
                 [% IF patron.guarantor_relationships.count > 0 %]
-                <div class="page-section">
-                    <h2>Guarantors quota</h2>
-                    <table id="guarantors_quota"></table>
-                </div>
+                    <div class="page-section">
+                        <h2>Guarantors quota</h2>
+                        <table id="guarantors_quota"></table>
+                    </div>
                 [% END %]
                 <div class="page-section">
                     <h2>Organization quota</h2>
@@ -58,16 +61,17 @@
                     <table id="patrons_quota"></table>
                 </div>
             </main>
-        </div> <!-- /.col-md-10.order-md-2.order-sm-1 -->
+        </div>
+        <!-- /.col-md-10.order-md-2.order-sm-1 -->
 
         <div class="col-md-2 order-sm-2 order-md-1">
-            <aside>
-                [% INCLUDE 'circ-menu.inc' %]
-            </aside>
-        </div> <!-- /.col-md-2.order-sm-2.order-md-1 -->
-    </div> <!-- /.row -->
-
-    [% INCLUDE 'modals/quota.inc' %]
+            <aside> [% INCLUDE 'circ-menu.inc' %] </aside>
+        </div>
+        <!-- /.col-md-2.order-sm-2.order-md-1 -->
+    </div>
+    <!-- /.row -->
+</div>
+[% INCLUDE 'modals/quota.inc' %]
 
 [% MACRO jsinclude BLOCK %]
     [% INCLUDE 'str/members-menu.inc' %]
@@ -76,70 +80,94 @@
     [% INCLUDE 'datatables.inc' %]
     [% INCLUDE 'js-date-format.inc' %]
     [% INCLUDE 'js-patron-format.inc' %]
+    [% INCLUDE 'js-biblio-format.inc' %]
     [% Asset.js("js/modals/quota.js") | $raw %]]
     <script>
-        var quota_url= "/api/v1/patrons/%s/quotas".format(borrowernumber);
-        let quota_table = $('#patrons_quota').kohaTable({
-            "ajax": {
-                "url": quota_url
-            },
-            "embed": [
-            ],
-            "columns": [{
-                "data": "id",
-                "title": _("Quota ID"),
-                "visible": false
-            },
+        var quota_url = "/api/v1/patrons/%s/quotas".format(borrowernumber);
+        let quota_table = $("#patrons_quota").kohaTable(
             {
-                "data": "description",
-                "title": _("Description"),
-                "visible": true,
+                ajax: {
+                    url: quota_url,
+                },
+                embed: [],
+                columns: [
+                    {
+                        data: "id",
+                        title: _("Quota ID"),
+                        visible: false,
+                    },
+                    {
+                        data: "description",
+                        title: _("Description"),
+                        visible: true,
+                    },
+                    {
+                        data: "start_date",
+                        title: _("Start date"),
+                        searchable: true,
+                        orderable: true,
+                        render: function (data, type, row, meta) {
+                            return $date(row.start_date);
+                        },
+                    },
+                    {
+                        data: "end_date",
+                        title: _("End date"),
+                        searchable: true,
+                        orderable: true,
+                        render: function (data, type, row, meta) {
+                            return $date(row.end_date);
+                        },
+                    },
+                    {
+                        data: "allocation:used",
+                        title: _("Allocation (Used:Total)"),
+                        searchable: true,
+                        orderable: true,
+                        render: function (data, type, row, meta) {
+                            let render = '<div class="d-flex">';
+                            render += '<div class="p-2 flex-grow-1">';
+                            render += used + " : " + row.allocation;
+                            render += '</div><div class="p-2">';
+                            render += '<span class="text-end">(<a href="#" data-bs-toggle="modal" data-bs-target="#quotaUsageModal" data-quota="%s" data-patron="%s">%s</a>)</span>'.format(row.id, row.patron_id, _("details"));
+                            render += "</div></div>";
+                            return render;
+                        },
+                    },
+                    {
+                        data: "",
+                        title: _("Actions"),
+                        class: "actions",
+                        searchable: false,
+                        orderable: false,
+                        render: function (data, type, row, meta) {
+                            let result =
+                                '<button type="button" class="btn btn-default btn-xs edit-action" data-bs-toggle="modal" data-bs-target="#quotaModal" data-quota="%s" data-patron="%s" data-description="%s" data-start_date="%s" data-end_date="%s" data-allocation="%s"><i class="fa fa-pencil" aria-hidden="true"></i> %s</button>'.format(
+                                    row.id,
+                                    row.patron_id,
+                                    row.description,
+                                    row.start_date,
+                                    row.end_date,
+                                    row.allocation,
+                                    _("Edit")
+                                );
+                            if (row.used === 0) {
+                                result +=
+                                    '<button type="button" class="btn btn-default btn-xs delete-action" data-bs-toggle="modal" data-bs-target="#deleteQuotaModal" data-quota="%s" data-patron="%s"><i class="fa fa-trash-can" aria-hidden="true"></i> %s</button>'.format(
+                                        row.id,
+                                        row.patron_id,
+                                        _("Delete")
+                                    );
+                            }
+                            return result;
+                        },
+                    },
+                ],
             },
-            {
-                "data": "start_date",
-                "title": _("Start date"),
-                "searchable": true,
-                "orderable": true,
-                "render": function(data, type, row, meta) {
-                    return $date(row.start_date);
-                }
-            },
-            {
-                "data": "end_date",
-                "title": _("End date"),
-                "searchable": true,
-                "orderable": true,
-                "render": function(data, type, row, meta) {
-                    return $date(row.end_date);
-                }
-            },
-            {
-                "data": "allocation:used",
-                "title": _("Allocation (Used:Total)"),
-                "searchable": true,
-                "orderable": true,
-                "render": function(data, type, row, meta) {
-                    let used = row.used > row.allocation ? "<span class='text-danger'>" + row.used + "</span>" : "<span class='text-success'>" + row.used + "</span>";
-                    return used + " : " + row.allocation;
-                }
-            },
-            {
-                "data": "",
-                "title": _("Actions"),
-                "class": "actions",
-                "searchable": false,
-                "orderable": false,
-                "render": function(data, type, row, meta) {
-                    let result = '<button type="button" class="btn btn-default btn-xs edit-action" data-bs-toggle="modal" data-bs-target="#quotaModal" data-quota="%s" data-patron="%s" data-description="%s" data-start_date="%s" data-end_date="%s" data-allocation="%s"><i class="fa fa-pencil" aria-hidden="true"></i> %s</button>'.format(row.id, row.patron_id, row.description, row.start_date, row.end_date, row.allocation, _("Edit"));
-                    if ( row.used === 0 ) {
-                        result += '<button type="button" class="btn btn-default btn-xs delete-action" data-bs-toggle="modal" data-bs-target="#deleteQuotaModal" data-quota="%s" data-patron="%s"><i class="fa fa-trash-can" aria-hidden="true"></i> %s</button>'.format(row.id, row.patron_id, _("Delete"));
-                    }
-                    return result;
-                }
-            }]
-        }, undefined, 0, undefined);
-
+            undefined,
+            0,
+            undefined
+        );
     </script>
 [% END %]
-
 [% INCLUDE 'intranet-bottom.inc' %]

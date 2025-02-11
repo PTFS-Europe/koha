@@ -11,6 +11,9 @@
     document
         .getElementById("deleteForm")
         ?.addEventListener("submit", handleDeleteSubmit);
+    document
+        .getElementById("quotaUsageModal")
+        ?.addEventListener("show.bs.modal", handleShowQuotaUsageModal);
 
     async function handleQuotaSubmit(e) {
         e.preventDefault();
@@ -28,7 +31,9 @@
         const endDate = formData.get("end_date");
         const allocation = formData.get("allocation");
 
-        const quotaUrl = quotaId ? `/api/v1/patrons/${patronId}/quotas/${quotaId}` : `/api/v1/patrons/${patronId}/quotas`;
+        const quotaUrl = quotaId
+            ? `/api/v1/patrons/${patronId}/quotas/${quotaId}`
+            : `/api/v1/patrons/${patronId}/quotas`;
         let [error, response] = await catchError(
             fetch(quotaUrl, {
                 method: quotaId ? "PUT" : "POST",
@@ -37,7 +42,7 @@
                     description: description,
                     start_date: startDate,
                     end_date: endDate,
-                    allocation: allocation
+                    allocation: allocation,
                 }),
                 headers: {
                     "Content-Type": "application/json",
@@ -45,9 +50,7 @@
             })
         );
         if (error || !response.ok) {
-            const alertContainer = document.getElementById(
-                "quota_result"
-            );
+            const alertContainer = document.getElementById("quota_result");
             alertContainer.outerHTML = `
                 <div id="quota_result" class="alert alert-danger">
                     ${__("Failure")}
@@ -75,24 +78,31 @@
 
         const quotaIdInput = document.getElementById("quota_id");
         const quotaPatronInput = document.getElementById("patron_id");
-        const quotaDescriptionInput = document.getElementById("quota_description");
+        const quotaDescriptionInput =
+            document.getElementById("quota_description");
         const quotaStartDateInput = document.getElementById("quota_from");
         const quotaEndDateInput = document.getElementById("quota_to");
-        const quotaAllocationInput = document.getElementById("quota_allocation");
+        const quotaAllocationInput =
+            document.getElementById("quota_allocation");
 
         const quota = button.dataset.quota;
         if (quota) {
             quotaIdInput.value = quota;
-            quotaModalLabel.textContent = _("Edit quota");
-            quotaModalSubmit.innerHTML = "<i class=\"fa fa-check\"></i> " + _("Update");
+            quotaModalLabel.textContent = __("Edit quota");
+            quotaModalSubmit.innerHTML =
+                '<i class="fa fa-check"></i> ' + __("Update");
             quotaDescriptionInput.value = button.dataset.description;
-            quotaStartDateInput._flatpickr.setDate(button.dataset.start_date, 1);
+            quotaStartDateInput._flatpickr.setDate(
+                button.dataset.start_date,
+                1
+            );
             quotaEndDateInput._flatpickr.setDate(button.dataset.end_date, 1);
             quotaAllocationInput.value = button.dataset.allocation;
         } else {
             quotaIdInput.value = null;
-            quotaModalLabel.textContent = _("Add quota");
-            quotaModalSubmit.innerHTML = "<i class=\"fa fa-fw fa-plus\"></i> " + _("Add");
+            quotaModalLabel.textContent = __("Add quota");
+            quotaModalSubmit.innerHTML =
+                '<i class="fa fa-fw fa-plus"></i> ' + __("Add");
             quotaDescriptionInput.value = null;
             quotaStartDateInput.value = null;
             quotaEndDateInput.value = null;
@@ -127,9 +137,7 @@
             })
         );
         if (error || !response.ok) {
-            const alertContainer = document.getElementById(
-                "quota_result"
-            );
+            const alertContainer = document.getElementById("quota_result");
             alertContainer.outerHTML = `
                 <div id="quota_result" class="alert alert-danger">
                     ${__("Failure")}
@@ -159,6 +167,80 @@
         const patron = button.dataset.patron;
         quotaPatronInput.value = patron;
 
+        return;
+    }
+
+    function handleShowQuotaUsageModal(e) {
+        const button = e.relatedTarget;
+        if (!button) {
+            return;
+        }
+
+        const quota = button.dataset.quota;
+        const patron = button.dataset.patron;
+
+        // Destroy any existing DataTable instance to prevent duplication
+        if ($.fn.DataTable.isDataTable("#usage_detail")) {
+            $("#usage_detail").DataTable().destroy();
+        }
+
+        // Initialize DataTable
+        let usage_url = "/api/v1/patrons/%s/quotas/%s/usages".format(
+            patron,
+            quota
+        );
+        $("#usage_detail").kohaTable({
+            ajax: {
+                url: usage_url,
+            },
+            embed: ["patron", "checkout.item.biblio"],
+            columns: [
+                {
+                    title: __("Date"),
+                    data: "creation_date",
+                    searchable: true,
+                    orderable: true,
+                    render: function (data, type, row, meta) {
+                        return $date(row.creation_date);
+                    },
+                },
+                {
+                    title: __("Patron"),
+                    data: "patron",
+                    render: function (data, type, row, meta) {
+                        return $patron_to_html(row.patron, {
+                            display_cardnumber: false,
+                            url: true,
+                        });
+                    },
+                },
+                {
+                    title: __("Item"),
+                    data: "checkout.item.biblio.title",
+                    render: function (data, type, row, meta) {
+                        if (row.checkout) {
+                            return $biblio_to_html(row.checkout.item.biblio, {
+                                link: 1,
+                            });
+                        } else {
+                            return __("Circulation history removed");
+                        }
+                    },
+                },
+                {
+                    title: __("Usage Type"),
+                    data: "type",
+                    searchable: true,
+                    orderable: true,
+                    render: function (data, type, row, meta) {
+                        return row.type;
+                    },
+                },
+            ],
+            paging: true,
+            searching: true,
+            lengthChange: false,
+        });
         return;
     }
 
