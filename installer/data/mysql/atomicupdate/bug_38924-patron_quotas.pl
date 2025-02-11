@@ -65,7 +65,8 @@ return {
             INSERT IGNORE INTO systempreferences (variable, value, options, explanation, type)
             VALUES 
             ('AllowQuotaOverride', '0', NULL, 'Allow staff to override and check out items to patrons who have exceeded their quota limit', 'YesNo'),
-            ('UseGuarantorQuota', '0', NULL, 'Use guarantor quota instead of guarantee quota when checking out items', 'YesNo')
+            ('UseGuarantorQuota', '0', NULL, 'Use guarantor quota instead of guarantee quota when checking out items', 'YesNo'),
+            ('EnableCirculationQuotas','0','','Enable or disable the circulation quotas feature','YesNo')
         });
 
         say_success( $out, "Patron quota preferences added successfully" );
