@@ -206,8 +206,11 @@
                     title: _("Item"),
                     data: "checkout.item.biblio.title",
                     render: function(data, type, row, meta) {
-                        return $biblio_to_html(row.checkout.item.biblio, { link: 1 }
-                        );
+                        if (row.checkout) {
+                            return $biblio_to_html(row.checkout.item.biblio, { link: 1 });
+                        } else {
+                            return _("Circulation history removed");
+                        }
                     }
                 },
                 { 
