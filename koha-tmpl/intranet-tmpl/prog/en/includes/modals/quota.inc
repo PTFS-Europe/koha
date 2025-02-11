@@ -83,14 +83,16 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title" id="quotaUsageModalLabel">Quota usage details</h4>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h1 class="modal-title" id="quotaUsageModalLabel">Quota usage details</h1>
+                <button type="button" class="closebtn" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
             <div class="modal-body">
                 <table id="usage_detail"></table>
             </div>
             <div class="modal-footer">
-                <button type="button" id="quotaUsageModalCloseBtn" data-bs-dismiss="modal" class="btn btn-default deny"><i class="fa fa-times" aria-hidden="true"></i> Close</button>
+                <button type="button" id="quotaUsageModalCloseBtn" data-dismiss="modal" class="btn btn-default deny"><i class="fa fa-times" aria-hidden="true"></i> Close</button>
             </div>
         </div>
     </div>
