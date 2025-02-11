@@ -1,5 +1,5 @@
 (() => {
-    $('#quotaModal').on('show.bs.modal', handleShowBsModal);
+    $('#quotaModal').on('show.bs.modal', handleShowQuotaModal);
     document
         .getElementById("quotaForm")
         ?.addEventListener("submit", handleQuotaSubmit);
@@ -8,9 +8,8 @@
     document
         .getElementById("deleteForm")
         ?.addEventListener("submit", handleDeleteSubmit);
-    document
-        .getElementById("quotaUsageModal")
-        ?.addEventListener("show.bs.modal", handleShowQuotaUsageModal);
+
+    $('#quotaUsageModal').on("show.bs.modal", handleShowQuotaUsageModal);
 
     async function handleQuotaSubmit(e) {
         e.preventDefault();
