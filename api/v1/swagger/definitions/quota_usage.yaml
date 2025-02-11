@@ -11,11 +11,15 @@ properties:
   patron_id:
     type: integer
     description: Link to patron
-  issue_id:
+  checkout_id:
     type:
       - integer
       - "null"
     description: Link to issue
+  checkout:
+    type:
+      - object
+      - "null"
   creation_date:
     type: string
     format: date-time
