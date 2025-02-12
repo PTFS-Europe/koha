@@ -68,6 +68,13 @@
                                         v-model="input.value"
                                         :required="input.required"
                                     />
+                                    <input
+                                        v-if="input.type == 'Checkbox'"
+                                        type="checkbox"
+                                        :id="`confirmation_input_${input.id}`"
+                                        v-model="input.value"
+                                        :required="input.required"
+                                    />
                                 </div>
                             </div>
                         </form>
@@ -246,5 +253,9 @@ export default {
 .confirmation .inputs label {
     padding: 0.4em;
     float: right;
+}
+.confirmation .inputs div.col-md-6:has(input[type="checkbox"]) {
+    display: flex;
+    align-items: center;
 }
 </style>
