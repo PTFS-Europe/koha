@@ -172,6 +172,16 @@ export class SIP2APIClient extends HttpClient {
                 }),
         };
     }
+
+    get sip_server() {
+        return {
+            restart: action_body =>
+                this.post({
+                    endpoint: "sipserver/restart",
+                    body: action_body,
+                }),
+        };
+    }
 }
 
 export default SIP2APIClient;

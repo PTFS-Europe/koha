@@ -1,0 +1,52 @@
+---
+/sip2/sipserver/restart:
+  post:
+    x-mojo-to: SIP2::SIPServer#restart
+    operationId: restartSIPServer
+    tags:
+      - sip2_sipserver
+    summary: Perform a SIP Server restart
+    produces:
+      - application/json
+    parameters:
+      - description: The file to import
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+          properties:
+            confirm:
+              type: boolean
+          additionalProperties: false
+    responses:
+      200:
+        description: Restart performed successfully
+        schema:
+          items:
+            type: object
+      "400":
+        description: |
+          Bad request. Possible `error_code` attribute values:
+
+            * `invalid_query`
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      403:
+        description: Access forbidden
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      500:
+        description: |-
+          Internal server error. Possible `error_code` attribute values:
+          * `internal_server_error`
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      503:
+        description: Under maintenance
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+    x-koha-authorization:
+      permissions:
+        superlibrarian: 1 # TODO: Fix this, currently for superlibrarians only
+ 
