@@ -108,6 +108,11 @@
                         <div class="alert alert-warning">This is the anonymous patron, so circulation is disabled.</div>
                     [% END %]
 
+                    [% IF issue && issue.quota %]
+                        [% SET quota = issue.quota %]
+                        <div class="alert alert-info">Usage recorded against[% IF quota.patron_id != issue.borrowernumber %] [% INCLUDE 'patron-title.inc' patron = quota.patron no_cardnumber = 1 %][% END %] [% quota.description | html %] quota.</div>
+                    [% END %]
+
                     [% IF ( NEEDSCONFIRMATION ) %]
                         <div id="circ_needsconfirmation" class="alert alert-warning audio-alert-action focus" tabindex="-1">
                             [% IF CAN_user_circulate_force_checkout or ADDITIONAL_MATERIALS %]
