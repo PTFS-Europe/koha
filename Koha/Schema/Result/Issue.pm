@@ -434,21 +434,8 @@ Related object: L<Koha::Schema::Result::PatronQuotaUsage>
 =cut
 
 __PACKAGE__->has_many(
-    'quota_usages' => 'MyApp::Schema::Result::PatronQuotaUsage',
+    'quota_usages' => 'Koha::Schema::Result::PatronQuotaUsage',
     'issue_id'
-);
-
-=head2 quotas
-
-Type: many_to_many
-
-Related object: L<Koha::Schema::Result::PatronQuota>
-
-=cut
-
-__PACKAGE__->many_to_many(
-    'patron_quotas' => 'patron_quota_usages',
-    'patron_quota'
 );
 
 sub koha_object_class {
