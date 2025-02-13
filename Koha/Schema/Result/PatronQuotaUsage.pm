@@ -141,10 +141,36 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 1, on_delete => "CASCADE", on_update => "CASCADE" },
 );
 
-
 # Created by DBIx::Class::Schema::Loader v0.07051 @ 2025-02-07 11:22:06
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:WSsSTNOfNnTSyP3AGS9NXA
 
+=head2 issue
+
+Type: belongs_to
+
+Related object: L<Koha::Schema::Result::Issue>
+
+=cut
+
+__PACKAGE__->belongs_to(
+    issue => 'Koha::Schema::Result::Issue',
+    'issue_id',
+    { join_type => 'left' }
+);
+
+=head2 old_issue
+
+Type: belongs_to
+
+Related object: L<Koha::Schema::Result::OldIssue>
+
+=cut
+
+__PACKAGE__->belongs_to(
+    old_issue => 'Koha::Schema::Result::OldIssue',
+    'issue_id',
+    { join_type => 'left' }
+);
 
 sub koha_object_class {
     return 'Koha::Patron::Quota::Usage';
