@@ -20,12 +20,15 @@
     <a
         v-else-if="callback"
         @click="typeof callback === 'string' ? redirect() : callback"
-        :class="class"
+        class="btn btn-default"
         style="cursor: pointer"
     >
         <font-awesome-icon v-if="icon" :icon="icon" /> {{ title }}
     </a>
-    <router-link v-else-if="action === undefined && to" :to="to" :class="class"
+    <router-link
+        v-else-if="action === undefined && to"
+        :to="to"
+        class="btn btn-default"
         ><font-awesome-icon v-if="icon" :icon="icon" /> {{ title }}</router-link
     >
     <span v-else>{{ $__("Unknown action %s").format(action) }}</span>
