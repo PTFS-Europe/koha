@@ -175,11 +175,11 @@ __PACKAGE__->add_columns(
 );
 
 sub koha_objects_class {
-    'Koha::SFTP::Servers';
+    'Koha::File::Transports';
 }
 
 sub koha_object_class {
-    'Koha::SFTP::Server';
+    'Koha::File::Transport';
 }
 
 1;
