@@ -438,7 +438,9 @@ subtest 'build_object() tests' => sub {
             next if $module eq 'Koha::Objects';
             eval "require $module";
             my $object = $builder->build_object( { class => $module } );
-            is( ref($object), $module->object_class, "Testing $module" );
+            if ( $module ne 'Koha::File::Transports' ) { # Skip polymorphic classes
+                is( ref($object), $module->object_class, "Testing $module" );
+            }
             if ( ! grep {$module eq $_ } qw( Koha::Old::Patrons Koha::Statistics ) ) { # FIXME deletedborrowers and statistics do not have a PK
                 eval {$object->get_from_storage};
                 is( $@, '', "Module $module should have koha_object[s]_class method if needed" );
