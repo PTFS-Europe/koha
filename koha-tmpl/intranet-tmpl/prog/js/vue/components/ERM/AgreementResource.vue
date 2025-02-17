@@ -289,11 +289,6 @@ export default {
                                     type: "resource",
                                     value: null,
                                 },
-                                counter: {
-                                    type: "string",
-                                    value: "",
-                                    indexRequired: true,
-                                },
                                 label: {
                                     type: "string",
                                     value: __("User"),
