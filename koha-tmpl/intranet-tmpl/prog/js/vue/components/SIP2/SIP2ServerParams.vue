@@ -1,17 +1,16 @@
 <template>
     <div v-if="!initialized">{{ $__("Loading") }}</div>
-    <div v-else id="settings">
+    <div v-else id="serverparams">
         <h2>
             {{ $__("Edit server params") }}
         </h2>
         <div>
-            <form
-                @submit="onSubmit($event)"
-            >
+            <form @submit="onSubmit($event)">
                 <fieldset class="rows">
                     <ol>
                         <li
-                            v-for="(param, index) in this.server_params_definitions"
+                            v-for="(param, index) in this
+                                .server_params_definitions"
                             v-bind:key="index"
                         >
                             <FormElement
@@ -31,142 +30,143 @@
 </template>
 
 <script>
-import { APIClient } from "../../fetch/api-client.js"
-import FormElement from "../FormElement.vue"
-import BaseSIP2Resource from "./BaseSIP2Resource.vue"
-import ButtonSubmit from "../ButtonSubmit.vue"
+import { APIClient } from "../../fetch/api-client.js";
+import FormElement from "../FormElement.vue";
+import BaseSIP2Resource from "./BaseSIP2Resource.vue";
+import ButtonSubmit from "../ButtonSubmit.vue";
 
 export default {
     extends: BaseSIP2Resource,
     setup() {
-
         return {
-            ...BaseSIP2Resource.setup()
-        }
+            ...BaseSIP2Resource.setup(),
+        };
     },
     data() {
         return {
             initialized: false,
             server_params_definitions: [
                 {
-                    name: 'min_servers',
+                    name: "min_servers",
                     required: true,
                     type: "number",
-                    label: 'min_servers',
+                    label: "min_servers",
                 },
                 {
-                    name: 'min_spare_servers',
+                    name: "min_spare_servers",
                     required: true,
                     type: "number",
-                    label: 'min_spare_servers',
+                    label: "min_spare_servers",
                 },
                 {
-                    name: 'max_servers',
+                    name: "max_servers",
                     required: true,
                     type: "number",
-                    label: 'max_servers',
+                    label: "max_servers",
                 },
                 {
-                    name: 'setsid',
+                    name: "setsid",
                     required: true,
                     type: "number",
-                    label: 'setsid',
+                    label: "setsid",
                 },
                 {
-                    name: 'user',
+                    name: "user",
                     required: true,
                     type: "text",
-                    label: 'user',
+                    label: "user",
                 },
                 {
-                    name: 'group',
+                    name: "group",
                     required: true,
                     type: "text",
-                    label: 'group',
+                    label: "group",
                 },
                 {
-                    name: 'pid_file',
+                    name: "pid_file",
                     required: true,
                     type: "text",
-                    label: 'pid_file',
+                    label: "pid_file",
                 },
                 {
-                    name: 'custom_tcp_keepalive',
+                    name: "custom_tcp_keepalive",
                     required: true,
                     type: "number",
-                    label: 'custom_tcp_keepalive',
+                    label: "custom_tcp_keepalive",
                 },
                 {
-                    name: 'custom_tcp_keepalive_time',
+                    name: "custom_tcp_keepalive_time",
                     required: true,
                     type: "number",
-                    label: 'custom_tcp_keepalive_time',
+                    label: "custom_tcp_keepalive_time",
                 },
                 {
-                    name: 'custom_tcp_keepalive_intvl',
+                    name: "custom_tcp_keepalive_intvl",
                     required: true,
                     type: "number",
-                    label: 'custom_tcp_keepalive_intvl',
+                    label: "custom_tcp_keepalive_intvl",
                 },
             ],
-             server_params: {
-                min_servers: '1',
-                min_spare_servers: '0',
-                max_servers: '1',
+            server_params: {
+                min_servers: "1",
+                min_spare_servers: "0",
+                max_servers: "1",
                 setsid: "1",
-                user: 'koha',
-                group: 'koha',
-                pid_file: '/var/run/sipserver.pid',
-                custom_tcp_keepalive: '0',
-                custom_tcp_keepalive_time: '7200',
-                custom_tcp_keepalive_intvl: '75'
-            }
-        }
+                user: "koha",
+                group: "koha",
+                pid_file: "/var/run/sipserver.pid",
+                custom_tcp_keepalive: "0",
+                custom_tcp_keepalive_time: "7200",
+                custom_tcp_keepalive_intvl: "75",
+            },
+        };
     },
     created() {
-        this.getServerParams()
+        this.getServerParams();
     },
     methods: {
         async getServerParams() {
-            const client = APIClient.sip2
+            const client = APIClient.sip2;
             client.serverparams.getAll().then(
                 returned_server_params => {
                     returned_server_params.forEach(server_param => {
-                        this.server_params[server_param.key] = server_param.value
-                    })
-                    this.initialized = true
+                        this.server_params[server_param.key] =
+                            server_param.value;
+                    });
+                    this.initialized = true;
                 },
                 error => {}
-            )
+            );
         },
         onSubmitCallback(e) {
-            const client = APIClient.sip2
+            const client = APIClient.sip2;
             const updatedParams = Object.keys(this.server_params).map(key => {
-                return { key: key, value: this.server_params[key] }
-            })
+                return { key: key, value: this.server_params[key] };
+            });
 
             client.serverparams
                 .updateAll(updatedParams)
                 .then(
                     success => {
-                        this.setMessage(this.$__("Server parameters updated"))
+                        this.setMessage(this.$__("Server parameters updated"));
                     },
                     error => {}
                 )
                 .then(() => {
-                    this.restartSIPServer()
-                })
-        }
+                    this.restartSIPServer();
+                });
+        },
     },
     components: {
-        ButtonSubmit, FormElement,
+        ButtonSubmit,
+        FormElement,
     },
-    name: "Settings",
-}
+    name: "SIP2ServerParams",
+};
 </script>
 
 <style scoped>
-    :deep(fieldset.rows) label{
-        width:15rem;
-    }
+:deep(fieldset.rows) label {
+    width: 15rem;
+}
 </style>
