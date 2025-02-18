@@ -6756,3 +6756,22 @@ CREATE TABLE `zebraqueue` (
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2024-11-25 12:13:27
+
+
+--
+-- Table structure for table `shibboleth_field_mappings`
+--
+
+DROP TABLE IF EXISTS `shibboleth_field_mappings`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE shibboleth_field_mappings (
+  mapping_id int(11) NOT NULL AUTO_INCREMENT COMMENT 'primary key',
+  idp_field varchar(255) NOT NULL COMMENT 'field name from the identity provider',
+  koha_field varchar(255) NOT NULL COMMENT 'corresponding field in Koha borrowers table',
+  is_matchpoint tinyint(1) NOT NULL DEFAULT 0 COMMENT 'if this field is used to match existing users',
+  PRIMARY KEY (mapping_id),
+  UNIQUE KEY idp_field_idx (idp_field),
+  KEY koha_field_idx (koha_field)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;

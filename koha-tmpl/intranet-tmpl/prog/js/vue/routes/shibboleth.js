@@ -9,7 +9,7 @@ export const routes = [
         path: "/cgi-bin/koha/shibboleth/shibboleth.pl",
         is_default: true,
         is_base: true,
-        title: $__("shibboleth"),
+        title: $__("Shibboleth"),
         children: [
             {
                 path: "",
