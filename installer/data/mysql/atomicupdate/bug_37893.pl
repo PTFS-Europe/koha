@@ -10,6 +10,263 @@ return {
         my ($args) = @_;
         my ( $dbh, $out ) = @$args{qw(dbh out)};
 
+        # Create Tables
+
+        if ( !TableExists('sip_institutions') ) {
+            $dbh->do(
+                q{
+                CREATE TABLE IF NOT EXISTS `sip_institutions` (
+                    `sip_institution_id` int(11) NOT NULL AUTO_INCREMENT,
+                    `name` varchar(80) NOT NULL COMMENT 'Unique varchar identifier. Previously "id" in SIPconfig.xml',
+                    `implementation` varchar(80) NOT NULL DEFAULT 'ILS',
+                    `checkin` tinyint(1) NOT NULL DEFAULT 1 COMMENT 'Previously attribute of "policy" in SIPconfig.xml',
+                    `checkout` tinyint(1) NOT NULL DEFAULT 1 COMMENT 'Previously attribute of "policy" in SIPconfig.xml',
+                    `offline` tinyint(1) NULL COMMENT 'Previously attribute of "policy" in SIPconfig.xml',
+                    `renewal` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'Previously attribute of "policy" in SIPconfig.xml',
+                    `retries` int(11) NOT NULL DEFAULT 5 COMMENT 'Previously attribute of "policy" in SIPconfig.xml',
+                    `status_update` tinyint(1) NULL COMMENT 'Previously attribute of "policy" in SIPconfig.xml',
+                    `timeout` int(11) NOT NULL DEFAULT 100 COMMENT 'Previously attribute of "policy" in SIPconfig.xml',
+                    PRIMARY KEY(`sip_institution_id`),
+                    UNIQUE KEY `institution_name` (`name`)
+                ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+            }
+            );
+            say_success( $out, "Added new table 'sip_institutions'" );
+        }
+
+        if ( !TableExists('sip_accounts') ) {
+            $dbh->do(
+                q{
+                CREATE TABLE IF NOT EXISTS `sip_accounts` (
+                    `sip_account_id` int(11) NOT NULL AUTO_INCREMENT,
+                    `sip_institution_id` int(11) NOT NULL COMMENT 'Foreign key to sip_institutions.sip_institution_id',
+                    `ae_field_template` varchar(255) NULL,
+                    `allow_additional_materials_checkout` tinyint(1) NULL,
+                    `allow_empty_passwords` tinyint(1) NULL,
+                    `allow_fields` varchar(255) NULL,
+                    `av_field_template` varchar(255) NULL,
+                    `blocked_item_types` varchar(255) NULL,
+                    `checked_in_ok` tinyint(1) NULL,
+                    `convert_nonprinting_characters` varchar(10) NULL,
+                    `cr_item_field` varchar(255) NULL,
+                    `ct_always_send` tinyint(1) NULL,
+                    `cv_send_00_on_success` tinyint(1) NULL,
+                    `cv_triggers_alert` tinyint(1) NULL,
+                    `da_field_template` varchar(255) NULL,
+                    `delimiter` varchar(10) NULL,
+                    `disallow_overpayment` tinyint(1) NULL,
+                    `encoding` varchar(10) NULL,
+                    `error_detect` tinyint(1) NULL,
+                    `format_due_date` tinyint(1) NULL,
+                    `hide_fields` varchar(255) NULL,
+                    `holds_block_checkin` tinyint(1) NULL,
+                    `holds_get_captured` tinyint(1) NULL,
+                    `inhouse_item_types` varchar(255) NULL,
+                    `inhouse_patron_categories` varchar(255) NULL,
+                    `login_id` varchar(255) NOT NULL COMMENT 'PREVIOUSLY id in Sipconfig.xml',
+                    `login_password` varchar(255) NULL,
+                    `lost_block_checkout` tinyint(1) NULL COMMENT 'actual tinyint, not boolean',
+                    `lost_block_checkout_value` tinyint(1) NULL COMMENT 'actual tinyint, not boolean',
+                    `lost_status_for_missing` tinyint(1) NULL COMMENT 'actual tinyint, not boolean',
+                    `overdues_block_checkout` tinyint(1) NULL,
+                    `payment_type_writeoff` varchar(10) NULL,
+                    `prevcheckout_block_checkout` tinyint(1) NULL,
+                    `register_id` int(11) NULL COMMENT 'Foreign key to cash_registers.id',
+                    `seen_on_item_information` varchar(255) NULL,
+                    `send_patron_home_library_in_af` tinyint(1) NULL,
+                    `show_checkin_message` tinyint(1) NULL,
+                    `show_outstanding_amount` tinyint(1) NULL,
+                    `terminator` enum( 'CR', 'CRLF' ) NULL,
+                    PRIMARY KEY(`sip_account_id`),
+                    UNIQUE KEY `account_login_id` (`login_id`),
+                    KEY `sip_accounts_ibfk_1` (`sip_institution_id`),
+                    KEY `sip_accounts_ibfk_2` (`register_id`),
+                    CONSTRAINT `sip_accounts_ibfk_1` FOREIGN KEY(`sip_institution_id`) REFERENCES
+                        `sip_institutions` (`sip_institution_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+                    CONSTRAINT `sip_accounts_ibfk_2` FOREIGN KEY(`register_id`) REFERENCES `cash_registers` (`id`)
+                        ON DELETE SET NULL ON UPDATE CASCADE
+                ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+            }
+            );
+            say_success( $out, "Added new table 'sip_accounts'" );
+        }
+
+        if ( !TableExists('sip_account_custom_patron_fields') ) {
+            $dbh->do(
+                q{
+                CREATE TABLE IF NOT EXISTS `sip_account_custom_patron_fields` (
+                    `sip_account_custom_patron_field_id` int(11) NOT NULL AUTO_INCREMENT,
+                    `sip_account_id` int(11) NOT NULL COMMENT 'Foreign key to sip_accounts.sip_account_id',
+                    `field` varchar(80) NOT NULL COMMENT 'SIP field name e.g. XY',
+                    `template` varchar(80) NOT NULL COMMENT 'Template toolkit template',
+                    PRIMARY KEY(`sip_account_custom_patron_field_id`),
+                    UNIQUE KEY `sip_account` ( `sip_account_custom_patron_field_id`, `sip_account_id` ),
+                    KEY `sip_account_custom_patron_fields_ibfk_1` (`sip_account_id`),
+                    CONSTRAINT `sip_account_custom_patron_fields_ibfk_1` FOREIGN KEY(`sip_account_id`) REFERENCES
+                        `sip_accounts` (`sip_account_id`) ON DELETE CASCADE ON UPDATE CASCADE
+                ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+            }
+            );
+            say_success( $out, "Added new table 'sip_account_custom_patron_fields'" );
+        }
+
+        if ( !TableExists('sip_account_patron_attributes') ) {
+            $dbh->do(
+                q{
+                CREATE TABLE IF NOT EXISTS `sip_account_patron_attributes` (
+                    `sip_account_patron_attribute_id` int(11) NOT NULL AUTO_INCREMENT,
+                    `sip_account_id` int(11) NOT NULL COMMENT 'Foreign key to sip_accounts.sip_account_id',
+                    `field` varchar(80) NOT NULL COMMENT 'SIP field name e.g. XY',
+                    `code` varchar(80) NOT NULL COMMENT 'Patron attribute code as in borrower_attribute_types.code',
+                    PRIMARY KEY (`sip_account_patron_attribute_id`),
+                    UNIQUE KEY `sip_account` (`sip_account_patron_attribute_id`,`sip_account_id`),
+                    KEY `sip_account_patron_attributes_ibfk_1` (`sip_account_id`),
+                    CONSTRAINT `sip_account_patron_attributes_ibfk_1` FOREIGN KEY (`sip_account_id`) REFERENCES `sip_accounts` (`sip_account_id`) ON DELETE CASCADE ON UPDATE CASCADE
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+            }
+            );
+            say_success( $out, "Added new table 'sip_account_patron_attributes'" );
+        }
+
+        if ( !TableExists('sip_account_custom_item_fields') ) {
+            $dbh->do(
+                q{
+                CREATE TABLE IF NOT EXISTS `sip_account_custom_item_fields` (
+                    `sip_account_custom_item_field_id` int(11) NOT NULL AUTO_INCREMENT,
+                    `sip_account_id` int(11) NOT NULL COMMENT 'Foreign key to sip_accounts.sip_account_id',
+                    `field` varchar(80) NOT NULL COMMENT 'SIP field name e.g. XY',
+                    `template` varchar(255) NOT NULL COMMENT 'Template toolkit template name',
+                    PRIMARY KEY (`sip_account_custom_item_field_id`),
+                    UNIQUE KEY `sip_account` (`sip_account_custom_item_field_id`,`sip_account_id`),
+                    KEY `sip_account_custom_item_fields_ibfk_1` (`sip_account_id`),
+                    CONSTRAINT `sip_account_custom_item_fields_ibfk_1` FOREIGN KEY (`sip_account_id`) REFERENCES `sip_accounts` (`sip_account_id`) ON DELETE CASCADE ON UPDATE CASCADE
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+            }
+            );
+            say_success( $out, "Added new table 'sip_account_custom_item_fields'" );
+        }
+
+        if ( !TableExists('sip_account_item_fields') ) {
+            $dbh->do(
+                q{
+                CREATE TABLE IF NOT EXISTS `sip_account_item_fields` (
+                    `sip_account_item_field_id` int(11) NOT NULL AUTO_INCREMENT,
+                    `sip_account_id` int(11) NOT NULL COMMENT 'Foreign key to sip_accounts.sip_account_id',
+                    `field` varchar(80) NOT NULL COMMENT 'SIP field name e.g. XY',
+                    `code` varchar(80) NOT NULL COMMENT 'Item field e.g. "permanent_location"',
+                    PRIMARY KEY (`sip_account_item_field_id`),
+                    UNIQUE KEY `sip_account` (`sip_account_item_field_id`,`sip_account_id`),
+                    KEY `sip_account_item_fields_ibfk_1` (`sip_account_id`),
+                    CONSTRAINT `sip_account_item_fields_ibfk_1` FOREIGN KEY (`sip_account_id`) REFERENCES `sip_accounts` (`sip_account_id`) ON DELETE CASCADE ON UPDATE CASCADE
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+            }
+            );
+            say_success( $out, "Added new table 'sip_account_item_fields'" );
+        }
+
+        if ( !TableExists('sip_account_screen_msg_regexs') ) {
+            $dbh->do(
+                q{
+                CREATE TABLE IF NOT EXISTS `sip_account_screen_msg_regexs` (
+                    `sip_account_screen_msg_regex_id` int(11) NOT NULL AUTO_INCREMENT,
+                    `sip_account_id` int(11) NOT NULL COMMENT 'Foreign key to sip_accounts.sip_account_id',
+                    `find` varchar(255) NOT NULL COMMENT 'Regex find',
+                    `replace` varchar(255) NOT NULL COMMENT 'Regex replace',
+                    PRIMARY KEY(`sip_account_screen_msg_regex_id`),
+                    UNIQUE KEY `sip_account` ( `sip_account_screen_msg_regex_id`, `sip_account_id` ),
+                    KEY `sip_account_sip_account_screen_msg_regexs_ibfk_1` (`sip_account_id`),
+                    CONSTRAINT `sip_account_sip_account_screen_msg_regexs_ibfk_1` FOREIGN KEY(`sip_account_id`) REFERENCES
+                        `sip_accounts` (`sip_account_id`) ON DELETE CASCADE ON UPDATE CASCADE
+                ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+            }
+            );
+            say_success( $out, "Added new table 'sip_account_screen_msg_regexs'" );
+        }
+
+        if ( !TableExists('sip_account_sort_bin_mappings') ) {
+            $dbh->do(
+                q{
+                CREATE TABLE IF NOT EXISTS `sip_account_sort_bin_mappings` (
+                    `sip_account_sort_bin_mapping_id` int(11) NOT NULL AUTO_INCREMENT,
+                    `sip_account_id` int(11) NOT NULL COMMENT 'Foreign key to sip_accounts.sip_account_id',
+                    `mapping` varchar(255) NOT NULL COMMENT 'The mapping definition',
+                    PRIMARY KEY(`sip_account_sort_bin_mapping_id`),
+                    UNIQUE KEY `sip_account` ( `sip_account_sort_bin_mapping_id`, `sip_account_id` ),
+                    KEY `sip_account_sort_bin_mappings_ibfk_1` (`sip_account_id`),
+                    CONSTRAINT `sip_account_sort_bin_mappings_ibfk_1` FOREIGN KEY(`sip_account_id`) REFERENCES
+                        `sip_accounts` (`sip_account_id`) ON DELETE CASCADE ON UPDATE CASCADE
+                ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+            }
+            );
+            say_success( $out, "Added new table 'sip_account_sort_bin_mappings'" );
+        }
+
+        if ( !TableExists('sip_account_system_preference_overrides') ) {
+            $dbh->do(
+                q{
+                CREATE TABLE IF NOT EXISTS `sip_account_system_preference_overrides` (
+                    `sip_account_system_preference_override_id` int(11) NOT NULL AUTO_INCREMENT,
+                    `sip_account_id` int(11) NOT NULL COMMENT 'Foreign key to sip_accounts.sip_account_id',
+                    `variable` varchar(80) NOT NULL COMMENT 'System preference name',
+                    `value` varchar(80) NOT NULL COMMENT 'System preference value',
+                    PRIMARY KEY(`sip_account_system_preference_override_id`),
+                    UNIQUE KEY `sip_account` ( `sip_account_system_preference_override_id`, `sip_account_id` ),
+                    KEY `sip_account_system_preference_overrides_ibfk_1` (`sip_account_id`),
+                    CONSTRAINT `sip_account_system_preference_overrides_ibfk_1` FOREIGN KEY(`sip_account_id`) REFERENCES
+                        `sip_accounts` (`sip_account_id`) ON DELETE CASCADE ON UPDATE CASCADE
+                ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+            }
+            );
+            say_success( $out, "Added new table 'sip_account_system_preference_overrides'" );
+        }
+
+        if ( !TableExists('sip_listeners') ) {
+            $dbh->do(
+                q{
+                CREATE TABLE IF NOT EXISTS `sip_listeners` (
+                    `sip_listener_id` int(11) NOT NULL AUTO_INCREMENT,
+                    `client_timeout` int(11) DEFAULT NULL,
+                    `port` varchar(80) NOT NULL,
+                    `protocol` varchar(80) NOT NULL,
+                    `timeout` int(11) NOT NULL,
+                    `transport` varchar(80) NOT NULL,
+                    PRIMARY KEY(`sip_listener_id`),
+                    UNIQUE KEY `listener_port` (`port`)
+                ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+            }
+            );
+            say_success( $out, "Added new table 'sip_listeners'" );
+        }
+
+        if ( !TableExists('sip_server_params') ) {
+            $dbh->do(
+                q{
+                CREATE TABLE IF NOT EXISTS `sip_server_params` (
+                    `sip_server_param_id` int(11) NOT NULL AUTO_INCREMENT,
+                    `key` varchar(80) DEFAULT NULL,
+                    `value` varchar(255) NOT NULL,
+                    PRIMARY KEY(`sip_server_param_id`),
+                    UNIQUE KEY `server_param_key` (`key`)
+                ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+            }
+            );
+            say_success( $out, "Added new table 'sip_server_params'" );
+        }
+
+        if ( !TableExists('sip_system_preference_overrides') ) {
+            $dbh->do(
+                q{
+                CREATE TABLE IF NOT EXISTS `sip_system_preference_overrides` (
+                    `sip_system_preference_override_id` int(11) NOT NULL AUTO_INCREMENT,
+                    `variable` varchar(80) NOT NULL COMMENT 'System preference name',
+                    `value` varchar(80) NOT NULL COMMENT 'System preference value',
+                    PRIMARY KEY(`sip_system_preference_override_id`)
+                ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+            }
+            );
+            say_success( $out, "Added new table 'sip_system_preference_overrides'" );
+        }
+
         my $koha_instance = $ENV{KOHA_CONF} =~ m!^.+/sites/([^/]+)/koha-conf\.xml$! ? $1 : undef;
         unless ($koha_instance) {
             say_warning(
@@ -30,14 +287,14 @@ return {
                 q{INSERT IGNORE INTO sip_institutions (name, implementation, checkin, checkout, offline, renewal, retries, status_update, timeout) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)}
             );
 
-            my $implementation = $SIPconfig->{institutions}->{$institution_key}->{implementation}          // 'ILS';
-            my $checkin        = $SIPconfig->{institutions}->{$institution_key}->{policy}->{checkin}       // 'true';
-            my $checkout       = $SIPconfig->{institutions}->{$institution_key}->{policy}->{checkout}      // 'true';
+            my $implementation = $SIPconfig->{institutions}->{$institution_key}->{implementation}     // 'ILS';
+            my $checkin        = $SIPconfig->{institutions}->{$institution_key}->{policy}->{checkin}  // 'true';
+            my $checkout       = $SIPconfig->{institutions}->{$institution_key}->{policy}->{checkout} // 'true';
             my $offline        = $SIPconfig->{institutions}->{$institution_key}->{policy}->{offline};
-            my $renewal        = $SIPconfig->{institutions}->{$institution_key}->{policy}->{renewal}       // 'false';
-            my $retries        = $SIPconfig->{institutions}->{$institution_key}->{policy}->{retries}       // 5;
+            my $renewal        = $SIPconfig->{institutions}->{$institution_key}->{policy}->{renewal} // 'false';
+            my $retries        = $SIPconfig->{institutions}->{$institution_key}->{policy}->{retries} // 5;
             my $status_update  = $SIPconfig->{institutions}->{$institution_key}->{policy}->{status_update};
-            my $timeout        = $SIPconfig->{institutions}->{$institution_key}->{policy}->{timeout}       // 100;
+            my $timeout        = $SIPconfig->{institutions}->{$institution_key}->{policy}->{timeout} // 100;
 
             $insert_institutions->execute(
                 $institution_key,
@@ -45,7 +302,7 @@ return {
                 $checkin eq 'false'  ? 0 : 1,
                 $checkout eq 'false' ? 0 : 1,
                 $offline,
-                $renewal eq 'true'   ? 1 : 0,
+                $renewal eq 'true' ? 1 : 0,
                 $retries,
                 $status_update,
                 $timeout,
@@ -86,8 +343,8 @@ return {
             my $encoding              = $SIPconfig->{accounts}->{$account_key}->{encoding};
 
             my $error_detect;
-            if ( defined $SIPconfig->{accounts}->{$account_key}->{'error-detect'} ){
-                $error_detect = $SIPconfig->{accounts}->{$account_key}->{'error-detect'} eq 'enabled' ? 1 : 0
+            if ( defined $SIPconfig->{accounts}->{$account_key}->{'error-detect'} ) {
+                $error_detect = $SIPconfig->{accounts}->{$account_key}->{'error-detect'} eq 'enabled' ? 1 : 0;
             }
 
             my $format_due_date             = $SIPconfig->{accounts}->{$account_key}->{format_due_date};
@@ -154,7 +411,7 @@ return {
             );
 
             my $new_account_id = $dbh->last_insert_id( undef, undef, "sip_accounts", "sip_account_id" );
-           
+
             # Accounts custom patron fields
             my @custom_patron_fields =
                 ref $SIPconfig->{accounts}->{$account_key}->{custom_patron_field} eq "ARRAY"
@@ -162,7 +419,8 @@ return {
                 : ( $SIPconfig->{accounts}->{$account_key}->{custom_patron_field} );
 
             my $insert_custom_patron_fields = $dbh->prepare(
-                q{INSERT IGNORE INTO sip_account_custom_patron_fields (sip_account_id, field, template) VALUES (?, ?, ?)});
+                q{INSERT IGNORE INTO sip_account_custom_patron_fields (sip_account_id, field, template) VALUES (?, ?, ?)}
+            );
 
             foreach my $custom_patron_field (@custom_patron_fields) {
                 $insert_custom_patron_fields->execute(
@@ -179,8 +437,7 @@ return {
                 : ( $SIPconfig->{accounts}->{$account_key}->{patron_attribute} );
 
             my $insert_patron_attributes = $dbh->prepare(
-                q{INSERT IGNORE INTO sip_account_patron_attributes (sip_account_id, field, code) VALUES (?, ?, ?)}
-            );
+                q{INSERT IGNORE INTO sip_account_patron_attributes (sip_account_id, field, code) VALUES (?, ?, ?)});
 
             foreach my $patron_attribute (@patron_attributes) {
                 $insert_patron_attributes->execute(
@@ -194,10 +451,11 @@ return {
             my @custom_item_fields =
                 ref $SIPconfig->{accounts}->{$account_key}->{custom_item_field} eq "ARRAY"
                 ? @{ $SIPconfig->{accounts}->{$account_key}->{custom_item_field} }
-            : ( $SIPconfig->{accounts}->{$account_key}->{custom_item_field} );
+                : ( $SIPconfig->{accounts}->{$account_key}->{custom_item_field} );
 
             my $insert_custom_item_fields = $dbh->prepare(
-                q{INSERT IGNORE INTO sip_account_custom_item_fields (sip_account_id, field, template) VALUES (?, ?, ?)});
+                q{INSERT IGNORE INTO sip_account_custom_item_fields (sip_account_id, field, template) VALUES (?, ?, ?)}
+            );
 
             foreach my $custom_item_field (@custom_item_fields) {
                 $insert_custom_item_fields->execute(
@@ -264,14 +522,15 @@ return {
                 : ( $SIPconfig->{accounts}->{$account_key}->{syspref_overrides} );
 
             my $insert_account_system_preference_overrides = $dbh->prepare(
-                q{INSERT IGNORE INTO sip_account_system_preference_overrides (sip_account_id, variable, value) VALUES (?, ?, ?)});
+                q{INSERT IGNORE INTO sip_account_system_preference_overrides (sip_account_id, variable, value) VALUES (?, ?, ?)}
+            );
 
             foreach my $account_system_preference_override (@account_system_preference_overrides) {
 
                 if ( ref $account_system_preference_override eq 'HASH' ) {
                     for my $key ( keys %{$account_system_preference_override} ) {
                         my $override_value = $account_system_preference_override->{$key};
-                        if (ref $account_system_preference_override->{$key} eq 'ARRAY'){
+                        if ( ref $account_system_preference_override->{$key} eq 'ARRAY' ) {
                             $override_value = $account_system_preference_override->{$key}->[0];
                         }
                         $insert_account_system_preference_overrides->execute(
@@ -304,9 +563,7 @@ return {
         # Server params #
         my @server_params_keys = keys %{ $SIPconfig->{'server-params'} };
         foreach my $server_params_key (@server_params_keys) {
-            my $insert_listeners = $dbh->prepare(
-                q{INSERT IGNORE INTO sip_server_params (`key`, value) VALUES (?, ?) }
-            );
+            my $insert_listeners = $dbh->prepare(q{INSERT IGNORE INTO sip_server_params (`key`, value) VALUES (?, ?) });
 
             $insert_listeners->execute(
                 $server_params_key,
@@ -320,15 +577,15 @@ return {
             ? @{ $SIPconfig->{syspref_overrides} }
             : ( $SIPconfig->{syspref_overrides} );
 
-        my $insert_system_preference_overrides = $dbh->prepare(
-            q{INSERT IGNORE INTO sip_system_preference_overrides (variable, value) VALUES (?, ?)});
+        my $insert_system_preference_overrides =
+            $dbh->prepare(q{INSERT IGNORE INTO sip_system_preference_overrides (variable, value) VALUES (?, ?)});
 
         foreach my $system_preference_override (@system_preference_overrides) {
 
             if ( ref $system_preference_override eq 'HASH' ) {
                 for my $key ( keys %{$system_preference_override} ) {
                     my $override_value = $system_preference_override->{$key};
-                    if (ref $system_preference_override->{$key} eq 'ARRAY'){
+                    if ( ref $system_preference_override->{$key} eq 'ARRAY' ) {
                         $override_value = $system_preference_override->{$key}->[0];
                     }
                     $insert_system_preference_overrides->execute(
