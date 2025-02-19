@@ -2009,6 +2009,7 @@ possibly records the fact that something happened
 sub store {
     my ( $self, $attrs ) = @_;
 
+    my $is_new_request  = !$self->in_storage;
     my %updated_columns = $self->_result->get_dirty_columns;
 
     my @holds;
@@ -2048,6 +2049,21 @@ sub store {
             }
         );
     }
+
+    return $ret unless $is_new_request;
+
+    C4::Stats::UpdateStats(
+        {
+            borrowernumber => $self->borrowernumber // undef,
+            branch         => $self->branchcode,
+            categorycode   => $self->patron ? $self->patron->categorycode : undef,
+            ccode          => undef,
+            itemnumber     => undef,
+            itemtype       => undef,
+            location       => undef,
+            type           => 'ill_request',
+        }
+    );
 
     return $ret;
 }
