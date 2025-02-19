@@ -27,8 +27,9 @@ use Koha::BackgroundJob::PseudonymizeStatistic;
 
 use base qw(Koha::Object);
 
-our @allowed_accounts_types     = qw( writeoff payment );
-our @allowed_circulation_types  = qw( renew issue localuse return onsite_checkout recall item_found item_lost );
+our @allowed_accounts_types = qw( writeoff payment );
+our @allowed_circulation_types =
+    qw( renew issue localuse return onsite_checkout recall item_found item_lost ill_request );
 our @mandatory_accounts_keys    = qw( type branch borrowernumber value );    # note that amount is mapped to value
 our @mandatory_circulation_keys = qw( type branch borrowernumber itemnumber ccode itemtype );
 
@@ -149,7 +150,9 @@ Generate a pesudonymized version of the statistic.
 sub pseudonymize {
     my ($self) = @_;
 
-    return unless ( $self->borrowernumber && grep { $_ eq $self->type } qw(renew issue return onsite_checkout) );
+    return
+        unless ( $self->borrowernumber && grep { $_ eq $self->type }
+        qw(renew issue return onsite_checkout ill_request) );
 
     # FIXME When getting the object from svc/renewal we get a DateTime object
     # normally we just fetch from DB to clear this, but statistics has no primary key
