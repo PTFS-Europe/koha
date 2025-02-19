@@ -727,6 +727,7 @@ INSERT INTO systempreferences ( `variable`, `value`, `options`, `explanation`, `
 ('ShelfBrowserUsesCcode','1','0','Use the item collection code when finding items for the shelf browser.','YesNo'),
 ('ShelfBrowserUsesHomeBranch','1','1','Use the item home branch when finding items for the shelf browser.','YesNo'),
 ('ShelfBrowserUsesLocation','1','1','Use the item location when finding items for the shelf browser.','YesNo'),
+('ShibbolethAuthentication','0','0|1','Enable or disable Shibboleth authentication integration','YesNo'),
 ('ShowAllCheckins', '0', '', 'Show all checkins', 'YesNo'),
 ('ShowComponentRecords', 'nowhere', 'nowhere|staff|opac|both','In which record detail pages to show list of the component records, as linked via 773','Choice'),
 ('ShowHeadingUse', '0', NULL, 'Show whether authority record contains an established heading that conforms to descriptive cataloguing rules, and can therefore be used as a main/added entry, or subject, or series title', 'YesNo'),

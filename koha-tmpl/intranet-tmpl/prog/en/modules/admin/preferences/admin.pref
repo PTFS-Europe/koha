@@ -154,6 +154,12 @@ Administration:
                   1: "Force"
                   0: "Don't force"
             - "library selection when logging into the staff interface."
+        -
+            - pref: ShibbolethAuthentication
+              choices:
+                  1: Enable
+                  0: Disable
+            - "shibboleth authentication" 
 
     CAS authentication:
         -

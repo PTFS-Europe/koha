@@ -21,6 +21,11 @@ return {
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
             });
 
+            $dbh->do(q{
+                INSERT INTO systempreferences (variable,value,explanation,options,type) 
+                    VALUES ('ShibbolethAuthentication','0','Enable or disable Shibboleth authentication integration','0|1','YesNo')
+            });
+
             say $out "Added new table 'shibboleth_field_mappings'";
             say_info($out, "This table will store mappings between Shibboleth IdP fields and Koha borrower fields");
         }
