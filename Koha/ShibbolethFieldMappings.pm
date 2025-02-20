@@ -2,10 +2,11 @@ package Koha::ShibbolethFieldMappings;
 
 use Modern::Perl;
 use base qw(Koha::Objects);
+use Koha::ShibbolethFieldMapping;
 
 =head1 NAME
 
-Koha::ShibbolethFieldMappings - Koha ShibbolethFieldMappings Object set class
+Koha::ShibbolethFieldMappings - Koha ShibbolethFieldMapping Object set class
 
 =head1 API
 
@@ -38,6 +39,12 @@ sub get_matchpoint {
     my ($self) = @_;
     return $self->search({ is_matchpoint => 1 })->single;
 }
+
+=head3 get_configuration
+
+Returns the current field mappings configuration.
+
+=cut
 
 =head3 _type
 
