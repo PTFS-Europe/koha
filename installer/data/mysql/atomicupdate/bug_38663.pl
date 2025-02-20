@@ -1,5 +1,4 @@
 use Modern::Perl;
-use Koha::Installer::Output qw(say_warning say_success say_info);
 
 return {
     bug_number  => "38663",
@@ -16,6 +15,6 @@ return {
 
         $dbh->do(q{ ALTER TABLE additional_field_values RENAME COLUMN new_record_id TO record_id; });
 
-        say_success( $out, "Converted record_id to VARCHAR" );
+        say $out "Converted record_id to VARCHAR";
     },
 };
