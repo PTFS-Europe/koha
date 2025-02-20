@@ -27,6 +27,7 @@ use C4::Letters qw( GetPreparedLetter EnqueueLetter SendQueuedMessages );
 use C4::Members::Messaging;
 use Carp            qw( carp );
 use List::MoreUtils qw( any );
+use Data::Dumper;
 
 use Koha::Logger;
 
@@ -242,25 +243,65 @@ sub _get_return {
     return $uri_base_part . URI::Escape::uri_escape_utf8($uri_params_part);
 }
 
+use Data::Dumper;
+
 sub _get_shib_config {
     my $config = C4::Context->config('shibboleth');
+    
+    # Print the original XML config
+    if ($config) {
+        print "\n=== Original XML shibboleth config ===\n";
+        print Dumper($config);
+        print "===================================\n\n";
+    }
+    
+    # Check for database mappings first
+    my $mappings = Koha::ShibbolethFieldMappings->new;
+    my $db_matchpoint = $mappings->get_matchpoint;
+    
+    if ($db_matchpoint) {
+        # We have database mappings, build config from those
+        my $db_config = {
+            matchpoint => $db_matchpoint->koha_field,
+            mapping => {},
+            autocreate => $config->{autocreate} // 0,  # Preserve XML settings for these
+            sync => $config->{sync} // 0,
+            welcome => $config->{welcome} // 0
+        };
 
-    if ( !$config ) {
-        Koha::Logger->get->warn('shibboleth config not defined');
+        # Get all mappings and add to config
+        my $all_mappings = $mappings->search;
+        while (my $mapping = $all_mappings->next) {
+            $db_config->{mapping}->{$mapping->koha_field} = {
+                is => $mapping->idp_field,
+            };
+        }
+
+        print "=== Using database shibboleth config ===\n";
+        print Dumper($db_config);
+        print "===================================\n\n";
+        
+        return $db_config;
+    }
+
+    # Fallback to XML config if no database mappings
+    if (!$config) {
+        Koha::Logger->get->warn('shibboleth config not defined in XML');
         return 0;
     }
 
-    if ( $config->{matchpoint}
-        && defined( $config->{mapping}->{ $config->{matchpoint} }->{is} ) )
-    {
+    if ($config->{matchpoint} && defined($config->{mapping}->{$config->{matchpoint}}->{is})) {
         my $logger = Koha::Logger->get;
-        $logger->debug( "koha borrower field to match: " . $config->{matchpoint} );
-        $logger->debug( "shibboleth attribute to match: " . $config->{mapping}->{ $config->{matchpoint} }->{is} );
+        $logger->debug("Using XML shibboleth config");
+        $logger->debug("koha borrower field to match: " . $config->{matchpoint});
+        $logger->debug("shibboleth attribute to match: " . $config->{mapping}->{$config->{matchpoint}}->{is});
         return $config;
-    } else {
-        if ( !$config->{matchpoint} ) {
+    }
+    else {
+        if (!$config->{matchpoint}) {
             carp 'shibboleth matchpoint not defined';
-        } else {
+        }
+        else {
             carp 'shibboleth matchpoint not mapped';
         }
         return 0;
