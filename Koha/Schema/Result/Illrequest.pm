@@ -320,7 +320,7 @@ __PACKAGE__->belongs_to(
   {
     is_deferrable => 1,
     join_type     => "LEFT",
-    on_delete     => "CASCADE",
+    on_delete     => "SET NULL",
     on_update     => "CASCADE",
   },
 );
@@ -391,8 +391,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2023-10-10 14:49:40
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:DQl+7uwLCz5GeqU2hBFmMA
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2025-02-20 11:49:09
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:j2oiQexaFvCRT3zj6ntdpA
 
 __PACKAGE__->has_many(
   "comments",
