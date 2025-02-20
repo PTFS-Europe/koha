@@ -6767,11 +6767,29 @@ DROP TABLE IF EXISTS `shibboleth_field_mappings`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE shibboleth_field_mappings (
   mapping_id int(11) NOT NULL AUTO_INCREMENT COMMENT 'primary key',
-  idp_field varchar(255) NOT NULL COMMENT 'field name from the identity provider',
-  koha_field varchar(255) NOT NULL COMMENT 'corresponding field in Koha borrowers table',
-  is_matchpoint tinyint(1) NOT NULL DEFAULT 0 COMMENT 'if this field is used to match existing users',
+  idp_field varchar(255) NOT NULL COMMENT 'Field name from the identity provider',
+  koha_field varchar(255) NOT NULL COMMENT 'Corresponding field in Koha borrowers table',
+  is_matchpoint tinyint(1) NOT NULL DEFAULT 0 COMMENT 'If this field is used to match existing users',
   PRIMARY KEY (mapping_id),
-  UNIQUE KEY idp_field_idx (idp_field),
-  KEY koha_field_idx (koha_field)
+  UNIQUE KEY koha_field_idx (koha_field),
+  KEY idp_field_idx (idp_field)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `shibboleth_config`
+--
+
+DROP TABLE IF EXISTS `shibboleth_config`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE shibboleth_config (
+  shibboleth_config_id int(11) NOT NULL AUTO_INCREMENT COMMENT 'primary key',
+  enable_opac_sso tinyint(1) NOT NULL DEFAULT 0 COMMENT 'Enable Shibboleth SSO for OPAC',
+  enable_staff_sso tinyint(1) NOT NULL DEFAULT 0 COMMENT 'Enable Shibboleth SSO for staff interface', 
+  autocreate tinyint(1) NOT NULL DEFAULT 0 COMMENT 'Automatically create new patrons',
+  sync tinyint(1) NOT NULL DEFAULT 0 COMMENT 'Sync patron attributes on login',
+  welcome tinyint(1) NOT NULL DEFAULT 0 COMMENT 'Send welcome email to new patrons',
+  PRIMARY KEY (shibboleth_config_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
