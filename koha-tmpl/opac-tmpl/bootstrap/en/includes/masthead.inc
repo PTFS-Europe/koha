@@ -4,6 +4,7 @@
 [% USE Categories %]
 [% USE AuthClient %]
 [% USE AdditionalContents %]
+[% USE Shibboleth %]
 [% PROCESS 'i18n.inc' %]
 [% PROCESS 'html_helpers.inc' %]
 [% IF Koha.Preference( 'CookieConsent' ) %]
@@ -469,13 +470,13 @@
                             [% ELSE %]
                                 <h3 class="shib_title">Shibboleth login</h3>
                                 <p><a id="shib_url" class="shib_url" href="[% shibbolethLoginUrl | $raw %]">Log in using a Shibboleth account</a>.</p>
-                                [% UNLESS Koha.Preference('opacShibOnly') %]
+                                [% UNLESS Shibboleth.Config('force_opac_sso') %]
                                     <h3 class="shib_local_title">Local login</h3>
                                 [% END %]
-                            [% END %]
+                             [% END %]
                         [% END %]
-                        [% UNLESS Koha.Preference('opacShibOnly') %]
-                            [% SET identity_providers = AuthClient.get_providers('opac') %]
+                        [% UNLESS Shibboleth.Config('force_opac_sso') %]
+                            [% SET identity_providers =  AuthClient.get_providers('opac') %]
                             [% IF ( ! identity_providers.empty ) %]
                                 [% FOREACH provider IN identity_providers %]
                                     <p class="clearfix">

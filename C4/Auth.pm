@@ -1156,9 +1156,9 @@ sub checkauth {
                    $shib
                 && !$shibSuccess
                 && (
-                    ( ( $type eq 'opac' ) && C4::Context->preference('OPACShibOnly') )
+                    ( ( $type eq 'opac' ) && Koha::ShibbolethConfigs->get_configuration->get_value('force_opac_sso') )
                     || ( ( $type ne 'opac' )
-                        && C4::Context->preference('staffShibOnly') )
+                        && Koha::ShibbolethConfigs->get_configuration->get_value('force_staff_sso') )
                 )
                 )
             {
@@ -1559,8 +1559,8 @@ sub checkauth {
     if ($shib) {
 
         #If shibOnly is enabled just go ahead and redirect directly
-        if (   ( ( $type eq 'opac' ) && C4::Context->preference('OPACShibOnly') )
-            || ( ( $type ne 'opac' ) && C4::Context->preference('staffShibOnly') ) )
+        if (   ( ( $type eq 'opac' ) && Koha::ShibbolethConfigs->get_configuration->get_value('force_opac_sso') )
+            || ( ( $type ne 'opac' ) && Koha::ShibbolethConfigs->get_configuration->get_value('force_staff_sso') ) )
         {
             my $redirect_url = login_shib_url($query);
             print $query->redirect( -uri => "$redirect_url", -status => 303 );

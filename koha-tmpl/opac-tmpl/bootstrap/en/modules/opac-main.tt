@@ -6,6 +6,7 @@
 [% USE Price %]
 [% USE AdditionalContents %]
 [% USE AuthClient %]
+[% USE Shibboleth %]
 [% PROCESS 'i18n.inc' %]
 [% SET OpacNav = AdditionalContents.get( location => "OpacNav", lang => lang, library => logged_in_user.branchcode || default_branch, blocktitle => 0 ) %]
 [% SET OpacNavBottom = AdditionalContents.get( location => "OpacNavBottom", lang => lang, library => logged_in_user.branchcode || default_branch, blocktitle => 0 ) %]
@@ -162,7 +163,7 @@
                 <div class="col-12 col-lg-3 order-md-2">
                     [% IF Koha.Preference( 'opacuserlogin' ) == 1 %]
                         [% UNLESS ( loggedinusername ) %]
-                            [% UNLESS ( casAuthentication || shibbolethAuthentication || Koha.Preference('opacShibOnly') ) %]
+                            [% UNLESS ( casAuthentication || shibbolethAuthentication || Shibboleth.Config('force_opac_sso') ) %]
                                 <div id="login">
                                     <form action="/cgi-bin/koha/opac-user.pl" method="post" name="auth" id="auth" autocomplete="off">
                                         [% INCLUDE 'csrf-token.inc' %]

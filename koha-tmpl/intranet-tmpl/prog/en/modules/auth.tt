@@ -7,6 +7,7 @@
 [% USE Registers %]
 [% USE AuthClient %]
 [% USE AdditionalContents %]
+[% USE Shibboleth %]
 [% PROCESS 'i18n.inc' %]
 [% SET footerjs = 1 %]
 [% INCLUDE 'doc-head-open.inc' %]
@@ -138,7 +139,7 @@
             <p><a href="[% shibbolethLoginUrl | $raw %]">Log in using a Shibboleth account</a>.</p>
         [% END %]
 
-        [% IF !TwoFA_prompt && !TwoFA_setup && !Koha.Preference('staffShibOnly') %]
+        [% IF !TwoFA_prompt && !TwoFA_setup && !Shibboleth.Config('force_staff_sso') %]
             <!-- login prompt time-->
             [% SET identity_providers = AuthClient.get_providers('staff') %]
             [% IF ( ! identity_providers.empty ) %]
