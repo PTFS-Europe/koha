@@ -1,0 +1,22 @@
+---
+type: object
+properties:
+  mapping_id:
+    type: integer
+    description: Internal mapping identifier
+    readOnly: true
+  koha_field:
+    type: string
+    description: Koha database field
+  idp_field:
+    type: string
+    description: IdP attribute name
+  default_content:
+    type: string
+    description: Default value if attribute missing
+  is_matchpoint:
+    type: boolean
+    description: Is this the matchpoint field
+additionalProperties: false
+required:
+  - koha_field
