@@ -246,7 +246,7 @@ sub _get_return {
 }
 
 sub _get_shib_config {
-    my $config = Koha::ShibbolethConfigs->new->get_configuration->get_combined_config;
+    my $config = Koha::ShibbolethConfigs->get_configuration->get_combined_config;
     unless ($config) {
         Koha::Logger->get->warn('No valid Shibboleth configuration found');
         return 0; 
