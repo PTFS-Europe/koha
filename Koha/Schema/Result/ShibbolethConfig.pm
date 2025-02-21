@@ -31,21 +31,21 @@ __PACKAGE__->table("shibboleth_config");
 
 primary key
 
-=head2 enable_opac_sso
+=head2 force_opac_sso
 
   data_type: 'tinyint'
   default_value: 0
   is_nullable: 0
 
-Enable Shibboleth SSO for OPAC
+Force Shibboleth SSO for OPAC
 
-=head2 enable_staff_sso
+=head2 force_staff_sso
 
   data_type: 'tinyint'
   default_value: 0
   is_nullable: 0
 
-Enable Shibboleth SSO for staff interface
+Force Shibboleth SSO for staff interface
 
 =head2 autocreate
 
@@ -76,9 +76,9 @@ Send welcome email to new patrons
 __PACKAGE__->add_columns(
   "shibboleth_config_id",
   { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
-  "enable_opac_sso",
+  "force_opac_sso",
   { data_type => "tinyint", default_value => 0, is_nullable => 0 },
-  "enable_staff_sso",
+  "force_staff_sso",
   { data_type => "tinyint", default_value => 0, is_nullable => 0 },
   "autocreate",
   { data_type => "tinyint", default_value => 0, is_nullable => 0 },
@@ -101,8 +101,8 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key("shibboleth_config_id");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07051 @ 2025-02-20 11:24:55
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Rgp7uF54hvjKkVGRnUcEJA
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2025-02-21 17:13:49
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:IV80z5JiMbrwFtJKIx6Lmg
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
