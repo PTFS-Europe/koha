@@ -1,0 +1,192 @@
+---
+/shibboleth/config:
+  get:
+    x-mojo-to: ShibbolethConfig#get
+    operationId: getShibbolethConfig
+    tags:
+      - shibboleth
+    summary: Get Shibboleth configuration
+    produces:
+      - application/json
+    responses:
+      "200":
+        description: Shibboleth configuration
+        schema:
+          $ref: "../swagger.yaml#/definitions/shibboleth_config"
+      "401":
+        description: Authentication required
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "403":
+        description: Access forbidden
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+    x-koha-authorization:
+      permissions:
+        parameters: manage_shibboleth
+  put:
+    x-mojo-to: ShibbolethConfig#update
+    operationId: updateShibbolethConfig
+    tags:
+      - shibboleth
+    summary: Update Shibboleth configuration
+    parameters:
+      - name: body
+        in: body
+        description: Shibboleth configuration object
+        required: true
+        schema:
+          $ref: "../swagger.yaml#/definitions/shibboleth_config"
+    produces:
+      - application/json
+    responses:
+      "200":
+        description: Configuration updated
+        schema:
+          $ref: "../swagger.yaml#/definitions/shibboleth_config"
+      "400":
+        description: Bad parameters
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "401":
+        description: Authentication required
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "403":
+        description: Access forbidden
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+    x-koha-authorization:
+      permissions:
+        parameters: manage_shibboleth
+
+/shibboleth/mappings:
+  get:
+    x-mojo-to: ShibbolethFieldMappings#list
+    operationId: listShibbolethMappings
+    tags:
+      - shibboleth
+    summary: List Shibboleth field mappings
+    produces:
+      - application/json
+    responses:
+      "200":
+        description: List of field mappings
+        schema:
+          type: array
+          items:
+            $ref: "../swagger.yaml#/definitions/shibboleth_mapping"
+    x-koha-authorization:
+      permissions:
+        parameters: manage_shibboleth
+  post:
+    x-mojo-to: ShibbolethFieldMappings#add
+    operationId: addShibbolethMapping
+    tags:
+      - shibboleth
+    summary: Add new field mapping
+    parameters:
+      - name: body
+        in: body
+        description: Field mapping object
+        required: true
+        schema:
+          $ref: "../swagger.yaml#/definitions/shibboleth_mapping"
+    produces:
+      - application/json
+    responses:
+      "201":
+        description: Mapping created
+        schema:
+          $ref: "../swagger.yaml#/definitions/shibboleth_mapping"
+      "400":
+        description: Bad parameters
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "401":
+        description: Authentication required
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "403":
+        description: Access forbidden
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+    x-koha-authorization:
+      permissions:
+        parameters: manage_shibboleth
+
+"/shibboleth/mappings/{mapping_id}":
+  get:
+    x-mojo-to: ShibbolethFieldMappings#get
+    operationId: getShibbolethMapping
+    tags:
+      - shibboleth
+    summary: Get field mapping
+    parameters:
+      - $ref: "../swagger.yaml#/parameters/mapping_id_pp"
+    produces:
+      - application/json
+    responses:
+      "200":
+        description: Field mapping
+        schema:
+          $ref: "../swagger.yaml#/definitions/shibboleth_mapping"
+      "404":
+        description: Mapping not found
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+    x-koha-authorization:
+      permissions:
+        parameters: manage_shibboleth
+  put:
+    x-mojo-to: ShibbolethFieldMappings#update
+    operationId: updateShibbolethMapping
+    tags:
+      - shibboleth
+    summary: Update field mapping
+    parameters:
+      - $ref: "../swagger.yaml#/parameters/mapping_id_pp"
+      - name: body
+        in: body
+        description: Updated mapping object
+        required: true
+        schema:
+          $ref: "../swagger.yaml#/definitions/shibboleth_mapping"
+    produces:
+      - application/json
+    responses:
+      "200":
+        description: Mapping updated
+        schema:
+          $ref: "../swagger.yaml#/definitions/shibboleth_mapping"
+      "400":
+        description: Bad parameters
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+      "404":
+        description: Mapping not found
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+    x-koha-authorization:
+      permissions:
+        parameters: manage_shibboleth
+  delete:
+    x-mojo-to: ShibbolethFieldMappings#delete
+    operationId: deleteShibbolethMapping
+    tags:
+      - shibboleth
+    summary: Delete field mapping
+    parameters:
+      - $ref: "../swagger.yaml#/parameters/mapping_id_pp"
+    produces:
+      - application/json
+    responses:
+      "204":
+        description: Mapping deleted
+      "404":
+        description: Mapping not found
+        schema:
+          $ref: "../swagger.yaml#/definitions/error"
+    x-koha-authorization:
+      permissions:
+        parameters: manage_shibboleth

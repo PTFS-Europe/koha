@@ -186,6 +186,10 @@ definitions:
     $ref: ./definitions/vendor.yaml
   vendor_issue:
     $ref: ./definitions/vendor_issue.yaml
+  shibboleth_config:
+    $ref: ./definitions/shibboleth_config.yaml
+  shibboleth_mapping:
+    $ref: ./definitions/shibboleth_mapping.yaml
 paths:
   /acquisitions/baskets:
     $ref: ./paths/acquisitions_baskets.yaml#/~1acquisitions~1baskets
@@ -569,6 +573,12 @@ paths:
     $ref: ./paths/transfer_limits.yaml#/~1transfer_limits~1batch
   "/transfer_limits/{limit_id}":
     $ref: "./paths/transfer_limits.yaml#/~1transfer_limits~1{limit_id}"
+  /shibboleth/config:
+    $ref: ./paths/shibboleth.yaml#/~1shibboleth~1config
+  /shibboleth/mappings:
+    $ref: ./paths/shibboleth.yaml#/~1shibboleth~1mappings
+  "/shibboleth/mappings/{mapping_id}":
+    $ref: "./paths/shibboleth.yaml#/~1shibboleth~1mappings~1{mapping_id}"
 parameters:
   advancededitormacro_id_pp:
     description: Advanced editor macro internal identifier
@@ -949,6 +959,12 @@ parameters:
     name: limit_id
     required: true
     type: string
+  mapping_id_pp:
+    description: Internal mapping identifier
+    in: path
+    name: mapping_id
+    required: true
+    type: integer
   vendor_id_pp:
     description: Vendor id
     in: path
@@ -1290,3 +1306,6 @@ tags:
   - description: "Manage vendors for the acquisitions module\n"
     name: vendors
     x-displayName: Vendors
+  - description: "Manage Shibboleth configuration and mappings\n"
+    name: shibboleth
+    x-displayName: Shibboleth
