@@ -1,0 +1,23 @@
+---
+type: object
+properties:
+  shibboleth_config_id:
+    type: integer
+    description: Internal configuration identifier
+    readOnly: true
+  force_opac_sso:
+    type: boolean
+    description: Enable SSO for OPAC
+  force_staff_sso:
+    type: boolean
+    description: Enable SSO for staff interface
+  autocreate:
+    type: boolean
+    description: Auto create users
+  sync:
+    type: boolean
+    description: Sync user attributes
+  welcome:
+    type: boolean
+    description: Send welcome email
+additionalProperties: false
