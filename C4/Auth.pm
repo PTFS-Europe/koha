@@ -165,7 +165,7 @@ sub get_template_and_user {
     my $cookie_mgr = Koha::CookieManager->new;
 
     # Get shibboleth login attribute
-    my $shib       = C4::Context->config('useshibboleth') && shib_ok();
+    my $shib       = C4::Context->preference('ShibbolethAuthentication') && shib_ok();
     my $shib_login = $shib ? get_login_shib() : undef;
 
     C4::Context->interface( $in->{type} );
@@ -812,7 +812,7 @@ sub checkauth {
     my $query = shift;
 
     # Get shibboleth login attribute
-    my $shib       = C4::Context->config('useshibboleth') && shib_ok();
+    my $shib       = C4::Context->preference('ShibbolethAuthentication') && shib_ok();
     my $shib_login = $shib ? get_login_shib() : undef;
 
     # $authnotrequired will be set for scripts which will run without authentication
@@ -2034,7 +2034,7 @@ sub checkpw {
     $type = 'opac' unless $type;
 
     # Get shibboleth login attribute
-    my $shib       = C4::Context->config('useshibboleth') && shib_ok();
+    my $shib       = C4::Context->preference('ShibbolethAuthentication') && shib_ok();
     my $shib_login = $shib ? get_login_shib() : undef;
 
     my $anonymous_patron = C4::Context->preference('AnonymousPatron');

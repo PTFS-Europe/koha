@@ -82,7 +82,7 @@ for ( C4::Context->preference("OPACShowHoldQueueDetails") ) {
 my $patronupdate = $query->param('patronupdate');
 my $canrenew     = 1;
 
-$template->param( shibbolethAuthentication => C4::Context->config('useshibboleth') );
+$template->param( shibbolethAuthentication => C4::Context->preference('ShibbolethAuthentication') );
 
 # get borrower information ....
 my $patron = Koha::Patrons->find($borrowernumber);

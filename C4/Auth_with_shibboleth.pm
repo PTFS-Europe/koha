@@ -333,9 +333,7 @@ IMPORTANT: Please note, if you are running in the plack configuration you should
 
 Configure koha to listen for shibboleth environment variables.
 
-This is as simple as enabling B<useshibboleth> in koha-conf.xml:
-
- <useshibboleth>1</useshibboleth>
+This is as simple as enabling the "ShibbolethAuthentication" syspref in the koha admin interface.
 
 =item 6.
 
