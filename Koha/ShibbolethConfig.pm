@@ -91,4 +91,19 @@ sub get_field_mappings {
     return {};
 }
 
+=head3 get_value
+
+Returns the value of a specific configuration column.
+
+@param string $column The name of the configuration column to retrieve
+@return mixed The value of the configuration column or undef if not found
+
+=cut
+
+sub get_value {
+    my ($self, $column) = @_;
+    return unless $column;
+    return $self->$column;
+}
+
 1;
