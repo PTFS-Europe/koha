@@ -3,6 +3,7 @@ package Koha::ShibbolethFieldMappings;
 use Modern::Perl;
 use base qw(Koha::Objects);
 use Koha::ShibbolethFieldMapping;
+use Koha::Logger;
 
 =head1 NAME
 
@@ -37,14 +38,42 @@ Returns the field mapping that is set as the matchpoint
 
 sub get_matchpoint {
     my ($self) = @_;
-    return $self->search({ is_matchpoint => 1 })->single;
+    my $matchpoint = $self->search({ is_matchpoint => 1 })->single;
+    
+    unless ($matchpoint) {
+        Koha::Logger->get->warn('No matchpoint configured in Shibboleth field mappings');
+    }
+    
+    return $matchpoint;
 }
 
-=head3 get_configuration
+=head3 get_mapping_config
 
-Returns the current field mappings configuration.
+Returns the field mappings formatted for use in authentication configuration.
 
 =cut
+
+sub get_mapping_config {
+    my ($self) = @_;
+    
+    my $mappings = {};
+    my $matchpoint = $self->get_matchpoint;
+    
+    return (0, undef) unless $matchpoint;
+    
+    my $all_mappings = $self->search;
+    while (my $mapping = $all_mappings->next) {
+        $mappings->{$mapping->koha_field} = {
+            is => $mapping->idp_field,
+            content => $mapping->default_content,
+        };
+    }
+    
+    return (1, {
+        matchpoint => $matchpoint->koha_field,
+        mapping => $mappings
+    });
+}
 
 =head3 _type
 

@@ -53,10 +53,29 @@ Returns field mappings associated with this config
 
 sub mappings {
     my ($self) = @_;
+    return Koha::ShibbolethFieldMappings->new;
+}
+
+=head3 get_combined_config 
+
+Returns complete configuration including mappings
+
+=cut
+
+sub get_combined_config {
+    my ($self) = @_;
     
-    # Create new ShibbolethFieldMappings object properly
-    my $mappings = Koha::ShibbolethFieldMappings->new;
-    return $mappings->search;  # Return the resultset directly
+    my $config = $self->unblessed;
+    my ($success, $mapping_config) = $self->mappings->get_mapping_config;
+    
+    if ($success) {
+        # Merge mapping config with base config
+        $config->{matchpoint} = $mapping_config->{matchpoint}; 
+        $config->{mapping} = $mapping_config->{mapping};
+        return $config;
+    }
+    
+    return;
 }
 
 =head3 get_field_mappings
@@ -67,17 +86,9 @@ Returns a hashref of field mappings in config format
 
 sub get_field_mappings {
     my ($self) = @_;
-    
-    my $mappings_rs = $self->mappings;  # Get the DBIx resultset
-    my $map_config = {};
-    
-    while (my $mapping = $mappings_rs->next) {
-        $map_config->{$mapping->koha_field} = {
-            is => $mapping->idp_field
-        };
-    }
-    
-    return $map_config;
+    my ($success, $mapping_config) = $self->mappings->get_mapping_config;
+    return $mapping_config->{mapping} if $success;
+    return {};
 }
 
 1;

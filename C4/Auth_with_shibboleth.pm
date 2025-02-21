@@ -246,31 +246,12 @@ sub _get_return {
 }
 
 sub _get_shib_config {
-    # Get database config first
-    my $db_config = Koha::ShibbolethConfigs->new->get_configuration;
-    my $mappings = Koha::ShibbolethFieldMappings->new;
-    my $db_matchpoint = $mappings->get_matchpoint;
-    
-    if ($db_matchpoint) {
-        # Get all mappings
-        my $all_mappings = $mappings->search;
-        my $config = $db_config->unblessed;
-        
-        # Add matchpoint and mapping data
-        $config->{matchpoint} = $db_matchpoint->koha_field;
-        $config->{mapping} = {};
-        
-        while (my $mapping = $all_mappings->next) {
-            $config->{mapping}->{$mapping->koha_field} = {
-                is => $mapping->idp_field,
-            };
-        }
-        
-        return $config;
+    my $config = Koha::ShibbolethConfigs->new->get_configuration->get_combined_config;
+    unless ($config) {
+        Koha::Logger->get->warn('No valid Shibboleth configuration found');
+        return 0; 
     }
-
-    Koha::Logger->get->warn('No valid Shibboleth configuration found');
-    return 0;
+    return $config;
 }
 
 1;
