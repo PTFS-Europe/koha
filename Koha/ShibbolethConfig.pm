@@ -35,7 +35,7 @@ sub store {
     
     # If record exists, update it
     if (my $existing = Koha::ShibbolethConfigs->find(1)) {
-        foreach my $field (qw( enable_opac_sso enable_staff_sso autocreate sync welcome )) {
+        foreach my $field (qw( force_opac_sso force_staff_sso autocreate sync welcome )) {
             $existing->$field($self->$field) if $self->$field;
         }
         return $existing->SUPER::store();

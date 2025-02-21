@@ -30,8 +30,8 @@ sub get_configuration {
         # Create default config with ID=1 if it doesn't exist
         $config = Koha::ShibbolethConfig->new({
             shibboleth_config_id => 1,
-            enable_opac_sso => 0,
-            enable_staff_sso => 0,
+            force_opac_sso => 0,
+            force_staff_sso => 0,
             autocreate => 0,
             sync => 0,
             welcome => 0
