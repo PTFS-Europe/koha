@@ -199,7 +199,7 @@
                                     <a href="/cgi-bin/koha/svc/auth/googleopenidconnect" class="btn btn-light" id="openid_connect"><i class="fa-brands fa-google" aria-hidden="true"></i> Log in with Google</a>
                                     <p>If you do not have a Google account, but do have a local account, you can still log in: </p>
                                 [% END # /IF GoogleOpenIDConnect %]
-                            [% END # /UNLESS OPACShibOnly %]
+                            [% END # /UNLESS force_opac_sso %]
 
                             [% IF !(invalid_username_or_password || too_many_login_attempts) and is_anonymous_patron %]
                                 <div class="alert alert-info">
@@ -282,7 +282,7 @@
                                         </div>
                                     [% END %]
                                 </form>
-                            [% END # / IF password_has_expired / ELSIF !OPACShibOnly or SCO_login or SCI_login %]
+                            [% END # / IF password_has_expired / ELSIF !force_opac_sso or SCO_login or SCI_login %]
                         [% END # / IF loginprompt %]
                     [% ELSE %]
                         <h1>Logging on to the catalog has not been enabled by the library.</h1>
