@@ -49,5 +49,9 @@ return {
         } else {
             say_info($out, "Table 'shibboleth_config' already exists");
         }
+                $dbh->do(q{
+                    DELETE FROM systempreferences 
+                    WHERE variable IN ('staffShibOnly','OPACShibOnly')
+                });
     },
 };

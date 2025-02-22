@@ -1009,10 +1009,3 @@ OPAC:
               class: long
             - "fields (separate values with |). Tabs appear in the order listed.<br/>"
             - "<em>Currently supported values</em>: Item types (<strong>itemtypes</strong>), Collection, (<strong>ccode</strong>) and Shelving location (<strong>loc</strong>)."
-    Authentication:
-        -
-            - pref: OPACShibOnly
-              choices:
-                  1: "Don't allow"
-                  0: Allow
-            - patrons to login by means other than Shibboleth.

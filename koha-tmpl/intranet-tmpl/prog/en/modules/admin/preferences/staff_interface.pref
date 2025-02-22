@@ -205,12 +205,6 @@ Staff interface:
 
     Authentication:
         -
-            - pref: staffShibOnly
-              choices:
-                  1: "Don't allow"
-                  0: Allow
-            - staff to login by means other than shibboleth.
-        -
             - pref: TwoFactorAuthentication
               choices:
                   "enforced": Enforce
