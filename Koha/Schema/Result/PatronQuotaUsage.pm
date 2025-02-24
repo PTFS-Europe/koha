@@ -44,7 +44,7 @@ foreign key linking to patron_quota.id
   data_type: 'integer'
   is_nullable: 1
 
-foreign key linking to issues.issue_id
+linking to issues.issue_id or old_issues.issue_id
 
 =head2 patron_id
 
@@ -112,9 +112,22 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07051 @ 2025-01-31 16:17:33
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:V5C3mWjeEHKuqk42HnrxOg
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2025-02-07 14:14:27
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:/UbHmNOqiKX4ZjaDZOKi0Q
 
+
+sub koha_object_class {
+    return 'Koha::Patron::Quota::Usage';
+}
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
+
+sub koha_object_class {
+    return 'Koha::Patron::Quota::Usage';
+}
+
+sub koha_objects_class {
+    return 'Koha::Patron::Quota::Usages';
+}
+
 1;
