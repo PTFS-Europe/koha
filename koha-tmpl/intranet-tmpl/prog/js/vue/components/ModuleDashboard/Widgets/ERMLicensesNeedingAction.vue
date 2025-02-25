@@ -10,7 +10,7 @@
         </WidgetPickerWrapper>
     </template>
     <template v-else-if="display === 'dashboard'">
-        <WidgetDashboardWrapper @removed="removeWidget" :name="name">
+        <WidgetDashboardWrapper :settings="settings" @removed="removeWidget" :name="name">
             <template #default>
                 <KohaTable ref="table" v-bind="tableOptions" />
             </template>
@@ -55,6 +55,9 @@ export default {
                     "-not_in": ["active", "expired"],
                 },
             },
+        });
+        const settings = ref({
+            someSetting: "",
         });
 
         function getTableColumns() {
@@ -108,6 +111,7 @@ export default {
             getTableColumns,
             name,
             description,
+            settings,
         };
     },
     methods: {
