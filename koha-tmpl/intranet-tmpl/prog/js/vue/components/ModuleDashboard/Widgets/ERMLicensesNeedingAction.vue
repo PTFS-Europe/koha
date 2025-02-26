@@ -10,16 +10,26 @@
         </WidgetPickerWrapper>
     </template>
     <template v-else-if="display === 'dashboard'">
-        <WidgetDashboardWrapper :settings="settings" @removed="removeWidget" :name="name">
+        <WidgetDashboardWrapper
+            :settings="settings"
+            :settings_definitions="settings_definitions"
+            @removed="removeWidget"
+            :name="name"
+        >
             <template #default>
-                <KohaTable ref="table" v-bind="tableOptions" />
+                <KohaTable
+                    ref="table"
+                    v-bind="tableOptions"
+                    :key="JSON.stringify(tableOptions)"
+                />
             </template>
         </WidgetDashboardWrapper>
     </template>
 </template>
 
 <script>
-import { inject, ref } from "vue";
+import { inject, ref, watch } from "vue";
+import { storeToRefs } from "pinia";
 import WidgetDashboardWrapper from "../WidgetDashboardWrapper.vue";
 import WidgetPickerWrapper from "../WidgetPickerWrapper.vue";
 import KohaTable from "../../KohaTable.vue";
@@ -37,11 +47,34 @@ export default {
         },
     },
     setup(props) {
-        const name = "Licenses needing action";
-        const description =
-            "Shows the number of ERM agreements, licenses, and packages";
+        const name = __("Licenses needing action");
+        const description = __(
+            "Shows licenses needing action (in negotiation, not yet active, or rejected)"
+        );
         const AVStore = inject("AVStore");
+        const { av_license_statuses } = storeToRefs(AVStore);
         const { get_lib_from_av, map_av_dt_filter } = AVStore;
+
+        const settings = ref({
+            status: ["in_negotiation", "not_yet_active", "rejected"],
+        });
+        const settings_definitions = ref([
+            {
+                name: "status",
+                required: true,
+                type: "select",
+                label: __("Status"),
+                showInTable: true,
+                options: av_license_statuses.value.map(status => ({
+                    value: status.value,
+                    description: status.description,
+                })),
+                allowMultipleChoices: true,
+                requiredKey: "value",
+                selectLabel: "description",
+            },
+        ]);
+
         const table = ref();
         const tableOptions = ref({
             columns: getTableColumns(),
@@ -52,13 +85,30 @@ export default {
             url: "/api/v1/erm/licenses",
             default_filters: {
                 "me.status": {
-                    "-not_in": ["active", "expired"],
+                    "-in": settings.value["status"],
                 },
             },
         });
-        const settings = ref({
-            someSetting: "",
-        });
+
+        watch(
+            settings,
+            newSettings => {
+                tableOptions.value.default_filters =
+                    getDefaultFilters(newSettings);
+            },
+            { deep: true }
+        );
+
+        function getDefaultFilters(settings) {
+            if (settings["status"]) {
+                return {
+                    "me.status": {
+                        "-in": settings["status"],
+                    },
+                };
+            }
+            return {};
+        }
 
         function getTableColumns() {
             return [
@@ -112,6 +162,8 @@ export default {
             name,
             description,
             settings,
+            settings_definitions,
+            av_license_statuses,
         };
     },
     methods: {
