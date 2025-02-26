@@ -7,7 +7,7 @@
                 </div>
                 <div class="col-md-6 text-end">
                     <button
-                        v-if="Object.keys(settings).length"
+                        v-if="Object.keys(settings_definitions).length"
                         class="btn btn-xs btn-default me-1"
                         @mousedown="toggleSettings"
                         :title="$__('Configure')"
@@ -26,10 +26,20 @@
         </div>
         <div v-if="showSettings" class="widget-settings">
             <form @submit.prevent="saveSettings">
-                <div v-for="(value, key) in settings" :key="key" class="form-group">
-                    <label :for="key">{{ key }}</label>
-                    <input type="text" :id="key" v-model="settings[key]" :placeholder="`Enter ${key}`" />
-                </div>
+                <fieldset class="rows">
+                    <ol>
+                        <li
+                            v-for="(setting, index) in settings_definitions"
+                            v-bind:key="index"
+                        >
+                            <FormElement
+                                :resource="settings"
+                                :attr="setting"
+                                :index="index"
+                            />
+                        </li>
+                    </ol>
+                </fieldset>
                 <button class="btn btn-primary" type="submit">Save</button>
             </form>
         </div>
@@ -41,6 +51,7 @@
 
 <script>
 import { ref } from "vue";
+import FormElement from "../FormElement.vue";
 export default {
     props: {
         name: {
@@ -50,7 +61,11 @@ export default {
         settings: {
             type: Object,
             default: () => ({}),
-        }
+        },
+        settings_definitions: {
+            type: Object,
+            default: () => ({}),
+        },
     },
     setup(props, { emit }) {
         const showSettings = ref(false);
@@ -76,6 +91,9 @@ export default {
         };
     },
     emits: ["removed"],
+    components: {
+        FormElement,
+    },
 };
 </script>
 
@@ -103,7 +121,8 @@ export default {
     font-size: 1.25rem;
 }
 
-.widget-content, .widget-settings {
+.widget-content,
+.widget-settings {
     padding: 12px;
 }
 </style>
