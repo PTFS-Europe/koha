@@ -44,7 +44,10 @@
             </form>
         </div>
         <div class="widget-content">
-            <slot></slot>
+            <div v-if="loading" class="text-center">
+                {{ $__("Loading...") }}
+            </div>
+            <slot v-else></slot>
         </div>
     </div>
 </template>
@@ -57,6 +60,9 @@ export default {
         name: {
             type: String,
             required: true,
+        },
+        loading: {
+            type: Boolean,
         },
         settings: {
             type: Object,

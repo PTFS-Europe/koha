@@ -14,6 +14,8 @@ export default {
         },
     },
     setup(props, { emit }) {
+        const loading = ref(true);
+
         const removeWidget = () => {
             emit("removed", props);
         };
@@ -26,6 +28,7 @@ export default {
             ...props,
             removeWidget,
             addWidget,
+            loading,
         };
     },
     emits: ["removed", "added"],

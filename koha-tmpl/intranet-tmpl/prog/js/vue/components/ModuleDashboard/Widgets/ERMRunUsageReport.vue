@@ -10,49 +10,46 @@
         </WidgetPickerWrapper>
     </template>
     <template v-else-if="display === 'dashboard'">
-        <WidgetDashboardWrapper @removed="removeWidget" :name="name">
+        <WidgetDashboardWrapper
+            :loading="loading"
+            @removed="removeWidget"
+            :name="name"
+        >
             <template #default>
-                <div v-if="loading" class="text-center">
-                    {{ $__("Loading...") }}
+                <div v-if="!default_usage_reports.length">
+                    <div class="d-flex align-items-center alert alert-info">
+                        {{
+                            $__("No saved eUsage reports are available to run.")
+                        }}
+                    </div>
+                    <button
+                        class="btn btn-primary"
+                        type="button"
+                        @click="createReport"
+                    >
+                        {{ $__("Create a report") }}
+                    </button>
                 </div>
-                <div v-else>
-                    <div v-if="!default_usage_reports.length">
-                        <div class="d-flex align-items-center alert alert-info">
-                            {{
-                                $__(
-                                    "No saved eUsage reports are available to run."
-                                )
-                            }}
-                        </div>
+                <div v-else class="d-flex align-items-center">
+                    <div class="flex-grow-1 me-2">
+                        <label for="filter" class="visually-hidden">{{
+                            $__("Pick a report to run")
+                        }}</label>
+                        <v-select
+                            label="report_name"
+                            :options="default_usage_reports"
+                            style="min-width: 200px"
+                            v-model="selected_report"
+                        ></v-select>
+                    </div>
+                    <div>
                         <button
                             class="btn btn-primary"
                             type="button"
-                            @click="createReport"
+                            @click="runReport"
                         >
-                            {{ $__("Create a report") }}
+                            {{ $__("Run") }}
                         </button>
-                    </div>
-                    <div v-else class="d-flex align-items-center">
-                        <div class="flex-grow-1 me-2">
-                            <label for="filter" class="visually-hidden">{{
-                                $__("Pick a report to run")
-                            }}</label>
-                            <v-select
-                                label="report_name"
-                                :options="default_usage_reports"
-                                style="min-width: 200px"
-                                v-model="selected_report"
-                            ></v-select>
-                        </div>
-                        <div>
-                            <button
-                                class="btn btn-primary"
-                                type="button"
-                                @click="runReport"
-                            >
-                                {{ $__("Run") }}
-                            </button>
-                        </div>
                     </div>
                 </div>
             </template>
@@ -60,7 +57,7 @@
     </template>
 </template>
 <script>
-import { onMounted, ref } from "vue";
+import { getCurrentInstance, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { APIClient } from "../../../fetch/api-client.js";
 import WidgetDashboardWrapper from "../WidgetDashboardWrapper.vue";
@@ -70,18 +67,18 @@ import BaseWidget from "../BaseWidget.vue";
 export default {
     extends: BaseWidget,
     setup(props, { emit }) {
+        const instance = getCurrentInstance();
         const name = "Run eUsage report";
         const description = "Select a saved eUsage report to run.";
         const default_usage_reports = ref([]);
         const selected_report = ref(null);
         const reportsLoaded = ref(false);
-        const loading = ref(true);
         const getReports = async () => {
             try {
                 const response =
                     await APIClient.erm.default_usage_reports.getAll();
                 default_usage_reports.value = response;
-                loading.value = false;
+                instance.proxy.loading = false;
             } catch (error) {
                 console.error("Error getting default usage reports", error);
             }
@@ -118,7 +115,6 @@ export default {
                     getReports,
                     createReport,
                     runReport,
-                    loading,
                     name,
                     description,
                 },

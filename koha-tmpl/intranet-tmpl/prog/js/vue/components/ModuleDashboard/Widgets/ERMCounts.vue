@@ -10,12 +10,13 @@
         </WidgetPickerWrapper>
     </template>
     <template v-else-if="display === 'dashboard'">
-        <WidgetDashboardWrapper @removed="removeWidget" :name="name">
+        <WidgetDashboardWrapper
+            :loading="loading"
+            @removed="removeWidget"
+            :name="name"
+        >
             <template #default>
-                <div v-if="loading" class="text-center">
-                    {{ $__("Loading...") }}
-                </div>
-                <p v-else class="text-left">
+                <p class="text-left">
                     {{ $__("There are") }}
                     <template
                         v-for="(definition, index) in countDefinitions"
@@ -55,7 +56,7 @@
     </template>
 </template>
 <script>
-import { getCurrentInstance, onMounted, ref } from "vue";
+import { getCurrentInstance, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { APIClient } from "../../../fetch/api-client.js";
 import WidgetDashboardWrapper from "../WidgetDashboardWrapper.vue";
@@ -66,7 +67,6 @@ export default {
     extends: BaseWidget,
     setup(props, { emit }) {
         const instance = getCurrentInstance();
-        const loading = ref(true);
         const name = __("Counts");
         const description = __(
             "Shows the number of ERM related resources such as agreements, licenses, local packages, local titles, documents, etc"
@@ -91,8 +91,7 @@ export default {
                         item.count = response.counts[key];
                     }
                 });
-
-                loading.value = false;
+                instance.proxy.loading = false;
             } catch (error) {
                 console.error(error);
             }
@@ -108,7 +107,6 @@ export default {
                     name,
                     description,
                     goToPage,
-                    loading,
                 },
                 { emit }
             ),
