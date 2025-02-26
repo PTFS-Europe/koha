@@ -61,7 +61,6 @@ export default {
         const settings_definitions = ref([
             {
                 name: "status",
-                required: true,
                 type: "select",
                 label: __("Status"),
                 showInTable: true,
@@ -100,7 +99,7 @@ export default {
         );
 
         function getDefaultFilters(settings) {
-            if (settings["status"]) {
+            if (settings["status"] && settings["status"].length) {
                 return {
                     "me.status": {
                         "-in": settings["status"],

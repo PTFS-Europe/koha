@@ -9,6 +9,7 @@
                     <button
                         v-if="Object.keys(settings_definitions).length"
                         class="btn btn-xs btn-default me-1"
+                        :class="{ 'settings-open': showSettings }"
                         @mousedown="toggleSettings"
                         :title="$__('Configure')"
                     >
@@ -25,7 +26,7 @@
             </div>
         </div>
         <div v-if="showSettings" class="widget-settings">
-            <form @submit.prevent="saveSettings">
+            <form>
                 <fieldset class="rows">
                     <ol>
                         <li
@@ -40,7 +41,6 @@
                         </li>
                     </ol>
                 </fieldset>
-                <button class="btn btn-primary" type="submit">Save</button>
             </form>
         </div>
         <div class="widget-content">
@@ -107,12 +107,33 @@ export default {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.widget-header {
+.widget-header,
+.widget-settings {
     background-color: #f7f7f7;
     border-bottom: 1px solid #ccc;
-    padding: 12px;
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
+}
+
+.widget-settings fieldset {
+    background-color: #f7f7f7;
+}
+
+.widget-settings fieldset.rows ol {
+    padding: 0;
+}
+
+.widget-settings form:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+.widget-header .btn.settings-open {
+    color: var(--bs-btn-hover-color);
+    text-decoration: none;
+    background-color: var(--bs-btn-hover-bg);
+    border-color: var(--bs-btn-hover-border-color);
 }
 
 .widget-title {
@@ -122,7 +143,8 @@ export default {
 }
 
 .widget-content,
-.widget-settings {
+.widget-settings,
+.widget-header {
     padding: 12px;
 }
 </style>
