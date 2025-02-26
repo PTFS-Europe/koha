@@ -69,7 +69,7 @@ export default {
         const instance = getCurrentInstance();
         const name = __("Counts");
         const description = __(
-            "Shows the number of ERM related resources such as agreements, licenses, local packages, local titles, documents, etc"
+            "Shows the number of ERM related resources such as agreements, licenses, local packages, local titles, documents, etc."
         );
 
         const router = useRouter();

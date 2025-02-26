@@ -63,6 +63,19 @@ export default {
                 requiredKey: "value",
                 selectLabel: "description",
             },
+            {
+                name: "ended_on",
+                type: "select",
+                label: __("Ends in the next"),
+                showInTable: true,
+                options: [
+                    { value: "ended", description: __("One week") },
+                    { value: "not_ended", description: __("Two weeks") },
+                    { value: "asd", description: __("One month") },
+                ],
+                requiredKey: "value",
+                selectLabel: "description",
+            },
         ]);
 
         const table = ref();
@@ -137,6 +150,15 @@ export default {
                         return escape_str(
                             get_lib_from_av("av_license_statuses", row.status)
                         );
+                    },
+                },
+                {
+                    title: __("Ends on"),
+                    data: "ended_on",
+                    searchable: true,
+                    orderable: true,
+                    render: function (data, type, row, meta) {
+                        return $date(row.ended_on);
                     },
                 },
             ];

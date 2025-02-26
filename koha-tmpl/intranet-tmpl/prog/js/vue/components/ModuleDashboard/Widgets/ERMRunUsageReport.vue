@@ -46,6 +46,7 @@
                         <button
                             class="btn btn-primary"
                             type="button"
+                            :disabled="!selected_report"
                             @click="runReport"
                         >
                             {{ $__("Run") }}

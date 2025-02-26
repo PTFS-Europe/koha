@@ -135,6 +135,25 @@ export default {
     clear: both;
 }
 
+:deep(.widget-settings form .v-select) {
+    display: inline-block;
+    background-color: white;
+    width: 60%;
+}
+
+:deep(.v-select),
+:deep(
+    input:not([type="submit"]):not([type="search"]):not([type="button"]):not(
+            [type="checkbox"]
+        ):not([type="radio"])
+),
+:deep(textarea) {
+    border-color: rgba(60, 60, 60, 0.26);
+    border-width: 1px;
+    border-radius: 4px;
+    min-width: 60%;
+}
+
 .widget-header .btn.settings-open {
     color: var(--bs-btn-hover-color);
     text-decoration: none;
