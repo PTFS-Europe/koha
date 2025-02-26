@@ -40,7 +40,7 @@ export default {
     setup(props, { emit }) {
         const name = __("Licenses needing action");
         const description = __(
-            "Show licenses that need action. It filters licenses by status. This widget is configurable."
+            "Show licenses that need action. It filters licenses by status and end date. This widget is configurable."
         );
         const AVStore = inject("AVStore");
         const { av_license_statuses } = storeToRefs(AVStore);
@@ -69,9 +69,10 @@ export default {
                 label: __("Ends in the next"),
                 showInTable: true,
                 options: [
-                    { value: "ended", description: __("One week") },
-                    { value: "not_ended", description: __("Two weeks") },
-                    { value: "asd", description: __("One month") },
+                    { value: "week", description: __("Week") },
+                    { value: "two_weeks", description: __("Two weeks") },
+                    { value: "month", description: __("Month") },
+                    { value: "two_months", description: __("Two months") },
                 ],
                 requiredKey: "value",
                 selectLabel: "description",
@@ -103,14 +104,48 @@ export default {
         );
 
         function getDefaultFilters(settings) {
+            const default_filters = {};
+
             if (settings["status"] && settings["status"].length) {
-                return {
-                    "me.status": {
-                        "-in": settings["status"],
-                    },
+                default_filters["me.status"] = {
+                    "-in": settings["status"],
                 };
             }
-            return {};
+
+            if (settings["ended_on"] && settings["ended_on"].length) {
+                switch (settings["ended_on"]) {
+                    case "week":
+                        default_filters["me.ended_on"] = {
+                            "<=": new Date(
+                                new Date().setDate(new Date().getDate() + 7)
+                            ),
+                        };
+                        break;
+                    case "two_weeks":
+                        default_filters["me.ended_on"] = {
+                            "<=": new Date(
+                                new Date().setDate(new Date().getDate() + 14)
+                            ),
+                        };
+                        break;
+                    case "month":
+                        default_filters["me.ended_on"] = {
+                            "<=": new Date(
+                                new Date().setMonth(new Date().getMonth() + 1)
+                            ),
+                        };
+                        break;
+                    case "two_months":
+                        default_filters["me.ended_on"] = {
+                            "<=": new Date(
+                                new Date().setMonth(new Date().getMonth() + 2)
+                            ),
+                        };
+                        break;
+                }
+            }
+
+            return default_filters;
         }
 
         function getTableColumns() {

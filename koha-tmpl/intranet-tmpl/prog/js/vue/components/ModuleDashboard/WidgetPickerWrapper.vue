@@ -7,14 +7,15 @@
             <div class="widget-actions">
                 <button
                     v-if="!alreadyAdded"
-                    class="btn btn-xs btn-primary me-1"
+                    class="btn btn-primary me-1"
                     @click="addWidget"
                 >
-                    {{ $__("Add Widget") }}
+                    <font-awesome-icon icon="plus" />
+                    {{ $__("Add") }}
                 </button>
                 <button
                     v-if="alreadyAdded"
-                    class="btn btn-xs btn-default"
+                    class="btn btn-default"
                     @click="removeWidget"
                 >
                     <font-awesome-icon icon="trash" />
