@@ -449,6 +449,15 @@ export class ERMAPIClient extends HttpClient {
                 }),
         };
     }
+
+    get counts() {
+        return {
+            get: () =>
+                this.get({
+                    endpoint: "counts",
+                }),
+        };
+    }
 }
 
 export default ERMAPIClient;
