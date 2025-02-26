@@ -36,6 +36,8 @@ const AVStore = useAVStore(pinia);
 const navigationStore = useNavigationStore(pinia);
 const routes = navigationStore.setRoutes(routesDef);
 
+console.log(routes)
+
 const router = createRouter({
     history: createWebHistory(),
     linkActiveClass: "current",

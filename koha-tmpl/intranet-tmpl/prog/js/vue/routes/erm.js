@@ -22,16 +22,27 @@ import { $__ } from "../i18n";
 
 export const routes = [
     {
-        path: "/cgi-bin/koha/erm/erm.pl",
-        is_default: true,
+        path: "",
         is_base: true,
         title: $__("E-resource management"),
         children: [
             {
-                path: "",
+                path: "/cgi-bin/koha/erm/erm.pl",
                 name: "Home",
                 component: markRaw(Home),
-                is_navigation_item: false,
+                title: $__("Home"),
+                icon: "fa fa-home",
+                is_default: true,
+                // beforeEnter: (to, from, next) => {
+                //     console.log(to.path)
+                //     console.log(window.location.pathname)
+                //     if (to.path === '/cgi-bin/koha/erm/erm.pl' && to.path === window.location.pathname) {
+                //         console.log('it matched')
+                //         next();
+                //     } else {
+                //         next(false);
+                //     }
+                // }
             },
             {
                 path: "/cgi-bin/koha/erm/agreements",
