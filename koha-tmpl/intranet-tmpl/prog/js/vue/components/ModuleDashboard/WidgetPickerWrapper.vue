@@ -7,10 +7,6 @@
             {{ description }}
         </p>
         <div class="widget-actions">
-            <button class="btn btn-xs btn-default me-1">
-                <font-awesome-icon icon="cog" />
-                {{ $__("Configure") }}
-            </button>
             <button
                 v-if="!alreadyAdded"
                 class="btn btn-xs btn-primary me-1"
