@@ -65,20 +65,11 @@ import { useRouter } from "vue-router";
 import { APIClient } from "../../../fetch/api-client.js";
 import WidgetDashboardWrapper from "../WidgetDashboardWrapper.vue";
 import WidgetPickerWrapper from "../WidgetPickerWrapper.vue";
+import BaseWidget from "../BaseWidget.vue";
 
 export default {
-    props: {
-        display: {
-            type: String,
-            required: true,
-        },
-        alreadyAdded: {
-            type: Boolean,
-            required: false,
-            default: false,
-        },
-    },
-    setup(props) {
+    extends: BaseWidget,
+    setup(props, { emit }) {
         const name = "Run eUsage report";
         const description = "Select a saved eUsage report to run.";
         const default_usage_reports = ref([]);
@@ -120,25 +111,21 @@ export default {
         });
 
         return {
-            default_usage_reports,
-            selected_report,
-            getReports,
-            createReport,
-            runReport,
-            loading,
-            name,
-            description,
+            ...BaseWidget.setup(
+                {
+                    default_usage_reports,
+                    selected_report,
+                    getReports,
+                    createReport,
+                    runReport,
+                    loading,
+                    name,
+                    description,
+                },
+                { emit }
+            ),
         };
     },
-    methods: {
-        removeWidget() {
-            this.$emit("removed", this);
-        },
-        addWidget() {
-            this.$emit("added", this);
-        },
-    },
-    emits: ["removed", "added"],
     components: { WidgetDashboardWrapper, WidgetPickerWrapper },
     name: "ERMRunUsageReport",
 };

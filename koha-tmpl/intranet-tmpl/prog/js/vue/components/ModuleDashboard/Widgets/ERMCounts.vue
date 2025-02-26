@@ -60,20 +60,11 @@ import { useRouter } from "vue-router";
 import { APIClient } from "../../../fetch/api-client.js";
 import WidgetDashboardWrapper from "../WidgetDashboardWrapper.vue";
 import WidgetPickerWrapper from "../WidgetPickerWrapper.vue";
+import BaseWidget from "../BaseWidget.vue";
 
 export default {
-    props: {
-        display: {
-            type: String,
-            required: true,
-        },
-        alreadyAdded: {
-            type: Boolean,
-            required: false,
-            default: false,
-        },
-    },
-    setup(props) {
+    extends: BaseWidget,
+    setup(props, { emit }) {
         const instance = getCurrentInstance();
         const loading = ref(true);
         const name = __("Counts");
@@ -112,10 +103,15 @@ export default {
         });
 
         return {
-            name,
-            description,
-            goToPage,
-            loading,
+            ...BaseWidget.setup(
+                {
+                    name,
+                    description,
+                    goToPage,
+                    loading,
+                },
+                { emit }
+            ),
         };
     },
     data() {
@@ -165,15 +161,6 @@ export default {
             ],
         };
     },
-    methods: {
-        removeWidget() {
-            this.$emit("removed", this);
-        },
-        addWidget() {
-            this.$emit("added", this);
-        },
-    },
-    emits: ["removed", "added"],
     components: { WidgetDashboardWrapper, WidgetPickerWrapper },
     name: "ERMCounts",
 };

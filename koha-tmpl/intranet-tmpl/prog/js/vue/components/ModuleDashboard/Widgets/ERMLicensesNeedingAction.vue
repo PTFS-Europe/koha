@@ -32,21 +32,12 @@ import { inject, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import WidgetDashboardWrapper from "../WidgetDashboardWrapper.vue";
 import WidgetPickerWrapper from "../WidgetPickerWrapper.vue";
+import BaseWidget from "../BaseWidget.vue";
 import KohaTable from "../../KohaTable.vue";
 
 export default {
-    props: {
-        display: {
-            type: String,
-            required: true,
-        },
-        alreadyAdded: {
-            type: Boolean,
-            required: false,
-            default: false,
-        },
-    },
-    setup(props) {
+    extends: BaseWidget,
+    setup(props, { emit }) {
         const name = __("Licenses needing action");
         const description = __(
             "Show licenses that need action. It filters licenses by status. This widget is configurable."
@@ -152,28 +143,24 @@ export default {
         }
 
         return {
-            get_lib_from_av,
-            map_av_dt_filter,
-            escape_str,
-            table,
-            tableOptions,
-            getTableColumns,
-            name,
-            description,
-            settings,
-            settings_definitions,
-            av_license_statuses,
+            ...BaseWidget.setup(
+                {
+                    get_lib_from_av,
+                    map_av_dt_filter,
+                    escape_str,
+                    table,
+                    tableOptions,
+                    getTableColumns,
+                    name,
+                    description,
+                    settings,
+                    settings_definitions,
+                    av_license_statuses,
+                },
+                { emit }
+            ),
         };
     },
-    methods: {
-        removeWidget() {
-            this.$emit("removed", this);
-        },
-        addWidget() {
-            this.$emit("added", this);
-        },
-    },
-    emits: ["removed", "added"],
     components: { WidgetDashboardWrapper, WidgetPickerWrapper, KohaTable },
     name: "ERMLicensesNeedingAction",
 };
