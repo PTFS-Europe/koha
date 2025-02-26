@@ -76,9 +76,10 @@ export default {
     setup(props) {
         const instance = getCurrentInstance();
         const loading = ref(true);
-        const name = "Counts";
-        const description =
-            "Shows the number of ERM agreements, licenses, and packages";
+        const name = __("Counts");
+        const description = __(
+            "Shows the number of ERM related resources such as agreements, licenses, local packages, local titles, documents, etc"
+        );
 
         const router = useRouter();
         const goToPage = page => {

@@ -49,7 +49,7 @@ export default {
     setup(props) {
         const name = __("Licenses needing action");
         const description = __(
-            "Shows licenses needing action (in negotiation, not yet active, or rejected)"
+            "Show licenses that need action. It filters licenses by status. This widget is configurable."
         );
         const AVStore = inject("AVStore");
         const { av_license_statuses } = storeToRefs(AVStore);

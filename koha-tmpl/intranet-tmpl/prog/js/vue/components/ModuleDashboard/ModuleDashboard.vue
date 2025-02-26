@@ -19,21 +19,19 @@
                         <h1>{{ $__("Customize your dashboard widgets") }}</h1>
                     </div>
                     <div class="modal-body">
-                        <ul>
-                            <li
-                                v-for="widget in availableWidgets"
-                                :key="widget"
-                                class="widget-item"
-                            >
-                                <component
-                                    display="picker"
-                                    :is="widget"
-                                    :alreadyAdded="alreadyOnDashboard(widget)"
-                                    @removed="removeWidget(widget)"
-                                    @added="addWidget(widget)"
-                                ></component>
-                            </li>
-                        </ul>
+                        <div
+                            v-for="widget in availableWidgets"
+                            :key="widget"
+                            class="widget-item"
+                        >
+                            <component
+                                display="picker"
+                                :is="widget"
+                                :alreadyAdded="alreadyOnDashboard(widget)"
+                                @removed="removeWidget(widget)"
+                                @added="addWidget(widget)"
+                            ></component>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button

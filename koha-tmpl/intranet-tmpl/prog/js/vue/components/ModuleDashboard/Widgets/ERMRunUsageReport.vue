@@ -58,9 +58,9 @@ export default {
             default: false,
         },
     },
-    setup(props, { emit }) {
+    setup(props) {
         const name = "Run eUsage report";
-        const description = "Run a eUsage report.";
+        const description = "Select a saved eUsage report to run.";
         const default_usage_reports = ref([]);
         const selected_report = ref(null);
         const reportsLoaded = ref(false);

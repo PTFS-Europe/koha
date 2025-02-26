@@ -1,28 +1,30 @@
 <template>
     <div class="widget-details">
-        <h3 class="widget-name">
-            {{ name }}
-        </h3>
+        <div class="d-flex align-items-center widget-header">
+            <h2 class="widget-name me-auto m-0">
+                {{ name }}
+            </h2>
+            <div class="widget-actions">
+                <button
+                    v-if="!alreadyAdded"
+                    class="btn btn-xs btn-primary me-1"
+                    @click="addWidget"
+                >
+                    {{ $__("Add Widget") }}
+                </button>
+                <button
+                    v-if="alreadyAdded"
+                    class="btn btn-xs btn-default"
+                    @click="removeWidget"
+                >
+                    <font-awesome-icon icon="trash" />
+                    {{ $__("Remove") }}
+                </button>
+            </div>
+        </div>
         <p class="widget-description">
             {{ description }}
         </p>
-        <div class="widget-actions">
-            <button
-                v-if="!alreadyAdded"
-                class="btn btn-xs btn-primary me-1"
-                @click="addWidget"
-            >
-                {{ $__("Add Widget") }}
-            </button>
-            <button
-                v-if="alreadyAdded"
-                class="btn btn-xs btn-default"
-                @click="removeWidget"
-            >
-                <font-awesome-icon icon="trash" />
-                {{ $__("Remove") }}
-            </button>
-        </div>
     </div>
 </template>
 
@@ -54,3 +56,16 @@ export default {
     emits: ["removed", "added"],
 };
 </script>
+<style scoped>
+.widget-description {
+    padding: 12px;
+}
+
+.widget-header {
+    background-color: #f7f7f7;
+    border-bottom: 1px solid #ccc;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    padding: 12px;
+}
+</style>
