@@ -1,3 +1,4 @@
+import BackgroundJobsAPIClient from "./background-jobs-api-client";
 import ERMAPIClient from "./erm-api-client";
 import PatronAPIClient from "./patron-api-client";
 import AcquisitionAPIClient from "./acquisition-api-client";
@@ -9,6 +10,7 @@ import SysprefAPIClient from "./system-preferences-api-client";
 import PreservationAPIClient from "./preservation-api-client";
 
 export const APIClient = {
+    background_jobs: new BackgroundJobsAPIClient(),
     erm: new ERMAPIClient(),
     patron: new PatronAPIClient(),
     acquisition: new AcquisitionAPIClient(),
