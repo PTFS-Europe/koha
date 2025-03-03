@@ -2218,6 +2218,47 @@ sub can_patron_place_ill_in_opac {
     return 1;
 }
 
+=head3 pseudonymize_illrequestattributes
+
+    $illrequest->pseudonymize_illrequestattributes($transaction);
+
+This method creates a Koha::PseudonymizedTransaction object, adding pseudonymized ILL request attributes and backend info as metadata values.
+
+=cut
+
+sub pseudonymize_illrequestattributes {
+    my ( $self, $transaction ) = @_;
+
+    my @attributes_to_pseudonymize = qw(
+        type
+    );
+
+    my $extended_attributes = $self->extended_attributes;
+    while ( my $attribute = $extended_attributes->next ) {
+        if ( grep { $_ eq $attribute->type } @attributes_to_pseudonymize ) {
+            $transaction->_result->create_related(
+                'pseudonymized_metadata_values',
+                {
+                    key       => $attribute->type,
+                    value     => $attribute->value,
+                    tablename => 'illrequestattributes',
+                }
+            ) if $attribute->value ne '';
+        }
+    }
+
+    if ( $self->backend ) {
+        $transaction->_result->create_related(
+            'pseudonymized_metadata_values',
+            {
+                key       => 'backend',
+                value     => $self->backend,
+                tablename => 'illrequestattributes',
+            }
+        );
+    }
+}
+
 =head3 get_op_param_deprecation
 
     my $op = $req->check_url_param_deprecation($params);

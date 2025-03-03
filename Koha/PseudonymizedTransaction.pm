@@ -22,6 +22,7 @@ use List::MoreUtils            qw(any);
 use Koha::Database;
 use Koha::Exceptions::Config;
 use Koha::Patrons;
+use Koha::ILL::Requests;
 
 use base qw(Koha::Object);
 
@@ -108,6 +109,13 @@ sub new_from_statistic {
             $attribute->{tablename} = 'borrower_attributes';
 
             $self->_result->create_related( 'pseudonymized_metadata_values', $attribute );
+        }
+    }
+
+    if ( $statistic->illrequest_id ) {
+        my $illrequest = Koha::ILL::Requests->find( $statistic->illrequest_id );
+        if ($illrequest) {
+            $illrequest->pseudonymize_illrequestattributes($self);
         }
     }
 
