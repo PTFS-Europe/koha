@@ -1,12 +1,12 @@
 use utf8;
-package Koha::Schema::Result::PseudonymizedBorrowerAttribute;
+package Koha::Schema::Result::PseudonymizedMetadataValue;
 
 # Created by DBIx::Class::Schema::Loader
 # DO NOT MODIFY THE FIRST PART OF THIS FILE
 
 =head1 NAME
 
-Koha::Schema::Result::PseudonymizedBorrowerAttribute
+Koha::Schema::Result::PseudonymizedMetadataValue
 
 =cut
 
@@ -15,11 +15,11 @@ use warnings;
 
 use base 'DBIx::Class::Core';
 
-=head1 TABLE: C<pseudonymized_borrower_attributes>
+=head1 TABLE: C<pseudonymized_metadata_values>
 
 =cut
 
-__PACKAGE__->table("pseudonymized_borrower_attributes");
+__PACKAGE__->table("pseudonymized_metadata_values");
 
 =head1 ACCESSORS
 
@@ -37,22 +37,29 @@ Row id field
   is_foreign_key: 1
   is_nullable: 0
 
-=head2 code
+=head2 tablename
 
   data_type: 'varchar'
-  is_foreign_key: 1
   is_nullable: 0
   size: 64
 
-foreign key from the borrower_attribute_types table, defines which custom field this value was entered for
+Name of the related table
 
-=head2 attribute
+=head2 key
+
+  data_type: 'varchar'
+  is_nullable: 0
+  size: 64
+
+key for the metadata
+
+=head2 value
 
   data_type: 'varchar'
   is_nullable: 1
   size: 255
 
-custom patron field value
+value for the metadata
 
 =cut
 
@@ -61,9 +68,11 @@ __PACKAGE__->add_columns(
   { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
   "transaction_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
-  "code",
-  { data_type => "varchar", is_foreign_key => 1, is_nullable => 0, size => 64 },
-  "attribute",
+  "tablename",
+  { data_type => "varchar", is_nullable => 0, size => 64 },
+  "key",
+  { data_type => "varchar", is_nullable => 0, size => 64 },
+  "value",
   { data_type => "varchar", is_nullable => 1, size => 255 },
 );
 
@@ -81,21 +90,6 @@ __PACKAGE__->set_primary_key("id");
 
 =head1 RELATIONS
 
-=head2 code
-
-Type: belongs_to
-
-Related object: L<Koha::Schema::Result::BorrowerAttributeType>
-
-=cut
-
-__PACKAGE__->belongs_to(
-  "code",
-  "Koha::Schema::Result::BorrowerAttributeType",
-  { code => "code" },
-  { is_deferrable => 1, on_delete => "CASCADE", on_update => "CASCADE" },
-);
-
 =head2 transaction
 
 Type: belongs_to
@@ -112,8 +106,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-05-10 14:00:56
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:09zbX6WErMxrZSBrc/nvdA
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2025-03-03 12:24:20
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:wh+aP+kaftyf21XYsuMqSg
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
