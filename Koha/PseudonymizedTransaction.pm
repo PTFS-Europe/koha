@@ -103,8 +103,11 @@ sub new_from_statistic {
 
             delete $attribute->{id};
             delete $attribute->{borrowernumber};
+            $attribute->{key}       = delete $attribute->{code};
+            $attribute->{value}     = delete $attribute->{attribute};
+            $attribute->{tablename} = 'borrower_attributes';
 
-            $self->_result->create_related( 'pseudonymized_borrower_attributes', $attribute );
+            $self->_result->create_related( 'pseudonymized_metadata_values', $attribute );
         }
     }
 
