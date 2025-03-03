@@ -1000,6 +1000,8 @@ sub add_request {
     } keys %{$request_details};
     $request->extended_attributes( \@request_details_array );
 
+    $request->after_created;
+
     return $request;
 }
 

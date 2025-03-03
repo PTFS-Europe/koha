@@ -2052,6 +2052,32 @@ sub store {
     return $ret;
 }
 
+=head3 after_created
+
+    $request->after_created;
+
+Actions to be done after the request has been fully created
+
+=cut
+
+sub after_created {
+    my ($self) = @_;
+
+    C4::Stats::UpdateStats(
+        {
+            borrowernumber => $self->borrowernumber // undef,
+            branch         => $self->branchcode,
+            categorycode   => $self->patron ? $self->patron->categorycode : undef,
+            ccode          => undef,
+            illrequest_id  => $self->illrequest_id,
+            itemnumber     => undef,
+            itemtype       => undef,
+            location       => undef,
+            type           => 'ill_request',
+        }
+    );
+}
+
 =head3 requested_partners
 
     my $partners_string = $request->requested_partners;
