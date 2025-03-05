@@ -138,9 +138,9 @@ subtest 'Koha::Anonymized::Transactions tests' => sub {
     $schema->storage->txn_rollback;
 };
 
-subtest 'PseudonymizedBorrowerAttributes tests' => sub {
+subtest 'PseudonymizedMetadataValues tests' => sub {
 
-    plan tests => 3;
+    plan tests => 5;
 
     $schema->storage->txn_begin;
 
@@ -217,24 +217,20 @@ subtest 'PseudonymizedBorrowerAttributes tests' => sub {
 
     my $p = Koha::PseudonymizedTransaction->new_from_statistic($statistic)->store;
     my $attributes =
-        Koha::Database->new->schema->resultset('PseudonymizedBorrowerAttribute')
-        ->search( { transaction_id => $p->id }, { order_by => 'attribute' } );
+        Koha::Database->new->schema->resultset('PseudonymizedMetadataValue')
+        ->search( { transaction_id => $p->id }, { order_by => 'value' } );
     is(
         $attributes->count, 2,
         'Only the 2 attributes that have a type with keep_for_pseudonymization set should be kept'
     );
     my $attribute_1 = $attributes->next;
-    is_deeply(
-        { attribute => $attribute_1->attribute, code => $attribute_1->code->code },
-        $attribute_values->[0],
-        'Attribute 1 should be retrieved correctly'
-    );
+
+    is( $attribute_1->value, $attribute_values->[0]->{attribute} );
+    is( $attribute_1->key,   $attribute_values->[0]->{code} );
+
     my $attribute_2 = $attributes->next;
-    is_deeply(
-        { attribute => $attribute_2->attribute, code => $attribute_2->code->code },
-        $attribute_values->[2],
-        'Attribute 2 should be retrieved correctly'
-    );
+    is( $attribute_2->value, $attribute_values->[2]->{attribute} );
+    is( $attribute_2->key,   $attribute_values->[2]->{code} );
 
     $schema->storage->txn_rollback;
 };
