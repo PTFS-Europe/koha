@@ -194,13 +194,20 @@ sub get_biblio_marcxml {
         $record         = $biblio->metadata->record_strip_nonxml( { embed_items => $with_items, opac => 1 } );
     }
     if ($record) {
+        if ( C4::Context->preference('OpacSuppression') ) {
+
+            #NOTE: See Koha::Biblio->metadata_extractor->get_opac_suppression()
+            my $suppressed = $record->subfield( '942', 'n' ) ? 1 : 0;
+            if ($suppressed) {
+                return;
+            }
+        }
 
         my $rules = C4::Context->yaml_preference('OpacHiddenItems') // {};
         if ( $biblio->hidden_in_opac( { rules => $rules } ) ) {
             return;
         }
 
-        #TODO: Also hide record if OpacSuppression is in use
     }
     if ( $record && $expanded_avs ) {
         my $frameworkcode = GetFrameworkCode($biblionumber) || '';
