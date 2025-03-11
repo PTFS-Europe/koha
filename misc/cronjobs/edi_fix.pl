@@ -63,6 +63,18 @@ sub process_quotes {
             }
         }
 
+        # Process fields quoted by '!'
+        # Notes to ASM -> order_internalnote
+        if ( my @matches = $vendor_note =~ /!(.*?)!/g ) {
+            if ( @matches > 1 ) {
+                warn "Multiple fields quoted by ^ found: @matches\n";
+            } else {
+                my $order_internalnote =
+                    $order->order_internalnote ? $order->order_internalnote . ' ' . $matches[0] : $matches[0];
+                $order->order_internalnote($order_internalnote);
+            }
+        }
+
         # Process fields quoted by '#'
         # Purhchase reason -> sort2
         if ( my @matches = $vendor_note =~ /\#(.*?)\#/g ) {
