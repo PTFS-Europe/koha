@@ -44,6 +44,7 @@ sub process_quotes {
 
         my $orders = $basket->orders;
         while ( my $order = $orders->next ) {
+            next unless $order->biblionumber;
 
             my $vendor_note = $order->order_vendornote;
 
