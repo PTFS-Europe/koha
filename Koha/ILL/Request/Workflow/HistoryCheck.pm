@@ -241,18 +241,20 @@ sub _find_matching_requests {
 
     my @id_fields = ( 'doi', 'issn', 'isbn', 'pubmedid' );
 
-    return 0 unless grep { $self->{metadata}->{$_} } @id_fields;
+    my @existing_id_fields = grep { $self->{metadata}->{$_} } @id_fields;
+    return 0 unless scalar @existing_id_fields;
 
-    my @query = ();
-    foreach my $id_field (@id_fields) {
-        push @query, {
+    my $query;
+    $query->{'-and'} = [ { 'me.branchcode' => $self->{metadata}->{branchcode} } ];
+    foreach my $id_field (@existing_id_fields) {
+        push @{ $query->{'-or'} }, {
             'illrequestattributes.type'  => $id_field,
             'illrequestattributes.value' => $self->{metadata}->{$id_field},
-        } if $self->{metadata}->{$id_field};
+        }
     }
 
     my $matching_requests = Koha::ILL::Requests->search(
-        \@query,
+        $query,
         {
             join     => 'illrequestattributes',
             distinct => 'illrequest_id',
