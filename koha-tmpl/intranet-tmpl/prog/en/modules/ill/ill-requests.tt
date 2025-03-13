@@ -971,7 +971,21 @@
                                 [% END %]
                                 </table>
                                 &nbsp;
-                            <h3>This interlibrary loan has been requested before:</h3>
+
+                                [% FOREACH key IN whole.keys %]
+                                    [% value = whole.$key %]
+                                    [% IF key == 'branchcode' && value %]
+                                        [% SET ill_branchcode = value %]
+                                    [% END %]
+                                [% END %]
+
+
+                            [% FOREACH branch IN Branches.all %]
+                                [% IF branch.branchcode == ill_branchcode %]
+                                    [% SET ill_branch = branch %]
+                                [% END %]
+                            [% END %]
+                            <h3>This interlibrary loan has been requested by <strong>[% ill_branch.branchname | html %]</strong> before:</h3>
                             [% IF matching_requests_for_patron.size %]
                                 <h4>By this patron [%- INCLUDE 'patron-title.inc' patron => request_patron_obj hide_patron_infos_if_needed => 1 -%]:</h4>
                                 <ul class="list-unstyled">
