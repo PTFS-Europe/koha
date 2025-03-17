@@ -370,8 +370,10 @@ sub search_patrons_to_update_category {
             $search_params->{dateofbirth}{'>'} = $dtf->format_datetime( $date_after );
         }
         if( $cat_from->upperagelimit && $params->{too_old} ) {
-            my $date_before = dt_from_string()->subtract( years => $cat_from->upperagelimit);
-            $search_params->{dateofbirth}{'<'} = $dtf->format_datetime( $date_before );
+
+            # Must be `upperagelimit + 1` years old (e.g., if limit is 17, query for 18+)
+            my $date_before = dt_from_string()->subtract( years => $cat_from->upperagelimit + 1 );
+            $search_params->{dateofbirth}{'<'} = $dtf->format_datetime($date_before);
         }
     }
     if ($params->{fine_min} || $params->{fine_max}) {
