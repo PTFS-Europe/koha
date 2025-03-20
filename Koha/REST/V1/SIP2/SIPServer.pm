@@ -35,7 +35,7 @@ sub restart {
 
     my $body = $c->req->json;
 
-    if ( system("koha-sip --restart") == 0 ) {
+    if ( system("sudo koha-sip --restart kohadev") == 0 ) {
         return $c->render( status => 200, openapi => { message => 'SIP server restarted successfully' } );
     }
     return $c->render( status => 400, openapi => { message => 'Could not restart SIP server' } );

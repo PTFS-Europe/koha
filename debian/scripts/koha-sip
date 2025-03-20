@@ -59,55 +59,70 @@ EOF
 
 start_sip()
 {
-    local name=$1
 
-    _check_and_fix_perms $name
+    INSTANCE_NAME="kohadev"
+    adjust_paths_dev_install $name
+    export KOHA_HOME PERL5LIB
+    CONFIG_FILE="/etc/koha/sites/$INSTANCE_NAME/koha-conf.xml"
 
-    if ! is_sip_running $name; then
-        if [ ! -f "/etc/koha/sites/${name}/SIPconfig.xml" ] || [ ! -f "/var/lib/koha/${name}/sip.enabled" ] ; then
-            echo "SIP is disabled, or you do not have a SIPconfig.xml file."
-        else
-            adjust_paths_dev_install $name
-            export KOHA_HOME PERL5LIB
+    # Set the verbose flag
+    VERBOSE=1
 
-            if [ "$DEV_INSTALL" = "" ]; then
-                LIBDIR=$KOHA_HOME/lib
-            else
-                LIBDIR=$KOHA_HOME
-            fi
+    # Create a new Koha::SIP object
+    perl -MKoha::SIP2 -e "my \$sip = Koha::SIP2->new(instance_name => '$INSTANCE_NAME', config_file => '$CONFIG_FILE', verbose => $VERBOSE); \$sip->start_sip;"
 
-            DAEMONOPTS="--name=${name}-koha-sip \
-                    --errlog=/var/log/koha/${name}/sip-error.log \
-                    --stdout=/var/log/koha/${name}/sip.log \
-                    --output=/var/log/koha/${name}/sip-output.log \
-                    --verbose=1 \
-                    --respawn \
-                    --delay=30 \
-                    --pidfiles=/var/run/koha/${name} \
-                    --user=${name}-koha.${name}-koha"
+    # Start the SIP server
+    # perl -MKoha::SIP2 -e "\$sip->start_sip;"
 
-            SIP_PARAMS="$LIBDIR/C4/SIP/SIPServer.pm \
-                    /etc/koha/sites/${name}/SIPconfig.xml"
+    # local name=$1
 
-            [ "$verbose" != "no" ] && \
-                log_daemon_msg "Starting SIP server for ${name}"
+    # _check_and_fix_perms $name
 
-            if daemon $DAEMONOPTS -- perl $SIP_PARAMS; then
-                ([ "$verbose" != "no" ] && \
-                    log_end_msg 0) || return 0
-            else
-                ([ "$verbose" != "no" ] && \
-                    log_end_msg 1) || return 1
-            fi
-        fi
-    else
-        if [ "$verbose" != "no" ]; then
-            log_daemon_msg "Warning: SIP server already running for ${name}"
-            log_end_msg 0
-        else
-            return 0
-        fi
-    fi
+    # if ! is_sip_running $name; then
+    #     if [ ! -f "/etc/koha/sites/${name}/SIPconfig.xml" ] || [ ! -f "/var/lib/koha/${name}/sip.enabled" ] ; then
+    #         echo "SIP is disabled, or you do not have a SIPconfig.xml file."
+    #     else
+    #         adjust_paths_dev_install $name
+    #         export KOHA_HOME PERL5LIB
+
+    #         if [ "$DEV_INSTALL" = "" ]; then
+    #             LIBDIR=$KOHA_HOME/lib
+    #         else
+    #             LIBDIR=$KOHA_HOME
+    #         fi
+
+    #         DAEMONOPTS="--name=${name}-koha-sip \
+    #                 --errlog=/var/log/koha/${name}/sip-error.log \
+    #                 --stdout=/var/log/koha/${name}/sip.log \
+    #                 --output=/var/log/koha/${name}/sip-output.log \
+    #                 --verbose=1 \
+    #                 --respawn \
+    #                 --delay=30 \
+    #                 --pidfiles=/var/run/koha/${name} \
+    #                 --user=${name}-koha.${name}-koha"
+
+    #         SIP_PARAMS="$LIBDIR/C4/SIP/SIPServer.pm \
+    #                 /etc/koha/sites/${name}/SIPconfig.xml"
+
+    #         [ "$verbose" != "no" ] && \
+    #             log_daemon_msg "Starting SIP server for ${name}"
+
+    #         if daemon $DAEMONOPTS -- perl $SIP_PARAMS; then
+    #             ([ "$verbose" != "no" ] && \
+    #                 log_end_msg 0) || return 0
+    #         else
+    #             ([ "$verbose" != "no" ] && \
+    #                 log_end_msg 1) || return 1
+    #         fi
+    #     fi
+    # else
+    #     if [ "$verbose" != "no" ]; then
+    #         log_daemon_msg "Warning: SIP server already running for ${name}"
+    #         log_end_msg 0
+    #     else
+    #         return 0
+    #     fi
+    # fi
 }
 
 stop_sip()

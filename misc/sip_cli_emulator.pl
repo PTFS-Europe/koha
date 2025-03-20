@@ -368,6 +368,14 @@ sub build_login_command_message {
     my $login_password = $params->{login_password};
     my $location_code  = $params->{location_code};
 
+use Data::Dumper; $Data::Dumper::Maxdepth = 2;
+warn Dumper('##### 1 #######################################################line: ' . __LINE__);
+warn Dumper( LOGIN . "00"
+        . build_field( FID_LOGIN_UID,     $login_user_id )
+        . build_field( FID_LOGIN_PWD,     $login_password )
+        . build_field( FID_LOCATION_CODE, $location_code ) );
+warn Dumper('##### end1 #######################################################');
+
     return
           LOGIN . "00"
         . build_field( FID_LOGIN_UID,     $login_user_id )
