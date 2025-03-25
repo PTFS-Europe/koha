@@ -4,7 +4,7 @@
         [% IF backends_available %]
           [% IF Koha.Preference('AutoILLBackendPriority') %]
             <a id="ill-new" class="btn btn-default" href="/cgi-bin/koha/ill/ill-requests.pl?method=create&amp;backend=Standard">
-                <i class="fa fa-plus"></i> New auto ILL request
+                <i class="fa fa-plus"></i> New ILL request
             </a>
           [% ELSIF backends.size > 1 %]
             <div class="dropdown btn-group">
