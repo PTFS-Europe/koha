@@ -490,7 +490,7 @@
             "columnDefs": [
                 { "targets": [ -1 ], "sortable": false, "searchable": false }
             ],
-            "order": [[ 3, "desc" ]],
+            "order": [[ 0, "desc" ]],
         }));
         $("#backend-dropdown-options").removeClass("nojs");
         [% IF services_json.length > 0 %]
