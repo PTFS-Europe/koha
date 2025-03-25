@@ -800,7 +800,7 @@
                                                                 Account frozen
                                                             [% ELSIF ( OVERDUE.status ) %]
                                                                 [% IF ( canrenew ) %]
-                                                                    <a href="/cgi-bin/koha/opac-renew.pl?from=opac_user&amp;item=[% OVERDUE.itemnumber | uri %]&amp;bornum=[% OVERDUE.borrowernumber | uri %]">Renew</a>
+                                                                    <a href="/cgi-bin/koha/opac-renew.pl?from=opac_user&issue=[% ISSUE.issue_id | url %]&borrowernumber=[% ISSUE.borrowernumber | html %]">Renew</a>
                                                                 [% END %]
                                                                     <span class="renewals">(
                                                                         [% OVERDUE.renewsleft | html %] of [% OVERDUE.renewsallowed | html %] renewals remaining
